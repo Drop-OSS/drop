@@ -17,6 +17,7 @@ export type InternalGameMetadataResult = GameMetadataSearchResult & GameMetadata
 export type RemoteObject = string;
 
 export interface GameMetadata {
+    id: string;
     name: string;
     shortDescription: string;
     description: string;
@@ -37,6 +38,7 @@ export interface GameMetadata {
 }
 
 export interface PublisherMetadata {
+    id: string;
     name: string;
     shortDescription: string;
     description: string;
@@ -53,12 +55,12 @@ export interface _FetchGameMetadataParams {
     publisher: (query: string) => Promise<Publisher>
     developer: (query: string) => Promise<Developer>
 
-    createObject: (url: string) => Promise<RemoteObject>
+    createObject: (url: string) => RemoteObject
 }
 
 export interface _FetchPublisherMetadataParams {
     query: string;
-    createObject: (url: string) => Promise<RemoteObject>;
+    createObject: (url: string) => RemoteObject;
 }
 
 export type _FetchDeveloperMetadataParams = _FetchPublisherMetadataParams;

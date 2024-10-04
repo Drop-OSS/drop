@@ -61,6 +61,8 @@ model Game {
   mBannerId    String // linked to objects in s3
   mArt         String[] // linked to objects in s3
   mScreenshots String[] // linked to objects in s3
+
+  @@unique([metadataSource, metadataId], name: "metadataKey")
 }
 
 model Developer {
@@ -74,8 +76,11 @@ model Developer {
   mDescription      String
   mLogo             String
   mBanner           String
+  mWebsite          String
 
   games Game[]
+
+  @@unique([metadataSource, metadataId], name: "metadataKey")
 }
 
 model Publisher {
@@ -89,6 +94,9 @@ model Publisher {
   mDescription      String
   mLogo             String
   mBanner           String
+  mWebsite          String
 
   games Game[]
+
+  @@unique([metadataSource, metadataId], name: "metadataKey")
 }
