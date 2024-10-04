@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-gray-950 flex flex-row px-20 py-5">
+    <div class="bg-gray-950 flex flex-row px-48 py-5">
         <div class="grow inline-flex items-center gap-x-20">
             <Wordmark class="h-8" />
             <nav class="inline-flex items-center">

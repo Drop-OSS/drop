@@ -7,3 +7,12 @@
         <UserFooter />
     </content>
 </template>
+
+<script setup lang="ts">
+useHead({
+    titleTemplate(title) {
+        if (title) return `${title} | Drop`;
+        return `Drop`;
+    },
+})
+</script>

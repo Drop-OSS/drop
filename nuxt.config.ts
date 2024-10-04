@@ -10,4 +10,12 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
+
+  app: {
+    head: {
+      link: [
+        { rel: 'icon', href: '/favicon.ico', }
+      ]
+    }
+  }
 })
