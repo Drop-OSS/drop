@@ -8,6 +8,7 @@ export default defineEventHandler(async (h3) => {
 
     const username = body.username;
     const password = body.password;
+    const rememberMe = body.rememberMe ?? false;
     if (username === undefined || password === undefined)
         throw createError({ statusCode: 403, statusMessage: "Username or password missing from request." });
 
@@ -30,7 +31,7 @@ export default defineEventHandler(async (h3) => {
     if (!await checkHash(password, hash.toString()))
         throw createError({ statusCode: 401, statusMessage: "Invalid username or password." });
 
-    await h3.context.session.setUserId(h3, authMek.userId);
+    await h3.context.session.setUserId(h3, authMek.userId, rememberMe);
 
     return { result: true, userId: authMek.userId }
 });

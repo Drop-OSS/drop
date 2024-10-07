@@ -26,11 +26,11 @@ export class SessionHandler {
 
         return data[userSessionKey];
     }
-    async setSession(h3: H3Event, data: any) {
+    async setSession(h3: H3Event, data: any, expend = false) {
         const result = await this.sessionProvider.updateSession(h3, userSessionKey, data);
         if (!result) {
             const toCreate = { [userSessionKey]: data };
-            await this.sessionProvider.setSession(h3, toCreate);
+            await this.sessionProvider.setSession(h3, toCreate, expend);
         }
     }
     async clearSession(h3: H3Event) {
@@ -52,11 +52,11 @@ export class SessionHandler {
         return user;
     }
 
-    async setUserId(h3: H3Event, userId: string) {
+    async setUserId(h3: H3Event, userId: string, extend = false) {
         const result = await this.sessionProvider.updateSession(h3, userIdKey, userId);
         if (!result) {
             const toCreate = { [userIdKey]: userId };
-            await this.sessionProvider.setSession(h3, toCreate);
+            await this.sessionProvider.setSession(h3, toCreate, extend);
         }
     }
 }

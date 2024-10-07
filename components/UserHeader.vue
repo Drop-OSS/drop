@@ -3,7 +3,7 @@
         <div class="grow inline-flex items-center gap-x-20">
             <Wordmark class="h-8" />
             <nav class="inline-flex items-center">
-                <ol class="inline-flex items-center gap-x-12 mt-1">
+                <ol class="inline-flex items-center gap-x-12">
                     <li class="transition text-gray-300 hover:text-gray-100 uppercase font-display font-semibold text-md"
                         v-for="(nav, navIdx) in navigation">
                         {{ nav.label }}
@@ -18,7 +18,7 @@
                         <component class="h-5" :is="item.icon" />
                     </InlineWidget>
                 </li>
-                <InlineUserWidget />
+                <HeaderUserWidget />
             </ol>
         </div>
     </div>
@@ -26,8 +26,7 @@
 
 <script setup lang="ts">
 import { BellIcon, UserGroupIcon } from '@heroicons/vue/16/solid';
-import type { NavigationItem, QuickActionNav } from './types';
-
+import type { NavigationItem, QuickActionNav } from '../composables/types';
 
 const navigation: Array<NavigationItem> = [
     {

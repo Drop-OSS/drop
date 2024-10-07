@@ -12,7 +12,7 @@ const username = ref("");
 const password = ref("");
 
 async function register() {
-    await $fetch('/api/v1/signup/simple', {
+    await $fetch('/api/v1/auth/signup/simple', {
         method: "POST",
         body: {
             username: username.value,

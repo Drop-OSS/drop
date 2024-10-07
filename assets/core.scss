@@ -37,3 +37,15 @@ $helvetica: (
         font-style: $style;
     }
 }
+
+@font-face {
+    font-family: "Inter";
+    src: url("/fonts/inter/InterVariable.ttf");
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Inter";
+    src: url("/fonts/inter/InterVariable-Italic.ttf");
+    font-style: italic;
+}

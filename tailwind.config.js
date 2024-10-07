@@ -11,11 +11,13 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Helvetica"],
+        sans: ["Inter"],
         display: ["Motiva Sans"]
       }
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/forms'),
+  ],
 }
 

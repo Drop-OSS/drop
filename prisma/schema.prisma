@@ -14,10 +14,12 @@ datasource db {
 }
 
 model User {
-  id       String @id @default(uuid())
-  username String @unique
+  id       String  @id @default(uuid())
+  username String  @unique
+  admin    Boolean @default(false)
 
   authMecs LinkedAuthMec[]
+  clients  Client[]
 }
 
 enum AuthMec {
@@ -33,6 +35,20 @@ model LinkedAuthMec {
   user User @relation(fields: [userId], references: [id])
 
   @@id([userId, mec])
+}
+
+enum ClientCapabilities {
+  DownloadAggregation
+}
+
+// References a device
+model Client {
+  sharedToken String @id @default(uuid())
+  userId      String
+  user        User   @relation(fields: [userId], references: [id])
+
+  endpoint     String
+  capabilities ClientCapabilities[]
 }
 
 enum MetadataSource {

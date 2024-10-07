@@ -18,18 +18,18 @@
                 <div class="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
                     <div class="md:grid md:grid-cols-2 md:gap-8">
                         <div>
-                            <h3 class="text-sm font-semibold leading-6 text-white">Solutions</h3>
+                            <h3 class="text-sm font-semibold leading-6 text-white">Games</h3>
                             <ul role="list" class="mt-6 space-y-4">
-                                <li v-for="item in navigation.solutions" :key="item.name">
+                                <li v-for="item in navigation.games" :key="item.name">
                                     <a :href="item.href" class="text-sm leading-6 text-gray-300 hover:text-white">{{
                                         item.name }}</a>
                                 </li>
                             </ul>
                         </div>
                         <div class="mt-10 md:mt-0">
-                            <h3 class="text-sm font-semibold leading-6 text-white">Support</h3>
+                            <h3 class="text-sm font-semibold leading-6 text-white">Community</h3>
                             <ul role="list" class="mt-6 space-y-4">
-                                <li v-for="item in navigation.support" :key="item.name">
+                                <li v-for="item in navigation.community" :key="item.name">
                                     <a :href="item.href" class="text-sm leading-6 text-gray-300 hover:text-white">{{
                                         item.name }}</a>
                                 </li>
@@ -38,18 +38,18 @@
                     </div>
                     <div class="md:grid md:grid-cols-2 md:gap-8">
                         <div>
-                            <h3 class="text-sm font-semibold leading-6 text-white">Company</h3>
+                            <h3 class="text-sm font-semibold leading-6 text-white">Documentation</h3>
                             <ul role="list" class="mt-6 space-y-4">
-                                <li v-for="item in navigation.company" :key="item.name">
+                                <li v-for="item in navigation.documentation" :key="item.name">
                                     <a :href="item.href" class="text-sm leading-6 text-gray-300 hover:text-white">{{
                                         item.name }}</a>
                                 </li>
                             </ul>
                         </div>
                         <div class="mt-10 md:mt-0">
-                            <h3 class="text-sm font-semibold leading-6 text-white">Legal</h3>
+                            <h3 class="text-sm font-semibold leading-6 text-white">About</h3>
                             <ul role="list" class="mt-6 space-y-4">
-                                <li v-for="item in navigation.legal" :key="item.name">
+                                <li v-for="item in navigation.about" :key="item.name">
                                     <a :href="item.href" class="text-sm leading-6 text-gray-300 hover:text-white">{{
                                         item.name }}</a>
                                 </li>
@@ -67,29 +67,26 @@ import GithubLogo from './GithubLogo.vue';
 import DiscordLogo from './DiscordLogo.vue';
 
 const navigation = {
-    solutions: [
-        { name: 'Marketing', href: '#' },
-        { name: 'Analytics', href: '#' },
-        { name: 'Commerce', href: '#' },
-        { name: 'Insights', href: '#' },
+    games: [
+        { name: 'Newly Added', href: '#' },
+        { name: 'New Releases', href: '#' },
+        { name: 'Top Sellers', href: '#' },
+        { name: 'Find a Game', href: '#' },
     ],
-    support: [
-        { name: 'Pricing', href: '#' },
-        { name: 'Documentation', href: '#' },
-        { name: 'Guides', href: '#' },
-        { name: 'API Status', href: '#' },
+    community: [
+        { name: 'Friends', href: '#' },
+        { name: 'Groups', href: '#' },
+        { name: 'Servers', href: '#' },
     ],
-    company: [
-        { name: 'About', href: '#' },
-        { name: 'Blog', href: '#' },
-        { name: 'Jobs', href: '#' },
-        { name: 'Press', href: '#' },
-        { name: 'Partners', href: '#' },
+    documentation: [
+        { name: 'API', href: '#' },
+        { name: 'Server Docs', href: '#' },
+        { name: 'Client Docs', href: '#' },
     ],
-    legal: [
-        { name: 'Claim', href: '#' },
-        { name: 'Privacy', href: '#' },
-        { name: 'Terms', href: '#' },
+    about: [
+        { name: 'About Drop', href: '#' },
+        { name: 'Features', href: '#' },
+        { name: 'FAQ', href: '#' },
     ],
     social: [
         {
