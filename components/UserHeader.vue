@@ -14,9 +14,9 @@
         <div class="inline-flex items-center">
             <ol class="inline-flex gap-3">
                 <li v-for="(item, itemIdx) in quickActions">
-                    <InlineWidget @click="item.action" :notifications="item.notifications">
+                    <HeaderWidget @click="item.action" :notifications="item.notifications">
                         <component class="h-5" :is="item.icon" />
-                    </InlineWidget>
+                    </HeaderWidget>
                 </li>
                 <HeaderUserWidget />
             </ol>
@@ -27,6 +27,7 @@
 <script setup lang="ts">
 import { BellIcon, UserGroupIcon } from '@heroicons/vue/16/solid';
 import type { NavigationItem, QuickActionNav } from '../composables/types';
+import HeaderWidget from './HeaderWidget.vue';
 
 const navigation: Array<NavigationItem> = [
     {

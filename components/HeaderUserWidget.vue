@@ -1,13 +1,13 @@
 <template>
     <Menu as="div" class="relative inline-block">
         <MenuButton>
-            <InlineWidget>
+            <HeaderWidget>
                 <div class="inline-flex items-center text-zinc-300 hover:text-white">
                     <img :src="userData.image" class="w-5 h-5 rounded-sm" />
                     <span class="ml-2 text-sm font-bold">{{ userData.name }}</span>
                     <ChevronDownIcon class="ml-3 h-4" />
                 </div>
-            </InlineWidget>
+            </HeaderWidget>
         </MenuButton>
 
         <transition enter-active-class="transition ease-out duration-100"
@@ -42,6 +42,7 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { ChevronDownIcon } from '@heroicons/vue/16/solid';
 import type { NavigationItem } from '../composables/types';
+import HeaderWidget from './HeaderWidget.vue';
 
 const userData = {
     image: "https://avatars.githubusercontent.com/u/64579723?v=4",
