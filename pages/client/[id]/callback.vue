@@ -134,13 +134,13 @@ import { CheckCircleIcon } from "@heroicons/vue/24/outline";
 const route = useRoute();
 const clientId = route.params.id;
 
-const clientData = await useFetch(`/api/v1/client/callback?id=${clientId}`);
+const clientData = await useFetch(`/api/v1/client/auth/callback?id=${clientId}`);
 
 const completed = ref(false);
 const error = ref();
 
 async function authorize() {
-  const redirect = await $fetch<string>("/api/v1/client/callback", {
+  const redirect = await $fetch<string>("/api/v1/client/auth/callback", {
     method: "POST",
     body: { id: clientId },
   });

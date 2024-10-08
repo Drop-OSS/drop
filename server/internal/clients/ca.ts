@@ -51,4 +51,8 @@ export class CertificateAuthority {
   async storeClientCertificate(clientId: string, bundle: CertificateBundle) {
     await this.certificateStore.store(`client:${clientId}`, bundle);
   }
+
+  async fetchClientCertificate(clientId: string) {
+    return await this.certificateStore.fetch(`client:${clientId}`);
+  }
 }
