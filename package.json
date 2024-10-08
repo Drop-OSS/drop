@@ -10,8 +10,8 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@drop/droplet": "0.3.0",
-    "@drop/droplet-linux-x64-gnu": "0.3.0",
+    "@drop/droplet": "^0.3.1",
+    "@drop/droplet-linux-x64-gnu": "^0.3.1",
     "@headlessui/vue": "^1.7.23",
     "@heroicons/vue": "^2.1.5",
     "@prisma/client": "5.20.0",
