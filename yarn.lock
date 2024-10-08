@@ -296,18 +296,13 @@
   dependencies:
     mime "^3.0.0"
 
-"@drop/droplet-linux-x64-gnu@^0.3.1":
-  version "0.3.1"
-  resolved "https://lab.deepcore.dev/api/v4/projects/57/packages/npm/@drop/droplet-linux-x64-gnu/-/@drop/droplet-linux-x64-gnu-0.3.1.tgz#e434112c6934d311f82558574d95a42136d1986f"
-  integrity sha1-5DQRLGk00xH4JVhXTZWkITbRmG8=
-
-"@drop/droplet@^0.3.1":
-  version "0.3.1"
-  resolved "https://lab.deepcore.dev/api/v4/projects/57/packages/npm/@drop/droplet/-/@drop/droplet-0.3.1.tgz#52772ef5eee8203aba5c175ed7afd65d9208650e"
-  integrity sha1-Uncu9e7oIDq6XBde16/WXZIIZQ4=
+"@drop/droplet@^0.3.2":
+  version "0.3.2"
+  resolved "https://lab.deepcore.dev/api/v4/projects/57/packages/npm/@drop/droplet/-/@drop/droplet-0.3.2.tgz#f57cf35e50dfd448b7837f9b4712543ff160e769"
+  integrity sha1-9XzzXlDf1Ei3g3+bRxJUP/Fg52k=
   optionalDependencies:
-    "@drop/droplet-linux-x64-gnu" "0.3.1"
-    "@drop/droplet-win32-x64-msvc" "0.3.1"
+    "@drop/droplet-linux-x64-gnu" "0.3.2"
+    "@drop/droplet-win32-x64-msvc" "0.3.2"
 
 "@esbuild/aix-ppc64@0.20.2":
   version "0.20.2"

@@ -12,7 +12,10 @@ This repo uses the Nuxt 3 + TailwindCSS stack, with the `yarn` package manager.
 For the database, Drop uses Prisma connected to PostgreSQL.
 
 ## Development
-To get started with development, you need `yarn` and `docker compose` installed (or know how to set up a PostgreSQL database).
+To get started with development, you need `yarn --optional` and `docker compose` installed (or know how to set up a PostgreSQL database).
+
+### Note: `--optional` flag is **REQUIRED**
+Drop uses a utility package called droplet that's written in Rust. It has builts for Linux (GNU) and Windows, and they are set up as optional packages. `npm` installs these by default, but `yarn` needs the `--optional` flag.
 
 Steps:
 1. Copy the `.env.example` to `.env` and add your GiantBomb metadata key (more metadata providers coming)
