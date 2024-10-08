@@ -4,7 +4,6 @@ import { CertificateStore } from "./store";
 
 export type CertificateBundle = {
   priv: string;
-  pub: string;
   cert: string;
 };
 
@@ -24,8 +23,8 @@ export class CertificateAuthority {
   static async new(store: CertificateStore) {
     const root = await store.fetch("ca");
     if (root === undefined) {
-      const [priv, pub, cert] = droplet.generateRootCa();
-      const bundle: CertificateBundle = { priv, pub, cert };
+      const [cert, priv] = droplet.generateRootCa();
+      const bundle: CertificateBundle = { priv, cert };
       await store.store("ca", bundle);
       return new CertificateAuthority(store, bundle);
     }
@@ -36,7 +35,7 @@ export class CertificateAuthority {
     const caCertificate = await this.certificateStore.fetch("ca");
     if (!caCertificate)
       throw new Error("Certificate authority not initialised");
-    const [priv, pub, cert] = droplet.generateClientCertificate(
+    const [cert, priv] = droplet.generateClientCertificate(
       clientId,
       clientName,
       caCertificate.cert,
@@ -44,7 +43,6 @@ export class CertificateAuthority {
     );
     const certBundle: CertificateBundle = {
       priv,
-      pub,
       cert,
     };
     return certBundle;

@@ -39,7 +39,6 @@ export default defineEventHandler(async (h3) => {
 
   return {
     private: bundle.priv,
-    public: bundle.pub,
     certificate: bundle.cert,
     id: client.id,
   };
