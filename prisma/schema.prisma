@@ -49,6 +49,9 @@ model Client {
 
   endpoint     String
   capabilities ClientCapabilities[]
+
+  name     String
+  platform String
 }
 
 enum MetadataSource {
