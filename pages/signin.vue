@@ -32,7 +32,7 @@
                     type="username"
                     autocomplete="username"
                     required
-                    class="block w-full rounded-md border-0 py-1.5 px-3 shadow-sm bg-zinc-950/20 text-zinc-300 ring-1 ring-inset ring-zinc-800 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                    class="block w-full rounded-md border-0 py-1.5 px-3 shadow-sm bg-zinc-950/20 text-zinc-300 ring-1 ring-inset ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
                     v-model="username"
                   />
                 </div>
@@ -52,7 +52,7 @@
                     autocomplete="current-password"
                     v-model="password"
                     required
-                    class="block w-full rounded-md border-0 py-1.5 px-3 shadow-sm bg-zinc-950/20 text-zinc-300 ring-1 ring-inset ring-zinc-800 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                    class="block w-full rounded-md border-0 py-1.5 px-3 shadow-sm bg-zinc-950/20 text-zinc-300 ring-1 ring-inset ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
                   />
                 </div>
               </div>
@@ -64,7 +64,7 @@
                     name="remember-me"
                     type="checkbox"
                     v-model="rememberMe"
-                    class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+                    class="h-4 w-4 rounded border-zinc-300 text-blue-600 focus:ring-blue-600"
                   />
                   <label
                     for="remember-me"

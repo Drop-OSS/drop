@@ -7,7 +7,12 @@ export interface ClientMetadata {
 
 export class ClientHandler {
   private temporaryClientTable: {
-    [key: string]: { timeout: NodeJS.Timeout; data: ClientMetadata };
+    [key: string]: {
+      timeout: NodeJS.Timeout;
+      data: ClientMetadata;
+      userId?: string;
+      authToken?: string;
+    };
   } = {};
 
   async initiate(metadata: ClientMetadata) {
@@ -22,6 +27,28 @@ export class ClientHandler {
     };
 
     return clientId;
+  }
+
+  async fetchInitiateClientMetadata(clientId: string) {
+    const entry = this.temporaryClientTable[clientId];
+    if (!entry) return undefined;
+    return entry.data;
+  }
+
+  async attachUserId(clientId: string, userId: string) {
+    if (!this.temporaryClientTable[clientId])
+      throw new Error("Invalid clientId for attaching userId");
+    this.temporaryClientTable[clientId].userId = userId;
+  }
+
+  async generateAuthToken(clientId: string) {
+    const entry = this.temporaryClientTable[clientId];
+    if (!entry) throw new Error("Invalid clientId to generate token");
+
+    const token = uuidv4();
+    this.temporaryClientTable[clientId].authToken = token;
+
+    return token;
   }
 }
 

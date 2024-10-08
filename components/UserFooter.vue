@@ -1,15 +1,15 @@
 <template>
-    <footer class="bg-gray-950" aria-labelledby="footer-heading">
+    <footer class="bg-zinc-950" aria-labelledby="footer-heading">
         <h2 id="footer-heading" class="sr-only">Footer</h2>
         <div class="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8 ">
             <div class="xl:grid xl:grid-cols-3 xl:gap-8">
                 <div class="space-y-8">
                     <Wordmark class="h-10" />
-                    <p class="text-sm leading-6 text-gray-300">An open-source game distribution platform built for
+                    <p class="text-sm leading-6 text-zinc-300">An open-source game distribution platform built for
                         speed, flexibility and beauty.</p>
                     <div class="flex space-x-6">
                         <a v-for="item in navigation.social" :key="item.name" :href="item.href" target="_blank"
-                            class="text-gray-500 hover:text-gray-400">
+                            class="text-zinc-500 hover:text-zinc-400">
                             <span class="sr-only">{{ item.name }}</span>
                             <component :is="item.icon" class="h-6 w-6" aria-hidden="true" />
                         </a>
@@ -21,7 +21,7 @@
                             <h3 class="text-sm font-semibold leading-6 text-white">Games</h3>
                             <ul role="list" class="mt-6 space-y-4">
                                 <li v-for="item in navigation.games" :key="item.name">
-                                    <a :href="item.href" class="text-sm leading-6 text-gray-300 hover:text-white">{{
+                                    <a :href="item.href" class="text-sm leading-6 text-zinc-300 hover:text-white">{{
                                         item.name }}</a>
                                 </li>
                             </ul>
@@ -30,7 +30,7 @@
                             <h3 class="text-sm font-semibold leading-6 text-white">Community</h3>
                             <ul role="list" class="mt-6 space-y-4">
                                 <li v-for="item in navigation.community" :key="item.name">
-                                    <a :href="item.href" class="text-sm leading-6 text-gray-300 hover:text-white">{{
+                                    <a :href="item.href" class="text-sm leading-6 text-zinc-300 hover:text-white">{{
                                         item.name }}</a>
                                 </li>
                             </ul>
@@ -41,7 +41,7 @@
                             <h3 class="text-sm font-semibold leading-6 text-white">Documentation</h3>
                             <ul role="list" class="mt-6 space-y-4">
                                 <li v-for="item in navigation.documentation" :key="item.name">
-                                    <a :href="item.href" class="text-sm leading-6 text-gray-300 hover:text-white">{{
+                                    <a :href="item.href" class="text-sm leading-6 text-zinc-300 hover:text-white">{{
                                         item.name }}</a>
                                 </li>
                             </ul>
@@ -50,7 +50,7 @@
                             <h3 class="text-sm font-semibold leading-6 text-white">About</h3>
                             <ul role="list" class="mt-6 space-y-4">
                                 <li v-for="item in navigation.about" :key="item.name">
-                                    <a :href="item.href" class="text-sm leading-6 text-gray-300 hover:text-white">{{
+                                    <a :href="item.href" class="text-sm leading-6 text-zinc-300 hover:text-white">{{
                                         item.name }}</a>
                                 </li>
                             </ul>

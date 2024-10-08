@@ -12,12 +12,14 @@ export default {
     extend: {
       fontFamily: {
         sans: ["Inter"],
-        display: ["Motiva Sans"]
-      }
+        display: ["Motiva Sans"],
+      },
+      colors: {
+        zinc: {
+          925: "#111112",
+        },
+      },
     },
   },
-  plugins: [
-    require('@tailwindcss/forms'),
-  ],
-}
-
+  plugins: [require("@tailwindcss/forms")],
+};
