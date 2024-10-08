@@ -1,4 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
+import { CertificateBundle } from "./ca";
+import prisma from "../db/database";
 
 export interface ClientMetadata {
   name: string;
@@ -29,10 +31,14 @@ export class ClientHandler {
     return clientId;
   }
 
-  async fetchInitiateClientMetadata(clientId: string) {
+  async fetchClientMetadata(clientId: string) {
+    return (await this.fetchClient(clientId))?.data;
+  }
+
+  async fetchClient(clientId: string) {
     const entry = this.temporaryClientTable[clientId];
     if (!entry) return undefined;
-    return entry.data;
+    return entry;
   }
 
   async attachUserId(clientId: string, userId: string) {
@@ -49,6 +55,32 @@ export class ClientHandler {
     this.temporaryClientTable[clientId].authToken = token;
 
     return token;
+  }
+
+  async fetchClientMetadataByToken(token: string) {
+    return Object.entries(this.temporaryClientTable)
+      .map((e) => Object.assign(e[1], { id: e[0] }))
+      .find((e) => e.authToken === token);
+  }
+
+  async finialiseClient(id: string) {
+    const metadata = this.temporaryClientTable[id];
+    if (!metadata) throw new Error("Invalid client ID");
+    if (!metadata.userId) throw new Error("Un-authorized client ID");
+
+    return await prisma.client.create({
+      data: {
+        id: id,
+        userId: metadata.userId,
+
+        endpoint: "",
+        capabilities: [],
+
+        name: metadata.data.name,
+        platform: metadata.data.platform,
+        lastConnected: new Date(),
+      },
+    });
   }
 }
 

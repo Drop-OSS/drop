@@ -17,7 +17,7 @@ Client makes request: `POST /api/v1/client/handshake` with the token recieved in
 
 The server uses it's CA to generate a public-private key pair, the CN of the client ID. It then sends that pair, plus the CA's public key, to the client, which stores it all. 
 
-The certificate lasts for a year, and is rotated when it has 3 months or less left on it's expiry. 
+*The certificate lasts for a year, and is rotated when it has 3 months or less left on it's expiry.*
 
 ## 4.a Client requests one-time device endpoint
 The client generates a nonce and signs it with their private key. This is then attached to any device-related request.

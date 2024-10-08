@@ -12,7 +12,7 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Provide client ID in request params as 'id'",
     });
 
-  const data = await clientHandler.fetchInitiateClientMetadata(
+  const data = await clientHandler.fetchClientMetadata(
     providedClientId
   );
   if (!data)

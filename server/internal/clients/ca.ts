@@ -31,4 +31,26 @@ export class CertificateAuthority {
     }
     return new CertificateAuthority(store, root);
   }
+
+  async generateClientCertificate(clientId: string, clientName: string) {
+    const caCertificate = await this.certificateStore.fetch("ca");
+    if (!caCertificate)
+      throw new Error("Certificate authority not initialised");
+    const [priv, pub, cert] = droplet.generateClientCertificate(
+      clientId,
+      clientName,
+      caCertificate.cert,
+      caCertificate.priv
+    );
+    const certBundle: CertificateBundle = {
+      priv,
+      pub,
+      cert,
+    };
+    return certBundle;
+  }
+
+  async storeClientCertificate(clientId: string, bundle: CertificateBundle) {
+    await this.certificateStore.store(`client:${clientId}`, bundle);
+  }
 }

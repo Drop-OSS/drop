@@ -7,7 +7,7 @@ export default defineEventHandler(async (h3) => {
   const body = await readBody(h3);
   const clientId = await body.id;
 
-  const data = await clientHandler.fetchInitiateClientMetadata(clientId);
+  const data = await clientHandler.fetchClientMetadata(clientId);
   if (!data)
     throw createError({
       statusCode: 400,

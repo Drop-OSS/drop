@@ -43,15 +43,16 @@ enum ClientCapabilities {
 
 // References a device
 model Client {
-  sharedToken String @id @default(uuid())
-  userId      String
-  user        User   @relation(fields: [userId], references: [id])
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
 
   endpoint     String
   capabilities ClientCapabilities[]
 
-  name     String
-  platform String
+  name          String
+  platform      String
+  lastConnected DateTime
 }
 
 enum MetadataSource {
