@@ -19,6 +19,9 @@ Steps:
 2. Open up a terminal and navigate to `dev-tools`, and run `docker compose up`
 3. Open up a terminal in the root directory of the project and run `yarn` and then `yarn dev` to start the dev server
 
+To create an account:
+Head over to the `/register` page. It's currently a temporary development form for creating a username + password log in.
+
 ## Contributing
 Drop welcomes contributions! Just a couple of notes:
 1. We use the Prettier formatter, so please format your code with that
