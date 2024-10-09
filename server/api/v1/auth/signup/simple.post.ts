@@ -41,7 +41,7 @@ export default defineEventHandler(async (h3) => {
   const user = await prisma.user.create({
     data: {
       username,
-      displayName: "",
+      displayName: "DecDuck",
       email: "",
       profilePicture: profilePictureObject,
     },

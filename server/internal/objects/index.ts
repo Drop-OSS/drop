@@ -131,11 +131,12 @@ export abstract class ObjectBackend {
     userId?: string
   ) {
     const metadata = await this.fetchMetadata(id);
-    if (!metadata) return;
+    if (!metadata) return false;
 
     const myPermissions = metadata.permissions
       .filter((e) => {
         if (userId !== undefined && e.startsWith(userId)) return true;
+        if (userId !== undefined && e.startsWith("internal")) return true;
         if (e.startsWith("anonymous")) return true;
         return false;
       })
