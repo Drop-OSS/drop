@@ -296,6 +296,16 @@
   dependencies:
     mime "^3.0.0"
 
+"@drop/droplet-linux-x64-gnu@0.3.2":
+  version "0.3.2"
+  resolved "https://lab.deepcore.dev/api/v4/projects/57/packages/npm/@drop/droplet-linux-x64-gnu/-/@drop/droplet-linux-x64-gnu-0.3.2.tgz#9be12f1e61df67837bb225ec67cc98f5af8f703b"
+  integrity sha1-m+EvHmHfZ4N7siXsZ8yY9a+PcDs=
+
+"@drop/droplet-win32-x64-msvc@0.3.2":
+  version "0.3.2"
+  resolved "https://lab.deepcore.dev/api/v4/projects/57/packages/npm/@drop/droplet-win32-x64-msvc/-/@drop/droplet-win32-x64-msvc-0.3.2.tgz#dc5d0fa8334bf211666e99ca365c900d363f7823"
+  integrity sha1-3F0PqDNL8hFmbpnKNlyQDTY/eCM=
+
 "@drop/droplet@^0.3.2":
   version "0.3.2"
   resolved "https://lab.deepcore.dev/api/v4/projects/57/packages/npm/@drop/droplet/-/@drop/droplet-0.3.2.tgz#f57cf35e50dfd448b7837f9b4712543ff160e769"
@@ -2093,6 +2103,11 @@ compatx@^0.1.8:
   version "0.1.8"
   resolved "https://registry.yarnpkg.com/compatx/-/compatx-0.1.8.tgz#af6f61910ade6ce1073c0fdff23c786bcd75c026"
   integrity sha512-jcbsEAR81Bt5s1qOFymBufmCbXCXbk0Ql+K5ouj6gCyx2yHlu6AgmGIi9HxfKixpUDO5bCFJUHQ5uM6ecbTebw==
+
+component-emitter@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/component-emitter/-/component-emitter-2.0.0.tgz#3a137dfe66fcf2efe3eab7cb7d5f51741b3620c6"
+  integrity sha512-4m5s3Me2xxlVKG9PkZpQqHQR7bgpnN7joDMJ4yvVkVXngjoITG76IaZmzmywSeRTeTpc6N6r3H3+KyUurV8OYw==
 
 compress-commons@^6.0.2:
   version "6.0.2"
@@ -4748,6 +4763,13 @@ std-env@^3.7.0:
   version "3.7.0"
   resolved "https://registry.yarnpkg.com/std-env/-/std-env-3.7.0.tgz#c9f7386ced6ecf13360b6c6c55b8aaa4ef7481d2"
   integrity sha512-JPbdCEQLj1w5GilpiHAx3qJvFndqybBysA3qUOnznweH4QbNYUsW/ea8QzSrnh0vNsezMMw5bcVool8lM0gwzg==
+
+stream@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/stream/-/stream-0.0.3.tgz#3f3934a900a561ce3e2b9ffbd2819cead32699d9"
+  integrity sha512-aMsbn7VKrl4A2T7QAQQbzgN7NVc70vgF5INQrBXqn4dCXN1zy3L9HGgLO5s7PExmdrzTJ8uR/27aviW8or8/+A==
+  dependencies:
+    component-emitter "^2.0.0"
 
 streamx@^2.15.0:
   version "2.20.1"

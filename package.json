@@ -19,6 +19,7 @@
     "moment": "^2.30.1",
     "nuxt": "^3.13.0",
     "prisma": "^5.20.0",
+    "stream": "^0.0.3",
     "turndown": "^7.2.0",
     "uuid": "^10.0.0",
     "vue": "latest",

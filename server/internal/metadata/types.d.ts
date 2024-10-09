@@ -1,4 +1,5 @@
 import { Developer, Publisher } from "@prisma/client";
+import { ObjectReference } from "../objects";
 
 export interface GameMetadataSearchResult {
     id: string;
@@ -14,7 +15,6 @@ export interface GameMetadataSource {
 }
 
 export type InternalGameMetadataResult = GameMetadataSearchResult & GameMetadataSource;
-export type RemoteObject = string;
 
 export interface GameMetadata {
     id: string;
@@ -31,10 +31,10 @@ export interface GameMetadata {
     reviewRating: number;
 
     // Created with another utility function
-    icon: RemoteObject,
-    banner: RemoteObject,
-    art: RemoteObject[],
-    screenshots: RemoteObject[],
+    icon: ObjectReference,
+    banner: ObjectReference,
+    art: ObjectReference[],
+    screenshots: ObjectReference[],
 }
 
 export interface PublisherMetadata {
@@ -43,8 +43,8 @@ export interface PublisherMetadata {
     shortDescription: string;
     description: string;
 
-    logo: RemoteObject;
-    banner: RemoteObject;
+    logo: ObjectReference;
+    banner: ObjectReference;
 }
 
 export type DeveloperMetadata = PublisherMetadata;
@@ -55,12 +55,12 @@ export interface _FetchGameMetadataParams {
     publisher: (query: string) => Promise<Publisher>
     developer: (query: string) => Promise<Developer>
 
-    createObject: (url: string) => RemoteObject
+    createObject: (url: string) => ObjectReference
 }
 
 export interface _FetchPublisherMetadataParams {
     query: string;
-    createObject: (url: string) => RemoteObject;
+    createObject: (url: string) => ObjectReference;
 }
 
 export type _FetchDeveloperMetadataParams = _FetchPublisherMetadataParams;
