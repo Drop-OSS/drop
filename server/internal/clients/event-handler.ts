@@ -1,7 +1,6 @@
 import { Client, User } from "@prisma/client";
 import { EventHandlerRequest, H3Event } from "h3";
 import droplet from "@drop/droplet";
-import { useGlobalCertificateAuthority } from "~/server/plugins/ca";
 import prisma from "../db/database";
 
 export type EventHandlerFunction<T> = (
@@ -31,7 +30,7 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
         if (!clientId || !nonce || !signature)
           throw createError({ statusCode: 403 });
 
-        const ca = useGlobalCertificateAuthority();
+        const ca = h3.context.ca;
         const certBundle = await ca.fetchClientCertificate(clientId);
         if (!certBundle)
           throw createError({

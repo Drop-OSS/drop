@@ -14,7 +14,9 @@
  * anotherUserId:write
  */
 
+import { parse as getMimeTypeBuffer } from "file-type-mime";
 import { Readable } from "stream";
+import { getMimeType as getMimeTypeStream } from "stream-mime-type";
 
 export type ObjectReference = string;
 export type ObjectMetadata = {
@@ -34,16 +36,14 @@ export const ObjectPermissionPriority: Array<ObjectPermission> = [
   ObjectPermission.Delete,
 ];
 
-export type Source = Readable | Buffer;
+export type Object = { mime: string; data: Source };
 
-export type Object = { metadata: ObjectMetadata };
-export type StreamObject = Object & { stream: Readable };
-export type BufferObject = Object & { buffer: Buffer };
+export type Source = Readable | Buffer;
 
 export abstract class ObjectBackend {
   // Interface functions, not designed to be called directly.
   // They don't check permissions to provide any utilities
-  abstract fetch(id: ObjectReference): Promise<Object | undefined>;
+  abstract fetch(id: ObjectReference): Promise<Source | undefined>;
   abstract write(id: ObjectReference, source: Source): Promise<boolean>;
   abstract create(
     source: Source,
@@ -58,13 +58,48 @@ export abstract class ObjectBackend {
     metadata: ObjectMetadata
   ): Promise<boolean>;
 
-  async fetchWithPermissions(id: ObjectReference, userId: string) {
+  async createFromSource(
+    sourceFetcher: () => Promise<Source>,
+    metadata: { [key: string]: string },
+    permissions: Array<string>
+  ) {
+    async function fetchMimeType(source: Source) {
+      if (source instanceof ReadableStream) {
+        source = Readable.from(source);
+      }
+      if (source instanceof Readable) {
+        const { stream, mime } = await getMimeTypeStream(source);
+        return { source: Readable.from(stream), mime: mime };
+      }
+      if (source instanceof Buffer) {
+        const mime =
+          getMimeTypeBuffer(source)?.mime ?? "application/octet-stream";
+        return { source: source, mime };
+      }
+
+      return { source: undefined, mime: undefined };
+    }
+    const { source, mime } = await fetchMimeType(await sourceFetcher());
+    if (!mime)
+      throw new Error("Unable to calculate MIME type - is the source empty?");
+
+    const objectId = this.create(source, {
+      permissions,
+      userMetadata: metadata,
+      mime,
+    });
+
+    return objectId;
+  }
+
+  async fetchWithPermissions(id: ObjectReference, userId?: string) {
     const metadata = await this.fetchMetadata(id);
     if (!metadata) return;
 
     // We only need one permission, so find instead of filter is faster
     const myPermissions = metadata.permissions.find((e) => {
-      if (e.startsWith(userId)) return true;
+      if (userId !== undefined && e.startsWith(userId)) return true;
+      if (userId !== undefined && e.startsWith("internal")) return true;
       if (e.startsWith("anonymous")) return true;
       return false;
     });
@@ -76,7 +111,13 @@ export abstract class ObjectBackend {
 
     // Because any permission can be read or up, we automatically know we can read this object
     // So just straight return the object
-    return await this.fetch(id);
+    const source = await this.fetch(id);
+    if (!source) return undefined;
+    const object: Object = {
+      data: source,
+      mime: metadata.mime,
+    };
+    return object;
   }
 
   // If we need to fetch a remote resource, it doesn't make sense
@@ -87,14 +128,14 @@ export abstract class ObjectBackend {
   async writeWithPermissions(
     id: ObjectReference,
     sourceFetcher: () => Promise<Source>,
-    userId: string
+    userId?: string
   ) {
     const metadata = await this.fetchMetadata(id);
     if (!metadata) return;
 
     const myPermissions = metadata.permissions
       .filter((e) => {
-        if (e.startsWith(userId)) return true;
+        if (userId !== undefined && e.startsWith(userId)) return true;
         if (e.startsWith("anonymous")) return true;
         return false;
       })
@@ -115,13 +156,14 @@ export abstract class ObjectBackend {
     return result;
   }
 
-  async deleteWithPermission(id: ObjectReference, userId: string) {
+  async deleteWithPermission(id: ObjectReference, userId?: string) {
     const metadata = await this.fetchMetadata(id);
     if (!metadata) return false;
 
     const myPermissions = metadata.permissions
       .filter((e) => {
-        if (e.startsWith(userId)) return true;
+        if (userId !== undefined && e.startsWith(userId)) return true;
+        if (userId !== undefined && e.startsWith("internal")) return true;
         if (e.startsWith("anonymous")) return true;
         return false;
       })

@@ -1,5 +1,4 @@
 import clientHandler from "~/server/internal/clients/handler";
-import { useGlobalCertificateAuthority } from "~/server/plugins/ca";
 
 export default defineEventHandler(async (h3) => {
   const body = await readBody(h3);
@@ -28,7 +27,7 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Invalid token",
     });
 
-  const ca = useGlobalCertificateAuthority();
+  const ca = h3.context.ca;
   const bundle = await ca.generateClientCertificate(
     clientId,
     metadata.data.name

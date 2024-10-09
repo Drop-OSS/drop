@@ -15,4 +15,13 @@ export default defineNitroPlugin(async (nitro) => {
   const store = fsCertificateStore(basePath);
 
   ca = await CertificateAuthority.new(store);
+
+  nitro.hooks.hook("request", (h3) => {
+    if (!ca)
+      throw createError({
+        statusCode: 500,
+        statusMessage: "Certificate authority not initialised",
+      });
+    h3.context.ca = ca;
+  });
 });

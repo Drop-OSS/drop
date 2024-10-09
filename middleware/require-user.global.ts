@@ -1,4 +1,4 @@
-const whitelistedPrefixes = ["/signin", "/register"];
+const whitelistedPrefixes = ["/signin", "/register", "/api"];
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
   if (import.meta.server) return;

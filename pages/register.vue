@@ -1,7 +1,7 @@
 <template>
     <form @submit.prevent="register">
         <input type="text" v-model="username" placeholder="username" />
-        <input type="text" v-model="password" placeholder="password" />
+        <input type="password" v-model="password" placeholder="password" />
 
         <button type="submit">Submit</button>
     </form>

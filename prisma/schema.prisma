@@ -18,8 +18,9 @@ model User {
   username String  @unique
   admin    Boolean @default(false)
 
-  email       String
-  displayName String
+  email          String
+  displayName    String
+  profilePicture String // Object
 
   authMecs LinkedAuthMec[]
   clients  Client[]
