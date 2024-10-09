@@ -64,7 +64,7 @@
                     name="remember-me"
                     type="checkbox"
                     v-model="rememberMe"
-                    class="h-4 w-4 rounded border-zinc-300 text-blue-600 focus:ring-blue-600"
+                    class="h-4 w-4 rounded bg-zinc-800 border-zinc-700 text-blue-600 focus:ring-blue-600"
                   />
                   <label
                     for="remember-me"
@@ -159,7 +159,7 @@ async function signin() {
     },
   });
   const user = useUser();
-  user.value = await $fetch<User | null>("/api/v1/user");
+  user.value = await $fetch<User | null>("/api/v1/whoami");
 }
 
 definePageMeta({

@@ -19,8 +19,9 @@ Drop uses a utility package called droplet that's written in Rust. It has builts
 
 Steps:
 1. Copy the `.env.example` to `.env` and add your GiantBomb metadata key (more metadata providers coming)
-2. Open up a terminal and navigate to `dev-tools`, and run `docker compose up`
-3. Open up a terminal in the root directory of the project and run `yarn` and then `yarn dev` to start the dev server
+2. Create the `.data` directory with `mkdir .data`
+3. Open up a terminal and navigate to `dev-tools`, and run `docker compose up`
+4. Open up a terminal in the root directory of the project and run `yarn` and then `yarn dev` to start the dev server
 
 To create an account:
 Head over to the `/register` page. It's currently a temporary development form for creating a username + password log in.

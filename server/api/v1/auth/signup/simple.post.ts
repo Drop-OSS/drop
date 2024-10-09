@@ -44,6 +44,7 @@ export default defineEventHandler(async (h3) => {
       displayName: "DecDuck",
       email: "",
       profilePicture: profilePictureObject,
+      admin: true,
     },
   });
 

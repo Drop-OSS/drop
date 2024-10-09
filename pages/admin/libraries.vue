@@ -6,6 +6,6 @@ definePageMeta({
 });
 
 useHead({
-  title: "Home",
-});
+    title: "Libraries"
+})
 </script>
