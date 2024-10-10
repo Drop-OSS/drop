@@ -159,7 +159,7 @@ async function signin() {
     },
   });
   const user = useUser();
-  user.value = await $fetch<User | null>("/api/v1/whoami");
+  user.value = await $fetch<User | null>("/api/v1/user");
 }
 
 definePageMeta({
