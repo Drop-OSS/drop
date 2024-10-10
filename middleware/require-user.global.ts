@@ -1,7 +1,10 @@
 const whitelistedPrefixes = ["/signin", "/register", "/api"];
+const requireAdmin = ["/admin"];
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
   if (import.meta.server) return;
+  const error = useError();
+  if (error.value !== undefined) return;
   if (whitelistedPrefixes.findIndex((e) => to.fullPath.startsWith(e)) != -1)
     return;
 
@@ -11,5 +14,11 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   }
   if (!user.value) {
     return navigateTo({ path: "/signin", query: { redirect: to.fullPath } });
+  }
+  if (
+    requireAdmin.findIndex((e) => to.fullPath.startsWith(e)) != -1 &&
+    !user.value.admin
+  ) {
+    return navigateTo({ path: "/" });
   }
 });

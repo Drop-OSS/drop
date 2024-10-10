@@ -20,7 +20,6 @@ function initWs() {
   ws = new WebSocket(url);
   ws.onmessage = (e) => {
     const msg = JSON.parse(e.data) as TaskMessage;
-    console.log(msg);
     const taskStates = useTaskStates();
     const state = taskStates.value[msg.id];
     if (!state) return;

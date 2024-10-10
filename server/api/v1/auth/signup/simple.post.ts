@@ -24,7 +24,9 @@ export default defineEventHandler(async (h3) => {
 
   const userId = uuidv4();
 
-  const profilePictureObject = await h3.context.objects.createFromSource(
+  const profilePictureId = uuidv4();
+  await h3.context.objects.createFromSource(
+    profilePictureId,
     () =>
       $fetch<Readable>("https://avatars.githubusercontent.com/u/64579723?v=4", {
         responseType: "stream",
@@ -32,18 +34,12 @@ export default defineEventHandler(async (h3) => {
     {},
     [`anonymous:read`, `${userId}:write`]
   );
-  if (!profilePictureObject)
-    throw createError({
-      statusCode: 500,
-      statusMessage: "Unable to import profile picture",
-    });
-
   const user = await prisma.user.create({
     data: {
       username,
       displayName: "DecDuck",
       email: "",
-      profilePicture: profilePictureObject,
+      profilePicture: profilePictureId,
       admin: true,
     },
   });

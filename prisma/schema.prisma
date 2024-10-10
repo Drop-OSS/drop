@@ -45,6 +45,11 @@ enum ClientCapabilities {
   DownloadAggregation
 }
 
+enum Platform {
+  Windows @map("windows")
+  Linux   @map("linux")
+}
+
 // References a device
 model Client {
   id     String @id @default(uuid())
@@ -55,7 +60,7 @@ model Client {
   capabilities ClientCapabilities[]
 
   name          String
-  platform      String
+  platform      Platform
   lastConnected DateTime
 }
 
@@ -86,9 +91,9 @@ model Game {
   mArt         String[] // linked to objects in s3
   mScreenshots String[] // linked to objects in s3
 
-  versionOrder    String
+  versionOrder    String[]
   versions        GameVersion[]
-  libraryBasePath String // Base dir for all the game versions
+  libraryBasePath String        @unique // Base dir for all the game versions
 
   @@unique([metadataSource, metadataId], name: "metadataKey")
 }
@@ -99,7 +104,9 @@ model GameVersion {
   game        Game   @relation(fields: [gameId], references: [id])
   versionName String // Sub directory for the game files
 
-  
+  platform      Platform
+  launchCommand String // Command to run to start. Platform-specific. Windows games on Linux will wrap this command in Proton/Wine
+  setupCommand  String // Command to setup game (dependencies and such)
 
   @@id([gameId, versionName])
 }
@@ -107,8 +114,9 @@ model GameVersion {
 model Developer {
   id String @id @default(uuid())
 
-  metadataSource MetadataSource
-  metadataId     String
+  metadataSource        MetadataSource
+  metadataId            String
+  metadataOriginalQuery String
 
   mName             String
   mShortDescription String
@@ -119,14 +127,15 @@ model Developer {
 
   games Game[]
 
-  @@unique([metadataSource, metadataId], name: "metadataKey")
+  @@unique([metadataSource, metadataId, metadataOriginalQuery], name: "metadataKey")
 }
 
 model Publisher {
   id String @id @default(uuid())
 
-  metadataSource MetadataSource
-  metadataId     String
+  metadataSource        MetadataSource
+  metadataId            String
+  metadataOriginalQuery String
 
   mName             String
   mShortDescription String
@@ -137,5 +146,5 @@ model Publisher {
 
   games Game[]
 
-  @@unique([metadataSource, metadataId], name: "metadataKey")
+  @@unique([metadataSource, metadataId, metadataOriginalQuery], name: "metadataKey")
 }

@@ -17,6 +17,7 @@
 import { parse as getMimeTypeBuffer } from "file-type-mime";
 import { Readable } from "stream";
 import { getMimeType as getMimeTypeStream } from "stream-mime-type";
+import { v4 as uuidv4 } from "uuid";
 
 export type ObjectReference = string;
 export type ObjectMetadata = {
@@ -46,6 +47,7 @@ export abstract class ObjectBackend {
   abstract fetch(id: ObjectReference): Promise<Source | undefined>;
   abstract write(id: ObjectReference, source: Source): Promise<boolean>;
   abstract create(
+    id: string,
     source: Source,
     metadata: ObjectMetadata
   ): Promise<ObjectReference | undefined>;
@@ -59,6 +61,7 @@ export abstract class ObjectBackend {
   ): Promise<boolean>;
 
   async createFromSource(
+    id: string,
     sourceFetcher: () => Promise<Source>,
     metadata: { [key: string]: string },
     permissions: Array<string>
@@ -83,13 +86,11 @@ export abstract class ObjectBackend {
     if (!mime)
       throw new Error("Unable to calculate MIME type - is the source empty?");
 
-    const objectId = this.create(source, {
+    await this.create(id, source, {
       permissions,
       userMetadata: metadata,
       mime,
     });
-
-    return objectId;
   }
 
   async fetchWithPermissions(id: ObjectReference, userId?: string) {

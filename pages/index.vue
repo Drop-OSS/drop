@@ -1,5 +1,5 @@
 <template>
-  {{ user ?? "no user" }}
+  {{ games }}
 </template>
 
 <script setup lang="ts">
@@ -7,5 +7,5 @@ useHead({
   title: "Home",
 });
 
-const user = useUser();
+const games = await $fetch("/api/v1/games/front");
 </script>

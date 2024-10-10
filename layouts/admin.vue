@@ -49,11 +49,9 @@
     </div>
 
     <main class="lg:pl-20 min-h-screen bg-zinc-900">
-      <div class="xl:pl-96">
-        <div class="px-4 py-10 sm:px-6 lg:px-8 lg:py-6">
-          <!-- Main area -->
-          <NuxtPage />
-        </div>
+      <div class="px-4 py-10 sm:px-6 lg:px-8 lg:py-6">
+        <!-- Main area -->
+        <NuxtPage />
       </div>
     </main>
   </div>
@@ -71,13 +69,14 @@ import {
 } from "@heroicons/vue/24/outline";
 import type { NavigationItem } from "~/composables/types";
 import { useCurrentNavigationIndex } from "~/composables/current-page-engine";
+import { ArrowLeftIcon } from "@heroicons/vue/16/solid";
 
 const navigation: Array<NavigationItem & { icon: Component }> = [
   { label: "Home", route: "/admin", prefix: "/admin", icon: HomeIcon },
   {
-    label: "Libraries",
-    route: "/admin/libraries",
-    prefix: "/admin/libraries",
+    label: "Library",
+    route: "/admin/library",
+    prefix: "/admin/library",
     icon: ServerStackIcon,
   },
   {
@@ -90,13 +89,19 @@ const navigation: Array<NavigationItem & { icon: Component }> = [
     label: "Feature Flags",
     route: "/admin/features",
     prefix: "/admin/features",
-    icon: FlagIcon
+    icon: FlagIcon,
   },
   {
     label: "Settings",
     route: "/admin/settings",
     prefix: "/admin/settings",
-    icon: Cog6ToothIcon
+    icon: Cog6ToothIcon,
+  },
+  {
+    label: "Back",
+    route: "/",
+    prefix: ".",
+    icon: ArrowLeftIcon
   }
 ];
 

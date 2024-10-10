@@ -45,10 +45,10 @@ export class FsObjectBackend extends ObjectBackend {
     return false;
   }
   async create(
+    id: string,
     source: Source,
     metadata: ObjectMetadata
   ): Promise<ObjectReference | undefined> {
-    const id = uuidv4();
     const objectPath = path.join(this.baseObjectPath, sanitize(id));
     const metadataPath = path.join(
       this.baseMetadataPath,

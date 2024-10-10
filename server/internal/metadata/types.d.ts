@@ -45,6 +45,7 @@ export interface PublisherMetadata {
 
     logo: ObjectReference;
     banner: ObjectReference;
+    website: String;
 }
 
 export type DeveloperMetadata = PublisherMetadata;

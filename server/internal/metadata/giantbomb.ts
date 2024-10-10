@@ -50,9 +50,10 @@ interface GameResult {
 
 interface CompanySearchResult {
     guid: string,
-    deck: string,
-    description: string,
+    deck: string | null,
+    description: string | null,
     name: string,
+    website: string | null,
 
     image: {
         icon_url: string,
@@ -191,8 +192,9 @@ export class GiantBombProvider implements MetadataProvider {
         const metadata: PublisherMetadata = {
             id: company.guid,
             name: company.name,
-            shortDescription: company.deck,
-            description: longDescription,
+            shortDescription: company.deck ?? "",
+            description: longDescription ?? "",
+            website: company.website ?? "",
 
             logo: createObject(company.image.icon_url),
             banner: createObject(company.image.screen_large_url),
