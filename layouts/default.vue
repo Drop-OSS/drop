@@ -3,6 +3,7 @@
     <UserHeader />
     <div class="grow flex">
       <NuxtPage />
+      {{ test }}
     </div>
     <UserFooter />
   </content>
@@ -15,4 +16,6 @@ useHead({
     return `Drop`;
   },
 });
+
+const test = useTask("test");
 </script>

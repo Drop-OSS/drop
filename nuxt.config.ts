@@ -16,4 +16,10 @@ export default defineNuxtConfig({
       link: [{ rel: "icon", href: "/favicon.ico" }],
     },
   },
+
+  nitro: {
+    experimental: {
+      websocket: true,
+    },
+  },
 });

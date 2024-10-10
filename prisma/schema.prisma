@@ -86,7 +86,22 @@ model Game {
   mArt         String[] // linked to objects in s3
   mScreenshots String[] // linked to objects in s3
 
+  versionOrder    String
+  versions        GameVersion[]
+  libraryBasePath String // Base dir for all the game versions
+
   @@unique([metadataSource, metadataId], name: "metadataKey")
+}
+
+// A particular set of files that relate to the version
+model GameVersion {
+  gameId      String
+  game        Game   @relation(fields: [gameId], references: [id])
+  versionName String // Sub directory for the game files
+
+  
+
+  @@id([gameId, versionName])
 }
 
 model Developer {
