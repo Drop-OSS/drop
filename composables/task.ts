@@ -7,6 +7,7 @@ const useTaskStates = () =>
   useState<{ [key: string]: Ref<TaskMessage> }>("task-states", () => ({
     connect: useState<TaskMessage>("task-connect", () => ({
       id: "connect",
+      name: "Connect",
       success: false,
       progress: 0,
       log: [],
@@ -51,8 +52,10 @@ export const useTask = (taskId: string): Ref<TaskMessage> => {
   if (taskStates.value[taskId]) return taskStates.value[taskId];
 
   if (!ws) initWs();
+
   taskStates.value[taskId] = useState(`task-${taskId}`, () => ({
     id: taskId,
+    name: "loading...",
     success: false,
     progress: 0,
     error: undefined,

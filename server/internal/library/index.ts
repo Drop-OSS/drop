@@ -11,6 +11,9 @@ import prisma from "../db/database";
 import { GameVersion, Platform } from "@prisma/client";
 import { fuzzy } from "fast-fuzzy";
 import { recursivelyReaddir } from "../utils/recursivedirs";
+import taskHandler from "../tasks";
+import { parsePlatform } from "../utils/parseplatform";
+import droplet from "@drop/droplet";
 
 class LibraryManager {
   private basePath: string;
@@ -143,7 +146,7 @@ class LibraryManager {
       match: number;
     }> = [];
 
-    const files = recursivelyReaddir(targetDir);
+    const files = recursivelyReaddir(targetDir, 2);
     for (const file of files) {
       const filename = path.basename(file);
       const dotLocation = file.lastIndexOf(".");
@@ -187,6 +190,73 @@ class LibraryManager {
     if (hasGame) return false;
 
     return true;
+  }
+
+  async importVersion(
+    gameId: string,
+    versionName: string,
+    metadata: { platform: string; setup: string; startup: string }
+  ) {
+    const taskId = `import:${gameId}:${versionName}`;
+
+    const platform = parsePlatform(metadata.platform);
+    if (!platform) return undefined;
+
+    const game = await prisma.game.findUnique({
+      where: { id: gameId },
+      select: { mName: true, libraryBasePath: true },
+    });
+    if (!game) return undefined;
+
+    const baseDir = path.join(this.basePath, game.libraryBasePath, versionName);
+    if (!fs.existsSync(baseDir)) return undefined;
+
+    taskHandler.create({
+      id: taskId,
+      name: `Importing version ${versionName} for ${game.mName}`,
+      requireAdmin: true,
+      async run({ progress, log }) {
+        // First, create the manifest via droplet.
+        // This takes up 90% of our progress, so we wrap it in a *0.9
+        const manifest = await new Promise<string>((resolve, reject) => {
+          droplet.generateManifest(
+            baseDir,
+            (err, value) => {
+              if (err) return reject(err);
+              progress(value * 0.9);
+            },
+            (err, line) => {
+              if (err) return reject(err);
+              log(line);
+            },
+            (err, manifest) => {
+              if (err) return reject(err);
+              resolve(manifest);
+            }
+          );
+        });
+
+        log("Created manifest successfully!");
+
+        // Then, create the database object
+        const version = await prisma.gameVersion.create({
+          data: {
+            gameId: gameId,
+            versionName: versionName,
+            platform: platform,
+            setupCommand: metadata.setup,
+            launchCommand: metadata.startup,
+            dropletManifest: manifest,
+          },
+        });
+
+        log("Successfully created version!");
+
+        progress(100);
+      },
+    });
+
+    return taskId;
   }
 }
 

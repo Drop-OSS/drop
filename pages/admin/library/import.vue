@@ -178,8 +178,6 @@
         </div>
       </div>
     </div>
-
-    {{ metadataResults }}
   </div>
 </template>
 
@@ -200,7 +198,7 @@ definePageMeta({
 });
 
 const headers = useRequestHeaders(["cookie"]);
-const games = await $fetch("/api/v1/admin/library/game/import", { headers });
+const games = await $fetch("/api/v1/admin/import/game", { headers });
 
 const currentlySelectedGame = ref(-1);
 

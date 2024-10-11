@@ -31,7 +31,7 @@
     class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
   >
     <li
-      v-for="{ game, status } in libraryState.games"
+      v-for="game in libraryNotifications"
       :key="game.id"
       class="col-span-1 flex flex-col justify-center divide-y divide-zinc-700 rounded-lg bg-zinc-950/20 text-left shadow"
     >
@@ -58,9 +58,9 @@
           </dl>
         </div>
       </div>
-      <div class="flex flex-col gap-y-2 p-2">
+      <div v-if="game.hasNotifications" class="flex flex-col gap-y-2 p-2">
         <div
-          v-if="status.unimportedVersions"
+          v-if="game.notifications.toImport"
           class="rounded-md bg-blue-600/10 p-4"
         >
           <div class="flex">
@@ -86,7 +86,7 @@
             </div>
           </div>
         </div>
-        <div v-if="status.noVersions" class="rounded-md bg-yellow-600/10 p-4">
+        <div v-if="game.notifications.noVersions" class="rounded-md bg-yellow-600/10 p-4">
           <div class="flex">
             <div class="flex-shrink-0">
               <ExclamationTriangleIcon
@@ -119,4 +119,17 @@ useHead({
 
 const headers = useRequestHeaders(["cookie"]);
 const libraryState = await $fetch("/api/v1/admin/library", { headers });
+const libraryNotifications =  libraryState.games.map((e) => {
+  const noVersions = e.status.noVersions;
+  const toImport = e.status.unimportedVersions.length > 0;
+
+  return {
+    ...e.game,
+    notifications: {
+      noVersions,
+      toImport,
+    },
+    hasNotifications: noVersions || toImport,
+  }
+})
 </script>

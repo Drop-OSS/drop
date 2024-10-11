@@ -104,9 +104,10 @@ model GameVersion {
   game        Game   @relation(fields: [gameId], references: [id])
   versionName String // Sub directory for the game files
 
-  platform      Platform
-  launchCommand String // Command to run to start. Platform-specific. Windows games on Linux will wrap this command in Proton/Wine
-  setupCommand  String // Command to setup game (dependencies and such)
+  platform        Platform
+  launchCommand   String // Command to run to start. Platform-specific. Windows games on Linux will wrap this command in Proton/Wine
+  setupCommand    String // Command to setup game (dependencies and such)
+  dropletManifest Json // Results from droplet
 
   @@id([gameId, versionName])
 }

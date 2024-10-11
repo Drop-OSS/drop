@@ -17,8 +17,10 @@ export default defineWebSocketHandler({
       peer.send("unauthenticated");
       return;
     }
+    const admin = session.getAdminUser(dummyEvent);
     const peerId = uuidv4();
     peer.ctx.id = peerId;
+    peer.ctx.admin = admin !== undefined;
 
     const rtMsg: TaskMessage = {
       id: "connect",
@@ -34,7 +36,7 @@ export default defineWebSocketHandler({
     const text = message.text();
     if (text.startsWith("connect/")) {
       const id = text.substring("connect/".length);
-      taskHandler.connect(peer.ctx.id, id, peer);
+      taskHandler.connect(peer.ctx.id, id, peer, peer.ctx.admin);
       return;
     }
   },
