@@ -28,7 +28,7 @@
   </div>
   <ul
     role="list"
-    class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+    class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
   >
     <li
       v-for="game in libraryNotifications"
@@ -41,21 +41,25 @@
           :src="useObject(game.mIconId)"
           alt=""
         />
-        <div class="flex-1 flex-col">
+        <div class="flex flex-col">
           <h3 class="text-sm font-medium text-zinc-100 font-display">
             {{ game.mName }}
+            <span
+              class="ml-2 inline-flex items-center rounded-full bg-blue-600/10 px-2 py-1 text-xs font-medium text-blue-600 ring-1 ring-inset ring-blue-600/20"
+              >{{ game.metadataSource }}</span
+            >
           </h3>
-          <dl class="mt-1 flex flex-grow flex-col justify-between">
+          <dl class="mt-1 flex flex-col justify-between">
             <dt class="sr-only">Short Description</dt>
             <dd class="text-sm text-zinc-400">{{ game.mShortDescription }}</dd>
             <dt class="sr-only">Metadata provider</dt>
-            <dd class="mt-3">
-              <span
-                class="inline-flex items-center rounded-full bg-blue-600/10 px-2 py-1 text-xs font-medium text-blue-600 ring-1 ring-inset ring-blue-600/20"
-                >{{ game.metadataSource }}</span
-              >
-            </dd>
           </dl>
+          <NuxtLink
+            :href="`/admin/library/${game.id}`"
+            class="mt-2 w-fit rounded-md bg-blue-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+          >
+            Edit &rarr;
+          </NuxtLink>
         </div>
       </div>
       <div v-if="game.hasNotifications" class="flex flex-col gap-y-2 p-2">
@@ -86,7 +90,10 @@
             </div>
           </div>
         </div>
-        <div v-if="game.notifications.noVersions" class="rounded-md bg-yellow-600/10 p-4">
+        <div
+          v-if="game.notifications.noVersions"
+          class="rounded-md bg-yellow-600/10 p-4"
+        >
           <div class="flex">
             <div class="flex-shrink-0">
               <ExclamationTriangleIcon
@@ -119,7 +126,7 @@ useHead({
 
 const headers = useRequestHeaders(["cookie"]);
 const libraryState = await $fetch("/api/v1/admin/library", { headers });
-const libraryNotifications =  libraryState.games.map((e) => {
+const libraryNotifications = libraryState.games.map((e) => {
   const noVersions = e.status.noVersions;
   const toImport = e.status.unimportedVersions.length > 0;
 
@@ -130,6 +137,6 @@ const libraryNotifications =  libraryState.games.map((e) => {
       toImport,
     },
     hasNotifications: noVersions || toImport,
-  }
-})
+  };
+});
 </script>

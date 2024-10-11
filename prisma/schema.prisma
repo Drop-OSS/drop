@@ -86,10 +86,10 @@ model Game {
   mReviewCount  Int
   mReviewRating Float
 
-  mIconId      String // linked to objects in s3
-  mBannerId    String // linked to objects in s3
-  mArt         String[] // linked to objects in s3
-  mScreenshots String[] // linked to objects in s3
+  mIconId       String // linked to objects in s3
+  mBannerId     String // linked to objects in s3
+  mCoverId      String
+  mImageLibrary String[] // linked to objects in s3
 
   versionOrder    String[]
   versions        GameVersion[]

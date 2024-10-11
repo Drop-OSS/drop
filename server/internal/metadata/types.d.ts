@@ -32,9 +32,9 @@ export interface GameMetadata {
 
     // Created with another utility function
     icon: ObjectReference,
-    banner: ObjectReference,
-    art: ObjectReference[],
-    screenshots: ObjectReference[],
+    bannerId: ObjectReference,
+    coverId: ObjectReference;
+    images: ObjectReference[],
 }
 
 export interface PublisherMetadata {

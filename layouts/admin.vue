@@ -49,7 +49,7 @@
     </div>
 
     <main class="lg:pl-20 min-h-screen bg-zinc-900 flex flex-col">
-      <div class="flex flex-col grow px-4 py-10 sm:px-6 lg:px-8 lg:py-6">
+      <div class="flex flex-col grow px-4 py-2 sm:py-10 sm:px-6 lg:px-8 lg:py-6">
         <!-- Main area -->
         <NuxtPage />
       </div>
