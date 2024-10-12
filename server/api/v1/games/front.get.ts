@@ -9,7 +9,7 @@ export default defineEventHandler(async (h3) => {
       id: true,
       mName: true,
       mShortDescription: true,
-      mBannerId: true,
+      mCoverId:true,
       mDevelopers: {
         select: {
           id: true,

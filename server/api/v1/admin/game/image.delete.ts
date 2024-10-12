@@ -28,7 +28,13 @@ export default defineEventHandler(async (h3) => {
   if (!game)
     throw createError({ statusCode: 400, statusMessage: "Invalid game ID" });
 
-  game.mImageLibrary = game.mImageLibrary.filter((e) => e != imageId);
+  const imageIndex = game.mImageLibrary.findIndex((e) => e == imageId);
+  if (imageIndex == -1)
+    throw createError({ statusCode: 400, statusMessage: "Image not found" });
+
+  game.mImageLibrary.splice(imageIndex, 1);
+  await h3.context.objects.delete(imageId);
+  
   if (game.mBannerId === imageId) {
     game.mBannerId = game.mImageLibrary[0];
   }

@@ -39,6 +39,7 @@
     "@types/turndown": "^5.0.5",
     "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.20",
+    "h3": "^1.13.0",
     "nitropack": "^2.9.7",
     "postcss": "^8.4.47",
     "sass": "^1.79.4",

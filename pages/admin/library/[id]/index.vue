@@ -26,6 +26,7 @@
             </div>
             <div class="ml-4 mt-2 flex-shrink-0">
               <button
+                @click="() => (showUploadModal = true)"
                 type="button"
                 class="relative inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               >
@@ -91,15 +92,25 @@
       </div>
     </div>
   </div>
+  <UploadFileDialog
+    v-model="showUploadModal"
+    :options="{ id: game.id }"
+    accept="image/*"
+    endpoint="/api/v1/admin/game/image"
+    @upload="(result) => uploadAfterImageUpload(result)"
+  />
 </template>
 
 <script setup lang="ts">
 import type { Game } from "@prisma/client";
 import markdownit from "markdown-it";
+import UploadFileDialog from "~/components/UploadFileDialog.vue";
 
 definePageMeta({
   layout: "admin",
 });
+
+const showUploadModal = ref(false);
 
 const route = useRoute();
 const gameId = route.params.id.toString();
@@ -150,5 +161,10 @@ async function deleteImage(id: string) {
   );
   game.value.mImageLibrary = mImageLibrary;
   game.value.mBannerId = mBannerId;
+}
+
+async function uploadAfterImageUpload(result: Game) {
+  if (!game.value) return;
+  game.value.mImageLibrary = result.mImageLibrary;
 }
 </script>

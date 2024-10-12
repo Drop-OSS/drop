@@ -6,12 +6,13 @@ import { Readable } from "stream";
 import { v4 as uuidv4 } from "uuid";
 import { GlobalObjectHandler } from "~/server/plugins/objects";
 
-type TransactionTable = { [key: string]: string }; // ID to URL
+type TransactionDataType = string | Readable | Buffer;
+type TransactionTable = { [key: string]: TransactionDataType }; // ID to data
 type GlobalTransactionRecord = { [key: string]: TransactionTable }; // Transaction ID to table
 
-type Register = (url: string) => string;
-type Pull = () => Promise<void>;
-type Dump = () => void;
+export type Register = (url: TransactionDataType) => string;
+export type Pull = () => Promise<void>;
+export type Dump = () => void;
 
 export class ObjectTransactionalHandler {
   private record: GlobalTransactionRecord = {};
@@ -24,18 +25,23 @@ export class ObjectTransactionalHandler {
 
     this.record[transactionId] ??= {};
 
-    const register = (url: string) => {
+    const register = (data: TransactionDataType) => {
       const objectId = uuidv4();
-      this.record[transactionId][objectId] = url;
+      this.record[transactionId][objectId] = data;
 
       return objectId;
     };
 
     const pull = async () => {
-      for (const [id, url] of Object.entries(this.record[transactionId])) {
+      for (const [id, data] of Object.entries(this.record[transactionId])) {
         await GlobalObjectHandler.createFromSource(
           id,
-          () => $fetch<Readable>(url, { responseType: "stream" }),
+          () => {
+            if (typeof data === "string") {
+              return $fetch<Readable>(data, { responseType: "stream" });
+            }
+            return (async () => data)();
+          },
           metadata,
           permissions
         );
