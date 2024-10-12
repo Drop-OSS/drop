@@ -14,6 +14,8 @@ type ClientUtils = {
   fetchUser: () => Promise<User>;
 };
 
+const NONCE_LENIENCE = 30_000;
+
 export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
   return defineEventHandler(async (h3) => {
     const header = await getHeader(h3, "Authorization");
@@ -29,6 +31,21 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
 
         if (!clientId || !nonce || !signature)
           throw createError({ statusCode: 403 });
+
+        const nonceTime = parseInt(nonce);
+        const current = Date.now();
+        if (
+          // If it was generated in the future
+          nonceTime > current ||
+          // Or more than thirty seconds ago
+          nonceTime < current - NONCE_LENIENCE
+        ) {
+          // We reject the request
+          throw createError({
+            statusCode: 403,
+            statusMessage: "Nonce expired",
+          });
+        }
 
         const ca = h3.context.ca;
         const certBundle = await ca.fetchClientCertificate(clientId);
