@@ -14,6 +14,14 @@ export default defineClientEventHandler(async (h3, {}) => {
     where: {
       gameId: id,
     },
+    select: {
+      versionIndex: true,
+      versionName: true,
+      platform: true,
+      setupCommand: true,
+      launchCommand: true,
+      delta: true,
+    }
   });
 
   return versions;

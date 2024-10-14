@@ -11,20 +11,18 @@
         class="mt-5 pt-5 border-t border-zinc-700 prose prose-invert prose-blue"
       ></div>
     </div>
-    <div>
+    <div class="space-y-8">
       <div class="px-4 py-3 bg-gray-950 rounded">
         <div class="border-b border-zinc-800 pb-3">
           <div
-            class="-ml-4 -mt-2 flex flex-wrap items-center justify-between sm:flex-nowrap"
+            class="flex flex-wrap items-center justify-between sm:flex-nowrap"
           >
-            <div class="ml-4 mt-2">
-              <h3
-                class="text-base font-semibold font-display leading-6 text-zinc-100"
-              >
-                Images
-              </h3>
-            </div>
-            <div class="ml-4 mt-2 flex-shrink-0">
+            <h3
+              class="text-base font-semibold font-display leading-6 text-zinc-100"
+            >
+              Images
+            </h3>
+            <div class="flex-shrink-0">
               <button
                 @click="() => (showUploadModal = true)"
                 type="button"
@@ -90,6 +88,39 @@
           </div>
         </div>
       </div>
+      <div class="py-5 px-6 bg-gray-950 rounded">
+        <h1 class="text-2xl font-semibold font-display text-zinc-100">
+          Manage version order
+        </h1>
+        <div class="text-center w-full text-sm text-zinc-600">lowest</div>
+        <draggable
+          @update="() => updateVersionOrder()"
+          :list="game.versions"
+          handle=".handle"
+          class="mt-2 space-y-4"
+        >
+          <template #item="{ element: item }: { element: GameVersion }">
+            <div
+              class="w-full inline-flex items-center px-4 py-2 bg-zinc-900 rounded justify-between"
+            >
+              <div class="text-zinc-100 font-semibold">
+                {{ item.versionName }}
+              </div>
+              <div class="text-zinc-400">
+                {{ item.delta ? "Upgrade mode" : "" }}
+              </div>
+              <div class="inline-flex gap-x-2">
+                <Bars3Icon class="cursor-move w-6 h-6 text-zinc-400 handle" />
+                <button @click="() => deleteVersion(item.versionName)">
+                  <TrashIcon class="w-5 h-5 text-red-600" />
+                </button>
+              </div>
+            </div>
+          </template>
+        </draggable>
+        <div class="mt-2 text-center w-full text-sm text-zinc-600">highest</div>
+        <span class="text-zinc-100">{{ game.versions }}</span>
+      </div>
     </div>
   </div>
   <UploadFileDialog
@@ -102,7 +133,8 @@
 </template>
 
 <script setup lang="ts">
-import type { Game } from "@prisma/client";
+import { Bars3Icon, TrashIcon } from "@heroicons/vue/16/solid";
+import type { Game, GameVersion } from "@prisma/client";
 import markdownit from "markdown-it";
 import UploadFileDialog from "~/components/UploadFileDialog.vue";
 
@@ -116,9 +148,12 @@ const route = useRoute();
 const gameId = route.params.id.toString();
 const headers = useRequestHeaders(["cookie"]);
 const game = ref(
-  await $fetch<Game>(`/api/v1/admin/game?id=${encodeURIComponent(gameId)}`, {
-    headers,
-  })
+  await $fetch(
+    `/api/v1/admin/game?id=${encodeURIComponent(gameId)}`,
+    {
+      headers,
+    }
+  )
 );
 
 const md = markdownit();
@@ -166,5 +201,30 @@ async function deleteImage(id: string) {
 async function uploadAfterImageUpload(result: Game) {
   if (!game.value) return;
   game.value.mImageLibrary = result.mImageLibrary;
+}
+
+async function deleteVersion(versionName: string) {
+  await $fetch("/api/v1/admin/game/version", {
+    method: "DELETE",
+    body: {
+      id: gameId,
+      versionName: versionName,
+    },
+  });
+  game.value.versions.splice(
+    game.value.versions.findIndex((e) => e.versionName === versionName),
+    1
+  );
+}
+
+async function updateVersionOrder() {
+  const newVersions = await $fetch("/api/v1/admin/game/version", {
+    method: "POST",
+    body: {
+      id: gameId,
+      versions: game.value.versions.map((e) => e.versionName),
+    },
+  });
+  game.value.versions = newVersions;
 }
 </script>

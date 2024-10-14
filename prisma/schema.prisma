@@ -91,7 +91,6 @@ model Game {
   mCoverId      String
   mImageLibrary String[] // linked to objects in s3
 
-  versionOrder    String[]
   versions        GameVersion[]
   libraryBasePath String        @unique // Base dir for all the game versions
 
@@ -108,6 +107,9 @@ model GameVersion {
   launchCommand   String // Command to run to start. Platform-specific. Windows games on Linux will wrap this command in Proton/Wine
   setupCommand    String // Command to setup game (dependencies and such)
   dropletManifest Json // Results from droplet
+
+  versionIndex Int
+  delta        Boolean @default(false)
 
   @@id([gameId, versionName])
 }

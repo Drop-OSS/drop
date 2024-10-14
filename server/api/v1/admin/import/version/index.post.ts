@@ -10,23 +10,24 @@ export default defineEventHandler(async (h3) => {
   const platform = body.platform;
   const startup = body.startup;
   const setup = body.setup ?? "";
-  if (
-    !gameId ||
-    !versionName ||
-    !platform ||
-    !startup
-  )
+  const delta = body.delta ?? false;
+  if (!gameId || !versionName || !platform || (!delta && !startup))
     throw createError({
       statusCode: 400,
       statusMessage:
         "Missing id, version, platform, setup or startup from body",
     });
 
-  const taskId = await libraryManager.importVersion(gameId, versionName, {
-    platform,
-    startup,
-    setup,
-  });
+  const taskId = await libraryManager.importVersion(
+    gameId,
+    versionName,
+    {
+      platform,
+      startup,
+      setup,
+    },
+    delta
+  );
   if (!taskId)
     throw createError({
       statusCode: 400,

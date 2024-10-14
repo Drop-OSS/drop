@@ -16,6 +16,19 @@ export default defineEventHandler(async (h3) => {
     where: {
       id: gameId,
     },
+    include: {
+      versions: {
+        orderBy: {
+          versionIndex: "asc",
+        },
+        select: {
+          versionIndex: true,
+          versionName: true,
+          platform: true,
+          delta: true,
+        }
+      },
+    },
   });
 
   if (!game)

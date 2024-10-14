@@ -74,7 +74,7 @@
       </div>
     </Listbox>
 
-    <div class="flex flex-col gap-4 max-w-md" v-if="versionSettings">
+    <div class="flex flex-col gap-8 max-w-md" v-if="versionSettings">
       <div>
         <label
           for="startup"
@@ -130,7 +130,41 @@
       <PlatformSelector v-model="versionSettings.platform">
         Version platform
       </PlatformSelector>
-      <LoadingButton @click="startImport_wrapper" class="w-fit" :loading="importLoading">
+      <SwitchGroup as="div" class="flex items-center justify-between">
+        <span class="flex flex-grow flex-col">
+          <SwitchLabel
+            as="span"
+            class="text-sm font-medium leading-6 text-zinc-100"
+            passive
+            >Update mode</SwitchLabel
+          >
+          <SwitchDescription as="span" class="text-sm text-zinc-400"
+            >When enabled, these files will be installed on top of (overwriting)
+            the previous version's. If multiple "update modes" are chained
+            together, they are applied in order.</SwitchDescription
+          >
+        </span>
+        <Switch
+          v-model="delta"
+          :class="[
+            delta ? 'bg-blue-600' : 'bg-zinc-800',
+            'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2',
+          ]"
+        >
+          <span
+            aria-hidden="true"
+            :class="[
+              delta ? 'translate-x-5' : 'translate-x-0',
+              'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+            ]"
+          />
+        </Switch>
+      </SwitchGroup>
+      <LoadingButton
+        @click="startImport_wrapper"
+        class="w-fit"
+        :loading="importLoading"
+      >
         Import
       </LoadingButton>
       <div v-if="importError" class="mt-4 w-fit rounded-md bg-red-600/10 p-4">
@@ -180,6 +214,10 @@ import {
   ListboxLabel,
   ListboxOption,
   ListboxOptions,
+  Switch,
+  SwitchDescription,
+  SwitchGroup,
+  SwitchLabel,
 } from "@headlessui/vue";
 import { XCircleIcon } from "@heroicons/vue/16/solid";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
@@ -203,6 +241,7 @@ const currentlySelectedVersion = ref(-1);
 const versionSettings = ref<
   { platform: string; startup: string; setup: string } | undefined
 >();
+const delta = ref(false);
 
 const importLoading = ref(false);
 const importError = ref<string | undefined>();
@@ -233,6 +272,7 @@ async function startImport() {
       platform: versionSettings.value.platform,
       startup: versionSettings.value.startup,
       setup: versionSettings.value.setup,
+      delta: delta.value
     },
   });
   router.push(`/admin/task/${taskId.taskId}`);

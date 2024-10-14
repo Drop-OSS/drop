@@ -296,23 +296,23 @@
   dependencies:
     mime "^3.0.0"
 
-"@drop/droplet-linux-x64-gnu@0.4.4", "@drop/droplet-linux-x64-gnu@^0.4.4":
-  version "0.4.4"
-  resolved "https://lab.deepcore.dev/api/v4/projects/57/packages/npm/@drop/droplet-linux-x64-gnu/-/@drop/droplet-linux-x64-gnu-0.4.4.tgz#6678a0923bb13d37e20cae467f45c72bc5d9fe6e"
-  integrity sha1-ZnigkjuxPTfiDK5Gf0XHK8XZ/m4=
+"@drop/droplet-linux-x64-gnu@0.5.0", "@drop/droplet-linux-x64-gnu@^0.5.0":
+  version "0.5.0"
+  resolved "https://lab.deepcore.dev/api/v4/projects/57/packages/npm/@drop/droplet-linux-x64-gnu/-/@drop/droplet-linux-x64-gnu-0.5.0.tgz#06643f7bc79de4b35a395295ef1e29fad46f32b5"
+  integrity sha1-BmQ/e8ed5LNaOVKV7x4p+tRvMrU=
 
-"@drop/droplet-win32-x64-msvc@0.4.4", "@drop/droplet-win32-x64-msvc@^0.4.4":
-  version "0.4.4"
-  resolved "https://lab.deepcore.dev/api/v4/projects/57/packages/npm/@drop/droplet-win32-x64-msvc/-/@drop/droplet-win32-x64-msvc-0.4.4.tgz#10802bb36c6ec7d69aa17ea22081e5d5f0dac3c3"
-  integrity sha1-EIArs2xux9aaoX6iIIHl1fDaw8M=
+"@drop/droplet-win32-x64-msvc@0.5.0", "@drop/droplet-win32-x64-msvc@^0.5.0":
+  version "0.5.0"
+  resolved "https://lab.deepcore.dev/api/v4/projects/57/packages/npm/@drop/droplet-win32-x64-msvc/-/@drop/droplet-win32-x64-msvc-0.5.0.tgz#abc02af2102f0faaf4561473b7a18395a0ba2b10"
+  integrity sha1-q8Aq8hAvD6r0VhRzt6GDlaC6KxA=
 
-"@drop/droplet@^0.4.4":
-  version "0.4.4"
-  resolved "https://lab.deepcore.dev/api/v4/projects/57/packages/npm/@drop/droplet/-/@drop/droplet-0.4.4.tgz#a9b6e3a341e85703b25c7fee597261e1b239a280"
-  integrity sha1-qbbjo0HoVwOyXH/uWXJh4bI5ooA=
+"@drop/droplet@^0.5.0":
+  version "0.5.0"
+  resolved "https://lab.deepcore.dev/api/v4/projects/57/packages/npm/@drop/droplet/-/@drop/droplet-0.5.0.tgz#27da4f7292c9b860d38bb785c0fb2bb3b9cd50a3"
+  integrity sha1-J9pPcpLJuGDTi7eFwPsrs7nNUKM=
   optionalDependencies:
-    "@drop/droplet-linux-x64-gnu" "0.4.4"
-    "@drop/droplet-win32-x64-msvc" "0.4.4"
+    "@drop/droplet-linux-x64-gnu" "0.5.0"
+    "@drop/droplet-win32-x64-msvc" "0.5.0"
 
 "@esbuild/aix-ppc64@0.20.2":
   version "0.20.2"
@@ -4887,6 +4887,11 @@ smob@^1.0.0:
   resolved "https://registry.yarnpkg.com/smob/-/smob-1.5.0.tgz#85d79a1403abf128d24d3ebc1cdc5e1a9548d3ab"
   integrity sha512-g6T+p7QO8npa+/hNx9ohv1E5pVCmWrVCUzUXJyLdMmftX6ER0oiWY/w9knEonLpnOp6b6FenKnMfR8gqwWdwig==
 
+sortablejs@1.14.0:
+  version "1.14.0"
+  resolved "https://registry.yarnpkg.com/sortablejs/-/sortablejs-1.14.0.tgz#6d2e17ccbdb25f464734df621d4f35d4ab35b3d8"
+  integrity sha512-pBXvQCs5/33fdN1/39pPL0NZF20LeRbLQ5jtnheIPN9JQAaufGjKdWduZn4U7wCtVuzKhmRkI0DFYHYRbB2H1w==
+
 "source-map-js@>=0.6.2 <2.0.0", source-map-js@^1.0.1, source-map-js@^1.2.0, source-map-js@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/source-map-js/-/source-map-js-1.2.1.tgz#1ce5650fddd87abc099eda37dcff024c2667ae46"
@@ -5655,6 +5660,13 @@ vue@^3.5.5, vue@latest:
     "@vue/runtime-dom" "3.5.10"
     "@vue/server-renderer" "3.5.10"
     "@vue/shared" "3.5.10"
+
+vuedraggable@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/vuedraggable/-/vuedraggable-4.1.0.tgz#edece68adb8a4d9e06accff9dfc9040e66852270"
+  integrity sha512-FU5HCWBmsf20GpP3eudURW3WdWTKIbEIQxh9/8GE806hydR9qZqRRxRE3RjqX7PkuLuMQG/A7n3cfj9rCEchww==
+  dependencies:
+    sortablejs "1.14.0"
 
 webidl-conversions@^3.0.0:
   version "3.0.1"

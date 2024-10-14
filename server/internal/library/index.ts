@@ -195,7 +195,8 @@ class LibraryManager {
   async importVersion(
     gameId: string,
     versionName: string,
-    metadata: { platform: string; setup: string; startup: string }
+    metadata: { platform: string; setup: string; startup: string },
+    delta = false
   ) {
     const taskId = `import:${gameId}:${versionName}`;
 
@@ -238,6 +239,10 @@ class LibraryManager {
 
         log("Created manifest successfully!");
 
+        const currentIndex = await prisma.gameVersion.count({
+          where: { gameId: gameId },
+        });
+
         // Then, create the database object
         const version = await prisma.gameVersion.create({
           data: {
@@ -247,6 +252,8 @@ class LibraryManager {
             setupCommand: metadata.setup,
             launchCommand: metadata.startup,
             dropletManifest: manifest,
+            versionIndex: currentIndex,
+            delta: delta,
           },
         });
 
