@@ -1,3 +1,6 @@
+import { GameVersion } from "@prisma/client";
+import prisma from "../db/database";
+
 export type DropChunk = {
   permissions: number;
   ids: string[];
@@ -19,7 +22,7 @@ export type DropGeneratedManifest = DropManifest & {
 };
 
 class ManifestGenerator {
-  static generateManifest(
+  private static generateManifestFromMetadata(
     rootManifest: DropManifestMetadata,
     ...overlays: DropManifestMetadata[]
   ): DropGeneratedManifest {
@@ -43,6 +46,44 @@ class ManifestGenerator {
         });
       }
     }
+
+    return manifest;
+  }
+
+  // Local function because eventual caching
+  async generateManifest(gameId: string, versionName: string) {
+    const versions: GameVersion[] = [];
+
+    for (let i = 0; true; i++) {
+      const currentVersion = (
+        await prisma.gameVersion.findMany({
+          where: {
+            gameId: gameId,
+            versionName: versionName,
+          },
+          orderBy: {
+            versionIndex: "desc", // Get highest priority first
+          },
+          skip: i,
+          take: 1,
+        })
+      )[0];
+      versions.push(currentVersion);
+      if (!currentVersion.delta) break;
+    }
+
+    const leastToMost = versions.reverse();
+    const metadata: DropManifestMetadata[] = leastToMost.map((e) => {
+      return {
+        manifest: e.dropletManifest as DropManifest,
+        versionName: e.versionName,
+      };
+    });
+
+    const manifest = ManifestGenerator.generateManifestFromMetadata(
+      metadata[0],
+      ...metadata.slice(1)
+    );
 
     return manifest;
   }

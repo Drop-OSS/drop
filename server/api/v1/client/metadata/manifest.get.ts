@@ -1,4 +1,5 @@
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
+import manifestGenerator from "~/server/internal/downloads/manifest";
 
 export default defineClientEventHandler(async (h3) => {
   const query = getQuery(h3);
@@ -9,4 +10,7 @@ export default defineClientEventHandler(async (h3) => {
       statusCode: 400,
       statusMessage: "Missing id or version in query",
     });
+
+  const manifest = await manifestGenerator.generateManifest(id, version);
+  return manifest;
 });
