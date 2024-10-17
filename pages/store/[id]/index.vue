@@ -10,7 +10,9 @@
       />
     </div>
     <!-- main page -->
-    <div class="max-w-7xl w-full min-h-screen mx-auto bg-zinc-900 px-16 py-12 rounded-md">
+    <div
+      class="max-w-7xl w-full min-h-screen mx-auto bg-zinc-900 px-16 py-12 rounded-md"
+    >
       <h1
         class="text-3xl md:text-5xl font-bold font-display text-zinc-100 pb-4 border-b border-zinc-800"
       >
@@ -18,8 +20,10 @@
       </h1>
 
       <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-10">
-        <div class="col-start-1 md:col-start-4 flex flex-col gap-y-6 items-center">
-          <img class="w-64  h-auto rounded" :src="useObject(game.mCoverId)" />
+        <div
+          class="col-start-1 md:col-start-4 flex flex-col gap-y-6 items-center"
+        >
+          <img class="w-64 h-auto rounded" :src="useObject(game.mCoverId)" />
           <button
             type="button"
             class="inline-flex items-center gap-x-2 rounded-md bg-blue-600 px-3.5 py-2.5 text-xl font-semibold font-display text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
@@ -42,7 +46,6 @@
           </div>
         </div>
 
-
         <div class="row-start-2 md:row-start-1 md:col-span-3">
           <p class="text-lg text-zinc-400">
             {{ game.mShortDescription }}
@@ -61,7 +64,6 @@
             class="mt-12 prose prose-invert prose-blue max-w-none"
           />
         </div>
-
       </div>
     </div>
   </div>
@@ -77,8 +79,10 @@ import WindowsLogo from "~/components/WindowsLogo.vue";
 const route = useRoute();
 const gameId = route.params.id.toString();
 
+const headers = useRequestHeaders(["cookie"]);
 const game = await $fetch<Game & { versions: GameVersion[] }>(
-  `/api/v1/games/${gameId}`
+  `/api/v1/games/${gameId}`,
+  { headers }
 );
 const md = MarkdownIt();
 const descriptionHTML = md.render(game.mDescription);
@@ -92,6 +96,6 @@ const icons = {
 };
 
 useHead({
-  title: game.mName
-})
+  title: game.mName,
+});
 </script>

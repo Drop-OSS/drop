@@ -134,7 +134,11 @@ import { CheckCircleIcon } from "@heroicons/vue/24/outline";
 const route = useRoute();
 const clientId = route.params.id;
 
-const clientData = await useFetch(`/api/v1/client/auth/callback?id=${clientId}`);
+const headers = useRequestHeaders(["cookie"]);
+const clientData = await useFetch(
+  `/api/v1/client/auth/callback?id=${clientId}`,
+  { headers }
+);
 
 const completed = ref(false);
 const error = ref();
