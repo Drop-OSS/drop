@@ -68,6 +68,7 @@ class ManifestGenerator {
           take: 1,
         })
       )[0];
+      if(!currentVersion) return {};
       versions.push(currentVersion);
       if (!currentVersion.delta) break;
     }
