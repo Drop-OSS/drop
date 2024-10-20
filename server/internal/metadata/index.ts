@@ -133,7 +133,6 @@ export class MetadataHandler {
         mCoverId: metadata.coverId,
         mImageLibrary: metadata.images,
 
-        versionOrder: [],
         libraryBasePath,
       },
     });
