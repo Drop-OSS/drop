@@ -39,7 +39,7 @@ export class CertificateAuthority {
       clientId,
       clientName,
       caCertificate.cert,
-      caCertificate.priv
+      caCertificate.priv,
     );
     const certBundle: CertificateBundle = {
       priv,
@@ -53,6 +53,13 @@ export class CertificateAuthority {
   }
 
   async fetchClientCertificate(clientId: string) {
+    const isBlacklist =
+      await this.certificateStore.checkBlacklistCertificate(clientId);
+    if (isBlacklist) return undefined;
     return await this.certificateStore.fetch(`client:${clientId}`);
+  }
+
+  async blacklistClient(clientId: string) {
+    await this.certificateStore.blacklistCertificate(clientId);
   }
 }

@@ -32,7 +32,7 @@ export default defineEventHandler(async (h3) => {
         responseType: "stream",
       }),
     {},
-    [`anonymous:read`, `${userId}:write`]
+    [`anonymous:read`, `${userId}:write`],
   );
   const user = await prisma.user.create({
     data: {
