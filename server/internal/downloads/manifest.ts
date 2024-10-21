@@ -28,10 +28,13 @@ class ManifestGenerator {
   ): DropGeneratedManifest {
     if (overlays.length == 0) {
       return Object.fromEntries(
-        Object.entries(rootManifest.manifest).map(([key, value]) => [
-          key,
-          Object.assign({}, value, { versionName: rootManifest.versionName }),
-        ])
+        Object.entries(rootManifest.manifest).map(([key, value]) => {
+          console.log(key, value);
+          return [
+            key,
+            Object.assign({}, value, { versionName: rootManifest.versionName }),
+          ];
+        })
       );
     }
 
@@ -68,7 +71,7 @@ class ManifestGenerator {
           take: 1,
         })
       )[0];
-      if(!currentVersion) return undefined;
+      if (!currentVersion) return undefined;
       versions.push(currentVersion);
       if (!currentVersion.delta) break;
     }
@@ -76,7 +79,7 @@ class ManifestGenerator {
     const leastToMost = versions.reverse();
     const metadata: DropManifestMetadata[] = leastToMost.map((e) => {
       return {
-        manifest: e.dropletManifest as DropManifest,
+        manifest: JSON.parse(e.dropletManifest?.toString() ?? "{}") as DropManifest,
         versionName: e.versionName,
       };
     });
