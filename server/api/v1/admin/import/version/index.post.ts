@@ -15,7 +15,7 @@ export default defineEventHandler(async (h3) => {
     throw createError({
       statusCode: 400,
       statusMessage:
-        "Missing id, version, platform, setup or startup from body",
+        "ID, version, platform, setup and startup (if not in upgrade mode) are required. ",
     });
 
   const taskId = await libraryManager.importVersion(
@@ -26,7 +26,7 @@ export default defineEventHandler(async (h3) => {
       startup,
       setup,
     },
-    delta
+    delta,
   );
   if (!taskId)
     throw createError({

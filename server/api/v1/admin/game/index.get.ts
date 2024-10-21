@@ -1,4 +1,5 @@
 import prisma from "~/server/internal/db/database";
+import libraryManager from "~/server/internal/library";
 
 export default defineEventHandler(async (h3) => {
   const user = await h3.context.session.getAdminUser(h3);
@@ -26,7 +27,7 @@ export default defineEventHandler(async (h3) => {
           versionName: true,
           platform: true,
           delta: true,
-        }
+        },
       },
     },
   });
@@ -34,5 +35,9 @@ export default defineEventHandler(async (h3) => {
   if (!game)
     throw createError({ statusCode: 404, statusMessage: "Game ID not found" });
 
-  return game;
+  const unimportedVersions = await libraryManager.fetchUnimportedVersions(
+    game.id,
+  );
+
+  return { game, unimportedVersions };
 });

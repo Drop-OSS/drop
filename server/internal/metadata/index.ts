@@ -26,10 +26,10 @@ export abstract class MetadataProvider {
   abstract search(query: string): Promise<GameMetadataSearchResult[]>;
   abstract fetchGame(params: _FetchGameMetadataParams): Promise<GameMetadata>;
   abstract fetchPublisher(
-    params: _FetchPublisherMetadataParams
+    params: _FetchPublisherMetadataParams,
   ): Promise<PublisherMetadata>;
   abstract fetchDeveloper(
-    params: _FetchDeveloperMetadataParams
+    params: _FetchDeveloperMetadataParams,
   ): Promise<DeveloperMetadata>;
 }
 
@@ -56,7 +56,7 @@ export class MetadataHandler {
             Object.assign({}, result, {
               sourceId: provider.id(),
               sourceName: provider.name(),
-            })
+            }),
         );
         resolve(mappedResults);
       });
@@ -74,7 +74,7 @@ export class MetadataHandler {
 
   async createGame(
     result: InternalGameMetadataResult,
-    libraryBasePath: string
+    libraryBasePath: string,
   ) {
     const provider = this.providers.get(result.sourceId);
     if (!provider)
@@ -92,7 +92,7 @@ export class MetadataHandler {
 
     const [createObject, pullObjects, dumpObjects] = this.objectHandler.new(
       {},
-      ["internal:read"]
+      ["internal:read"],
     );
 
     let metadata;
@@ -144,7 +144,7 @@ export class MetadataHandler {
     return (await this.fetchDeveloperPublisher(
       query,
       "fetchDeveloper",
-      "developer"
+      "developer",
     )) as Developer;
   }
 
@@ -152,16 +152,16 @@ export class MetadataHandler {
     return (await this.fetchDeveloperPublisher(
       query,
       "fetchPublisher",
-      "publisher"
+      "publisher",
     )) as Publisher;
   }
 
   // Careful with this function, it has no typechecking
-  // TODO: fix typechecking
+  // Type-checking this thing is impossible
   private async fetchDeveloperPublisher(
     query: string,
     functionName: any,
-    databaseName: any
+    databaseName: any,
   ) {
     const existing = await (prisma as any)[databaseName].findFirst({
       where: {
@@ -173,12 +173,12 @@ export class MetadataHandler {
     for (const provider of this.providers.values() as any) {
       const [createObject, pullObjects, dumpObjects] = this.objectHandler.new(
         {},
-        ["internal:read"]
+        ["internal:read"],
       );
       let result;
       try {
         result = await provider[functionName]({ query, createObject });
-      } catch(e) {
+      } catch (e) {
         console.warn(e);
         dumpObjects();
         continue;
@@ -206,7 +206,7 @@ export class MetadataHandler {
     }
 
     throw new Error(
-      `No metadata provider found a ${databaseName} for "${query}"`
+      `No metadata provider found a ${databaseName} for "${query}"`,
     );
   }
 }
