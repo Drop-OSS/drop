@@ -119,7 +119,6 @@
           </template>
         </draggable>
         <div class="mt-2 text-center w-full text-sm text-zinc-600">highest</div>
-        <span class="text-zinc-100">{{ game.versions }}</span>
       </div>
     </div>
   </div>

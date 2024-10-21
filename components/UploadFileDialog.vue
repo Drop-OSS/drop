@@ -149,7 +149,6 @@ async function uploadFile() {
     }
   }
 
-  console.log(props.endpoint);
   const result = await $fetch(props.endpoint, { method: "POST", body: form });
   open.value = false;
   file.value = undefined;
