@@ -21,7 +21,10 @@ export default defineClientEventHandler(async (h3, {}) => {
       setupCommand: true,
       launchCommand: true,
       delta: true,
-    }
+    },
+    orderBy: {
+      versionIndex: "desc", // Latest one first
+    },
   });
 
   return versions;

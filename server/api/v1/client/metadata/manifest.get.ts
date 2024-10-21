@@ -12,5 +12,10 @@ export default defineClientEventHandler(async (h3) => {
     });
 
   const manifest = await manifestGenerator.generateManifest(id, version);
+  if (!manifest)
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Invalid game or version, or no versions added.",
+    });
   return manifest;
 });

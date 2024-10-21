@@ -10,7 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@drop/droplet": "^0.5.0",
+    "@drop/droplet": "^0.5.1",
     "@headlessui/vue": "^1.7.23",
     "@heroicons/vue": "^2.1.5",
     "@prisma/client": "5.20.0",
@@ -47,7 +47,7 @@
     "tailwindcss": "^3.4.13"
   },
   "optionalDependencies": {
-    "@drop/droplet-linux-x64-gnu": "^0.5.0",
-    "@drop/droplet-win32-x64-msvc": "^0.5.0"
+    "@drop/droplet-linux-x64-gnu": "^0.5.1",
+    "@drop/droplet-win32-x64-msvc": "^0.5.1"
   }
 }
