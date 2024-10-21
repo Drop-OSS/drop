@@ -41,7 +41,7 @@ class TaskHandler {
         };
         for (const client of Object.keys(taskEntry.clients)) {
           if (!this.clientRegistry[client]) continue;
-          this.clientRegistry[client].send(taskMessage);
+          this.clientRegistry[client].send(JSON.stringify(taskMessage));
         }
         updateCollectTimeout = undefined;
       }, 100);
@@ -91,9 +91,9 @@ class TaskHandler {
 
   connect(id: string, taskId: string, peer: PeerImpl, isAdmin = false) {
     const task = this.taskRegistry[taskId];
-    if (!task) return false;
+    if (!task) return "Invalid task";
 
-    if (task.requireAdmin && !isAdmin) return false;
+    if (task.requireAdmin && !isAdmin) return "Requires admin";
 
     this.clientRegistry[id] = peer;
     this.taskRegistry[taskId].clients[id] = true; // Uniquely insert client to avoid sending duplicate traffic
@@ -106,7 +106,7 @@ class TaskHandler {
       log: task.log,
       progress: task.progress,
     };
-    peer.send(catchupMessage);
+    peer.send(JSON.stringify(catchupMessage));
 
     return true;
   }
@@ -150,7 +150,7 @@ export type TaskMessage = {
 };
 
 export type PeerImpl = {
-  send: (message: TaskMessage) => void;
+  send: (message: string) => void;
 };
 
 export const taskHandler = new TaskHandler();

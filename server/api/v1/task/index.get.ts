@@ -3,12 +3,16 @@ import session from "~/server/internal/session";
 import { v4 as uuidv4 } from "uuid";
 import taskHandler, { TaskMessage } from "~/server/internal/tasks";
 
+// TODO add web socket sessions for horizontal scaling
+// ID to admin
+const socketSessions: { [key: string]: boolean } = {};
+
 export default defineWebSocketHandler({
   open(peer) {
     const dummyEvent = {
       node: {
         req: {
-          headers: peer.headers,
+          headers: peer.request?.headers,
         },
       },
     } as unknown as H3Event;
@@ -18,29 +22,31 @@ export default defineWebSocketHandler({
       return;
     }
     const admin = session.getAdminUser(dummyEvent);
-    const peerId = uuidv4();
-    peer.ctx.id = peerId;
-    peer.ctx.admin = admin !== undefined;
+    socketSessions[peer.id] = admin !== undefined;
 
     const rtMsg: TaskMessage = {
       id: "connect",
+      name: "Connect",
       success: true,
       progress: 0,
       error: undefined,
       log: [],
     };
-    peer.send(rtMsg);
+    peer.send(JSON.stringify(rtMsg));
   },
   message(peer, message) {
-    if (!peer.ctx.id) return;
+    if (!peer.id) return;
+    if (socketSessions[peer.id] === undefined) return;
     const text = message.text();
     if (text.startsWith("connect/")) {
       const id = text.substring("connect/".length);
-      taskHandler.connect(peer.ctx.id, id, peer, peer.ctx.admin);
+      taskHandler.connect(peer.id, id, peer, socketSessions[peer.id]);
       return;
     }
   },
   close(peer, details) {
-    if (!peer.ctx.id) return;
+    if (!peer.id) return;
+    if (socketSessions[peer.id] === undefined) return;
+    delete socketSessions[peer.id];
   },
 });
