@@ -18,15 +18,7 @@ useHead({
     title: `${props.error?.statusCode ?? "An unknown error occurred"} | Drop`,
 });
 
-const errorCode = props.error?.statusCode;
-if (errorCode != undefined) {
-    switch (errorCode) {
-        case 403:
-        case 401:
-            if (!user.value) signIn();
-            break;
-    }
-}
+console.log(props.error);
 </script>
 
 <template>
