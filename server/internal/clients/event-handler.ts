@@ -5,7 +5,7 @@ import prisma from "../db/database";
 
 export type EventHandlerFunction<T> = (
   h3: H3Event<EventHandlerRequest>,
-  utils: ClientUtils
+  utils: ClientUtils,
 ) => Promise<T> | T;
 
 type ClientUtils = {
@@ -18,7 +18,7 @@ const NONCE_LENIENCE = 30_000;
 
 export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
   return defineEventHandler(async (h3) => {
-    const header = await getHeader(h3, "Authorization");
+    const header = getHeader(h3, "Authorization");
     if (!header) throw createError({ statusCode: 403 });
     const [method, ...parts] = header.split(" ");
 
@@ -49,6 +49,7 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
 
         const ca = h3.context.ca;
         const certBundle = await ca.fetchClientCertificate(clientId);
+        // This does the blacklist check already
         if (!certBundle)
           throw createError({
             statusCode: 403,
@@ -80,7 +81,7 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
       });
       if (!client)
         throw new Error(
-          "client util fetch client broke - this should NOT happen"
+          "client util fetch client broke - this should NOT happen",
         );
       return client;
     }
@@ -95,7 +96,7 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
 
       if (!client)
         throw new Error(
-          "client util fetch client broke - this should NOT happen"
+          "client util fetch client broke - this should NOT happen",
         );
 
       return client.user;
