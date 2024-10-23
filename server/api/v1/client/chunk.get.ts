@@ -49,6 +49,13 @@ export default defineEventHandler(async (h3) => {
 
   const start = chunkIndex * chunkSize;
   const end = Math.min((chunkIndex + 1) * chunkSize, gameFileStats.size);
+
+  if (start >= end)
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Invalid chunk index",
+    });
+
   const gameReadStream = fs.createReadStream(gameFile, { start, end });
 
   return sendStream(h3, gameReadStream);
