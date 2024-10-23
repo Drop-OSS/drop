@@ -6,14 +6,14 @@ import libraryManager from "~/server/internal/library";
 
 const chunkSize = 1024 * 1024 * 64;
 
-export default defineClientEventHandler(async (h3) => {
+export default defineEventHandler(async (h3) => {
   const query = getQuery(h3);
   const gameId = query.id?.toString();
-  const versionName = query.versionName?.toString();
+  const versionName = query.version?.toString();
   const filename = query.name?.toString();
   const chunkIndex = parseInt(query.chunk?.toString() ?? "?");
 
-  if (!gameId || !versionName || !filename || !Number.isNaN(chunkIndex))
+  if (!gameId || !versionName || !filename || Number.isNaN(chunkIndex))
     throw createError({
       statusCode: 400,
       statusMessage: "Invalid chunk arguments",
@@ -30,7 +30,11 @@ export default defineClientEventHandler(async (h3) => {
   if (!game)
     throw createError({ statusCode: 400, statusMessage: "Invalid game ID" });
 
-  const versionDir = path.join(libraryManager.fetchLibraryPath(), versionName);
+  const versionDir = path.join(
+    libraryManager.fetchLibraryPath(),
+    game.libraryBasePath,
+    versionName,
+  );
   if (!fs.existsSync(versionDir))
     throw createError({
       statusCode: 400,

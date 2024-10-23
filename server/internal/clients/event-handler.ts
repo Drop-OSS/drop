@@ -66,6 +66,7 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
       default:
         throw createError({
           statusCode: 403,
+          statusMessage: "No authentication",
         });
     }
 
