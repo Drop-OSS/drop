@@ -42,7 +42,7 @@ export default defineEventHandler(async (h3) => {
     });
 
   const gameFile = path.join(versionDir, filename);
-  if (!fs.existsSync(versionDir))
+  if (!fs.existsSync(gameFile))
     throw createError({ statusCode: 400, statusMessage: "Invalid game file" });
 
   const gameFileStats = fs.statSync(gameFile);

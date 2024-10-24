@@ -29,7 +29,6 @@ class ManifestGenerator {
     if (overlays.length == 0) {
       return Object.fromEntries(
         Object.entries(rootManifest.manifest).map(([key, value]) => {
-          console.log(key, value);
           return [
             key,
             Object.assign({}, value, { versionName: rootManifest.versionName }),
