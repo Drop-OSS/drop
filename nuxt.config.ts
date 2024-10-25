@@ -1,9 +1,12 @@
+import path from "path";
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  // Nuxt-only config
   compatibilityDate: "2024-04-03",
   devtools: { enabled: false },
-
   css: ["~/assets/core.scss"],
+
   postcss: {
     plugins: {
       tailwindcss: {},
@@ -20,6 +23,31 @@ export default defineNuxtConfig({
   nitro: {
     experimental: {
       websocket: true,
+    },
+  },
+
+  watchers: {
+    chokidar: {
+      ignored: ".data",
+    },
+  },
+
+  // Module config from here down
+  modules: ["@nuxt/content"],
+
+  content: {
+    api: {
+      baseURL: "/api/v1/_content",
+    },
+    markdown: {
+      anchorLinks: false,
+    },
+    sources: {
+      content: {
+        driver: "fs",
+        prefix: "/docs",
+        base: path.resolve(__dirname, "docs"),
+      },
     },
   },
 });

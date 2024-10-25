@@ -1,6 +1,7 @@
 services:
   postgres:
     image: postgres:14-alpine
+    user: "1000:1000"
     ports:
       - 5432:5432
     volumes:

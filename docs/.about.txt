@@ -1,0 +1,1 @@
+These docs are automatically compiled in the Drop UI and are designed for admins and users to understand how Drop works.

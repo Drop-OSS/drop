@@ -11,7 +11,7 @@
         </div>
         <!-- main page -->
         <div
-            class="max-w-7xl w-full min-h-screen mx-auto bg-zinc-900 px-16 py-12 rounded-md"
+            class="max-w-7xl w-full min-h-screen mx-auto bg-zinc-900 px-5 py-4 sm:px-16 sm:py-12 rounded-md"
         >
             <h1
                 class="text-3xl md:text-5xl font-bold font-display text-zinc-100 pb-4 border-b border-zinc-800"

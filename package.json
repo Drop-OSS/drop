@@ -13,6 +13,7 @@
     "@drop/droplet": "^0.5.1",
     "@headlessui/vue": "^1.7.23",
     "@heroicons/vue": "^2.1.5",
+    "@nuxt/content": "^2.13.4",
     "@prisma/client": "5.20.0",
     "axios": "^1.7.7",
     "bcrypt": "^5.1.1",
