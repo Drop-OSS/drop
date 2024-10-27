@@ -26,14 +26,12 @@ export default defineNuxtConfig({
     },
   },
 
-  watchers: {
-    chokidar: {
-      ignored: ".data",
-    },
-  },
-
   // Module config from here down
-  modules: ["@nuxt/content"],
+  modules: ["@nuxt/content", "vue3-carousel-nuxt"],
+
+  carousel: {
+    prefix: "Vue",
+  },
 
   content: {
     api: {

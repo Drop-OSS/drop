@@ -41,6 +41,14 @@ model LinkedAuthMec {
   @@id([userId, mec])
 }
 
+model Invitation {
+  id      String  @id @default(uuid())
+  isAdmin Boolean @default(false)
+
+  username    String?
+  email       String?
+}
+
 enum ClientCapabilities {
   DownloadAggregation
 }

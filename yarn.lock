@@ -296,23 +296,23 @@
   dependencies:
     mime "^3.0.0"
 
-"@drop/droplet-linux-x64-gnu@0.5.1", "@drop/droplet-linux-x64-gnu@^0.5.1":
-  version "0.5.1"
-  resolved "https://lab.deepcore.dev/api/v4/projects/57/packages/npm/@drop/droplet-linux-x64-gnu/-/@drop/droplet-linux-x64-gnu-0.5.1.tgz#3313f2ab18113efe15c5e7fc1c0b04f9006ebfbb"
-  integrity sha1-MxPyqxgRPv4Vxef8HAsE+QBuv7s=
+"@drop/droplet-linux-x64-gnu@^0.7.0":
+  version "0.7.0"
+  resolved "https://lab.deepcore.dev/api/v4/projects/57/packages/npm/@drop/droplet-linux-x64-gnu/-/@drop/droplet-linux-x64-gnu-0.7.0.tgz#128e37707481cfcbbeb057142164f3e637f13f26"
+  integrity sha1-Eo43cHSBz8u+sFcUIWTz5jfxPyY=
 
-"@drop/droplet-win32-x64-msvc@0.5.1", "@drop/droplet-win32-x64-msvc@^0.5.1":
-  version "0.5.1"
-  resolved "https://lab.deepcore.dev/api/v4/projects/57/packages/npm/@drop/droplet-win32-x64-msvc/-/@drop/droplet-win32-x64-msvc-0.5.1.tgz#789e208884716971df428ebd43e42fc595edd634"
-  integrity sha1-eJ4giIRxaXHfQo69Q+QvxZXt1jQ=
+"@drop/droplet-win32-x64-msvc@^0.7.0":
+  version "0.7.0"
+  resolved "https://lab.deepcore.dev/api/v4/projects/57/packages/npm/@drop/droplet-win32-x64-msvc/-/@drop/droplet-win32-x64-msvc-0.7.0.tgz#db41136165ca74819b359db5d4e9c1ab2c4188c0"
+  integrity sha1-20ETYWXKdIGbNZ211OnBqyxBiMA=
 
-"@drop/droplet@^0.5.1":
-  version "0.5.1"
-  resolved "https://lab.deepcore.dev/api/v4/projects/57/packages/npm/@drop/droplet/-/@drop/droplet-0.5.1.tgz#646158e06712e7d132050f7deb37b866edc9121a"
-  integrity sha1-ZGFY4GcS59EyBQ996ze4Zu3JEho=
+"@drop/droplet@^0.7.0":
+  version "0.7.0"
+  resolved "https://lab.deepcore.dev/api/v4/projects/57/packages/npm/@drop/droplet/-/@drop/droplet-0.7.0.tgz#3728951758b899cc242a40aec2b7f326f11c3714"
+  integrity sha1-NyiVF1i4mcwkKkCuwrfzJvEcNxQ=
   optionalDependencies:
-    "@drop/droplet-linux-x64-gnu" "0.5.1"
-    "@drop/droplet-win32-x64-msvc" "0.5.1"
+    "@drop/droplet-linux-x64-gnu" "0.7.0"
+    "@drop/droplet-win32-x64-msvc" "0.7.0"
 
 "@esbuild/aix-ppc64@0.20.2":
   version "0.20.2"
@@ -917,7 +917,7 @@
     which "^3.0.1"
     ws "^8.18.0"
 
-"@nuxt/kit@3.13.2", "@nuxt/kit@^3.13.1", "@nuxt/kit@^3.13.2":
+"@nuxt/kit@3.13.2", "@nuxt/kit@^3.12.4", "@nuxt/kit@^3.13.1", "@nuxt/kit@^3.13.2":
   version "3.13.2"
   resolved "https://registry.yarnpkg.com/@nuxt/kit/-/kit-3.13.2.tgz#4c019a87e08c33ec14d1059497ba40568b82bfed"
   integrity sha512-KvRw21zU//wdz25IeE1E5m/aFSzhJloBRAQtv+evcFeZvuroIxpIQuUqhbzuwznaUwpiWbmwlcsp5uOWmi4vwA==
@@ -6875,6 +6875,19 @@ vue-router@^4.4.5, vue-router@latest:
   integrity sha512-4fKZygS8cH1yCyuabAXGUAsyi1b2/o/OKgu/RUb+znIYOxPRxdkytJEx+0wGcpBE1pX6vUgh5jwWOKRGvuA/7Q==
   dependencies:
     "@vue/devtools-api" "^6.6.4"
+
+vue3-carousel-nuxt@^1.1.3:
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/vue3-carousel-nuxt/-/vue3-carousel-nuxt-1.1.3.tgz#f63e0ccfc398c42b9d5c8098fb7da9f611749751"
+  integrity sha512-VssmTpUn3PdTEs2/BrU6eDj/kBV3+Q44fcKY3+9a5Mqjmv2zkV20E9gPiA4MO4qZ58AJetQAxrpJ5nJ67HA52w==
+  dependencies:
+    "@nuxt/kit" "^3.12.4"
+    vue3-carousel "^0.3.4"
+
+vue3-carousel@^0.3.4:
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/vue3-carousel/-/vue3-carousel-0.3.4.tgz#8ef6d6b592385b7f8e97fcd508a3f4db29a2391e"
+  integrity sha512-jImUDbQa/9pELxUQdkflUPXL94V+iQZaOPUxWDBKSffCuxhYcV3sDM40pxoiYxUxXoNCDLUF4u9Ug6Xjdt4nkA==
 
 vue@^3.5.5, vue@latest:
   version "3.5.12"

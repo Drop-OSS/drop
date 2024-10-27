@@ -1,4 +1,4 @@
-const whitelistedPrefixes = ["/signin", "/register", "/api"];
+const whitelistedPrefixes = ["/signin", "/register", "/api", "/setup"];
 const requireAdmin = ["/admin"];
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
