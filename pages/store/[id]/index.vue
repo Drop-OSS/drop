@@ -19,9 +19,9 @@
         {{ game.mName }}
       </h1>
 
-      <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-10">
+      <div class="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-10">
         <div
-          class="col-start-1 md:col-start-4 flex flex-col gap-y-6 items-center"
+          class="col-start-1 lg:col-start-4 flex flex-col gap-y-6 items-center"
         >
           <img class="w-64 h-auto rounded" :src="useObject(game.mCoverId)" />
           <button
@@ -46,7 +46,7 @@
           </div>
         </div>
 
-        <div class="row-start-2 md:row-start-1 md:col-span-3">
+        <div class="row-start-2 lg:row-start-1 lg:col-span-3">
           <p class="text-lg text-zinc-400">
             {{ game.mShortDescription }}
           </p>
