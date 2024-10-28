@@ -1,9 +1,8 @@
 import { AuthMec, Invitation } from "@prisma/client";
-import { Readable } from "stream";
 import prisma from "~/server/internal/db/database";
 import { createHash } from "~/server/internal/security/simple";
 import { v4 as uuidv4 } from "uuid";
-import { KeyOfType } from "~/server/internal/utils/types";
+import * as jdenticon from "jdenticon";
 
 // Only really a simple test, in case people mistype their emails
 const mailRegex = /^\S+@\S+\.\S+$/g;
@@ -48,6 +47,9 @@ export default defineEventHandler(async (h3) => {
     mailRegex.test(e)
   );
   const password = body.password;
+  const displayName = body.displayName ?? username;
+
+  console.log(username, email, password.length, displayName);
   if (username === undefined)
     throw createError({
       statusCode: 400,
@@ -66,6 +68,12 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Password empty or missing.",
     });
 
+  if (password.length < 14)
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Password must be 14 or more characters.",
+    });
+
   const existing = await prisma.user.count({ where: { username: username } });
   if (existing > 0)
     throw createError({
@@ -78,18 +86,15 @@ export default defineEventHandler(async (h3) => {
   const profilePictureId = uuidv4();
   await h3.context.objects.createFromSource(
     profilePictureId,
-    () =>
-      $fetch<Readable>("https://avatars.githubusercontent.com/u/64579723?v=4", {
-        responseType: "stream",
-      }),
+    async () => jdenticon.toPng(username, 256),
     {},
     [`anonymous:read`, `${userId}:write`]
   );
   const user = await prisma.user.create({
     data: {
       username,
-      displayName: "DecDuck",
-      email: "",
+      displayName,
+      email,
       profilePicture: profilePictureId,
       admin: true,
     },
@@ -103,6 +108,8 @@ export default defineEventHandler(async (h3) => {
       userId: user.id,
     },
   });
+
+  await prisma.invitation.delete({ where: { id: invitationId } });
 
   return user;
 });

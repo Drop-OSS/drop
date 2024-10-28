@@ -1,3 +1,4 @@
+import prisma from "~/server/internal/db/database";
 import libraryManager from "~/server/internal/library";
 
 export default defineEventHandler(async (h3) => {
@@ -11,12 +12,32 @@ export default defineEventHandler(async (h3) => {
   const startup = body.startup;
   const setup = body.setup ?? "";
   const delta = body.delta ?? false;
-  if (!gameId || !versionName || !platform || (!delta && !startup))
+
+  // startup & delta require more complex checking logic
+  if (!gameId || !versionName || !platform)
     throw createError({
       statusCode: 400,
       statusMessage:
-        "ID, version, platform, setup and startup (if not in upgrade mode) are required. ",
+        "ID, version, platform, setup, and startup (if not in update mode) are required.",
     });
+
+  if (!delta && !startup)
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Startup executable is required for non-update versions",
+    });
+
+  if (delta) {
+    const validOverlayVersions = await prisma.gameVersion.count({
+      where: { gameId: gameId, platform: platform, delta: false },
+    });
+    if (validOverlayVersions == 0)
+      throw createError({
+        statusCode: 400,
+        statusMessage:
+          "Update mode requires a pre-existing version for this platform.",
+      });
+  }
 
   const taskId = await libraryManager.importVersion(
     gameId,
@@ -26,7 +47,7 @@ export default defineEventHandler(async (h3) => {
       startup,
       setup,
     },
-    delta,
+    delta
   );
   if (!taskId)
     throw createError({
