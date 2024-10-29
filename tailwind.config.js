@@ -24,5 +24,5 @@ export default {
       },
     },
   },
-  plugins: [forms, tpyo],
+  plugins: [require("@tailwindcss/forms"), require("@tailwindcss/typography")],
 };
