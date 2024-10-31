@@ -47,9 +47,8 @@ export default defineEventHandler(async (h3) => {
     mailRegex.test(e)
   );
   const password = body.password;
-  const displayName = body.displayName ?? username;
+  const displayName = body.displayName || username;
 
-  console.log(username, email, password.length, displayName);
   if (username === undefined)
     throw createError({
       statusCode: 400,
