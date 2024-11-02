@@ -13,6 +13,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model ApplicationSettings {
+  timestamp DateTime @id @default(now())
+
+  enabledAuthencationMechanisms AuthMec[]
+}
+
 model User {
   id       String  @id @default(uuid())
   username String  @unique
@@ -45,8 +51,8 @@ model Invitation {
   id      String  @id @default(uuid())
   isAdmin Boolean @default(false)
 
-  username    String?
-  email       String?
+  username String?
+  email    String?
 }
 
 enum ClientCapabilities {
