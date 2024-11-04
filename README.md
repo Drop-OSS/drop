@@ -44,4 +44,4 @@ To create an account:
 Head over to the `/register` page. It's currently a temporary development form for creating a username + password log in.
 
 ## Contributing
-Please see the [in-depth contributing guide](https://github.com/Drop-OSS/drop/blob/main/CONTRIBUTING.md)
+Please see the [in-depth contributing guide](CONTRIBUTING.md)
