@@ -1,10 +1,10 @@
 <div align="center">
-<img src="https://raw.githubusercontent.com/Drop-OSS/media-sources/refs/heads/main/drop.svg" width="400px"/>
+<img src="https://raw.githubusercontent.com/Drop-OSS/media-sources/refs/heads/main/drop.svg" width="400rem"/>
 </div>
-<p align="center">
+<div align="center">
 	<a href="contributing.md">Contribution guide</a>&nbsp;&nbsp;&nbsp;
 	<a href="https://deepcore.dev">Our website</a>&nbsp;&nbsp;&nbsp;
-</p>
+</div>
 <br>
 <br>
 
