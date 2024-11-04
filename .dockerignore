@@ -24,9 +24,3 @@ logs
 !.env.example
 
 .data
-
-
-# deploy template
-deploy-template/*
-
-!deploy-template/compose.yml

@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres:14-alpine
+    user: "1000:1000"
+    ports:
+      - 5432:5432
+    volumes:
+      - ./db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=drop
+      - POSTGRES_USER=drop
+      - POSTGRES_DB=drop
+  drop:
+    image: drop # todo
+    user: "1000:1000"
+    ports:
+      - 3000:3000
+    volumes:
+      - ./library:/library
+      - ./certs:/certs
+      - ./objects:/objects
+    environment:
+      - DATABASE_URL=postgres://drop:drop@postgres:5432/drop
+      - FS_BACKEND_PATH=/objects
+      - CLIENT_CERTIFICATES=/certs
+      - LIBRARY=/library
+      - GIANT_BOMB_API_KEY=REPLACE_WITH_YOUR_KEY

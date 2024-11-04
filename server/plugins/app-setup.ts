@@ -1,6 +1,4 @@
-import {
-  applicationSettings,
-} from "../internal/config/application-configuration";
+import { applicationSettings } from "../internal/config/application-configuration";
 import prisma from "../internal/db/database";
 
 export default defineNitroPlugin(async (nitro) => {
