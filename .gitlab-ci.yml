@@ -10,7 +10,7 @@ build:
     - name: "docker:20.10.12-dind"
       command: ["--tls=false", "--host=tcp://0.0.0.0:2375"]
   script:
-    - echo "$DOCKER_REGISTRY_PASS" | docker login $DOCKER_REGISTRY --username $DOCKER_REGISTRY_USER --password-stdin
+    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
     - |
       if [[ -z "$CI_COMMIT_TAG" ]]; then
         export CI_APPLICATION_REPOSITORY=${CI_APPLICATION_REPOSITORY:-$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG}
