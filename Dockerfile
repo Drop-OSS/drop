@@ -8,8 +8,8 @@ WORKDIR /build
 # install dependencies and build
 RUN corepack enable
 COPY . .
-RUN pnpm install
-RUN pnpm build
+RUN NUXT_TELEMETRY_DISABLED=1 yarn install
+RUN NUXT_TELEMETRY_DISABLED=1 yarn build
 
 # create run environment for Drop
 FROM node:lts-slim AS run-system

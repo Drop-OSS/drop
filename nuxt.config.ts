@@ -3,6 +3,7 @@ import path from "path";
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   // Nuxt-only config
+  telemetry: false,
   compatibilityDate: "2024-04-03",
   devtools: { enabled: false },
   css: ["~/assets/core.scss"],
