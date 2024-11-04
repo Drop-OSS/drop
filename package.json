@@ -17,7 +17,6 @@
     "@prisma/client": "5.20.0",
     "axios": "^1.7.7",
     "bcrypt": "^5.1.1",
-    "canvas": "^2.11.2",
     "fast-fuzzy": "^1.12.0",
     "file-type-mime": "^0.4.3",
     "jdenticon": "^3.3.0",
