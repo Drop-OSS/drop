@@ -6,9 +6,10 @@ RUN mkdir /build
 WORKDIR /build
 
 # install dependencies and build
+RUN corepack enable
 COPY . .
-RUN yarn install --non-interactive --verbose
-RUN yarn build
+RUN pnpm install
+RUN pnpm build
 
 # create run environment for Drop
 FROM node:lts-slim AS run-system

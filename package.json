@@ -35,7 +35,6 @@
     "vue3-carousel-nuxt": "^1.1.3",
     "vuedraggable": "^4.1.0"
   },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.9",
     "@tailwindcss/typography": "^0.5.15",
@@ -53,5 +52,6 @@
   "optionalDependencies": {
     "@drop/droplet-linux-x64-gnu": "^0.7.0",
     "@drop/droplet-win32-x64-msvc": "^0.7.0"
-  }
+  },
+  "packageManager": "pnpm@9.12.3+sha512.cce0f9de9c5a7c95bef944169cc5dfe8741abfb145078c0d508b868056848a87c81e626246cb60967cbd7fd29a6c062ef73ff840d96b3c86c40ac92cf4a813ee"
 }
