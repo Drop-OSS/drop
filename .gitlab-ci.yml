@@ -1,0 +1,16 @@
+stages:
+  - build
+
+build:
+  stage: build
+
+  image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/docker:20.10.16
+  services:
+    - name: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/docker:18.09.7-dind
+      alias: docker
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
+  script:
+    - export CI_DOCKER_IMAGE_NAME $CI_REGISTRY/drop-oss/drop/$CI_COMMIT_REF_NAME:latest
+    - docker build -t $CI_DOCKER_IMAGE_NAME .
+    - docker push $CI_DOCKER_IMAGE_NAME
