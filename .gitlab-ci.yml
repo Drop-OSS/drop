@@ -1,26 +1,5 @@
+include:
+  - template: Auto-DevOps.gitlab-ci.yml
+
 stages:
   - build
-
-default:
-  image: docker:24.0.5
-  services:
-    - docker:24.0.5-dind
-  before_script:
-    - docker info
-
-variables:
-  DOCKER_HOST: tcp://docker:2375
-  DOCKER_TLS_CERTDIR: ""
-
-  IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
-  IMAGE_TAG_LATEST: $CI_REGISTRY_IMAGE:latest
-
-build:
-  stage: build
-  before_script:
-    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
-  script:
-    - docker build -t $IMAGE_TAG .
-    - docker image tag $IMAGE_TAG $IMAGE_TAG_LATEST
-    - docker push $IMAGE_TAG
-    - docker push $IMAGE_TAG_LATEST
