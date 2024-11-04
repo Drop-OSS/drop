@@ -1,9 +1,14 @@
 services:
   postgres:
     image: postgres:14-alpine
-    user: "1000:1000"
     ports:
       - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "postgres"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 10s
     volumes:
       - ./db:/var/lib/postgresql/data
     environment:
@@ -12,7 +17,9 @@ services:
       - POSTGRES_DB=drop
   drop:
     image: drop # todo
-    user: "1000:1000"
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - 3000:3000
     volumes:

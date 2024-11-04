@@ -7,7 +7,7 @@ WORKDIR /build
 
 # install dependencies and build
 COPY . .
-RUN yarn install
+RUN yarn install --non-interactive
 RUN yarn build
 
 # create run environment for Drop
