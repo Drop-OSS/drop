@@ -1,6 +1,9 @@
 stages:
   - build
 
+variables:
+  DOCKER_HOST: tcp://docker:2375
+  
 build:
   stage: build
 
@@ -9,9 +12,12 @@ build:
     - name: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/docker:18.09.7-dind
       alias: docker
   variables:
-    IMAGE_NAME: $CI_REGISTRY/drop-oss/drop/$CI_COMMIT_REF_NAME:latest
+    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+    IMAGE_TAG_LATEST: $CI_REGISTRY_IMAGE:latest
   before_script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
   script:
-    - docker build -t $IMAGE_NAME .
-    - docker push $IMAGE_NAME
+    - docker build -t $IMAGE_TAG .
+    - docker image tag $IMAGE_TAG $IMAGE_TAG_LATEST
+    - docker push $IMAGE_TAG
+    - docker push $IMAGE_TAG_LATEST
