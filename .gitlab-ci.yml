@@ -1,18 +1,16 @@
 stages:
   - build
 
-variables:
-  AUTO_BUILD_IMAGE_VERSION: 'v4.3.0'
-
 build:
   stage: build
-  image: '${CI_TEMPLATE_REGISTRY_HOST}/gitlab-org/cluster-integration/auto-build-image:${AUTO_BUILD_IMAGE_VERSION}'
+  image: "docker:24.0.5"
   variables:
-    DOCKER_TLS_CERTDIR: ''
+    DOCKER_TLS_CERTDIR: ""
   services:
-    - name: 'docker:20.10.12-dind'
-      command: ['--tls=false', '--host=tcp://0.0.0.0:2375']
+    - name: "docker:20.10.12-dind"
+      command: ["--tls=false", "--host=tcp://0.0.0.0:2375"]
   script:
+    - echo "$DOCKER_REGISTRY_PASS" | docker login $DOCKER_REGISTRY --username $DOCKER_REGISTRY_USER --password-stdin
     - |
       if [[ -z "$CI_COMMIT_TAG" ]]; then
         export CI_APPLICATION_REPOSITORY=${CI_APPLICATION_REPOSITORY:-$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG}
@@ -21,13 +19,14 @@ build:
         export CI_APPLICATION_REPOSITORY=${CI_APPLICATION_REPOSITORY:-$CI_REGISTRY_IMAGE}
         export CI_APPLICATION_TAG=${CI_APPLICATION_TAG:-$CI_COMMIT_TAG}
       fi
-    - /build/build.sh
-  artifacts:
-    reports:
-      dotenv: gl-auto-build-variables.env
+    - docker info
+    - docker build -t $CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG .
+    - docker image tag $CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG $CI_APPLICATION_REPOSITORY:latest
+    - docker push $CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG
+    - docker push $CI_APPLICATION_REPOSITORY:latest
   rules:
-    - if: '$BUILD_DISABLED'
+    - if: "$BUILD_DISABLED"
       when: never
     - if: '$AUTO_DEVOPS_PLATFORM_TARGET == "EC2"'
       when: never
-    - if: '$CI_COMMIT_TAG || $CI_COMMIT_BRANCH'
+    - if: "$CI_COMMIT_TAG || $CI_COMMIT_BRANCH"
