@@ -23,7 +23,7 @@
     "markdown-it": "^14.1.0",
     "moment": "^2.30.1",
     "nuxt": "^3.13.2",
-    "prisma": "^5.20.0",
+    "prisma": "^5.22.0",
     "sanitize-filename": "^1.6.3",
     "stream": "^0.0.3",
     "stream-mime-type": "^2.0.0",
