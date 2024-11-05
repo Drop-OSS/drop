@@ -51,8 +51,6 @@ class ApplicationConfiguration {
       },
     });
 
-    console.log("created configuration");
-
     this.currentApplicationSettings = initialState;
     this.buildApplicationSettingsProxy();
   }
@@ -68,7 +66,6 @@ class ApplicationConfiguration {
 
     this.currentApplicationSettings = latestState;
     this.buildApplicationSettingsProxy();
-    console.log("pulled configuration");
   }
 
   async waitForWrite() {
