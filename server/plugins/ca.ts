@@ -1,6 +1,6 @@
 import { CertificateAuthority } from "../internal/clients/ca";
 import fs from "fs";
-import { fsCertificateStore } from "../internal/clients/store";
+import { fsCertificateStore } from "../internal/clients/ca-store";
 
 let ca: CertificateAuthority | undefined;
 

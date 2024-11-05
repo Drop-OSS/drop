@@ -1,6 +1,6 @@
 import path from "path";
 import droplet from "@drop/droplet";
-import { CertificateStore } from "./store";
+import { CertificateStore } from "./ca-store";
 
 export type CertificateBundle = {
   priv: string;
