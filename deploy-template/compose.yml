@@ -16,7 +16,7 @@ services:
       - POSTGRES_USER=drop
       - POSTGRES_DB=drop
   drop:
-    image: drop # todo
+    image: registry.deepcore.dev/drop-oss/drop/main:latest
     depends_on:
       postgres:
         condition: service_healthy
