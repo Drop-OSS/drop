@@ -5,7 +5,7 @@ import prisma from "../db/database";
 
 export type EventHandlerFunction<T> = (
   h3: H3Event<EventHandlerRequest>,
-  utils: ClientUtils,
+  utils: ClientUtils
 ) => Promise<T> | T;
 
 type ClientUtils = {
@@ -82,7 +82,7 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
       });
       if (!client)
         throw new Error(
-          "client util fetch client broke - this should NOT happen",
+          "client util fetch client broke - this should NOT happen"
         );
       return client;
     }
@@ -97,7 +97,7 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
 
       if (!client)
         throw new Error(
-          "client util fetch client broke - this should NOT happen",
+          "client util fetch client broke - this should NOT happen"
         );
 
       return client.user;
@@ -108,6 +108,11 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
       fetchClient,
       fetchUser,
     };
+
+    prisma.client.update({
+      where: { id: clientId },
+      data: { lastConnected: new Date() },
+    });
 
     return await handler(h3, utils);
   });
