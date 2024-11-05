@@ -20,6 +20,7 @@ class LibraryManager {
 
   constructor() {
     this.basePath = process.env.LIBRARY ?? "./.data/library";
+    fs.mkdirSync(this.basePath, { recursive: true });
   }
 
   fetchLibraryPath() {
@@ -49,13 +50,13 @@ class LibraryManager {
 
   async fetchUnimportedGameVersions(
     libraryBasePath: string,
-    versions: Array<GameVersion>,
+    versions: Array<GameVersion>
   ) {
     const gameDir = path.join(this.basePath, libraryBasePath);
     const versionsDirs = fs.readdirSync(gameDir);
     const importedVersionDirs = versions.map((e) => e.versionName);
     const unimportedVersions = versionsDirs.filter(
-      (e) => !importedVersionDirs.includes(e),
+      (e) => !importedVersionDirs.includes(e)
     );
 
     return unimportedVersions;
@@ -83,10 +84,10 @@ class LibraryManager {
           noVersions: e.versions.length == 0,
           unimportedVersions: await this.fetchUnimportedGameVersions(
             e.libraryBasePath,
-            e.versions,
+            e.versions
           ),
         },
-      })),
+      }))
     );
   }
 
@@ -107,13 +108,13 @@ class LibraryManager {
     const targetDir = path.join(this.basePath, game.libraryBasePath);
     if (!fs.existsSync(targetDir))
       throw new Error(
-        "Game in database, but no physical directory? Something is very very wrong...",
+        "Game in database, but no physical directory? Something is very very wrong..."
       );
     const versions = fs.readdirSync(targetDir);
     const currentVersions = game.versions.map((e) => e.versionName);
 
     const unimportedVersions = versions.filter(
-      (e) => !currentVersions.includes(e),
+      (e) => !currentVersions.includes(e)
     );
     return unimportedVersions;
   }
@@ -127,7 +128,7 @@ class LibraryManager {
     const targetDir = path.join(
       this.basePath,
       game.libraryBasePath,
-      versionName,
+      versionName
     );
     if (!fs.existsSync(targetDir)) return undefined;
 
@@ -175,7 +176,7 @@ class LibraryManager {
       const finalChoice = sortedOptions[0];
       const finalChoiceRelativePath = path.relative(
         targetDir,
-        finalChoice.filename,
+        finalChoice.filename
       );
       startupGuess = finalChoiceRelativePath;
       platformGuess = finalChoice.platform;
@@ -200,7 +201,7 @@ class LibraryManager {
     gameId: string,
     versionName: string,
     metadata: { platform: string; setup: string; startup: string },
-    delta = false,
+    delta = false
   ) {
     const taskId = `import:${gameId}:${versionName}`;
 
@@ -237,7 +238,7 @@ class LibraryManager {
             (err, manifest) => {
               if (err) return reject(err);
               resolve(manifest);
-            },
+            }
           );
         });
 
