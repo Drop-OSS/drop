@@ -2,7 +2,7 @@
 <img src="https://raw.githubusercontent.com/Drop-OSS/media-sources/refs/heads/main/drop.svg" width="400rem"/>
 </div>
 <div align="center">
-	<a href="contributing.md">Contribution guide</a>&nbsp;&nbsp;&nbsp;
+	<a href="CONTRIBUTING.md">Contribution guide</a>&nbsp;&nbsp;&nbsp;
 	<a href="https://deepcore.dev">Our website</a>&nbsp;&nbsp;&nbsp;
 </div>
 <br>
@@ -11,7 +11,7 @@
 [![GitHub License](https://img.shields.io/github/license/Drop-OSS/drop-app)](LICENSE)
 ![Gitlab Pipeline Status](https://img.shields.io/gitlab/pipeline-status/drop-oss%2Fdrop?gitlab_url=https%3A%2F%2Flab.deepcore.dev)
 [![Discord](https://img.shields.io/discord/1291622805124812871?label=discord)](https://discord.gg/ZVGggfXN)
-[![Static Badge](https://img.shields.io/badge/contributions-welcome-blue)](https://github.com/Drop-OSS/drop/blob/main/README.md)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
 
 
 # Drop 
