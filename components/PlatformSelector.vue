@@ -83,7 +83,7 @@ import {
 } from "@headlessui/vue";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 import type { Component } from "vue";
-import LinuxLogo from "./LinuxLogo.vue";
+import LinuxLogo from "./icons/LinuxLogo.vue";
 import WindowsLogo from "./WindowsLogo.vue";
 
 const model = defineModel<string>();

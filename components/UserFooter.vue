@@ -63,8 +63,8 @@
 </template>
 
 <script setup lang="ts">
-import GithubLogo from './GithubLogo.vue';
-import DiscordLogo from './DiscordLogo.vue';
+import GithubLogo from './icons/GithubLogo.vue';
+import DiscordLogo from './icons/DiscordLogo.vue';
 
 const navigation = {
     games: [

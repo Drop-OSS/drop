@@ -93,7 +93,7 @@
 import { PlusIcon } from "@heroicons/vue/20/solid";
 import { Platform, type Game, type GameVersion } from "@prisma/client";
 import MarkdownIt from "markdown-it";
-import LinuxLogo from "~/components/LinuxLogo.vue";
+import LinuxLogo from "~/components/icons/LinuxLogo.vue";
 import WindowsLogo from "~/components/WindowsLogo.vue";
 
 const route = useRoute();
