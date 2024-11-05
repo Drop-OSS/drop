@@ -187,7 +187,7 @@
 </template>
 
 <script setup lang="ts">
-import { XCircleIcon } from '@heroicons/vue/24/solid';
+import { XCircleIcon } from "@heroicons/vue/24/solid";
 
 const route = useRoute();
 const router = useRouter();
@@ -257,5 +257,9 @@ function register_wrapper() {
 
 definePageMeta({
   layout: false,
+});
+
+useHead({
+  title: "Create your Drop account",
 });
 </script>
