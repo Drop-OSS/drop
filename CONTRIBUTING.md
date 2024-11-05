@@ -153,7 +153,7 @@ type(scope)!: subject
   - `perf`: performance improvements.
   - `test`: changes to the test suite.
   - `ci`: changes to the CI system.
-  - `build`: changes to the build system (we don't yet have one so this shouldn't apply).
+  - `build`: changes to the build system.
   - `chore`: for other changes that don't match previous types. This doesn't appear
     in the changelog.
 
@@ -222,14 +222,15 @@ subject is clear and precise enough that users will know what changed by just lo
 
 ----
 
+<!--
 ## Volunteer
 
 Very nice!! :)
 
 Please have a look at the [Volunteer](https://github.com/ohmyzsh/ohmyzsh/wiki/Volunteers)
 page for instructions on where to start and more.
-
+-->
 ## Reference
 This contributing guide is adapted from the 
 [oh-my-zsh contribution guide](https://github.com/ohmyzsh/ohmyzsh/blob/master/CONTRIBUTING.md). 
-If there are any issues with this, please email (admin@quexeky.dev)[mailto://admin@quexeky.dev].
+If there are any issues with this, please email (admin@quexeky.dev)[mailto:admin@quexeky.dev].
