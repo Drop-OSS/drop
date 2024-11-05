@@ -24,7 +24,6 @@ you would make is not already covered.
 - [Commit Guidelines](#commit-guidelines)
   - [Format](#format)
   - [Style](#style)
-- [Volunteer](#volunteer)
 
 <!-- /TOC -->
 
