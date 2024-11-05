@@ -1,0 +1,5 @@
+stages:
+  - build
+
+include:
+  - template: Jobs/Build.gitlab-ci.yml
