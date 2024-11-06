@@ -5,3 +5,7 @@ export type FilterConditionally<Source, Condition> = Pick<
 export type KeyOfType<T, V> = keyof {
   [P in keyof T as T[P] extends V ? P : never]: any;
 };
+
+type EnumDictionary<T extends string | symbol | number, U> = {
+  [K in T]: U;
+};
