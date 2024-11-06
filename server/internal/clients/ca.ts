@@ -22,13 +22,22 @@ export class CertificateAuthority {
 
   static async new(store: CertificateStore) {
     const root = await store.fetch("ca");
+    let ca;
     if (root === undefined) {
       const [cert, priv] = droplet.generateRootCa();
       const bundle: CertificateBundle = { priv, cert };
       await store.store("ca", bundle);
-      return new CertificateAuthority(store, bundle);
+      ca = new CertificateAuthority(store, bundle);
+    } else {
+      ca = new CertificateAuthority(store, root);
     }
-    return new CertificateAuthority(store, root);
+
+    const serverCertificate = await ca.fetchClientCertificate("server");
+    if (!serverCertificate) {
+      await ca.generateClientCertificate("server", "Drop Server");
+    }
+
+    return ca;
   }
 
   async generateClientCertificate(clientId: string, clientName: string) {
@@ -39,7 +48,7 @@ export class CertificateAuthority {
       clientId,
       clientName,
       caCertificate.cert,
-      caCertificate.priv,
+      caCertificate.priv
     );
     const certBundle: CertificateBundle = {
       priv,
@@ -53,8 +62,9 @@ export class CertificateAuthority {
   }
 
   async fetchClientCertificate(clientId: string) {
-    const isBlacklist =
-      await this.certificateStore.checkBlacklistCertificate(clientId);
+    const isBlacklist = await this.certificateStore.checkBlacklistCertificate(
+      clientId
+    );
     if (isBlacklist) return undefined;
     return await this.certificateStore.fetch(`client:${clientId}`);
   }
