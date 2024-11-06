@@ -56,7 +56,8 @@ model Invitation {
 }
 
 enum ClientCapabilities {
-  DownloadAggregation
+  PeerAPI    @map("peerAPI") // other clients can use the HTTP API to P2P with this client
+  UserStatus @map("userStatus") // this client can report this user's status (playing, online, etc etc)
 }
 
 enum Platform {
@@ -70,12 +71,22 @@ model Client {
   userId String
   user   User   @relation(fields: [userId], references: [id])
 
-  endpoint     String
   capabilities ClientCapabilities[]
 
   name          String
   platform      Platform
   lastConnected DateTime
+
+  peerAPI ClientPeerAPIConfiguration?
+}
+
+model ClientPeerAPIConfiguration {
+  id String @id @default(uuid())
+
+  clientId String @unique
+  client   Client @relation(fields: [clientId], references: [id])
+
+  endpoints String[]
 }
 
 enum MetadataSource {
