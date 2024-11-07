@@ -53,6 +53,7 @@ model Invitation {
 
   username String?
   email    String?
+  expires  DateTime
 }
 
 enum ClientCapabilities {

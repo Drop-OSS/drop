@@ -15,6 +15,7 @@ export default defineNitroPlugin(async (nitro) => {
     create: {
       id: "admin",
       isAdmin: true,
+      expires: new Date('4096-01-01')
     },
     update: {
       isAdmin: true,
