@@ -9,6 +9,8 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "id required in fetching invitation",
     });
 
+  await runTask("cleanup:invitations");
+
   const invitation = await prisma.invitation.findUnique({ where: { id: id } });
   if (!invitation)
     throw createError({

@@ -202,7 +202,7 @@ const invitation = await useFetch(
   `/api/v1/auth/signup/simple?id=${encodeURIComponent(invitationId)}`
 );
 
-const email = ref(invitation.data.value?.username);
+const email = ref(invitation.data.value?.email);
 const displayName = ref("");
 const username = ref(invitation.data.value?.username);
 const password = ref("");
