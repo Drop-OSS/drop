@@ -75,6 +75,9 @@ class LibraryManager {
         mIconId: true,
         libraryBasePath: true,
       },
+      orderBy: {
+        mName: 'asc'
+      }
     });
 
     return await Promise.all(
