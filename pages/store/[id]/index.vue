@@ -1,12 +1,12 @@
 <template>
   <div
-    class="mx-auto w-full relative flex flex-col justify-center pt-32 xl:pt-24 z-10 overflow-hidden"
+    class="mx-auto bg-zinc-950 w-full relative flex flex-col justify-center pt-32 xl:pt-24 z-10 overflow-hidden"
   >
     <!-- banner image -->
-    <div class="absolute flex top-0 h-fit inset-x-0 h-12 -z-[20]">
-      <img :src="useObject(game.mBannerId)" class="w-full h-auto" />
+    <div class="absolute flex top-0 h-fit inset-x-0 h-12 -z-[20] pb-4">
+      <img :src="useObject(game.mBannerId)" class="blur-sm w-full h-auto" />
       <div
-        class="absolute inset-0 bg-gradient-to-b from-transparent to-80% to-zinc-900"
+        class="absolute inset-0 bg-gradient-to-b from-transparent to-80% to-zinc-950"
       />
     </div>
     <!-- main page -->
@@ -23,7 +23,7 @@
         <div
           class="col-start-1 lg:col-start-4 flex flex-col gap-y-6 items-center"
         >
-          <img class="w-64 h-auto rounded" :src="useObject(game.mCoverId)" />
+          <img class="transition-all duration-300 hover:scale-105 hover:rotate-[-1deg] w-64 h-auto rounded" :src="useObject(game.mCoverId)" />
           <button
             type="button"
             class="inline-flex items-center gap-x-2 rounded-md bg-blue-600 px-3.5 py-2.5 text-xl font-semibold font-display text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
@@ -50,7 +50,7 @@
           <p class="text-lg text-zinc-400">
             {{ game.mShortDescription }}
           </p>
-          <div class="mt-6 bg-zinc-800 py-4 rounded">
+          <div class="mt-6 bg-zinc-900 py-4 rounded">
             <VueCarousel :items-to-show="1">
               <VueSlide v-for="image in game.mImageLibrary" :key="image">
                 <img
@@ -66,10 +66,29 @@
             </VueCarousel>
           </div>
 
-          <div
-            v-html="descriptionHTML"
-            class="mt-12 prose prose-invert prose-blue max-w-none"
-          />
+          <div>
+            <div
+              v-if="showPreview"
+              v-html="previewHTML"
+              class="mt-12 prose prose-invert prose-blue max-w-none"
+            />
+            <div
+              v-else
+              v-html="descriptionHTML"
+              class="mt-12 prose prose-invert prose-blue max-w-none"
+            />
+            <button
+              class="w-full inline-flex items-center gap-x-6"
+              @click="() => (showPreview = !showPreview)"
+            >
+              <div class="grow h-[1px] bg-zinc-700 rounded-full" />
+              <span
+                class="uppercase text-sm font-semibold font-display text-zinc-600"
+                >Click to read {{ showPreview ? "more" : "less" }}</span
+              >
+              <div class="grow h-[1px] bg-zinc-700 rounded-full" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -81,12 +100,12 @@
   color: #f4f4f5;
 }
 .carousel__pagination-button::after {
-  background-color: #a1a1aa;
+  background-color: #3f3f46;
+  border-radius: 999999px;
 }
 .carousel__pagination-button--active::after {
-  background-color: #f4f4f5;
+  background-color: #a1a1aa;
 }
-
 </style>
 
 <script setup lang="ts">
@@ -105,6 +124,15 @@ const game = await $fetch<Game & { versions: GameVersion[] }>(
   { headers }
 );
 const md = MarkdownIt();
+
+// Preview description (first 30 lines)
+const showPreview = ref(true);
+const previewDescription = game.mDescription
+  .split("\n")
+  .slice(0, 30)
+  .join("\n");
+const previewHTML = md.render(previewDescription);
+
 const descriptionHTML = md.render(game.mDescription);
 const platforms = game.versions
   .map((e) => e.platform)
