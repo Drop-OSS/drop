@@ -11,7 +11,10 @@
     </div>
     <!-- main page -->
     <div
-      class="max-w-7xl w-full min-h-screen mx-auto bg-zinc-900 px-5 py-4 sm:px-16 sm:py-12 rounded-md"
+      :class="[
+        'max-w-7xl w-full min-h-screen mx-auto px-5 py-4 sm:px-16 sm:py-12 rounded-xl', // layout stuff
+        'bg-zinc-950/90 backdrop-blur-[500px] backdrop-saturate-200 backdrop-brightness-200', // make a soft, colourful glow background
+      ]"
     >
       <h1
         class="text-3xl md:text-5xl font-bold font-display text-zinc-100 pb-4 border-b border-zinc-800"
@@ -23,7 +26,10 @@
         <div
           class="col-start-1 lg:col-start-4 flex flex-col gap-y-6 items-center"
         >
-          <img class="transition-all duration-300 hover:scale-105 hover:rotate-[-1deg] w-64 h-auto rounded" :src="useObject(game.mCoverId)" />
+          <img
+            class="transition-all duration-300 hover:scale-105 hover:rotate-[-1deg] w-64 h-auto rounded"
+            :src="useObject(game.mCoverId)"
+          />
           <button
             type="button"
             class="inline-flex items-center gap-x-2 rounded-md bg-blue-600 px-3.5 py-2.5 text-xl font-semibold font-display text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
@@ -50,7 +56,7 @@
           <p class="text-lg text-zinc-400">
             {{ game.mShortDescription }}
           </p>
-          <div class="mt-6 bg-zinc-900 py-4 rounded">
+          <div class="mt-6 py-4 rounded">
             <VueCarousel :items-to-show="1">
               <VueSlide v-for="image in game.mImageLibrary" :key="image">
                 <img
@@ -77,8 +83,10 @@
               v-html="descriptionHTML"
               class="mt-12 prose prose-invert prose-blue max-w-none"
             />
+
             <button
-              class="w-full inline-flex items-center gap-x-6"
+              v-if="showReadMore"
+              class="mt-8 w-full inline-flex items-center gap-x-6"
               @click="() => (showPreview = !showPreview)"
             >
               <div class="grow h-[1px] bg-zinc-700 rounded-full" />
@@ -127,13 +135,28 @@ const md = MarkdownIt();
 
 // Preview description (first 30 lines)
 const showPreview = ref(true);
-const previewDescription = game.mDescription
-  .split("\n")
-  .slice(0, 30)
-  .join("\n");
+const gameDescriptionCharacters = game.mDescription.split("");
+
+// First new line after x characters
+const descriptionSplitIndex = gameDescriptionCharacters.findIndex(
+  (v, i, arr) => {
+    // If we're at the last element, we return true.
+    // So we don't have to handle a -1 from this findIndex
+    if (i + 1 == arr.length) return true;
+    if (i < 500) return false;
+    if (v != "\n") return false;
+    return true;
+  }
+);
+
+const previewDescription = gameDescriptionCharacters
+  .slice(0, descriptionSplitIndex + 1) // Slice a character after
+  .join("");
 const previewHTML = md.render(previewDescription);
 
 const descriptionHTML = md.render(game.mDescription);
+
+const showReadMore = previewHTML != descriptionHTML;
 const platforms = game.versions
   .map((e) => e.platform)
   .flat()
