@@ -377,7 +377,9 @@ import {
   TrashIcon,
   XCircleIcon,
 } from "@heroicons/vue/24/solid";
+import type { Invitation } from "@prisma/client";
 import moment from "moment";
+import type { SerializeObject } from "nitropack";
 import LoadingButton from "~/components/LoadingButton.vue";
 
 definePageMeta({
@@ -390,7 +392,7 @@ useHead({
 
 const headers = useRequestHeaders(["cookie"]);
 const invitations = ref(
-  await $fetch("/api/v1/admin/auth/invitation", {
+  await $fetch<Array<SerializeObject<Invitation>>>("/api/v1/admin/auth/invitation", {
     headers,
   })
 );
