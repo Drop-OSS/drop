@@ -74,7 +74,6 @@ export class ClientHandler {
         id: id,
         userId: metadata.userId,
 
-        endpoint: "",
         capabilities: [],
 
         name: metadata.data.name,
