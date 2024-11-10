@@ -33,7 +33,7 @@ export default defineEventHandler(async (h3) => {
   const versionDir = path.join(
     libraryManager.fetchLibraryPath(),
     game.libraryBasePath,
-    versionName,
+    versionName
   );
   if (!fs.existsSync(versionDir))
     throw createError({
@@ -49,6 +49,8 @@ export default defineEventHandler(async (h3) => {
 
   const start = chunkIndex * chunkSize;
   const end = Math.min((chunkIndex + 1) * chunkSize, gameFileStats.size);
+  const currentChunkSize = end - start;
+  setHeader(h3, "Content-Length", currentChunkSize);
 
   if (start >= end)
     throw createError({
