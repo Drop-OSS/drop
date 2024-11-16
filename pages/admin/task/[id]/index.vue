@@ -24,7 +24,7 @@
     <div class="h-3 rounded-full bg-zinc-950 overflow-hidden">
       <div
         :style="{ width: `${taskValue.progress}%` }"
-        class="bg-blue-600 h-full"
+        class="transition-all bg-blue-600 h-full"
       />
     </div>
 
