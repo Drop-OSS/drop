@@ -17,6 +17,7 @@
     "@prisma/client": "5.20.0",
     "axios": "^1.7.7",
     "bcryptjs": "^2.4.3",
+    "cookie-es": "^1.2.2",
     "fast-fuzzy": "^1.12.0",
     "file-type-mime": "^0.4.3",
     "jdenticon": "^3.3.0",

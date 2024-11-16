@@ -43,6 +43,10 @@ export class SessionHandler {
     return token;
   }
 
+  getDropTokenCookie() {
+    return dropTokenCookie;
+  }
+
   async getSession<T extends Session>(h3: H3Event) {
     const token = this.getSessionToken(h3);
     if (!token) return undefined;

@@ -2,26 +2,30 @@ import { H3Event } from "h3";
 import session from "~/server/internal/session";
 import { v4 as uuidv4 } from "uuid";
 import taskHandler, { TaskMessage } from "~/server/internal/tasks";
+import { parse as parseCookies } from "cookie-es";
 
 // TODO add web socket sessions for horizontal scaling
 // ID to admin
 const adminSocketSessions: { [key: string]: boolean } = {};
 
 export default defineWebSocketHandler({
-  open(peer) {
-    const dummyEvent = {
-      node: {
-        req: {
-          headers: peer.request?.headers,
-        },
-      },
-    } as unknown as H3Event;
-    const userId = session.getUserId(dummyEvent);
+  async open(peer) {
+    const cookies = peer.request?.headers?.get("Cookie");
+    if (!cookies) {
+      peer.send("unauthenticated");
+      return;
+    }
+
+    const parsedCookies = parseCookies(cookies);
+    const token = parsedCookies[session.getDropTokenCookie()];
+
+    const userId = await session.getUserIdRaw(token);
     if (!userId) {
       peer.send("unauthenticated");
       return;
     }
-    const admin = session.getAdminUser(dummyEvent);
+    
+    const admin = session.getAdminUser(token);
     adminSocketSessions[peer.id] = admin !== undefined;
 
     const rtMsg: TaskMessage = {
