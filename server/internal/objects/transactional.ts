@@ -4,7 +4,7 @@ This is used as a utility in metadata handling, so we only fetch the objects if 
 */
 import { Readable } from "stream";
 import { v4 as uuidv4 } from "uuid";
-import { GlobalObjectHandler } from "~/server/plugins/objects";
+import { objectHandler } from "~/server/plugins/objects";
 
 type TransactionDataType = string | Readable | Buffer;
 type TransactionTable = { [key: string]: TransactionDataType }; // ID to data
@@ -34,7 +34,7 @@ export class ObjectTransactionalHandler {
 
     const pull = async () => {
       for (const [id, data] of Object.entries(this.record[transactionId])) {
-        await GlobalObjectHandler.createFromSource(
+        await objectHandler.createFromSource(
           id,
           () => {
             if (typeof data === "string") {
