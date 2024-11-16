@@ -5,7 +5,7 @@ import taskHandler, { TaskMessage } from "~/server/internal/tasks";
 
 // TODO add web socket sessions for horizontal scaling
 // ID to admin
-const socketSessions: { [key: string]: boolean } = {};
+const adminSocketSessions: { [key: string]: boolean } = {};
 
 export default defineWebSocketHandler({
   open(peer) {
@@ -22,7 +22,7 @@ export default defineWebSocketHandler({
       return;
     }
     const admin = session.getAdminUser(dummyEvent);
-    socketSessions[peer.id] = admin !== undefined;
+    adminSocketSessions[peer.id] = admin !== undefined;
 
     const rtMsg: TaskMessage = {
       id: "connect",
@@ -36,17 +36,17 @@ export default defineWebSocketHandler({
   },
   message(peer, message) {
     if (!peer.id) return;
-    if (socketSessions[peer.id] === undefined) return;
+    if (adminSocketSessions[peer.id] === undefined) return;
     const text = message.text();
     if (text.startsWith("connect/")) {
       const id = text.substring("connect/".length);
-      taskHandler.connect(peer.id, id, peer, socketSessions[peer.id]);
+      taskHandler.connect(peer.id, id, peer, adminSocketSessions[peer.id]);
       return;
     }
   },
   close(peer, details) {
     if (!peer.id) return;
-    if (socketSessions[peer.id] === undefined) return;
-    delete socketSessions[peer.id];
+    if (adminSocketSessions[peer.id] === undefined) return;
+    delete adminSocketSessions[peer.id];
   },
 });
