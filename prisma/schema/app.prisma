@@ -1,0 +1,10 @@
+model ApplicationSettings {
+    timestamp DateTime @id @default(now())
+
+    enabledAuthencationMechanisms AuthMec[]
+}
+
+enum Platform {
+    Windows @map("windows")
+    Linux   @map("linux")
+}

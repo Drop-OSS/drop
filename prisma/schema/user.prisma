@@ -1,0 +1,12 @@
+model User {
+    id       String  @id @default(uuid())
+    username String  @unique
+    admin    Boolean @default(false)
+
+    email          String
+    displayName    String
+    profilePicture String // Object
+
+    authMecs LinkedAuthMec[]
+    clients  Client[]
+}

@@ -1,0 +1,23 @@
+enum AuthMec {
+    Simple
+}
+
+model LinkedAuthMec {
+    userId String
+    mec    AuthMec
+
+    credentials Json
+
+    user User @relation(fields: [userId], references: [id])
+
+    @@id([userId, mec])
+}
+
+model Invitation {
+    id      String  @id @default(uuid())
+    isAdmin Boolean @default(false)
+
+    username String?
+    email    String?
+    expires  DateTime
+}

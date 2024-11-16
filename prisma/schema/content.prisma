@@ -1,0 +1,87 @@
+enum MetadataSource {
+  Custom
+  GiantBomb
+}
+
+model Game {
+    id String @id @default(uuid())
+
+    metadataSource MetadataSource
+    metadataId     String
+
+    // Any field prefixed with m is filled in from metadata
+    // Acts as a cache so we can search and filter it
+    mName             String // Name of game
+    mShortDescription String // Short description
+    mDescription      String // Supports markdown
+    mDevelopers       Developer[]
+    mPublishers       Publisher[]
+
+    mReviewCount  Int
+    mReviewRating Float
+
+    mIconId       String // linked to objects in s3
+    mBannerId     String // linked to objects in s3
+    mCoverId      String
+    mImageLibrary String[] // linked to objects in s3
+
+    versions        GameVersion[]
+    libraryBasePath String        @unique // Base dir for all the game versions
+
+    @@unique([metadataSource, metadataId], name: "metadataKey")
+}
+
+// A particular set of files that relate to the version
+model GameVersion {
+    gameId      String
+    game        Game   @relation(fields: [gameId], references: [id])
+    versionName String // Sub directory for the game files
+
+    platform        Platform
+    launchCommand   String // Command to run to start. Platform-specific. Windows games on Linux will wrap this command in Proton/Wine
+    setupCommand    String // Command to setup game (dependencies and such)
+    dropletManifest Json // Results from droplet
+
+    versionIndex Int
+    delta        Boolean @default(false)
+
+    @@id([gameId, versionName])
+}
+
+model Developer {
+    id String @id @default(uuid())
+
+    metadataSource        MetadataSource
+    metadataId            String
+    metadataOriginalQuery String
+
+    mName             String
+    mShortDescription String
+    mDescription      String
+    mLogo             String
+    mBanner           String
+    mWebsite          String
+
+    games Game[]
+
+    @@unique([metadataSource, metadataId, metadataOriginalQuery], name: "metadataKey")
+}
+
+model Publisher {
+    id String @id @default(uuid())
+
+    metadataSource        MetadataSource
+    metadataId            String
+    metadataOriginalQuery String
+
+    mName             String
+    mShortDescription String
+    mDescription      String
+    mLogo             String
+    mBanner           String
+    mWebsite          String
+
+    games Game[]
+
+    @@unique([metadataSource, metadataId, metadataOriginalQuery], name: "metadataKey")
+}
