@@ -26,7 +26,7 @@
       >
         <PanelWidget class="flex-col gap-y-2">
           <NuxtLink
-            to="/id/me"
+            :to="`/user/${user.id}`"
             class="transition inline-flex items-center w-full py-3 px-4 hover:bg-zinc-800"
           >
             <div class="inline-flex items-center text-zinc-300">
