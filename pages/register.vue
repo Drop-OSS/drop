@@ -77,7 +77,7 @@
                 'block text-xs font-medium leading-6',
               ]"
             >
-              Must be 5 or more characters
+              Must be 5 or more characters, and lowercase
             </p>
             <div class="mt-2">
               <input
@@ -210,7 +210,11 @@ const confirmPassword = ref(undefined);
 
 const mailRegex = /^\S+@\S+\.\S+$/g;
 const validEmail = computed(() => mailRegex.test(email.value ?? ""));
-const validUsername = computed(() => (username.value?.length ?? 0) > 5);
+const validUsername = computed(
+  () =>
+    (username.value?.length ?? 0) > 5 &&
+    username.value?.toLowerCase() == username.value
+);
 const validPassword = computed(() => (password.value?.length ?? 0) >= 14);
 const validConfirmPassword = computed(
   () => password.value == confirmPassword.value

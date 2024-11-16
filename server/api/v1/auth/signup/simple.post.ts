@@ -54,6 +54,11 @@ export default defineEventHandler(async (h3) => {
       statusCode: 400,
       statusMessage: "Username is invalid. Must be more than 5 characters.",
     });
+  if (username.toLowerCase() != username)
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Username must be all lowercase",
+    });
 
   if (email === undefined)
     throw createError({
