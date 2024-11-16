@@ -5,6 +5,7 @@ export default defineNitroPlugin(async (nitro) => {
   if (userCount != 0) return;
 
   // This setup runs every time the server sets up,
+  // but has not been configured
   // so it should be in-place
 
   // Create admin invitation
@@ -15,12 +16,10 @@ export default defineNitroPlugin(async (nitro) => {
     create: {
       id: "admin",
       isAdmin: true,
-      expires: new Date('4096-01-01')
+      expires: new Date("4096-01-01"),
     },
     update: {
       isAdmin: true,
     },
   });
-
-  
 });
