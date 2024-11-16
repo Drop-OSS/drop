@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { CheckCircleIcon } from '@heroicons/vue/16/solid';
+import { CheckCircleIcon } from "@heroicons/vue/16/solid";
 
 const route = useRoute();
 const taskId = route.params.id.toString();
