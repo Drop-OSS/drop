@@ -8,6 +8,6 @@ export type NavigationItem = {
 
 export type QuickActionNav = {
     icon: Component,
-    notifications?: number,
+    notifications?: Ref<number>,
     action: () => Promise<void>,
 }

@@ -1,7 +1,7 @@
 <template>
   <Menu v-if="user" as="div" class="relative inline-block">
     <MenuButton>
-      <HeaderWidget>
+      <UserHeaderWidget>
         <div class="inline-flex items-center text-zinc-300 hover:text-white">
           <img
             :src="useObject(user.profilePicture)"
@@ -10,7 +10,7 @@
           <span class="ml-2 text-sm font-bold">{{ user.displayName }}</span>
           <ChevronDownIcon class="ml-3 h-4" />
         </div>
-      </HeaderWidget>
+      </UserHeaderWidget>
     </MenuButton>
 
     <transition
@@ -60,9 +60,8 @@
 <script setup lang="ts">
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
 import { ChevronDownIcon } from "@heroicons/vue/16/solid";
-import type { NavigationItem } from "../composables/types";
-import HeaderWidget from "./HeaderWidget.vue";
 import { useObject } from "~/composables/objects";
+import type { NavigationItem } from "~/composables/types";
 
 const user = useUser();
 

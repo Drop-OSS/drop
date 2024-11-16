@@ -1,6 +1,4 @@
-import { H3Event } from "h3";
 import session from "~/server/internal/session";
-import { v4 as uuidv4 } from "uuid";
 import taskHandler, { TaskMessage } from "~/server/internal/tasks";
 import { parse as parseCookies } from "cookie-es";
 
@@ -24,7 +22,7 @@ export default defineWebSocketHandler({
       peer.send("unauthenticated");
       return;
     }
-    
+
     const admin = session.getAdminUser(token);
     adminSocketSessions[peer.id] = admin !== undefined;
 

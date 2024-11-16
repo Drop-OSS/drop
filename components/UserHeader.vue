@@ -21,15 +21,39 @@
     </div>
     <div class="inline-flex items-center">
       <ol class="inline-flex gap-3">
-        <li v-for="(item, itemIdx) in quickActions">
-          <HeaderWidget
-            @click="item.action"
-            :notifications="item.notifications"
-          >
-            <component class="h-5" :is="item.icon" />
-          </HeaderWidget>
+        <li>
+          <UserHeaderWidget>
+            <UserGroupIcon class="h-5" />
+          </UserHeaderWidget>
         </li>
-        <HeaderUserWidget />
+
+        <li>
+          <Menu as="div" class="relative inline-block">
+            <MenuButton>
+              <UserHeaderWidget :notifications="unreadNotifications.length">
+                <BellIcon class="h-5" />
+              </UserHeaderWidget>
+            </MenuButton>
+
+            <transition
+              enter-active-class="transition ease-out duration-100"
+              enter-from-class="transform opacity-0 scale-95"
+              enter-to-class="transform opacity-100 scale-100"
+              leave-active-class="transition ease-in duration-75"
+              leave-from-class="transform opacity-100 scale-100"
+              leave-to-class="transform opacity-0 scale-95"
+            >
+              <MenuItems
+                class="absolute inset-x-0 -translate-x-1/2 top-10 z-50 w-96 focus:outline-none shadow-md"
+              >
+                <UserHeaderNotificationWidgetPanel
+                  :notifications="unreadNotifications"
+                />
+              </MenuItems>
+            </transition>
+          </Menu>
+        </li>
+        <UserHeaderUserWidget />
       </ol>
     </div>
   </div>
@@ -41,7 +65,7 @@
     <div class="flex gap-x-4 lg:gap-x-6">
       <div class="flex items-center gap-x-3">
         <!-- Profile dropdown -->
-        <HeaderUserWidget />
+        <UserHeaderUserWidget />
 
         <button
           type="button"
@@ -111,7 +135,7 @@
                   <Logo class="h-8 w-auto" />
                 </NuxtLink>
 
-                <HeaderUserWidget />
+                <UserHeaderUserWidget />
               </div>
               <nav class="flex flex-1 flex-col gap-y-8">
                 <ol class="flex flex-col gap-y-3">
@@ -130,14 +154,18 @@
                 </ol>
                 <div class="h-px w-full bg-zinc-700" />
                 <div class="flex flex-row gap-x-4 justify-stretch">
-                  <li class="w-full" v-for="(item, itemIdx) in quickActions">
-                    <HeaderWidget
-                    class="w-full"
-                      @click="item.action"
-                      :notifications="item.notifications"
+                  <li class="w-full">
+                    <UserHeaderWidget class="w-full">
+                      <UserGroupIcon class="h-5" />
+                    </UserHeaderWidget>
+                  </li>
+                  <li class="w-full">
+                    <UserHeaderWidget
+                      class="w-full"
+                      :notifications="unreadNotifications.length"
                     >
-                      <component class="h-5" :is="item.icon" />
-                    </HeaderWidget>
+                      <BellIcon class="h-5" />
+                    </UserHeaderWidget>
                   </li>
                 </div>
               </nav>
@@ -156,9 +184,11 @@ import {
   DialogPanel,
   TransitionChild,
   TransitionRoot,
+  Menu,
+  MenuButton,
+  MenuItems,
 } from "@headlessui/vue";
-import type { NavigationItem, QuickActionNav } from "../composables/types";
-import HeaderWidget from "./HeaderWidget.vue";
+import type { NavigationItem } from "../composables/types";
 import { Bars3Icon } from "@heroicons/vue/24/outline";
 import { XMarkIcon } from "@heroicons/vue/24/solid";
 
@@ -189,16 +219,10 @@ const navigation: Array<NavigationItem> = [
 
 const currentPageIndex = useCurrentNavigationIndex(navigation);
 
-const quickActions: Array<QuickActionNav> = [
-  {
-    icon: UserGroupIcon,
-    action: async () => {},
-  },
-  {
-    icon: BellIcon,
-    action: async () => {},
-  },
-];
+const notifications = useNotifications();
+const unreadNotifications = computed(() =>
+  notifications.value.filter((e) => !e.read)
+);
 
 const sidebarOpen = ref(false);
 router.afterEach(() => (sidebarOpen.value = false));
