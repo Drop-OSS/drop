@@ -1,7 +1,9 @@
 import prisma from "../internal/db/database";
 
 export default defineNitroPlugin(async (nitro) => {
-  const userCount = await prisma.user.count({});
+  const userCount = await prisma.user.count({
+    where: { id: { not: "system" } },
+  });
   if (userCount != 0) return;
 
   // This setup runs every time the server sets up,
