@@ -111,6 +111,14 @@ class TaskHandler {
     return true;
   }
 
+  disconnectAll(id: string) {
+    for (const [taskId] of Object.keys(this.taskRegistry)) {
+      delete this.taskRegistry[taskId].clients[id];
+    }
+    
+    delete this.clientRegistry[id];
+  }
+
   disconnect(id: string, taskId: string) {
     if (!this.taskRegistry[taskId]) return false;
 

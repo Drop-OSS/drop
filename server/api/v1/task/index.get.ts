@@ -48,5 +48,7 @@ export default defineWebSocketHandler({
     if (!peer.id) return;
     if (adminSocketSessions[peer.id] === undefined) return;
     delete adminSocketSessions[peer.id];
+
+    taskHandler.disconnectAll(peer.id);
   },
 });
