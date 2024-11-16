@@ -71,24 +71,27 @@ export class SessionHandler {
     return true;
   }
 
-  async getUserId(h3: H3Event, tag: string | boolean = false) {
+  async getUserId(h3: H3Event) {
     const token = this.getSessionToken(h3);
     if (!token) return undefined;
 
+    return await this.getUserIdRaw(token);
+  }
+  async getUserIdRaw(token: string) {
     const session = await this.sessionProvider.getSession<{
       [userIdKey]: string | undefined;
     }>(token);
-
-    if (tag)
-      console.log(`${tag} ${JSON.stringify(h3)} ${JSON.stringify(session)}`);
 
     if (!session) return undefined;
 
     return session[userIdKey];
   }
 
-  async getUser(h3: H3Event) {
-    const userId = await this.getUserId(h3);
+  async getUser(obj: H3Event | string) {
+    const userId =
+      typeof obj === "string"
+        ? await this.getUserIdRaw(obj)
+        : await this.getUserId(obj);
     if (!userId) return undefined;
 
     const user = await prisma.user.findFirst({ where: { id: userId } });
@@ -106,7 +109,7 @@ export class SessionHandler {
     );
   }
 
-  async getAdminUser(h3: H3Event) {
+  async getAdminUser(h3: H3Event | string) {
     const user = await this.getUser(h3);
     if (!user) return undefined;
     if (!user.admin) return undefined;
