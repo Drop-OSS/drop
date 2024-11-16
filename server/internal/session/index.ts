@@ -2,15 +2,20 @@ import { H3Event, Session } from "h3";
 import createMemorySessionProvider from "./memory";
 import { SessionProvider } from "./types";
 import prisma from "../db/database";
+import { v4 as uuidv4 } from "uuid";
+import moment from "moment";
 
 /*
-This is a poorly organised implemention.
+This implementation may need work.
 
 It exposes an API that should stay static, but there are plenty of opportunities for optimisation/organisation under the hood
 */
 
 const userSessionKey = "_userSession";
 const userIdKey = "_userId";
+const dropTokenCookie = "drop-token";
+const normalSessionLength = [31, "days"];
+const extendedSessionLength = [1, "year"];
 
 export class SessionHandler {
   private sessionProvider: SessionProvider;
@@ -20,33 +25,63 @@ export class SessionHandler {
     this.sessionProvider = createMemorySessionProvider();
   }
 
+  private getSessionToken(h3: H3Event) {
+    const cookie = getCookie(h3, dropTokenCookie);
+    return cookie;
+  }
+
+  private async createSession(h3: H3Event, extend = false) {
+    const token = uuidv4();
+    const expiry = moment().add(
+      ...(extend ? extendedSessionLength : normalSessionLength)
+    );
+
+    setCookie(h3, dropTokenCookie, token, { expires: expiry.toDate() });
+
+    this.sessionProvider.setSession(dropTokenCookie, {});
+
+    return token;
+  }
+
   async getSession<T extends Session>(h3: H3Event) {
+    const token = this.getSessionToken(h3);
+    if (!token) return undefined;
     const data = await this.sessionProvider.getSession<{ [userSessionKey]: T }>(
-      h3
+      token
     );
     if (!data) return undefined;
 
     return data[userSessionKey];
   }
-  async setSession(h3: H3Event, data: any, expend = false) {
+  async setSession(h3: H3Event, data: any, extend = false) {
+    const token =
+      this.getSessionToken(h3) ?? (await this.createSession(h3, extend));
     const result = await this.sessionProvider.updateSession(
-      h3,
+      token,
       userSessionKey,
       data
     );
-    if (!result) {
-      const toCreate = { [userSessionKey]: data };
-      await this.sessionProvider.setSession(h3, toCreate, expend);
-    }
+
+    return result;
   }
   async clearSession(h3: H3Event) {
-    await this.sessionProvider.clearSession(h3);
+    const token = this.getSessionToken(h3);
+    if (!token) return false;
+    await this.sessionProvider.clearSession(token);
+    return true;
   }
 
-  async getUserId(h3: H3Event) {
+  async getUserId(h3: H3Event, tag: string | boolean = false) {
+    const token = this.getSessionToken(h3);
+    if (!token) return undefined;
+
     const session = await this.sessionProvider.getSession<{
       [userIdKey]: string | undefined;
-    }>(h3);
+    }>(token);
+
+    if (tag)
+      console.log(`${tag} ${JSON.stringify(h3)} ${JSON.stringify(session)}`);
+
     if (!session) return undefined;
 
     return session[userIdKey];
@@ -61,15 +96,14 @@ export class SessionHandler {
   }
 
   async setUserId(h3: H3Event, userId: string, extend = false) {
+    const token =
+      this.getSessionToken(h3) ?? (await this.createSession(h3, extend));
+
     const result = await this.sessionProvider.updateSession(
-      h3,
+      token,
       userIdKey,
       userId
     );
-    if (!result) {
-      const toCreate = { [userIdKey]: userId };
-      await this.sessionProvider.setSession(h3, toCreate, extend);
-    }
   }
 
   async getAdminUser(h3: H3Event) {
