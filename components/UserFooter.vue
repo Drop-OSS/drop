@@ -9,7 +9,7 @@
                         speed, flexibility and beauty.</p>
                     <div class="flex space-x-6">
                         <a v-for="item in navigation.social" :key="item.name" :href="item.href" target="_blank"
-                            class="text-zinc-500 hover:text-zinc-400">
+                            class="text-zinc-400 hover:text-zinc-400">
                             <span class="sr-only">{{ item.name }}</span>
                             <component :is="item.icon" class="h-6 w-6" aria-hidden="true" />
                         </a>

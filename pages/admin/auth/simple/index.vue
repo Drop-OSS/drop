@@ -7,7 +7,7 @@
         Simple authentication
       </h2>
       <p
-        class="mt-2 text-pretty text-sm font-medium text-gray-500 sm:text-md/8"
+        class="mt-2 text-pretty text-sm font-medium text-zinc-400 sm:text-md/8"
       >
         Simple authentication uses a system of 'invitations' to create users.
         You can create an invitation, and optionally specify a username or email
@@ -82,7 +82,7 @@
         </li>
       </ul>
 
-      <div class="py-4 text-zinc-600 text-sm" v-if="invitations.length == 0">
+      <div class="py-4 text-zinc-400 text-sm" v-if="invitations.length == 0">
         No invitations.
       </div>
     </div>
@@ -129,7 +129,7 @@
                         >Invite user to Drop</DialogTitle
                       >
                       <div class="mt-2">
-                        <p class="text-sm text-zinc-500">
+                        <p class="text-sm text-zinc-400">
                           Drop will generate a URL that you can send to the
                           person you want to invite. You can optionally specify
                           a username or email for them to use.
@@ -161,7 +161,7 @@
                           autocomplete="username"
                           v-model="username"
                           placeholder="myUsername"
-                          class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-500 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                          class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
                         />
                       </div>
                     </div>
@@ -188,7 +188,7 @@
                           autocomplete="email"
                           v-model="email"
                           placeholder="me@example.com"
-                          class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-500 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                          class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
                         />
                       </div>
                     </div>

@@ -16,7 +16,7 @@
           <span v-if="currentlySelectedGame != -1" class="block truncate">{{
             games.unimportedGames[currentlySelectedGame]
           }}</span>
-          <span v-else class="block truncate text-zinc-600"
+          <span v-else class="block truncate text-zinc-400"
             >Please select a directory...</span
           >
           <span

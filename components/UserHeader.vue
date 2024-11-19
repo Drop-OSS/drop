@@ -69,7 +69,7 @@
 
         <button
           type="button"
-          class="-m-2.5 p-2.5 text-zinc-500 lg:hidden"
+          class="-m-2.5 p-2.5 text-zinc-400 lg:hidden"
           @click="sidebarOpen = true"
         >
           <span class="sr-only">Open sidebar</span>

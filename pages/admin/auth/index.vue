@@ -7,7 +7,7 @@
         Authentication
       </h2>
       <p
-        class="mt-2 text-pretty text-sm font-medium text-gray-500 sm:text-md/8"
+        class="mt-2 text-pretty text-sm font-medium text-zinc-400 sm:text-md/8"
       >
         Drop supports a variety of "authentication mechanisms". As you enable or
         disable them, they are shown on the sign in screen for users to select
@@ -21,10 +21,10 @@
       <li
         v-for="authMech in authenticationMechanisms"
         :key="authMech.name"
-        class="overflow-hidden rounded-xl border border-zinc-800"
+        class="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900"
       >
         <div
-          class="flex items-center gap-x-4 border-b border-zinc-100/5 bg-zinc-900 p-6"
+          class="flex items-center gap-x-4 border-b border-zinc-800 p-6"
         >
           <component
             :is="authMech.icon"

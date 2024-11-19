@@ -13,7 +13,7 @@
           <NuxtLink
             to="/account/notifications"
             type="button"
-            class="text-sm text-zinc-500"
+            class="text-sm text-zinc-400"
           >
             View all &rarr;
           </NuxtLink>
@@ -29,7 +29,7 @@
     </div>
     <div
       v-if="props.notifications.length == 0"
-      class="text-sm text-zinc-600 p-3 text-center w-full"
+      class="text-sm text-zinc-400 p-3 text-center w-full"
     >
       No notifications
     </div>

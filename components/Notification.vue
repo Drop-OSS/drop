@@ -6,7 +6,7 @@
           <p class="text-sm font-medium text-zinc-100">
             {{ notification.title }}
           </p>
-          <p class="mt-1 text-sm text-zinc-600 line-clamp-3">
+          <p class="mt-1 text-sm text-zinc-400 line-clamp-3">
             {{ notification.description }}
           </p>
           <div
@@ -26,7 +26,7 @@
           <button
             @click="() => deleteMe()"
             type="button"
-            class="inline-flex rounded-md text-zinc-400 hover:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            class="inline-flex rounded-md text-zinc-400 hover:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             <span class="sr-only">Close</span>
             <XMarkIcon class="size-5" aria-hidden="true" />
