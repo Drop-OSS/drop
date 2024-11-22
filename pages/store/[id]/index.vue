@@ -37,6 +37,18 @@
             Add to Library
             <PlusIcon class="-mr-0.5 h-7 w-7" aria-hidden="true" />
           </button>
+          <NuxtLink
+            v-if="user?.admin"
+            :href="`/admin/library/${game.id}`"
+            type="button"
+            class="inline-flex items-center gap-x-2 rounded-md bg-zinc-800 px-3 py-1 text-sm font-semibold font-display text-white shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+          >
+            Open in Admin Dashboard
+            <ArrowTopRightOnSquareIcon
+              class="-mr-0.5 h-7 w-7 p-1"
+              aria-hidden="true"
+            />
+          </NuxtLink>
           <div class="inline-flex items-center gap-x-3">
             <span class="text-zinc-100 font-semibold">Available on:</span>
             <component
@@ -118,6 +130,7 @@
 
 <script setup lang="ts">
 import { PlusIcon } from "@heroicons/vue/20/solid";
+import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
 import { Platform, type Game, type GameVersion } from "@prisma/client";
 import MarkdownIt from "markdown-it";
 import LinuxLogo from "~/components/icons/LinuxLogo.vue";
@@ -125,6 +138,8 @@ import WindowsLogo from "~/components/WindowsLogo.vue";
 
 const route = useRoute();
 const gameId = route.params.id.toString();
+
+const user = useUser();
 
 const headers = useRequestHeaders(["cookie"]);
 const game = await $fetch<Game & { versions: GameVersion[] }>(
