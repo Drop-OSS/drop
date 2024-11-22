@@ -76,8 +76,8 @@ class LibraryManager {
         libraryBasePath: true,
       },
       orderBy: {
-        mName: 'asc'
-      }
+        mName: "asc",
+      },
     });
 
     return await Promise.all(
@@ -114,9 +114,14 @@ class LibraryManager {
         "Game in database, but no physical directory? Something is very very wrong..."
       );
     const versions = fs.readdirSync(targetDir);
+    const validVersions = versions.filter((versionDir) => {
+      const versionPath = path.join(targetDir, versionDir);
+      const stat = fs.statSync(versionPath);
+      return stat.isDirectory();
+    });
     const currentVersions = game.versions.map((e) => e.versionName);
 
-    const unimportedVersions = versions.filter(
+    const unimportedVersions = validVersions.filter(
       (e) => !currentVersions.includes(e)
     );
     return unimportedVersions;
