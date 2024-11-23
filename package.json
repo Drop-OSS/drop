@@ -47,7 +47,7 @@
     "nitropack": "^2.9.7",
     "postcss": "^8.4.47",
     "sass": "^1.79.4",
-    "tailwindcss": "^3.4.13"
+    "tailwindcss": "^3.4.15"
   },
   "optionalDependencies": {
     "@drop/droplet-linux-x64-gnu": "^0.7.0",

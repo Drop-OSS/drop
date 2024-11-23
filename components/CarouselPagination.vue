@@ -5,7 +5,7 @@
       @click="() => slideTo(i)"
       :class="[
         currentSlide == i ? 'bg-zinc-300' : 'bg-zinc-700',
-        'w-4 h-2 rounded-full',
+        'cursor-pointer w-4 h-2 rounded-full',
       ]"
     />
   </div>

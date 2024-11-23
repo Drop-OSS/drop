@@ -2,11 +2,11 @@
   <NuxtLink
     v-if="game"
     :href="`/store/${game.id}`"
-    class="rounded overflow-hidden w-48 h-64 group relative transition-all duration-300 hover:scale-105 hover:shadow-xl"
+    class="rounded overflow-hidden w-48 h-64 group relative transition-all duration-300 text-left transform-3d hover:rotate-y-180"
   >
     <img :src="useObject(game.mCoverId)" class="w-full h-full object-cover" />
     <div
-      class="absolute inset-0 bg-gradient-to-b from-transparent to-95% to-zinc-800"
+      class="absolute inset-0 bg-gradient-to-b from-transparent to-95% to-zinc-950"
     />
     <div class="absolute bottom-0 left-0 px-2 py-1.5">
       <h1 class="text-zinc-100 text-sm font-bold font-display">

@@ -5,6 +5,11 @@ export default defineEventHandler(async (h3) => {
   if (!userId) throw createError({ statusCode: 403 });
 
   const versions = await prisma.gameVersion.findMany({
+    where: {
+      versionIndex: {
+        gte: 1,
+      },
+    },
     select: {
       game: true,
       created: true,
@@ -16,5 +21,5 @@ export default defineEventHandler(async (h3) => {
     take: 8,
   });
 
-  return { versions };
+  return versions;
 });
