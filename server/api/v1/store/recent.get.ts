@@ -4,12 +4,13 @@ export default defineEventHandler(async (h3) => {
   const userId = await h3.context.session.getUserId(h3);
   if (!userId) throw createError({ statusCode: 403 });
 
-  const rawGames = await prisma.game.findMany({
+  const games = await prisma.game.findMany({
     select: {
       id: true,
       mName: true,
       mShortDescription: true,
-      mCoverId:true,
+      mCoverId: true,
+      mBannerId: true,
       mDevelopers: {
         select: {
           id: true,
@@ -22,15 +23,12 @@ export default defineEventHandler(async (h3) => {
           mName: true,
         },
       },
-      versions: {
-        select: {
-          platform: true,
-        },
-      },
     },
+    orderBy: {
+      created: "desc",
+    },
+    take: 8,
   });
-
-  const games = rawGames.map((e) => ({...e, platforms: e.versions.map((e) => e.platform).filter((e, _, r) => !r.includes(e))}))
 
   return games;
 });

@@ -43,14 +43,16 @@
         >
           <div class="flex min-w-0 gap-x-4">
             <div class="min-w-0 flex-auto">
-              <p class="text-sm/6 font-semibold text-zinc-100">
-
-                <span v-if="invitationUrls">
+              <div class="text-sm/6 font-semibold text-zinc-100">
+                <p v-if="invitationUrls">
                   {{ invitationUrls[invitationIdx] }}
-                </span>
-                <div v-else class="h-4 w-full bg-zinc-800 animate-pulse rounded" />
+                </p>
+                <div
+                  v-else
+                  class="h-4 w-full bg-zinc-800 animate-pulse rounded"
+                />
+              </div>
 
-              </p>
               <p class="mt-1 flex text-xs/5 text-gray-500">
                 {{ invitation.username ?? "No username enforced." }}
                 |
@@ -126,8 +128,8 @@
                       <DialogTitle
                         as="h3"
                         class="text-base font-semibold text-zinc-100"
-                        >Invite user to Drop</DialogTitle
-                      >
+                        >Invite user to Drop
+                      </DialogTitle>
                       <div class="mt-2">
                         <p class="text-sm text-zinc-400">
                           Drop will generate a URL that you can send to the
@@ -203,8 +205,8 @@
                             as="span"
                             class="text-sm/6 font-medium text-zinc-100"
                             passive
-                            >Admin invitation</SwitchLabel
-                          >
+                            >Admin invitation
+                          </SwitchLabel>
                           <SwitchDescription
                             as="span"
                             class="text-sm text-zinc-400"
@@ -391,11 +393,11 @@ useHead({
 });
 
 const headers = useRequestHeaders(["cookie"]);
-const invitations = ref(
-  await $fetch<Array<SerializeObject<Invitation>>>("/api/v1/admin/auth/invitation", {
-    headers,
-  })
+const { data } = await useFetch<Array<SerializeObject<Invitation>>>(
+  "/api/v1/admin/auth/invitation",
+  { headers }
 );
+const invitations = ref(data.value ?? []);
 
 const generateInvitationUrl = (id: string) =>
   `${window.location.protocol}//${window.location.host}/register?id=${id}`;

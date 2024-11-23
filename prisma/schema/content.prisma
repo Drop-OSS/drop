@@ -1,6 +1,6 @@
 enum MetadataSource {
-  Custom
-  GiantBomb
+    Custom
+    GiantBomb
 }
 
 model Game {
@@ -8,6 +8,7 @@ model Game {
 
     metadataSource MetadataSource
     metadataId     String
+    created        DateTime       @default(now())
 
     // Any field prefixed with m is filled in from metadata
     // Acts as a cache so we can search and filter it
@@ -34,8 +35,10 @@ model Game {
 // A particular set of files that relate to the version
 model GameVersion {
     gameId      String
-    game        Game   @relation(fields: [gameId], references: [id])
+    game        Game     @relation(fields: [gameId], references: [id])
     versionName String // Sub directory for the game files
+    
+    created     DateTime @default(now())
 
     platform        Platform
     launchCommand   String // Command to run to start. Platform-specific. Windows games on Linux will wrap this command in Proton/Wine

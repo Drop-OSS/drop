@@ -38,7 +38,6 @@
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.9",
     "@tailwindcss/typography": "^0.5.15",
-    "@types/bcrypt": "^5.0.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/markdown-it": "^14.1.2",
     "@types/turndown": "^5.0.5",

@@ -3,49 +3,67 @@
 @tailwind utilities;
 
 $motiva: (
-    ("MotivaSansThin.ttf", "ttf", 100, normal),
-    ("MotivaSansLight.woff.ttf", "woff", 300, normal),
-    ("MotivaSansRegular.woff.ttf", "woff", 400, normal),
-    ("MotivaSansMedium.woff.ttf", "woff", 500, normal),
-    ("MotivaSansBold.woff.ttf", "woff", 600, normal),
-    ("MotivaSansExtraBold.ttf", "woff", 700, normal),
-    ("MotivaSansBlack.woff.ttf", "woff", 900, normal)
+  ("MotivaSansThin.ttf", "ttf", 100, normal),
+  ("MotivaSansLight.woff.ttf", "woff", 300, normal),
+  ("MotivaSansRegular.woff.ttf", "woff", 400, normal),
+  ("MotivaSansMedium.woff.ttf", "woff", 500, normal),
+  ("MotivaSansBold.woff.ttf", "woff", 600, normal),
+  ("MotivaSansExtraBold.ttf", "woff", 700, normal),
+  ("MotivaSansBlack.woff.ttf", "woff", 900, normal)
 );
 
 $helvetica: (
-    ("Helvetica.woff", "woff", 400, normal),
-    ("Helvetica-Oblique.woff", "woff", 400, italic),
-    ("Helvetica-Bold.woff", "woff", 600, normal),
-    ("Helvetica-BoldOblique.woff", "woff", 600, italic),
-    ("helvetica-light-587ebe5a59211.woff2", "woff2", 300, normal)
+  ("Helvetica.woff", "woff", 400, normal),
+  ("Helvetica-Oblique.woff", "woff", 400, italic),
+  ("Helvetica-Bold.woff", "woff", 600, normal),
+  ("Helvetica-BoldOblique.woff", "woff", 600, italic),
+  ("helvetica-light-587ebe5a59211.woff2", "woff2", 300, normal)
 );
 
 @each $file, $format, $weight, $style in $motiva {
-    @font-face {
-        font-family: "Motiva Sans";
-        src: url("/fonts/motiva/#{$file}") format($format);
-        font-weight: $weight;
-        font-style: $style;
-    }
+  @font-face {
+    font-family: "Motiva Sans";
+    src: url("/fonts/motiva/#{$file}") format($format);
+    font-weight: $weight;
+    font-style: $style;
+  }
 }
 
 @each $file, $format, $weight, $style in $helvetica {
-    @font-face {
-        font-family: "Helvetica";
-        src: url("/fonts/helvetica/#{$file}") format($format);
-        font-weight: $weight;
-        font-style: $style;
-    }
+  @font-face {
+    font-family: "Helvetica";
+    src: url("/fonts/helvetica/#{$file}") format($format);
+    font-weight: $weight;
+    font-style: $style;
+  }
 }
 
 @font-face {
-    font-family: "Inter";
-    src: url("/fonts/inter/InterVariable.ttf");
-    font-style: normal;
+  font-family: "Inter";
+  src: url("/fonts/inter/InterVariable.ttf");
+  font-style: normal;
 }
 
 @font-face {
-    font-family: "Inter";
-    src: url("/fonts/inter/InterVariable-Italic.ttf");
-    font-style: italic;
+  font-family: "Inter";
+  src: url("/fonts/inter/InterVariable-Italic.ttf");
+  font-style: italic;
+}
+
+.carousel__icon {
+  color: #f4f4f5;
+}
+.carousel__pagination-button::after {
+  background-color: #3f3f46;
+  border-radius: 999999px;
+}
+.carousel__pagination-button:hover::after {
+  background-color: #27272a;
+  border-radius: 999999px;
+}
+.carousel__pagination-button--active::after {
+  background-color: #a1a1aa;
+}
+.carousel__pagination-button--active:hover::after {
+  background-color: #d4d4d8;
 }

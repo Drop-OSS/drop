@@ -79,7 +79,7 @@
 
               <template #addons>
                 <VueNavigation />
-                <VuePagination />
+                <CarouselPagination class="py-2 px-12" />
               </template>
             </VueCarousel>
           </div>
@@ -114,19 +114,6 @@
     </div>
   </div>
 </template>
-
-<style lang="scss">
-.carousel__icon {
-  color: #f4f4f5;
-}
-.carousel__pagination-button::after {
-  background-color: #3f3f46;
-  border-radius: 999999px;
-}
-.carousel__pagination-button--active::after {
-  background-color: #a1a1aa;
-}
-</style>
 
 <script setup lang="ts">
 import { PlusIcon } from "@heroicons/vue/20/solid";

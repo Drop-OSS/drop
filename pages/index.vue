@@ -18,5 +18,5 @@ useHead({
 });
 
 const headers = useRequestHeaders(["cookie"]);
-const games = await $fetch("/api/v1/games/front", { headers });
+const games = await $fetch("/api/v1/store/recent", { headers });
 </script>
