@@ -4,7 +4,7 @@ import { fsCertificateStore } from "../internal/clients/ca-store";
 
 let ca: CertificateAuthority | undefined;
 
-export const useGlobalCertificateAuthority = () => {
+export const useCertificateAuthority = () => {
   if (!ca) throw new Error("CA not initialised");
   return ca;
 };
