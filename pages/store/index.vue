@@ -13,9 +13,10 @@
   ```
 -->
 <template>
-  <div class="w-full">
+  <div class="w-full flex flex-col">
     <!-- Hero section -->
     <VueCarousel
+      v-if="recent.length > 0"
       :wrapAround="true"
       :items-to-show="1"
       :autoplay="15 * 1000"
@@ -32,7 +33,7 @@
             />
           </div>
           <div
-            class="relative w-full h-full bg-gray-900/75 px-6 py-32 sm:px-12 sm:py-40 lg:px-16"
+            class="relative w-full h-full bg-zinc-900/75 px-6 py-32 sm:px-12 sm:py-40 lg:px-16"
           >
             <div
               class="relative mx-auto flex max-w-xl flex-col items-center text-center"
@@ -62,19 +63,40 @@
         <CarouselPagination class="py-2" :items="recent" />
       </template>
     </VueCarousel>
+    <div
+      v-else
+      class="w-full h-full flex items-center justify-center bg-zinc-950/50 px-6 py-32 sm:px-12 sm:py-40 lg:px-16"
+    >
+      <h2
+        class="uppercase text-xl font-bold tracking-tight text-zinc-700 sm:text-3xl"
+      >
+        no game
+      </h2>
+    </div>
 
-    <!-- recently updated -->
+    <!-- new releases -->
     <div class="px-4 sm:px-12 py-4">
-      <h1 class="text-zinc-100 text-2xl font-bold font-display">Recently updated</h1>
+      <h1 class="text-zinc-100 text-2xl font-bold font-display">
+        Recently released
+      </h1>
       <NuxtLink class="text-blue-600 font-semibold"
         >Explore more &rarr;</NuxtLink
       >
       <div class="mt-4">
-        <GameCarousel
-          v-if="updated"
-          :items="updated.map((e) => e.game)"
-          :min="24"
-        />
+        <GameCarousel :items="released" :min="12" />
+      </div>
+    </div>
+
+    <!-- recently updated -->
+    <div class="px-4 sm:px-12 py-4">
+      <h1 class="text-zinc-100 text-2xl font-bold font-display">
+        Recently updated
+      </h1>
+      <NuxtLink class="text-blue-600 font-semibold"
+        >Explore more &rarr;</NuxtLink
+      >
+      <div class="mt-4">
+        <GameCarousel :items="updated" :min="12" />
       </div>
     </div>
   </div>
@@ -82,8 +104,11 @@
 
 <script setup lang="ts">
 const headers = useRequestHeaders(["cookie"]);
-const { data: recent } = await useFetch("/api/v1/store/recent", { headers });
-const { data: updated } = await useFetch("/api/v1/store/updated", { headers });
+const recent = await $fetch("/api/v1/store/recent", { headers });
+const updated = await $fetch("/api/v1/store/updated", { headers });
+const released = await $fetch("/api/v1/store/released", {
+  headers,
+});
 
 useHead({
   title: "Store",

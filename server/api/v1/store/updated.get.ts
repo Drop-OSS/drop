@@ -12,14 +12,16 @@ export default defineEventHandler(async (h3) => {
     },
     select: {
       game: true,
-      created: true,
-      platform: true,
     },
     orderBy: {
       created: "desc",
     },
-    take: 8,
+    take: 12,
   });
 
-  return versions;
+  const games = versions
+    .map((e) => e.game)
+    .filter((v, i, a) => a.findIndex((e) => e.id === v.id) === i);
+
+  return games;
 });

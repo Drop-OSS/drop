@@ -2,7 +2,7 @@
   <NuxtLink
     v-if="game"
     :href="`/store/${game.id}`"
-    class="rounded overflow-hidden w-48 h-64 group relative transition-all duration-300 text-left transform-3d hover:rotate-y-180"
+    class="rounded overflow-hidden w-48 h-64 group relative transition-all duration-300 text-left"
   >
     <img :src="useObject(game.mCoverId)" class="w-full h-full object-cover" />
     <div

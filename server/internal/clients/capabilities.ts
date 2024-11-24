@@ -1,6 +1,6 @@
 import { EnumDictionary } from "../utils/types";
 import https from "https";
-import { useGlobalCertificateAuthority } from "~/server/plugins/ca";
+import { useCertificateAuthority } from "~/server/plugins/ca";
 import prisma from "../db/database";
 import { ClientCapabilities } from "@prisma/client";
 
@@ -48,7 +48,7 @@ class CapabilityManager {
       )
         return false;
 
-      const ca = useGlobalCertificateAuthority();
+      const ca = useCertificateAuthority();
       const serverCertificate = await ca.fetchClientCertificate("server");
       if (!serverCertificate)
         throw new Error(

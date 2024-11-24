@@ -49,19 +49,60 @@
               aria-hidden="true"
             />
           </NuxtLink>
-          <div class="inline-flex items-center gap-x-3">
-            <span class="text-zinc-100 font-semibold">Available on:</span>
-            <component
-              v-for="platform in platforms"
-              :is="icons[platform]"
-              class="text-blue-600 w-6 h-6"
-            />
-            <span
-              v-if="platforms.length == 0"
-              class="font-semibold text-blue-600"
-              >coming soon</span
-            >
-          </div>
+          <table class="min-w-full">
+            <tbody>
+              <tr>
+                <td
+                  class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
+                >
+                  Released
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
+                  {{ moment(game.mReleased).format("Do MMMM, YYYY") }}
+                </td>
+              </tr>
+              <tr>
+                <td
+                  class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
+                >
+                  Platform(s)
+                </td>
+                <td
+                  class="whitespace-nowrap inline-flex gap-x-4 px-3 py-4 text-sm text-zinc-400"
+                >
+                  <component
+                    v-for="platform in platforms"
+                    :is="icons[platform]"
+                    class="text-blue-600 w-6 h-6"
+                  />
+                  <span
+                    v-if="platforms.length == 0"
+                    class="font-semibold text-blue-600"
+                    >coming soon</span
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td
+                  class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
+                >
+                  Rating
+                </td>
+                <td
+                  class="whitespace-nowrap flex flex-row items-center  gap-x-1 px-3 py-4 text-sm text-zinc-400"
+                >
+                  <StarIcon
+                    v-for="value in ratingArray"
+                    :class="[
+                      value ? 'text-yellow-600' : 'text-zinc-600',
+                      'w-4 h-4',
+                    ]"
+                  />
+                  <span class="text-zinc-600">({{ game.mReviewCount }} reviews)</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
         <div class="row-start-2 lg:row-start-1 lg:col-span-3">
@@ -118,8 +159,10 @@
 <script setup lang="ts">
 import { PlusIcon } from "@heroicons/vue/20/solid";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
+import { StarIcon } from "@heroicons/vue/24/solid";
 import { Platform, type Game, type GameVersion } from "@prisma/client";
 import MarkdownIt from "markdown-it";
+import moment from "moment";
 import LinuxLogo from "~/components/icons/LinuxLogo.vue";
 import WindowsLogo from "~/components/WindowsLogo.vue";
 
@@ -167,6 +210,11 @@ const icons = {
   [Platform.Linux]: LinuxLogo,
   [Platform.Windows]: WindowsLogo,
 };
+
+const rating = Math.round(game.mReviewRating * 5);
+const ratingArray = Array(5)
+  .fill(null)
+  .map((_, i) => i + 1 <= rating);
 
 useHead({
   title: game.mName,

@@ -17,9 +17,10 @@ model Game {
     mDescription      String // Supports markdown
     mDevelopers       Developer[]
     mPublishers       Publisher[]
+    mReleased         DateTime // When the game was released
 
     mReviewCount  Int
-    mReviewRating Float
+    mReviewRating Float // 0 to 1
 
     mIconId       String // linked to objects in s3
     mBannerId     String // linked to objects in s3
@@ -35,10 +36,10 @@ model Game {
 // A particular set of files that relate to the version
 model GameVersion {
     gameId      String
-    game        Game     @relation(fields: [gameId], references: [id])
+    game        Game   @relation(fields: [gameId], references: [id])
     versionName String // Sub directory for the game files
-    
-    created     DateTime @default(now())
+
+    created DateTime @default(now())
 
     platform        Platform
     launchCommand   String // Command to run to start. Platform-specific. Windows games on Linux will wrap this command in Proton/Wine

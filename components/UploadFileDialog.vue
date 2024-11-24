@@ -38,17 +38,17 @@
                   <div class="mt-2">
                     <label
                       for="file-upload"
-                      class="cursor-pointer transition relative block w-full rounded-lg border-2 border-dashed border-zinc-800 p-12 text-center hover:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
+                      class="group cursor-pointer transition relative block w-full rounded-lg border-2 border-dashed border-zinc-600 p-12 text-center hover:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
                     >
                       <ArrowUpTrayIcon
-                        class="mx-auto h-6 w-6 text-zinc-700"
+                        class="transition mx-auto h-6 w-6 text-zinc-600 group-hover:text-zinc-700"
                         stroke="currentColor"
                         fill="none"
                         viewBox="0 0 48 48"
                         aria-hidden="true"
                       />
                       <span
-                        class="mt-2 block text-sm font-semibold text-zinc-100"
+                        class="transition mt-2 block text-sm font-semibold text-zinc-400 group-hover:text-zinc-500"
                         >Upload file</span
                       >
                       <p class="mt-1 text-xs text-zinc-400" v-if="currentFile">

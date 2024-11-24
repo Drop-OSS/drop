@@ -45,6 +45,11 @@ interface GameResult {
   publishers: Array<{ id: number; name: string }>;
 
   number_of_user_reviews: number; // Doesn't provide an actual rating, so kinda useless
+  original_release_date?: string;
+
+  expected_release_day?: number;
+  expected_release_month?: number;
+  expected_release_year?: number;
 
   image: {
     icon_url: string;
@@ -180,11 +185,20 @@ export class GiantBombProvider implements MetadataProvider {
 
     const images = [banner, ...imageURLs.map(createObject)];
 
+    const releaseDate = gameData.original_release_date
+      ? moment(gameData.original_release_date).toDate()
+      : moment(
+          `${gameData.expected_release_day ?? 1}/${
+            gameData.expected_release_month ?? 1
+          }/${gameData.expected_release_year ?? new Date().getFullYear()}`
+        ).toDate();
+
     const metadata: GameMetadata = {
       id: gameData.guid,
       name: gameData.name,
       shortDescription: gameData.deck,
       description: longDescription,
+      released: releaseDate,
 
       reviewCount: 0,
       reviewRating: 0,
