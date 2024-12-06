@@ -324,7 +324,7 @@
                   </div>
                 </div>
                 <div
-                  class="bg-zinc-800 px-4 py-3 sm:flex sm:gap-x-2 sm:flex-row-reverse sm:px-6"
+                  class="rounded-b-lg bg-zinc-800 px-4 py-3 sm:flex sm:gap-x-2 sm:flex-row-reverse sm:px-6"
                 >
                   <LoadingButton
                     :loading="loading"
