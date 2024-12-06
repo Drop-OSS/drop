@@ -56,29 +56,40 @@ class ManifestGenerator {
   async generateManifest(gameId: string, versionName: string) {
     const versions: GameVersion[] = [];
 
-    for (let i = 0; true; i++) {
-      const currentVersion = (
-        await prisma.gameVersion.findMany({
+    const baseVersion = await prisma.gameVersion.findUnique({
+      where: {
+        gameId_versionName: {
+          gameId: gameId,
+          versionName: versionName,
+        },
+      },
+    });
+    if (!baseVersion) return undefined;
+    versions.push(baseVersion);
+
+    // Collect other versions if this is a delta
+    if (baseVersion.delta) {
+      // Start at the same index minus one, and keep grabbing them
+      // until we run out or we hit something that isn't a delta
+      for (let i = baseVersion.versionIndex - 1; true; i--) {
+        const currentVersion = await prisma.gameVersion.findFirst({
           where: {
             gameId: gameId,
-            versionName: versionName,
+            versionIndex: i,
+            platform: baseVersion.platform,
           },
-          orderBy: {
-            versionIndex: "desc", // Get highest priority first
-          },
-          skip: i,
-          take: 1,
-        })
-      )[0];
-      if (!currentVersion) return undefined;
-      versions.push(currentVersion);
-      if (!currentVersion.delta) break;
+        });
+        if (!currentVersion) return undefined;
+        versions.push(currentVersion);
+        if (!currentVersion.delta) break;
+      }
     }
-
     const leastToMost = versions.reverse();
     const metadata: DropManifestMetadata[] = leastToMost.map((e) => {
       return {
-        manifest: JSON.parse(e.dropletManifest?.toString() ?? "{}") as DropManifest,
+        manifest: JSON.parse(
+          e.dropletManifest?.toString() ?? "{}"
+        ) as DropManifest,
         versionName: e.versionName,
       };
     });
