@@ -84,7 +84,7 @@ import {
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 import type { Component } from "vue";
 import LinuxLogo from "./icons/LinuxLogo.vue";
-import WindowsLogo from "./WindowsLogo.vue";
+import WindowsLogo from "./icons/WindowsLogo.vue";
 
 const model = defineModel<string>();
 

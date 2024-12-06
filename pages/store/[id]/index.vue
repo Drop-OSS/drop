@@ -164,7 +164,7 @@ import { Platform, type Game, type GameVersion } from "@prisma/client";
 import MarkdownIt from "markdown-it";
 import moment from "moment";
 import LinuxLogo from "~/components/icons/LinuxLogo.vue";
-import WindowsLogo from "~/components/WindowsLogo.vue";
+import WindowsLogo from "~/components/icons/WindowsLogo.vue";
 
 const route = useRoute();
 const gameId = route.params.id.toString();
