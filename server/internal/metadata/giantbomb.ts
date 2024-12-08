@@ -41,8 +41,8 @@ interface GameResult {
   deck: string;
   description?: string;
 
-  developers: Array<{ id: number; name: string }>;
-  publishers: Array<{ id: number; name: string }>;
+  developers?: Array<{ id: number; name: string }>;
+  publishers?: Array<{ id: number; name: string }>;
 
   number_of_user_reviews: number; // Doesn't provide an actual rating, so kinda useless
   original_release_date?: string;
@@ -169,13 +169,17 @@ export class GiantBombProvider implements MetadataProvider {
       : gameData.deck;
 
     const publishers: Publisher[] = [];
-    for (const pub of gameData.publishers) {
-      publishers.push(await publisher(pub.name));
+    if (gameData.publishers) {
+      for (const pub of gameData.publishers) {
+        publishers.push(await publisher(pub.name));
+      }
     }
 
     const developers: Developer[] = [];
-    for (const dev of gameData.developers) {
-      developers.push(await developer(dev.name));
+    if (gameData.developers) {
+      for (const dev of gameData.developers) {
+        developers.push(await developer(dev.name));
+      }
     }
 
     const icon = createObject(gameData.image.icon_url);
@@ -208,7 +212,7 @@ export class GiantBombProvider implements MetadataProvider {
 
       icon,
       bannerId: banner,
-      coverId: images[1],
+      coverId: images[1] ?? banner,
       images,
     };
 
