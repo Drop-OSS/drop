@@ -41,12 +41,26 @@
         </div>
       </div>
     </div>
+    <div class="mt-2 grid grid-cols-1">
+      <input
+        type="text"
+        name="search"
+        id="search"
+        class="col-start-1 row-start-1 block w-full rounded-md bg-zinc-900 py-1.5 pl-10 pr-3 text-base text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:pl-9 sm:text-sm/6"
+        placeholder="Search library..."
+        v-model="searchQuery"
+      />
+      <MagnifyingGlassIcon
+        class="pointer-events-none col-start-1 row-start-1 ml-3 size-5 self-center text-zinc-400 sm:size-4"
+        aria-hidden="true"
+      />
+    </div>
     <ul
       role="list"
       class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
     >
       <li
-        v-for="game in libraryNotifications"
+        v-for="game in filteredLibraryGames"
         :key="game.id"
         class="col-span-1 flex flex-col justify-center divide-y divide-zinc-700 rounded-lg bg-zinc-950/20 text-left shadow"
       >
@@ -127,6 +141,18 @@
           </div>
         </div>
       </li>
+      <p
+        class="text-zinc-600 text-sm font-display font-bold uppercase text-center col-span-4"
+        v-if="filteredLibraryGames.length == 0 && libraryGames.length != 0"
+      >
+        No results
+      </p>
+      <p
+        class="text-zinc-600 text-sm font-display font-bold uppercase text-center col-span-4"
+        v-if="filteredLibraryGames.length == 0 && libraryGames.length == 0"
+      >
+        No games imported
+      </p>
     </ul>
   </div>
 </template>
@@ -134,6 +160,7 @@
 <script setup lang="ts">
 import { ExclamationTriangleIcon } from "@heroicons/vue/16/solid";
 import { InformationCircleIcon } from "@heroicons/vue/20/solid";
+import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
 definePageMeta({
   layout: "admin",
 });
@@ -142,9 +169,11 @@ useHead({
   title: "Libraries",
 });
 
+const searchQuery = ref("");
+
 const headers = useRequestHeaders(["cookie"]);
 const libraryState = await $fetch("/api/v1/admin/library", { headers });
-const libraryNotifications = libraryState.games.map((e) => {
+const libraryGames = libraryState.games.map((e) => {
   const noVersions = e.status.noVersions;
   const toImport = e.status.unimportedVersions.length > 0;
 
@@ -157,4 +186,15 @@ const libraryNotifications = libraryState.games.map((e) => {
     hasNotifications: noVersions || toImport,
   };
 });
+
+const filteredLibraryGames = computed(() =>
+  libraryGames.filter((e) => {
+    if (!searchQuery.value) return true;
+    const searchQueryLower = searchQuery.value.toLowerCase();
+    if (e.mName.toLowerCase().includes(searchQueryLower)) return true;
+    if (e.mShortDescription.toLowerCase().includes(searchQueryLower))
+      return true;
+    return false;
+  })
+);
 </script>

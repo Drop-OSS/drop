@@ -109,6 +109,8 @@ const updated = await $fetch("/api/v1/store/updated", { headers });
 const released = await $fetch("/api/v1/store/released", {
   headers,
 });
+const developers = await $fetch("/api/v1/store/developers", { headers });
+const publishers = await $fetch("/api/v1/store/publishers", { headers });
 
 useHead({
   title: "Store",
