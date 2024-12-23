@@ -36,7 +36,7 @@ model Game {
 // A particular set of files that relate to the version
 model GameVersion {
     gameId      String
-    game        Game   @relation(fields: [gameId], references: [id])
+    game        Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
     versionName String // Sub directory for the game files
 
     created DateTime @default(now())

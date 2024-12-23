@@ -85,12 +85,20 @@
               </dd>
               <dt class="sr-only">Metadata provider</dt>
             </dl>
-            <NuxtLink
+            <div class="inline-flex gap-x-2 items-center">
+              <NuxtLink
               :href="`/admin/library/${game.id}`"
               class="mt-2 w-fit rounded-md bg-blue-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
             >
               Edit &rarr;
             </NuxtLink>
+            <button
+              @click="() => deleteGame(game.id)"
+              class="mt-2 w-fit rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+            >
+              Delete
+            </button>
+            </div>
           </div>
         </div>
         <div v-if="game.hasNotifications" class="flex flex-col gap-y-2 p-2">
@@ -173,22 +181,25 @@ const searchQuery = ref("");
 
 const headers = useRequestHeaders(["cookie"]);
 const libraryState = await $fetch("/api/v1/admin/library", { headers });
-const libraryGames = libraryState.games.map((e) => {
-  const noVersions = e.status.noVersions;
-  const toImport = e.status.unimportedVersions.length > 0;
+const libraryGames = ref(
+  libraryState.games.map((e) => {
+    const noVersions = e.status.noVersions;
+    const toImport = e.status.unimportedVersions.length > 0;
 
-  return {
-    ...e.game,
-    notifications: {
-      noVersions,
-      toImport,
-    },
-    hasNotifications: noVersions || toImport,
-  };
-});
+    return {
+      ...e.game,
+      notifications: {
+        noVersions,
+        toImport,
+      },
+      hasNotifications: noVersions || toImport,
+    };
+  })
+);
 
 const filteredLibraryGames = computed(() =>
-  libraryGames.filter((e) => {
+  // @ts-ignore
+  libraryGames.value.filter((e) => {
     if (!searchQuery.value) return true;
     const searchQueryLower = searchQuery.value.toLowerCase();
     if (e.mName.toLowerCase().includes(searchQueryLower)) return true;
@@ -197,4 +208,10 @@ const filteredLibraryGames = computed(() =>
     return false;
   })
 );
+
+async function deleteGame(id: string) {
+  await $fetch(`/api/v1/admin/game?id=${id}`, { method: "DELETE" });
+  const index = libraryGames.value.findIndex((e) => e.id === id);
+  libraryGames.value.splice(index, 1);
+}
 </script>
