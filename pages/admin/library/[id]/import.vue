@@ -160,6 +160,72 @@
           />
         </Switch>
       </SwitchGroup>
+      <Disclosure as="div" class="py-2" v-slot="{ open }">
+        <dt>
+          <DisclosureButton
+            class="flex w-full items-start justify-between text-left text-zinc-100"
+          >
+            <span class="text-base/7 font-semibold">Advanced options</span>
+            <span class="ml-6 flex h-7 items-center">
+              <ChevronUpIcon v-if="!open" class="size-6" aria-hidden="true" />
+              <ChevronDownIcon v-else class="size-6" aria-hidden="true" />
+            </span>
+          </DisclosureButton>
+        </dt>
+        <DisclosurePanel as="dd" class="mt-2 flex flex-col gap-y-4">
+          <SwitchGroup as="div" class="flex items-center justify-between">
+            <span class="flex flex-grow flex-col">
+              <SwitchLabel
+                as="span"
+                class="text-sm font-medium leading-6 text-zinc-100"
+                passive
+                >Override UMU Launcher Game ID</SwitchLabel
+              >
+              <SwitchDescription as="span" class="text-sm text-zinc-400"
+                >By default, Drop uses a non-ID when launching with UMU
+                Launcher. In order to get the right patches for some games, you
+                may have to manually set this field.</SwitchDescription
+              >
+            </span>
+            <Switch
+              v-model="umuIdEnabled"
+              :class="[
+                umuIdEnabled ? 'bg-blue-600' : 'bg-zinc-800',
+                'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2',
+              ]"
+            >
+              <span
+                aria-hidden="true"
+                :class="[
+                  umuIdEnabled ? 'translate-x-5' : 'translate-x-0',
+                  'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                ]"
+              />
+            </Switch>
+          </SwitchGroup>
+          <div>
+            <label
+              for="umu-id"
+              class="block text-sm font-medium leading-6 text-zinc-100"
+              >UMU Launcher ID</label
+            >
+            <div class="mt-2">
+              <input
+                id="umu-id"
+                name="umu-id"
+                type="text"
+                autocomplete="umu-id"
+                required
+                :disabled="!umuIdEnabled"
+                v-model="umuId"
+                placeholder="umu-starcitizen"
+                class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-950 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+              />
+            </div>
+          </div>
+        </DisclosurePanel>
+      </Disclosure>
+
       <LoadingButton
         @click="startImport_wrapper"
         class="w-fit"
@@ -218,9 +284,13 @@ import {
   SwitchDescription,
   SwitchGroup,
   SwitchLabel,
+  Disclosure,
+  DisclosureButton,
+  DisclosurePanel,
 } from "@headlessui/vue";
 import { XCircleIcon } from "@heroicons/vue/16/solid";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
+import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/vue/24/solid";
 
 definePageMeta({
   layout: "admin",
@@ -242,6 +312,20 @@ const versionSettings = ref<
   { platform: string; startup: string; setup: string } | undefined
 >();
 const delta = ref(false);
+
+const _umuId = ref("");
+const umuIdEnabled = ref(false);
+const umuId = computed({
+  get() {
+    if (umuIdEnabled.value) return _umuId.value;
+    return undefined;
+  },
+  set(v) {
+    if (umuIdEnabled.value && v) {
+      _umuId.value = v;
+    }
+  },
+});
 
 const importLoading = ref(false);
 const importError = ref<string | undefined>();
@@ -272,7 +356,7 @@ async function startImport() {
       platform: versionSettings.value.platform,
       startup: versionSettings.value.startup,
       setup: versionSettings.value.setup,
-      delta: delta.value
+      delta: delta.value,
     },
   });
   router.push(`/admin/task/${taskId.taskId}`);

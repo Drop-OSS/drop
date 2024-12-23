@@ -208,7 +208,12 @@ class LibraryManager {
   async importVersion(
     gameId: string,
     versionName: string,
-    metadata: { platform: string; setup: string; startup: string },
+    metadata: {
+      platform: string;
+      setup: string;
+      startup: string;
+      umuId: string | undefined;
+    },
     delta = false
   ) {
     const taskId = `import:${gameId}:${versionName}`;
@@ -264,6 +269,7 @@ class LibraryManager {
             platform: platform,
             setupCommand: metadata.setup,
             launchCommand: metadata.startup,
+            umuIdOverride: metadata.umuId,
             dropletManifest: manifest,
             versionIndex: currentIndex,
             delta: delta,

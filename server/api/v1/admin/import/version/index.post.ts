@@ -12,6 +12,7 @@ export default defineEventHandler(async (h3) => {
   const startup = body.startup;
   const setup = body.setup ?? "";
   const delta = body.delta ?? false;
+  const umuId = body.umuId;
 
   // startup & delta require more complex checking logic
   if (!gameId || !versionName || !platform)
@@ -19,6 +20,12 @@ export default defineEventHandler(async (h3) => {
       statusCode: 400,
       statusMessage:
         "ID, version, platform, setup, and startup (if not in update mode) are required.",
+    });
+
+  if (umuId && typeof umuId !== "string")
+    throw createError({
+      statusCode: 400,
+      statusMessage: "If specified, UMU ID must be a string.",
     });
 
   if (!delta && !startup)
@@ -46,6 +53,7 @@ export default defineEventHandler(async (h3) => {
       platform,
       startup,
       setup,
+      umuId,
     },
     delta
   );
