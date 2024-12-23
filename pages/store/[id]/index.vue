@@ -162,7 +162,6 @@
 </template>
 
 <script setup lang="ts">
-import { IconsWindowsLogo } from "#build/components";
 import { PlusIcon } from "@heroicons/vue/20/solid";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
 import { StarIcon } from "@heroicons/vue/24/solid";
@@ -209,7 +208,7 @@ const platforms = game.versions
   .map((e) => e.platform)
   .flat()
   .filter((e, i, u) => u.indexOf(e) === i);
-  
+
 const rating = Math.round(game.mReviewRating * 5);
 const ratingArray = Array(5)
   .fill(null)
