@@ -189,7 +189,7 @@
 import { InformationCircleIcon } from "@heroicons/vue/20/solid";
 import { Bars3Icon, TrashIcon } from "@heroicons/vue/16/solid";
 import type { Game, GameVersion } from "@prisma/client";
-import markdownit from "markdown-it";
+import {micromark} from 'micromark';
 import UploadFileDialog from "~/components/UploadFileDialog.vue";
 
 definePageMeta({
@@ -209,8 +209,7 @@ const { game: rawGame, unimportedVersions } = await $fetch(
 );
 const game = ref(rawGame);
 
-const md = markdownit();
-const descriptionHTML = md.render(game.value?.mDescription ?? "");
+const descriptionHTML = micromark(game.value?.mDescription ?? "");
 
 async function updateBannerImage(id: string) {
     if (game.value.mBannerId == id) return;

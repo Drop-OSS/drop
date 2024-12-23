@@ -161,7 +161,7 @@ import { PlusIcon } from "@heroicons/vue/20/solid";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
 import { StarIcon } from "@heroicons/vue/24/solid";
 import { Platform, type Game, type GameVersion } from "@prisma/client";
-import MarkdownIt from "markdown-it";
+import {micromark} from 'micromark';
 import moment from "moment";
 import LinuxLogo from "~/components/icons/LinuxLogo.vue";
 import WindowsLogo from "~/components/icons/WindowsLogo.vue";
@@ -176,7 +176,6 @@ const game = await $fetch<Game & { versions: GameVersion[] }>(
   `/api/v1/games/${gameId}`,
   { headers }
 );
-const md = MarkdownIt();
 
 // Preview description (first 30 lines)
 const showPreview = ref(true);
@@ -197,9 +196,9 @@ const descriptionSplitIndex = gameDescriptionCharacters.findIndex(
 const previewDescription = gameDescriptionCharacters
   .slice(0, descriptionSplitIndex + 1) // Slice a character after
   .join("");
-const previewHTML = md.render(previewDescription);
+const previewHTML = micromark(previewDescription);
 
-const descriptionHTML = md.render(game.mDescription);
+const descriptionHTML = micromark(game.mDescription);
 
 const showReadMore = previewHTML != descriptionHTML;
 const platforms = game.versions
