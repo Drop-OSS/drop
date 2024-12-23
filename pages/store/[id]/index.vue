@@ -70,10 +70,13 @@
                 <td
                   class="whitespace-nowrap inline-flex gap-x-4 px-3 py-4 text-sm text-zinc-400"
                 >
-                  <component
-                    v-for="platform in platforms"
-                    :is="icons[platform]"
+                  <IconsWindowsLogo
                     class="text-blue-600 w-6 h-6"
+                    v-if="platforms.includes(Platform.Windows)"
+                  />
+                  <IconsLinuxLogo
+                    class="text-blue-600 w-6 h-6"
+                    v-if="platforms.includes(Platform.Linux)"
                   />
                   <span
                     v-if="platforms.length == 0"
@@ -159,13 +162,13 @@
 </template>
 
 <script setup lang="ts">
+import { IconsWindowsLogo } from "#build/components";
 import { PlusIcon } from "@heroicons/vue/20/solid";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
 import { StarIcon } from "@heroicons/vue/24/solid";
 import { Platform, type Game, type GameVersion } from "@prisma/client";
 import { micromark } from "micromark";
 import moment from "moment";
-import { IconsLinuxLogo, IconsWindowsLogo } from "#components";
 
 const route = useRoute();
 const gameId = route.params.id.toString();
@@ -206,11 +209,7 @@ const platforms = game.versions
   .map((e) => e.platform)
   .flat()
   .filter((e, i, u) => u.indexOf(e) === i);
-const icons = {
-  [Platform.Linux]: IconsLinuxLogo,
-  [Platform.Windows]: IconsWindowsLogo,
-};
-
+  
 const rating = Math.round(game.mReviewRating * 5);
 const ratingArray = Array(5)
   .fill(null)
