@@ -89,7 +89,7 @@
                   Rating
                 </td>
                 <td
-                  class="whitespace-nowrap flex flex-row items-center  gap-x-1 px-3 py-4 text-sm text-zinc-400"
+                  class="whitespace-nowrap flex flex-row items-center gap-x-1 px-3 py-4 text-sm text-zinc-400"
                 >
                   <StarIcon
                     v-for="value in ratingArray"
@@ -98,7 +98,9 @@
                       'w-4 h-4',
                     ]"
                   />
-                  <span class="text-zinc-600">({{ game.mReviewCount }} reviews)</span>
+                  <span class="text-zinc-600"
+                    >({{ game.mReviewCount }} reviews)</span
+                  >
                 </td>
               </tr>
             </tbody>
@@ -161,10 +163,9 @@ import { PlusIcon } from "@heroicons/vue/20/solid";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
 import { StarIcon } from "@heroicons/vue/24/solid";
 import { Platform, type Game, type GameVersion } from "@prisma/client";
-import {micromark} from 'micromark';
+import { micromark } from "micromark";
 import moment from "moment";
-import LinuxLogo from "~/components/icons/LinuxLogo.vue";
-import WindowsLogo from "~/components/icons/WindowsLogo.vue";
+import { IconsLinuxLogo, IconsWindowsLogo } from "#components";
 
 const route = useRoute();
 const gameId = route.params.id.toString();
@@ -206,8 +207,8 @@ const platforms = game.versions
   .flat()
   .filter((e, i, u) => u.indexOf(e) === i);
 const icons = {
-  [Platform.Linux]: LinuxLogo,
-  [Platform.Windows]: WindowsLogo,
+  [Platform.Linux]: IconsLinuxLogo,
+  [Platform.Windows]: IconsWindowsLogo,
 };
 
 const rating = Math.round(game.mReviewRating * 5);
