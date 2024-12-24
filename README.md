@@ -23,6 +23,31 @@ Drop is an open-source game distribution platform, like GameVault or Steam. It's
 2. Drop is secure. The nature of Drop means an instance can never be accessible without authentication. In line with #1, Drop also supports a huge variety of authentication mechanisms, from a username/password to SSO.
 3. Drop is user-friendly. The interface is designed to be clean and simple to use, with complexity available to the users who want it.
 
+## Deployment
+
+To just deploy Drop, we've set up a simple docker compose file in deploy-template.
+
+1. Generate a [GiantBomb API Key](https://www.giantbomb.com/api/)
+2. Navigate to the deploy-template directory in your terminal (`cd deploy-template`)
+3. Edit the compose.yml file (`nano compose.yml`) and copy your GiamtBomb API Key into the GIANT_BOMB_API_KEY environment variable
+4. Run `docker compose up -d`
+
+Your drop server should now be running. To register the admin user, navigate to http://your.drop.server.ip:3000/register?id=admin 
+and fill in the required forms
+
+### Adding a game
+To add a game to the drop library, do as follows:
+1. Ensure that the current user owns the library folder with `sudo chown -R $(id -u $(whoami)) library`
+2. `cd library`
+3. `mkdir <GAME_NAME>` with the name of the game which you would like to register
+4. `cd <GAME_NAME>`
+5. `mkdir <VERSION_NAME>` Upload files for the specific game version to this folder 
+6. Navigate to http://your.drop.server.ip:3000/
+7. Import game metadata (uses GiantBomb API Key) by selecting the game and specifying which entry to import
+8. Navigate to http://your.drop.server.ip:3000/admin/library
+9. You should see the game which you have just imported listed in this menu. There should be a notification that "Drop has detected you have new verions of this game to import". Select import here.
+10. Select the game version to import and thus fill in fields as required.
+
 ## Tech Stack
 
 This repo uses the Nuxt 3 + TailwindCSS stack, with the `yarn` package manager.
