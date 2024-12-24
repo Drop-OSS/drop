@@ -35,8 +35,8 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
         const nonceTime = parseInt(nonce);
         const current = Date.now();
         if (
-          // If it was generated in the future
-          nonceTime > current ||
+          // If it "will be generated" in thirty seconds
+          nonceTime > current + NONCE_LENIENCE ||
           // Or more than thirty seconds ago
           nonceTime < current - NONCE_LENIENCE
         ) {
