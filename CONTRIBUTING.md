@@ -232,4 +232,4 @@ page for instructions on where to start and more.
 ## Reference
 This contributing guide is adapted from the 
 [oh-my-zsh contribution guide](https://github.com/ohmyzsh/ohmyzsh/blob/master/CONTRIBUTING.md). 
-If there are any issues with this, please email (admin@quexeky.dev)[mailto:admin@quexeky.dev].
+If there are any issues with this, please email admin@deepcore.dev.
