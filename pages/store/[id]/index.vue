@@ -70,13 +70,10 @@
                 <td
                   class="whitespace-nowrap inline-flex gap-x-4 px-3 py-4 text-sm text-zinc-400"
                 >
-                  <IconsWindowsLogo
+                  <component
+                    v-for="platform in platforms"
+                    :is="icons[platform]"
                     class="text-blue-600 w-6 h-6"
-                    v-if="platforms.includes(Platform.Windows)"
-                  />
-                  <IconsLinuxLogo
-                    class="text-blue-600 w-6 h-6"
-                    v-if="platforms.includes(Platform.Linux)"
                   />
                   <span
                     v-if="platforms.length == 0"
@@ -162,12 +159,14 @@
 </template>
 
 <script setup lang="ts">
+import { IconsLinuxLogo, IconsWindowsLogo } from "#components";
 import { PlusIcon } from "@heroicons/vue/20/solid";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
 import { StarIcon } from "@heroicons/vue/24/solid";
-import { Platform, type Game, type GameVersion } from "@prisma/client";
+import { type Game, type GameVersion } from "@prisma/client";
 import { micromark } from "micromark";
 import moment from "moment";
+import { PlatformClient } from "~/composables/types";
 
 const route = useRoute();
 const gameId = route.params.id.toString();
@@ -205,7 +204,7 @@ const descriptionHTML = micromark(game.mDescription);
 
 const showReadMore = previewHTML != descriptionHTML;
 const platforms = game.versions
-  .map((e) => e.platform)
+  .map((e) => e.platform as PlatformClient)
   .flat()
   .filter((e, i, u) => u.indexOf(e) === i);
 
@@ -213,6 +212,10 @@ const rating = Math.round(game.mReviewRating * 5);
 const ratingArray = Array(5)
   .fill(null)
   .map((_, i) => i + 1 <= rating);
+const icons = {
+  [PlatformClient.Linux]: IconsLinuxLogo,
+  [PlatformClient.Windows]: IconsWindowsLogo,
+};
 
 useHead({
   title: game.mName,

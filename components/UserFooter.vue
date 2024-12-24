@@ -63,8 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import GithubLogo from './icons/GithubLogo.vue';
-import DiscordLogo from './icons/DiscordLogo.vue';
+import { IconsDiscordLogo, IconsGithubLogo } from '#components';
 
 const navigation = {
     games: [
@@ -92,12 +91,12 @@ const navigation = {
         {
             name: 'GitHub',
             href: 'https://github.com/Drop-OSS',
-            icon: GithubLogo,
+            icon: IconsGithubLogo,
         },
         {
             name: "Discord",
             href: "https://discord.gg/NHx46XKJWA",
-            icon: DiscordLogo
+            icon: IconsDiscordLogo
         }
     ],
 }

@@ -97,11 +97,11 @@
 </template>
 
 <script setup lang="ts">
+import { IconsSimpleAuthenticationLogo } from "#components";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
 import { EllipsisHorizontalIcon } from "@heroicons/vue/20/solid";
 import { CheckIcon, XMarkIcon } from "@heroicons/vue/24/solid";
 import type { Component } from "vue";
-import SimpleAuthenticationLogo from "~/components/icons/SimpleAuthenticationLogo.vue";
 
 const authenticationMechanisms: Array<{
   name: string;
@@ -113,7 +113,7 @@ const authenticationMechanisms: Array<{
   {
     name: "Simple (username/password)",
     enabled: true,
-    icon: SimpleAuthenticationLogo,
+    icon: IconsSimpleAuthenticationLogo,
     route: "/admin/auth/simple",
   },
 ];

@@ -74,6 +74,7 @@
 </template>
 
 <script setup lang="ts">
+import { IconsLinuxLogo, IconsWindowsLogo } from "#components";
 import {
   Listbox,
   ListboxButton,
@@ -83,19 +84,17 @@ import {
 } from "@headlessui/vue";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 import type { Component } from "vue";
-import LinuxLogo from "./icons/LinuxLogo.vue";
-import WindowsLogo from "./icons/WindowsLogo.vue";
 
 const model = defineModel<string>();
 
 const values: { [key: string]: { name: string; icon: Component } } = {
   Linux: {
     name: "Linux",
-    icon: LinuxLogo,
+    icon: IconsLinuxLogo,
   },
   Windows: {
     name: "Windows",
-    icon: WindowsLogo,
+    icon: IconsWindowsLogo,
   },
 };
 </script>
