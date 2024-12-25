@@ -9,5 +9,13 @@ export default defineEventHandler(async (h3) => {
   if (!search)
     throw createError({ statusCode: 400, statusMessage: "Invalid search" });
 
-  return await h3.context.metadataHandler.search(search);
+  const results = await h3.context.metadataHandler.search(search);
+
+  if (results.length == 0)
+    throw createError({
+      statusCode: 500,
+      statusMessage: "No metadata provider returned search results.",
+    });
+
+  return results;
 });

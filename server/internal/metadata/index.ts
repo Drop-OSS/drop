@@ -50,15 +50,19 @@ export class MetadataHandler {
       const queryTransformationPromise = new Promise<
         InternalGameMetadataResult[]
       >(async (resolve, reject) => {
-        const results = await provider.search(query);
-        const mappedResults: InternalGameMetadataResult[] = results.map(
-          (result) =>
-            Object.assign({}, result, {
-              sourceId: provider.id(),
-              sourceName: provider.name(),
-            })
-        );
-        resolve(mappedResults);
+        try {
+          const results = await provider.search(query);
+          const mappedResults: InternalGameMetadataResult[] = results.map(
+            (result) =>
+              Object.assign({}, result, {
+                sourceId: provider.id(),
+                sourceName: provider.name(),
+              })
+          );
+          resolve(mappedResults);
+        } catch (e) {
+          reject(e);
+        }
       });
       promises.push(queryTransformationPromise);
     }
@@ -68,7 +72,7 @@ export class MetadataHandler {
       .filter((result) => result.status === "fulfilled")
       .map((result) => result.value)
       .flat();
-
+      
     return successfulResults;
   }
 
