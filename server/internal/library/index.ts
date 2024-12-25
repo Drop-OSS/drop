@@ -144,6 +144,8 @@ class LibraryManager {
       Linux: [
         // Ext for Unity games
         ".x86_64",
+        // Shell scripts
+        ".sh",
         // No extension is common for Linux binaries
         "",
       ],
