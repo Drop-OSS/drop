@@ -212,7 +212,7 @@ const mailRegex = /^\S+@\S+\.\S+$/g;
 const validEmail = computed(() => mailRegex.test(email.value ?? ""));
 const validUsername = computed(
   () =>
-    (username.value?.length ?? 0) > 5 &&
+    (username.value?.length ?? 0) >= 5 &&
     username.value?.toLowerCase() == username.value
 );
 const validPassword = computed(() => (password.value?.length ?? 0) >= 14);

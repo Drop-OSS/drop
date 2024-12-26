@@ -41,7 +41,7 @@ export default defineEventHandler(async (h3) => {
 
   const username = useInvitationOrBodyRequirement(
     "username",
-    (e) => e.length > 5
+    (e) => e.length >= 5
   );
   const email = useInvitationOrBodyRequirement("email", (e) =>
     mailRegex.test(e)
