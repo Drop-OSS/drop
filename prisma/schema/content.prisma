@@ -1,5 +1,5 @@
 enum MetadataSource {
-    Custom
+    Manual
     GiantBomb
 }
 

@@ -72,8 +72,23 @@ export class MetadataHandler {
       .filter((result) => result.status === "fulfilled")
       .map((result) => result.value)
       .flat();
-      
+
     return successfulResults;
+  }
+
+  async createGameWithoutMetadata(libraryBasePath: string) {
+    return await this.createGame(
+      {
+        id: "",
+        name: libraryBasePath,
+        icon: "",
+        description: "",
+        year: 0,
+        sourceId: "manual",
+        sourceName: "Manual",
+      },
+      libraryBasePath
+    );
   }
 
   async createGame(
@@ -103,6 +118,7 @@ export class MetadataHandler {
     try {
       metadata = await provider.fetchGame({
         id: result.id,
+        name: result.name,
         // wrap in anonymous functions to keep references to this
         publisher: (name: string) => this.fetchPublisher(name),
         developer: (name: string) => this.fetchDeveloper(name),

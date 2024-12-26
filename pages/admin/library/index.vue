@@ -66,7 +66,7 @@
       >
         <div class="flex flex-1 flex-row p-4 gap-x-4">
           <img
-            class="mx-auto h-16 w-16 flex-shrink-0 rounded-md"
+            class="h-16 w-16 flex-shrink-0 rounded-md"
             :src="useObject(game.mIconId)"
             alt=""
           />

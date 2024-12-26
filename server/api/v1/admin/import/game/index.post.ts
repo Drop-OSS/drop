@@ -18,11 +18,6 @@ export default defineEventHandler(async (h3) => {
       statusCode: 400,
       statusMessage: "Path missing from body",
     });
-  if (!metadata.id || !metadata.sourceId)
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Metadata IDs missing from body",
-    });
 
   const validPath = await libraryManager.checkUnimportedGamePath(path);
   if (!validPath)
@@ -31,6 +26,9 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Invalid unimported game path",
     });
 
-  const game = await h3.context.metadataHandler.createGame(metadata, path);
-  return game;
+  if (!metadata || !metadata.id || !metadata.sourceId) {
+    return await h3.context.metadataHandler.createGameWithoutMetadata(path);
+  } else {
+    return await h3.context.metadataHandler.createGame(metadata, path);
+  }
 });

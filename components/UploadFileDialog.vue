@@ -73,9 +73,6 @@
                   @click="() => uploadFile_wrapper()"
                   :class="[
                     'inline-flex w-full shadow-sm sm:ml-3 sm:w-auto',
-                    currentFile === undefined
-                      ? 'text-zinc-400 bg-blue-600/10 hover:bg-blue-600/10'
-                      : 'text-white bg-blue-600 hover:bg-blue-500',
                   ]"
                 >
                   Upload
