@@ -6,7 +6,7 @@ import { Readable } from "stream";
 import { v4 as uuidv4 } from "uuid";
 import { objectHandler } from "~/server/plugins/objects";
 
-type TransactionDataType = string | Readable | Buffer;
+export type TransactionDataType = string | Readable | Buffer;
 type TransactionTable = { [key: string]: TransactionDataType }; // ID to data
 type GlobalTransactionRecord = { [key: string]: TransactionTable }; // Transaction ID to table
 

@@ -1,5 +1,6 @@
 import { Developer, Publisher } from "@prisma/client";
 import { ObjectReference } from "../objects";
+import { ObjectTransactionalHandler, TransactionDataType } from "../objects/transactional";
 
 export interface GameMetadataSearchResult {
   id: string;
@@ -54,16 +55,17 @@ export type DeveloperMetadata = PublisherMetadata;
 
 export interface _FetchGameMetadataParams {
   id: string;
+  name: string;
 
   publisher: (query: string) => Promise<Publisher>;
   developer: (query: string) => Promise<Developer>;
 
-  createObject: (url: string) => ObjectReference;
+  createObject: (data: TransactionDataType) => ObjectReference;
 }
 
 export interface _FetchPublisherMetadataParams {
   query: string;
-  createObject: (url: string) => ObjectReference;
+  createObject: (data: TransactionDataType) => ObjectReference;
 }
 
 export type _FetchDeveloperMetadataParams = _FetchPublisherMetadataParams;
