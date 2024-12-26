@@ -119,6 +119,11 @@
                   :src="useObject(image)"
                 />
               </VueSlide>
+              <VueSlide v-if="game.mImageLibrary.length == 0">
+                <div class="h-48 lg:h-96 aspect-[1/2] flex items-center justify-center text-zinc-700 font-bold font-display">
+                  No images
+                </div>
+              </VueSlide>
 
               <template #addons>
                 <VueNavigation />
