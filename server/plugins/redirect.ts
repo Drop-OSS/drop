@@ -15,9 +15,10 @@ export default defineNitroPlugin((nitro) => {
       case 403:
         const userId = await event.context.session.getUserId(event);
         if (userId) break;
+        console.log("user is signed out, redirecting");
         return sendRedirect(
           event,
-          `/signin?redirect=${encodeURIComponent(event.path)}`,
+          `/signin?redirect=${encodeURIComponent(event.path)}`
         );
     }
   });
