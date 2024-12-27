@@ -14,6 +14,34 @@
             Drop has successfully authorized the client. You may now close this
             window.
           </p>
+
+          <Disclosure as="div" class="mt-8" v-slot="{ open }">
+            <dt>
+              <DisclosureButton
+                class="pb-2 flex w-full items-start justify-between text-left text-zinc-400"
+              >
+                <span class="text-sm font-semibold">Having issues?</span>
+                <span class="ml-6 flex h-7 items-center">
+                  <ChevronUpIcon
+                    v-if="!open"
+                    class="size-4"
+                    aria-hidden="true"
+                  />
+                  <ChevronDownIcon v-else class="size-4" aria-hidden="true" />
+                </span>
+              </DisclosureButton>
+            </dt>
+            <DisclosurePanel as="dd" class="mt-2">
+              <p class="text-zinc-100 font-semibold text-sm mb-3">
+                Paste this code into the client to continue:
+              </p>
+              <p
+                class="text-sm bg-zinc-950/50 p-3 text-zinc-300 w-fit mx-auto rounded-xl"
+              >
+                {{ authToken }}
+              </p>
+            </DisclosurePanel>
+          </Disclosure>
         </div>
       </div>
     </div>
@@ -123,6 +151,7 @@
 </template>
 
 <script setup lang="ts">
+import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/vue";
 import {
   ArrowDownTrayIcon,
   UserGroupIcon,
@@ -130,6 +159,7 @@ import {
 } from "@heroicons/vue/16/solid";
 import { LockClosedIcon } from "@heroicons/vue/20/solid";
 import { CheckCircleIcon } from "@heroicons/vue/24/outline";
+import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/vue/24/solid";
 
 const route = useRoute();
 const clientId = route.params.id;
@@ -142,12 +172,14 @@ const clientData = await useFetch(
 
 const completed = ref(false);
 const error = ref();
+const authToken = ref<string | undefined>();
 
 async function authorize() {
-  const redirect = await $fetch<string>("/api/v1/client/auth/callback", {
+  const { redirect, token } = await $fetch("/api/v1/client/auth/callback", {
     method: "POST",
     body: { id: clientId },
   });
+  authToken.value = token;
   window.location.replace(redirect);
 }
 

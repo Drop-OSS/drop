@@ -16,5 +16,8 @@ export default defineEventHandler(async (h3) => {
 
   const token = await clientHandler.generateAuthToken(clientId);
 
-  return `drop://handshake/${clientId}/${token}`;
+  return {
+    redirect: `drop://handshake/${clientId}/${token}`,
+    token: `${clientId}/${token}`,
+  };
 });
