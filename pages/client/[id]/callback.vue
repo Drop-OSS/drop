@@ -10,7 +10,7 @@
           Successful!
         </h1>
         <div class="mt-4">
-          <p class="text-sm text-zinc-400 max-w-sm">
+          <p class="mx-auto text-sm text-zinc-400 max-w-sm">
             Drop has successfully authorized the client. You may now close this
             window.
           </p>
@@ -36,7 +36,7 @@
                 Paste this code into the client to continue:
               </p>
               <p
-                class="text-sm bg-zinc-950/50 p-3 text-zinc-300 w-fit mx-auto rounded-xl"
+                class="max-w-sm text-nowrap overflow-x-auto text-sm bg-zinc-950/50 p-3 text-zinc-300 w-fit mx-auto rounded-xl"
               >
                 {{ authToken }}
               </p>
