@@ -382,7 +382,6 @@ import {
 import type { Invitation } from "@prisma/client";
 import moment from "moment";
 import type { SerializeObject } from "nitropack";
-import LoadingButton from "~/components/LoadingButton.vue";
 
 definePageMeta({
   layout: "admin",
@@ -434,7 +433,7 @@ const email = computed({
     _email.value = v;
   },
 });
-const mailRegex = /^\S+@\S+\.\S+$/g;
+const mailRegex = /^\S+@\S+\.\S+$/;
 const validEmail = computed(() =>
   _email.value === undefined ? true : mailRegex.test(email.value as string)
 );
