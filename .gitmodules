@@ -1,0 +1,3 @@
+[submodule "drop-base"]
+	path = drop-base
+	url = https://github.com/Drop-OSS/drop-base.git
