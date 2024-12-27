@@ -22,10 +22,11 @@ model Game {
     mReviewCount  Int
     mReviewRating Float // 0 to 1
 
-    mIconId       String // linked to objects in s3
-    mBannerId     String // linked to objects in s3
-    mCoverId      String
-    mImageLibrary String[] // linked to objects in s3
+    mIconId        String // linked to objects in s3
+    mBannerId      String // linked to objects in s3
+    mCoverId       String
+    mImageCarousel String[] // linked to below array
+    mImageLibrary  String[] // linked to objects in s3
 
     versions        GameVersion[]
     libraryBasePath String        @unique // Base dir for all the game versions

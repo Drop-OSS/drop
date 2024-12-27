@@ -32,6 +32,8 @@ export default defineNuxtConfig({
     },
   },
 
+  extends: [["github:drop-oss/drop-base"]],
+
   // Module config from here down
   modules: ["@nuxt/content", "vue3-carousel-nuxt"],
 

@@ -15,6 +15,7 @@
     "@headlessui/vue": "^1.7.23",
     "@heroicons/vue": "^2.1.5",
     "@nuxt/content": "^2.13.4",
+    "@nuxtjs/tailwindcss": "^6.12.2",
     "@prisma/client": "^6.1.0",
     "axios": "^1.7.7",
     "bcryptjs": "^2.4.3",
