@@ -6,7 +6,7 @@
   >
     <img :src="useObject(game.mCoverId)" class="w-full h-full object-cover" />
     <div
-      class="absolute inset-0 bg-gradient-to-b from-transparent to-95% to-zinc-950"
+      class="absolute inset-0 bg-gradient-to-b from-transparent to-[100%] to-zinc-950/50"
     />
     <div class="absolute bottom-0 left-0 px-2 py-1.5">
       <h1 class="text-zinc-100 text-sm font-bold font-display">
