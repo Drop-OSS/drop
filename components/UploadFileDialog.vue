@@ -118,7 +118,6 @@ import {
   TransitionChild,
   TransitionRoot,
 } from "@headlessui/vue";
-import { ExclamationTriangleIcon } from "@heroicons/vue/24/outline";
 import { ArrowUpTrayIcon } from "@heroicons/vue/20/solid";
 import { XCircleIcon } from "@heroicons/vue/24/solid";
 

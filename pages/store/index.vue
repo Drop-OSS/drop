@@ -33,11 +33,9 @@
             />
           </div>
           <div
-            class="relative w-full h-full bg-zinc-900/75 px-6 py-32 sm:px-12 sm:py-40 lg:px-16"
+            class="relative flex items-center justify-center w-full h-full bg-zinc-900/75 px-6 py-32 sm:px-12 sm:py-40 lg:px-16"
           >
-            <div
-              class="relative mx-auto flex max-w-xl flex-col items-center text-center"
-            >
+            <div class="relative text-center">
               <h3 class="text-base/7 font-semibold text-blue-300">
                 Recently added
               </h3>
@@ -49,11 +47,20 @@
               <p class="mt-3 text-lg text-zinc-300 line-clamp-2">
                 {{ game.mShortDescription }}
               </p>
-              <NuxtLink
-                :href="`/store/${game.id}`"
-                class="mt-8 block w-full rounded-md border border-transparent bg-white px-8 py-3 text-base font-medium text-gray-900 hover:bg-gray-100 sm:w-auto"
-                >Check it out</NuxtLink
-              >
+              <div class="mt-8 gap-x-4 inline-flex items-center">
+                <NuxtLink
+                  :href="`/store/${game.id}`"
+                  class="block w-full rounded-md border border-transparent bg-white px-8 py-3 text-base font-medium text-gray-900 hover:bg-gray-100 sm:w-auto"
+                  >Check it out</NuxtLink
+                >
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-x-2 rounded-md px-3.5 py-2.5 text-base font-semibold font-display text-white shadow-sm hover:bg-zinc-900/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-100"
+                >
+                  Add to Library
+                  <PlusIcon class="-mr-0.5 h-7 w-7" aria-hidden="true" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -103,6 +110,8 @@
 </template>
 
 <script setup lang="ts">
+import { PlusIcon } from "@heroicons/vue/24/solid";
+
 const headers = useRequestHeaders(["cookie"]);
 const recent = await $fetch("/api/v1/store/recent", { headers });
 const updated = await $fetch("/api/v1/store/updated", { headers });

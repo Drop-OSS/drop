@@ -4,12 +4,28 @@
     class="grow flex flex-col gap-y-8"
   >
     <div class="grow w-full h-full lg:pr-[30vw] px-6 py-4 flex flex-col">
-      <h1 class="text-5xl font-bold font-display text-zinc-100">
-        {{ game.mName }}
-      </h1>
-      <p class="mt-1 text-lg text-zinc-400">
-        {{ game.mShortDescription }}
-      </p>
+      <div
+        class="flex flex-col lg:flex-row lg:justify-between items-start lg:items-center gap-2"
+      >
+        <div class="inline-flex items-center gap-4">
+          <img :src="useObject(game.mIconId)" class="size-20" />
+          <div>
+            <h1 class="text-5xl font-bold font-display text-zinc-100">
+              {{ game.mName }}
+            </h1>
+            <p class="mt-1 text-lg text-zinc-400">
+              {{ game.mShortDescription }}
+            </p>
+          </div>
+        </div>
+        <button
+          @click="() => (showEditCoreMetadata = true)"
+          type="button"
+          class="relative inline-flex gap-x-3 items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+        >
+          Edit <PencilIcon class="size-4" />
+        </button>
+      </div>
 
       <!-- image carousel pick -->
       <div class="border-b border-zinc-700">
@@ -77,13 +93,13 @@
         <div
           class="h-8 bg-zinc-800 rounded inline-flex gap-x-4 items-center justify-start p-2"
         >
-          <button>
+          <div>
             <CheckIcon
               v-if="descriptionSaving == 0"
               class="size-5 text-zinc-100"
             />
             <div v-else-if="descriptionSaving == 1">
-              <div class="animate-pulse w-5 h-[3px] bg-zinc-100 rounded-full" />
+              <PencilIcon class="animate-pulse size-5 text-zinc-100" />
             </div>
             <div v-else-if="descriptionSaving == 2" role="status">
               <svg
@@ -104,7 +120,7 @@
               </svg>
               <span class="sr-only">Loading...</span>
             </div>
-          </button>
+          </div>
 
           <button @click="() => (showAddImageDescriptionModal = true)">
             <PhotoIcon
@@ -332,11 +348,9 @@
   />
   <ModalTemplate v-model="showAddCarouselModal">
     <template #default>
-      <div class="mt-3 grid grid-cols-2 grid-flow-dense gap-4">
+      <div class="grid grid-cols-2 grid-flow-dense gap-4">
         <div
-          v-for="(image, imageIdx) in game.mImageLibrary.filter(
-            (e) => !game.mImageCarousel.includes(e)
-          )"
+          v-for="(image, imageIdx) in validAddCarouselImages"
           :key="image"
           class="group relative flex items-center bg-zinc-950/30"
         >
@@ -353,6 +367,12 @@
             </button>
           </div>
         </div>
+        <div
+          v-if="validAddCarouselImages.length == 0"
+          class="text-zinc-400 col-span-2"
+        >
+          No images to add.
+        </div>
       </div>
     </template>
     <template #buttons>
@@ -368,7 +388,7 @@
   </ModalTemplate>
   <ModalTemplate v-model="showAddImageDescriptionModal">
     <template #default>
-      <div class="mt-3 grid grid-cols-2 grid-flow-dense gap-4">
+      <div class="grid grid-cols-2 grid-flow-dense gap-4">
         <div
           v-for="(image, imageIdx) in game.mImageLibrary"
           :key="image"
@@ -387,6 +407,12 @@
             </button>
           </div>
         </div>
+        <div
+          v-if="game.mImageLibrary.length == 0"
+          class="text-zinc-400 col-span-2"
+        >
+          No images to add.
+        </div>
       </div>
     </template>
     <template #buttons>
@@ -394,6 +420,82 @@
         type="button"
         class="mt-3 inline-flex w-full justify-center rounded-md bg-zinc-900 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-700 hover:bg-zinc-950 sm:mt-0 sm:w-auto"
         @click="showAddCarouselModal = false"
+        ref="cancelButtonRef"
+      >
+        Cancel
+      </button>
+    </template>
+  </ModalTemplate>
+  <ModalTemplate v-model="showEditCoreMetadata">
+    <template #default>
+      <div class="flex flex-col lg:flex-row gap-6">
+        <!-- icon upload div -->
+        <div class="flex flex-col items-center gap-4">
+          <img :src="coreMetadataIconUrl" class="size-24 aspect-square" />
+          <label for="file-upload">
+            <span
+              type="button"
+              class="cursor-pointer relative inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+            >
+              Upload
+            </span>
+            <input
+              accept="image/*"
+              @change="(e) => coreMetadataUploadFiles(e as any)"
+              class="hidden"
+              type="file"
+              id="file-upload"
+            />
+          </label>
+        </div>
+        <!-- edit title -->
+        <div class="flex flex-col gap-y-4 grow">
+          <div>
+            <label for="name" class="block text-sm/6 font-medium text-zinc-100"
+              >Game Name</label
+            >
+            <div class="mt-2">
+              <input
+                type="text"
+                name="name"
+                id="name"
+                class="block w-full rounded-md bg-zinc-800 px-3 py-1.5 text-base text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 placeholder:text-zinc-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6"
+                v-model="coreMetadataName"
+              />
+            </div>
+          </div>
+          <div>
+            <label
+              for="description"
+              class="block text-sm/6 font-medium text-zinc-100"
+              >Game Description</label
+            >
+            <div class="mt-2">
+              <input
+                type="text"
+                name="description"
+                id="description"
+                class="block w-full rounded-md bg-zinc-800 px-3 py-1.5 text-base text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 placeholder:text-zinc-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6"
+                v-model="coreMetadataDescription"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+    <template #buttons>
+      <LoadingButton
+        type="button"
+        :loading="coreMetadataLoading"
+        @click="() => coreMetadataUpdate_wrapper()"
+        :class="['inline-flex w-full shadow-sm sm:ml-3 sm:w-auto']"
+      >
+        Save
+      </LoadingButton>
+      <button
+        type="button"
+        class="mt-3 inline-flex w-full justify-center rounded-md bg-zinc-900 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-700 hover:bg-zinc-950 sm:mt-0 sm:w-auto"
+        @click="showEditCoreMetadata = false"
         ref="cancelButtonRef"
       >
         Cancel
@@ -421,6 +523,7 @@ definePageMeta({
 const showUploadModal = ref(false);
 const showAddCarouselModal = ref(false);
 const showAddImageDescriptionModal = ref(false);
+const showEditCoreMetadata = ref(false);
 const mobileShowFinalDescription = ref(true);
 
 const route = useRoute();
@@ -433,6 +536,80 @@ const { game: rawGame, unimportedVersions } = await $fetch(
   }
 );
 const game = ref(rawGame);
+
+const coreMetadataName = ref(game.value.mName);
+const coreMetadataDescription = ref(game.value.mShortDescription);
+const coreMetadataIconUrl = ref(useObject(game.value.mIconId));
+const coreMetadataIconFileUpload = ref<FileList | undefined>();
+const coreMetadataLoading = ref(false);
+
+function coreMetadataUploadFiles(e: InputEvent) {
+  if (coreMetadataIconUrl.value.startsWith("blob")) {
+    console.log("freed object URL");
+    URL.revokeObjectURL(coreMetadataIconUrl.value);
+  }
+
+  coreMetadataIconFileUpload.value = (e.target as any)?.files;
+  const file = coreMetadataIconFileUpload.value?.item(0);
+  if (!file) {
+    createModal(
+      ModalType.Notification,
+      {
+        title: "Failed to upload file",
+        description: "Drop couldn't upload this file.",
+        buttonText: "Close",
+      },
+      (e, c) => c()
+    );
+    return;
+  }
+  const objectUrl = URL.createObjectURL(file);
+  coreMetadataIconUrl.value = objectUrl;
+}
+async function coreMetadataUpdate() {
+  const formData = new FormData();
+
+  const newIcon = coreMetadataIconFileUpload.value?.item(0);
+  if (newIcon) {
+    formData.append("icon", newIcon);
+  }
+
+  formData.append("id", game.value.id);
+  formData.append("name", coreMetadataName.value);
+  formData.append("description", coreMetadataDescription.value);
+
+  const result = await $fetch(`/api/v1/admin/game/metadata`, {
+    method: "POST",
+    body: formData,
+  });
+  return result;
+}
+
+function coreMetadataUpdate_wrapper() {
+  coreMetadataLoading.value = true;
+  coreMetadataUpdate()
+    .catch((e) => {
+      createModal(
+        ModalType.Notification,
+        {
+          title: "Failed to update metadata",
+          description: `Drop failed to update the game's metadata: ${
+            e?.statusMessage || "An unknown error occurred. "
+          }`,
+          buttonText: "Close",
+        },
+        (e, c) => c()
+      );
+    })
+    .then((newGame) => {
+      if (!newGame) return;
+      Object.assign(game.value, newGame);
+    })
+    .finally(() => {
+      coreMetadataLoading.value = false;
+      showEditCoreMetadata.value = false;
+    });
+}
 
 const descriptionHTML = computed(() =>
   micromark(game.value?.mDescription ?? "")
@@ -475,6 +652,10 @@ watch(descriptionHTML, (v) => {
     }
   }, 1500);
 });
+
+const validAddCarouselImages = computed(() =>
+  game.value.mImageLibrary.filter((e) => !game.value.mImageCarousel.includes(e))
+);
 
 function insertImageAtCursor(id: string) {
   showAddImageDescriptionModal.value = false;
