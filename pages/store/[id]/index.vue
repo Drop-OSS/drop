@@ -72,7 +72,7 @@
                 >
                   <component
                     v-for="platform in platforms"
-                    :is="icons[platform]"
+                    :is="PLATFORM_ICONS[platform]"
                     class="text-blue-600 w-6 h-6"
                   />
                   <span
@@ -217,10 +217,7 @@ const rating = Math.round(game.mReviewRating * 5);
 const ratingArray = Array(5)
   .fill(null)
   .map((_, i) => i + 1 <= rating);
-const icons = {
-  [PlatformClient.Linux]: IconsLinuxLogo,
-  [PlatformClient.Windows]: IconsWindowsLogo,
-};
+
 
 useHead({
   title: game.mName,

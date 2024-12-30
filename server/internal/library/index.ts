@@ -170,8 +170,9 @@ class LibraryManager {
         for (const checkExt of checkExts) {
           if (checkExt != ext) continue;
           const fuzzyValue = fuzzy(filename, game.mName);
+          const relative = path.relative(targetDir, file);
           options.push({
-            filename: file,
+            filename: relative,
             platform: platform,
             match: fuzzyValue,
           });
@@ -180,19 +181,8 @@ class LibraryManager {
     }
 
     const sortedOptions = options.sort((a, b) => b.match - a.match);
-    let startupGuess = "";
-    let platformGuess = "";
-    if (sortedOptions.length > 0) {
-      const finalChoice = sortedOptions[0];
-      const finalChoiceRelativePath = path.relative(
-        targetDir,
-        finalChoice.filename
-      );
-      startupGuess = finalChoiceRelativePath;
-      platformGuess = finalChoice.platform;
-    }
 
-    return { startupGuess, platformGuess };
+    return sortedOptions;
   }
 
   // Checks are done in least to most expensive order
@@ -212,11 +202,16 @@ class LibraryManager {
     versionName: string,
     metadata: {
       platform: string;
+      onlySetup: boolean;
+
       setup: string;
-      startup: string;
-      umuId: string | undefined;
-    },
-    delta = false
+      setupArgs: string;
+      launch: string;
+      launchArgs: string;
+      delta: boolean;
+
+      umuId: string;
+    }
   ) {
     const taskId = `import:${gameId}:${versionName}`;
 
@@ -264,19 +259,41 @@ class LibraryManager {
         });
 
         // Then, create the database object
-        const version = await prisma.gameVersion.create({
-          data: {
-            gameId: gameId,
-            versionName: versionName,
-            platform: platform,
-            setupCommand: metadata.setup,
-            launchCommand: metadata.startup,
-            umuIdOverride: metadata.umuId,
-            dropletManifest: manifest,
-            versionIndex: currentIndex,
-            delta: delta,
-          },
-        });
+        if (metadata.onlySetup) {
+          await prisma.gameVersion.create({
+            data: {
+              gameId: gameId,
+              versionName: versionName,
+              dropletManifest: manifest,
+              versionIndex: currentIndex,
+              delta: metadata.delta,
+              umuIdOverride: metadata.umuId,
+              platform: platform,
+
+              onlySetup: true,
+              setupCommand: metadata.setup,
+              setupArgs: metadata.setupArgs.split(" "),
+            },
+          });
+        } else {
+          await prisma.gameVersion.create({
+            data: {
+              gameId: gameId,
+              versionName: versionName,
+              dropletManifest: manifest,
+              versionIndex: currentIndex,
+              delta: metadata.delta,
+              umuIdOverride: metadata.umuId,
+              platform: platform,
+
+              onlySetup: false,
+              setupCommand: metadata.setup,
+              setupArgs: metadata.setupArgs.split(" "),
+              launchCommand: metadata.launch,
+              launchArgs: metadata.launchArgs.split(" "),
+            },
+          });
+        }
 
         log("Successfully created version!");
 

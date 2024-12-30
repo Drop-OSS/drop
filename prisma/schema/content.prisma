@@ -42,10 +42,16 @@ model GameVersion {
 
     created DateTime @default(now())
 
-    platform        Platform
-    launchCommand   String // Command to run to start. Platform-specific. Windows games on Linux will wrap this command in Proton/Wine
-    setupCommand    String // Command to setup game (dependencies and such)
-    umuIdOverride   String?
+    platform Platform
+
+    launchCommand String? // Command to run to start. Platform-specific. Windows games on Linux will wrap this command in Proton/Wine
+    launchArgs    String[]
+    setupCommand  String? // Command to setup game (dependencies and such)
+    setupArgs     String[]
+    onlySetup     Boolean  @default(false)
+
+    umuIdOverride String?
+
     dropletManifest Json // Results from droplet
 
     versionIndex Int
