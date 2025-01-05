@@ -25,16 +25,7 @@ export default defineWebSocketHandler({
 
     const admin = session.getAdminUser(token);
     adminSocketSessions[peer.id] = admin !== undefined;
-
-    const rtMsg: TaskMessage = {
-      id: "connect",
-      name: "Connect",
-      success: true,
-      progress: 0,
-      error: undefined,
-      log: [],
-    };
-    peer.send(JSON.stringify(rtMsg));
+    peer.send(`connect`);
   },
   message(peer, message) {
     if (!peer.id) return;
