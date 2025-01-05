@@ -100,7 +100,7 @@ export default defineEventHandler(async (h3) => {
       displayName,
       email,
       profilePicture: profilePictureId,
-      admin: true,
+      admin: invitation.isAdmin,
     },
   });
 
