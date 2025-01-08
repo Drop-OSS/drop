@@ -10,7 +10,7 @@
 
 [![GitHub License](https://img.shields.io/github/license/Drop-OSS/drop-app)](LICENSE)
 [![Gitlab Pipeline Status](https://img.shields.io/gitlab/pipeline-status/drop-oss%2Fdrop?gitlab_url=https%3A%2F%2Flab.deepcore.dev)](https://lab.deepcore.dev/drop-oss/drop/-/pipelines)
-[![Discord](https://img.shields.io/discord/1291622805124812871?label=discord)](https://discord.gg/ZVGggfXN)
+[![Discord](https://img.shields.io/discord/1291622805124812871?label=discord)](https://discord.gg/ACq4qZp4a9)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
 
 # Drop
