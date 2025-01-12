@@ -29,9 +29,9 @@
   
   <script setup lang="ts">
   import { onMounted } from 'vue';
-  // Redirect to the signout route which will handle the session clearing
+
   onMounted(() => {
-    window.location.href = "/signout";
+    window.location.reload();
   });
   </script>
   
