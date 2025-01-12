@@ -4,7 +4,7 @@
     <div class="flex items-center justify-between">
       <div>
         <h1 class="text-3xl font-bold font-display text-zinc-100">
-          Welcome back, {{ user?.username }}
+          Welcome back, {{ user?.displayName }}
         </h1>
         <p class="mt-1 text-zinc-400">Your Drop dashboard</p>
       </div>
@@ -91,7 +91,7 @@
             </dd>
           </div>
           <NuxtLink 
-            to="/settings"
+            to="/account"
             class="block w-full text-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-zinc-700 hover:scale-105 transition-all duration-200"
           >
             Manage Account Settings
