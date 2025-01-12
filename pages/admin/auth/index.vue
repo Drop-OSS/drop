@@ -102,6 +102,7 @@ import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
 import { EllipsisHorizontalIcon } from "@heroicons/vue/20/solid";
 import { CheckIcon, XMarkIcon } from "@heroicons/vue/24/solid";
 import type { Component } from "vue";
+import { UserGroupIcon } from "@heroicons/vue/24/outline";
 
 const authenticationMechanisms: Array<{
   name: string;
@@ -110,6 +111,12 @@ const authenticationMechanisms: Array<{
   route: string;
   settings?: { [key: string]: string };
 }> = [
+  {
+    name: "User Management",
+    enabled: true,
+    icon: UserGroupIcon,
+    route: "/admin/auth/users",
+  },
   {
     name: "Simple (username/password)",
     enabled: true,
