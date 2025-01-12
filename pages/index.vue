@@ -33,16 +33,14 @@
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div
-            v-for="game in recentGames"
+            v-for="game in limitedRecentGames"
             :key="game.id"
             class="bg-zinc-900/50 rounded-lg p-4 group hover:bg-zinc-900/70 hover:shadow-lg hover:shadow-zinc-900/20 transition-all duration-200"
           >
             <div class="flex gap-4">
-              <img 
-                :src="useObject(game.mCoverId)" 
-                class="h-24 w-16 object-cover rounded flex-shrink-0 group-hover:scale-105 transition-transform duration-200"
-                alt=""
-              />
+              <div class="w-24 h-32 flex-shrink-0 overflow-hidden">
+                <GamePanel :game="game" />
+              </div>
               <div class="flex flex-col gap-2">
                 <div>
                   <h3 class="text-sm font-medium text-zinc-100 truncate group-hover:text-blue-400 transition-colors duration-200">
@@ -77,7 +75,7 @@
             <dt class="text-sm font-medium text-zinc-400">Games in Library</dt>
             <dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
               <div class="flex items-baseline text-2xl font-semibold text-zinc-100">
-                {{ games.length }}
+                {{ recentGames.length }}
                 <span class="ml-2 text-sm font-medium text-zinc-400">games</span>
               </div>
             </dd>
@@ -109,13 +107,9 @@ import { type Game } from '@prisma/client'
 const user = useUser();
 const headers = useRequestHeaders(["cookie"]);
 
-// Fetch data
-const games = await $fetch<Game[]>("/api/v1/store/recent", { headers });
-
-// Get the 4 most recently updated games
-const recentGames = [...games]
-  .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-  .slice(0, 4);
+// Fetch recently added games directly from the endpoint and limit to 4
+const recentGames = await $fetch<Game[]>("/api/v1/store/recent", { headers });
+const limitedRecentGames = recentGames.slice(0, 4);
 
 useHead({
   title: "Dashboard",
