@@ -118,7 +118,7 @@ const hasChanges = computed(() => {
 // Save changes
 async function saveChanges() {
   try {
-    await $fetch('/api/v1/client/user', {
+    await $fetch('/api/v1/user', {
       method: 'PATCH',
       body: {
         displayName: displayName.value,
