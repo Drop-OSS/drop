@@ -10,7 +10,7 @@ type TaskRegistryEntry = {
   success: boolean;
   progress: number;
   log: string[];
-  error: string | undefined;
+  error: { title: string; description: string } | undefined;
   clients: { [key: string]: boolean };
   name: string;
   requireAdmin: boolean;
@@ -25,27 +25,43 @@ class TaskHandler {
 
   create(task: Task) {
     let updateCollectTimeout: NodeJS.Timeout | undefined;
+    let updateCollectResolves: Array<(value: unknown) => void> = [];
+    let logOffset: number = 0;
 
-    const updateAllClients = () => {
-      if (updateCollectTimeout) return;
-      updateCollectTimeout = setTimeout(() => {
-        const taskEntry = this.taskRegistry[task.id];
-        if (!taskEntry) return;
-        const taskMessage: TaskMessage = {
-          id: task.id,
-          name: task.name,
-          success: taskEntry.success,
-          progress: taskEntry.progress,
-          error: taskEntry.error,
-          log: taskEntry.log.reverse().slice(0, 50),
-        };
-        for (const client of Object.keys(taskEntry.clients)) {
-          if (!this.clientRegistry[client]) continue;
-          this.clientRegistry[client].send(JSON.stringify(taskMessage));
+    const updateAllClients = (reset = false) =>
+      new Promise((r) => {
+        if (updateCollectTimeout) {
+          updateCollectResolves.push(r);
+          return;
         }
-        updateCollectTimeout = undefined;
-      }, 100);
-    };
+        updateCollectTimeout = setTimeout(() => {
+          const taskEntry = this.taskRegistry[task.id];
+          if (!taskEntry) return;
+
+          const taskMessage: TaskMessage = {
+            id: task.id,
+            name: task.name,
+            success: taskEntry.success,
+            progress: taskEntry.progress,
+            error: taskEntry.error,
+            log: taskEntry.log.slice(logOffset),
+            reset,
+          };
+          logOffset = taskEntry.log.length;
+
+          for (const client of Object.keys(taskEntry.clients)) {
+            if (!this.clientRegistry[client]) continue;
+            this.clientRegistry[client].send(JSON.stringify(taskMessage));
+          }
+          updateCollectTimeout = undefined;
+
+          for (const resolve of updateCollectResolves) {
+            resolve(undefined);
+          }
+          r(undefined);
+          updateCollectResolves = [];
+        }, 100);
+      });
 
     const progress = (progress: number) => {
       const taskEntry = this.taskRegistry[task.id];
@@ -71,29 +87,48 @@ class TaskHandler {
       requireAdmin: task.requireAdmin ?? false,
     };
 
+    updateAllClients(true);
+
     droplet.callAltThreadFunc(async () => {
-      const promiseRun = task.run({ progress, log });
-      promiseRun.then(() => {
-        const taskEntry = this.taskRegistry[task.id];
-        if (!taskEntry) return;
+      const taskEntry = this.taskRegistry[task.id];
+      if (!taskEntry) throw new Error("No task entry");
+
+      try {
+        await task.run({ progress, log });
         this.taskRegistry[task.id].success = true;
-        updateAllClients();
-      });
-      promiseRun.catch((error) => {
-        const taskEntry = this.taskRegistry[task.id];
-        if (!taskEntry) return;
+      } catch (error: unknown) {
         this.taskRegistry[task.id].success = false;
-        this.taskRegistry[task.id].error = error;
-        updateAllClients();
-      });
+        this.taskRegistry[task.id].error = {
+          title: "An error occurred",
+          description: (error as string).toString(),
+        };
+      }
+      await updateAllClients();
+
+      for (const client of Object.keys(taskEntry.clients)) {
+        if (!this.clientRegistry[client]) continue;
+        this.disconnect(client, task.id);
+      }
+      delete this.taskRegistry[task.id];
     });
   }
 
   connect(id: string, taskId: string, peer: PeerImpl, isAdmin = false) {
     const task = this.taskRegistry[taskId];
-    if (!task) return "Invalid task";
+    if (!task) {
+      peer.send(
+        `error/${taskId}/Unknown task/Drop couldn't find the task you're looking for.`
+      );
+      return;
+    }
 
-    if (task.requireAdmin && !isAdmin) return "Requires admin";
+    if (task.requireAdmin && !isAdmin) {
+      console.warn("user is not an admin, so cannot view this task");
+      peer.send(
+        `error/${taskId}/Unknown task/Drop couldn't find the task you're looking for.`
+      );
+      return;
+    }
 
     this.clientRegistry[id] = peer;
     this.taskRegistry[taskId].clients[id] = true; // Uniquely insert client to avoid sending duplicate traffic
@@ -107,15 +142,20 @@ class TaskHandler {
       progress: task.progress,
     };
     peer.send(JSON.stringify(catchupMessage));
+  }
 
-    return true;
+  sendDisconnectEvent(id: string, taskId: string) {
+    const client = this.clientRegistry[id];
+    if (!client) return;
+    client.send(`disconnect/${taskId}`);
   }
 
   disconnectAll(id: string) {
     for (const taskId of Object.keys(this.taskRegistry)) {
       delete this.taskRegistry[taskId].clients[id];
+      this.sendDisconnectEvent(id, taskId);
     }
-    
+
     delete this.clientRegistry[id];
   }
 
@@ -123,6 +163,7 @@ class TaskHandler {
     if (!this.taskRegistry[taskId]) return false;
 
     delete this.taskRegistry[taskId].clients[id];
+    this.sendDisconnectEvent(id, taskId);
 
     const allClientIds = Object.values(this.taskRegistry)
       .map((_) => Object.keys(_.clients))
@@ -153,8 +194,9 @@ export type TaskMessage = {
   name: string;
   success: boolean;
   progress: number;
-  error: undefined | string;
+  error: undefined | { title: string; description: string };
   log: string[];
+  reset?: boolean;
 };
 
 export type PeerImpl = {
