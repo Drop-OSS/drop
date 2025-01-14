@@ -4,5 +4,28 @@ variables:
 stages:
   - build
 
-include:
-  - template: Jobs/Build.gitlab-ci.yml
+services:
+  - docker:24.0.5-dind
+
+before_script:
+  - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+
+build:
+  stage: build
+  image: docker:latest
+  variables:
+    IMAGE_NAME: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:$CI_COMMIT_SHORT_SHA
+    LATEST_IMAGE_NAME: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:latest
+    PUBLISH_IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+    PUBLISH_LATEST_IMAGE_NAME: $CI_REGISTRY_IMAGE:latest
+  script:
+    - docker build -t $IMAGE_NAME .
+    - docker image tag $IMAGE_NAME $LATEST_IMAGE_NAME
+    - docker push $IMAGE_NAME
+    - docker push $LATEST_IMAGE_NAME
+    - |
+      if [ $CI_COMMIT_TAG ]; then
+        docker image tag $IMAGE_NAME $PUBLISH_IMAGE_NAME
+        docker image tag $IMAGE_NAME $PUBLISH_LATEST_IMAGE_NAME
+        docker push $PUBLISH_IMAGE_NAME $PUBLISH_LATEST_IMAGE_NAME
+      fi
