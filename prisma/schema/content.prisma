@@ -29,7 +29,9 @@ model Game {
     mImageLibrary  String[] // linked to objects in s3
 
     versions        GameVersion[]
-    libraryBasePath String        @unique // Base dir for all the game versions
+    libraryBasePath String            @unique // Base dir for all the game versions
+    
+    collections CollectionEntry[]
 
     @@unique([metadataSource, metadataId], name: "metadataKey")
 }
