@@ -121,7 +121,6 @@
 <script setup lang="ts">
 import { XCircleIcon } from "@heroicons/vue/20/solid";
 import type { User } from "@prisma/client";
-import LoadingButton from "~/components/LoadingButton.vue";
 import Logo from "~/components/Logo.vue";
 
 const username = ref("");

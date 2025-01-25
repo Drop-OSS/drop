@@ -1,5 +1,6 @@
 import prisma from "~/server/internal/db/database";
 import libraryManager from "~/server/internal/library";
+import { parsePlatform } from "~/server/internal/utils/parseplatform";
 
 export default defineEventHandler(async (h3) => {
   const user = await h3.context.session.getAdminUser(h3);
@@ -8,35 +9,32 @@ export default defineEventHandler(async (h3) => {
   const body = await readBody(h3);
   const gameId = body.id;
   const versionName = body.version;
-  const platform = body.platform;
-  const startup = body.startup;
-  const setup = body.setup ?? "";
-  const delta = body.delta ?? false;
-  const umuId = body.umuId;
 
-  // startup & delta require more complex checking logic
-  if (!gameId || !versionName || !platform)
+  const platform = body.platform as string | undefined;
+  const launch = (body.launch ?? "") as string;
+  const launchArgs = (body.launchArgs ?? "") as string;
+  const setup = (body.setup ?? "") as string;
+  const setupArgs = (body.setupArgs ?? "") as string;
+  const onlySetup = body.onlySetup ?? (false as boolean);
+  const delta = (body.delta ?? false) as boolean;
+  const umuId = (body.umuId ?? "") as string;
+
+  if (!gameId || !versionName)
     throw createError({
       statusCode: 400,
-      statusMessage:
-        "ID, version, platform, setup, and startup (if not in update mode) are required.",
+      statusMessage: "Game ID and version are required.",
     });
 
-  if (umuId && typeof umuId !== "string")
-    throw createError({
-      statusCode: 400,
-      statusMessage: "If specified, UMU ID must be a string.",
-    });
+  if (!platform)
+    throw createError({ statusCode: 400, statusMessage: "Missing platform." });
 
-  if (!delta && !startup)
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Startup executable is required for non-update versions",
-    });
+  const platformParsed = parsePlatform(platform);
+  if (!platformParsed)
+    throw createError({ statusCode: 400, statusMessage: "Invalid platform." });
 
   if (delta) {
     const validOverlayVersions = await prisma.gameVersion.count({
-      where: { gameId: gameId, platform: platform, delta: false },
+      where: { gameId: gameId, platform: platformParsed, delta: false },
     });
     if (validOverlayVersions == 0)
       throw createError({
@@ -46,17 +44,39 @@ export default defineEventHandler(async (h3) => {
       });
   }
 
-  const taskId = await libraryManager.importVersion(
-    gameId,
-    versionName,
-    {
-      platform,
-      startup,
-      setup,
-      umuId,
-    },
-    delta
-  );
+  if (umuId && typeof umuId !== "string")
+    throw createError({
+      statusCode: 400,
+      statusMessage: "If specified, UMU ID must be a string.",
+    });
+
+  if (onlySetup) {
+    if (!setup)
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Setup required in "setup mode".',
+      });
+  } else {
+    if (!delta && !launch)
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Startup executable is required for non-update versions",
+      });
+  }
+
+  // startup & delta require more complex checking logic
+  const taskId = await libraryManager.importVersion(gameId, versionName, {
+    platform,
+    onlySetup,
+
+    launch,
+    launchArgs,
+    setup,
+    setupArgs,
+
+    umuId,
+    delta,
+  });
   if (!taskId)
     throw createError({
       statusCode: 400,

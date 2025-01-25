@@ -1,6 +1,3 @@
-import * as forms from "@tailwindcss/forms";
-import * as tpyo from "@tailwindcss/typography"; // lol
-
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [

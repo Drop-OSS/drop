@@ -1,0 +1,20 @@
+model Collection {
+    id   String @id @default(uuid())
+    name String
+
+    isDefault Boolean @default(false)
+    userId    String
+    user      User    @relation(fields: [userId], references: [id])
+
+    entries CollectionEntry[]
+}
+
+model CollectionEntry {
+    collectionId String
+    collection   Collection @relation(fields: [collectionId], references: [id])
+
+    gameId String
+    game   Game   @relation(fields: [gameId], references: [id])
+
+    @@id([collectionId, gameId])
+}

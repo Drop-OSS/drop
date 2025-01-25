@@ -2,5 +2,17 @@
     "spellchecker.ignoreWordsList": [
         "mTLS",
         "Wireguard"
+    ],
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "drop",
+            "database": "drop",
+            "username": "drop",
+            "password": "drop"
+        }
     ]
 }

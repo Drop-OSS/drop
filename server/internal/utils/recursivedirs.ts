@@ -10,8 +10,7 @@ export function recursivelyReaddir(dir: string, depth: number = 100) {
     const stat = fs.lstatSync(targetDir);
     if (stat.isDirectory()) {
       const subdirs = recursivelyReaddir(targetDir, depth - 1);
-      const subdirsWithBase = subdirs.map((e) => path.join(dir, e));
-      result.push(...subdirsWithBase);
+      result.push(...subdirs);
       continue;
     }
     result.push(targetDir);

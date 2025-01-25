@@ -1,8 +1,7 @@
 <template>
-  <div class="flex flex-col gap-y-4">
+  <div class="flex flex-col gap-y-4 max-w-lg">
     <Listbox
       as="div"
-      class="max-w-md"
       v-on:update:model-value="(value) => updateCurrentlySelectedVersion(value)"
       :model-value="currentlySelectedVersion"
     >
@@ -74,33 +73,8 @@
       </div>
     </Listbox>
 
-    <div class="flex flex-col gap-8 max-w-md" v-if="versionSettings">
-      <div>
-        <label
-          for="startup"
-          class="block text-sm font-medium leading-6 text-zinc-100"
-          >Startup executable/command</label
-        >
-        <p class="text-zinc-400 text-xs">Executable to launch the game</p>
-        <div class="mt-2">
-          <div
-            class="flex rounded-md shadow-sm bg-zinc-950 ring-1 ring-inset ring-zinc-800 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600 sm:max-w-md"
-          >
-            <span
-              class="flex select-none items-center pl-3 text-zinc-500 sm:text-sm"
-              >(install_dir)/</span
-            >
-            <input
-              type="text"
-              name="startup"
-              id="startup"
-              v-model="versionSettings.startup"
-              class="block flex-1 border-0 py-1.5 pl-1 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
-              placeholder="my-game.exe"
-            />
-          </div>
-        </div>
-      </div>
+    <div class="flex flex-col gap-8" v-if="versionGuesses">
+      <!-- setup executable -->
       <div>
         <label
           for="startup"
@@ -110,23 +84,282 @@
         <p class="text-zinc-400 text-xs">Ran once when the game is installed</p>
         <div class="mt-2">
           <div
-            class="flex rounded-md shadow-sm bg-zinc-950 ring-1 ring-inset ring-zinc-800 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600 sm:max-w-md"
+            class="flex w-fit rounded-md shadow-sm bg-zinc-950 ring-1 ring-inset ring-zinc-800 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600"
           >
             <span
               class="flex select-none items-center pl-3 text-zinc-500 sm:text-sm"
               >(install_dir)/</span
             >
+            <Combobox
+              as="div"
+              :value="versionSettings.setup"
+              @update:model-value="(v) => updateSetupCommand(v)"
+              nullable
+            >
+              <div class="relative">
+                <ComboboxInput
+                  class="block flex-1 border-0 py-1.5 pl-1 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
+                  @change="setupProcessQuery = $event.target.value"
+                  @blur="setupProcessQuery = ''"
+                  :placeholder="'setup.exe'"
+                />
+                <ComboboxButton
+                  v-if="launchFilteredVersionGuesses?.length ?? 0 > 0"
+                  class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
+                >
+                  <ChevronUpDownIcon
+                    class="size-5 text-gray-400"
+                    aria-hidden="true"
+                  />
+                </ComboboxButton>
+
+                <ComboboxOptions
+                  class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-white/5 focus:outline-none sm:text-sm"
+                >
+                  <ComboboxOption
+                    v-for="guess in setupFilteredVersionGuesses"
+                    :key="guess.filename"
+                    :value="guess.filename"
+                    as="template"
+                    v-slot="{ active, selected }"
+                  >
+                    <li
+                      :class="[
+                        'relative cursor-default select-none py-2 pl-3 pr-9',
+                        active
+                          ? 'bg-blue-600 text-white outline-none'
+                          : 'text-zinc-100',
+                      ]"
+                    >
+                      <span
+                        :class="[
+                          'inline-flex items-center gap-x-2 block truncate',
+                          selected && 'font-semibold',
+                        ]"
+                      >
+                        {{ guess.filename }}
+                        <component
+                          :is="PLATFORM_ICONS[guess.platform as PlatformClient]"
+                          class="size-5"
+                        />
+                      </span>
+
+                      <span
+                        v-if="selected"
+                        :class="[
+                          'absolute inset-y-0 right-0 flex items-center pr-4',
+                          active ? 'text-white' : 'text-blue-600',
+                        ]"
+                      >
+                        <CheckIcon class="size-5" aria-hidden="true" />
+                      </span>
+                    </li>
+                  </ComboboxOption>
+                  <ComboboxOption
+                    :value="launchProcessQuery"
+                    v-if="launchProcessQuery"
+                    v-slot="{ active, selected }"
+                  >
+                    <li
+                      :class="[
+                        'relative cursor-default select-none py-2 pl-3 pr-9',
+                        active
+                          ? 'bg-blue-600 text-white outline-none'
+                          : 'text-gray-900',
+                      ]"
+                    >
+                      <span
+                        :class="['block truncate', selected && 'font-semibold']"
+                      >
+                        "{{ launchProcessQuery }}"
+                      </span>
+
+                      <span
+                        v-if="selected"
+                        :class="[
+                          'absolute inset-y-0 right-0 flex items-center pr-4',
+                          active ? 'text-white' : 'text-blue-600',
+                        ]"
+                      >
+                        <CheckIcon class="size-5" aria-hidden="true" />
+                      </span>
+                    </li>
+                  </ComboboxOption>
+                </ComboboxOptions>
+              </div>
+            </Combobox>
             <input
               type="text"
               name="startup"
               id="startup"
-              v-model="versionSettings.setup"
-              class="block flex-1 border-0 py-1.5 pl-1 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
-              placeholder="setup.exe"
+              v-model="versionSettings.setupArgs"
+              class="border-l border-zinc-700 block flex-1 border-0 py-1.5 pl-2 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
+              placeholder="--setup"
             />
           </div>
         </div>
       </div>
+      <!-- setup mode -->
+      <SwitchGroup as="div" class="flex items-center justify-between">
+        <span class="flex flex-grow flex-col">
+          <SwitchLabel
+            as="span"
+            class="text-sm font-medium leading-6 text-zinc-100"
+            passive
+            >Setup mode</SwitchLabel
+          >
+          <SwitchDescription as="span" class="text-sm text-zinc-400"
+            >When enabled, this version does not have a launch command, and
+            simply runs the executable on the user's computer. Useful for games
+            that only distribute installer and not portable
+            files.</SwitchDescription
+          >
+        </span>
+        <Switch
+          v-model="versionSettings.onlySetup"
+          :class="[
+            versionSettings.onlySetup ? 'bg-blue-600' : 'bg-zinc-800',
+            'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2',
+          ]"
+        >
+          <span
+            aria-hidden="true"
+            :class="[
+              versionSettings.onlySetup ? 'translate-x-5' : 'translate-x-0',
+              'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+            ]"
+          />
+        </Switch>
+      </SwitchGroup>
+      <div class="relative">
+        <label
+          for="startup"
+          class="block text-sm font-medium leading-6 text-zinc-100"
+          >Launch executable/command</label
+        >
+        <p class="text-zinc-400 text-xs">Executable to launch the game</p>
+        <div class="mt-2">
+          <div
+            class="flex w-fit rounded-md shadow-sm bg-zinc-950 ring-1 ring-inset ring-zinc-800 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600"
+          >
+            <span
+              class="flex select-none items-center pl-3 text-zinc-500 sm:text-sm"
+              >(install_dir)/</span
+            >
+            <Combobox
+              as="div"
+              :value="versionSettings.launch"
+              @update:model-value="(v) => updateLaunchCommand(v)"
+              nullable
+            >
+              <div class="relative">
+                <ComboboxInput
+                  class="block flex-1 border-0 py-1.5 pl-1 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
+                  @change="launchProcessQuery = $event.target.value"
+                  @blur="launchProcessQuery = ''"
+                  :placeholder="'game.exe'"
+                />
+                <ComboboxButton
+                  v-if="launchFilteredVersionGuesses?.length ?? 0 > 0"
+                  class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
+                >
+                  <ChevronUpDownIcon
+                    class="size-5 text-gray-400"
+                    aria-hidden="true"
+                  />
+                </ComboboxButton>
+
+                <ComboboxOptions
+                  class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-white/5 focus:outline-none sm:text-sm"
+                >
+                  <ComboboxOption
+                    v-for="guess in launchFilteredVersionGuesses"
+                    :key="guess.filename"
+                    :value="guess.filename"
+                    as="template"
+                    v-slot="{ active, selected }"
+                  >
+                    <li
+                      :class="[
+                        'relative cursor-default select-none py-2 pl-3 pr-9',
+                        active
+                          ? 'bg-blue-600 text-white outline-none'
+                          : 'text-zinc-100',
+                      ]"
+                    >
+                      <span
+                        :class="[
+                          'inline-flex items-center gap-x-2 block truncate',
+                          selected && 'font-semibold',
+                        ]"
+                      >
+                        {{ guess.filename }}
+                        <component
+                          :is="PLATFORM_ICONS[guess.platform as PlatformClient]"
+                          class="size-5"
+                        />
+                      </span>
+
+                      <span
+                        v-if="selected"
+                        :class="[
+                          'absolute inset-y-0 right-0 flex items-center pr-4',
+                          active ? 'text-white' : 'text-blue-600',
+                        ]"
+                      >
+                        <CheckIcon class="size-5" aria-hidden="true" />
+                      </span>
+                    </li>
+                  </ComboboxOption>
+                  <ComboboxOption
+                    :value="launchProcessQuery"
+                    v-if="launchProcessQuery"
+                    v-slot="{ active, selected }"
+                  >
+                    <li
+                      :class="[
+                        'relative cursor-default select-none py-2 pl-3 pr-9',
+                        active
+                          ? 'bg-blue-600 text-white outline-none'
+                          : 'text-gray-900',
+                      ]"
+                    >
+                      <span
+                        :class="['block truncate', selected && 'font-semibold']"
+                      >
+                        "{{ launchProcessQuery }}"
+                      </span>
+
+                      <span
+                        v-if="selected"
+                        :class="[
+                          'absolute inset-y-0 right-0 flex items-center pr-4',
+                          active ? 'text-white' : 'text-blue-600',
+                        ]"
+                      >
+                        <CheckIcon class="size-5" aria-hidden="true" />
+                      </span>
+                    </li>
+                  </ComboboxOption>
+                </ComboboxOptions>
+              </div>
+            </Combobox>
+            <input
+              type="text"
+              name="startup"
+              id="startup"
+              v-model="versionSettings.launchArgs"
+              class="border-l border-zinc-700 block flex-1 border-0 py-1.5 pl-2 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
+              placeholder="--launch"
+            />
+          </div>
+        </div>
+        <div
+          class="absolute inset-0 bg-zinc-900/50"
+          v-if="versionSettings.onlySetup"
+        />
+      </div>
+
       <PlatformSelector v-model="versionSettings.platform">
         Version platform
       </PlatformSelector>
@@ -145,16 +378,16 @@
           >
         </span>
         <Switch
-          v-model="delta"
+          v-model="versionSettings.delta"
           :class="[
-            delta ? 'bg-blue-600' : 'bg-zinc-800',
+            versionSettings.delta ? 'bg-blue-600' : 'bg-zinc-800',
             'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2',
           ]"
         >
           <span
             aria-hidden="true"
             :class="[
-              delta ? 'translate-x-5' : 'translate-x-0',
+              versionSettings.delta ? 'translate-x-5' : 'translate-x-0',
               'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
             ]"
           />
@@ -163,7 +396,7 @@
       <Disclosure as="div" class="py-2" v-slot="{ open }">
         <dt>
           <DisclosureButton
-            class="flex w-full items-start justify-between text-left text-zinc-100"
+            class="border-b border-zinc-600 pb-2 flex w-full items-start justify-between text-left text-zinc-100"
           >
             <span class="text-base/7 font-semibold">Advanced options</span>
             <span class="ml-6 flex h-7 items-center">
@@ -172,56 +405,69 @@
             </span>
           </DisclosureButton>
         </dt>
-        <DisclosurePanel as="dd" class="mt-2 flex flex-col gap-y-4">
-          <SwitchGroup as="div" class="flex items-center justify-between">
-            <span class="flex flex-grow flex-col">
-              <SwitchLabel
-                as="span"
-                class="text-sm font-medium leading-6 text-zinc-100"
-                passive
-                >Override UMU Launcher Game ID</SwitchLabel
-              >
-              <SwitchDescription as="span" class="text-sm text-zinc-400"
-                >By default, Drop uses a non-ID when launching with UMU
-                Launcher. In order to get the right patches for some games, you
-                may have to manually set this field.</SwitchDescription
-              >
-            </span>
-            <Switch
-              v-model="umuIdEnabled"
-              :class="[
-                umuIdEnabled ? 'bg-blue-600' : 'bg-zinc-800',
-                'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2',
-              ]"
-            >
-              <span
-                aria-hidden="true"
+        <DisclosurePanel
+          as="dd"
+          class="bg-zinc-950/30 p-3 rounded-b-lg mt-2 flex flex-col gap-y-4"
+        >
+          <!-- UMU launcher configuration -->
+          <div
+            v-if="versionSettings.platform == PlatformClient.Windows"
+            class="flex flex-col gap-y-4"
+          >
+            <SwitchGroup as="div" class="flex items-center justify-between">
+              <span class="flex flex-grow flex-col">
+                <SwitchLabel
+                  as="span"
+                  class="text-sm font-medium leading-6 text-zinc-100"
+                  passive
+                  >Override UMU Launcher Game ID</SwitchLabel
+                >
+                <SwitchDescription as="span" class="text-sm text-zinc-400"
+                  >By default, Drop uses a non-ID when launching with UMU
+                  Launcher. In order to get the right patches for some games,
+                  you may have to manually set this field.</SwitchDescription
+                >
+              </span>
+              <Switch
+                v-model="umuIdEnabled"
                 :class="[
-                  umuIdEnabled ? 'translate-x-5' : 'translate-x-0',
-                  'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                  umuIdEnabled ? 'bg-blue-600' : 'bg-zinc-800',
+                  'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2',
                 ]"
-              />
-            </Switch>
-          </SwitchGroup>
-          <div>
-            <label
-              for="umu-id"
-              class="block text-sm font-medium leading-6 text-zinc-100"
-              >UMU Launcher ID</label
-            >
-            <div class="mt-2">
-              <input
-                id="umu-id"
-                name="umu-id"
-                type="text"
-                autocomplete="umu-id"
-                required
-                :disabled="!umuIdEnabled"
-                v-model="umuId"
-                placeholder="umu-starcitizen"
-                class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-950 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-              />
+              >
+                <span
+                  aria-hidden="true"
+                  :class="[
+                    umuIdEnabled ? 'translate-x-5' : 'translate-x-0',
+                    'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                  ]"
+                />
+              </Switch>
+            </SwitchGroup>
+            <div>
+              <label
+                for="umu-id"
+                class="block text-sm font-medium leading-6 text-zinc-100"
+                >UMU Launcher ID</label
+              >
+              <div class="mt-2">
+                <input
+                  id="umu-id"
+                  name="umu-id"
+                  type="text"
+                  autocomplete="umu-id"
+                  required
+                  :disabled="!umuIdEnabled"
+                  v-model="umuId"
+                  placeholder="umu-starcitizen"
+                  class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-950 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                />
+              </div>
             </div>
+          </div>
+
+          <div v-else class="text-zinc-400">
+            No advanced options for this configuration.
           </div>
         </DisclosurePanel>
       </Disclosure>
@@ -287,6 +533,12 @@ import {
   Disclosure,
   DisclosureButton,
   DisclosurePanel,
+  Combobox,
+  ComboboxButton,
+  ComboboxInput,
+  ComboboxLabel,
+  ComboboxOption,
+  ComboboxOptions,
 } from "@headlessui/vue";
 import { XCircleIcon } from "@heroicons/vue/16/solid";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
@@ -308,21 +560,72 @@ const versions = await $fetch(
   }
 );
 const currentlySelectedVersion = ref(-1);
-const versionSettings = ref<
-  { platform: string; startup: string; setup: string } | undefined
->();
-const delta = ref(false);
+const versionSettings = ref<{
+  platform: string;
 
-const _umuId = ref("");
+  onlySetup: boolean;
+  launch: string;
+  launchArgs: string;
+  setup: string;
+  setupArgs: string;
+
+  delta: boolean;
+  umuId: string;
+}>({
+  platform: "",
+  launch: "",
+  launchArgs: "",
+  setup: "",
+  setupArgs: "",
+  delta: false,
+  onlySetup: false,
+  umuId: "",
+});
+
+const versionGuesses = ref<Array<{ platform: string; filename: string }>>();
+const launchProcessQuery = ref("");
+const setupProcessQuery = ref("");
+
+const launchFilteredVersionGuesses = computed(() =>
+  versionGuesses.value?.filter((e) =>
+    e.filename.toLowerCase().includes(launchProcessQuery.value.toLowerCase())
+  )
+);
+const setupFilteredVersionGuesses = computed(() =>
+  versionGuesses.value?.filter((e) =>
+    e.filename.toLowerCase().includes(setupProcessQuery.value.toLowerCase())
+  )
+);
+
+function updateLaunchCommand(value: string) {
+  versionSettings.value.launch = value;
+  autosetPlatform(value);
+}
+
+function updateSetupCommand(value: string) {
+  versionSettings.value.setup = value;
+  autosetPlatform(value);
+}
+
+function autosetPlatform(value: string) {
+  if (!versionGuesses.value) return;
+  if (versionSettings.value.platform) return;
+  const guessIndex = versionGuesses.value.findIndex(
+    (e) => e.filename === value
+  );
+  if (guessIndex == -1) return;
+  versionSettings.value.platform = versionGuesses.value[guessIndex].platform;
+}
+
 const umuIdEnabled = ref(false);
 const umuId = computed({
   get() {
-    if (umuIdEnabled.value) return _umuId.value;
+    if (umuIdEnabled.value) return versionSettings.value.umuId;
     return undefined;
   },
   set(v) {
     if (umuIdEnabled.value && v) {
-      _umuId.value = v;
+      versionSettings.value.umuId = v;
     }
   },
 });
@@ -339,11 +642,7 @@ async function updateCurrentlySelectedVersion(value: number) {
       gameId
     )}&version=${encodeURIComponent(version)}`
   );
-  versionSettings.value = {
-    platform: results.platformGuess,
-    startup: results.startupGuess,
-    setup: "",
-  };
+  versionGuesses.value = results;
 }
 
 async function startImport() {
@@ -353,10 +652,7 @@ async function startImport() {
     body: {
       id: gameId,
       version: versions[currentlySelectedVersion.value],
-      platform: versionSettings.value.platform,
-      startup: versionSettings.value.startup,
-      setup: versionSettings.value.setup,
-      delta: delta.value,
+      ...versionSettings.value,
     },
   });
   router.push(`/admin/task/${taskId.taskId}`);

@@ -208,11 +208,11 @@ const username = ref(invitation.data.value?.username);
 const password = ref("");
 const confirmPassword = ref(undefined);
 
-const mailRegex = /^\S+@\S+\.\S+$/g;
+const mailRegex = /^\S+@\S+\.\S+$/;
 const validEmail = computed(() => mailRegex.test(email.value ?? ""));
 const validUsername = computed(
   () =>
-    (username.value?.length ?? 0) > 5 &&
+    (username.value?.length ?? 0) >= 5 &&
     username.value?.toLowerCase() == username.value
 );
 const validPassword = computed(() => (password.value?.length ?? 0) >= 14);

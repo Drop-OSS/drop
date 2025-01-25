@@ -4,7 +4,7 @@ services:
     ports:
       - 5432:5432
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-d", "postgres"]
+      test: pg_isready -d drop -U drop
       interval: 30s
       timeout: 60s
       retries: 5

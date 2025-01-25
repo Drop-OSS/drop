@@ -1,11 +1,11 @@
 <template>
-  <div class="flex flex-row flex-wrap gap-3 justify-center">
+  <div class="flex flex-row flex-wrap gap-2 justify-center">
     <button
       v-for="(_, i) in amount"
       @click="() => slideTo(i)"
       :class="[
-        currentSlide == i ? 'bg-zinc-300' : 'bg-zinc-700',
-        'cursor-pointer w-4 h-2 rounded-full',
+        currentSlide == i ? 'bg-blue-600 w-6' : 'bg-zinc-700 w-3',
+        'transition-all cursor-pointer h-2 rounded-full',
       ]"
     />
   </div>

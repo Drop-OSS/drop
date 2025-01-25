@@ -72,7 +72,7 @@
                 >
                   <component
                     v-for="platform in platforms"
-                    :is="icons[platform]"
+                    :is="PLATFORM_ICONS[platform]"
                     class="text-blue-600 w-6 h-6"
                   />
                   <span
@@ -113,11 +113,16 @@
           </p>
           <div class="mt-6 py-4 rounded">
             <VueCarousel :items-to-show="1">
-              <VueSlide v-for="image in game.mImageLibrary" :key="image">
+              <VueSlide v-for="image in game.mImageCarousel" :key="image">
                 <img
                   class="w-fit h-48 lg:h-96 rounded"
                   :src="useObject(image)"
                 />
+              </VueSlide>
+              <VueSlide v-if="game.mImageCarousel.length == 0">
+                <div class="h-48 lg:h-96 aspect-[1/2] flex items-center justify-center text-zinc-700 font-bold font-display">
+                  No images
+                </div>
               </VueSlide>
 
               <template #addons>
@@ -212,10 +217,7 @@ const rating = Math.round(game.mReviewRating * 5);
 const ratingArray = Array(5)
   .fill(null)
   .map((_, i) => i + 1 <= rating);
-const icons = {
-  [PlatformClient.Linux]: IconsLinuxLogo,
-  [PlatformClient.Windows]: IconsWindowsLogo,
-};
+
 
 useHead({
   title: game.mName,

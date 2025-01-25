@@ -7,10 +7,10 @@ model User {
     displayName    String
     profilePicture String // Object
 
-    authMecs LinkedAuthMec[]
-    clients  Client[]
-
+    authMecs      LinkedAuthMec[]
+    clients       Client[]
     notifications Notification[]
+    collections   Collection[]
 }
 
 model Notification {
@@ -21,7 +21,7 @@ model Notification {
     userId String
     user   User   @relation(fields: [userId], references: [id])
 
-    created        DateTime @default(now())
+    created     DateTime @default(now())
     title       String
     description String
     actions     String[]

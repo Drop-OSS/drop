@@ -1,5 +1,5 @@
 enum MetadataSource {
-    Custom
+    Manual
     GiantBomb
 }
 
@@ -22,13 +22,16 @@ model Game {
     mReviewCount  Int
     mReviewRating Float // 0 to 1
 
-    mIconId       String // linked to objects in s3
-    mBannerId     String // linked to objects in s3
-    mCoverId      String
-    mImageLibrary String[] // linked to objects in s3
+    mIconId        String // linked to objects in s3
+    mBannerId      String // linked to objects in s3
+    mCoverId       String
+    mImageCarousel String[] // linked to below array
+    mImageLibrary  String[] // linked to objects in s3
 
     versions        GameVersion[]
-    libraryBasePath String        @unique // Base dir for all the game versions
+    libraryBasePath String            @unique // Base dir for all the game versions
+    
+    collections CollectionEntry[]
 
     @@unique([metadataSource, metadataId], name: "metadataKey")
 }
@@ -41,10 +44,16 @@ model GameVersion {
 
     created DateTime @default(now())
 
-    platform        Platform
-    launchCommand   String // Command to run to start. Platform-specific. Windows games on Linux will wrap this command in Proton/Wine
-    setupCommand    String // Command to setup game (dependencies and such)
-    umuIdOverride   String?
+    platform Platform
+
+    launchCommand String? // Command to run to start. Platform-specific. Windows games on Linux will wrap this command in Proton/Wine
+    launchArgs    String[]
+    setupCommand  String? // Command to setup game (dependencies and such)
+    setupArgs     String[]
+    onlySetup     Boolean  @default(false)
+
+    umuIdOverride String?
+
     dropletManifest Json // Results from droplet
 
     versionIndex Int

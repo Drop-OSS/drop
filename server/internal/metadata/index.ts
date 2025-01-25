@@ -50,15 +50,19 @@ export class MetadataHandler {
       const queryTransformationPromise = new Promise<
         InternalGameMetadataResult[]
       >(async (resolve, reject) => {
-        const results = await provider.search(query);
-        const mappedResults: InternalGameMetadataResult[] = results.map(
-          (result) =>
-            Object.assign({}, result, {
-              sourceId: provider.id(),
-              sourceName: provider.name(),
-            })
-        );
-        resolve(mappedResults);
+        try {
+          const results = await provider.search(query);
+          const mappedResults: InternalGameMetadataResult[] = results.map(
+            (result) =>
+              Object.assign({}, result, {
+                sourceId: provider.id(),
+                sourceName: provider.name(),
+              })
+          );
+          resolve(mappedResults);
+        } catch (e) {
+          reject(e);
+        }
       });
       promises.push(queryTransformationPromise);
     }
@@ -70,6 +74,21 @@ export class MetadataHandler {
       .flat();
 
     return successfulResults;
+  }
+
+  async createGameWithoutMetadata(libraryBasePath: string) {
+    return await this.createGame(
+      {
+        id: "",
+        name: libraryBasePath,
+        icon: "",
+        description: "",
+        year: 0,
+        sourceId: "manual",
+        sourceName: "Manual",
+      },
+      libraryBasePath
+    );
   }
 
   async createGame(
@@ -99,6 +118,7 @@ export class MetadataHandler {
     try {
       metadata = await provider.fetchGame({
         id: result.id,
+        name: result.name,
         // wrap in anonymous functions to keep references to this
         publisher: (name: string) => this.fetchPublisher(name),
         developer: (name: string) => this.fetchDeveloper(name),

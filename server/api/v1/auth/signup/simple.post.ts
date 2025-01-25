@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import * as jdenticon from "jdenticon";
 
 // Only really a simple test, in case people mistype their emails
-const mailRegex = /^\S+@\S+\.\S+$/g;
+const mailRegex = /^\S+@\S+\.\S+$/;
 
 export default defineEventHandler(async (h3) => {
   const body = await readBody(h3);
@@ -41,7 +41,7 @@ export default defineEventHandler(async (h3) => {
 
   const username = useInvitationOrBodyRequirement(
     "username",
-    (e) => e.length > 5
+    (e) => e.length >= 5
   );
   const email = useInvitationOrBodyRequirement("email", (e) =>
     mailRegex.test(e)
@@ -100,7 +100,7 @@ export default defineEventHandler(async (h3) => {
       displayName,
       email,
       profilePicture: profilePictureId,
-      admin: true,
+      admin: invitation.isAdmin,
     },
   });
 

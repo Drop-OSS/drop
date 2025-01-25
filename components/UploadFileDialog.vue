@@ -17,7 +17,7 @@
 
       <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
         <div
-          class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0"
+          class="flex min-h-full items-start justify-center p-4 text-center sm:items-center sm:p-0"
         >
           <TransitionChild
             as="template"
@@ -73,9 +73,6 @@
                   @click="() => uploadFile_wrapper()"
                   :class="[
                     'inline-flex w-full shadow-sm sm:ml-3 sm:w-auto',
-                    currentFile === undefined
-                      ? 'text-zinc-400 bg-blue-600/10 hover:bg-blue-600/10'
-                      : 'text-white bg-blue-600 hover:bg-blue-500',
                   ]"
                 >
                   Upload
@@ -121,8 +118,8 @@ import {
   TransitionChild,
   TransitionRoot,
 } from "@headlessui/vue";
-import { ExclamationTriangleIcon } from "@heroicons/vue/24/outline";
 import { ArrowUpTrayIcon } from "@heroicons/vue/20/solid";
+import { XCircleIcon } from "@heroicons/vue/24/solid";
 
 const open = defineModel<boolean>();
 
