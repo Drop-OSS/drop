@@ -29,7 +29,7 @@ build:
         docker image tag $IMAGE_NAME $PUBLISH_LATEST_IMAGE_NAME
         docker push $PUBLISH_IMAGE_NAME $PUBLISH_LATEST_IMAGE_NAME
       fi
-build-arm64:
+build-amd64:
   stage: build
   image: docker:latest
   variables:
