@@ -29,3 +29,22 @@ build:
         docker image tag $IMAGE_NAME $PUBLISH_LATEST_IMAGE_NAME
         docker push $PUBLISH_IMAGE_NAME $PUBLISH_LATEST_IMAGE_NAME
       fi
+build-arm64:
+  stage: build
+  image: docker:latest
+  variables:
+    IMAGE_NAME: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:$CI_COMMIT_SHORT_SHA
+    LATEST_IMAGE_NAME: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:latest-arm64
+    PUBLISH_IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+    PUBLISH_LATEST_IMAGE_NAME: $CI_REGISTRY_IMAGE:latest-arm64
+  script:
+    - docker build -t $IMAGE_NAME . --platform=linux/amd64
+    - docker image tag $IMAGE_NAME $LATEST_IMAGE_NAME
+    - docker push $IMAGE_NAME
+    - docker push $LATEST_IMAGE_NAME
+    - |
+      if [ $CI_COMMIT_TAG ]; then
+        docker image tag $IMAGE_NAME $PUBLISH_IMAGE_NAME
+        docker image tag $IMAGE_NAME $PUBLISH_LATEST_IMAGE_NAME
+        docker push $PUBLISH_IMAGE_NAME $PUBLISH_LATEST_IMAGE_NAME
+      fi
