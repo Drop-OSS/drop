@@ -31,7 +31,7 @@ build:
       fi
 build-arm64:
   stage: build
-  image: docker:latest
+  image: arm64v8/docker:latest
   variables:
     IMAGE_NAME: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:$CI_COMMIT_SHORT_SHA-arm64
     LATEST_IMAGE_NAME: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:latest-arm64
