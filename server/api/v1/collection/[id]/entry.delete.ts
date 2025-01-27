@@ -16,11 +16,26 @@ export default defineEventHandler(async (h3) => {
     });
 
   const body = await readBody(h3);
-
   const gameId = body.id;
   if (!gameId)
     throw createError({ statusCode: 400, statusMessage: "Game ID required" });
 
-  await userLibraryManager.collectionRemove(id, gameId);
+  // Verify collection exists and user owns it
+  const collection = await userLibraryManager.fetchCollection(id);
+  if (!collection) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: "Collection not found",
+    });
+  }
+
+  if (collection.userId !== userId) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: "Not authorized to modify this collection",
+    });
+  }
+
+  const removed = await userLibraryManager.collectionRemove(gameId, id);
   return {};
 });

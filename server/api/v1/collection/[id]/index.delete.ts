@@ -15,6 +15,30 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "ID required in route params",
     });
 
-  const collection = await userLibraryManager.deleteCollection(id);
-  return collection;
+  // Verify collection exists and user owns it
+  const collection = await userLibraryManager.fetchCollection(id);
+  if (!collection) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: "Collection not found",
+    });
+  }
+
+  if (collection.userId !== userId) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: "Not authorized to delete this collection",
+    });
+  }
+
+  // Don't allow deleting default collection
+  if (collection.isDefault) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Cannot delete default collection",
+    });
+  }
+
+  await userLibraryManager.deleteCollection(id);
+  return { success: true };
 });

@@ -14,6 +14,7 @@ export default defineEventHandler(async (h3) => {
   if (!name)
     throw createError({ statusCode: 400, statusMessage: "Requires name" });
 
-  const collections = await userLibraryManager.fetchCollections(userId);
-  return collections;
+  // Create the collection using the manager
+  const newCollection = await userLibraryManager.collectionCreate(name, userId);
+  return newCollection;
 });

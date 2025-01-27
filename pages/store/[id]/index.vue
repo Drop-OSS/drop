@@ -30,13 +30,18 @@
             class="transition-all duration-300 hover:scale-105 hover:rotate-[-1deg] w-64 h-auto rounded"
             :src="useObject(game.mCoverId)"
           />
-          <button
-            type="button"
-            class="inline-flex items-center gap-x-2 rounded-md bg-blue-600 px-3.5 py-2.5 text-xl font-semibold font-display text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-          >
-            Add to Library
-            <PlusIcon class="-mr-0.5 h-7 w-7" aria-hidden="true" />
-          </button>
+          <div class="flex items-center gap-x-2">
+            <AddLibraryButton
+              :gameId="game.id"
+              :isProcessing="isAddingToLibrary"
+              :isInLibrary="isInLibrary"
+              :collections="collections"
+              :collectionStates="collectionStates"
+              @add-to-library="addToLibrary"
+              @toggle-collection="toggleCollection"
+              @create-collection="showCreateCollectionModal = true"
+            />
+          </div>
           <NuxtLink
             v-if="user?.admin"
             :href="`/admin/library/${game.id}`"
@@ -160,18 +165,40 @@
         </div>
       </div>
     </div>
+
+    <!-- Add this modal at the end of the template -->
+    <CreateCollectionModal
+      :show="showCreateCollectionModal"
+      :gameId="game.id"
+      @close="showCreateCollectionModal = false"
+      @created="handleCollectionCreated"
+    />
+
+    <!-- Delete Collection Confirmation Modal -->
+    <DeleteCollectionModal
+      :show="showDeleteModal"
+      :collection="collectionToDelete"
+      @close="showDeleteModal = false"
+      @deleted="handleCollectionDeleted"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { IconsLinuxLogo, IconsWindowsLogo } from "#components";
-import { PlusIcon } from "@heroicons/vue/20/solid";
+import { PlusIcon, EllipsisVerticalIcon, TrashIcon, ChevronDownIcon } from "@heroicons/vue/20/solid";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
-import { StarIcon } from "@heroicons/vue/24/solid";
+import { StarIcon, CheckIcon } from "@heroicons/vue/24/solid";
 import { type Game, type GameVersion } from "@prisma/client";
 import { micromark } from "micromark";
 import moment from "moment";
 import { PlatformClient } from "~/composables/types";
+import { ref, onMounted } from 'vue';
+import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
+import { TransitionRoot, Dialog, DialogPanel, DialogTitle, TransitionChild } from "@headlessui/vue";
+import AddLibraryButton from "~/components/AddLibraryButton.vue";
+import CreateCollectionModal from "~/components/CreateCollectionModal.vue";
+import DeleteCollectionModal from "~/components/DeleteCollectionModal.vue";
 
 const route = useRoute();
 const gameId = route.params.id.toString();
@@ -218,6 +245,101 @@ const ratingArray = Array(5)
   .fill(null)
   .map((_, i) => i + 1 <= rating);
 
+const isAddingToLibrary = ref(false);
+
+const collections = ref<Collection[]>([]);
+const collectionStates = ref<{ [key: string]: boolean }>({});
+const isInLibrary = ref(false);
+
+const showCreateCollectionModal = ref(false);
+const newCollectionName = ref('');
+const isCreatingCollection = ref(false);
+
+const showDeleteModal = ref(false)
+const collectionToDelete = ref<Collection | null>(null)
+
+onMounted(async () => {
+  try {
+    // Fetch collections with their entries
+    collections.value = await $fetch<Collection[]>('/api/v1/collection', { headers })
+    
+    // Check which collections have this game
+    for (const collection of collections.value) {
+      const hasGame = collection.entries?.some(entry => entry.gameId === game.id)
+      collectionStates.value[collection.id] = !!hasGame
+      // If it's in the default collection, update isInLibrary
+      if (collection.isDefault && hasGame) {
+        isInLibrary.value = true
+      }
+    }
+  } catch (error) {
+    console.error('Failed to fetch collections:', error)
+  }
+});
+
+const toggleCollection = async (collectionId: string) => {
+  try {
+    if (collectionStates.value[collectionId]) {
+      // Remove from collection
+      await $fetch(`/api/v1/collection/${collectionId}/entry`, {
+        method: 'DELETE',
+        body: { id: game.id }
+      })
+    } else {
+      // Add to collection
+      await $fetch(`/api/v1/collection/${collectionId}/entry`, {
+        method: 'POST',
+        body: { id: game.id }
+      })
+    }
+    // Toggle state
+    collectionStates.value[collectionId] = !collectionStates.value[collectionId]
+  } catch (error) {
+    console.error('Failed to toggle collection:', error)
+  }
+}
+
+const addToLibrary = async () => {
+  if (isAddingToLibrary.value) return;
+  
+  try {
+    isAddingToLibrary.value = true;
+    const defaultCollection = collections.value.find(c => c.isDefault);
+    if (!defaultCollection) return;
+
+    if (isInLibrary.value) {
+      // Remove from library
+      await $fetch(`/api/v1/collection/${defaultCollection.id}/entry`, {
+        method: "DELETE",
+        body: { id: game.id }
+      });
+    } else {
+      // Add to library
+      await $fetch(`/api/v1/collection/default/entry`, {
+        method: "POST",
+        body: { id: game.id }
+      });
+    }
+    // Toggle state
+    isInLibrary.value = !isInLibrary.value;
+  } catch (error) {
+    console.error("Failed to modify library:", error);
+  } finally {
+    isAddingToLibrary.value = false;
+  }
+};
+
+const handleCollectionCreated = async (collectionId: string) => {
+  // Refresh collections
+  collections.value = await $fetch<Collection[]>('/api/v1/collection', { headers });
+  // Set initial state for the new collection
+  collectionStates.value[collectionId] = true;
+};
+
+const handleCollectionDeleted = (collectionId: string) => {
+  collections.value = collections.value.filter(c => c.id !== collectionId);
+  collectionToDelete.value = null;
+};
 
 useHead({
   title: game.mName,

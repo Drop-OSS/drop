@@ -64,7 +64,13 @@ class UserLibraryManager {
 
   async fetchCollections(userId: string) {
     await this.fetchUserLibrary(userId); // Ensures user library exists, doesn't have much performance impact due to caching
-    return await prisma.collection.findMany({ where: { userId } });
+    return await prisma.collection.findMany({ 
+      where: { userId },
+      include: { 
+        entries: true,
+        _count: { select: { entries: true } } 
+      }
+    });
   }
 
   async collectionAdd(gameId: string, collectionId: string) {

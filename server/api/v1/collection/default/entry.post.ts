@@ -9,11 +9,22 @@ export default defineEventHandler(async (h3) => {
     });
 
   const body = await readBody(h3);
-
   const gameId = body.id;
   if (!gameId)
     throw createError({ statusCode: 400, statusMessage: "Game ID required" });
 
-  await userLibraryManager.libraryRemove(gameId, userId);
+  // Get the default collection for this user
+  const collections = await userLibraryManager.fetchCollections(userId);
+  const defaultCollection = collections.find(c => c.isDefault);
+  
+  if (!defaultCollection) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: "Default collection not found",
+    });
+  }
+
+  // Add the game to the default collection
+  await userLibraryManager.collectionAdd(gameId, defaultCollection.id);
   return {};
 });
