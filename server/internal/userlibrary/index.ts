@@ -78,7 +78,7 @@ class UserLibraryManager {
   }
 
   async collectionAdd(gameId: string, collectionId: string, userId: string) {
-    await prisma.collectionEntry.upsert({
+    return await prisma.collectionEntry.upsert({
       where: {
         collectionId_gameId: {
           collectionId,
@@ -93,6 +93,9 @@ class UserLibraryManager {
         gameId,
       },
       update: {},
+      include: {
+        game: true,
+      },
     });
   }
 

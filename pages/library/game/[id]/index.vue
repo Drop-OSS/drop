@@ -64,7 +64,7 @@
       </div>
     </div>
 
-    <div class="min-h-[20vh]" />
+    <div class="min-h-[300px]" />
   </div>
 </template>
 

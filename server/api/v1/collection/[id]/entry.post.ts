@@ -20,6 +20,5 @@ export default defineEventHandler(async (h3) => {
   if (!gameId)
     throw createError({ statusCode: 400, statusMessage: "Game ID required" });
 
-  await userLibraryManager.collectionAdd(gameId, id, userId);
-  return;
+  return await userLibraryManager.collectionAdd(gameId, id, userId);
 });

@@ -37,7 +37,9 @@
             >
               Collections
             </div>
-            <div class="flex flex-col gap-y-2 py-1 max-h-[150px] overflow-y-auto">
+            <div
+              class="flex flex-col gap-y-2 py-1 max-h-[150px] overflow-y-auto"
+            >
               <div
                 v-if="collections.length === 0"
                 class="px-3 py-2 text-sm text-zinc-500"
@@ -83,7 +85,7 @@
 
   <CreateCollectionModal
     v-model="createCollectionModal"
-    :game-id="props.gameId"
+    :gameId="props.gameId"
   />
 </template>
 

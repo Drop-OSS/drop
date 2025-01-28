@@ -48,6 +48,8 @@
 import { ref } from "vue";
 import { DialogTitle } from "@headlessui/vue";
 import ModalTemplate from "~/drop-base/components/ModalTemplate.vue";
+import type { CollectionEntry, Game } from "@prisma/client";
+import type { SerializeObject } from "nitropack";
 
 const props = defineProps<{
   gameId?: string;
@@ -77,10 +79,13 @@ async function createCollection() {
 
     // Add the game if provided
     if (props.gameId) {
-      await $fetch(`/api/v1/collection/${response.id}/entry`, {
+      const entry = await $fetch<
+        CollectionEntry & { game: SerializeObject<Game> }
+      >(`/api/v1/collection/${response.id}/entry`, {
         method: "POST",
         body: { id: props.gameId },
       });
+      response.entries.push(entry);
     }
 
     collections.value.push(response);
