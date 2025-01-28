@@ -35,8 +35,7 @@
 
         <!-- Delete button (only show for non-default collections) -->
         <button
-          v-if="!collection.isDefault"
-          @click=""
+          @click="() => (currentlyDeleting = collection)"
           class="px-3 ml-[2px] bg-zinc-800/50 hover:bg-zinc-800"
         >
           <TrashIcon class="h-5 w-5 text-zinc-400 hover:text-red-400" />
@@ -57,7 +56,9 @@
               Create Collection
             </h3>
           </div>
-          <p class="transition mt-1 text-sm text-zinc-500 group-hover:text-zinc-400">
+          <p
+            class="transition mt-1 text-sm text-zinc-500 group-hover:text-zinc-400"
+          >
             Add a new collection to organize your games
           </p>
         </button>
@@ -66,6 +67,7 @@
   </div>
 
   <CreateCollectionModal v-model="collectionCreateOpen" />
+  <DeleteCollectionModal v-model="currentlyDeleting" />
 </template>
 
 <script setup lang="ts">
@@ -75,17 +77,18 @@ import {
   TrashIcon,
   ArrowLeftIcon,
 } from "@heroicons/vue/20/solid";
-import { type Game, type GameVersion } from "@prisma/client";
+import { type Collection, type Game, type GameVersion } from "@prisma/client";
 import { PlusIcon } from "@heroicons/vue/20/solid";
 
 const headers = useRequestHeaders(["cookie"]);
 const { data: gamesData } = await useFetch<
   (Game & { versions: GameVersion[] })[]
 >("/api/v1/store/recent", { headers });
-const games = ref(gamesData.value || []);
 
 const collections = await useCollections();
 const collectionCreateOpen = ref(false);
+
+const currentlyDeleting = ref<Collection | undefined>();
 
 useHead({
   title: "Home",

@@ -1,16 +1,25 @@
 <template>
   <ModalTemplate v-model="open">
     <template #default>
-      <DialogTitle as="h3" class="text-lg font-medium leading-6 text-white">
-        Create Collection
-      </DialogTitle>
+      <div>
+        <DialogTitle as="h3" class="text-lg font-medium leading-6 text-white">
+          Create collection
+        </DialogTitle>
+        <p class="mt-1 text-zinc-400 text-sm">
+          Collections can used to organise your games and find them more easily,
+          especially if you have a large library.
+        </p>
+      </div>
       <div class="mt-2">
-        <input
-          type="text"
-          v-model="collectionName"
-          placeholder="Collection name"
-          class="block w-full rounded-md border-0 bg-zinc-800 py-1.5 text-white shadow-sm ring-1 ring-inset ring-zinc-700 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-        />
+        <form @submit.prevent="() => createCollection()">
+          <input
+            type="text"
+            v-model="collectionName"
+            placeholder="Collection name"
+            class="block w-full rounded-md border-0 bg-zinc-800 py-1.5 text-white shadow-sm ring-1 ring-inset ring-zinc-700 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+          />
+          <button class="hidden" type="submit" />
+        </form>
       </div>
     </template>
 
