@@ -11,7 +11,7 @@ model Collection {
 
 model CollectionEntry {
     collectionId String
-    collection   Collection @relation(fields: [collectionId], references: [id])
+    collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
 
     gameId String
     game   Game   @relation(fields: [gameId], references: [id])
