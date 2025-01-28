@@ -46,21 +46,19 @@
       <div>
         <button
           @click="collectionCreateOpen = true"
-          class="transition-all group relative rounded-lg border-2 border-dashed border-zinc-800 p-4 hover:border-zinc-700 hover:bg-zinc-900/30 transition-all duration-200 text-left w-full"
+          class="group flex flex-row rounded-lg overflow-hidden transition-all duration-200 text-left w-full hover:scale-105"
         >
-          <div class="flex items-center gap-3">
-            <PlusIcon class="h-5 w-5 text-zinc-400 group-hover:text-zinc-300" />
-            <h3
-              class="transition text-lg font-semibold text-zinc-400 group-hover:text-zinc-300"
-            >
-              Create Collection
-            </h3>
+          <div class="grow p-4 bg-zinc-800/50 hover:bg-zinc-800 border-2 border-dashed border-zinc-700">
+            <div class="flex items-center gap-3">
+              <PlusIcon class="h-5 w-5 text-zinc-400 group-hover:text-zinc-300 transition-all duration-300 group-hover:rotate-90" />
+              <h3 class="text-lg font-semibold text-zinc-400 group-hover:text-zinc-300">
+                Create Collection
+              </h3>
+            </div>
+            <p class="mt-1 text-sm text-zinc-500 group-hover:text-zinc-400">
+              Add a new collection to organize your games
+            </p>
           </div>
-          <p
-            class="transition mt-1 text-sm text-zinc-500 group-hover:text-zinc-400"
-          >
-            Add a new collection to organize your games
-          </p>
         </button>
       </div>
     </TransitionGroup>
