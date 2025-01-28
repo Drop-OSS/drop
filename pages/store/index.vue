@@ -30,16 +30,18 @@
               >
                 {{ game.mName }}
               </h2>
-              <p class="mt-3 text-lg text-zinc-300 line-clamp-2">
+              <p class="mt-3 text-lg text-zinc-300 line-clamp-2 max-w-xl">
                 {{ game.mShortDescription }}
               </p>
-              <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <NuxtLink
-                  :href="`/store/${game.id}`"
-                  class="block w-full rounded-md border border-transparent bg-white px-8 py-3 text-base font-medium text-gray-900 hover:bg-gray-100 sm:w-auto"
-                  >Check it out</NuxtLink
-                >
-                <AddLibraryButton :gameId="game.id" />
+              <div>
+                <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-4 w-fit mx-auto">
+                  <NuxtLink
+                    :href="`/store/${game.id}`"
+                    class="block w-full rounded-md border border-transparent bg-white px-8 py-3 text-base font-medium text-gray-900 hover:bg-gray-100 sm:w-auto"
+                    >Check it out</NuxtLink
+                  >
+                  <AddLibraryButton :gameId="game.id" />
+                </div>
               </div>
             </div>
           </div>

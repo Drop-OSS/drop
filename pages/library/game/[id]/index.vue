@@ -79,19 +79,19 @@ import {
 import { type Game, type GameVersion, type Collection } from "@prisma/client";
 
 const route = useRoute();
-const headers = useRequestHeaders(["cookie"]);
-const { data: gamesData } = await useFetch<
-  (Game & { versions: GameVersion[] })[]
->("/api/v1/store/recent", { headers });
 
 const collections = await useCollections();
-const game = collections.value
+const library = await useLibrary();
+const game = [...collections.value, library.value]
   .map((e) => e.entries.map((e) => e.game))
   .flat()
   .find((e) => e.id == route.params.id);
 
 if (game === undefined)
-  throw createError({ statusCode: 404, statusMessage: "Game not found" });
+  throw createError({
+    statusCode: 404,
+    statusMessage: JSON.stringify(collections.value),
+  });
 </script>
 
 <style scoped>
