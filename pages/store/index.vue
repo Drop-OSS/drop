@@ -8,6 +8,7 @@
       :autoplay="15 * 1000"
       :transition="500"
       :pauseAutoplayOnHover="true"
+      class="store-caoursel"
     >
       <VueSlide v-for="game in recent" :key="game.id">
         <div class="w-full h-full relative">
