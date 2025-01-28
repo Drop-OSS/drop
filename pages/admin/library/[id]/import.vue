@@ -104,7 +104,7 @@
                   :placeholder="'setup.exe'"
                 />
                 <ComboboxButton
-                  v-if="launchFilteredVersionGuesses?.length ?? 0 > 0"
+                  v-if="setupFilteredVersionGuesses?.length ?? 0 > 0"
                   class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
                 >
                   <ChevronUpDownIcon
@@ -156,8 +156,8 @@
                     </li>
                   </ComboboxOption>
                   <ComboboxOption
-                    :value="launchProcessQuery"
-                    v-if="launchProcessQuery"
+                    :value="setupProcessQuery"
+                    v-if="setupProcessQuery"
                     v-slot="{ active, selected }"
                   >
                     <li
@@ -171,7 +171,7 @@
                       <span
                         :class="['block truncate', selected && 'font-semibold']"
                       >
-                        "{{ launchProcessQuery }}"
+                        "{{ setupProcessQuery }}"
                       </span>
 
                       <span
