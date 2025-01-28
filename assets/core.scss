@@ -67,3 +67,7 @@ $helvetica: (
 .carousel__pagination-button--active:hover::after {
   background-color: #d4d4d8;
 }
+
+.carousel__viewport {
+  overflow: visible !important;
+}

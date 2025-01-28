@@ -20,22 +20,15 @@ export default defineEventHandler(async (h3) => {
   if (!gameId)
     throw createError({ statusCode: 400, statusMessage: "Game ID required" });
 
-  // Verify collection exists and user owns it
-  const collection = await userLibraryManager.fetchCollection(id);
-  if (!collection) {
+  const successful = await userLibraryManager.collectionRemove(
+    gameId,
+    id,
+    userId
+  );
+  if (!successful)
     throw createError({
       statusCode: 404,
       statusMessage: "Collection not found",
     });
-  }
-
-  if (collection.userId !== userId) {
-    throw createError({
-      statusCode: 403,
-      statusMessage: "Not authorized to modify this collection",
-    });
-  }
-
-  const removed = await userLibraryManager.collectionRemove(gameId, id);
   return {};
 });

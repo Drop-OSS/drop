@@ -37,12 +37,12 @@ class UserLibraryManager {
 
   async libraryAdd(gameId: string, userId: string) {
     const userLibraryId = await this.fetchUserLibrary(userId);
-    await this.collectionAdd(gameId, userLibraryId);
+    await this.collectionAdd(gameId, userLibraryId, userId);
   }
 
   async libraryRemove(gameId: string, userId: string) {
     const userLibraryId = await this.fetchUserLibrary(userId);
-    await this.collectionRemove(gameId, userLibraryId);
+    await this.collectionRemove(gameId, userLibraryId, userId);
   }
 
   async fetchLibrary(userId: string) {
@@ -55,30 +55,37 @@ class UserLibraryManager {
     return userLibrary;
   }
 
+  // Will not return the default library
   async fetchCollection(collectionId: string) {
     return await prisma.collection.findUnique({
-      where: { id: collectionId },
+      where: { id: collectionId, isDefault: false },
       include: { entries: { include: { game: true } } },
     });
   }
 
   async fetchCollections(userId: string) {
     await this.fetchUserLibrary(userId); // Ensures user library exists, doesn't have much performance impact due to caching
-    return await prisma.collection.findMany({ 
-      where: { userId },
-      include: { 
-        entries: true,
-        _count: { select: { entries: true } } 
-      }
+    return await prisma.collection.findMany({
+      where: { userId, isDefault: false },
+      include: {
+        entries: {
+          include: {
+            game: true,
+          },
+        },
+      },
     });
   }
 
-  async collectionAdd(gameId: string, collectionId: string) {
+  async collectionAdd(gameId: string, collectionId: string, userId: string) {
     await prisma.collectionEntry.upsert({
       where: {
         collectionId_gameId: {
           collectionId,
           gameId,
+        },
+        collection: {
+          userId,
         },
       },
       create: {
@@ -89,7 +96,7 @@ class UserLibraryManager {
     });
   }
 
-  async collectionRemove(gameId: string, collectionId: string) {
+  async collectionRemove(gameId: string, collectionId: string, userId: string) {
     // Delete if exists
     return (
       (
@@ -97,6 +104,9 @@ class UserLibraryManager {
           where: {
             collectionId,
             gameId,
+            collection: {
+              userId,
+            },
           },
         })
       ).count > 0
@@ -109,6 +119,13 @@ class UserLibraryManager {
         name,
         userId: userId,
       },
+      include: {
+        entries: {
+          include: {
+            game: true,
+          },
+        },
+      },
     });
   }
 
@@ -116,6 +133,7 @@ class UserLibraryManager {
     await prisma.collection.delete({
       where: {
         id: collectionId,
+        isDefault: false,
       },
     });
   }

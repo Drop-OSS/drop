@@ -1,7 +1,7 @@
 <template>
   <NuxtLink
     v-if="game"
-    :href="`/store/${game.id}`"
+    :href="props.href ?? `/store/${game.id}`"
     class="rounded overflow-hidden w-48 h-64 group relative transition-all duration-300 text-left"
   >
     <img :src="useObject(game.mCoverId)" class="w-full h-full object-cover" />
@@ -37,5 +37,6 @@ const props = defineProps<{
     mName: string;
     mShortDescription: string;
   }>;
+  href?: string;
 }>();
 </script>

@@ -1,31 +1,21 @@
 <template>
-  <div class="flex items-stretch">
-    <button
-      type="button"
-      @click="addToLibrary"
-      :disabled="isProcessing"
-      class="inline-flex items-center gap-x-2 rounded-l-md bg-white/10 backdrop-blur px-2.5 py-3 text-base font-semibold font-display text-white shadow-sm hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
+  <div class="inline-flex">
+    <LoadingButton
+      :loading="isLibraryLoading"
+      @click="() => toggleLibrary()"
+      :style="'none'"
+      class="transition inline-flex items-center gap-x-2 rounded-l-md bg-white/10 hover:bg-white/30 text-zinc-100 backdrop-blur px-5 py-3"
     >
-      {{ isProcessing 
-        ? 'Processing...' 
-        : isInLibrary 
-          ? 'Remove from Library' 
-          : 'Add to Library' 
-      }}
-      <PlusIcon 
-        class="-mr-0.5 h-5 w-5" 
-        :class="[
-          { 'animate-spin': isProcessing },
-          { 'rotate-45': isInLibrary }
-        ]"
-        aria-hidden="true" 
-      />
-    </button>
+      {{ inLibrary ? "In Library" : "Add to Library" }}
+      <CheckIcon v-if="inLibrary" class="-mr-0.5 h-5 w-5" aria-hidden="true" />
+      <PlusIcon v-else class="-mr-0.5 h-5 w-5" aria-hidden="true" />
+    </LoadingButton>
 
     <!-- Collections dropdown -->
     <Menu as="div" class="relative">
       <MenuButton
-        class="inline-flex items-center rounded-r-md border-l border-zinc-950/10 bg-white/10 backdrop-blur py-3.5 w-5 justify-center hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/20"
+        as="div"
+        class="transition cursor-pointer inline-flex items-center rounded-r-md h-full ml-[2px] bg-white/10 hover:bg-white/30 backdrop-blur py-3.5 px-2 justify-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/20"
       >
         <ChevronDownIcon class="h-5 w-5 text-white" aria-hidden="true" />
       </MenuButton>
@@ -38,42 +28,62 @@
         leave-from-class="transform opacity-100 scale-100"
         leave-to-class="transform opacity-0 scale-95"
       >
-        <MenuItems class="absolute right-0 z-10 mt-2 w-72 origin-top-right rounded-md bg-zinc-800/90 backdrop-blur shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+        <MenuItems
+          class="absolute right-0 z-50 mt-2 w-72 origin-top-right rounded-md bg-zinc-800/90 backdrop-blur shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+        >
           <div class="p-2">
-            <div class="px-3 py-2 text-sm font-semibold text-zinc-400">Collections</div>
-            <div v-if="collections.filter(c => !c.isDefault).length === 0" class="px-3 py-2 text-sm text-zinc-500">
-              No custom collections available
+            <div
+              class="font-display uppercase px-3 py-2 text-sm font-semibold text-zinc-500"
+            >
+              Collections
             </div>
-            <MenuItem v-for="collection in collections.filter(c => !c.isDefault)" :key="collection.id" v-slot="{ active }">
-              <button
-                @click="toggleCollection(collection.id)"
-                :class="[
-                  active ? 'bg-zinc-700/90' : '',
-                  'group flex w-full items-center justify-between rounded-md px-3 py-2 text-sm text-zinc-200'
-                ]"
+            <div class="flex flex-col gap-y-2 py-1">
+              <div
+                v-if="collections.length === 0"
+                class="px-3 py-2 text-sm text-zinc-500"
               >
-                <span>{{ collection.name }}</span>
-                <CheckIcon
-                  v-if="collectionStates[collection.id]"
-                  class="h-5 w-5 text-blue-400"
-                  aria-hidden="true"
-                />
-              </button>
-            </MenuItem>
-            <div class="border-t border-zinc-700 mt-1 pt-1">
-              <button
-                @click="$emit('create-collection')"
-                class="group flex w-full items-center px-3 py-2 text-sm text-blue-400 hover:bg-zinc-700/90 rounded-md"
+                No collections
+              </div>
+              <MenuItem
+                v-for="(collection, collectionIdx) in collections"
+                :key="collection.id"
+                v-slot="{ active }"
+              >
+                <button
+                  :class="[
+                    active ? 'bg-zinc-700/90' : '',
+                    'group flex w-full items-center justify-between rounded-md px-3 py-2 text-sm text-zinc-200',
+                  ]"
+                >
+                  <span>{{ collection.name }}</span>
+                  <CheckIcon
+                    v-if="inCollections[collectionIdx]"
+                    class="h-5 w-5 text-blue-400"
+                    aria-hidden="true"
+                  />
+                </button>
+              </MenuItem>
+            </div>
+            <div class="border-t border-zinc-700 pt-1">
+              <LoadingButton
+                :loading="false"
+                @click="createCollectionModal = true"
+                class="w-full"
               >
                 <PlusIcon class="mr-2 h-4 w-4" />
                 Add to new collection
-              </button>
+              </LoadingButton>
             </div>
           </div>
         </MenuItems>
       </transition>
     </Menu>
   </div>
+
+  <CreateCollectionModal
+    v-model="createCollectionModal"
+    :game-id="props.gameId"
+  />
 </template>
 
 <script setup lang="ts">
@@ -81,24 +91,45 @@ import { PlusIcon, ChevronDownIcon, CheckIcon } from "@heroicons/vue/24/solid";
 import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
 
 const props = defineProps<{
-  gameId: string
-  isProcessing: boolean
-  isInLibrary: boolean
-  collections: Collection[]
-  collectionStates: { [key: string]: boolean }
+  gameId: string;
 }>();
 
-const emit = defineEmits<{
-  'add-to-library': [gameId: string]
-  'toggle-collection': [gameId: string, collectionId: string]
-  'create-collection': []
-}>();
+const isLibraryLoading = ref(false);
 
-const addToLibrary = () => {
-  emit('add-to-library', props.gameId);
-};
+const createCollectionModal = ref(false);
+const collections = await useCollections();
+const library = await useLibrary();
 
-const toggleCollection = (collectionId: string) => {
-  emit('toggle-collection', props.gameId, collectionId);
-};
+const inLibrary = computed(
+  () => library.value.entries.findIndex((e) => e.gameId == props.gameId) != -1
+);
+const inCollections = computed(() =>
+  collections.value.filter(
+    (e) => e.entries.findIndex((e) => e.gameId == props.gameId) != -1
+  )
+);
+
+async function toggleLibrary() {
+  isLibraryLoading.value = true;
+  try {
+    await $fetch("/api/v1/collection/default/entry", {
+      method: inLibrary.value ? "DELETE" : "POST",
+      body: {
+        id: props.gameId,
+      },
+    });
+    await refreshLibrary();
+  } catch (e: any) {
+    createModal(
+      ModalType.Notification,
+      {
+        title: "Failed to add game to library",
+        description: `Drop couldn't add this game to your library: ${e?.statusMessage}`,
+      },
+      (_, c) => c()
+    );
+  } finally {
+    isLibraryLoading.value = false;
+  }
+}
 </script>

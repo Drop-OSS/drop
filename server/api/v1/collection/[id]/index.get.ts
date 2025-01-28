@@ -16,21 +16,20 @@ export default defineEventHandler(async (h3) => {
     });
 
   // Fetch specific collection
+  // Will not return the default collection
   const collection = await userLibraryManager.fetchCollection(id);
-  if (!collection) {
+  if (!collection)
     throw createError({
       statusCode: 404,
       statusMessage: "Collection not found",
     });
-  }
 
   // Verify user owns this collection
-  if (collection.userId !== userId) {
+  if (collection.userId !== userId)
     throw createError({
       statusCode: 403,
       statusMessage: "Not authorized to access this collection",
     });
-  }
 
   return collection;
 });

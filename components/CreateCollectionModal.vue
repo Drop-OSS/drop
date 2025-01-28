@@ -15,34 +15,28 @@
     </template>
 
     <template #buttons="{ close }">
-      <button
-        type="button"
-        @click="() => close()"
-        class="inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-zinc-400 hover:text-zinc-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-      >
-        Cancel
-      </button>
       <LoadingButton
         :loading="createCollectionLoading"
         :disabled="!collectionName"
         @click="() => createCollection()"
-        class="inline-flex items-center rounded-md bg-white/10 px-3 py-2 text-sm font-semibold font-display text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         Create
       </LoadingButton>
+      <button
+        type="button"
+        class="mt-3 inline-flex w-full justify-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-800 hover:bg-zinc-900 sm:mt-0 sm:w-auto"
+        @click="() => close()"
+        ref="cancelButtonRef"
+      >
+        Cancel
+      </button>
     </template>
   </ModalTemplate>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
-import {
-  TransitionRoot,
-  TransitionChild,
-  Dialog,
-  DialogPanel,
-  DialogTitle,
-} from "@headlessui/vue";
+import { DialogTitle } from "@headlessui/vue";
 import ModalTemplate from "~/drop-base/components/ModalTemplate.vue";
 
 const props = defineProps<{
@@ -57,6 +51,7 @@ const open = defineModel<boolean>();
 
 const collectionName = ref("");
 const createCollectionLoading = ref(false);
+const collections = await useCollections();
 
 async function createCollection() {
   if (!collectionName.value || createCollectionLoading.value) return;
@@ -78,6 +73,8 @@ async function createCollection() {
       });
     }
 
+    collections.value.push(response);
+
     // Reset and emit
     collectionName.value = "";
     open.value = false;
@@ -85,11 +82,13 @@ async function createCollection() {
     emit("created", response.id);
   } catch (error) {
     console.error("Failed to create collection:", error);
+
+    const err = error as { statusMessage?: string };
     createModal(
       ModalType.Notification,
       {
         title: "Failed to create collection",
-        description: `Drop couldn't create your collection: ${error}`,
+        description: `Drop couldn't create your collection: ${err?.statusMessage}`,
       },
       (_, c) => c()
     );

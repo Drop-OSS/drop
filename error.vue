@@ -24,7 +24,9 @@ useHead({
   title: `${statusCode ?? message} | Drop`,
 });
 
-console.log(props.error);
+if (import.meta.client) {
+  console.log(props.error);
+}
 </script>
 
 <template>
@@ -48,7 +50,10 @@ console.log(props.error);
         >
           Oh no!
         </h1>
-        <p v-if="message" class="mt-3 font-bold text-base leading-7 text-red-500">
+        <p
+          v-if="message"
+          class="mt-3 font-bold text-base leading-7 text-red-500"
+        >
           {{ message }}
         </p>
         <p class="mt-6 text-base leading-7 text-zinc-400">
