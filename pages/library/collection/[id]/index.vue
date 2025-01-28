@@ -4,7 +4,7 @@
       <div class="flex items-center gap-x-3 mb-4">
         <NuxtLink
           to="/library"
-          class="transition text-sm/6 font-semibold text-zinc-400 hover:text-zinc-100 inline-flex gap-x-2 items-center"
+          class="transition text-sm/6 font-semibold text-zinc-400 hover:text-zinc-100 inline-flex gap-x-2 items-center duration-200 hover:scale-105"
         >
           <ArrowLeftIcon class="h-4 w-4" aria-hidden="true" />
           Back to Collections
@@ -20,7 +20,7 @@
 
     <!-- Games grid -->
     <div
-      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4"
+      class="mt-4 flex flex-row gap-4 flex-wrap justify-center sm:justify-start"
     >
       <GamePanel
         v-for="entry in collection?.entries"
