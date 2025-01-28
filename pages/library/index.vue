@@ -19,7 +19,7 @@
       <div
         v-for="collection in collections"
         :key="collection.id"
-        class="group flex flex-row rounded-lg overflow-hidden transition-all duration-200 text-left w-full hover:scale-105"
+        class="flex flex-row rounded-lg overflow-hidden transition-all duration-200 text-left w-full hover:scale-105"
       >
         <NuxtLink
           class="grow p-4 bg-zinc-800/50 hover:bg-zinc-800"
@@ -36,7 +36,7 @@
         <!-- Delete button (only show for non-default collections) -->
         <button
           @click="() => (currentlyDeleting = collection)"
-          class="px-3 ml-[2px] bg-zinc-800/50 hover:bg-zinc-800 group"
+          class="group px-3 ml-[2px] bg-zinc-800/50 hover:bg-zinc-800 group"
         >
           <TrashIcon class="transition-all size-5 text-zinc-400 group-hover:text-red-400 group-hover:rotate-[8deg]" />
         </button>
