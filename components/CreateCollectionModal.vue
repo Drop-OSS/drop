@@ -19,6 +19,7 @@
         :loading="createCollectionLoading"
         :disabled="!collectionName"
         @click="() => createCollection()"
+        class="w-full sm:w-fit"
       >
         Create
       </LoadingButton>

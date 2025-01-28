@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col p-8">
+  <div class="flex flex-col">
     <div class="max-w-2xl">
       <h2 class="text-2xl font-bold font-display text-zinc-100">
         Your Collections
@@ -13,47 +13,51 @@
     <TransitionGroup
       name="collection-list"
       tag="div"
-      class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+      class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
     >
       <!-- Collection buttons (wrap each in a div for grid layout) -->
-      <NuxtLink
+      <div
         v-for="collection in collections"
         :key="collection.id"
-        :href="`/library/collection/${collection.id}`"
-        class="group relative rounded-lg bg-zinc-900/50 p-4 hover:bg-zinc-800/50 transition-all duration-200 text-left w-full"
+        class="group flex flex-row rounded-lg overflow-hidden transition-all duration-200 text-left w-full"
       >
-        <h3 class="text-lg font-semibold text-zinc-100">
-          {{ collection.name }}
-        </h3>
-        <p class="mt-1 text-sm text-zinc-400">
-          {{ collection.entries.length }} game(s)
-        </p>
+        <NuxtLink
+          class="grow p-4 bg-zinc-800/50 hover:bg-zinc-800"
+          :href="`/library/collection/${collection.id}`"
+        >
+          <h3 class="text-lg font-semibold text-zinc-100">
+            {{ collection.name }}
+          </h3>
+          <p class="mt-1 text-sm text-zinc-400">
+            {{ collection.entries.length }} game(s)
+          </p>
+        </NuxtLink>
 
         <!-- Delete button (only show for non-default collections) -->
         <button
           v-if="!collection.isDefault"
           @click=""
-          class="absolute top-1/2 -translate-y-1/2 right-2 p-1 rounded-md opacity-0 group-hover:opacity-100 hover:bg-zinc-700/50 transition-all duration-200"
+          class="px-3 ml-[2px] bg-zinc-800/50 hover:bg-zinc-800"
         >
           <TrashIcon class="h-5 w-5 text-zinc-400 hover:text-red-400" />
         </button>
-      </NuxtLink>
+      </div>
 
       <!-- Create new collection button (also wrap in div) -->
       <div>
         <button
           @click="collectionCreateOpen = true"
-          class="group relative rounded-lg border-2 border-dashed border-zinc-800 p-4 hover:border-zinc-700 hover:bg-zinc-900/30 transition-all duration-200 text-left w-full"
+          class="transition-all group relative rounded-lg border-2 border-dashed border-zinc-800 p-4 hover:border-zinc-700 hover:bg-zinc-900/30 transition-all duration-200 text-left w-full"
         >
           <div class="flex items-center gap-3">
             <PlusIcon class="h-5 w-5 text-zinc-400 group-hover:text-zinc-300" />
             <h3
-              class="text-lg font-semibold text-zinc-400 group-hover:text-zinc-300"
+              class="transition text-lg font-semibold text-zinc-400 group-hover:text-zinc-300"
             >
               Create Collection
             </h3>
           </div>
-          <p class="mt-1 text-sm text-zinc-500">
+          <p class="transition mt-1 text-sm text-zinc-500 group-hover:text-zinc-400">
             Add a new collection to organize your games
           </p>
         </button>

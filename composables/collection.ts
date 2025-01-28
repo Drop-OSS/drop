@@ -18,6 +18,17 @@ export const useCollections = async () => {
   return state;
 };
 
+export async function refreshCollection(id: string) {
+  const state = useState<FullCollection[]>("collections");
+  const collection = await $fetch<FullCollection>(`/api/v1/collection/${id}`);
+  const index = state.value.findIndex((e) => e.id == id);
+  if (index == -1) {
+    state.value.push(collection);
+    return;
+  }
+  state.value[index] = collection;
+}
+
 export const useLibrary = async () => {
   // @ts-expect-error
   const state = useState<FullCollection>("library", () => undefined);

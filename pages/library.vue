@@ -11,7 +11,7 @@
           leave-from="opacity-100"
           leave-to="opacity-0"
         >
-          <div class="fixed inset-0 bg-gray-900/80" />
+          <div class="fixed inset-0 bg-zinc-900/80" />
         </TransitionChild>
 
         <div class="fixed inset-0 flex">
@@ -48,7 +48,9 @@
                 </div>
               </TransitionChild>
               <!-- Sidebar component, swap this element with another sidebar if you like -->
-              <LibraryDirectory />
+              <div class="bg-zinc-900">
+                <LibraryDirectory />
+              </div>
             </DialogPanel>
           </TransitionChild>
         </div>
@@ -64,25 +66,21 @@
     </div>
 
     <div
-      class="sticky top-0 z-40 flex items-center gap-x-6 bg-white px-4 py-4 shadow-xs sm:px-6 lg:hidden"
+      class="block flex items-center gap-x-2 bg-zinc-950 px-2 py-1 shadow-xs sm:px-4 lg:hidden border-b border-zinc-700"
     >
       <button
         type="button"
-        class="-m-2.5 p-2.5 text-gray-700 lg:hidden"
+        class="-m-2.5 p-2.5 text-zinc-400 lg:hidden"
         @click="sidebarOpen = true"
       >
         <span class="sr-only">Open sidebar</span>
         <Bars3Icon class="size-6" aria-hidden="true" />
       </button>
-      <div class="flex-1 text-sm/6 font-semibold text-gray-900">Dashboard</div>
-      <a href="#">
-        <span class="sr-only">Your profile</span>
-        <img
-          class="size-8 rounded-full bg-gray-50"
-          src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-          alt=""
-        />
-      </a>
+      <div
+        class="flex-1 text-sm/6 font-semibold uppercase font-display text-zinc-400"
+      >
+        Library
+      </div>
     </div>
 
     <div class="px-4 py-10 sm:px-6 lg:px-8 lg:py-6 grow">
@@ -110,8 +108,12 @@ import {
   XMarkIcon,
 } from "@heroicons/vue/24/outline";
 
-const route = useRoute();
+const router = useRouter();
 const sidebarOpen = ref(false);
+
+router.afterEach(() => {
+  sidebarOpen.value = false;
+});
 
 useHead({
   title: "Library",

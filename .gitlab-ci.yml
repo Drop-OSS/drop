@@ -46,5 +46,6 @@ build-arm64:
       if [ $CI_COMMIT_TAG ]; then
         docker image tag $IMAGE_NAME $PUBLISH_IMAGE_NAME
         docker image tag $IMAGE_NAME $PUBLISH_LATEST_IMAGE_NAME
-        docker push $PUBLISH_IMAGE_NAME $PUBLISH_LATEST_IMAGE_NAME
+        docker push $PUBLISH_IMAGE_NAME
+        docker push $PUBLISH_LATEST_IMAGE_NAME
       fi
