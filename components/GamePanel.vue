@@ -2,24 +2,28 @@
   <NuxtLink
     v-if="game"
     :href="props.href ?? `/store/${game.id}`"
-    class="rounded overflow-hidden w-48 h-64 group relative transition-all duration-300 text-left"
+    class="group relative w-48 h-64 rounded-lg overflow-hidden transition-all duration-300 text-left hover:scale-[1.02] hover:shadow-lg hover:-translate-y-0.5"
   >
-    <img :src="useObject(game.mCoverId)" class="w-full h-full object-cover" />
-    <div
-      class="absolute inset-0 bg-gradient-to-b from-transparent to-[100%] to-zinc-950/50"
-    />
-    <div class="absolute bottom-0 left-0 px-2 py-1.5">
-      <h1 class="text-zinc-100 text-sm font-bold font-display">
+   <div class="absolute inset-0 transition-all duration-300 group-hover:scale-110">
+      <img 
+        :src="useObject(game.mCoverId)" 
+        class="w-full h-full object-cover brightness-[90%]" 
+      />
+      <div class="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-zinc-950/20 to-transparent" />
+    </div>
+
+   <div class="absolute bottom-0 left-0 w-full p-3">
+      <h1 class="text-zinc-100 text-sm font-bold font-display group-hover:text-white transition-colors">
         {{ game.mName }}
       </h1>
-      <p class="text-zinc-400 text-xs line-clamp-2">
+      <p class="text-zinc-400 text-xs line-clamp-2 group-hover:text-zinc-300 transition-colors">
         {{ game.mShortDescription }}
       </p>
     </div>
   </NuxtLink>
   <div
     v-else
-    class="rounded w-48 h-64 bg-zinc-800 flex items-center justify-center"
+    class="rounded-lg w-48 h-64 bg-zinc-800/50 flex items-center justify-center transition-all duration-300 hover:bg-zinc-800"
   >
     <p class="text-zinc-700 text-sm font-semibold font-display uppercase">
       no game
@@ -40,3 +44,4 @@ const props = defineProps<{
   href?: string;
 }>();
 </script>
+
