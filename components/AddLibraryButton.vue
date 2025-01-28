@@ -1,10 +1,10 @@
 <template>
-  <div class="inline-flex">
+  <div class="inline-flex group hover:scale-105 transition-all duration-200">
     <LoadingButton
       :loading="isLibraryLoading"
       @click="() => toggleLibrary()"
       :style="'none'"
-      class="transition w-48 inline-flex items-center justify-center gap-x-2 rounded-l-md bg-white/10 hover:bg-white/15 text-zinc-100 backdrop-blur px-5 py-3"
+      class="transition w-48 inline-flex items-center justify-center gap-x-2 rounded-l-md bg-white/10 group-hover:bg-white/15 text-zinc-100 backdrop-blur px-5 py-3 active:scale-95"
     >
       {{ inLibrary ? "In Library" : "Add to Library" }}
       <CheckIcon v-if="inLibrary" class="-mr-0.5 h-5 w-5" aria-hidden="true" />
@@ -15,7 +15,7 @@
     <Menu as="div" class="relative">
       <MenuButton
         as="div"
-        class="transition cursor-pointer inline-flex items-center rounded-r-md h-full ml-[2px] bg-white/10 hover:bg-white/30 backdrop-blur py-3.5 px-2 justify-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/20"
+        class="transition cursor-pointer inline-flex items-center rounded-r-md h-full ml-[2px] bg-white/10 group-hover:bg-white/15 backdrop-blur py-3.5 px-2 justify-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/20"
       >
         <ChevronDownIcon class="h-5 w-5 text-white" aria-hidden="true" />
       </MenuButton>
