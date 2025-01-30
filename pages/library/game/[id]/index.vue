@@ -2,21 +2,13 @@
   <div v-if="game">
     <!-- header -->
     <div class="relative">
-      <!-- Banner image -->
-      <div class="absolute top-0 inset-0 w-full rounded overflow-hidden">
-        <img
-          :src="useObject(game.mBannerId)"
-          class="w-full h-full object-cover blur-sm"
-        />
-      </div>
-
       <!-- Content -->
-      <div class="p-4 relative">
+      <div class="p-4">
         <!-- Back button -->
         <div class="flex items-center gap-x-3 mb-4">
           <NuxtLink
             to="/library"
-            class="px-2 py-1 rounded bg-zinc-900 transition text-sm/6 font-semibold text-zinc-400 hover:text-zinc-100 inline-flex gap-x-2 items-center"
+            class="px-2 py-1 rounded bg-zinc-900 transition text-sm/6 font-semibold text-zinc-400 hover:text-zinc-100 inline-flex gap-x-2 items-center duration-200 hover:scale-105"
           >
             <ArrowLeftIcon class="h-4 w-4" aria-hidden="true" />
             Back to Collections
@@ -24,7 +16,7 @@
         </div>
 
         <div
-          class="flex flex-col lg:flex-row items-center lg:items-start gap-6 w-full lg:w-fit bg-zinc-900 bg-backdrop-blur p-4 rounded-xl"
+          class="flex flex-col lg:flex-row items-center lg:items-start gap-6 w-full lg:w-fit bg-zinc-900 p-4 rounded-xl"
         >
           <img
             :src="useObject(game.mCoverId)"
