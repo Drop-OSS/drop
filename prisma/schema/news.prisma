@@ -1,0 +1,13 @@
+model News {
+  id          String   @id @default(uuid())
+  title       String
+  content     String   @db.Text
+  excerpt     String
+  tags        String[]
+  image       String?
+  publishedAt DateTime @default(now())
+  author      User     @relation(fields: [authorId], references: [id])
+  authorId    String
+
+  @@map("news")
+} 
