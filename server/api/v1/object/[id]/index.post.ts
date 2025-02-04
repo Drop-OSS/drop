@@ -1,3 +1,5 @@
+import aclManager from "~/server/internal/acls";
+
 export default defineEventHandler(async (h3) => {
   const id = getRouterParam(h3, "id");
   if (!id) throw createError({ statusCode: 400, statusMessage: "Invalid ID" });
@@ -9,7 +11,7 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Invalid upload",
     });
 
-  const userId = await h3.context.session.getUserId(h3);
+  const userId = await aclManager.getUserIdACL(h3, ["object:update"]);
   const buffer = Buffer.from(body);
 
   const result = await h3.context.objects.writeWithPermissions(

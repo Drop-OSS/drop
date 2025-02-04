@@ -1,4 +1,6 @@
 import droplet from "@drop/droplet";
+import { MinimumRequestObject } from "~/server/h3";
+import aclManager from "../acls";
 
 /**
  * The TaskHandler setups up two-way connections to web clients and manages the state for them
@@ -13,7 +15,7 @@ type TaskRegistryEntry = {
   error: { title: string; description: string } | undefined;
   clients: { [key: string]: boolean };
   name: string;
-  requireAdmin: boolean;
+  acls: string[];
 };
 
 class TaskHandler {
@@ -84,7 +86,7 @@ class TaskHandler {
       error: undefined,
       log: [],
       clients: {},
-      requireAdmin: task.requireAdmin ?? false,
+      acls: task.acls,
     };
 
     updateAllClients(true);
@@ -113,7 +115,12 @@ class TaskHandler {
     });
   }
 
-  connect(id: string, taskId: string, peer: PeerImpl, isAdmin = false) {
+  async connect(
+    id: string,
+    taskId: string,
+    peer: PeerImpl,
+    request: MinimumRequestObject
+  ) {
     const task = this.taskRegistry[taskId];
     if (!task) {
       peer.send(
@@ -122,8 +129,9 @@ class TaskHandler {
       return;
     }
 
-    if (task.requireAdmin && !isAdmin) {
-      console.warn("user is not an admin, so cannot view this task");
+    const allowed = await aclManager.hasACL(request, task.acls);
+    if (!allowed) {
+      console.warn("user does not have necessary ACLs");
       peer.send(
         `error/${taskId}/Unknown task/Drop couldn't find the task you're looking for.`
       );
@@ -186,7 +194,7 @@ export interface Task {
   id: string;
   name: string;
   run: (context: TaskRunContext) => Promise<void>;
-  requireAdmin?: boolean;
+  acls: string[];
 }
 
 export type TaskMessage = {

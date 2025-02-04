@@ -14,7 +14,7 @@ model CollectionEntry {
     collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
 
     gameId String
-    game   Game   @relation(fields: [gameId], references: [id])
+    game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
 
     @@id([collectionId, gameId])
 }

@@ -11,6 +11,8 @@ model User {
     clients       Client[]
     notifications Notification[]
     collections   Collection[]
+
+    tokens APIToken[]
 }
 
 model Notification {
