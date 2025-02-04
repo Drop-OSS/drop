@@ -785,7 +785,7 @@ async function deleteVersion(versionName: string) {
 async function updateVersionOrder() {
   try {
     const newVersions = await $fetch("/api/v1/admin/game/version", {
-      method: "POST",
+      method: "PATCH",
       body: {
         id: gameId,
         versions: game.value.versions.map((e) => e.versionName),

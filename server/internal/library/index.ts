@@ -230,7 +230,7 @@ class LibraryManager {
     taskHandler.create({
       id: taskId,
       name: `Importing version ${versionName} for ${game.mName}`,
-      requireAdmin: true,
+      acls: ["system:import:version:read"],
       async run({ progress, log }) {
         // First, create the manifest via droplet.
         // This takes up 90% of our progress, so we wrap it in a *0.9

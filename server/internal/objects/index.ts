@@ -76,7 +76,7 @@ export abstract class ObjectBackend {
       }
       if (source instanceof Buffer) {
         const mime =
-          getMimeTypeBuffer(source)?.mime ?? "application/octet-stream";
+          getMimeTypeBuffer(new Uint8Array(source).buffer)?.mime ?? "application/octet-stream";
         return { source: source, mime };
       }
 

@@ -1,6 +1,7 @@
 import notificationSystem from "~/server/internal/notifications";
 import session from "~/server/internal/session";
 import { parse as parseCookies } from "cookie-es";
+import aclManager from "~/server/internal/acls";
 
 // TODO add web socket sessions for horizontal scaling
 // Peer ID to user ID
@@ -8,16 +9,10 @@ const socketSessions: { [key: string]: string } = {};
 
 export default defineWebSocketHandler({
   async open(peer) {
-    const cookies = peer.request?.headers?.get("Cookie");
-    if (!cookies) {
-      peer.send("unauthenticated");
-      return;
-    }
-
-    const parsedCookies = parseCookies(cookies);
-    const token = parsedCookies[session.getDropTokenCookie()];
-
-    const userId = await session.getUserIdRaw(token);
+    const userId = await aclManager.getUserIdACL(
+      { headers: peer.request?.headers ?? new Headers() },
+      ["notifications:listen"]
+    );
     if (!userId) {
       peer.send("unauthenticated");
       return;

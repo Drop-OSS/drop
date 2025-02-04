@@ -1,9 +1,12 @@
+import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import { handleFileUpload } from "~/server/internal/utils/handlefileupload";
 
 export default defineEventHandler(async (h3) => {
-  const user = await h3.context.session.getAdminUser(h3);
-  if (!user) throw createError({ statusCode: 403 });
+  const allowed = await aclManager.allowSystemACL(h3, [
+    "game:update",
+  ]);
+  if (!allowed) throw createError({ statusCode: 403 });
 
   const form = await readMultipartFormData(h3);
   if (!form)

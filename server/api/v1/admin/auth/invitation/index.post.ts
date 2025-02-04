@@ -1,8 +1,11 @@
+import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 
 export default defineEventHandler(async (h3) => {
-  const user = await h3.context.session.getAdminUser(h3);
-  if (!user) throw createError({ statusCode: 403 });
+  const allowed = await aclManager.allowSystemACL(h3, [
+    "auth:simple:invitation:new",
+  ]);
+  if (!allowed) throw createError({ statusCode: 403 });
 
   const body = await readBody(h3);
   const isAdmin = body.isAdmin;
@@ -30,7 +33,7 @@ export default defineEventHandler(async (h3) => {
       isAdmin: isAdmin,
       username: username,
       email: email,
-      expires: expiresDate
+      expires: expiresDate,
     },
   });
 

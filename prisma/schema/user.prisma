@@ -12,6 +12,8 @@ model User {
     notifications Notification[]
     collections   Collection[]
     news          News[]
+
+    tokens APIToken[]
 }
 
 model Notification {

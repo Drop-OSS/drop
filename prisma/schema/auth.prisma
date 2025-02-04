@@ -21,3 +21,18 @@ model Invitation {
     email    String?
     expires  DateTime
 }
+
+enum APITokenMode {
+    User
+    System
+}
+
+model APIToken {
+    token String       @id @default(uuid())
+    mode  APITokenMode
+
+    userId String?
+    user   User?   @relation(fields: [userId], references: [id])
+
+    acls String[]
+}

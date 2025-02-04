@@ -1,3 +1,4 @@
+import aclManager from "~/server/internal/acls";
 import libraryManager from "~/server/internal/library";
 import {
   GameMetadataSearchResult,
@@ -5,8 +6,10 @@ import {
 } from "~/server/internal/metadata/types";
 
 export default defineEventHandler(async (h3) => {
-  const user = await h3.context.session.getAdminUser(h3);
-  if (!user) throw createError({ statusCode: 403 });
+  const allowed = await aclManager.allowSystemACL(h3, [
+    "import:game:new",
+  ]);
+  if (!allowed) throw createError({ statusCode: 403 });
 
   const body = await readBody(h3);
 

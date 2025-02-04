@@ -4,6 +4,8 @@ import { SessionProvider } from "./types";
 import prisma from "../db/database";
 import { v4 as uuidv4 } from "uuid";
 import moment from "moment";
+import { parse as parseCookies } from "cookie-es";
+import { MinimumRequestObject } from "~/server/h3";
 
 /*
 This implementation may need work.
@@ -25,8 +27,12 @@ export class SessionHandler {
     this.sessionProvider = createMemorySessionProvider();
   }
 
-  private getSessionToken(h3: H3Event) {
-    const cookie = getCookie(h3, dropTokenCookie);
+  private getSessionToken(request: MinimumRequestObject | undefined) {
+    if(!request) throw new Error("Native web request not available");
+    const cookieHeader = request.headers.get("Cookie");
+    if (!cookieHeader) return undefined;
+    const cookies = parseCookies(cookieHeader);
+    const cookie = cookies[dropTokenCookie];
     return cookie;
   }
 
@@ -47,8 +53,8 @@ export class SessionHandler {
     return dropTokenCookie;
   }
 
-  async getSession<T extends Session>(h3: H3Event) {
-    const token = this.getSessionToken(h3);
+  async getSession<T extends Session>(request: MinimumRequestObject) {
+    const token = this.getSessionToken(request);
     if (!token) return undefined;
     const data = await this.sessionProvider.getSession<{ [userSessionKey]: T }>(
       token
@@ -68,14 +74,14 @@ export class SessionHandler {
 
     return result;
   }
-  async clearSession(h3: H3Event) {
-    const token = this.getSessionToken(h3);
+  async clearSession(request: MinimumRequestObject) {
+    const token = this.getSessionToken(request);
     if (!token) return false;
     await this.sessionProvider.clearSession(token);
     return true;
   }
 
-  async getUserId(h3: H3Event) {
+  async getUserId(h3: MinimumRequestObject) {
     const token = this.getSessionToken(h3);
     if (!token) return undefined;
 
@@ -91,17 +97,6 @@ export class SessionHandler {
     return session[userIdKey];
   }
 
-  async getUser(obj: H3Event | string) {
-    const userId =
-      typeof obj === "string"
-        ? await this.getUserIdRaw(obj)
-        : await this.getUserId(obj);
-    if (!userId) return undefined;
-
-    const user = await prisma.user.findFirst({ where: { id: userId } });
-    return user;
-  }
-
   async setUserId(h3: H3Event, userId: string, extend = false) {
     const token =
       this.getSessionToken(h3) ?? (await this.createSession(h3, extend));
@@ -112,13 +107,7 @@ export class SessionHandler {
       userId
     );
   }
-
-  async getAdminUser(h3: H3Event | string) {
-    const user = await this.getUser(h3);
-    if (!user) return undefined;
-    if (!user.admin) return undefined;
-    return user;
-  }
 }
 
-export default new SessionHandler();
+export const sessionHandler = new SessionHandler();
+export default sessionHandler;
