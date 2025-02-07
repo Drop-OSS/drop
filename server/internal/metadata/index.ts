@@ -232,4 +232,5 @@ export class MetadataHandler {
   }
 }
 
-export default new MetadataHandler();
+export const metadataHandler = new MetadataHandler();
+export default metadataHandler;

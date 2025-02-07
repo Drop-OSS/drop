@@ -1,5 +1,6 @@
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
+import objectHandler from "~/server/internal/objects";
 
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, [
@@ -36,7 +37,7 @@ export default defineEventHandler(async (h3) => {
     throw createError({ statusCode: 400, statusMessage: "Image not found" });
 
   game.mImageLibrary.splice(imageIndex, 1);
-  await h3.context.objects.delete(imageId);
+  await objectHandler.delete(imageId);
   
   if (game.mBannerId === imageId) {
     game.mBannerId = game.mImageLibrary[0];

@@ -1,5 +1,6 @@
 import aclManager from "~/server/internal/acls";
 import libraryManager from "~/server/internal/library";
+import metadataHandler from "~/server/internal/metadata";
 import {
   GameMetadataSearchResult,
   GameMetadataSource,
@@ -30,8 +31,8 @@ export default defineEventHandler(async (h3) => {
     });
 
   if (!metadata || !metadata.id || !metadata.sourceId) {
-    return await h3.context.metadataHandler.createGameWithoutMetadata(path);
+    return await metadataHandler.createGameWithoutMetadata(path);
   } else {
-    return await h3.context.metadataHandler.createGame(metadata, path);
+    return await metadataHandler.createGame(metadata, path);
   }
 });

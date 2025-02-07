@@ -4,7 +4,7 @@ import prisma from "../db/database";
 import sessionHandler from "../session";
 import { MinimumRequestObject } from "~/server/h3";
 
-const userACLs = [
+export const userACLs = [
   "read",
 
   "store:read",
@@ -32,7 +32,7 @@ const userACLPrefix = "user:";
 
 type UserACL = Array<(typeof userACLs)[number]>;
 
-const systemACLs = [
+export const systemACLs = [
   "auth:simple:invitation:read",
   "auth:simple:invitation:new",
   "auth:simple:invitation:delete",

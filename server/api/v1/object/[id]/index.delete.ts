@@ -1,4 +1,5 @@
 import aclManager from "~/server/internal/acls";
+import objectHandler from "~/server/internal/objects";
 
 export default defineEventHandler(async (h3) => {
   const id = getRouterParam(h3, "id");
@@ -6,6 +7,6 @@ export default defineEventHandler(async (h3) => {
 
   const userId = await aclManager.getUserIdACL(h3, ["object:delete"]);
 
-  const result = await h3.context.objects.deleteWithPermission(id, userId);
+  const result = await objectHandler.deleteWithPermission(id, userId);
   return { success: result };
 });

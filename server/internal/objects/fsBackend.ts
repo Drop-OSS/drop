@@ -1,4 +1,4 @@
-import { Object, ObjectBackend, ObjectMetadata, ObjectReference, Source } from ".";
+import { Object, ObjectBackend, ObjectMetadata, ObjectReference, Source } from "./objectHandler";
 
 import sanitize from "sanitize-filename";
 

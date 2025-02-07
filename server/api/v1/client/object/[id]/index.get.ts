@@ -1,4 +1,5 @@
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
+import objectHandler from "~/server/internal/objects";
 
 export default defineClientEventHandler(async (h3, utils) => {
   const id = getRouterParam(h3, "id");
@@ -6,7 +7,7 @@ export default defineClientEventHandler(async (h3, utils) => {
 
   const user = await utils.fetchUser();
 
-  const object = await h3.context.objects.fetchWithPermissions(id, user.id);
+  const object = await objectHandler.fetchWithPermissions(id, user.id);
   if (!object)
     throw createError({ statusCode: 404, statusMessage: "Object not found" });
 

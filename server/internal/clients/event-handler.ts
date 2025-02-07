@@ -2,6 +2,7 @@ import { Client, User } from "@prisma/client";
 import { EventHandlerRequest, H3Event } from "h3";
 import droplet from "@drop/droplet";
 import prisma from "../db/database";
+import { useCertificateAuthority } from "~/server/plugins/ca";
 
 export type EventHandlerFunction<T> = (
   h3: H3Event<EventHandlerRequest>,
@@ -47,8 +48,8 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
           });
         }
 
-        const ca = h3.context.ca;
-        const certBundle = await ca.fetchClientCertificate(clientId);
+        const certificateAuthority = useCertificateAuthority();
+        const certBundle = await certificateAuthority.fetchClientCertificate(clientId);
         // This does the blacklist check already
         if (!certBundle)
           throw createError({
