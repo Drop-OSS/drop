@@ -1,5 +1,5 @@
 import aclManager from "~/server/internal/acls";
-import libraryManager from "~/server/internal/library";
+import metadataHandler from "~/server/internal/metadata";
 
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, [
@@ -12,7 +12,7 @@ export default defineEventHandler(async (h3) => {
   if (!search)
     throw createError({ statusCode: 400, statusMessage: "Invalid search" });
 
-  const results = await h3.context.metadataHandler.search(search);
+  const results = await metadataHandler.search(search);
 
   if (results.length == 0)
     throw createError({

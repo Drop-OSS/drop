@@ -3,6 +3,7 @@ import prisma from "~/server/internal/db/database";
 import { createHash } from "~/server/internal/security/simple";
 import { v4 as uuidv4 } from "uuid";
 import * as jdenticon from "jdenticon";
+import objectHandler from "~/server/internal/objects";
 
 // Only really a simple test, in case people mistype their emails
 const mailRegex = /^\S+@\S+\.\S+$/;
@@ -88,7 +89,7 @@ export default defineEventHandler(async (h3) => {
   const userId = uuidv4();
 
   const profilePictureId = uuidv4();
-  await h3.context.objects.createFromSource(
+  await objectHandler.createFromSource(
     profilePictureId,
     async () => jdenticon.toPng(username, 256),
     {},

@@ -1,4 +1,5 @@
 import aclManager from "~/server/internal/acls";
+import objectHandler from "~/server/internal/objects";
 
 export default defineEventHandler(async (h3) => {
   const id = getRouterParam(h3, "id");
@@ -14,7 +15,7 @@ export default defineEventHandler(async (h3) => {
   const userId = await aclManager.getUserIdACL(h3, ["object:update"]);
   const buffer = Buffer.from(body);
 
-  const result = await h3.context.objects.writeWithPermissions(
+  const result = await objectHandler.writeWithPermissions(
     id,
     async () => buffer,
     userId

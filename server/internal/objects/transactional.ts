@@ -4,7 +4,7 @@ This is used as a utility in metadata handling, so we only fetch the objects if 
 */
 import { Readable } from "stream";
 import { v4 as uuidv4 } from "uuid";
-import { objectHandler } from "~/server/plugins/objects";
+import objectHandler from ".";
 
 export type TransactionDataType = string | Readable | Buffer;
 type TransactionTable = { [key: string]: TransactionDataType }; // ID to data

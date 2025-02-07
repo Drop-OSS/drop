@@ -1,4 +1,5 @@
 import clientHandler from "~/server/internal/clients/handler";
+import { useCertificateAuthority } from "~/server/plugins/ca";
 
 export default defineEventHandler(async (h3) => {
   const body = await readBody(h3);
@@ -27,14 +28,14 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Invalid token",
     });
 
-  const ca = h3.context.ca;
-  const bundle = await ca.generateClientCertificate(
+  const certificateAuthority = useCertificateAuthority();
+  const bundle = await certificateAuthority.generateClientCertificate(
     clientId,
     metadata.data.name
   );
 
   const client = await clientHandler.finialiseClient(clientId);
-  await ca.storeClientCertificate(clientId, bundle);
+  await certificateAuthority.storeClientCertificate(clientId, bundle);
 
   return {
     private: bundle.priv,
