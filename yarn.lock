@@ -288,6 +288,16 @@
   resolved "https://registry.yarnpkg.com/@csstools/selector-specificity/-/selector-specificity-5.0.0.tgz#037817b574262134cabd68fc4ec1a454f168407b"
   integrity sha512-PCqQV3c4CoVm3kdPhyeZ07VmBRdH2EpMFA/pd9OASpOEC3aXNGoqPDAZ80D0cLpMBxnmk0+yNhGsEx31hq7Gtw==
 
+"@drop/droplet-darwin-arm64@^0.7.0":
+  version "0.7.0"
+  resolved "https://lab.deepcore.dev/api/v4/projects/57/packages/npm/@drop/droplet-darwin-arm64/-/@drop/droplet-darwin-arm64-0.7.0.tgz#34f7c6d168d6738d471c5f7287772e9b42fa7e33"
+  integrity sha1-NPfG0WjWc41HHF9yh3cum0L6fjM=
+
+"@drop/droplet-linux-arm64-gnu@^0.7.0":
+  version "0.7.0"
+  resolved "https://lab.deepcore.dev/api/v4/projects/57/packages/npm/@drop/droplet-linux-arm64-gnu/-/@drop/droplet-linux-arm64-gnu-0.7.0.tgz#783b9d24879d9a4e3ae8c8693cc1de7868284a61"
+  integrity sha1-eDudJIedmk466MhpPMHeeGgoSmE=
+
 "@drop/droplet-linux-x64-gnu@0.7.0", "@drop/droplet-linux-x64-gnu@^0.7.0":
   version "0.7.0"
   resolved "https://lab.deepcore.dev/api/v4/projects/57/packages/npm/@drop/droplet-linux-x64-gnu/-/@drop/droplet-linux-x64-gnu-0.7.0.tgz#128e37707481cfcbbeb057142164f3e637f13f26"
