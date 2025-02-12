@@ -46,9 +46,9 @@ model GameVersion {
 
     platform Platform
 
-    launchCommand String? // Command to run to start. Platform-specific. Windows games on Linux will wrap this command in Proton/Wine
+    launchCommand String @default("") // Command to run to start. Platform-specific. Windows games on Linux will wrap this command in Proton/Wine
     launchArgs    String[]
-    setupCommand  String? // Command to setup game (dependencies and such)
+    setupCommand  String @default("") // Command to setup game (dependencies and such)
     setupArgs     String[]
     onlySetup     Boolean  @default(false)
 
