@@ -28,11 +28,15 @@ enum APITokenMode {
 }
 
 model APIToken {
-    token String       @id @default(uuid())
+    id    String       @id @default(uuid())
+    token String       @default(uuid())
     mode  APITokenMode
+    name  String
 
     userId String?
     user   User?   @relation(fields: [userId], references: [id])
 
     acls String[]
+
+    @@index([token])
 }

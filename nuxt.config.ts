@@ -1,4 +1,5 @@
 import path from "path";
+import tailwindcss from "@tailwindcss/vite";
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -6,13 +7,12 @@ export default defineNuxtConfig({
   telemetry: false,
   compatibilityDate: "2024-04-03",
   devtools: { enabled: false },
-  css: ["~/assets/core.scss"],
+  css: ["~/assets/tailwindcss.css", "~/assets/core.scss"],
 
-  postcss: {
-    plugins: {
-      tailwindcss: {},
-      autoprefixer: {},
-    },
+  vite: {
+    plugins: [
+      tailwindcss()
+    ]
   },
 
   app: {

@@ -39,15 +39,16 @@
           </NuxtLink>
           <div class="h-0.5 rounded-full w-full bg-zinc-800" />
           <div class="flex flex-col">
-            <MenuItem v-for="(nav, navIdx) in navigation" v-slot="{ active }">
-              <NuxtLink
+            <MenuItem v-for="(nav, navIdx) in navigation" v-slot="{ active, close }">
+              <button
                 :href="nav.route"
+                @click="() => navigateTo(nav.route, close)"
                 :class="[
                   active ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400',
-                  'transition block px-4 py-2 text-sm',
+                  'text-left transition block px-4 py-2 text-sm',
                 ]"
               >
-                {{ nav.label }}</NuxtLink
+                {{ nav.label }}</button
               >
             </MenuItem>
           </div>
@@ -84,4 +85,11 @@ const navigation: NavigationItem[] = [
     prefix: "",
   },
 ].filter((e) => e !== undefined);
+
+const router = useRouter();
+
+function navigateLink(href: string, closeFn: () => any) {
+  closeFn();
+  router.push(href);
+}
 </script>
