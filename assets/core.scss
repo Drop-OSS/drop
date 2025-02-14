@@ -1,7 +1,3 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 $motiva: (
   ("MotivaSansThin.ttf", "ttf", 100, normal),
   ("MotivaSansLight.woff.ttf", "woff", 300, normal),
@@ -71,4 +67,13 @@ $helvetica: (
 
 .store-caoursel > .carousel__viewport {
   overflow: visible !important;
+}
+
+
+button {
+  cursor: pointer !important;
+}
+
+html {
+  background-color: oklch(.21 .006 285.885);
 }
