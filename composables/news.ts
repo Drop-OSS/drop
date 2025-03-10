@@ -23,20 +23,20 @@ export const useNews = () => {
 
   const create = async (article: {
     title: string;
-    excerpt: string;
+    description: string;
     content: string;
     image?: string;
     tags: string[];
     authorId: string;
   }) => {
-    return await $fetch('/api/v1/news', {
+    return await $fetch('/api/v1/admin/news', {
       method: 'POST',
       body: article
     });
   };
 
   const remove = async (id: string) => {
-    return await $fetch(`/api/v1/news/${id}`, {
+    return await $fetch(`/api/v1/admin/news/${id}`, {
       method: 'DELETE'
     });
   };

@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div v-if="article" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <!-- Banner header with blurred background -->
     <div class="relative w-full h-[300px] mb-8 rounded-lg overflow-hidden">
       <div class="absolute inset-0">
@@ -42,19 +42,19 @@
           <div class="flex flex-col gap-y-3 sm:flex-row sm:items-center sm:gap-x-4 text-zinc-300">
             <div class="flex items-center gap-x-4">
               <time :datetime="article.publishedAt">{{ formatDate(article.publishedAt) }}</time>
-              <span class="text-blue-400">{{ article.author.displayName }}</span>
+              <span class="text-blue-400">{{ article.author?.displayName ?? "System" }}</span>
             </div>
             <div class="flex flex-wrap gap-2">
               <span
                 v-for="tag in article.tags"
-                :key="tag"
+                :key="tag.id"
                 class="inline-flex items-center rounded-full bg-zinc-800/80 backdrop-blur-sm px-3 py-1 text-sm font-semibold text-zinc-100"
               >
-                {{ tag }}
+                {{ tag.name }}
               </span>
             </div>
           </div>
-          <p class="mt-4 text-lg text-zinc-300">{{ article.excerpt }}</p>
+          <p class="mt-4 text-lg text-zinc-300">{{ article.description }}</p>
         </div>
       </div>
     </div>
@@ -88,7 +88,7 @@ if (!article.value) {
 
 // Render markdown content
 const renderedContent = computed(() => {
-  return micromark(article.value.content);
+  return micromark(article.value?.content ?? "");
 });
 
 const formatDate = (date: string) => {

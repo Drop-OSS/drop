@@ -1,16 +1,15 @@
 import { defineEventHandler, createError } from "h3";
+import aclManager from "~/server/internal/acls";
 import newsManager from "~/server/internal/news";
 
-export default defineEventHandler(async (event) => {
-  const userId = await event.context.session.getUserId(event);
-  if (!userId) {
+export default defineEventHandler(async (h3) => {
+  const allowed = await aclManager.allowSystemACL(h3, ["news:delete"]);
+  if (!allowed)
     throw createError({
-      statusCode: 401,
-      message: "Unauthorized",
+      statusCode: 403,
     });
-  }
 
-  const id = event.context.params?.id;
+  const id = h3.context.params?.id;
   if (!id) {
     throw createError({
       statusCode: 400,

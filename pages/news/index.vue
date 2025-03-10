@@ -24,7 +24,7 @@
       <NuxtLink
         v-for="article in articles"
         :key="article.id"
-        :to="`/news/article/${article.id}`"
+        :to="`/news/${article.id}`"
         class="block"
       >
         <article
@@ -39,10 +39,10 @@
             <div class="absolute top-4 left-4 flex gap-2">
               <span
                 v-for="tag in article.tags"
-                :key="tag"
+                :key="tag.id"
                 class="inline-flex items-center rounded-full bg-zinc-900/75 px-3 py-1 text-sm font-semibold text-zinc-100 backdrop-blur"
               >
-                {{ tag }}
+                {{ tag.name }}
               </span>
             </div>
           </div>
@@ -53,14 +53,14 @@
                 <time :datetime="article.publishedAt" class="text-sm text-zinc-400">
                   {{ formatDate(article.publishedAt) }}
                 </time>
-                <span class="text-sm text-blue-400">{{ article.author.displayName }}</span>
+                <span class="text-sm text-blue-400">{{ article.author?.displayName ?? "System" }}</span>
               </div>
               <div class="mt-2">
                 <h3 class="text-xl font-semibold text-zinc-100 group-hover:text-primary-400">
                   {{ article.title }}
                 </h3>
                 <p class="mt-3 text-base text-zinc-400">
-                  {{ article.excerpt }}
+                  {{ article.description }}
                 </p>
               </div>
             </div>
@@ -70,7 +70,7 @@
     </TransitionGroup>
 
     <div
-      v-if="articles.length === 0"
+      v-if="articles?.length === 0"
       class="text-center py-12"
     >
       <DocumentIcon class="mx-auto h-12 w-12 text-zinc-400" />
@@ -83,25 +83,11 @@
 <script setup lang="ts">
 import { DocumentIcon } from "@heroicons/vue/24/outline";
 
-interface Article {
-  id: string;
-  title: string;
-  excerpt: string;
-  content: string;
-  tags: string[];
-  image: string | null;
-  publishedAt: string;
-  author: {
-    id: string;
-    displayName: string;
-  };
-}
-
 const newsDirectory = ref();
 const { data: articles, refresh: refreshArticles } = await useNews().getAll();
 
 const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString("en-US", {
+  return new Date(date).toLocaleDateString("en-AU", {
     year: "numeric",
     month: "long",
     day: "numeric",

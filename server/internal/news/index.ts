@@ -45,23 +45,27 @@ class NewsManager {
     return await prisma.article.findMany({
       where: {
         AND: [
-          {
-            tags: {
-              some: { OR: options.tags?.map((e) => ({ name: e })) ?? [] },
-            },
-          },
-          {
-            title: {
-              search: options.search
-            },
-            description: {
-              search: options.search
-            },
-            content: {
-              search: options.search
-            }
-          }
-        ],
+          options.tags
+            ? {
+                tags: {
+                  some: { OR: options.tags?.map((e) => ({ name: e })) ?? [] },
+                },
+              }
+            : undefined,
+          options.search
+            ? {
+                title: {
+                  search: options.search,
+                },
+                description: {
+                  search: options.search,
+                },
+                content: {
+                  search: options.search,
+                },
+              }
+            : undefined,
+        ].filter((e) => e !== undefined),
       },
       take: options?.take || 10,
       skip: options?.skip || 0,
@@ -75,6 +79,7 @@ class NewsManager {
             displayName: true,
           },
         },
+        tags: true,
       },
     });
   }
@@ -89,6 +94,7 @@ class NewsManager {
             displayName: true,
           },
         },
+        tags: true,
       },
     });
   }

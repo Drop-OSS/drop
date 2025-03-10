@@ -37,10 +37,10 @@
           </div>
 
           <div>
-            <label for="excerpt" class="block text-sm font-medium text-zinc-400">Excerpt</label>
+            <label for="excerpt" class="block text-sm font-medium text-zinc-400">Exercept</label>
             <input
               id="excerpt"
-              v-model="newArticle.excerpt"
+              v-model="newArticle.description"
               type="text"
               class="mt-1 block w-full rounded-md bg-zinc-900 border-zinc-700 text-zinc-100 shadow-sm focus:border-primary-500 focus:ring-primary-500"
               required
@@ -171,7 +171,7 @@ const newTagInput = ref('');
 
 const newArticle = ref({
   title: '',
-  excerpt: '',
+  description: '',
   content: '',
   image: '',
   tags: [] as string[]
@@ -290,7 +290,7 @@ const createArticle = async () => {
     // Reset form
     newArticle.value = {
       title: '',
-      excerpt: '',
+      description: '',
       content: '',
       image: '',
       tags: []

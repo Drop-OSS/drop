@@ -87,7 +87,7 @@
           </div>
 
           <h3 class="relative text-sm font-medium text-zinc-100">{{ article.title }}</h3>
-          <p class="relative mt-1 text-xs text-zinc-400 line-clamp-2" v-html="formatExcerpt(article.excerpt)"></p>
+          <p class="relative mt-1 text-xs text-zinc-400 line-clamp-2" v-html="formatExcerpt(article.description)"></p>
           <div class="relative mt-2 flex items-center gap-x-2 text-xs text-zinc-500">
             <time :datetime="article.publishedAt">{{ formatDate(article.publishedAt) }}</time>
           </div>
@@ -115,7 +115,7 @@ const availableTags = computed(() => {
   if (!articles.value) return [];
   const tags = new Set<string>();
   articles.value.forEach(article => {
-    article.tags.forEach(tag => tags.add(tag));
+    article.tags.forEach(tag => tags.add(tag.name));
   });
   return Array.from(tags);
 });
@@ -151,7 +151,7 @@ const filteredArticles = computed(() => {
   return articles.value.filter((article) => {
     const matchesSearch = 
       article.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      article.excerpt.toLowerCase().includes(searchQuery.value.toLowerCase());
+      article.description.toLowerCase().includes(searchQuery.value.toLowerCase());
     
     const articleDate = new Date(article.publishedAt);
     const now = new Date();
@@ -175,7 +175,7 @@ const filteredArticles = computed(() => {
     }
     
     const matchesTags = selectedTags.value.length === 0 || 
-                       selectedTags.value.every(tag => article.tags.includes(tag));
+                       selectedTags.value.every(tag => article.tags.find((e) => e.name == tag));
     
     return matchesSearch && matchesDate && matchesTags;
   });
