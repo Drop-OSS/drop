@@ -30,6 +30,8 @@ export const userACLDescriptions: ObjectFromList<typeof userACLs> = {
     "Remove a game from any collection (excluding library).",
   "library:add": "Add a game to your library.",
   "library:remove": "Remove a game from your library.",
+
+  "news:read": "Read the server's news articles.",
 };
 
 export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
@@ -55,4 +57,8 @@ export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
   "import:game:new": "Import a game.",
 
   "user:read": "Fetch any user's information.",
+  
+  "news:read": "Read news articles.",
+  "news:create": "Create a new news article.",
+  "news:delete": "Delete a news article."
 };

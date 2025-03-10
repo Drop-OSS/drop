@@ -1,0 +1,21 @@
+model Tag {
+  id   String @id @default(uuid())
+  name String @unique
+
+  articles Article[]
+}
+
+model Article {
+  id          String @id @default(uuid())
+  title       String
+  description String
+  content     String @db.Text
+
+  tags Tag[]
+
+  image       String? // Object ID
+  publishedAt DateTime @default(now())
+
+  author   User?   @relation(fields: [authorId], references: [id]) // Optional, if no user, it's a system post
+  authorId String?
+}
