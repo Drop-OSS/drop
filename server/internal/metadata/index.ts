@@ -20,6 +20,19 @@ import { PriorityList, PriorityListIndexed } from "../utils/prioritylist";
 import { GiantBombProvider } from "./giantbomb";
 import { ManualMetadataProvider } from "./manual";
 
+export class MissingMetadataProviderApiKey extends Error {
+  private providerName: string;
+
+  constructor(providerName: string) {
+    super(`Missing ${providerName} api key`);
+    this.providerName = providerName;
+  }
+
+  getProviderName() {
+    return this.providerName;
+  }
+}
+
 export abstract class MetadataProvider {
   abstract id(): string;
   abstract name(): string;
@@ -240,13 +253,17 @@ export default metadataHandler;
 export const enabledMedadataProviders: string[] = [];
 const metadataProviders = [GiantBombProvider, ManualMetadataProvider];
 
-for(const provider of metadataProviders){
+for (const provider of metadataProviders) {
   try {
-    const prov = new provider;
+    const prov = new provider();
     metadataHandler.addProvider(prov);
     enabledMedadataProviders.push(prov.id());
-    console.log(`enabled metadata provider: ${prov.name()}`)
-  }catch(e){
-    console.error(`skipping metadata provider setup: ${e}`);
+    console.log(`enabled metadata provider: ${prov.name()}`);
+  } catch (e) {
+    if (e instanceof MissingMetadataProviderApiKey) {
+      console.warn(`Disabling ${e.getProviderName()} metadata provider`);
+    } else {
+      console.error(`skipping metadata provider setup: ${e}`);
+    }
   }
 }
