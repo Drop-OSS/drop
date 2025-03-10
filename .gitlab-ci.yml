@@ -29,9 +29,12 @@ build:
         docker image tag $IMAGE_NAME $PUBLISH_LATEST_IMAGE_NAME
         docker push $PUBLISH_IMAGE_NAME $PUBLISH_LATEST_IMAGE_NAME
       fi
+
 build-arm64:
   stage: build
   image: arm64v8/docker:latest
+  tags:
+    - aarch64
   variables:
     IMAGE_NAME: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:$CI_COMMIT_SHORT_SHA-arm64
     LATEST_IMAGE_NAME: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:latest-arm64
