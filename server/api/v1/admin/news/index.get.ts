@@ -3,11 +3,10 @@ import aclManager from "~/server/internal/acls";
 import newsManager from "~/server/internal/news";
 
 export default defineEventHandler(async (h3) => {
-  const userId = await aclManager.getUserIdACL(h3, ["news:read"]);
-  if (!userId)
+  const allowed = await aclManager.allowSystemACL(h3, ["news:read"]);
+  if (!allowed)
     throw createError({
       statusCode: 403,
-      statusMessage: "Requires authentication",
     });
 
   const query = getQuery(h3);

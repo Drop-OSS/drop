@@ -1,70 +1,72 @@
+import { triggerAsyncId } from "async_hooks";
 import prisma from "../db/database";
 
 class NewsManager {
   async create(data: {
     title: string;
     content: string;
-    excerpt: string;
+    description: string;
     tags: string[];
     authorId: string;
     image?: string;
   }) {
-    return await prisma.news.create({
+    return await prisma.article.create({
       data: {
         title: data.title,
+        description: data.description,
         content: data.content,
-        excerpt: data.excerpt,
-        tags: data.tags,
+
+        tags: {
+          connectOrCreate: data.tags.map((e) => ({
+            where: { name: e },
+            create: { name: e },
+          })),
+        },
+
         image: data.image,
         author: {
           connect: {
             id: data.authorId,
           },
         },
-        publishedAt: new Date(),
       },
     });
   }
 
-  async getAll(options?: {
-    take?: number;
-    skip?: number;
-    orderBy?: 'asc' | 'desc';
-    tags?: string[];
-    search?: string;
-  }) {
-    const where = {
-      AND: [
-        options?.tags?.length ? {
-          tags: {
-            hasSome: options.tags,
+  async fetch(
+    options: {
+      take?: number;
+      skip?: number;
+      orderBy?: "asc" | "desc";
+      tags?: string[];
+      search?: string;
+    } = {}
+  ) {
+    return await prisma.article.findMany({
+      where: {
+        AND: [
+          {
+            tags: {
+              some: { OR: options.tags?.map((e) => ({ name: e })) ?? [] },
+            },
           },
-        } : {},
-        options?.search ? {
-          OR: [
-            {
-              title: {
-                contains: options.search,
-                mode: 'insensitive' as const,
-              },
+          {
+            title: {
+              search: options.search
             },
-            {
-              content: {
-                contains: options.search,
-                mode: 'insensitive' as const,
-              },
+            description: {
+              search: options.search
             },
-          ],
-        } : {},
-      ],
-    };
-
-    return await prisma.news.findMany({
-      where,
-      take: options?.take,
-      skip: options?.skip,
+            content: {
+              search: options.search
+            }
+          }
+        ],
+      },
+      take: options?.take || 10,
+      skip: options?.skip || 0,
       orderBy: {
-        publishedAt: options?.orderBy || 'desc',
+        publishedAt: options?.orderBy || "desc",
       },
       include: {
         author: {
@@ -77,8 +79,8 @@ class NewsManager {
     });
   }
 
-  async getById(id: string) {
-    return await prisma.news.findUnique({
+  async fetchById(id: string) {
+    return await prisma.article.findUnique({
       where: { id },
       include: {
         author: {
@@ -91,24 +93,26 @@ class NewsManager {
     });
   }
 
-  async update(id: string, data: {
-    title?: string;
-    content?: string;
-    excerpt?: string;
-    tags?: string[];
-    image?: string;
-  }) {
-    return await prisma.news.update({
+  async update(
+    id: string,
+    data: {
+      title?: string;
+      content?: string;
+      excerpt?: string;
+      image?: string;
+    }
+  ) {
+    return await prisma.article.update({
       where: { id },
       data,
     });
   }
 
   async delete(id: string) {
-    return await prisma.news.delete({
+    return await prisma.article.delete({
       where: { id },
     });
   }
 }
 
-export default new NewsManager(); 
+export default new NewsManager();

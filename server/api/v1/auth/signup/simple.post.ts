@@ -93,7 +93,7 @@ export default defineEventHandler(async (h3) => {
     profilePictureId,
     async () => jdenticon.toPng(username, 256),
     {},
-    [`anonymous:read`, `${userId}:write`]
+    [`internal:read`, `${userId}:write`]
   );
   const user = await prisma.user.create({
     data: {

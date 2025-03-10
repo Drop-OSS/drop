@@ -53,6 +53,10 @@ export const systemACLs = [
   "import:game:new",
 
   "user:read",
+
+  "news:read",
+  "news:create",
+  "news:delete",
 ] as const;
 const systemACLPrefix = "system:";
 

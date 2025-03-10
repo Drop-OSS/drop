@@ -29,7 +29,7 @@ enum APITokenMode {
 
 model APIToken {
     id    String       @id @default(uuid())
-    token String       @default(uuid())
+    token String       @default(uuid()) @unique
     mode  APITokenMode
     name  String
 

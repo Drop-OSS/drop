@@ -3,11 +3,10 @@ import aclManager from "~/server/internal/acls";
 import newsManager from "~/server/internal/news";
 
 export default defineEventHandler(async (h3) => {
-  const userId = await aclManager.getUserIdACL(h3, ["news:read"]);
-  if (!userId)
+  const allowed = await aclManager.allowSystemACL(h3, ["news:read"]);
+  if (!allowed)
     throw createError({
       statusCode: 403,
-      statusMessage: "Requires authentication",
     });
 
   const id = h3.context.params?.id;
@@ -16,7 +15,6 @@ export default defineEventHandler(async (h3) => {
       statusCode: 400,
       message: "Missing news ID",
     });
-  
 
   const news = await newsManager.fetchById(id);
   if (!news)
@@ -24,7 +22,6 @@ export default defineEventHandler(async (h3) => {
       statusCode: 404,
       message: "News article not found",
     });
-
 
   return news;
 });
