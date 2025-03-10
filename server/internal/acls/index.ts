@@ -25,11 +25,8 @@ export const userACLs = [
   "collections:remove",
   "library:add",
   "library:remove",
-<<<<<<< HEAD
-=======
 
   "news:read",
->>>>>>> AdenMGB-develop
 ] as const;
 const userACLPrefix = "user:";
 
@@ -56,13 +53,10 @@ export const systemACLs = [
   "import:game:new",
 
   "user:read",
-<<<<<<< HEAD
-=======
 
   "news:read",
   "news:create",
   "news:delete",
->>>>>>> AdenMGB-develop
 ] as const;
 const systemACLPrefix = "system:";
 
