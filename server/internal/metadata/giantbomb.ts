@@ -74,13 +74,14 @@ interface CompanySearchResult {
   };
 }
 
+// Api Docs: https://www.giantbomb.com/api/
 export class GiantBombProvider implements MetadataProvider {
   private apikey: string;
   private turndown: TurndownService;
 
   constructor() {
     const apikey = process.env.GIANT_BOMB_API_KEY;
-    if (!apikey) throw new MissingMetadataProviderApiKey("GiantBomb");
+    if (!apikey) throw new MissingMetadataProviderApiKey(this.name());
 
     this.apikey = apikey;
 
@@ -96,18 +97,14 @@ export class GiantBombProvider implements MetadataProvider {
   private async request<T>(
     resource: string,
     url: string,
-    query: { [key: string]: string | Array<string> },
+    query: { [key: string]: string },
     options?: AxiosRequestConfig
   ) {
-    const queryOptions = { ...query, api_key: this.apikey, format: "json" };
-    const queryString = Object.entries(queryOptions)
-      .map(([key, value]) => {
-        if (Array.isArray(value)) {
-          return `${key}=${value.map(encodeURIComponent).join(",")}`;
-        }
-        return `${key}=${encodeURIComponent(value)}`;
-      })
-      .join("&");
+    const queryString = new URLSearchParams({
+      ...query,
+      api_key: this.apikey,
+      format: "json",
+    }).toString();
 
     const finalURL = `https://www.giantbomb.com/api/${resource}/${url}?${queryString}`;
 
@@ -134,7 +131,7 @@ export class GiantBombProvider implements MetadataProvider {
   async search(query: string): Promise<GameMetadataSearchResult[]> {
     const results = await this.request<Array<GameSearchResult>>("search", "", {
       query: query,
-      resources: ["game"],
+      resources: ["game"].join(","),
     });
     const mapped = results.data.results.map((result) => {
       const date =
