@@ -1,12 +1,19 @@
 <template>
-  <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-zinc-900 px-6 py-6 ring-1 ring-white/10">
+  <div
+    class="flex grow flex-col gap-y-5 overflow-y-auto bg-zinc-900 px-6 py-6 ring-1 ring-white/10"
+  >
     <!-- Search and filters -->
     <div class="space-y-6">
       <div>
         <label for="search" class="sr-only">Search articles</label>
         <div class="relative">
-          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <MagnifyingGlassIcon class="h-5 w-5 text-zinc-400" aria-hidden="true" />
+          <div
+            class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+          >
+            <MagnifyingGlassIcon
+              class="h-5 w-5 text-zinc-400"
+              aria-hidden="true"
+            />
           </div>
           <input
             id="search"
@@ -19,7 +26,9 @@
       </div>
 
       <div class="pt-2">
-        <label for="date" class="block text-sm font-medium text-zinc-400 mb-2">Date</label>
+        <label for="date" class="block text-sm font-medium text-zinc-400 mb-2"
+          >Date</label
+        >
         <select
           id="date"
           v-model="dateFilter"
@@ -45,7 +54,7 @@
             :class="[
               selectedTags.includes(tag)
                 ? 'bg-blue-600 text-white'
-                : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700',
             ]"
           >
             {{ tag }}
@@ -61,35 +70,40 @@
         :to="`/news/${article.id}`"
         class="group block rounded-lg hover-lift"
       >
-        <div 
+        <div
           class="relative flex flex-col gap-y-2 rounded-lg p-3 transition-all duration-200"
           :class="[
-            route.params.id === article.id 
-              ? 'bg-zinc-800' 
-              : 'hover:bg-zinc-800/50'
+            route.params.id === article.id
+              ? 'bg-zinc-800'
+              : 'hover:bg-zinc-800/50',
           ]"
         >
-          <div 
+          <div
             v-if="article.image"
             class="absolute inset-0 rounded-lg transition-all duration-200 overflow-hidden"
           >
-            <img 
-              :src="article.image"
-              class="absolute inset-0 w-full h-full object-cover transition-all duration-200"
-              :class="[
-                'blur-sm group-hover:blur-none scale-105 group-hover:scale-100 duration-500'
-              ]"
-              alt=""
+            <img
+              :src="useObject(article.image)"
+              class="absolute blur-sm inset-0 w-full h-full object-cover transition-all duration-200 group-hover:scale-110"
             />
-            <div 
-              class="absolute inset-0 bg-gradient-to-b from-zinc-900/80 to-zinc-900/90 group-hover:from-zinc-900/40 group-hover:to-zinc-900/60 transition-all duration-200"
+            <div
+              class="absolute inset-0 bg-gradient-to-b from-transparent to-zinc-800 transition-all duration-200"
             />
           </div>
 
-          <h3 class="relative text-sm font-medium text-zinc-100">{{ article.title }}</h3>
-          <p class="relative mt-1 text-xs text-zinc-400 line-clamp-2" v-html="formatExcerpt(article.description)"></p>
-          <div class="relative mt-2 flex items-center gap-x-2 text-xs text-zinc-500">
-            <time :datetime="article.publishedAt">{{ formatDate(article.publishedAt) }}</time>
+          <h3 class="relative text-sm font-medium text-zinc-100">
+            {{ article.title }}
+          </h3>
+          <p
+            class="relative mt-1 text-xs text-zinc-400 line-clamp-2"
+            v-html="formatExcerpt(article.description)"
+          ></p>
+          <div
+            class="relative mt-2 flex items-center gap-x-2 text-xs text-zinc-500"
+          >
+            <time :datetime="article.publishedAt">{{
+              formatDate(article.publishedAt)
+            }}</time>
           </div>
         </div>
       </NuxtLink>
@@ -98,9 +112,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { MagnifyingGlassIcon } from '@heroicons/vue/24/solid';
-import { micromark } from 'micromark';
+import { ref, computed } from "vue";
+import { MagnifyingGlassIcon } from "@heroicons/vue/24/solid";
+import { micromark } from "micromark";
 
 const route = useRoute();
 const searchQuery = ref("");
@@ -114,8 +128,8 @@ defineExpose({ refresh: refreshArticles });
 const availableTags = computed(() => {
   if (!articles.value) return [];
   const tags = new Set<string>();
-  articles.value.forEach(article => {
-    article.tags.forEach(tag => tags.add(tag.name));
+  articles.value.forEach((article) => {
+    article.tags.forEach((tag) => tags.add(tag.name));
   });
   return Array.from(tags);
 });
@@ -141,42 +155,48 @@ const formatExcerpt = (excerpt: string) => {
   // Convert markdown to HTML
   const html = micromark(excerpt);
   // Strip HTML tags using regex
-  return html.replace(/<[^>]*>/g, '');
+  return html.replace(/<[^>]*>/g, "");
 };
 
 const filteredArticles = computed(() => {
   if (!articles.value) return [];
-  
+
   // filter articles based on search, date, and tags
   return articles.value.filter((article) => {
-    const matchesSearch = 
+    const matchesSearch =
       article.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      article.description.toLowerCase().includes(searchQuery.value.toLowerCase());
-    
+      article.description
+        .toLowerCase()
+        .includes(searchQuery.value.toLowerCase());
+
     const articleDate = new Date(article.publishedAt);
     const now = new Date();
     let matchesDate = true;
-    
+
     switch (dateFilter.value) {
-      case 'today':
+      case "today":
         matchesDate = articleDate.toDateString() === now.toDateString();
         break;
-      case 'week':
+      case "week":
         const weekAgo = new Date(now.setDate(now.getDate() - 7));
         matchesDate = articleDate >= weekAgo;
         break;
-      case 'month':
-        matchesDate = articleDate.getMonth() === now.getMonth() && 
-                     articleDate.getFullYear() === now.getFullYear();
+      case "month":
+        matchesDate =
+          articleDate.getMonth() === now.getMonth() &&
+          articleDate.getFullYear() === now.getFullYear();
         break;
-      case 'year':
+      case "year":
         matchesDate = articleDate.getFullYear() === now.getFullYear();
         break;
     }
-    
-    const matchesTags = selectedTags.value.length === 0 || 
-                       selectedTags.value.every(tag => article.tags.find((e) => e.name == tag));
-    
+
+    const matchesTags =
+      selectedTags.value.length === 0 ||
+      selectedTags.value.every((tag) =>
+        article.tags.find((e) => e.name == tag)
+      );
+
     return matchesSearch && matchesDate && matchesTags;
   });
 });

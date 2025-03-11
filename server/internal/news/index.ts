@@ -1,5 +1,6 @@
 import { triggerAsyncId } from "async_hooks";
 import prisma from "../db/database";
+import objectHandler from "../objects";
 
 class NewsManager {
   async create(data: {
@@ -115,9 +116,13 @@ class NewsManager {
   }
 
   async delete(id: string) {
-    return await prisma.article.delete({
+    const article = await prisma.article.delete({
       where: { id },
     });
+    if (article.image) {
+      return await objectHandler.delete(article.image);
+    }
+    return true;
   }
 }
 

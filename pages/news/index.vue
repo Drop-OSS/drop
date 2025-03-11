@@ -10,17 +10,13 @@
             Stay up to date with the latest updates and announcements.
           </p>
         </div>
-        
+
         <NewsArticleCreate @refresh="refreshAll" />
       </div>
     </div>
 
     <!-- Articles list -->
-    <TransitionGroup
-      name="article-list"
-      tag="div"
-      class="space-y-6"
-    >
+    <TransitionGroup name="article-list" tag="div" class="space-y-6">
       <NuxtLink
         v-for="article in articles"
         :key="article.id"
@@ -32,7 +28,8 @@
         >
           <div class="relative h-48 w-full overflow-hidden">
             <img
-              :src="article.image || '/images/default-news-image.jpg'"
+              v-if="article.image"
+              :src="useObject(article.image)"
               alt=""
               class="h-full w-full object-cover object-center transition-all duration-500 group-hover:scale-110 scale-105"
             />
@@ -50,13 +47,20 @@
           <div class="flex flex-1 flex-col justify-between p-6">
             <div class="flex-1">
               <div class="flex items-center gap-x-2">
-                <time :datetime="article.publishedAt" class="text-sm text-zinc-400">
+                <time
+                  :datetime="article.publishedAt"
+                  class="text-sm text-zinc-400"
+                >
                   {{ formatDate(article.publishedAt) }}
                 </time>
-                <span class="text-sm text-blue-400">{{ article.author?.displayName ?? "System" }}</span>
+                <span class="text-sm text-blue-400">{{
+                  article.author?.displayName ?? "System"
+                }}</span>
               </div>
               <div class="mt-2">
-                <h3 class="text-xl font-semibold text-zinc-100 group-hover:text-primary-400">
+                <h3
+                  class="text-xl font-semibold text-zinc-100 group-hover:text-primary-400"
+                >
                   {{ article.title }}
                 </h3>
                 <p class="mt-3 text-base text-zinc-400">
@@ -69,10 +73,7 @@
       </NuxtLink>
     </TransitionGroup>
 
-    <div
-      v-if="articles?.length === 0"
-      class="text-center py-12"
-    >
+    <div v-if="articles?.length === 0" class="text-center py-12">
       <DocumentIcon class="mx-auto h-12 w-12 text-zinc-400" />
       <h3 class="mt-2 text-sm font-semibold text-zinc-100">No articles</h3>
       <p class="mt-1 text-sm text-zinc-500">Check back later for updates.</p>

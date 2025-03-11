@@ -3,21 +3,21 @@
     <!-- Create article button - only show for admin users -->
     <button
       v-if="user?.admin"
-      @click="isCreateExpanded = !isCreateExpanded"
+      @click="modalOpen = !modalOpen"
       class="inline-flex items-center gap-x-2 px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold font-display shadow-sm transition-all duration-200 hover:bg-blue-500 hover:scale-105 hover:shadow-blue-500/25 hover:shadow-lg active:scale-95"
     >
       <PlusIcon
         class="h-5 w-5 transition-transform duration-200"
-        :class="{ 'rotate-90': isCreateExpanded }"
+        :class="{ 'rotate-90': modalOpen }"
       />
       <span>New Article</span>
     </button>
 
-    <ModalTemplate size-class="sm:max-w-[80vw]" v-model="isCreateExpanded">
+    <ModalTemplate size-class="sm:max-w-[80vw]" v-model="modalOpen">
       <h3 class="text-lg font-semibold text-zinc-100 mb-4">
         Create New Article
       </h3>
-      <form @submit.prevent="createArticle" class="space-y-4">
+      <form @submit.prevent="() => createArticle()" class="space-y-4">
         <div>
           <label for="title" class="block text-sm font-medium text-zinc-400"
             >Title</label
@@ -34,7 +34,7 @@
 
         <div>
           <label for="excerpt" class="block text-sm font-medium text-zinc-400"
-            >Exercept</label
+            >Short description</label
           >
           <input
             id="excerpt"
@@ -63,7 +63,9 @@
               </button>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 h-[400px]">
+            <div
+              class="grid grid-rows-2 sm:grid-cols-2 sm:grid-rows-1 gap-4 h-[400px]"
+            >
               <!-- Editor -->
               <div class="flex flex-col">
                 <span class="text-sm text-zinc-500 mb-2">Editor</span>
@@ -98,14 +100,31 @@
         </div>
 
         <div>
-          <label for="image" class="block text-sm font-medium text-zinc-400"
-            >Image URL (optional)</label
+          <label
+            for="file-upload"
+            class="group cursor-pointer transition relative block w-full rounded-lg border-2 border-dashed border-zinc-600 p-12 text-center hover:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
           >
+            <ArrowUpTrayIcon
+              class="transition mx-auto h-6 w-6 text-zinc-600 group-hover:text-zinc-700"
+              stroke="currentColor"
+              fill="none"
+              viewBox="0 0 48 48"
+              aria-hidden="true"
+            />
+            <span
+              class="transition mt-2 block text-sm font-semibold text-zinc-400 group-hover:text-zinc-500"
+              >Upload cover image</span
+            >
+            <p class="mt-1 text-xs text-zinc-400" v-if="currentFile">
+              {{ currentFile.name }}
+            </p>
+          </label>
           <input
-            id="image"
-            v-model="newArticle.image"
-            type="url"
-            class="mt-1 block w-full rounded-md bg-zinc-900 border-zinc-700 text-zinc-100 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+            accept="image/*"
+            @change="(e) => file = (e.target as any)?.files"
+            class="hidden"
+            type="file"
+            id="file-upload"
           />
         </div>
 
@@ -148,17 +167,30 @@
         </div>
 
         <button type="submit" class="hidden" />
+
+        <div v-if="error" class="mt-3 rounded-md bg-red-600/10 p-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <XCircleIcon class="h-5 w-5 text-red-600" aria-hidden="true" />
+            </div>
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-red-600">
+                {{ error }}
+              </h3>
+            </div>
+          </div>
+        </div>
       </form>
       <template #buttons>
         <LoadingButton
-          :loading="isSubmitting"
+          :loading="loading"
           @click="() => createArticle()"
           class="bg-blue-600 text-white hover:bg-blue-500"
         >
           Submit
         </LoadingButton>
         <button
-          @click="() => (isCreateExpanded = !isCreateExpanded)"
+          @click="() => (modalOpen = !modalOpen)"
           class="inline-flex items-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold font-display text-white hover:bg-zinc-700"
         >
           Cancel
@@ -169,7 +201,12 @@
 </template>
 
 <script setup lang="ts">
-import { PlusIcon, XMarkIcon } from "@heroicons/vue/24/solid";
+import {
+  ArrowUpTrayIcon,
+  PlusIcon,
+  XCircleIcon,
+  XMarkIcon,
+} from "@heroicons/vue/24/solid";
 import { micromark } from "micromark";
 
 const emit = defineEmits<{
@@ -178,17 +215,26 @@ const emit = defineEmits<{
 
 const user = useUser();
 const news = useNews();
-const isCreateExpanded = ref(false);
-const isSubmitting = ref(false);
+
+const modalOpen = ref(false);
+const loading = ref(false);
 const newTagInput = ref("");
 
 const newArticle = ref({
   title: "",
   description: "",
   content: "",
-  image: "",
   tags: [] as string[],
 });
+
+const markdownPreview = computed(() => {
+  return micromark(newArticle.value.content);
+});
+
+const file = ref<FileList | undefined>();
+const currentFile = computed(() => file.value?.item(0));
+
+const error = ref<string | undefined>();
 
 const contentEditor = ref<HTMLTextAreaElement>();
 
@@ -201,7 +247,7 @@ const markdownShortcuts = [
   { label: "Heading", prefix: "## ", suffix: "", placeholder: "heading" },
 ];
 
-const handleContentKeydown = (e: KeyboardEvent) => {
+function handleContentKeydown(e: KeyboardEvent) {
   if (e.key === "Enter") {
     e.preventDefault();
 
@@ -242,23 +288,23 @@ const handleContentKeydown = (e: KeyboardEvent) => {
         start + insertion.length;
     });
   }
-};
+}
 
-const addTag = () => {
+function addTag() {
   const tag = newTagInput.value.trim();
   if (tag && !newArticle.value.tags.includes(tag)) {
     newArticle.value.tags.push(tag);
     newTagInput.value = ""; // Clear the input
   }
-};
+}
 
-const removeTag = (tagToRemove: string) => {
+function removeTag(tagToRemove: string) {
   newArticle.value.tags = newArticle.value.tags.filter(
     (tag) => tag !== tagToRemove
   );
-};
+}
 
-const applyMarkdown = (shortcut: (typeof markdownShortcuts)[0]) => {
+function applyMarkdown(shortcut: (typeof markdownShortcuts)[0]) {
   const textarea = contentEditor.value;
   if (!textarea) return;
 
@@ -284,19 +330,27 @@ const applyMarkdown = (shortcut: (typeof markdownShortcuts)[0]) => {
     const newEnd = newStart + replacement.length;
     textarea.setSelectionRange(newStart, newEnd);
   });
-};
+}
 
-const createArticle = async () => {
-  if (!user.value?.id) {
-    console.error("User not authenticated");
-    return;
-  }
+async function createArticle() {
+  if (!user.value) return;
 
-  isSubmitting.value = true;
+  loading.value = true;
   try {
-    await news.create({
-      ...newArticle.value,
-      authorId: user.value.id,
+    const formData = new FormData();
+
+    if (currentFile.value) {
+      formData.append("image", currentFile.value);
+    }
+
+    formData.append("title", newArticle.value.title);
+    formData.append("description", newArticle.value.description);
+    formData.append("content", newArticle.value.content);
+    formData.append("tags", JSON.stringify(newArticle.value.tags));
+
+    await $fetch("/api/v1/admin/news", {
+      method: "POST",
+      body: formData,
     });
 
     // Reset form
@@ -304,23 +358,18 @@ const createArticle = async () => {
       title: "",
       description: "",
       content: "",
-      image: "",
       tags: [],
     };
 
     emit("refresh");
 
-    isCreateExpanded.value = false;
-  } catch (error) {
-    console.error("Failed to create article:", error);
+    modalOpen.value = false;
+  } catch (e) {
+    error.value = (e as any)?.statusMessage ?? "An unknown error occured.";
   } finally {
-    isSubmitting.value = false;
+    loading.value = false;
   }
-};
-
-const markdownPreview = computed(() => {
-  return micromark(newArticle.value.content);
-});
+}
 </script>
 
 <style scoped>
