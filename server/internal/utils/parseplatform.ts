@@ -8,6 +8,10 @@ export function parsePlatform(platform: string) {
     case "windows":
     case "Windows":
       return Platform.Windows;
+    case "macOS":
+    case "MacOS":
+    case "mac":
+      return Platform.macOS;
   }
 
   return undefined;

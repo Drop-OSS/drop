@@ -320,7 +320,8 @@
               <div class="text-zinc-400">
                 {{ item.delta ? "Upgrade mode" : "" }}
               </div>
-              <div class="inline-flex gap-x-2">
+              <div class="inline-flex items-center gap-x-2">
+                <component :is="PLATFORM_ICONS[item.platform]" class="size-6 text-blue-600" />
                 <Bars3Icon class="cursor-move w-6 h-6 text-zinc-400 handle" />
                 <button @click="() => deleteVersion(item.versionName)">
                   <TrashIcon class="w-5 h-5 text-red-600" />

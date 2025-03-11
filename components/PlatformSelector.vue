@@ -7,13 +7,13 @@
       <ListboxButton
         class="relative w-full cursor-default rounded-md bg-zinc-950 py-1.5 pl-3 pr-10 text-left text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm sm:leading-6"
       >
-        <span v-if="model && values[model]" class="flex items-center">
+        <span v-if="model" class="flex items-center">
           <component
-            :is="values[model].icon"
+            :is="PLATFORM_ICONS[model]"
             alt=""
             class="h-5 w-5 flex-shrink-0 text-blue-600"
           />
-          <span class="ml-3 block truncate">{{ values[model].name }}</span>
+          <span class="ml-3 block truncate">{{ model }}</span>
         </span>
         <span v-else>Please select a platform...</span>
         <span
@@ -33,7 +33,7 @@
         >
           <ListboxOption
             as="template"
-            v-for="[value, options] in Object.entries(values)"
+            v-for="[name, value] in Object.entries(values)"
             :key="value"
             :value="value"
             v-slot="{ active, selected }"
@@ -46,14 +46,14 @@
             >
               <div class="flex items-center">
                 <component
-                  :is="options.icon"
+                  :is="PLATFORM_ICONS[value]"
                   alt=""
                   :class="[
                     active ? 'text-zinc-100' : 'text-blue-600',
                     'h-5 w-5 flex-shrink-0',
                   ]"
                 />
-                <span class="ml-3 block truncate">{{ options.name }}</span>
+                <span class="ml-3 block truncate">{{ name }}</span>
               </div>
 
               <span
@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { IconsLinuxLogo, IconsWindowsLogo } from "#components";
+import { IconsLinuxLogo, IconsMacLogo, IconsWindowsLogo } from "#components";
 import {
   Listbox,
   ListboxButton,
@@ -85,16 +85,7 @@ import {
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 import type { Component } from "vue";
 
-const model = defineModel<string>();
+const model = defineModel<PlatformClient>();
 
-const values: { [key: string]: { name: string; icon: Component } } = {
-  Linux: {
-    name: "Linux",
-    icon: IconsLinuxLogo,
-  },
-  Windows: {
-    name: "Windows",
-    icon: IconsWindowsLogo,
-  },
-};
+const values = Object.fromEntries(Object.entries(PlatformClient));
 </script>

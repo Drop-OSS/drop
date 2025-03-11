@@ -7,4 +7,5 @@ model ApplicationSettings {
 enum Platform {
     Windows @map("windows")
     Linux   @map("linux")
+    macOS   @map("macos")
 }

@@ -154,6 +154,10 @@ class LibraryManager {
         // Pretty much the only one
         ".exe",
       ],
+      macOS: [
+        // App files
+        ".app",
+      ],
     };
 
     const options: Array<{
@@ -302,10 +306,8 @@ class LibraryManager {
           nonce: `version-create-${gameId}-${versionName}`,
           title: `'${game.mName}' ('${versionName}') finished importing.`,
           description: `Drop finished importing version ${versionName} for ${game.mName}.`,
-          actions: [
-            `View|/admin/library/${gameId}`
-          ]
-        })
+          actions: [`View|/admin/library/${gameId}`],
+        });
 
         progress(100);
       },
