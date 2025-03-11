@@ -197,13 +197,13 @@ const router = useRouter();
 const importLoading = ref(false);
 const importError = ref<string | undefined>();
 async function importGame(metadata: boolean) {
-  if (!metadataResults.value) return;
+  if (!metadataResults.value && metadata) return;
 
   const game = await $fetch("/api/v1/admin/import/game", {
     method: "POST",
     body: {
       path: games.unimportedGames[currentlySelectedGame.value],
-      metadata: metadata ? metadataResults.value[currentlySelectedMetadata.value] : undefined,
+      metadata: metadata && metadataResults.value ? metadataResults.value[currentlySelectedMetadata.value] : undefined,
     },
   });
 

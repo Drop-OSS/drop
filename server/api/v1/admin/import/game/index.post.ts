@@ -30,7 +30,9 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Invalid unimported game path",
     });
 
+
   if (!metadata || !metadata.id || !metadata.sourceId) {
+    console.log(metadata);
     return await metadataHandler.createGameWithoutMetadata(path);
   } else {
     return await metadataHandler.createGame(metadata, path);

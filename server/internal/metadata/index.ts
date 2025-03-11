@@ -17,6 +17,8 @@ import {
 } from "./types";
 import { ObjectTransactionalHandler } from "../objects/transactional";
 import { PriorityList, PriorityListIndexed } from "../utils/prioritylist";
+import { GiantBombProvider } from "./giantbomb";
+import { ManualMetadataProvider } from "./manual";
 
 export abstract class MetadataProvider {
   abstract id(): string;
@@ -234,3 +236,17 @@ export class MetadataHandler {
 
 export const metadataHandler = new MetadataHandler();
 export default metadataHandler;
+
+export const enabledMedadataProviders: string[] = [];
+const metadataProviders = [GiantBombProvider, ManualMetadataProvider];
+
+for(const provider of metadataProviders){
+  try {
+    const prov = new provider;
+    metadataHandler.addProvider(prov);
+    enabledMedadataProviders.push(prov.id());
+    console.log(`enabled metadata provider: ${prov.name()}`)
+  }catch(e){
+    console.error(`skipping metadata provider setup: ${e}`);
+  }
+}
