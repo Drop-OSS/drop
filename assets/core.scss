@@ -64,11 +64,9 @@ $helvetica: (
   background-color: #d4d4d8;
 }
 
-
 .store-carousel > .carousel__viewport {
-  overflow-y: visible !important;
+  overflow: visible !important;
 }
-
 
 button {
   cursor: pointer !important;

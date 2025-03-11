@@ -14,6 +14,7 @@ import { recursivelyReaddir } from "../utils/recursivedirs";
 import taskHandler from "../tasks";
 import { parsePlatform } from "../utils/parseplatform";
 import droplet from "@drop/droplet";
+import notificationSystem from "../notifications";
 
 class LibraryManager {
   private basePath: string;
@@ -296,6 +297,15 @@ class LibraryManager {
         }
 
         log("Successfully created version!");
+
+        notificationSystem.systemPush({
+          nonce: `version-create-${gameId}-${versionName}`,
+          title: `'${game.mName}' ('${versionName}') finished importing.`,
+          description: `Drop finished importing version ${versionName} for ${game.mName}.`,
+          actions: [
+            `View|/admin/library/${gameId}`
+          ]
+        })
 
         progress(100);
       },

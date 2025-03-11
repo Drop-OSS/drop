@@ -19,7 +19,6 @@
       >
         <ChevronDownIcon class="h-5 w-5 text-white" aria-hidden="true" />
       </MenuButton>
-
       <transition
         enter-active-class="transition ease-out duration-100"
         enter-from-class="transform opacity-0 scale-95"
@@ -92,6 +91,7 @@
 <script setup lang="ts">
 import { PlusIcon, ChevronDownIcon, CheckIcon } from "@heroicons/vue/24/solid";
 import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
+import type { ComponentPublicInstance } from "vue";
 
 const props = defineProps<{
   gameId: string;

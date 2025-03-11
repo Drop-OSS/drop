@@ -13,12 +13,16 @@
             v-if="notification.actions.length > 0"
             class="mt-3 flex space-x-7"
           >
-            <button
+            <NuxtLink
+              v-for="[name, link] in notification.actions.map((e) =>
+                e.split('|')
+              )"
               type="button"
-              class="rounded-md bg-white text-sm font-medium text-blue-600 hover:text-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              :href="link"
+              class="rounded-md text-sm font-medium text-blue-600 hover:text-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
-              Undo
-            </button>
+              {{ name }}
+            </NuxtLink>
             <!-- todo -->
           </div>
         </div>

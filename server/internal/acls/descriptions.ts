@@ -41,6 +41,11 @@ export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
 
   "library:read": "Fetch a list of all games on this instance.",
 
+  "notifications:read": "Read system notifications.",
+  "notifications:mark": "Mark system notifications as read.",
+  "notifications:listen": "Connect to the system notification websocket.",
+  "notifications:delete": "Delete system notifications.",
+
   "game:read": "Fetch a given game on this instance.",
   "game:update": "Update a game on this instance.",
   "game:delete": "Delete a game on this instance.",

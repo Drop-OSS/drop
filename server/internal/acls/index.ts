@@ -37,6 +37,11 @@ export const systemACLs = [
   "auth:simple:invitation:new",
   "auth:simple:invitation:delete",
 
+  "notifications:read",
+  "notifications:mark",
+  "notifications:listen",
+  "notifications:delete",
+
   "library:read",
   "game:read",
   "game:update",

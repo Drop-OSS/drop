@@ -12,10 +12,18 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Missing notification ID",
     });
 
+  const userIds = [userId];
+  const hasSystemPerms = await aclManager.allowSystemACL(h3, [
+    "notifications:delete",
+  ]);
+  if (hasSystemPerms) {
+    userIds.push("system");
+  }
+
   const notification = await prisma.notification.delete({
     where: {
       id: notificationId,
-      userId,
+      userId: { in: userIds },
     },
   });
 
