@@ -1,6 +1,8 @@
 enum MetadataSource {
     Manual
     GiantBomb
+    PCGamingWiki
+    IGDB
 }
 
 model Game {

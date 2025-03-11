@@ -19,6 +19,7 @@ import { ObjectTransactionalHandler } from "../objects/transactional";
 import { PriorityList, PriorityListIndexed } from "../utils/prioritylist";
 import { GiantBombProvider } from "./giantbomb";
 import { ManualMetadataProvider } from "./manual";
+import { PCGamingWikiProvider } from "./pcgamingwiki";
 
 export class MissingMetadataProviderApiKey extends Error {
   private providerName: string;
@@ -251,7 +252,11 @@ export const metadataHandler = new MetadataHandler();
 export default metadataHandler;
 
 export const enabledMedadataProviders: string[] = [];
-const metadataProviders = [GiantBombProvider, ManualMetadataProvider];
+const metadataProviders = [
+  GiantBombProvider,
+  ManualMetadataProvider,
+  PCGamingWikiProvider,
+];
 
 for (const provider of metadataProviders) {
   try {
