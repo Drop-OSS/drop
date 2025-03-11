@@ -119,18 +119,6 @@
               <span class="text-xs text-center">{{ item.label }}</span>
             </NuxtLink>
           </li>
-          <li>
-            <NuxtLink
-              href="/"
-              class="text-zinc-400 hover:bg-zinc-900 hover:text-white transition group flex flex-col items-center grow gap-x-3 rounded-md px-2 py-3 text-sm font-semibold leading-6"
-            >
-              <ArrowLeftIcon
-                class="h-6 w-6 shrink-0"
-                aria-hidden="true"
-              />
-              <span class="text-xs text-center">Back</span>
-            </NuxtLink>
-          </li>
         </ul>
       </nav>
     </div>
@@ -178,7 +166,7 @@ import {
   LockClosedIcon,
   Cog6ToothIcon,
   FlagIcon,
-  BellIcon
+  BellIcon,
 } from "@heroicons/vue/24/outline";
 import type { NavigationItem } from "~/composables/types";
 import { useCurrentNavigationIndex } from "~/composables/current-page-engine";
@@ -204,6 +192,12 @@ const navigation: Array<NavigationItem & { icon: Component }> = [
     route: "/admin/settings",
     prefix: "/admin/settings",
     icon: Cog6ToothIcon,
+  },
+  {
+    label: "Back",
+    route: "/",
+    prefix: ".",
+    icon: ArrowLeftIcon,
   },
 ];
 

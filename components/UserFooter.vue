@@ -78,14 +78,14 @@ const navigation = {
         { name: 'Servers', href: '#' },
     ],
     documentation: [
-        { name: 'API', href: '#' },
-        { name: 'Server Docs', href: '#' },
-        { name: 'Client Docs', href: '#' },
+        { name: 'API', href: 'https://api.droposs.org/' },
+        { name: 'Server Docs', href: 'https://wiki.droposs.org/guides/quickstart.html' },
+        { name: 'Client Docs', href: 'https://wiki.droposs.org/guides/client.html' },
     ],
     about: [
-        { name: 'About Drop', href: '#' },
-        { name: 'Features', href: '#' },
-        { name: 'FAQ', href: '#' },
+        { name: 'About Drop', href: 'https://droposs.org/' },
+        { name: 'Features', href: 'https://droposs.org/features' },
+        { name: 'FAQ', href: 'https://droposs.org/faq' },
     ],
     social: [
         {

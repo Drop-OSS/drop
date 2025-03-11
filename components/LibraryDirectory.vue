@@ -31,7 +31,7 @@
       <li v-for="game in filteredLibrary" :key="game.id" class="flex">
         <NuxtLink
           :to="`/library/game/${game.id}`"
-          class="flex flex-row items-center w-full p-1.5 rounded-md transition-all duration-200 hover:bg-zinc-800 hover:scale-[1.02] hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98]"
+          class="flex flex-row items-center w-full p-1.5 rounded-md transition-all duration-200 hover:bg-zinc-800 hover:scale-105 hover:shadow-lg active:scale-95"
         >
           <img
             :src="useObject(game.mCoverId)"
