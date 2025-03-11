@@ -58,7 +58,7 @@
       <NuxtLink
         v-for="article in filteredArticles"
         :key="article.id"
-        :to="`/news/article/${article.id}`"
+        :to="`/news/${article.id}`"
         class="group block rounded-lg hover-lift"
       >
         <div 
