@@ -64,11 +64,12 @@ Drop uses a utility package called droplet that's written in Rust. It has builts
 
 Steps:
 
+1. Run `git submodule update --init --recursive` to setup submodules
 1. Copy the `.env.example` to `.env` and add your GiantBomb metadata key (more metadata providers coming)
-2. Create the `.data` directory with `mkdir .data`
-3. Ensure that your user owns the `.data` directory with `sudo chown -R $(id -u $(whoami))`
-4. Open up a terminal and navigate to `dev-tools`, and run `docker compose up`
-5. Open up another terminal in the root directory of the project and run `yarn` and then `yarn dev` to start the dev server
+1. Create the `.data` directory with `mkdir .data`
+1. Ensure that your user owns the `.data` directory with `sudo chown -R $(id -u $(whoami))`
+1. Open up a terminal and navigate to `dev-tools`, and run `docker compose up`
+1. Open up another terminal in the root directory of the project and run `yarn` and then `yarn dev` to start the dev server
 
 As part of the first-time bootstrap, Drop creates an invitation with the fixed id of 'admin'. So, to create an admin account, go to:
 
