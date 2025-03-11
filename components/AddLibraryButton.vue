@@ -4,7 +4,7 @@
       :loading="isLibraryLoading"
       @click="() => toggleLibrary()"
       :style="'none'"
-      class="transition w-48 h-fit gap-x-2 rounded-none rounded-l-md bg-white/10 hover:bg-white/20 text-zinc-100 backdrop-blur px-5 py-3 active:scale-95"
+      class="transition w-48 inline-flex items-center justify-center h-full gap-x-2 rounded-none rounded-l-md bg-white/10 hover:bg-white/20 text-zinc-100 backdrop-blur px-5 py-3 active:scale-95"
     >
       {{ inLibrary ? "In Library" : "Add to Library" }}
       <CheckIcon v-if="inLibrary" class="-mr-0.5 h-5 w-5" aria-hidden="true" />
@@ -29,7 +29,7 @@
         leave-to-class="transform opacity-0 scale-95"
       >
         <MenuItems
-          class="absolute right-0 z-50 mt-2 w-72 origin-top-right rounded-md bg-zinc-800/90 backdrop-blur shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+          class="absolute right-0 z-50 mt-2 w-72 origin-top-right rounded-md bg-zinc-800/90 backdrop-blur shadow-lg focus:outline-none"
         >
           <div class="p-2">
             <div
