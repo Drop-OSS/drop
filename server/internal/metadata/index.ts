@@ -51,6 +51,8 @@ export abstract class MetadataProvider {
   abstract fetchDeveloper(
     params: _FetchDeveloperMetadataParams
   ): Promise<DeveloperMetadata>;
+
+  abstract refreshCredentials?: () => void;
 }
 
 export class MetadataHandler {
@@ -252,6 +254,17 @@ export class MetadataHandler {
     throw new Error(
       `No metadata provider found a ${databaseName} for "${query}"`
     );
+  }
+
+  /**
+   * Refresh creds for all providers that need it
+   */
+  public refreshCredentials() {
+    for (const provider of this.providers.values()) {
+      if (provider.refreshCredentials) {
+        provider.refreshCredentials();
+      }
+    }
   }
 }
 

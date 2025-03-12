@@ -132,6 +132,7 @@ export class IGDBProvider implements MetadataProvider {
   private client_id: string;
   private client_secret: string;
   private access_token: string;
+  private access_token_expire: moment.Moment;
 
   constructor() {
     const client_id = process.env.IGDB_CLIENT_ID;
@@ -148,6 +149,7 @@ export class IGDBProvider implements MetadataProvider {
     this.client_secret = client_secret;
 
     this.access_token = "";
+    this.access_token_expire = moment();
     this.authWithTwitch();
   }
 
@@ -167,9 +169,17 @@ export class IGDBProvider implements MetadataProvider {
     console.log(inspect(response.data));
 
     this.access_token = response.data.access_token;
-    // TODO: handle token expiration, time in seconds is provided, on a long running server
-    // this WILL be an issue. Can use node timers, or maybe nuxt tasks? problem is
-    // that idk if tasks can be variable like twitch wants, expires_in is variable
+    this.access_token_expire = moment().add(
+      response.data.expires_in,
+      "seconds"
+    );
+  }
+
+  public async refreshCredentials() {
+    const futureTime = moment().add(1, "day");
+
+    // if the token expires before this future time (aka soon), refresh
+    if (this.access_token_expire.isBefore(futureTime)) this.authWithTwitch();
   }
 
   private async request<T extends Object>(

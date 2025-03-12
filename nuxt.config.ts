@@ -29,6 +29,8 @@ export default defineNuxtConfig({
 
     scheduledTasks: {
       "0 * * * *": ["cleanup:invitations"],
+      // every two hours, check if creds need updating
+      "0 */2 * * *": ["metadata:refreshCredentials"],
     },
   },
 
