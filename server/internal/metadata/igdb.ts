@@ -319,9 +319,6 @@ export class IGDBProvider implements MetadataProvider {
           for (const company of find_company_response) {
             // if company was a dev or publisher
             // CANNOT use else since a company can be both
-
-            // TODO: why did this call manual metadata???
-
             if (found_involed.developer)
               developers.push(await developer(company.name));
             if (found_involed.publisher)
@@ -358,7 +355,7 @@ export class IGDBProvider implements MetadataProvider {
   }: _FetchPublisherMetadataParams): Promise<PublisherMetadata> {
     const response = await this.request<IGDBCompany>(
       "companies",
-      `search "${query}"; fields *;`
+      `where name = "${query}"; fields *; limit 1;`
     );
 
     for (const company of response) {
