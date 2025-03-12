@@ -147,8 +147,8 @@ export class IGDBProvider implements MetadataProvider {
     this.client_id = client_id;
     this.client_secret = client_secret;
 
-    this.access_token = "6lkqltu4m70i46jhcdrz8qt8tb7rdh";
-    // this.authWithTwitch();
+    this.access_token = "";
+    this.authWithTwitch();
   }
 
   private async authWithTwitch() {
