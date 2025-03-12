@@ -27,6 +27,7 @@
     "micromark": "^4.0.1",
     "moment": "^2.30.1",
     "nuxt": "^3.13.2",
+    "nuxt-security": "2.2.0",
     "prisma": "^6.1.0",
     "sanitize-filename": "^1.6.3",
     "stream": "^0.0.3",

@@ -35,7 +35,7 @@ export default defineNuxtConfig({
   extends: ["./drop-base"],
 
   // Module config from here down
-  modules: ["@nuxt/content", "vue3-carousel-nuxt"],
+  modules: ["@nuxt/content", "vue3-carousel-nuxt", "nuxt-security"],
 
   carousel: {
     prefix: "Vue",
@@ -53,6 +53,19 @@ export default defineNuxtConfig({
         driver: "fs",
         prefix: "/docs",
         base: path.resolve(__dirname, "docs"),
+      },
+    },
+  },
+
+  security: {
+    headers: {
+      contentSecurityPolicy: {
+        "img-src": [
+          "'self'",
+          "data:",
+          "https://www.giantbomb.com",
+          "https://images.pcgamingwiki.com",
+        ],
       },
     },
   },
