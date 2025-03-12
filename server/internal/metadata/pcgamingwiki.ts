@@ -19,26 +19,26 @@ interface PCGamingWikiPage {
 }
 
 interface PCGamingWikiSearchStub extends PCGamingWikiPage {
-  "Cover URL"?: string;
-  Released?: string;
-  Released__precision?: string;
+  "Cover URL": string | null;
+  Released: string | null;
+  Released__precision: string | null;
 }
 
 interface PCGamingWikiGame extends PCGamingWikiSearchStub {
-  Developers?: string;
-  Genres?: string;
-  Publishers?: string;
-  Themes?: string;
-  Series?: string;
-  Modes?: string;
+  Developers: string | null;
+  Genres: string | null;
+  Publishers: string | null;
+  Themes: string | null;
+  Series: string | null;
+  Modes: string | null;
 }
 
 interface PCGamingWikiCompany extends PCGamingWikiPage {
-  Parent?: string;
-  Founded?: string;
-  Website?: string;
-  Founded__precision?: string;
-  Defunct__precision?: string;
+  Parent: string | null;
+  Founded: string | null;
+  Website: string | null;
+  Founded__precision: string | null;
+  Defunct__precision: string | null;
 }
 
 interface PCGamingWikiCargoResult<T> {
@@ -94,16 +94,6 @@ export class PCGamingWikiProvider implements MetadataProvider {
     return response;
   }
 
-  private markNullUndefined<T extends Record<string, any>>(obj: T): T {
-    // TODO: fix types above and make everything nullable instead of possibly undefined, better then this, maybe?
-
-    const result = structuredClone(obj);
-    for (const [key, value] of Object.entries(result)) {
-      if (value === null) delete result[key];
-    }
-    return result;
-  }
-
   async search(query: string) {
     const searchParams = new URLSearchParams({
       action: "cargoquery",
@@ -117,7 +107,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
     const res = await this.request<PCGamingWikiSearchStub>(searchParams);
 
     const mapped = res.data.cargoquery.map((result) => {
-      const game = this.markNullUndefined(result.title);
+      const game = result.title;
 
       const metadata: GameMetadataSearchResult = {
         id: game.PageID,
@@ -125,7 +115,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
         icon: game["Cover URL"] ?? "",
         description: "", // TODO: need to render the `Introduction` template somehow (or we could just hardcode it)
         year:
-          game.Released !== undefined && game.Released.length > 0
+          game.Released !== null && game.Released.length > 0
             ? moment(game.Released).year()
             : 0,
       };
@@ -177,7 +167,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
     const game = res.data.cargoquery[0].title;
 
     const publishers: Publisher[] = [];
-    if (game.Publishers !== undefined) {
+    if (game.Publishers !== null) {
       const pubListClean = this.parseCompanyStr(game.Publishers);
       for (const pub of pubListClean) {
         publishers.push(await publisher(pub));
@@ -185,7 +175,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
     }
 
     const developers: Developer[] = [];
-    if (game.Developers !== undefined) {
+    if (game.Developers !== null) {
       const devListClean = this.parseCompanyStr(game.Developers);
       for (const dev of devListClean) {
         developers.push(await developer(dev));
@@ -193,7 +183,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
     }
 
     const icon =
-      game["Cover URL"] !== undefined
+      game["Cover URL"] !== null
         ? createObject(game["Cover URL"])
         : createObject(jdenticon.toPng(name, 512));
 
@@ -241,7 +231,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
     const icon = createObject(jdenticon.toPng(query, 512));
 
     for (let i = 0; i < res.data.cargoquery.length; i++) {
-      const company = this.markNullUndefined(res.data.cargoquery[i].title);
+      const company = res.data.cargoquery[i].title;
 
       const metadata: PublisherMetadata = {
         id: company.PageID,
