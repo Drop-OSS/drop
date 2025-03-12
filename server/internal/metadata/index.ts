@@ -201,8 +201,8 @@ export class MetadataHandler {
   // Type-checking this thing is impossible
   private async fetchDeveloperPublisher(
     query: string,
-    functionName: any,
-    databaseName: any
+    functionName: "fetchDeveloper" | "fetchPublisher",
+    databaseName: "developer" | "publisher"
   ) {
     const existing = await (prisma as any)[databaseName].findFirst({
       where: {
@@ -211,14 +211,15 @@ export class MetadataHandler {
     });
     if (existing) return existing;
 
-    for (const provider of this.providers.values() as any) {
-      // TODO: why did this call manual metadata???
+    for (const provider of this.providers.values()) {
+      // don't allow manual provider to "fetch" metadata
+      if (provider.source() === MetadataSource.Manual) continue;
 
       const [createObject, pullObjects, dumpObjects] = this.objectHandler.new(
         {},
         ["internal:read"]
       );
-      let result;
+      let result: PublisherMetadata;
       try {
         result = await provider[functionName]({ query, createObject });
       } catch (e) {
