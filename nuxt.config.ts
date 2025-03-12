@@ -65,6 +65,7 @@ export default defineNuxtConfig({
           "data:",
           "https://www.giantbomb.com",
           "https://images.pcgamingwiki.com",
+          "https://images.igdb.com",
         ],
       },
     },

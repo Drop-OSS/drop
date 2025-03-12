@@ -20,12 +20,13 @@ import { PriorityList, PriorityListIndexed } from "../utils/prioritylist";
 import { GiantBombProvider } from "./giantbomb";
 import { ManualMetadataProvider } from "./manual";
 import { PCGamingWikiProvider } from "./pcgamingwiki";
+import { IGDBProvider } from "./igdb";
 
-export class MissingMetadataProviderApiKey extends Error {
+export class MissingMetadataProviderConfig extends Error {
   private providerName: string;
 
-  constructor(providerName: string) {
-    super(`Missing ${providerName} api key`);
+  constructor(configKey: string, providerName: string) {
+    super(`Missing config item ${configKey} for ${providerName}`);
     this.providerName = providerName;
   }
 
@@ -33,6 +34,9 @@ export class MissingMetadataProviderApiKey extends Error {
     return this.providerName;
   }
 }
+
+// TODO: add useragent to all outbound api calls (best practice)
+export const DropUserAgent = "Drop/0.2";
 
 export abstract class MetadataProvider {
   abstract id(): string;
@@ -208,6 +212,8 @@ export class MetadataHandler {
     if (existing) return existing;
 
     for (const provider of this.providers.values() as any) {
+      // TODO: why did this call manual metadata???
+
       const [createObject, pullObjects, dumpObjects] = this.objectHandler.new(
         {},
         ["internal:read"]
@@ -256,6 +262,7 @@ const metadataProviders = [
   GiantBombProvider,
   ManualMetadataProvider,
   PCGamingWikiProvider,
+  IGDBProvider,
 ];
 
 for (const provider of metadataProviders) {
@@ -265,7 +272,7 @@ for (const provider of metadataProviders) {
     enabledMedadataProviders.push(prov.id());
     console.log(`enabled metadata provider: ${prov.name()}`);
   } catch (e) {
-    if (e instanceof MissingMetadataProviderApiKey) {
+    if (e instanceof MissingMetadataProviderConfig) {
       console.warn(`Disabling ${e.getProviderName()} metadata provider`);
     } else {
       console.error(`skipping metadata provider setup: ${e}`);

@@ -1,5 +1,5 @@
 import { Developer, MetadataSource, Publisher } from "@prisma/client";
-import { MetadataProvider, MissingMetadataProviderApiKey } from ".";
+import { MetadataProvider, MissingMetadataProviderConfig } from ".";
 import {
   GameMetadataSearchResult,
   _FetchGameMetadataParams,
@@ -180,7 +180,6 @@ export class PCGamingWikiProvider implements MetadataProvider {
     if (game.Publishers !== undefined) {
       const pubListClean = this.parseCompanyStr(game.Publishers);
       for (const pub of pubListClean) {
-        console.log("Found publisher: ", pub);
         publishers.push(await publisher(pub));
       }
     }
@@ -189,8 +188,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
     if (game.Developers !== undefined) {
       const devListClean = this.parseCompanyStr(game.Developers);
       for (const dev of devListClean) {
-        console.log("Found dev: ", dev);
-        developers.push(await developer(dev.replace("Company:", "")));
+        developers.push(await developer(dev));
       }
     }
 
@@ -237,13 +235,10 @@ export class PCGamingWikiProvider implements MetadataProvider {
       format: "json",
     });
 
-    console.log("Searching for: " + query);
     const res = await this.request<PCGamingWikiCompany>(searchParams);
 
     // TODO: replace
     const icon = createObject(jdenticon.toPng(query, 512));
-
-    console.log("Found: ", res.data.cargoquery);
 
     for (let i = 0; i < res.data.cargoquery.length; i++) {
       const company = this.markNullUndefined(res.data.cargoquery[i].title);

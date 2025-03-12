@@ -1,5 +1,5 @@
 import { Developer, MetadataSource, Publisher } from "@prisma/client";
-import { MetadataProvider, MissingMetadataProviderApiKey } from ".";
+import { MetadataProvider, MissingMetadataProviderConfig } from ".";
 import {
   GameMetadataSearchResult,
   _FetchGameMetadataParams,
@@ -81,7 +81,11 @@ export class GiantBombProvider implements MetadataProvider {
 
   constructor() {
     const apikey = process.env.GIANT_BOMB_API_KEY;
-    if (!apikey) throw new MissingMetadataProviderApiKey(this.name());
+    if (!apikey)
+      throw new MissingMetadataProviderConfig(
+        "GIANT_BOMB_API_KEY",
+        this.name()
+      );
 
     this.apikey = apikey;
 
