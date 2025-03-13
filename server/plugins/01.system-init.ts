@@ -8,10 +8,7 @@ export default defineNitroPlugin(async (nitro) => {
   } else {
     await applicationSettings.initialiseConfiguration();
   }
-
-  nitro.hooks.hookOnce("close", async () => {
-    await applicationSettings.waitForWrite();
-  });
+  console.log("initalised application config");
 
   // Ensure system user exists
   // The system user owns any user-based code

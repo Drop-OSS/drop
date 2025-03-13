@@ -3,44 +3,29 @@ import prisma from "../db/database";
 
 class ApplicationConfiguration {
   // Reference to the currently selected application configuration
-  private currentApplicationSettings: ApplicationSettings;
+  private currentApplicationSettings: ApplicationSettings = {
+    timestamp: new Date(),
+    enabledAuthencationMechanisms: [],
+    metadataProviders: [],
+  };
   private applicationStateProxy: object;
   private dirty: boolean = false;
   private dirtyPromise: Promise<any> | undefined = undefined;
 
   constructor() {
-    // @ts-expect-error
-    this.currentApplicationSettings = {};
     this.applicationStateProxy = {};
   }
 
-  private buildApplicationSettingsProxy() {
-    const appConfig = this;
-    const proxy = new Proxy(this.currentApplicationSettings, {
-      get: (target, key: keyof ApplicationSettings) => {
-        return appConfig.currentApplicationSettings[key];
-      },
-      set: (target, key: keyof ApplicationSettings, value) => {
-        if (JSON.stringify(value) === JSON.stringify(appConfig.currentApplicationSettings[key])) return true;
-        appConfig.currentApplicationSettings[key] = value;
+  private async save() {
+    const deepAppConfigCopy: Omit<ApplicationSettings, "timestamp"> & {
+      timestamp?: Date;
+    } = JSON.parse(JSON.stringify(this.currentApplicationSettings));
 
-        const deepAppConfigCopy: Omit<ApplicationSettings, "timestamp"> & {
-          timestamp?: Date;
-        } = JSON.parse(JSON.stringify(appConfig.currentApplicationSettings));
+    delete deepAppConfigCopy["timestamp"];
 
-        delete deepAppConfigCopy["timestamp"];
-
-        appConfig.dirty = true;
-        appConfig.dirtyPromise = prisma.applicationSettings.create({
-          data: deepAppConfigCopy,
-        });
-        return true;
-      },
-      deleteProperty: (target, key: keyof ApplicationSettings) => {
-        return false;
-      },
+    await prisma.applicationSettings.create({
+      data: deepAppConfigCopy,
     });
-    this.applicationStateProxy = proxy;
   }
 
   // Default application configuration
@@ -48,11 +33,11 @@ class ApplicationConfiguration {
     const initialState = await prisma.applicationSettings.create({
       data: {
         enabledAuthencationMechanisms: [AuthMec.Simple],
+        metadataProviders: [],
       },
     });
 
     this.currentApplicationSettings = initialState;
-    this.buildApplicationSettingsProxy();
   }
 
   async pullConfiguration() {
@@ -65,17 +50,21 @@ class ApplicationConfiguration {
     if (!latestState) throw new Error("No application configuration to pull");
 
     this.currentApplicationSettings = latestState;
-    this.buildApplicationSettingsProxy();
   }
 
-  async waitForWrite() {
-    if (this.dirty) {
-      await this.dirtyPromise;
+  async set<T extends keyof ApplicationSettings>(
+    key: T,
+    value: ApplicationSettings[T]
+  ) {
+    if (this.currentApplicationSettings[key] !== value) {
+      this.currentApplicationSettings[key] = value;
+
+      await this.save();
     }
   }
 
-  useApplicationConfiguration(): ApplicationSettings {
-    return this.applicationStateProxy as ApplicationSettings;
+  get<T extends keyof ApplicationSettings>(key: T): ApplicationSettings[T] {
+    return this.currentApplicationSettings[key];
   }
 }
 

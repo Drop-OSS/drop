@@ -46,6 +46,18 @@ export class MetadataHandler {
     this.providers.push(provider, priority);
   }
 
+  
+  /**
+   * Returns provider IDs, used to save to applicationConfig
+   * @returns The provider IDs in order, missing manual
+   */
+  fetchProviderIdsInOrder() {
+    return this.providers
+      .values()
+      .map((e) => e.id())
+      .filter((e) => e !== "manual");
+  }
+
   async search(query: string) {
     const promises: Promise<InternalGameMetadataResult[]>[] = [];
     for (const provider of this.providers.values()) {
@@ -236,17 +248,3 @@ export class MetadataHandler {
 
 export const metadataHandler = new MetadataHandler();
 export default metadataHandler;
-
-export const enabledMedadataProviders: string[] = [];
-const metadataProviders = [GiantBombProvider, ManualMetadataProvider];
-
-for(const provider of metadataProviders){
-  try {
-    const prov = new provider;
-    metadataHandler.addProvider(prov);
-    enabledMedadataProviders.push(prov.id());
-    console.log(`enabled metadata provider: ${prov.name()}`)
-  }catch(e){
-    console.error(`skipping metadata provider setup: ${e}`);
-  }
-}
