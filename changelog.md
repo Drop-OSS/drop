@@ -1,5 +1,197 @@
 
 
+## Release 0.2.0-beta
+
+### Fixes
+- fix recursive dirs util #02d6346
+- Fix username length requirement #0a5a649
+- remove dynamic imports #0f10626
+- fix for missing developers or publishers #25fc957
+- split prisma schemas #2859005
+- results are returned alphabetically #33d3770
+- update prisma schemas #36776cc
+- removed global flag #43e32b4
+- properly disconnect websockets from task handler #5358f1f
+- follow best practices #54c5d55
+- future lenience #5c78b20
+- fix width of token breaking things #61d88c3
+- fixed websocket authentication #62ea9a1
+- fix delta manifest generation #6df560c
+- admin invitation w/ system user #8463e35
+- properly import icons #8945196
+- prisma create footprint #952ece8
+- game panel now always shows 3 lines exactly #9c2249e
+- remove unnecessary import #a361c38
+- fix disconnect code #a8f2106
+- fix types #b511b40
+- add drop-base as git submodule #b75ebd1
+- Update README.md with discord link #c6bb21d
+- fix expires requirement in the admin endpoint #c7b675f
+- fix always being created as admin #c7eb11a
+- moved icons and created PlatformClient so we can use the enum on the frontend #cada630
+- recurse submodules #db103de
+- fix FATAL: "root"... message #dbb315a
+- only show versions that are directories #ef8f3ae
+
+
+### Features
+- update prisma & delete games #089c3e0
+- manual handshake #12e3125
+- fetch game endpoint #1f4d075
+- under the hood organisation and consolidation #26a31f6
+- 'no images' slide on image carousel #28baabc
+- improve feedback when metadata fails #2c19e13
+- introduction of 'system user' #2c21a23
+- change name, description and icon #2cfe75a
+- 'manual' metadata provider #2f52a16
+- add disabled state #38fc6b8
+- overhauled version importing #39d7ce7
+- automatically create library folder if it doesn't exist #39fe9d5
+- smoother bar in admin task ui #4488ae2
+- add noWrapper option #4f9b949
+- add version metadata route #5393db3
+- completed admin UI, with minor changes to backend #599da0e
+- adjust gradient #5a1f841
+- keep track of last connected #69e4c25
+- added notification system w/ interwoven refactoring #6e6f09d
+- content length header for chunk downloads #76bceb1
+- add title to tab #7b0756c
+- add button to open in admin panel #7b3b919
+- client capability framework + peer API configuration #7d72a86
+- customisable image carousel and new layout #937954f
+- support more types #9b12d45
+- generate a server certificate for mtls APIs #9c4b6f3
+- new endpoints, ui and beginnings of main store page #9cbdcbc
+- backend #a309651
+- more subtle design improvements #a815542
+- add aden's carousel pagination design #a86045c
+- add header #a8a152e
+- client side search #b50e27f
+- new ws handler #bc0c47c
+- user widget now redirects to actual page #bfafe02
+- require lowercase usernames #d7160ab
+- more ui improvements #e408ac5
+- add modifying game descriptions #e505e58
+- mobile nav #e5cf13f
+- slightly improved game page #e796b46
+- game carousel #ecc819e
+- add enum dictionary type #f2e0182
+- improved ux #f3ed0f6
+- cleanup and raw accessors #f7d767d
+- add support for overriding UMU id #fd4a7d1
+- add .sh for linux #fe9373a
+
+
+### Other Changes
+- quexeky <git@quexeky.dev> 
+- fixed manifest generation #03a37f7
+- manual ci/cd #03b0b0c
+- ability to fetch client certs for p2p #0a715fe
+- disable tls in build #0f80fcd
+- Updated README.md #17971e0
+- Merge pull request #18 from Drop-OSS/develop
+- initial work on metadata system #196f87c
+- more ui #1bd19ad
+- remove log statements #1d5e1bd
+- small fixes & SSR disabled #1f575b2
+- update information and setup guide #2236622
+- metadata engine #22ac7f6
+- Update CONTRIBUTING.md #2309407
+- slight bug fixes and clean up #24a0d11
+- almst complete admin ui and initial store designs #27070b6
+- handshakes #2b4382d
+- user mobile header #2e44ef3
+- more consistent naming for globals #305de9f
+- replaced markdown-it with micromark #31e8359
+- fixes to store page for mobile clients #328b9ba
+- game version re-ordering #329c74d
+- verbose yarn install #36568c3
+- patch for no version check in manifest generation #395219d
+- migrate bcrypt to bcryptjs #3a51c9c
+- added download chunk endpoint #3dd6062
+- Update README.md #425934d
+- build only ci #4273a20
+- object storage + full permission system + testing #435551c
+- rename admin socket session map #44c6028
+- bump droplet and add vue carousel #46551f9
+- version importing #46c8f0c
+- back to yarn, with nuxt telemetry force disabled #46d35ad
+- finished object endpoints #486bce8
+- update dependencies and add note about optional dependencies #4fa771a
+- use configuration from docs for ci/cd #52315d0
+- slight fixes to register logic #583301f
+- removed yarn.lock #584bcf1
+- Version bump #5f29c28
+- immutable application settings framework #5fe2036
+- fixed docker daemon location #62a111b
+- copy autodevops configuration #6328c24
+- Delete .gitlab-ci.yml #69f341b
+- admin ui shell #6b5e48d
+- bump @drop/droplet version for windows developers #6ba5cdd
+- Add LICENSE #6e2dc89
+- custom dind #716eac7
+- task API #718f5ba
+- use gitlab ci variable declaration #7194d35
+- move icons into dedicated folder #74fa671
+- another stage of client authentication #7523e53
+- refactoring #7869043
+- moved windows logo into logos dir #789d3ba
+- updated text colours across app #7a88f4c
+- starting docs infra #7d2a1c6
+- more cleaning #7e17626
+- slight patch to rename query to be more consistent #7f4db0c
+- move to raw docker #803752e
+- server side and user client side completed for registration #848a611
+- beginnings of download implementation #8674ac7
+- more consistent naming for object handler #87230fb
+- use autodevops build stage #886beb6
+- Updated tailwind config #88c95d6
+- change name of store file #8999303
+- split prisma schemas #9011cf5
+- client initiate #909432a
+- more client routes to support Drop app update #91b7e10
+- additional polish and QoL features #93bc143
+- upload images to games #9b7ee4e
+- migrate to pnpm due to ci/cd issues with yarn #9cb2d6d
+- run yarn install in CI/CD non interactively #a208fbe
+- completed game importing; partial work on version importing #a7c33e7
+- remove canvas from dependencies #a8f58eb
+- fix registry authentication #ad25d3e
+- consolidate type utils #adb4b73
+- Updated README.md #b0ef675
+- add proper carousel to store page #b2ab827
+- move to yarn v2 #b744671
+- remove client API deadweight #b9ae26c
+- add expires field #be6c30d
+- ca groundwork #bfafd2a
+- cleanup & polish #c355f6f
+- remove bcrypt (debug) #c3914cc
+- non rounded bottom #c4391d3
+- failed gracefully on invalid chunk index #c4a3e4e
+- update deploy template #c4a419f
+- migrate to new droplet ca system #c4d8113
+- docker based deployment #c5d00b4
+- updated CONTRIBUTING.md #cd0d2bf
+- update prisma version #ce0a9ab
+- README update #ceacd84
+- patch metadata handler #cf578bd
+- Added SECURITY.md #d3d93b0
+- finalised client APIs and authentication method #d4e2dc8
+- Update README.md #db916bf
+- object storage interface + utility functions #de388a9
+- initial commit #e1a789f
+- fixed task system #e1c1d7e
+- Update file chunk.get.ts #e4339c3
+- ui groundwork #e52f072
+- Update changelog #eadcaa1
+- check for no version in manifest generation #eb3f9f9
+- break into single column store on lg devices #ecb381e
+- better server side signin redirects #ef13b68
+- patch signin #f3672f8
+
+
+_changelog generated by_ [go-conventional-commits](https://github.com/joselitofilho/go-conventional-commits)
+
 ## Release 0.1.0-beta
 
 ### Fixes
