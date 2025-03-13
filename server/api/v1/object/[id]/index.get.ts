@@ -12,5 +12,10 @@ export default defineEventHandler(async (h3) => {
     throw createError({ statusCode: 404, statusMessage: "Object not found" });
 
   setHeader(h3, "Content-Type", object.mime);
+  setHeader(
+    h3,
+    "Cache-Control",
+    "private, max-age=31536000, s-maxage=31536000, immutable"
+  );
   return object.data;
 });
