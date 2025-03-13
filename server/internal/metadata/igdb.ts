@@ -129,10 +129,10 @@ interface IGDBGameFull extends IGDBSearchStub {
 
 // Api Docs: https://api-docs.igdb.com/
 export class IGDBProvider implements MetadataProvider {
-  private client_id: string;
-  private client_secret: string;
-  private access_token: string;
-  private access_token_expire: moment.Moment;
+  private clientId: string;
+  private clientSecret: string;
+  private accessToken: string;
+  private accessTokenExpiry: moment.Moment;
 
   constructor() {
     const client_id = process.env.IGDB_CLIENT_ID;
@@ -145,18 +145,18 @@ export class IGDBProvider implements MetadataProvider {
         this.name()
       );
 
-    this.client_id = client_id;
-    this.client_secret = client_secret;
+    this.clientId = client_id;
+    this.clientSecret = client_secret;
 
-    this.access_token = "";
-    this.access_token_expire = moment();
-    this.authWithTwitch();
+    this.accessToken = "";
+    this.accessTokenExpiry = moment(new Date(0));
   }
 
   private async authWithTwitch() {
+    console.log("authorizing with twitch");
     const params = new URLSearchParams({
-      client_id: this.client_id,
-      client_secret: this.client_secret,
+      client_id: this.clientId,
+      client_secret: this.clientSecret,
       grant_type: "client_credentials",
     });
 
@@ -166,18 +166,16 @@ export class IGDBProvider implements MetadataProvider {
       method: "POST",
     });
 
-    this.access_token = response.data.access_token;
-    this.access_token_expire = moment().add(
-      response.data.expires_in,
-      "seconds"
-    );
+    this.accessToken = response.data.access_token;
+    this.accessTokenExpiry = moment().add(response.data.expires_in, "seconds");
   }
 
   private async refreshCredentials() {
     const futureTime = moment().add(1, "day");
 
-    // if the token expires before this future time (aka soon), refresh
-    if (this.access_token_expire.isBefore(futureTime)) this.authWithTwitch();
+    // if the token expires in less than a day
+    if (this.accessTokenExpiry.isBefore(futureTime))
+      await this.authWithTwitch();
   }
 
   private async request<T extends Object>(
@@ -188,7 +186,7 @@ export class IGDBProvider implements MetadataProvider {
     await this.refreshCredentials();
 
     // prevent calling api before auth is complete
-    if (this.access_token.length <= 0)
+    if (this.accessToken.length <= 0)
       throw new Error(
         "IGDB either failed to authenticate, or has not done so yet"
       );
@@ -202,8 +200,8 @@ export class IGDBProvider implements MetadataProvider {
       data: body,
       headers: {
         Accept: "application/json",
-        "Client-ID": this.client_id,
-        Authorization: `Bearer ${this.access_token}`,
+        "Client-ID": this.clientId,
+        Authorization: `Bearer ${this.accessToken}`,
         "content-type": "text/plain",
       },
     };
