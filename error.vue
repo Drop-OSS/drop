@@ -101,10 +101,16 @@ if (import.meta.client) {
     <div
       class="hidden lg:relative lg:col-start-2 lg:row-start-1 lg:row-end-4 lg:block"
     >
-      <img
+      <NuxtImg
         src="/wallpapers/error-wallpaper.jpg"
-        alt=""
         class="absolute inset-0 h-full w-full object-cover"
+        alt=""
+        width="3000"
+        height="3000"
+        provider="ipx"
+        quality="80"
+        :placeholder="[700, 700, 75, 5]"
+        preload
       />
     </div>
   </div>
