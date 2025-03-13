@@ -158,7 +158,9 @@ async function signin() {
     },
   });
   const user = useUser();
-  user.value = await $fetch<User | null>("/api/v1/user");
+
+  const { data } = await useFetch("/api/v1/user");
+  if (data.value !== undefined) user.value = data.value;
 }
 
 definePageMeta({
