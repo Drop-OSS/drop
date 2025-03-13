@@ -19,6 +19,24 @@ import { ObjectTransactionalHandler } from "../objects/transactional";
 import { PriorityList, PriorityListIndexed } from "../utils/prioritylist";
 import { GiantBombProvider } from "./giantbomb";
 import { ManualMetadataProvider } from "./manual";
+import { PCGamingWikiProvider } from "./pcgamingwiki";
+import { IGDBProvider } from "./igdb";
+
+export class MissingMetadataProviderConfig extends Error {
+  private providerName: string;
+
+  constructor(configKey: string, providerName: string) {
+    super(`Missing config item ${configKey} for ${providerName}`);
+    this.providerName = providerName;
+  }
+
+  getProviderName() {
+    return this.providerName;
+  }
+}
+
+// TODO: add useragent to all outbound api calls (best practice)
+export const DropUserAgent = "Drop/0.2";
 
 export abstract class MetadataProvider {
   abstract id(): string;
@@ -46,7 +64,6 @@ export class MetadataHandler {
     this.providers.push(provider, priority);
   }
 
-  
   /**
    * Returns provider IDs, used to save to applicationConfig
    * @returns The provider IDs in order, missing manual
@@ -143,7 +160,6 @@ export class MetadataHandler {
       throw e;
     }
 
-    await pullObjects();
     const game = await prisma.game.create({
       data: {
         metadataSource: provider.source(),
@@ -171,6 +187,7 @@ export class MetadataHandler {
         libraryBasePath,
       },
     });
+    await pullObjects();
 
     return game;
   }
@@ -195,8 +212,8 @@ export class MetadataHandler {
   // Type-checking this thing is impossible
   private async fetchDeveloperPublisher(
     query: string,
-    functionName: any,
-    databaseName: any
+    functionName: "fetchDeveloper" | "fetchPublisher",
+    databaseName: "developer" | "publisher"
   ) {
     const existing = await (prisma as any)[databaseName].findFirst({
       where: {
@@ -205,12 +222,15 @@ export class MetadataHandler {
     });
     if (existing) return existing;
 
-    for (const provider of this.providers.values() as any) {
+    for (const provider of this.providers.values()) {
+      // don't allow manual provider to "fetch" metadata
+      if (provider.source() === MetadataSource.Manual) continue;
+
       const [createObject, pullObjects, dumpObjects] = this.objectHandler.new(
         {},
         ["internal:read"]
       );
-      let result;
+      let result: PublisherMetadata;
       try {
         result = await provider[functionName]({ query, createObject });
       } catch (e) {

@@ -1,10 +1,16 @@
 import { applicationSettings } from "../internal/config/application-configuration";
 import metadataHandler, { MetadataProvider } from "../internal/metadata";
 import { GiantBombProvider } from "../internal/metadata/giantbomb";
+import { IGDBProvider } from "../internal/metadata/igdb";
 import { ManualMetadataProvider } from "../internal/metadata/manual";
+import { PCGamingWikiProvider } from "../internal/metadata/pcgamingwiki";
 
 export default defineNitroPlugin(async (nitro) => {
-  const metadataProviders = [GiantBombProvider];
+  const metadataProviders = [
+    GiantBombProvider,
+    PCGamingWikiProvider,
+    IGDBProvider,
+  ];
 
   const providers: { [key: string]: MetadataProvider } = {};
 

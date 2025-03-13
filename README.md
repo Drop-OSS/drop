@@ -10,7 +10,7 @@
 
 [![GitHub License](https://img.shields.io/github/license/Drop-OSS/drop-app)](LICENSE)
 [![Gitlab Pipeline Status](https://img.shields.io/gitlab/pipeline-status/drop-oss%2Fdrop?gitlab_url=https%3A%2F%2Flab.deepcore.dev)](https://lab.deepcore.dev/drop-oss/drop/-/pipelines)
-[![Discord](https://img.shields.io/discord/1291622805124812871?label=discord)](https://discord.gg/ZVGggfXN)
+[![Discord](https://img.shields.io/discord/1291622805124812871?label=discord)](https://discord.gg/ACq4qZp4a9)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
 
 # Drop
@@ -64,11 +64,12 @@ Drop uses a utility package called droplet that's written in Rust. It has builts
 
 Steps:
 
+1. Run `git submodule update --init --recursive` to setup submodules
 1. Copy the `.env.example` to `.env` and add your GiantBomb metadata key (more metadata providers coming)
-2. Create the `.data` directory with `mkdir .data`
-3. Ensure that your user owns the `.data` directory with `sudo chown -R $(id -u $(whoami))`
-4. Open up a terminal and navigate to `dev-tools`, and run `docker compose up`
-5. Open up another terminal in the root directory of the project and run `yarn` and then `yarn dev` to start the dev server
+1. Create the `.data` directory with `mkdir .data`
+1. Ensure that your user owns the `.data` directory with `sudo chown -R $(id -u $(whoami))`
+1. Open up a terminal and navigate to `dev-tools`, and run `docker compose up`
+1. Open up another terminal in the root directory of the project and run `yarn` and then `yarn dev` to start the dev server
 
 As part of the first-time bootstrap, Drop creates an invitation with the fixed id of 'admin'. So, to create an admin account, go to:
 
