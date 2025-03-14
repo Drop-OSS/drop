@@ -95,8 +95,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-
 const recent = await $dropFetch("/api/v1/store/recent");
 const updated = await $dropFetch("/api/v1/store/updated");
 const released = await $dropFetch("/api/v1/store/released");
