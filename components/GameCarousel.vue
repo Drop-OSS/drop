@@ -1,19 +1,17 @@
 <template>
-  <ClientOnly>
-    <VueCarousel :itemsToShow="moveAmount" :itemsToScroll="moveAmount / 2">
-      <VueSlide
-        class="justify-start"
-        v-for="(game, gameIdx) in games"
-        :key="gameIdx"
-      >
-        <GamePanel :game="game" />
-      </VueSlide>
+  <VueCarousel :itemsToShow="moveAmount" :itemsToScroll="moveAmount / 2">
+    <VueSlide
+      class="justify-start"
+      v-for="(game, gameIdx) in games"
+      :key="gameIdx"
+    >
+      <GamePanel :game="game" />
+    </VueSlide>
 
-      <template #addons>
-        <VueNavigation />
-      </template>
-    </VueCarousel>
-  </ClientOnly>
+    <template #addons>
+      <VueNavigation />
+    </template>
+  </VueCarousel>
 </template>
 
 <script setup lang="ts">
