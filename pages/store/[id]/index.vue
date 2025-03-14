@@ -177,7 +177,7 @@ const gameId = route.params.id.toString();
 const user = useUser();
 
 const headers = useRequestHeaders(["cookie"]);
-const game = await $fetch<Game & { versions: GameVersion[] }>(
+const game = await $dropFetch<Game & { versions: GameVersion[] }>(
   `/api/v1/games/${gameId}`,
   { headers }
 );

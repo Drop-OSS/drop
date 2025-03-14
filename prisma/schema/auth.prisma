@@ -3,8 +3,9 @@ enum AuthMec {
 }
 
 model LinkedAuthMec {
-    userId String
-    mec    AuthMec
+    userId  String
+    mec     AuthMec
+    enabled Boolean @default(true)
 
     credentials Json
 
@@ -29,7 +30,7 @@ enum APITokenMode {
 
 model APIToken {
     id    String       @id @default(uuid())
-    token String       @default(uuid()) @unique
+    token String       @unique @default(uuid())
     mode  APITokenMode
     name  String
 

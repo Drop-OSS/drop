@@ -165,7 +165,7 @@
                         'relative cursor-default select-none py-2 pl-3 pr-9',
                         active
                           ? 'bg-blue-600 text-white outline-none'
-                          : 'text-gray-900',
+                          : 'text-zinc-100',
                       ]"
                     >
                       <span
@@ -321,7 +321,7 @@
                         'relative cursor-default select-none py-2 pl-3 pr-9',
                         active
                           ? 'bg-blue-600 text-white outline-none'
-                          : 'text-gray-900',
+                          : 'text-zinc-100',
                       ]"
                     >
                       <span
@@ -553,7 +553,7 @@ const router = useRouter();
 const route = useRoute();
 const headers = useRequestHeaders(["cookie"]);
 const gameId = route.params.id.toString();
-const versions = await $fetch(
+const versions = await $dropFetch(
   `/api/v1/admin/import/version?id=${encodeURIComponent(gameId)}`,
   {
     headers,
@@ -561,7 +561,7 @@ const versions = await $fetch(
 );
 const currentlySelectedVersion = ref(-1);
 const versionSettings = ref<{
-  platform: string;
+  platform: PlatformClient | undefined;
 
   onlySetup: boolean;
   launch: string;
@@ -572,7 +572,7 @@ const versionSettings = ref<{
   delta: boolean;
   umuId: string;
 }>({
-  platform: "",
+  platform: undefined,
   launch: "",
   launchArgs: "",
   setup: "",
@@ -582,7 +582,8 @@ const versionSettings = ref<{
   umuId: "",
 });
 
-const versionGuesses = ref<Array<{ platform: string; filename: string }>>();
+const versionGuesses =
+  ref<Array<{ platform: PlatformClient; filename: string }>>();
 const launchProcessQuery = ref("");
 const setupProcessQuery = ref("");
 
@@ -637,17 +638,20 @@ async function updateCurrentlySelectedVersion(value: number) {
   if (currentlySelectedVersion.value == value) return;
   currentlySelectedVersion.value = value;
   const version = versions[currentlySelectedVersion.value];
-  const results = await $fetch(
+  const results = await $dropFetch(
     `/api/v1/admin/import/version/preload?id=${encodeURIComponent(
       gameId
     )}&version=${encodeURIComponent(version)}`
   );
-  versionGuesses.value = results;
+  versionGuesses.value = results.map((e) => ({
+    ...e,
+    platform: e.platform as PlatformClient,
+  }));
 }
 
 async function startImport() {
   if (!versionSettings.value) return;
-  const taskId = await $fetch("/api/v1/admin/import/version", {
+  const taskId = await $dropFetch("/api/v1/admin/import/version", {
     method: "POST",
     body: {
       id: gameId,

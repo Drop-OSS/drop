@@ -459,7 +459,7 @@ async function invite() {
     .add(...expiry[expiryKey.value])
     .toJSON();
 
-  const newInvitation = await $fetch("/api/v1/admin/auth/invitation", {
+  const newInvitation = await $dropFetch("/api/v1/admin/auth/invitation", {
     method: "POST",
     body: {
       username: username.value,
@@ -495,7 +495,7 @@ function invite_wrapper() {
 }
 
 async function deleteInvitation(id: string) {
-  await $fetch("/api/v1/admin/auth/invitation", {
+  await $dropFetch("/api/v1/admin/auth/invitation", {
     method: "DELETE",
     body: {
       id: id,

@@ -530,7 +530,7 @@ const mobileShowFinalDescription = ref(true);
 const route = useRoute();
 const gameId = route.params.id.toString();
 const headers = useRequestHeaders(["cookie"]);
-const { game: rawGame, unimportedVersions } = await $fetch(
+const { game: rawGame, unimportedVersions } = await $dropFetch(
   `/api/v1/admin/game?id=${encodeURIComponent(gameId)}`,
   {
     headers,
@@ -579,7 +579,7 @@ async function coreMetadataUpdate() {
   formData.append("name", coreMetadataName.value);
   formData.append("description", coreMetadataDescription.value);
 
-  const result = await $fetch(`/api/v1/admin/game/metadata`, {
+  const result = await $dropFetch(`/api/v1/admin/game/metadata`, {
     method: "POST",
     body: formData,
   });
@@ -630,7 +630,7 @@ watch(descriptionHTML, (v) => {
   savingTimeout = setTimeout(async () => {
     try {
       descriptionSaving.value = 2;
-      await $fetch("/api/v1/admin/game", {
+      await $dropFetch("/api/v1/admin/game", {
         method: "PATCH",
         body: {
           id: gameId,
@@ -672,7 +672,7 @@ function insertImageAtCursor(id: string) {
 async function updateBannerImage(id: string) {
   try {
     if (game.value.mBannerId == id) return;
-    const { mBannerId } = await $fetch("/api/v1/admin/game", {
+    const { mBannerId } = await $dropFetch("/api/v1/admin/game", {
       method: "PATCH",
       body: {
         id: gameId,
@@ -698,7 +698,7 @@ async function updateBannerImage(id: string) {
 async function updateCoverImage(id: string) {
   try {
     if (game.value.mCoverId == id) return;
-    const { mCoverId } = await $fetch("/api/v1/admin/game", {
+    const { mCoverId } = await $dropFetch("/api/v1/admin/game", {
       method: "PATCH",
       body: {
         id: gameId,
@@ -723,7 +723,7 @@ async function updateCoverImage(id: string) {
 
 async function deleteImage(id: string) {
   try {
-    const { mBannerId, mImageLibrary } = await $fetch(
+    const { mBannerId, mImageLibrary } = await $dropFetch(
       "/api/v1/admin/game/image",
       {
         method: "DELETE",
@@ -757,7 +757,7 @@ async function uploadAfterImageUpload(result: Game) {
 
 async function deleteVersion(versionName: string) {
   try {
-    await $fetch("/api/v1/admin/game/version", {
+    await $dropFetch("/api/v1/admin/game/version", {
       method: "DELETE",
       body: {
         id: gameId,
@@ -785,7 +785,7 @@ async function deleteVersion(versionName: string) {
 
 async function updateVersionOrder() {
   try {
-    const newVersions = await $fetch("/api/v1/admin/game/version", {
+    const newVersions = await $dropFetch("/api/v1/admin/game/version", {
       method: "PATCH",
       body: {
         id: gameId,
@@ -822,7 +822,7 @@ function removeImageFromCarousel(id: string) {
 
 async function updateImageCarousel() {
   try {
-    await $fetch("/api/v1/admin/game", {
+    await $dropFetch("/api/v1/admin/game", {
       method: "PATCH",
       body: {
         id: gameId,

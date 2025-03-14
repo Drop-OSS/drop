@@ -98,20 +98,14 @@
 // import { ref, onMounted } from "vue";
 
 const headers = useRequestHeaders(["cookie"]);
-const { data: recent } = await useFetch("/api/v1/store/recent", {
+const recent = await $dropFetch("/api/v1/store/recent", { headers });
+const updated = await $dropFetch("/api/v1/store/updated", { headers });
+const released = await $dropFetch("/api/v1/store/released", {
   headers,
   default: () => [],
 });
-const { data: updated } = await useFetch("/api/v1/store/updated", {
-  headers,
-  default: () => [],
-});
-const { data: released } = await useFetch("/api/v1/store/released", {
-  headers,
-  default: () => [],
-});
-// const developers = await $fetch("/api/v1/store/developers", { headers });
-// const publishers = await $fetch("/api/v1/store/publishers", { headers });
+const developers = await $dropFetch("/api/v1/store/developers", { headers });
+const publishers = await $dropFetch("/api/v1/store/publishers", { headers });
 
 useHead({
   title: "Store",

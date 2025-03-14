@@ -180,7 +180,7 @@ useHead({
 const searchQuery = ref("");
 
 const headers = useRequestHeaders(["cookie"]);
-const libraryState = await $fetch("/api/v1/admin/library", { headers });
+const libraryState = await $dropFetch("/api/v1/admin/library", { headers });
 const libraryGames = ref(
   libraryState.games.map((e) => {
     const noVersions = e.status.noVersions;
@@ -210,7 +210,7 @@ const filteredLibraryGames = computed(() =>
 );
 
 async function deleteGame(id: string) {
-  await $fetch(`/api/v1/admin/game?id=${id}`, { method: "DELETE" });
+  await $dropFetch(`/api/v1/admin/game?id=${id}`, { method: "DELETE" });
   const index = libraryGames.value.findIndex((e) => e.id === id);
   libraryGames.value.splice(index, 1);
 }

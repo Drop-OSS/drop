@@ -175,7 +175,7 @@ const error = ref();
 const authToken = ref<string | undefined>();
 
 async function authorize() {
-  const { redirect, token } = await $fetch("/api/v1/client/auth/callback", {
+  const { redirect, token } = await $dropFetch("/api/v1/client/auth/callback", {
     method: "POST",
     body: { id: clientId },
   });

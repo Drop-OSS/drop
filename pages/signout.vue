@@ -42,6 +42,6 @@ const user = useUser();
 user.value = null;
 
 // Redirect to signin page after signout
-await $fetch("/signout");
+await $dropFetch("/signout");
 router.push("/signin");
 </script>

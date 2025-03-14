@@ -13,5 +13,5 @@ export const updateUser = async () => {
     headers: useRequestHeaders(["cookie"]),
   });
   // SSR calls have to be after uses
-  user.value = data.value;
+  user.value = await $dropFetch<User | null>("/api/v1/user", { headers });
 };

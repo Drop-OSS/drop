@@ -224,7 +224,7 @@ const loading = ref(false);
 const error = ref<string | undefined>(undefined);
 
 async function register() {
-  await $fetch("/api/v1/auth/signup/simple", {
+  await $dropFetch("/api/v1/auth/signup/simple", {
     method: "POST",
     body: {
       invitation: invitationId,

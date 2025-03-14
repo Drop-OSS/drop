@@ -27,7 +27,9 @@ export default defineNitroPlugin(async (nitro) => {
   }
 
   // Add providers based on their position in the application settings
-  const configuredProviderList = applicationSettings.get("metadataProviders");
+  const configuredProviderList = await applicationSettings.get(
+    "metadataProviders"
+  );
   const max = configuredProviderList.length;
   for (const [index, providerId] of configuredProviderList.entries()) {
     const priority = max * 2 - index; // Offset by the length --- (max - index) + max

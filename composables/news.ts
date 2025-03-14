@@ -22,7 +22,7 @@ export const useNews = () => {
   };
 
   const remove = async (id: string) => {
-    return await $fetch(`/api/v1/admin/news/${id}`, {
+    return await $dropFetch(`/api/v1/admin/news/${id}`, {
       method: "DELETE",
     });
   };

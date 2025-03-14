@@ -167,6 +167,8 @@ import {
   Cog6ToothIcon,
   FlagIcon,
   BellIcon,
+  DocumentIcon,
+  UserGroupIcon,
 } from "@heroicons/vue/24/outline";
 import type { NavigationItem } from "~/composables/types";
 import { useCurrentNavigationIndex } from "~/composables/current-page-engine";
@@ -182,10 +184,16 @@ const navigation: Array<NavigationItem & { icon: Component }> = [
     icon: ServerStackIcon,
   },
   {
-    label: "Auth",
-    route: "/admin/auth",
-    prefix: "/admin/auth",
-    icon: LockClosedIcon,
+    label: "Meta",
+    route: "/admin/metadata",
+    prefix: "/admin/metadata",
+    icon: DocumentIcon,
+  },
+  {
+    label: "Users",
+    route: "/admin/users",
+    prefix: "/admin/users",
+    icon: UserGroupIcon,
   },
   {
     label: "Settings",

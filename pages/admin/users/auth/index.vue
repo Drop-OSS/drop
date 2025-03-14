@@ -23,9 +23,7 @@
         :key="authMech.name"
         class="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900"
       >
-        <div
-          class="flex items-center gap-x-4 border-b border-zinc-800 p-6"
-        >
+        <div class="flex items-center gap-x-4 border-b border-zinc-800 p-6">
           <component
             :is="authMech.icon"
             :alt="`${authMech.name} icon`"
@@ -101,22 +99,8 @@ import { IconsSimpleAuthenticationLogo } from "#components";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
 import { EllipsisHorizontalIcon } from "@heroicons/vue/20/solid";
 import { CheckIcon, XMarkIcon } from "@heroicons/vue/24/solid";
+import { AuthMec } from "@prisma/client";
 import type { Component } from "vue";
-
-const authenticationMechanisms: Array<{
-  name: string;
-  enabled: boolean;
-  icon: Component;
-  route: string;
-  settings?: { [key: string]: string };
-}> = [
-  {
-    name: "Simple (username/password)",
-    enabled: true,
-    icon: IconsSimpleAuthenticationLogo,
-    route: "/admin/auth/simple",
-  },
-];
 
 useHead({
   title: "Authentication",
@@ -125,4 +109,25 @@ useHead({
 definePageMeta({
   layout: "admin",
 });
+
+const headers = useRequestHeaders(["cookie"]);
+const enabledMechanisms = await $dropFetch("/api/v1/admin/auth", {
+  headers,
+});
+
+const authenticationMechanisms: Array<{
+  name: string;
+  mec: AuthMec;
+  icon: Component;
+  route: string;
+  enabled: boolean;
+  settings?: { [key: string]: string };
+}> = [
+  {
+    name: "Simple (username/password)",
+    mec: AuthMec.Simple,
+    icon: IconsSimpleAuthenticationLogo,
+    route: "/admin/users/auth/simple",
+  },
+].map((e) => ({ ...e, enabled: enabledMechanisms.includes(e.mec) }));
 </script>

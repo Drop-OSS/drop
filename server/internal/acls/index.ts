@@ -33,6 +33,7 @@ const userACLPrefix = "user:";
 type UserACL = Array<(typeof userACLs)[number]>;
 
 export const systemACLs = [
+  "auth:read",
   "auth:simple:invitation:read",
   "auth:simple:invitation:new",
   "auth:simple:invitation:delete",

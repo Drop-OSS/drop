@@ -48,7 +48,7 @@ async function deleteCollection() {
     if (!collection.value) return;
 
     deleteLoading.value = true;
-    await $fetch(`/api/v1/collection/${collection.value.id}`, {
+    await $dropFetch(`/api/v1/collection/${collection.value.id}`, {
       // @ts-ignore
       method: "DELETE",
     });
