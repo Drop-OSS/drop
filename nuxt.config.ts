@@ -36,7 +36,6 @@ export default defineNuxtConfig({
 
   // Module config from here down
   modules: [
-    "@nuxt/content",
     "vue3-carousel-nuxt",
     "nuxt-security",
     "@nuxt/image",
@@ -44,22 +43,6 @@ export default defineNuxtConfig({
 
   carousel: {
     prefix: "Vue",
-  },
-
-  content: {
-    api: {
-      baseURL: "/api/v1/_content",
-    },
-    markdown: {
-      anchorLinks: false,
-    },
-    sources: {
-      content: {
-        driver: "fs",
-        prefix: "/docs",
-        base: path.resolve(__dirname, "docs"),
-      },
-    },
   },
 
   security: {
