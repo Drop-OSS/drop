@@ -48,6 +48,8 @@ export default defineNuxtConfig({
   security: {
     headers: {
       contentSecurityPolicy: {
+        //fix for forced https redirection issue
+        "upgrade-insecure-requests": false,
         "img-src": [
           "'self'",
           "data:",
