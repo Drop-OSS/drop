@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import moment from "moment";
 import { parse as parseCookies } from "cookie-es";
 import { MinimumRequestObject } from "~/server/h3";
+import createDBSessionHandler from "./db";
 
 /*
 This implementation may need work.
@@ -24,11 +25,12 @@ export class SessionHandler {
 
   constructor() {
     // Create a new provider
-    this.sessionProvider = createMemorySessionProvider();
+    this.sessionProvider = createDBSessionHandler();
+    // this.sessionProvider = createMemorySessionProvider();
   }
 
   private getSessionToken(request: MinimumRequestObject | undefined) {
-    if(!request) throw new Error("Native web request not available");
+    if (!request) throw new Error("Native web request not available");
     const cookieHeader = request.headers.get("Cookie");
     if (!cookieHeader) return undefined;
     const cookies = parseCookies(cookieHeader);
