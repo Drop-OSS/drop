@@ -9,10 +9,7 @@ export const useCollections = async () => {
   // @ts-expect-error
   const state = useState<FullCollection[]>("collections", () => undefined);
   if (state.value === undefined) {
-    const headers = useRequestHeaders(["cookie"]);
-    state.value = await $dropFetch<FullCollection[]>("/api/v1/collection", {
-      headers,
-    });
+    state.value = await $dropFetch<FullCollection[]>("/api/v1/collection");
   }
 
   return state;
@@ -41,8 +38,5 @@ export const useLibrary = async () => {
 
 export async function refreshLibrary() {
   const state = useState<FullCollection>("library");
-  const headers = useRequestHeaders(["cookie"]);
-  state.value = await $dropFetch<FullCollection>("/api/v1/collection/default", {
-    headers,
-  });
+  state.value = await $dropFetch<FullCollection>("/api/v1/collection/default");
 }

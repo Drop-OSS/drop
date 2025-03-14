@@ -179,8 +179,7 @@ useHead({
 
 const searchQuery = ref("");
 
-const headers = useRequestHeaders(["cookie"]);
-const libraryState = await $dropFetch("/api/v1/admin/library", { headers });
+const libraryState = await $dropFetch("/api/v1/admin/library");
 const libraryGames = ref(
   libraryState.games.map((e) => {
     const noVersions = e.status.noVersions;

@@ -106,6 +106,5 @@ definePageMeta({
   layout: "admin",
 });
 
-const headers = useRequestHeaders(["cookie"]);
-const { data: users } = await useFetch("/api/v1/admin/users", { headers });
+const users = await $dropFetch("/api/v1/admin/users");
 </script>

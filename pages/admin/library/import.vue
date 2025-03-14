@@ -157,8 +157,7 @@ definePageMeta({
   layout: "admin",
 });
 
-const headers = useRequestHeaders(["cookie"]);
-const games = await $dropFetch("/api/v1/admin/import/game", { headers });
+const games = await $dropFetch("/api/v1/admin/import/game");
 
 const currentlySelectedGame = ref(-1);
 const gameSearchResultsLoading = ref(false);

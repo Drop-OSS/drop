@@ -391,12 +391,10 @@ useHead({
   title: "Simple authentication",
 });
 
-const headers = useRequestHeaders(["cookie"]);
-const { data } = await useFetch<Array<SerializeObject<Invitation>>>(
-  "/api/v1/admin/auth/invitation",
-  { headers }
+const data = await $dropFetch<Array<SerializeObject<Invitation>>>(
+  "/api/v1/admin/auth/invitation"
 );
-const invitations = ref(data.value ?? []);
+const invitations = ref(data ?? []);
 
 const generateInvitationUrl = (id: string) =>
   `${window.location.protocol}//${window.location.host}/register?id=${id}`;

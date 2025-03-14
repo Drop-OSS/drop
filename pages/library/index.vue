@@ -38,7 +38,9 @@
           @click="() => (currentlyDeleting = collection)"
           class="group px-3 ml-[2px] bg-zinc-800/50 hover:bg-zinc-800 group"
         >
-          <TrashIcon class="transition-all size-5 text-zinc-400 group-hover:text-red-400 group-hover:rotate-[8deg]" />
+          <TrashIcon
+            class="transition-all size-5 text-zinc-400 group-hover:text-red-400 group-hover:rotate-[8deg]"
+          />
         </button>
       </div>
 
@@ -48,10 +50,16 @@
           @click="collectionCreateOpen = true"
           class="group flex flex-row rounded-lg overflow-hidden transition-all duration-200 text-left w-full hover:scale-105"
         >
-          <div class="grow p-4 bg-zinc-800/50 hover:bg-zinc-800 border-2 border-dashed border-zinc-700">
+          <div
+            class="grow p-4 bg-zinc-800/50 hover:bg-zinc-800 border-2 border-dashed border-zinc-700"
+          >
             <div class="flex items-center gap-3">
-              <PlusIcon class="h-5 w-5 text-zinc-400 group-hover:text-zinc-300 transition-all duration-300 group-hover:rotate-90" />
-              <h3 class="text-lg font-semibold text-zinc-400 group-hover:text-zinc-300">
+              <PlusIcon
+                class="h-5 w-5 text-zinc-400 group-hover:text-zinc-300 transition-all duration-300 group-hover:rotate-90"
+              />
+              <h3
+                class="text-lg font-semibold text-zinc-400 group-hover:text-zinc-300"
+              >
                 Create Collection
               </h3>
             </div>
@@ -78,10 +86,9 @@ import {
 import { type Collection, type Game, type GameVersion } from "@prisma/client";
 import { PlusIcon } from "@heroicons/vue/20/solid";
 
-const headers = useRequestHeaders(["cookie"]);
-const { data: gamesData } = await useFetch<
-  (Game & { versions: GameVersion[] })[]
->("/api/v1/store/recent", { headers });
+const gamesData = await $dropFetch<(Game & { versions: GameVersion[] })[]>(
+  "/api/v1/store/recent"
+);
 
 const collections = await useCollections();
 const collectionCreateOpen = ref(false);

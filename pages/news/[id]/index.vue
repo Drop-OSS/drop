@@ -70,10 +70,7 @@
     </div>
 
     <!-- Article content - markdown -->
-    <div
-      class="mx-auto prose prose-invert prose-lg"
-      v-html="renderedContent"
-    />
+    <div class="mx-auto prose prose-invert prose-lg" v-html="renderedContent" />
   </div>
 
   <DeleteNewsModal v-model="currentlyDeleting" />
@@ -85,16 +82,19 @@ import { TrashIcon } from "@heroicons/vue/24/outline";
 import { micromark } from "micromark";
 
 const route = useRoute();
-const { data: article } = await useNews().getById(route.params.id as string);
 const currentlyDeleting = ref();
 const user = useUser();
-
-if (!article.value) {
+const news = useNews();
+if (!news.value) {
+  news.value = await fetchNews();
+}
+const article = computed(() => news.value?.find((e) => e.id == route.params.id));
+if (!article.value)
   throw createError({
     statusCode: 404,
-    message: "Article not found",
+    statusMessage: "Article not found",
+    fatal: true,
   });
-}
 
 // Render markdown content
 const renderedContent = computed(() => {

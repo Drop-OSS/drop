@@ -10,8 +10,6 @@
             Stay up to date with the latest updates and announcements.
           </p>
         </div>
-
-        <NewsArticleCreate @refresh="refreshAll" />
       </div>
     </div>
 
@@ -83,9 +81,17 @@
 
 <script setup lang="ts">
 import { DocumentIcon } from "@heroicons/vue/24/outline";
+import type { Article } from "@prisma/client";
+import type { SerializeObject } from "nitropack/types";
 
-const newsDirectory = ref();
-const { data: articles, refresh: refreshArticles } = await useNews().getAll();
+const props = defineProps<{
+  articles: SerializeObject<
+    Article & {
+      tags: Array<{ name: string; id: string }>;
+      author: { displayName: string };
+    }
+  >[];
+}>();
 
 const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString("en-AU", {
@@ -98,11 +104,6 @@ const formatDate = (date: string) => {
 useHead({
   title: "News",
 });
-
-const refreshAll = async () => {
-  await refreshArticles();
-  await newsDirectory.value?.refresh();
-};
 </script>
 
 <style scoped>

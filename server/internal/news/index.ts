@@ -31,6 +31,15 @@ class NewsManager {
           },
         },
       },
+      include: {
+        author: {
+          select: {
+            id: true,
+            displayName: true,
+          },
+        },
+        tags: true,
+      },
     });
   }
 

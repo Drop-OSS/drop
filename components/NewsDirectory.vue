@@ -116,19 +116,21 @@ import { ref, computed } from "vue";
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/solid";
 import { micromark } from "micromark";
 
+const news = useNews();
+if(!news.value){
+  news.value = await fetchNews();
+}
+
 const route = useRoute();
 const searchQuery = ref("");
 const dateFilter = ref("all");
 const selectedTags = ref<string[]>([]);
-const { data: articles, refresh: refreshArticles } = await useNews().getAll();
-
-defineExpose({ refresh: refreshArticles });
 
 // Get unique tags from all articles
 const availableTags = computed(() => {
-  if (!articles.value) return [];
+  if (!news.value) return [];
   const tags = new Set<string>();
-  articles.value.forEach((article) => {
+  news.value.forEach((article) => {
     article.tags.forEach((tag) => tags.add(tag.name));
   });
   return Array.from(tags);
@@ -159,10 +161,10 @@ const formatExcerpt = (excerpt: string) => {
 };
 
 const filteredArticles = computed(() => {
-  if (!articles.value) return [];
+  if (!news.value) return [];
 
   // filter articles based on search, date, and tags
-  return articles.value.filter((article) => {
+  return news.value.filter((article) => {
     const matchesSearch =
       article.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
       article.description

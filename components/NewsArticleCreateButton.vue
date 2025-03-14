@@ -4,13 +4,13 @@
     <button
       v-if="user?.admin"
       @click="modalOpen = !modalOpen"
-      class="inline-flex items-center gap-x-2 px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold font-display shadow-sm transition-all duration-200 hover:bg-blue-500 hover:scale-105 hover:shadow-blue-500/25 hover:shadow-lg active:scale-95"
+      class="transition inline-flex w-full items-center px-4 gap-x-2 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold text-sm shadow-sm"
     >
       <PlusIcon
         class="h-5 w-5 transition-transform duration-200"
         :class="{ 'rotate-90': modalOpen }"
       />
-      <span>New Article</span>
+      <span>New article</span>
     </button>
 
     <ModalTemplate size-class="sm:max-w-[80vw]" v-model="modalOpen">
@@ -207,14 +207,16 @@ import {
   XCircleIcon,
   XMarkIcon,
 } from "@heroicons/vue/24/solid";
+import type { Article } from "@prisma/client";
 import { micromark } from "micromark";
+import type { SerializeObject } from "nitropack/types";
 
-const emit = defineEmits<{
-  refresh: [];
-}>();
+const news = useNews();
+if(!news.value){
+  news.value = await fetchNews();
+}
 
 const user = useUser();
-const news = useNews();
 
 const modalOpen = ref(false);
 const loading = ref(false);
@@ -348,10 +350,12 @@ async function createArticle() {
     formData.append("content", newArticle.value.content);
     formData.append("tags", JSON.stringify(newArticle.value.tags));
 
-    await $dropFetch("/api/v1/admin/news", {
+    const createdArticle = await $dropFetch("/api/v1/admin/news", {
       method: "POST",
       body: formData,
     });
+
+    news.value?.push(createdArticle);
 
     // Reset form
     newArticle.value = {
@@ -360,8 +364,6 @@ async function createArticle() {
       content: "",
       tags: [],
     };
-
-    emit("refresh");
 
     modalOpen.value = false;
   } catch (e) {

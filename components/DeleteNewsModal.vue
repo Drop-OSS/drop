@@ -46,16 +46,22 @@ const article = defineModel<Article | undefined>();
 const deleteLoading = ref(false);
 const router = useRouter();
 const news = useNews();
+if (!news.value) {
+  news.value = await fetchNews();
+}
 
 async function deleteArticle() {
   try {
-    if (!article.value) return;
+    if (!article.value || !news.value) return;
 
     deleteLoading.value = true;
-    await news.remove(article.value.id);
+    await $dropFetch(`/api/v1/admin/news/${article.value.id}`, { method: "DELETE" });
+
+    const index = news.value.findIndex((e) => e.id == article.value?.id);
+    news.value.splice(index, 1);
 
     article.value = undefined;
-    await router.push('/news');
+    router.push("/news");
   } catch (e: any) {
     createModal(
       ModalType.Notification,
@@ -69,4 +75,4 @@ async function deleteArticle() {
     deleteLoading.value = false;
   }
 }
-</script> 
+</script>

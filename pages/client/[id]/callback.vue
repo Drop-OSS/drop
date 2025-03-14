@@ -47,7 +47,7 @@
     </div>
   </div>
   <main
-    v-else-if="clientData.data.value"
+    v-else-if="clientData"
     class="mx-auto grid lg:grid-cols-2 max-w-md lg:max-w-none min-h-full place-items-center w-full gap-4 px-6 py-12 sm:py-32 lg:px-8"
   >
     <div>
@@ -58,7 +58,7 @@
           Authorize client?
         </h1>
         <p class="mt-6 text-base leading-7 text-zinc-400">
-          "{{ clientData.data.value.name }}" has requested access to your Drop
+          "{{ clientData.name }}" has requested access to your Drop
           account.
         </p>
         <div
@@ -94,8 +94,8 @@
         <p
           class="mt-6 font-semibold font-display text-lg leading-8 text-zinc-100"
         >
-          Accepting this request will allow "{{ clientData.data.value.name }}"
-          on "{{ clientData.data.value.platform }}" to:
+          Accepting this request will allow "{{ clientData.name }}"
+          on "{{ clientData.platform }}" to:
         </p>
       </div>
       <div class="mt-8 max-w-2xl sm:mt-12 lg:mt-14">
@@ -132,22 +132,6 @@
       </div>
     </div>
   </main>
-  <main
-    v-else-if="clientData.error.value != undefined"
-    class="grid min-h-full w-full place-items-center px-6 py-24 sm:py-32 lg:px-8"
-  >
-    <div class="text-center">
-      <p class="text-base font-semibold text-blue-600">400</p>
-      <h1
-        class="mt-4 text-3xl font-bold font-display tracking-tight text-zinc-100 sm:text-5xl"
-      >
-        Invalid or expired request
-      </h1>
-      <p class="mt-6 text-base leading-7 text-zinc-400">
-        Unfortunately, we couldn't load the authorization request.
-      </p>
-    </div>
-  </main>
 </template>
 
 <script setup lang="ts">
@@ -164,10 +148,8 @@ import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/vue/24/solid";
 const route = useRoute();
 const clientId = route.params.id;
 
-const headers = useRequestHeaders(["cookie"]);
-const clientData = await useFetch(
-  `/api/v1/client/auth/callback?id=${clientId}`,
-  { headers }
+const clientData = await $dropFetch(
+  `/api/v1/client/auth/callback?id=${clientId}`
 );
 
 const completed = ref(false);

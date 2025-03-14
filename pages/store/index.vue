@@ -35,7 +35,9 @@
                 {{ game.mShortDescription }}
               </p>
               <div>
-                <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-4 w-fit mx-auto">
+                <div
+                  class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-4 w-fit mx-auto"
+                >
                   <NuxtLink
                     :href="`/store/${game.id}`"
                     class="block w-full rounded-md border border-transparent bg-white px-8 py-3 text-base font-medium text-gray-900 hover:bg-gray-100 sm:w-auto duration-200 hover:scale-105"
@@ -95,14 +97,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 
-const headers = useRequestHeaders(["cookie"]);
-const recent = await $dropFetch("/api/v1/store/recent", { headers });
-const updated = await $dropFetch("/api/v1/store/updated", { headers });
-const released = await $dropFetch("/api/v1/store/released", {
-  headers,
-});
-const developers = await $dropFetch("/api/v1/store/developers", { headers });
-const publishers = await $dropFetch("/api/v1/store/publishers", { headers });
+const recent = await $dropFetch("/api/v1/store/recent");
+const updated = await $dropFetch("/api/v1/store/updated");
+const released = await $dropFetch("/api/v1/store/released");
+
+const developers = await $dropFetch("/api/v1/store/developers");
+const publishers = await $dropFetch("/api/v1/store/publishers");
 
 useHead({
   title: "Store",

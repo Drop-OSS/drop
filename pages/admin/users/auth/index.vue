@@ -110,10 +110,7 @@ definePageMeta({
   layout: "admin",
 });
 
-const headers = useRequestHeaders(["cookie"]);
-const enabledMechanisms = await $dropFetch("/api/v1/admin/auth", {
-  headers,
-});
+const enabledMechanisms = await $dropFetch("/api/v1/admin/auth");
 
 const authenticationMechanisms: Array<{
   name: string;

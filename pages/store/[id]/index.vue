@@ -176,10 +176,8 @@ const gameId = route.params.id.toString();
 
 const user = useUser();
 
-const headers = useRequestHeaders(["cookie"]);
 const game = await $dropFetch<Game & { versions: GameVersion[] }>(
-  `/api/v1/games/${gameId}`,
-  { headers }
+  `/api/v1/games/${gameId}`
 );
 
 // Preview description (first 30 lines)

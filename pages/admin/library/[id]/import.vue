@@ -551,13 +551,9 @@ definePageMeta({
 const router = useRouter();
 
 const route = useRoute();
-const headers = useRequestHeaders(["cookie"]);
 const gameId = route.params.id.toString();
 const versions = await $dropFetch(
-  `/api/v1/admin/import/version?id=${encodeURIComponent(gameId)}`,
-  {
-    headers,
-  }
+  `/api/v1/admin/import/version?id=${encodeURIComponent(gameId)}`
 );
 const currentlySelectedVersion = ref(-1);
 const versionSettings = ref<{

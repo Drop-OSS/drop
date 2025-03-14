@@ -321,7 +321,10 @@
                 {{ item.delta ? "Upgrade mode" : "" }}
               </div>
               <div class="inline-flex items-center gap-x-2">
-                <component :is="PLATFORM_ICONS[item.platform]" class="size-6 text-blue-600" />
+                <component
+                  :is="PLATFORM_ICONS[item.platform]"
+                  class="size-6 text-blue-600"
+                />
                 <Bars3Icon class="cursor-move w-6 h-6 text-zinc-400 handle" />
                 <button @click="() => deleteVersion(item.versionName)">
                   <TrashIcon class="w-5 h-5 text-red-600" />
@@ -345,7 +348,7 @@
     :options="{ id: game.id }"
     accept="image/*"
     endpoint="/api/v1/admin/game/image"
-    @upload="(result) => uploadAfterImageUpload(result)"
+    @upload="(result: Game) => uploadAfterImageUpload(result)"
   />
   <ModalTemplate v-model="showAddCarouselModal">
     <template #default>
@@ -529,12 +532,8 @@ const mobileShowFinalDescription = ref(true);
 
 const route = useRoute();
 const gameId = route.params.id.toString();
-const headers = useRequestHeaders(["cookie"]);
 const { game: rawGame, unimportedVersions } = await $dropFetch(
-  `/api/v1/admin/game?id=${encodeURIComponent(gameId)}`,
-  {
-    headers,
-  }
+  `/api/v1/admin/game?id=${encodeURIComponent(gameId)}`
 );
 const game = ref(rawGame);
 

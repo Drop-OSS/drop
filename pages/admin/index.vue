@@ -176,6 +176,5 @@ useHead({
   title: "Home",
 });
 
-const headers = useRequestHeaders(["cookie"]);
-const libraryState = await $dropFetch("/api/v1/admin/library", { headers });
+const libraryState = await $dropFetch("/api/v1/admin/library");
 </script>

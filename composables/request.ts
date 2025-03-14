@@ -31,7 +31,11 @@ export const $dropFetch: DropFetch = async (request, opts) => {
   if (!getCurrentInstance()?.proxy) {
     return (await $fetch(request, opts)) as any;
   }
-  const { data, error } = await useFetch(request, opts as any);
+  const headers = useRequestHeaders(["cookie"]);
+  const { data, error } = await useFetch(request, {
+    ...opts,
+    headers: { ...opts?.headers, ...headers },
+  } as any);
   if (error.value) throw error.value;
   return data.value as any;
 };
