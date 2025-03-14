@@ -72,14 +72,14 @@ async function createCollection() {
     createCollectionLoading.value = true;
 
     // Create the collection
-    const response = await $fetch("/api/v1/collection", {
+    const response = await $dropFetch("/api/v1/collection", {
       method: "POST",
       body: { name: collectionName.value },
     });
 
     // Add the game if provided
     if (props.gameId) {
-      const entry = await $fetch<
+      const entry = await $dropFetch<
         CollectionEntry & { game: SerializeObject<Game> }
       >(`/api/v1/collection/${response.id}/entry`, {
         method: "POST",

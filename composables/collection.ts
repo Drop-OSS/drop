@@ -10,7 +10,7 @@ export const useCollections = async () => {
   const state = useState<FullCollection[]>("collections", () => undefined);
   if (state.value === undefined) {
     const headers = useRequestHeaders(["cookie"]);
-    state.value = await $fetch<FullCollection[]>("/api/v1/collection", {
+    state.value = await $dropFetch<FullCollection[]>("/api/v1/collection", {
       headers,
     });
   }
@@ -20,7 +20,7 @@ export const useCollections = async () => {
 
 export async function refreshCollection(id: string) {
   const state = useState<FullCollection[]>("collections");
-  const collection = await $fetch<FullCollection>(`/api/v1/collection/${id}`);
+  const collection = await $dropFetch<FullCollection>(`/api/v1/collection/${id}`);
   const index = state.value.findIndex((e) => e.id == id);
   if (index == -1) {
     state.value.push(collection);
@@ -42,7 +42,7 @@ export const useLibrary = async () => {
 export async function refreshLibrary() {
   const state = useState<FullCollection>("library");
   const headers = useRequestHeaders(["cookie"]);
-  state.value = await $fetch<FullCollection>("/api/v1/collection/default", {
+  state.value = await $dropFetch<FullCollection>("/api/v1/collection/default", {
     headers,
   });
 }

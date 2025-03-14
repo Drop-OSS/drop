@@ -115,7 +115,7 @@ const inCollections = computed(() =>
 async function toggleLibrary() {
   isLibraryLoading.value = true;
   try {
-    await $fetch("/api/v1/collection/default/entry", {
+    await $dropFetch("/api/v1/collection/default/entry", {
       method: inLibrary.value ? "DELETE" : "POST",
       body: {
         id: props.gameId,
@@ -142,7 +142,7 @@ async function toggleCollection(id: string) {
     if (!collection) return;
     const index = collection.entries.findIndex((e) => e.gameId == props.gameId);
 
-    await $fetch(`/api/v1/collection/${id}/entry`, {
+    await $dropFetch(`/api/v1/collection/${id}/entry`, {
       method: index == -1 ? "POST" : "DELETE",
       body: {
         id: props.gameId,

@@ -35,6 +35,7 @@ export const userACLDescriptions: ObjectFromList<typeof userACLs> = {
 };
 
 export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
+  "auth:read": "Fetch the list of enabled authentication mechanisms configured.",
   "auth:simple:invitation:read": "Fetch simple auth invitations.",
   "auth:simple:invitation:new": "Create new simple auth invitations.",
   "auth:simple:invitation:delete": "Delete a simple auth invitation.",

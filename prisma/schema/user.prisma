@@ -2,6 +2,7 @@ model User {
     id       String  @id @default(uuid())
     username String  @unique
     admin    Boolean @default(false)
+    enabled  Boolean @default(true)
 
     email          String
     displayName    String

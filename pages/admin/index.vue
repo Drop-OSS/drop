@@ -7,15 +7,24 @@
       <div
         class="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] lg:rounded-l-[calc(2rem+1px)]"
       >
-        <div class="px-8 pt-8 pb-3 sm:px-10 sm:pt-10 sm:pb-0">
+        <div class="px-8 pt-8 pb-3 sm:px-10 sm:py-10">
           <p
             class="mt-2 text-lg font-medium tracking-tight text-zinc-100 max-lg:text-center"
           >
             Library
           </p>
           <p class="mt-2 max-w-lg text-sm/6 text-zinc-400 max-lg:text-center">
-            Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui
-            lorem cupidatat commodo.
+            Manage your Drop library, and import new games. Your library is the
+            list of all games currently configured on this instance.
+          </p>
+          <p class="mt-3 text-sm">
+            <NuxtLink
+              href="/admin/library"
+              class="whitespace-nowrap font-medium text-blue-400 hover:text-blue-500"
+            >
+              Check it out
+              <span aria-hidden="true"> &rarr;</span>
+            </NuxtLink>
           </p>
 
           <div
@@ -45,31 +54,6 @@
               </div>
             </div>
           </div>
-
-          <dl
-            class="mt-4 grid max-w-xl grid-cols-1 gap-8 sm:grid-cols-2 xl:mt-8"
-          >
-            <div class="flex flex-col gap-y-3 border-l border-zinc-100/10 pl-6">
-              <dt class="text-sm/6 text-zinc-400">Games</dt>
-              <dd
-                class="order-first text-3xl font-semibold tracking-tight text-zinc-100"
-              >
-                {{ libraryState.games.length }}
-              </dd>
-            </div>
-            <div class="flex flex-col gap-y-3 border-l border-zinc-100/10 pl-6">
-              <dt class="text-sm/6 text-zinc-400">Versions</dt>
-              <dd
-                class="order-first text-3xl font-semibold tracking-tight text-zinc-100"
-              >
-                {{
-                  libraryState.games
-                    .map((e) => e.game.versions.length)
-                    .reduce((a, b) => a + b, 0)
-                }}
-              </dd>
-            </div>
-          </dl>
         </div>
       </div>
       <div
@@ -78,30 +62,30 @@
     </div>
     <div class="relative max-lg:row-start-1">
       <div
-        class="absolute inset-px rounded-lg bg-white max-lg:rounded-t-[2rem]"
+        class="absolute inset-px rounded-lg bg-zinc-950 max-lg:rounded-t-[2rem]"
       />
       <div
         class="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] max-lg:rounded-t-[calc(2rem+1px)]"
       >
-        <div class="px-8 pt-8 sm:px-10 sm:pt-10">
+        <div class="px-8 py-8 sm:px-10 sm:py-10">
           <p
-            class="mt-2 text-lg font-medium tracking-tight text-gray-950 max-lg:text-center"
+            class="mt-2 text-lg font-medium tracking-tight text-zinc-100 max-lg:text-center"
           >
-            Performance
+            Users
           </p>
-          <p class="mt-2 max-w-lg text-sm/6 text-gray-600 max-lg:text-center">
-            Lorem ipsum, dolor sit amet consectetur adipisicing elit maiores
-            impedit.
+          <p class="mt-2 max-w-lg text-sm/6 text-zinc-400 max-lg:text-center">
+            Your users are people who can access your Drop instance, download
+            games from it, and configure API keys for it.
           </p>
-        </div>
-        <div
-          class="flex flex-1 items-center justify-center px-8 max-lg:pt-10 max-lg:pb-12 sm:px-10 lg:pb-2"
-        >
-          <img
-            class="w-full max-lg:max-w-xs"
-            src="https://tailwindcss.com/plus-assets/img/component-images/bento-03-performance.png"
-            alt=""
-          />
+          <p class="mt-3 text-sm">
+            <NuxtLink
+              href="/admin/users"
+              class="whitespace-nowrap font-medium text-blue-400 hover:text-blue-500"
+            >
+              Check it out
+              <span aria-hidden="true"> &rarr;</span>
+            </NuxtLink>
+          </p>
         </div>
       </div>
       <div
@@ -193,5 +177,5 @@ useHead({
 });
 
 const headers = useRequestHeaders(["cookie"]);
-const libraryState = await $fetch("/api/v1/admin/library", { headers });
+const libraryState = await $dropFetch("/api/v1/admin/library", { headers });
 </script>

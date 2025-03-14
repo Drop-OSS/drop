@@ -3,20 +3,12 @@ import prisma from "../db/database";
 
 class ApplicationConfiguration {
   // Reference to the currently selected application configuration
-  private currentApplicationSettings: ApplicationSettings = {
-    timestamp: new Date(),
-    enabledAuthencationMechanisms: [],
-    metadataProviders: [],
-  };
-  private applicationStateProxy: object;
-  private dirty: boolean = false;
-  private dirtyPromise: Promise<any> | undefined = undefined;
-
-  constructor() {
-    this.applicationStateProxy = {};
-  }
+  private currentApplicationSettings: ApplicationSettings | undefined =
+    undefined;
 
   private async save() {
+    await this.init();
+
     const deepAppConfigCopy: Omit<ApplicationSettings, "timestamp"> & {
       timestamp?: Date;
     } = JSON.parse(JSON.stringify(this.currentApplicationSettings));
@@ -26,6 +18,19 @@ class ApplicationConfiguration {
     await prisma.applicationSettings.create({
       data: deepAppConfigCopy,
     });
+  }
+
+  private async init() {
+    if (this.currentApplicationSettings === undefined) {
+      const applicationSettingsCount = await prisma.applicationSettings.count(
+        {}
+      );
+      if (applicationSettingsCount > 0) {
+        await applicationSettings.pullConfiguration();
+      } else {
+        await applicationSettings.initialiseConfiguration();
+      }
+    }
   }
 
   // Default application configuration
@@ -56,6 +61,10 @@ class ApplicationConfiguration {
     key: T,
     value: ApplicationSettings[T]
   ) {
+    await this.init();
+    if (!this.currentApplicationSettings)
+      throw new Error("Somehow, failed to initialise application settings");
+
     if (this.currentApplicationSettings[key] !== value) {
       this.currentApplicationSettings[key] = value;
 
@@ -63,7 +72,11 @@ class ApplicationConfiguration {
     }
   }
 
-  get<T extends keyof ApplicationSettings>(key: T): ApplicationSettings[T] {
+  async get<T extends keyof ApplicationSettings>(key: T): Promise<ApplicationSettings[T]> {
+    await this.init();
+    if (!this.currentApplicationSettings)
+      throw new Error("Somehow, failed to initialise application settings");
+
     return this.currentApplicationSettings[key];
   }
 }

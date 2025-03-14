@@ -48,7 +48,7 @@ import type { Notification } from "@prisma/client";
 const props = defineProps<{ notification: Notification }>();
 
 async function deleteMe() {
-  await $fetch(`/api/v1/notifications/${props.notification.id}`, {
+  await $dropFetch(`/api/v1/notifications/${props.notification.id}`, {
     method: "DELETE",
   });
   const notifications = useNotifications();

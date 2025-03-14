@@ -125,7 +125,7 @@ export abstract class ObjectBackend {
   // If we need to fetch a remote resource, it doesn't make sense
   // to immediately fetch the object, *then* check permissions.
   // Instead the caller can pass a simple anonymous funciton, like
-  // () => $fetch('/my-image');
+  // () => $dropFetch('/my-image');
   // And if we actually have permission to write, it fetches it then.
   async writeWithPermissions(
     id: ObjectReference,

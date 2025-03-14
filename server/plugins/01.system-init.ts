@@ -2,14 +2,6 @@ import { applicationSettings } from "../internal/config/application-configuratio
 import prisma from "../internal/db/database";
 
 export default defineNitroPlugin(async (nitro) => {
-  const applicationSettingsCount = await prisma.applicationSettings.count({});
-  if (applicationSettingsCount > 0) {
-    await applicationSettings.pullConfiguration();
-  } else {
-    await applicationSettings.initialiseConfiguration();
-  }
-  console.log("initalised application config");
-
   // Ensure system user exists
   // The system user owns any user-based code
   // that we want to re-use for the app

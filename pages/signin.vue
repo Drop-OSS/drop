@@ -149,7 +149,7 @@ function signin_wrapper() {
 }
 
 async function signin() {
-  await $fetch("/api/v1/auth/signin/simple", {
+  await $dropFetch("/api/v1/auth/signin/simple", {
     method: "POST",
     body: {
       username: username.value,
@@ -158,7 +158,7 @@ async function signin() {
     },
   });
   const user = useUser();
-  user.value = await $fetch<User | null>("/api/v1/user");
+  user.value = await $dropFetch<User | null>("/api/v1/user");
 }
 
 definePageMeta({

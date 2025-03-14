@@ -158,7 +158,7 @@ definePageMeta({
 });
 
 const headers = useRequestHeaders(["cookie"]);
-const games = await $fetch("/api/v1/admin/import/game", { headers });
+const games = await $dropFetch("/api/v1/admin/import/game", { headers });
 
 const currentlySelectedGame = ref(-1);
 const gameSearchResultsLoading = ref(false);
@@ -174,7 +174,7 @@ async function updateSelectedGame(value: number) {
   metadataResults.value = undefined;
   currentlySelectedMetadata.value = -1;
 
-  const results = await $fetch(
+  const results = await $dropFetch(
     `/api/v1/admin/import/game/search?q=${encodeURIComponent(game)}`
   );
   metadataResults.value = results;
@@ -199,7 +199,7 @@ const importError = ref<string | undefined>();
 async function importGame(metadata: boolean) {
   if (!metadataResults.value && metadata) return;
 
-  const game = await $fetch("/api/v1/admin/import/game", {
+  const game = await $dropFetch("/api/v1/admin/import/game", {
     method: "POST",
     body: {
       path: games.unimportedGames[currentlySelectedGame.value],

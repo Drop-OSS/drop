@@ -12,5 +12,5 @@ export const updateUser = async () => {
   if (user.value === null) return;
 
   // SSR calls have to be after uses
-  user.value = await $fetch<User | null>("/api/v1/user", { headers });
+  user.value = await $dropFetch<User | null>("/api/v1/user", { headers });
 };
