@@ -56,6 +56,7 @@ export default defineNuxtConfig({
           "https://images.igdb.com",
         ],
       },
+      strictTransportSecurity: false,
     },
   },
 });
