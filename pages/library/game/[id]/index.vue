@@ -169,12 +169,12 @@ import type { Game } from "@prisma/client";
 const route = useRoute();
 const id = route.params.id.toString();
 
-const { data: rawGame } = await useFetch<Game>(`/api/v1/games/${id}`);
+const rawGame = await $dropFetch<Game>(`/api/v1/games/${id}`);
 const game = computed(() => {
-  if (!rawGame.value) {
+  if (!rawGame) {
     throw createError({ statusCode: 404, message: 'Game not found' });
   }
-  return rawGame.value;
+  return rawGame;
 });
 
 // Convert markdown to HTML
