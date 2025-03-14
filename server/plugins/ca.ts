@@ -1,6 +1,9 @@
 import { CertificateAuthority } from "../internal/clients/ca";
 import fs from "fs";
-import { fsCertificateStore } from "../internal/clients/ca-store";
+import {
+  dbCertificateStore,
+  fsCertificateStore,
+} from "../internal/clients/ca-store";
 
 let ca: CertificateAuthority | undefined;
 
@@ -10,9 +13,9 @@ export const useCertificateAuthority = () => {
 };
 
 export default defineNitroPlugin(async (nitro) => {
-  const basePath = process.env.CLIENT_CERTIFICATES ?? "./certs";
-  fs.mkdirSync(basePath, { recursive: true });
-  const store = fsCertificateStore(basePath);
+  // const basePath = process.env.CLIENT_CERTIFICATES ?? "./certs";
+  // fs.mkdirSync(basePath, { recursive: true });
+  // const store = fsCertificateStore(basePath);
 
-  ca = await CertificateAuthority.new(store);
+  ca = await CertificateAuthority.new(dbCertificateStore());
 });
