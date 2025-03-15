@@ -10,9 +10,7 @@ export default defineNuxtConfig({
   css: ["~/assets/tailwindcss.css", "~/assets/core.scss"],
 
   vite: {
-    plugins: [
-      tailwindcss()
-    ]
+    plugins: [tailwindcss()],
   },
 
   app: {
@@ -35,11 +33,7 @@ export default defineNuxtConfig({
   extends: ["./drop-base"],
 
   // Module config from here down
-  modules: [
-    "vue3-carousel-nuxt",
-    "nuxt-security",
-    "@nuxt/image",
-  ],
+  modules: ["vue3-carousel-nuxt", "nuxt-security", "@nuxt/image"],
 
   carousel: {
     prefix: "Vue",
@@ -48,6 +42,8 @@ export default defineNuxtConfig({
   security: {
     headers: {
       contentSecurityPolicy: {
+        "upgrade-insecure-requests": false,
+
         "img-src": [
           "'self'",
           "data:",
@@ -59,4 +55,12 @@ export default defineNuxtConfig({
       strictTransportSecurity: false,
     },
   },
+
+  routeRules: {
+    "/api/v1/client/object/*": {
+      security: {
+        rateLimiter: false,
+      }
+    }
+  }
 });
