@@ -60,12 +60,7 @@ export default defineNuxtConfig({
   extends: ["./drop-base"],
 
   // Module config from here down
-  modules: [
-    "vue3-carousel-nuxt",
-    "nuxt-security",
-    "@nuxt/image",
-    "@nuxt/fonts",
-  ],
+  modules: ["vue3-carousel-nuxt", "nuxt-security", "@nuxt/image", "@nuxt/fonts"],
 
   carousel: {
     prefix: "Vue",
@@ -74,6 +69,8 @@ export default defineNuxtConfig({
   security: {
     headers: {
       contentSecurityPolicy: {
+        "upgrade-insecure-requests": false,
+
         "img-src": [
           "'self'",
           "data:",
@@ -85,4 +82,12 @@ export default defineNuxtConfig({
       strictTransportSecurity: false,
     },
   },
+
+  routeRules: {
+    "/api/v1/client/object/*": {
+      security: {
+        rateLimiter: false,
+      }
+    }
+  }
 });

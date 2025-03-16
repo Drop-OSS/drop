@@ -11,6 +11,7 @@ export function parsePlatform(platform: string) {
     case "macOS":
     case "MacOS":
     case "mac":
+    case "macos":
       return Platform.macOS;
   }
 
