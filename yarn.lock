@@ -20,6 +20,18 @@
   resolved "https://registry.yarnpkg.com/@antfu/utils/-/utils-0.7.10.tgz#ae829f170158e297a9b6a28f161a8e487d00814d"
   integrity sha512-+562v9k4aI80m1+VuMHehNJWLOFjBnXn3tdOitzD0il5b7smkSBal4+a3oKiQTbrwMmN/TBUMDvbdoWDehgOww==
 
+"@ark/schema@0.45.0":
+  version "0.45.0"
+  resolved "https://registry.yarnpkg.com/@ark/schema/-/schema-0.45.0.tgz#5d5da5dfe94ca45d36d54513fe0c53566483a1e7"
+  integrity sha512-3XlMWkZbEjh0YsF92vnnRNCWNRNhRKDTf6XhugyCXH0YRFuM+w1vFLDbB2JLfZloEd7i5cbqsLaDLzyBZbPrSg==
+  dependencies:
+    "@ark/util" "0.45.0"
+
+"@ark/util@0.45.0":
+  version "0.45.0"
+  resolved "https://registry.yarnpkg.com/@ark/util/-/util-0.45.0.tgz#2c55394a6af7865aeeb22924f301e28084aea4c0"
+  integrity sha512-Z1gHEGbpPzLtPmYb932t2B++6YonlUi1Fa14IQ4vhsGMWhd81Mi1miUmdZXW4fNI/wg1saT7H2/5cAuONgTXhg==
+
 "@babel/code-frame@^7.12.13", "@babel/code-frame@^7.22.13", "@babel/code-frame@^7.24.7", "@babel/code-frame@^7.25.9", "@babel/code-frame@^7.26.0", "@babel/code-frame@^7.26.2":
   version "7.26.2"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.26.2.tgz#4b5fab97d33338eff916235055f0ebc21e573a85"
@@ -2105,6 +2117,14 @@ argparse@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/argparse/-/argparse-2.0.1.tgz#246f50f3ca78a3240f6c997e8a9bd1eac49e4b38"
   integrity sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==
+
+arktype@^2.1.10:
+  version "2.1.10"
+  resolved "https://registry.yarnpkg.com/arktype/-/arktype-2.1.10.tgz#7a2fb85d1e8fbb22077134993a12e9b12d34ef6e"
+  integrity sha512-KqbrzI9qIGrQUClifyS1HpUp/oTSRtGDvnMKzwg2TAvxRpynY1mn/ubXaxAAdGPOM8V3pBqwb01Z6TcXqhBxzQ==
+  dependencies:
+    "@ark/schema" "0.45.0"
+    "@ark/util" "0.45.0"
 
 ast-kit@^1.0.1, ast-kit@^1.3.0:
   version "1.3.0"

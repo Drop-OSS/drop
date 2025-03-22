@@ -19,6 +19,7 @@
     "@prisma/client": "^6.1.0",
     "@tailwindcss/vite": "^4.0.6",
     "argon2": "^0.41.1",
+    "arktype": "^2.1.10",
     "axios": "^1.7.7",
     "bcryptjs": "^2.4.3",
     "cookie-es": "^1.2.2",
