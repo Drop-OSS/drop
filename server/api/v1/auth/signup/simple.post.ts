@@ -95,28 +95,31 @@ export default defineEventHandler(async (h3) => {
     {},
     [`internal:read`, `${userId}:write`]
   );
-  const user = await prisma.user.create({
-    data: {
-      id: userId,
-      username,
-      displayName,
-      email,
-      profilePicture: profilePictureId,
-      admin: invitation.isAdmin,
-    },
-  });
 
   const hash = await createHashArgon2(password);
-  await prisma.linkedAuthMec.create({
-    data: {
-      mec: AuthMec.Simple,
-      credentials: {},
-      userId: user.id,
-      password: hash,
-    },
-  });
+  const [linkMec] = await prisma.$transaction([
+    prisma.linkedAuthMec.create({
+      data: {
+        mec: AuthMec.Simple,
+        credentials: {},
+        password: hash,
+        user: {
+          create: {
+            id: userId,
+            username,
+            displayName,
+            email,
+            profilePicture: profilePictureId,
+            admin: invitation.isAdmin,
+          },
+        },
+      },
+      select: {
+        user: true,
+      },
+    }),
+    prisma.invitation.delete({ where: { id: invitationId } }),
+  ]);
 
-  await prisma.invitation.delete({ where: { id: invitationId } });
-
-  return user;
+  return linkMec.user;
 });
