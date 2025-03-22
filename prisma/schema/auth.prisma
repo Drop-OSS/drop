@@ -7,7 +7,8 @@ model LinkedAuthMec {
     mec     AuthMec
     enabled Boolean @default(true)
 
-    credentials Json
+    credentials Json // TODO: remove this, automate via migration
+    password    String?
 
     user User @relation(fields: [userId], references: [id])
 
