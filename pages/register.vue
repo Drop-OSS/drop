@@ -248,7 +248,7 @@ function register_wrapper() {
   loading.value = true;
   register()
     .then(() => {
-      router.push("/signin");
+      router.push("/auth/signin");
     })
     .catch((response) => {
       const message = response.statusMessage || "An unknown error occurred";

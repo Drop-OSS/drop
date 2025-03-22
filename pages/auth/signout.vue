@@ -43,5 +43,5 @@ user.value = null;
 
 // Redirect to signin page after signout
 await $dropFetch("/signout");
-router.push("/signin");
+router.push("/auth/signin");
 </script>
