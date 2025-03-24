@@ -24,10 +24,16 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    "/signin": { prerender: true },
+    "/auth/signin": { prerender: true },
     "/signout": { prerender: true },
 
     "/api/**": { cors: true },
+
+    "/api/v1/client/object/*": {
+      security: {
+        rateLimiter: false,
+      },
+    },
   },
 
   nitro: {
@@ -43,24 +49,17 @@ export default defineNuxtConfig({
     },
 
     compressPublicAssets: true,
-    publicAssets: [
-      {
-        baseURL: "wallpapers",
-        dir: "public/wallpapers",
-        maxAge: 31536000, // 1 year
-      },
-      {
-        baseURL: "fonts",
-        dir: "public/fonts",
-        maxAge: 31536000, // 1 year
-      },
-    ],
   },
 
   extends: ["./drop-base"],
 
   // Module config from here down
-  modules: ["vue3-carousel-nuxt", "nuxt-security", "@nuxt/image", "@nuxt/fonts"],
+  modules: [
+    "vue3-carousel-nuxt",
+    "nuxt-security",
+    "@nuxt/image",
+    "@nuxt/fonts",
+  ],
 
   carousel: {
     prefix: "Vue",
@@ -82,12 +81,4 @@ export default defineNuxtConfig({
       strictTransportSecurity: false,
     },
   },
-
-  routeRules: {
-    "/api/v1/client/object/*": {
-      security: {
-        rateLimiter: false,
-      }
-    }
-  }
 });
