@@ -52,7 +52,7 @@ export default defineEventHandler(async (h3) => {
 
   // if using old auth schema
   if (Array.isArray(authMek.credentials)) {
-    const hash = authMek.credentials.at(1);
+    const hash = authMek.credentials.at(1)?.toString();
 
     if (!hash)
       throw createError({
@@ -61,7 +61,7 @@ export default defineEventHandler(async (h3) => {
           "Invalid password state. Please contact the server administrator.",
       });
 
-    if (!(await checkHashBcrypt(password, hash.toString())))
+    if (!(await checkHashBcrypt(password, hash)))
       throw createError({
         statusCode: 401,
         statusMessage: "Invalid username or password.",
@@ -79,8 +79,9 @@ export default defineEventHandler(async (h3) => {
       console.error(creds.summary);
 
       throw createError({
-        statusCode: 400,
-        statusMessage: creds.summary,
+        statusCode: 403,
+        statusMessage:
+          "Invalid password state. Please contact the server administrator.",
       });
     }
 
