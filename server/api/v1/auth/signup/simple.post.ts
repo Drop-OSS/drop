@@ -2,8 +2,6 @@ import { AuthMec, Invitation } from "@prisma/client";
 import prisma from "~/server/internal/db/database";
 import {
   createHashArgon2,
-  simpleAuth,
-  SimpleAuthType,
 } from "~/server/internal/security/simple";
 import { v4 as uuidv4 } from "uuid";
 import * as jdenticon from "jdenticon";
@@ -70,17 +68,12 @@ export default defineEventHandler(async (h3) => {
     {},
     [`internal:read`, `${userId}:write`]
   );
-
-  const creds: SimpleAuthType = {
-    version: "v1.0.0",
-    password: await createHashArgon2(user.password),
-  };
-
   const [linkMec] = await prisma.$transaction([
     prisma.linkedAuthMec.create({
       data: {
         mec: AuthMec.Simple,
-        credentials: creds,
+        credentials: await createHashArgon2(user.password),
+        version: 2,
         user: {
           create: {
             id: userId,

@@ -2,13 +2,6 @@ import bcrypt from "bcryptjs";
 import * as argon2 from "argon2";
 import { type } from "arktype";
 
-export const simpleAuth = type({
-  version: "string.semver",
-  password: "string",
-});
-
-export type SimpleAuthType = typeof simpleAuth.infer;
-
 export async function checkHashBcrypt(password: string, hash: string) {
   return await bcrypt.compare(password, hash);
 }
