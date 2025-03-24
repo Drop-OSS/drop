@@ -42,6 +42,6 @@ const user = useUser();
 user.value = null;
 
 // Redirect to signin page after signout
-await $dropFetch("/signout");
-router.push("/signin");
+await $dropFetch("/api/v1/auth/signout"); //TODO: add signout api route
+router.push("/auth/signin");
 </script>

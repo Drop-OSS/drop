@@ -188,6 +188,7 @@
 
 <script setup lang="ts">
 import { XCircleIcon } from "@heroicons/vue/24/solid";
+import { type } from "arktype";
 
 const route = useRoute();
 const router = useRouter();
@@ -208,14 +209,20 @@ const username = ref(invitation.data.value?.username);
 const password = ref("");
 const confirmPassword = ref(undefined);
 
-const mailRegex = /^\S+@\S+\.\S+$/;
-const validEmail = computed(() => mailRegex.test(email.value ?? ""));
-const validUsername = computed(
-  () =>
-    (username.value?.length ?? 0) >= 5 &&
-    username.value?.toLowerCase() == username.value
+const emailValidator = type("string.email");
+const validEmail = computed(
+  () => !(emailValidator(email.value) instanceof type.errors)
 );
-const validPassword = computed(() => (password.value?.length ?? 0) >= 14);
+
+const usernameValidator = type("string.lower.preformatted >= 5");
+const validUsername = computed(
+  () => !(usernameValidator(username.value) instanceof type.errors)
+);
+
+const passwordValidator = type("string >= 14");
+const validPassword = computed(
+  () => !(passwordValidator(password.value) instanceof type.errors)
+);
 const validConfirmPassword = computed(
   () => password.value == confirmPassword.value
 );
@@ -248,7 +255,7 @@ function register_wrapper() {
   loading.value = true;
   register()
     .then(() => {
-      router.push("/signin");
+      router.push("/auth/signin");
     })
     .catch((response) => {
       const message = response.statusMessage || "An unknown error occurred";

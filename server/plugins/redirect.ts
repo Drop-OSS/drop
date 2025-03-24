@@ -18,7 +18,7 @@ export default defineNitroPlugin((nitro) => {
         if (userId) break;
         return sendRedirect(
           event,
-          `/signin?redirect=${encodeURIComponent(event.path)}`
+          `/auth/signin?redirect=${encodeURIComponent(event.path)}`
         );
     }
   });

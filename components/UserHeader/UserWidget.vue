@@ -85,7 +85,7 @@ const navigation: NavigationItem[] = [
   },
   {
     label: "Sign out",
-    route: "/signout",
+    route: "/auth/signout",
     prefix: "",
   },
 ].filter((e) => e !== undefined);
