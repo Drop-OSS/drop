@@ -1,9 +1,11 @@
 import { AuthMec } from "@prisma/client";
 import { JsonArray } from "@prisma/client/runtime/library";
+import { type } from "arktype";
 import prisma from "~/server/internal/db/database";
 import {
   checkHashArgon2,
   checkHashBcrypt,
+  simpleAuth,
 } from "~/server/internal/security/simple";
 import sessionHandler from "~/server/internal/session";
 
@@ -23,19 +25,9 @@ export default defineEventHandler(async (h3) => {
     where: {
       mec: AuthMec.Simple,
       enabled: true,
-      OR: [
-        {
-          // TODO: check if this is even needed with below condition
-          credentials: {
-            array_starts_with: username,
-          },
-        },
-        {
-          user: {
-            username,
-          },
-        },
-      ],
+      user: {
+        username,
+      },
     },
     include: {
       user: {
@@ -81,13 +73,18 @@ export default defineEventHandler(async (h3) => {
   } else {
     // using new (modern) login flow
 
-    if (authMek.password === null)
+    const creds = simpleAuth(authMek.credentials);
+    if (creds instanceof type.errors) {
+      // hover out.summary to see validation errors
+      console.error(creds.summary);
+
       throw createError({
-        statusCode: 500,
-        statusMessage:
-          "Invalid password state. Please contact the server administrator.",
+        statusCode: 400,
+        statusMessage: creds.summary,
       });
-    else if (!(await checkHashArgon2(password, authMek.password)))
+    }
+
+    if (!(await checkHashArgon2(password, creds.password)))
       throw createError({
         statusCode: 401,
         statusMessage: "Invalid username or password.",
