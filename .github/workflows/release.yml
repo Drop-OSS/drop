@@ -3,6 +3,9 @@ name: Release Workflow
 on:
   release:
     types: [published]
+  # This can be used to automatically publish nightlies at UTC nighttime
+  schedule:
+    - cron: '0 2 * * *' # run at 2 AM UTC
 
 jobs:
   web:
@@ -36,7 +39,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/huskydog9988/docker-db-backup
+            ghcr.io/drop-OSS/drop
           tags: |
             type=schedule,pattern=nightly
             type=semver,pattern=v{{version}}
