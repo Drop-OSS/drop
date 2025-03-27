@@ -1,5 +1,5 @@
 # pull pre-configured and updated build environment
-FROM registry.deepcore.dev/drop-oss/drop-server-build-environment/main:latest AS build-system
+FROM debian:12.10-slim AS build-system
 
 # setup workdir
 RUN mkdir /build
