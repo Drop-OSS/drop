@@ -42,3 +42,17 @@ model APIToken {
 
     @@index([token])
 }
+
+model Certificate {
+    id String @id @default(uuid())
+
+    privateKey  String
+    certificate String
+
+    blacklisted Boolean @default(false)
+}
+
+model Session {
+    token String @id
+    data  Json
+}
