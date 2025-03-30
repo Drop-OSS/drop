@@ -1,6 +1,6 @@
 import { Client, User } from "@prisma/client";
 import { EventHandlerRequest, H3Event } from "h3";
-import droplet from "@drop/droplet";
+import droplet from "@drop-oss/droplet";
 import prisma from "../db/database";
 import { useCertificateAuthority } from "~/server/plugins/ca";
 

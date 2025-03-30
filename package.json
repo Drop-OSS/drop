@@ -11,7 +11,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@drop/droplet": "^0.7.0",
+    "@drop-oss/droplet": "^0.7.2",
     "@headlessui/vue": "^1.7.23",
     "@heroicons/vue": "^2.1.5",
     "@nuxt/fonts": "^0.11.0",
@@ -55,12 +55,6 @@
     "postcss": "^8.4.47",
     "sass": "^1.79.4",
     "tailwindcss": "^4.0.0"
-  },
-  "optionalDependencies": {
-    "@drop/droplet-darwin-arm64": "^0.7.0",
-    "@drop/droplet-linux-arm64-gnu": "^0.7.0",
-    "@drop/droplet-linux-x64-gnu": "^0.7.0",
-    "@drop/droplet-win32-x64-msvc": "^0.7.0"
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
   "overrides": {
