@@ -10,11 +10,7 @@ RUN apt-get update -y
 RUN apt-get install node-corepack -y
 RUN corepack enable
 COPY . .
-RUN yarn cache clean
-RUN yarn config delete proxy
-RUN yarn config delete https-proxy
-RUN yarn config delete registry
-RUN NUXT_TELEMETRY_DISABLED=1 yarn install
+RUN NUXT_TELEMETRY_DISABLED=1 yarn install --network-timeout 1000000
 RUN NUXT_TELEMETRY_DISABLED=1 yarn build
 
 # create run environment for Drop
