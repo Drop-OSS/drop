@@ -1,5 +1,5 @@
 # pull pre-configured and updated build environment
-FROM debian:testing-20250317-slim AS build-system
+FROM debian:testing-20250317 AS build-system
 
 # setup workdir
 RUN mkdir /build
