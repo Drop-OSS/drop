@@ -1,5 +1,5 @@
 # pull pre-configured and updated build environment
-FROM debian:testing-20250317 AS build-system
+FROM debian:testing-20250317-slim AS build-system
 
 # setup workdir
 RUN mkdir /build
@@ -10,6 +10,10 @@ RUN apt-get update -y
 RUN apt-get install node-corepack -y
 RUN corepack enable
 COPY . .
+RUN yarn cache clean
+RUN yarn config delete proxy
+RUN yarn config delete https-proxy
+RUN yarn config delete registry
 RUN NUXT_TELEMETRY_DISABLED=1 yarn install
 RUN NUXT_TELEMETRY_DISABLED=1 yarn build
 
