@@ -40,6 +40,7 @@
     "uuid": "^10.0.0",
     "vue": "latest",
     "vue-router": "latest",
+    "vue3-carousel": "^0.15.0",
     "vue3-carousel-nuxt": "^1.1.5",
     "vuedraggable": "^4.1.0"
   },
