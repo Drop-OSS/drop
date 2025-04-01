@@ -86,10 +86,6 @@ import {
 import { type Collection, type Game, type GameVersion } from "@prisma/client";
 import { PlusIcon } from "@heroicons/vue/20/solid";
 
-const gamesData = await $dropFetch<(Game & { versions: GameVersion[] })[]>(
-  "/api/v1/store/recent"
-);
-
 const collections = await useCollections();
 const collectionCreateOpen = ref(false);
 
