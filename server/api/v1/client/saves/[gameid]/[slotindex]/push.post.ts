@@ -39,7 +39,13 @@ export default defineClientEventHandler(
     if (!game)
       throw createError({ statusCode: 400, statusMessage: "Invalid game ID" });
 
-    await saveManager.pushSave(gameId, user.id, slotIndex, h3.node.req);
+    await saveManager.pushSave(
+      gameId,
+      user.id,
+      slotIndex,
+      h3.node.req,
+      client.id
+    );
 
     return;
   }

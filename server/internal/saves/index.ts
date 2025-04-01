@@ -20,7 +20,8 @@ class SaveManager {
     gameId: string,
     userId: string,
     index: number,
-    stream: IncomingMessage
+    stream: IncomingMessage,
+    clientId: string | undefined = undefined
   ) {
     const save = await prisma.saveSlot.findUnique({
       where: {
@@ -84,6 +85,7 @@ class SaveManager {
         historyChecksums: {
           push: hash,
         },
+        ...(clientId && { lastUsedClientId: clientId }),
       },
     });
 
