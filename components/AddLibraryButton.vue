@@ -115,13 +115,22 @@ const inCollections = computed(() =>
 async function toggleLibrary() {
   isLibraryLoading.value = true;
   try {
+    const method = inLibrary.value ? "DELETE" : "POST";
     await $dropFetch("/api/v1/collection/default/entry", {
-      method: inLibrary.value ? "DELETE" : "POST",
+      method,
       body: {
         id: props.gameId,
       },
     });
-    await refreshLibrary();
+    if (method == "DELETE") {
+      // In place remove
+      library.value.entries.splice(
+        library.value.entries.findIndex((e) => e.gameId == props.gameId),
+        1
+      );
+    } else {
+      await refreshLibrary();
+    }
   } catch (e: any) {
     createModal(
       ModalType.Notification,
@@ -138,18 +147,26 @@ async function toggleLibrary() {
 
 async function toggleCollection(id: string) {
   try {
-    const collection = collections.value.find((e) => e.id == id);
-    if (!collection) return;
-    const index = collection.entries.findIndex((e) => e.gameId == props.gameId);
+    const collectionIndex = collections.value.findIndex((e) => e.id == id);
+    if (collectionIndex == -1) return;
+    const index = collections.value[collectionIndex].entries.findIndex(
+      (e) => e.gameId == props.gameId
+    );
 
+    const method = index == -1 ? "POST" : "DELETE";
     await $dropFetch(`/api/v1/collection/${id}/entry`, {
-      method: index == -1 ? "POST" : "DELETE",
+      method,
       body: {
         id: props.gameId,
       },
     });
 
-    await refreshCollection(id);
+    if (method == "DELETE") {
+      collections.value[collectionIndex].entries.splice(index, 1);
+    } else {
+      // We HAVE to refresh because we need to pull game data
+      await refreshCollection(id);
+    }
   } catch (e: any) {
     createModal(
       ModalType.Notification,
@@ -159,7 +176,6 @@ async function toggleCollection(id: string) {
       },
       (_, c) => c()
     );
-  } finally {
   }
 }
 </script>
