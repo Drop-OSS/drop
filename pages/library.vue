@@ -59,7 +59,7 @@
 
     <!-- Static sidebar for desktop -->
     <div
-      class="hidden lg:block lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col lg:border-r-2 lg:border-zinc-800"
+      class="hidden lg:flex lg:inset-y-0 lg:z-50 lg:shrink-0 lg:basis-[18rem] lg:flex-col lg:border-r-2 lg:border-zinc-800"
     >
       <!-- Sidebar component, swap this element with another sidebar if you like -->
       <LibraryDirectory />
@@ -83,7 +83,7 @@
       </div>
     </div>
 
-    <div class="px-4 py-10 sm:px-6 lg:px-8 lg:py-6 grow">
+    <div class="px-4 py-10 sm:px-6 lg:px-8 lg:py-6">
       <NuxtPage />
     </div>
   </div>
