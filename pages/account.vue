@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col lg:flex-row">
+  <div class="flex flex-col lg:flex-row grow">
     <TransitionRoot as="template" :show="sidebarOpen">
       <Dialog class="relative z-50 lg:hidden" @close="sidebarOpen = false">
         <TransitionChild
@@ -48,8 +48,8 @@
                 </div>
               </TransitionChild>
               <!-- Sidebar component, swap this element with another sidebar if you like -->
-              <div class="bg-zinc-900">
-                <LibraryDirectory />
+              <div class="bg-zinc-900 w-full">
+                <AccountSidebar />
               </div>
             </DialogPanel>
           </TransitionChild>
@@ -62,7 +62,7 @@
       class="hidden lg:flex lg:inset-y-0 lg:z-50 lg:shrink-0 lg:basis-[18rem] lg:flex-col lg:border-r-2 lg:border-zinc-800"
     >
       <!-- Sidebar component, swap this element with another sidebar if you like -->
-      <LibraryDirectory />
+      <AccountSidebar />
     </div>
 
     <div
@@ -79,7 +79,7 @@
       <div
         class="flex-1 text-sm/6 font-semibold uppercase font-display text-zinc-400"
       >
-        Library
+        Account
       </div>
     </div>
 
@@ -116,59 +116,6 @@ router.afterEach(() => {
 });
 
 useHead({
-  title: "Library",
+  title: "Account",
 });
 </script>
-
-<style scoped>
-/* Fade transition for main content */
-
-/* List transition animations */
-.list-enter-active,
-.list-leave-active {
-  transition: all 0.3s ease;
-}
-
-.list-enter-from,
-.list-leave-to {
-  opacity: 0;
-  transform: translateX(-30px);
-}
-
-.list-move {
-  transition: transform 0.3s ease;
-}
-
-/* Hide scrollbar for Chrome, Safari and Opera */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-/* Hide scrollbar for IE, Edge and Firefox */
-.no-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-}
-
-.hover-lift {
-  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.hover-lift:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.2);
-}
-
-/* Springy list animations */
-.list-enter-active {
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.list-leave-active {
-  transition: all 0.3s ease;
-}
-
-.list-move {
-  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-</style>

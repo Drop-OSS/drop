@@ -7,7 +7,7 @@
           class="transition text-sm/6 font-semibold text-zinc-400 hover:text-zinc-100 inline-flex gap-x-2 items-center duration-200 hover:scale-105"
         >
           <ArrowLeftIcon class="h-4 w-4" aria-hidden="true" />
-          Back to Collections
+          Back to Library
         </NuxtLink>
       </div>
       <h2 class="text-2xl font-bold font-display text-zinc-100">

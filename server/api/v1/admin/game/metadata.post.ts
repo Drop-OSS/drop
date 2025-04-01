@@ -29,7 +29,7 @@ export default defineEventHandler(async (h3) => {
   const description = options.description;
   const gameId = options.id;
 
-  if (!(id || name || description)) {
+  if (!id || !name || !description) {
     dump();
 
     throw createError({

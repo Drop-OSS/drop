@@ -1,10 +1,10 @@
 <template>
-  <div class="inline-flex group hover:scale-105 transition-all duration-200">
+  <div class="inline-flex w-full group hover:scale-105 transition-all duration-200">
     <LoadingButton
       :loading="isLibraryLoading"
       @click="() => toggleLibrary()"
       :style="'none'"
-      class="transition w-48 inline-flex items-center justify-center h-full gap-x-2 rounded-none rounded-l-md bg-white/10 hover:bg-white/20 text-zinc-100 backdrop-blur px-5 py-3 active:scale-95"
+      class="transition w-full inline-flex items-center justify-center h-full gap-x-2 rounded-none rounded-l-md bg-white/10 hover:bg-white/20 text-zinc-100 backdrop-blur px-5 py-3 active:scale-95"
     >
       {{ inLibrary ? "In Library" : "Add to Library" }}
       <CheckIcon v-if="inLibrary" class="-mr-0.5 h-5 w-5" aria-hidden="true" />
@@ -115,22 +115,13 @@ const inCollections = computed(() =>
 async function toggleLibrary() {
   isLibraryLoading.value = true;
   try {
-    const method = inLibrary.value ? "DELETE" : "POST";
     await $dropFetch("/api/v1/collection/default/entry", {
-      method,
+      method: inLibrary.value ? "DELETE" : "POST",
       body: {
         id: props.gameId,
       },
     });
-    if (method == "DELETE") {
-      // In place remove
-      library.value.entries.splice(
-        library.value.entries.findIndex((e) => e.gameId == props.gameId),
-        1
-      );
-    } else {
-      await refreshLibrary();
-    }
+    await refreshLibrary();
   } catch (e: any) {
     createModal(
       ModalType.Notification,
@@ -147,26 +138,18 @@ async function toggleLibrary() {
 
 async function toggleCollection(id: string) {
   try {
-    const collectionIndex = collections.value.findIndex((e) => e.id == id);
-    if (collectionIndex == -1) return;
-    const index = collections.value[collectionIndex].entries.findIndex(
-      (e) => e.gameId == props.gameId
-    );
+    const collection = collections.value.find((e) => e.id == id);
+    if (!collection) return;
+    const index = collection.entries.findIndex((e) => e.gameId == props.gameId);
 
-    const method = index == -1 ? "POST" : "DELETE";
     await $dropFetch(`/api/v1/collection/${id}/entry`, {
-      method,
+      method: index == -1 ? "POST" : "DELETE",
       body: {
         id: props.gameId,
       },
     });
 
-    if (method == "DELETE") {
-      collections.value[collectionIndex].entries.splice(index, 1);
-    } else {
-      // We HAVE to refresh because we need to pull game data
-      await refreshCollection(id);
-    }
+    await refreshCollection(id);
   } catch (e: any) {
     createModal(
       ModalType.Notification,
@@ -176,6 +159,7 @@ async function toggleCollection(id: string) {
       },
       (_, c) => c()
     );
+  } finally {
   }
 }
 </script>
