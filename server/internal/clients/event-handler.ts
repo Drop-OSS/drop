@@ -25,6 +25,16 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
 
     let clientId: string;
     switch (method) {
+      case "Debug":
+        if (!process.dev) throw createError({ statusCode: 403 });
+        const client = await prisma.client.findFirst({ select: { id: true } });
+        if (!client)
+          throw createError({
+            statusCode: 400,
+            statusMessage: "No clients created.",
+          });
+        clientId = client.id;
+        break;
       case "Nonce":
         clientId = parts[0];
         const nonce = parts[1];
@@ -49,7 +59,9 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
         }
 
         const certificateAuthority = useCertificateAuthority();
-        const certBundle = await certificateAuthority.fetchClientCertificate(clientId);
+        const certBundle = await certificateAuthority.fetchClientCertificate(
+          clientId
+        );
         // This does the blacklist check already
         if (!certBundle)
           throw createError({

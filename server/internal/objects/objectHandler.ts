@@ -15,7 +15,7 @@
  */
 
 import { parse as getMimeTypeBuffer } from "file-type-mime";
-import { Readable } from "stream";
+import Stream, { Readable, Writable } from "stream";
 import { getMimeType as getMimeTypeStream } from "stream-mime-type";
 import { v4 as uuidv4 } from "uuid";
 
@@ -46,11 +46,16 @@ export abstract class ObjectBackend {
   // They don't check permissions to provide any utilities
   abstract fetch(id: ObjectReference): Promise<Source | undefined>;
   abstract write(id: ObjectReference, source: Source): Promise<boolean>;
+  abstract startWriteStream(id: ObjectReference): Promise<Writable | undefined>;
   abstract create(
     id: string,
     source: Source,
     metadata: ObjectMetadata
   ): Promise<ObjectReference | undefined>;
+  abstract createWithWriteStream(
+    id: string,
+    metadata: ObjectMetadata
+  ): Promise<Writable | undefined>;
   abstract delete(id: ObjectReference): Promise<boolean>;
   abstract fetchMetadata(
     id: ObjectReference
@@ -60,30 +65,31 @@ export abstract class ObjectBackend {
     metadata: ObjectMetadata
   ): Promise<boolean>;
 
+  private async fetchMimeType(source: Source) {
+    if (source instanceof ReadableStream) {
+      source = Readable.from(source);
+    }
+    if (source instanceof Readable) {
+      const { stream, mime } = await getMimeTypeStream(source);
+      return { source: Readable.from(stream), mime: mime };
+    }
+    if (source instanceof Buffer) {
+      const mime =
+        getMimeTypeBuffer(new Uint8Array(source).buffer)?.mime ??
+        "application/octet-stream";
+      return { source: source, mime };
+    }
+
+    return { source: undefined, mime: undefined };
+  }
+
   async createFromSource(
     id: string,
     sourceFetcher: () => Promise<Source>,
     metadata: { [key: string]: string },
     permissions: Array<string>
   ) {
-    async function fetchMimeType(source: Source) {
-      if (source instanceof ReadableStream) {
-        source = Readable.from(source);
-      }
-      if (source instanceof Readable) {
-        const { stream, mime } = await getMimeTypeStream(source);
-        return { source: Readable.from(stream), mime: mime };
-      }
-      if (source instanceof Buffer) {
-        const mime =
-          getMimeTypeBuffer(new Uint8Array(source).buffer)?.mime ??
-          "application/octet-stream";
-        return { source: source, mime };
-      }
-
-      return { source: undefined, mime: undefined };
-    }
-    const { source, mime } = await fetchMimeType(await sourceFetcher());
+    const { source, mime } = await this.fetchMimeType(await sourceFetcher());
     if (!mime)
       throw new Error("Unable to calculate MIME type - is the source empty?");
 
@@ -91,6 +97,18 @@ export abstract class ObjectBackend {
       permissions,
       userMetadata: metadata,
       mime,
+    });
+  }
+
+  async createWithStream(
+    id: string,
+    metadata: { [key: string]: string },
+    permissions: Array<string>
+  ) {
+    return this.createWithWriteStream(id, {
+      permissions,
+      userMetadata: metadata,
+      mime: "application/octet-stream",
     });
   }
 
