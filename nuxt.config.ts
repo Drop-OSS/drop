@@ -50,7 +50,7 @@ export default defineNuxtConfig({
   // Module config from here down
   modules: [
     "vue3-carousel-nuxt",
-    // "nuxt-security",
+    "nuxt-security",
     "@nuxt/image",
     "@nuxt/fonts",
   ],
@@ -59,7 +59,6 @@ export default defineNuxtConfig({
     prefix: "Vue",
   },
 
-  /*
   security: {
     headers: {
       contentSecurityPolicy: {
@@ -75,7 +74,7 @@ export default defineNuxtConfig({
       },
       strictTransportSecurity: false,
     },
-    rateLimiter: false
+    rateLimiter: false,
+    xssValidator: false,
   },
-  */
 });
