@@ -34,13 +34,19 @@ export const $dropFetch: DropFetch = async (request, opts) => {
   const id = request.toString();
 
   const state = useState(id);
-  if (state.value) return state.value;
+  if (state.value) {
+    // Deep copy
+    const object = JSON.parse(JSON.stringify(state.value));
+    // Never use again on client
+    state.value = undefined;
+    return object;
+  }
 
   const headers = useRequestHeaders(["cookie"]);
   const data = await $fetch(request, {
     ...opts,
     headers: { ...opts?.headers, ...headers },
   } as any);
-  state.value = data;
+  if (import.meta.server) state.value = data;
   return data as any;
 };

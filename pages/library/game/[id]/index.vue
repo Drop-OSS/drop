@@ -64,87 +64,43 @@
 
       <!-- Main content -->
       <div class="w-full bg-zinc-900 px-8 py-6">
-        <div class="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-10">
-          <div class="lg:col-span-3 space-y-6">
-            <div class="bg-zinc-800/50 rounded-xl p-6 backdrop-blur-sm">
-              <div
-                v-html="descriptionHTML"
-                class="prose prose-invert prose-blue overflow-y-auto custom-scrollbar max-w-none"
-              ></div>
-            </div>
-          </div>
-
-          <div class="col-start-1 lg:col-start-4 space-y-6">
+        <div class="mt-8 flex flex-col gap-10">
+          <div class="col-start-1 lg:col-start-2 space-y-6">
             <div class="bg-zinc-800/50 rounded-xl p-6 backdrop-blur-sm">
               <h2 class="text-xl font-display font-semibold text-zinc-100 mb-4">
                 Game Images
               </h2>
               <div class="relative">
-                <div v-if="game.mImageCarousel.length > 0">
-                  <div
-                    class="relative aspect-video rounded-lg overflow-hidden cursor-pointer group"
-                  >
-                    <div class="absolute inset-0">
-                      <TransitionGroup name="slide" tag="div" class="h-full">
-                        <img
-                          v-for="(imageId, index) in game.mImageCarousel"
-                          :key="imageId"
-                          :src="useObject(imageId)"
-                          class="absolute inset-0 w-full h-full object-cover"
-                          v-show="index === currentImageIndex"
-                        />
-                      </TransitionGroup>
-                    </div>
-
-                    <div
-                      class="absolute inset-0 flex items-center justify-between px-4 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <button
-                        v-if="game.mImageCarousel.length > 1"
-                        @click.stop="previousImage()"
-                        class="p-2 rounded-full bg-zinc-900/50 text-zinc-100 hover:bg-zinc-900/80 transition-all duration-300 hover:scale-110"
-                      >
-                        <ChevronLeftIcon class="size-5" />
-                      </button>
-                      <button
-                        v-if="game.mImageCarousel.length > 1"
-                        @click.stop="nextImage()"
-                        class="p-2 rounded-full bg-zinc-900/50 text-zinc-100 hover:bg-zinc-900/80 transition-all duration-300 hover:scale-110"
-                      >
-                        <ChevronRightIcon class="size-5" />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div
-                    class="flex justify-center gap-x-2 mt-4"
-                  >
-                    <button
-                      v-for="(_, index) in game.mImageCarousel"
-                      :key="index"
-                      @click.stop="currentImageIndex = index"
-                      class="w-2 h-2 rounded-full transition-all duration-300"
-                      :class="[
-                        currentImageIndex === index
-                          ? 'bg-zinc-100 scale-125'
-                          : 'bg-zinc-600 hover:bg-zinc-500',
-                      ]"
+                <VueCarousel :items-to-show="1">
+                  <VueSlide v-for="image in game.mImageCarousel" :key="image">
+                    <img
+                      class="w-fit h-48 lg:h-96 rounded"
+                      :src="useObject(image)"
                     />
-                  </div>
-                </div>
+                  </VueSlide>
+                  <VueSlide v-if="game.mImageCarousel.length == 0">
+                    <div
+                      class="h-48 lg:h-96 aspect-[1/2] flex items-center justify-center text-zinc-700 font-bold font-display"
+                    >
+                      No images
+                    </div>
+                  </VueSlide>
 
-                <!-- No images placeholder -->
-                <div
-                  v-else
-                  class="aspect-video rounded-lg overflow-hidden bg-zinc-900/50 flex flex-col items-center justify-center text-center px-4"
-                >
-                  <PhotoIcon class="size-12 text-zinc-500 mb-2" />
-                  <p class="text-zinc-400 font-medium">No images available</p>
-                  <p class="text-zinc-500 text-sm">
-                    Game screenshots will appear here when available
-                  </p>
-                </div>
+                  <template #addons>
+                    <VueNavigation />
+                    <CarouselPagination class="py-2 px-12" />
+                  </template>
+                </VueCarousel>
               </div>
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            <div class="bg-zinc-800/50 rounded-xl p-6 backdrop-blur-sm">
+              <div
+                v-html="descriptionHTML"
+                class="prose prose-invert prose-blue overflow-y-auto custom-scrollbar max-w-none"
+              ></div>
             </div>
           </div>
         </div>
@@ -154,13 +110,13 @@
 </template>
 
 <script setup lang="ts">
-import { 
-  ArrowLeftIcon, 
-  ChevronLeftIcon, 
-  ChevronRightIcon, 
+import {
+  ArrowLeftIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
   PhotoIcon,
   ArrowTopRightOnSquareIcon,
-  ArrowUpRightIcon 
+  ArrowUpRightIcon,
 } from "@heroicons/vue/20/solid";
 import { BuildingStorefrontIcon } from "@heroicons/vue/24/outline";
 import { micromark } from "micromark";
@@ -172,24 +128,29 @@ const id = route.params.id.toString();
 const rawGame = await $dropFetch<Game>(`/api/v1/games/${id}`);
 const game = computed(() => {
   if (!rawGame) {
-    throw createError({ statusCode: 404, message: 'Game not found' });
+    throw createError({ statusCode: 404, message: "Game not found" });
   }
   return rawGame;
 });
 
 // Convert markdown to HTML
-const descriptionHTML = computed(() => micromark(game.value.mDescription ?? ""));
+const descriptionHTML = computed(() =>
+  micromark(game.value.mDescription ?? "")
+);
 
 const currentImageIndex = ref(0);
 
 function nextImage() {
   if (!game.value?.mImageCarousel) return;
-  currentImageIndex.value = (currentImageIndex.value + 1) % game.value.mImageCarousel.length;
+  currentImageIndex.value =
+    (currentImageIndex.value + 1) % game.value.mImageCarousel.length;
 }
 
 function previousImage() {
   if (!game.value?.mImageCarousel) return;
-  currentImageIndex.value = (currentImageIndex.value - 1 + game.value.mImageCarousel.length) % game.value.mImageCarousel.length;
+  currentImageIndex.value =
+    (currentImageIndex.value - 1 + game.value.mImageCarousel.length) %
+    game.value.mImageCarousel.length;
 }
 </script>
 
