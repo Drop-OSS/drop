@@ -53,6 +53,11 @@ model Certificate {
 }
 
 model Session {
-    token String @id
-    data  Json
+    token     String   @id
+    expiresAt DateTime
+
+    userId String
+    user   User?  @relation(fields: [userId], references: [id])
+
+    data Json // misc extra data
 }

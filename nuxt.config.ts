@@ -45,7 +45,7 @@ export default defineNuxtConfig({
     },
 
     scheduledTasks: {
-      "0 * * * *": ["cleanup:invitations"],
+      "0 * * * *": ["cleanup:invitations", "cleanup:sessions"],
     },
 
     compressPublicAssets: true,

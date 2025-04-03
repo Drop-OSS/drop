@@ -10,8 +10,8 @@ export default function createDBSessionHandler(): SessionProvider {
   });
 
   return {
-    async setSession(token, data) {
-      cache.set(token, data);
+    async setSession(token, session) {
+      cache.set(token, session);
 
       //   const strData = JSON.stringify(data);
       await prisma.session.upsert({
@@ -20,54 +20,16 @@ export default function createDBSessionHandler(): SessionProvider {
         },
         create: {
           token,
-          data,
+          ...session,
         },
-        update: {
-          data,
-        },
+        update: session,
       });
       return true;
     },
-    async updateSession(token, key, data) {
-      const newObj: { [key: string]: any } = {};
-      newObj[key] = data;
-      cache.set(token, newObj);
-
-      const session = await prisma.session.upsert({
-        where: {
-          token,
-        },
-        create: {
-          token,
-          data: newObj,
-        },
-        update: {},
-      });
-
-      // if json object and not arrary, update session
-      if (
-        typeof session.data === "object" &&
-        !Array.isArray(session.data) &&
-        session.data !== null
-      ) {
-        // means we set it above
-        if (session.data[key] === data) return true;
-
-        // else we need to set it ourselves
-        (session.data as Prisma.JsonObject)[key] = data;
-        await prisma.session.update({
-          where: {
-            token,
-          },
-          data: {
-            data: session.data,
-          },
-        });
-        return true;
-      }
-      return false;
+    async updateSession(token, data) {
+      return await this.setSession(token, data);
     },
-    async getSession<T>(token: string) {
+    async getSession<T extends Session>(token: string) {
       const cached = cache.get(token);
       if (cached !== undefined) return cached as T;
 
@@ -77,13 +39,29 @@ export default function createDBSessionHandler(): SessionProvider {
         },
       });
       if (result === null) return undefined;
-      return result.data as T;
+
+      // i hate casting
+      // need to cast to unknown since result.data can be an N deep json object technically
+      // ts doesn't like that be cast down to the more constraining session type
+      return result as unknown as T;
     },
-    async clearSession(token) {
+    async removeSession(token) {
       cache.delete(token);
       await prisma.session.delete({
         where: {
           token,
+        },
+      });
+      return true;
+    },
+    async cleanupSessions() {
+      const now = new Date();
+
+      await prisma.session.deleteMany({
+        where: {
+          expiresAt: {
+            lt: now,
+          },
         },
       });
     },

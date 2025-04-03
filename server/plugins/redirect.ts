@@ -14,8 +14,8 @@ export default defineNitroPlugin((nitro) => {
     switch (error.statusCode) {
       case 401:
       case 403:
-        const userId = await sessionHandler.getUserId(event);
-        if (userId) break;
+        const user = await sessionHandler.getSession(event);
+        if (user) break;
         return sendRedirect(
           event,
           `/auth/signin?redirect=${encodeURIComponent(event.path)}`
