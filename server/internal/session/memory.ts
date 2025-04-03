@@ -8,15 +8,23 @@ export default function createMemorySessionHandler() {
       sessions[token] = data;
       return true;
     },
-    async updateSession(token, key, data) {
-      sessions[token] = Object.assign({}, sessions[token], { [key]: data });
+    async getSession<T extends Session>(token: string): Promise<T | undefined> {
+      const session = sessions[token];
+      return session ? (session as T) : undefined; // Ensure undefined is returned if session is not found
+    },
+    async updateSession(token, data) {
+      return this.setSession(token, data);
+    },
+    async removeSession(token) {
+      delete sessions[token];
       return true;
     },
-    async getSession(token) {
-      return sessions[token] as any; // Wild type cast because we let the user specify types if they want
-    },
-    async clearSession(token) {
-      delete sessions[token];
+    async cleanupSessions() {
+      const now = new Date();
+      for (let token in sessions) {
+        // if expires at time is before now, the session is expired
+        if (sessions[token].expiresAt < now) await this.removeSession(token);
+      }
     },
   };
 

@@ -14,7 +14,8 @@ model User {
     collections   Collection[]
     articles      Article[]
 
-    tokens APIToken[]
+    tokens   APIToken[]
+    sessions Session[]
 
     saves SaveSlot[]
 }

@@ -8,24 +8,30 @@ import {
 } from "~/server/internal/security/simple";
 import sessionHandler from "~/server/internal/session";
 
-export default defineEventHandler(async (h3) => {
-  const body = await readBody(h3);
+const signinValidator = type({
+  username: "string",
+  password: "string",
+  "rememberMe?": "boolean | undefined",
+});
 
-  const username = body.username;
-  const password = body.password;
-  const rememberMe = body.rememberMe ?? false;
-  if (username === undefined || password === undefined)
+export default defineEventHandler(async (h3) => {
+  const body = signinValidator(await readBody(h3));
+  if (body instanceof type.errors) {
+    // hover out.summary to see validation errors
+    console.error(body.summary);
+
     throw createError({
-      statusCode: 403,
-      statusMessage: "Username or password missing from request.",
+      statusCode: 400,
+      statusMessage: body.summary,
     });
+  }
 
   const authMek = await prisma.linkedAuthMec.findFirst({
     where: {
       mec: AuthMec.Simple,
       enabled: true,
       user: {
-        username,
+        username: body.username,
       },
     },
     include: {
@@ -62,14 +68,14 @@ export default defineEventHandler(async (h3) => {
           "Invalid password state. Please contact the server administrator.",
       });
 
-    if (!(await checkHashBcrypt(password, hash)))
+    if (!(await checkHashBcrypt(body.password, hash)))
       throw createError({
         statusCode: 401,
         statusMessage: "Invalid username or password.",
       });
 
     // TODO: send user to forgot password screen or something to force them to change their password to new system
-    await sessionHandler.setUserId(h3, authMek.userId, rememberMe);
+    await sessionHandler.signin(h3, authMek.userId, body.rememberMe);
     return { result: true, userId: authMek.userId };
   }
 
@@ -82,13 +88,12 @@ export default defineEventHandler(async (h3) => {
         "Invalid password state. Please contact the server administrator.",
     });
 
-  if (!(await checkHashArgon2(password, hash)))
+  if (!(await checkHashArgon2(body.password, hash)))
     throw createError({
       statusCode: 401,
       statusMessage: "Invalid username or password.",
     });
 
-  await sessionHandler.setUserId(h3, authMek.userId, rememberMe);
-
+  await sessionHandler.signin(h3, authMek.userId, body.rememberMe);
   return { result: true, userId: authMek.userId };
 });

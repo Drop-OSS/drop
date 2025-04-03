@@ -214,7 +214,7 @@ const validEmail = computed(
   () => !(emailValidator(email.value) instanceof type.errors)
 );
 
-const usernameValidator = type("string.lower.preformatted >= 5");
+const usernameValidator = type("string.alphanumeric >= 5").to("string.lower");
 const validUsername = computed(
   () => !(usernameValidator(username.value) instanceof type.errors)
 );
