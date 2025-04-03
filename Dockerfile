@@ -1,14 +1,16 @@
 # pull pre-configured and updated build environment
-FROM debian:12.10-slim AS build-system
+FROM debian:testing-20250317-slim AS build-system
 
 # setup workdir
 RUN mkdir /build
 WORKDIR /build
 
 # install dependencies and build
+RUN apt-get update -y
+RUN apt-get install node-corepack -y
 RUN corepack enable
 COPY . .
-RUN NUXT_TELEMETRY_DISABLED=1 yarn install
+RUN NUXT_TELEMETRY_DISABLED=1 yarn install --network-timeout 1000000
 RUN NUXT_TELEMETRY_DISABLED=1 yarn build
 
 # create run environment for Drop

@@ -31,9 +31,10 @@ model Game {
     mImageLibrary  String[] // linked to objects in s3
 
     versions        GameVersion[]
-    libraryBasePath String            @unique // Base dir for all the game versions
-    
+    libraryBasePath String        @unique // Base dir for all the game versions
+
     collections CollectionEntry[]
+    saves       SaveSlot[]
 
     @@unique([metadataSource, metadataId], name: "metadataKey")
 }
@@ -48,9 +49,9 @@ model GameVersion {
 
     platform Platform
 
-    launchCommand String @default("") // Command to run to start. Platform-specific. Windows games on Linux will wrap this command in Proton/Wine
+    launchCommand String   @default("") // Command to run to start. Platform-specific. Windows games on Linux will wrap this command in Proton/Wine
     launchArgs    String[]
-    setupCommand  String @default("") // Command to setup game (dependencies and such)
+    setupCommand  String   @default("") // Command to setup game (dependencies and such)
     setupArgs     String[]
     onlySetup     Boolean  @default(false)
 
@@ -62,6 +63,26 @@ model GameVersion {
     delta        Boolean @default(false)
 
     @@id([gameId, versionName])
+}
+
+// A save slot for a game
+model SaveSlot {
+    gameId String
+    game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    index  Int
+
+    createdAt DateTime @default(now())
+    playtime  Float    @default(0) // hours
+
+    lastUsedClientId String
+    lastUsedClient   Client @relation(fields: [lastUsedClientId], references: [id])
+
+    history          String[] // list of objects
+    historyChecksums String[] // list of hashes
+
+    @@id([gameId, userId, index], name: "id")
 }
 
 model Developer {

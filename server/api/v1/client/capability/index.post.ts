@@ -21,13 +21,13 @@ export default defineClientEventHandler(async (h3, { clientId }) => {
       statusMessage: "configuration must be an object",
     });
 
-  if (!(rawCapability in validCapabilities))
+  const capability = rawCapability as InternalClientCapability;
+
+  if (!validCapabilities.includes(capability))
     throw createError({
       statusCode: 400,
       statusMessage: "Invalid capability.",
     });
-
-  const capability = rawCapability as InternalClientCapability;
 
   const isValid = await capabilityManager.validateCapabilityConfiguration(
     capability,

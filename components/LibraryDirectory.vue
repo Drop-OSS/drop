@@ -1,22 +1,22 @@
 <template>
-  <div class="flex-1 overflow-y-auto px-4 py-5">
-    <h2 class="text-lg font-semibold tracking-tight text-zinc-100 mb-3">
-      Your Library
-    </h2>
+  <div class="flex grow flex-col overflow-y-auto px-6 py-4">
+    <span class="inline-flex items-center gap-x-2 font-semibold text-zinc-100">
+      <Bars3Icon class="size-6" /> Library
+    </span>
 
     <!-- Search bar -->
-    <div class="relative mb-3">
+    <div class="mt-5 relative">
       <input
         type="text"
         name="search"
         id="search"
         autocomplete="off"
-        class="block w-full rounded-md bg-zinc-900 py-1 pl-8 pr-2 text-sm text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600"
+        class="block w-full rounded-md bg-zinc-900 py-2 pl-9 pr-2 text-sm text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600"
         placeholder="Search library..."
         v-model="searchQuery"
       />
       <MagnifyingGlassIcon
-        class="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400"
+        class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400"
         aria-hidden="true"
       />
     </div>
@@ -25,13 +25,13 @@
       name="list"
       tag="ul"
       role="list"
-      class="space-y-1"
+      class="mt-2 space-y-0.5"
       v-if="filteredLibrary.length > 0"
     >
       <li v-for="game in filteredLibrary" :key="game.id" class="flex">
         <NuxtLink
           :to="`/library/game/${game.id}`"
-          class="flex flex-row items-center w-full p-1.5 rounded-md transition-all duration-200 hover:bg-zinc-800 hover:scale-105 hover:shadow-lg active:scale-95"
+          class="flex flex-row items-center w-full p-1 rounded-md transition-all duration-200 hover:bg-zinc-800 hover:scale-105 hover:shadow-lg active:scale-95"
         >
           <img
             :src="useObject(game.mCoverId)"
@@ -39,7 +39,7 @@
             alt=""
           />
           <div class="min-w-0 flex-1 pl-2.5">
-            <p class="text-xs font-medium text-zinc-100 truncate text-left">
+            <p class="text-sm font-semibold text-display text-zinc-200 truncate text-left">
               {{ game.mName }}
             </p>
           </div>
@@ -57,7 +57,8 @@
 </template>
 
 <script setup lang="ts">
-import { MagnifyingGlassIcon } from "@heroicons/vue/24/solid";
+import { HomeIcon } from "@heroicons/vue/24/outline";
+import { Bars3Icon, MagnifyingGlassIcon } from "@heroicons/vue/24/solid";
 
 const library = await useLibrary();
 

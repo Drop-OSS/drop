@@ -1,17 +1,22 @@
 <template>
-  <VueCarousel :itemsToShow="moveAmount" :itemsToScroll="moveAmount / 2">
-    <VueSlide
-      class="justify-start"
-      v-for="(game, gameIdx) in games"
-      :key="gameIdx"
-    >
-      <GamePanel :game="game" />
-    </VueSlide>
+  <div ref="currentComponent">
+    {{ singlePage }}
+    <ClientOnly>
+      <VueCarousel :itemsToShow="singlePage" :itemsToScroll="singlePage">
+        <VueSlide
+          class="justify-start"
+          v-for="(game, gameIdx) in games"
+          :key="gameIdx"
+        >
+          <GamePanel :game="game" />
+        </VueSlide>
 
-    <template #addons>
-      <VueNavigation />
-    </template>
-  </VueCarousel>
+        <template #addons>
+          <VueNavigation />
+        </template>
+      </VueCarousel>
+    </ClientOnly>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -21,7 +26,10 @@ import type { SerializeObject } from "nitropack";
 const props = defineProps<{
   items: Array<SerializeObject<Game>>;
   min?: number;
+  width?: number;
 }>();
+
+const currentComponent = ref<HTMLDivElement>();
 
 const min = computed(() => Math.max(props.min ?? 8, props.items.length));
 const games: Ref<Array<SerializeObject<Game> | undefined>> = computed(() =>
@@ -30,10 +38,13 @@ const games: Ref<Array<SerializeObject<Game> | undefined>> = computed(() =>
     .map((_, i) => props.items[i])
 );
 
-const moveAmount = ref(1);
-const moveFactor = 1.8 / 400;
+const singlePage = ref(1);
+const sizeOfCard = 192 + 10;
 
 onMounted(() => {
-  moveAmount.value = moveFactor * window.innerWidth;
+  singlePage.value =
+    (props.width ??
+      currentComponent.value?.parentElement?.clientWidth ??
+      window.innerWidth) / sizeOfCard;
 });
 </script>

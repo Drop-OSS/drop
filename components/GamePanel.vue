@@ -35,12 +35,12 @@
 import type { SerializeObject } from "nitropack";
 
 const props = defineProps<{
-  game?: SerializeObject<{
+  game: SerializeObject<{
     id: string;
     mCoverId: string;
     mName: string;
     mShortDescription: string;
-  }>;
+  }> | undefined;
   href?: string;
 }>();
 </script>

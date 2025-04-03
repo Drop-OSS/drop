@@ -28,12 +28,6 @@ export default defineNuxtConfig({
     "/signout": { prerender: true },
 
     "/api/**": { cors: true },
-
-    "/api/v1/client/object/*": {
-      security: {
-        rateLimiter: false,
-      },
-    },
   },
 
   nitro: {
@@ -80,5 +74,7 @@ export default defineNuxtConfig({
       },
       strictTransportSecurity: false,
     },
+    rateLimiter: false,
+    xssValidator: false,
   },
 });

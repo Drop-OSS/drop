@@ -31,11 +31,22 @@ export const $dropFetch: DropFetch = async (request, opts) => {
   if (!getCurrentInstance()?.proxy) {
     return (await $fetch(request, opts)) as any;
   }
+  const id = request.toString();
+
+  const state = useState(id);
+  if (state.value) {
+    // Deep copy
+    const object = JSON.parse(JSON.stringify(state.value));
+    // Never use again on client
+    state.value = undefined;
+    return object;
+  }
+
   const headers = useRequestHeaders(["cookie"]);
-  const { data, error } = await useFetch(request, {
+  const data = await $fetch(request, {
     ...opts,
     headers: { ...opts?.headers, ...headers },
   } as any);
-  if (error.value) throw error.value;
-  return data.value as any;
+  if (import.meta.server) state.value = data;
+  return data as any;
 };

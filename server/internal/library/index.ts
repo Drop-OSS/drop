@@ -13,7 +13,7 @@ import { fuzzy } from "fast-fuzzy";
 import { recursivelyReaddir } from "../utils/recursivedirs";
 import taskHandler from "../tasks";
 import { parsePlatform } from "../utils/parseplatform";
-import droplet from "@drop/droplet";
+import droplet from "@drop-oss/droplet";
 import notificationSystem from "../notifications";
 
 class LibraryManager {

@@ -1,4 +1,10 @@
-import { Object, ObjectBackend, ObjectMetadata, ObjectReference, Source } from "./objectHandler";
+import {
+  Object,
+  ObjectBackend,
+  ObjectMetadata,
+  ObjectReference,
+  Source,
+} from "./objectHandler";
 
 import sanitize from "sanitize-filename";
 
@@ -44,6 +50,12 @@ export class FsObjectBackend extends ObjectBackend {
 
     return false;
   }
+  async startWriteStream(id: ObjectReference) {
+    const objectPath = path.join(this.baseObjectPath, sanitize(id));
+    if (!fs.existsSync(objectPath)) return undefined;
+
+    return fs.createWriteStream(objectPath);
+  }
   async create(
     id: string,
     source: Source,
@@ -67,6 +79,23 @@ export class FsObjectBackend extends ObjectBackend {
     this.write(id, source);
 
     return id;
+  }
+  async createWithWriteStream(id: string, metadata: ObjectMetadata) {
+    const objectPath = path.join(this.baseObjectPath, sanitize(id));
+    const metadataPath = path.join(
+      this.baseMetadataPath,
+      `${sanitize(id)}.json`
+    );
+    if (fs.existsSync(objectPath) || fs.existsSync(metadataPath))
+      return undefined;
+
+    // Write metadata
+    fs.writeFileSync(metadataPath, JSON.stringify(metadata));
+
+    // Create file so write passes
+    fs.writeFileSync(objectPath, "");
+
+    return this.startWriteStream(id);
   }
   async delete(id: ObjectReference): Promise<boolean> {
     const objectPath = path.join(this.baseObjectPath, sanitize(id));
