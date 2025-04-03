@@ -80,7 +80,7 @@
     </div>
 
     <!-- recently updated -->
-    <div class="px-4 sm:px-12 py-4">
+    <div class="px-4 sm:px-12 py-4" hydrate-on-visible>
       <h1 class="text-zinc-100 text-2xl font-bold font-display">
         Recently updated
       </h1>

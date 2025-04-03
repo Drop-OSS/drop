@@ -16,7 +16,7 @@ const showSignIn = statusCode ? statusCode == 403 || statusCode == 401 : false;
 
 async function signIn() {
   clearError({
-    redirect: `/signin?redirect=${encodeURIComponent(route.fullPath)}`,
+    redirect: `/auth/signin?redirect=${encodeURIComponent(route.fullPath)}`,
   });
 }
 

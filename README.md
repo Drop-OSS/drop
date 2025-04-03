@@ -32,16 +32,18 @@ To just deploy Drop, we've set up a simple docker compose file in deploy-templat
 3. Edit the compose.yml file (`nano compose.yml`) and copy your GiamtBomb API Key into the GIANT_BOMB_API_KEY environment variable
 4. Run `docker compose up -d`
 
-Your drop server should now be running. To register the admin user, navigate to http://your.drop.server.ip:3000/register?id=admin 
+Your drop server should now be running. To register the admin user, navigate to http://your.drop.server.ip:3000/register?id=admin
 and fill in the required forms
 
 ### Adding a game
+
 To add a game to the drop library, do as follows:
+
 1. Ensure that the current user owns the library folder with `sudo chown -R $(id -u $(whoami)) library`
 2. `cd library`
 3. `mkdir <GAME_NAME>` with the name of the game which you would like to register
 4. `cd <GAME_NAME>`
-5. `mkdir <VERSION_NAME>` Upload files for the specific game version to this folder 
+5. `mkdir <VERSION_NAME>` Upload files for the specific game version to this folder
 6. Navigate to http://your.drop.server.ip:3000/
 7. Import game metadata (uses GiantBomb API Key) by selecting the game and specifying which entry to import
 8. Navigate to http://your.drop.server.ip:3000/admin/library
@@ -73,7 +75,7 @@ Steps:
 
 As part of the first-time bootstrap, Drop creates an invitation with the fixed id of 'admin'. So, to create an admin account, go to:
 
-http://localhost:3000/register?id=admin
+http://localhost:3000/auth/register?id=admin
 
 ## Contributing
 

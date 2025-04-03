@@ -1,12 +1,20 @@
 import { AuthMec, Invitation } from "@prisma/client";
 import prisma from "~/server/internal/db/database";
-import { createHash } from "~/server/internal/security/simple";
+import {
+  createHashArgon2,
+} from "~/server/internal/security/simple";
 import { v4 as uuidv4 } from "uuid";
 import * as jdenticon from "jdenticon";
 import objectHandler from "~/server/internal/objects";
+import { type } from "arktype";
+import { writeNonLiteralDefaultMessage } from "arktype/internal/parser/shift/operator/default.ts";
 
-// Only really a simple test, in case people mistype their emails
-const mailRegex = /^\S+@\S+\.\S+$/;
+const userValidator = type({
+  username: "string >= 5",
+  email: "string.email",
+  password: "string >= 14",
+  "displayName?": "string | undefined",
+});
 
 export default defineEventHandler(async (h3) => {
   const body = await readBody(h3);
@@ -27,59 +35,24 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Invalid or expired invitation.",
     });
 
-  const useInvitationOrBodyRequirement = (
-    field: keyof Invitation,
-    check: (v: string) => boolean
-  ) => {
-    if (invitation[field]) {
-      return invitation[field].toString();
-    }
+  const user = userValidator(body);
+  if (user instanceof type.errors) {
+    // hover out.summary to see validation errors
+    console.error(user.summary);
 
-    const v: string = body[field]?.toString();
-    const valid = check(v);
-    return valid ? v : undefined;
-  };
-
-  const username = useInvitationOrBodyRequirement(
-    "username",
-    (e) => e.length >= 5
-  );
-  const email = useInvitationOrBodyRequirement("email", (e) =>
-    mailRegex.test(e)
-  );
-  const password = body.password;
-  const displayName = body.displayName || username;
-
-  if (username === undefined)
     throw createError({
       statusCode: 400,
-      statusMessage: "Username is invalid. Must be more than 5 characters.",
+      statusMessage: user.summary,
     });
-  if (username.toLowerCase() != username)
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Username must be all lowercase",
-    });
+  }
 
-  if (email === undefined)
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Invalid email. Must follow the format you@example.com",
-    });
+  // reuse items from invite
+  if (invitation.username !== null) user.username = invitation.username;
+  if (invitation.email !== null) user.email = invitation.email;
 
-  if (!password)
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Password empty or missing.",
-    });
-
-  if (password.length < 14)
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Password must be 14 or more characters.",
-    });
-
-  const existing = await prisma.user.count({ where: { username: username } });
+  const existing = await prisma.user.count({
+    where: { username: user.username },
+  });
   if (existing > 0)
     throw createError({
       statusCode: 400,
@@ -91,30 +64,33 @@ export default defineEventHandler(async (h3) => {
   const profilePictureId = uuidv4();
   await objectHandler.createFromSource(
     profilePictureId,
-    async () => jdenticon.toPng(username, 256),
+    async () => jdenticon.toPng(user.username, 256),
     {},
     [`internal:read`, `${userId}:write`]
   );
-  const user = await prisma.user.create({
-    data: {
-      username,
-      displayName,
-      email,
-      profilePicture: profilePictureId,
-      admin: invitation.isAdmin,
-    },
-  });
+  const [linkMec] = await prisma.$transaction([
+    prisma.linkedAuthMec.create({
+      data: {
+        mec: AuthMec.Simple,
+        credentials: await createHashArgon2(user.password),
+        version: 2,
+        user: {
+          create: {
+            id: userId,
+            username: user.username,
+            displayName: user.displayName ?? user.username,
+            email: user.email,
+            profilePicture: profilePictureId,
+            admin: invitation.isAdmin,
+          },
+        },
+      },
+      select: {
+        user: true,
+      },
+    }),
+    prisma.invitation.delete({ where: { id: invitationId } }),
+  ]);
 
-  const hash = await createHash(password);
-  await prisma.linkedAuthMec.create({
-    data: {
-      mec: AuthMec.Simple,
-      credentials: [username, hash],
-      userId: user.id,
-    },
-  });
-
-  await prisma.invitation.delete({ where: { id: invitationId } });
-
-  return user;
+  return linkMec.user;
 });

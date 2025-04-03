@@ -9,10 +9,12 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   css: ["~/assets/tailwindcss.css", "~/assets/core.scss"],
 
+  experimental: {
+    buildCache: true,
+  },
+
   vite: {
-    plugins: [
-      tailwindcss()
-    ]
+    plugins: [tailwindcss()],
   },
 
   app: {
@@ -21,7 +23,22 @@ export default defineNuxtConfig({
     },
   },
 
+  routeRules: {
+    "/auth/signin": { prerender: true },
+    "/signout": { prerender: true },
+
+    "/api/**": { cors: true },
+
+    "/api/v1/client/object/*": {
+      security: {
+        rateLimiter: false,
+      },
+    },
+  },
+
   nitro: {
+    minify: true,
+
     experimental: {
       websocket: true,
       tasks: true,
@@ -30,6 +47,8 @@ export default defineNuxtConfig({
     scheduledTasks: {
       "0 * * * *": ["cleanup:invitations"],
     },
+
+    compressPublicAssets: true,
   },
 
   extends: ["./drop-base"],
@@ -39,6 +58,7 @@ export default defineNuxtConfig({
     "vue3-carousel-nuxt",
     "nuxt-security",
     "@nuxt/image",
+    "@nuxt/fonts",
   ],
 
   carousel: {
@@ -48,6 +68,8 @@ export default defineNuxtConfig({
   security: {
     headers: {
       contentSecurityPolicy: {
+        "upgrade-insecure-requests": false,
+
         "img-src": [
           "'self'",
           "data:",

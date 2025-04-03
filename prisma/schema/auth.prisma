@@ -7,6 +7,7 @@ model LinkedAuthMec {
     mec     AuthMec
     enabled Boolean @default(true)
 
+    version     Int  @default(1)
     credentials Json
 
     user User @relation(fields: [userId], references: [id])

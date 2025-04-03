@@ -39,7 +39,11 @@
           </NuxtLink>
           <div class="h-0.5 rounded-full w-full bg-zinc-800" />
           <div class="flex flex-col">
-            <MenuItem v-for="(nav, navIdx) in navigation" v-slot="{ active, close }">
+            <MenuItem
+              v-for="(nav, navIdx) in navigation"
+              v-slot="{ active, close }"
+              hydrate-on-visible
+            >
               <button
                 :href="nav.route"
                 @click="() => navigateTo(nav.route, close)"
@@ -48,8 +52,8 @@
                   'text-left transition block px-4 py-2 text-sm',
                 ]"
               >
-                {{ nav.label }}</button
-              >
+                {{ nav.label }}
+              </button>
             </MenuItem>
           </div>
         </PanelWidget>
@@ -81,7 +85,7 @@ const navigation: NavigationItem[] = [
   },
   {
     label: "Sign out",
-    route: "/signout",
+    route: "/auth/signout",
     prefix: "",
   },
 ].filter((e) => e !== undefined);

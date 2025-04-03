@@ -1,16 +1,13 @@
 import { Platform } from "@prisma/client";
 
 export function parsePlatform(platform: string) {
-  switch (platform) {
+  switch (platform.toLowerCase()) {
     case "linux":
-    case "Linux":
       return Platform.Linux;
     case "windows":
-    case "Windows":
       return Platform.Windows;
-    case "macOS":
-    case "MacOS":
     case "mac":
+    case "macos":
       return Platform.macOS;
   }
 

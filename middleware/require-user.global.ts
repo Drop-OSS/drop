@@ -1,4 +1,4 @@
-const whitelistedPrefixes = ["/signin", "/register", "/api", "/setup"];
+const whitelistedPrefixes = ["/auth/signin", "/register", "/api", "/setup"];
 const requireAdmin = ["/admin"];
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
@@ -13,7 +13,10 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     await updateUser();
   }
   if (!user.value) {
-    return navigateTo({ path: "/signin", query: { redirect: to.fullPath } });
+    return navigateTo({
+      path: "/auth/signin",
+      query: { redirect: to.fullPath },
+    });
   }
   if (
     requireAdmin.findIndex((e) => to.fullPath.startsWith(e)) != -1 &&
