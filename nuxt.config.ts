@@ -44,6 +44,8 @@ export default defineNuxtConfig({
   },
 
   typescript: {
+    typeCheck: true,
+
     tsConfig: {
       compilerOptions: {
         verbatimModuleSyntax: false,
