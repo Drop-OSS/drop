@@ -5,7 +5,7 @@ on:
     types: [published]
   # This can be used to automatically publish nightlies at UTC nighttime
   schedule:
-    - cron: '0 2 * * *' # run at 2 AM UTC
+    - cron: "0 2 * * *" # run at 2 AM UTC
 
 jobs:
   web:
@@ -52,7 +52,7 @@ jobs:
             type=ref,event=pr
             type=sha
             # set latest tag for stable releases
-            type=raw,value=latest,enable=${{ github.event.release.prerelease == false }}
+            type=raw,value=latest,enable=${{ github.event_name == 'release' && github.event.release.prerelease == false }}
 
       - name: Build and push image
         id: build-and-push
