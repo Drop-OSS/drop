@@ -45,6 +45,16 @@ export default defineNuxtConfig({
     compressPublicAssets: true,
   },
 
+  typescript: {
+    tsConfig: {
+      compilerOptions: {
+        verbatimModuleSyntax: false,
+        skipDefaultLibCheck: true,
+        skipLibCheck: true,
+      },
+    },
+  },
+
   extends: ["./drop-base"],
 
   // Module config from here down

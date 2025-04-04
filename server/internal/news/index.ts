@@ -24,7 +24,7 @@ class NewsManager {
           })),
         },
 
-        image: data.image,
+        ...(data.image && { image: data.image }),
         author: {
           connect: {
             id: data.authorId,

@@ -23,18 +23,9 @@ export default defineClientEventHandler(async (h3, {}) => {
   const mappedVersions = versions
     .map((version) => {
       if (!version.dropletManifest) return undefined;
-      const manifest = JSON.parse(
-        version.dropletManifest.toString()
-      ) as DropManifest;
-
-      /*
-      TODO: size estimates
-      They are a little complicated because of delta versions
-      Manifests need to be generated with the manifest generator and then
-      added up. I'm a little busy right now to implement this, though.
-      */
-
+      
       const newVersion = { ...version, dropletManifest: undefined };
+      // @ts-expect-error
       delete newVersion.dropletManifest;
       return {
         ...newVersion,

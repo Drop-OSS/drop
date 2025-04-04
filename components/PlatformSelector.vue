@@ -1,5 +1,5 @@
 <template>
-  <Listbox as="div" v-model="model">
+  <Listbox as="div" v-model="typedModel">
     <ListboxLabel class="block text-sm font-medium leading-6 text-zinc-100"
       ><slot
     /></ListboxLabel>
@@ -74,7 +74,6 @@
 </template>
 
 <script setup lang="ts">
-import { IconsLinuxLogo, IconsMacLogo, IconsWindowsLogo } from "#components";
 import {
   Listbox,
   ListboxButton,
@@ -83,9 +82,18 @@ import {
   ListboxOptions,
 } from "@headlessui/vue";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
-import type { Component } from "vue";
 
-const model = defineModel<PlatformClient>();
+const model = defineModel<PlatformClient | undefined>();
+
+const typedModel = computed<PlatformClient | null>({
+  get() {
+    return model.value || null;
+  },
+  set(v) {
+    if (v === null) return (model.value = undefined);
+    model.value = v;
+  },
+});
 
 const values = Object.fromEntries(Object.entries(PlatformClient));
 </script>

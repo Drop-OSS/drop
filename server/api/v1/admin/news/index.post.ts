@@ -41,7 +41,7 @@ export default defineEventHandler(async (h3) => {
 
     tags: tags,
 
-    image: imageId,
+    ...(imageId && { image: imageId }),
     authorId: "system",
   });
 

@@ -1,5 +1,5 @@
 <template>
-  <ModalTemplate v-model="open">
+  <ModalTemplate v-model="!!open">
     <template #default>
       <div>
         <DialogTitle as="h3" class="text-lg font-medium leading-6 text-white">

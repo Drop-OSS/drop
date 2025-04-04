@@ -67,14 +67,14 @@ export class PriorityListIndexed<T> extends PriorityList<T> {
         return index as string;
     }
 
-    push(item: T, priority?: number): void {
+    override push(item: T, priority?: number): void {
         const index = this.getIndex(item);
         this.indexMap[index] = item;
 
         super.push(item, priority);
     }
 
-    pop(position?: number): PriorityTagged<T> {
+    override pop(position?: number): PriorityTagged<T> {
         const value = super.pop(position);
 
         const index = this.getIndex(value.object);
