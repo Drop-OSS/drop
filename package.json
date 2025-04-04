@@ -9,7 +9,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "typecheck": "nuxi typecheck"
+    "typecheck": "nuxt typecheck"
   },
   "dependencies": {
     "@drop-oss/droplet": "^0.7.2",
