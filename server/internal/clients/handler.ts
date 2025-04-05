@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import { CertificateBundle } from "./ca";
 import prisma from "../db/database";
 import { Platform } from "@prisma/client";
+import { useCertificateAuthority } from "~/server/plugins/ca";
 
 export interface ClientMetadata {
   name: string;
@@ -79,6 +80,17 @@ export class ClientHandler {
         name: metadata.data.name,
         platform: metadata.data.platform,
         lastConnected: new Date(),
+      },
+    });
+  }
+
+  async removeClient(id: string) {
+    const ca = useCertificateAuthority();
+    await ca.blacklistClient(id);
+
+    await prisma.client.delete({
+      where: {
+        id,
       },
     });
   }

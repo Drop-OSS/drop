@@ -3,6 +3,7 @@ import { EventHandlerRequest, H3Event } from "h3";
 import droplet from "@drop-oss/droplet";
 import prisma from "../db/database";
 import { useCertificateAuthority } from "~/server/plugins/ca";
+import moment from "moment";
 
 export type EventHandlerFunction<T> = (
   h3: H3Event<EventHandlerRequest>,
@@ -122,7 +123,7 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
       fetchUser,
     };
 
-    prisma.client.update({
+    await prisma.client.update({
       where: { id: clientId },
       data: { lastConnected: new Date() },
     });

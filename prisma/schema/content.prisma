@@ -76,8 +76,8 @@ model SaveSlot {
     createdAt DateTime @default(now())
     playtime  Float    @default(0) // hours
 
-    lastUsedClientId String
-    lastUsedClient   Client @relation(fields: [lastUsedClientId], references: [id])
+    lastUsedClientId String?
+    lastUsedClient   Client? @relation(fields: [lastUsedClientId], references: [id])
 
     history          String[] // list of objects
     historyChecksums String[] // list of hashes

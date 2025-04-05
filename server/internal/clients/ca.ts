@@ -64,13 +64,13 @@ export class CertificateAuthority {
 
   async fetchClientCertificate(clientId: string) {
     const isBlacklist = await this.certificateStore.checkBlacklistCertificate(
-      clientId
+      `client:${clientId}`
     );
     if (isBlacklist) return undefined;
     return await this.certificateStore.fetch(`client:${clientId}`);
   }
 
   async blacklistClient(clientId: string) {
-    await this.certificateStore.blacklistCertificate(clientId);
+    await this.certificateStore.blacklistCertificate(`client:${clientId}`);
   }
 }

@@ -26,6 +26,9 @@ export const userACLs = [
   "library:add",
   "library:remove",
 
+  "clients:read",
+  "clients:revoke",
+
   "news:read",
 ] as const;
 const userACLPrefix = "user:";

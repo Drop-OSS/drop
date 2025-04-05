@@ -41,14 +41,10 @@
 <script setup lang="ts">
 import {
   BellIcon,
-  CalendarIcon,
-  ChartPieIcon,
-  DocumentDuplicateIcon,
-  FolderIcon,
   HomeIcon,
   LockClosedIcon,
-  UsersIcon,
-  WrenchScrewdriverIcon,
+  DevicePhoneMobileIcon,
+  WrenchScrewdriverIcon
 } from "@heroicons/vue/24/outline";
 import { UserIcon } from "@heroicons/vue/24/solid";
 import type { Component } from "vue";
@@ -62,6 +58,12 @@ const navigation: (NavigationItem & { icon: Component; count?: number })[] = [
     route: "/account/security",
     prefix: "/account/security",
     icon: LockClosedIcon,
+  },
+  {
+    label: "Devices",
+    route: "/account/devices",
+    prefix: "/account/devices",
+    icon: DevicePhoneMobileIcon,
   },
   {
     label: "Notifications",
