@@ -24,9 +24,7 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    "/auth/signin": { prerender: true },
-    "/signout": { prerender: true },
-
+    "/auth/**": { prerender: true },
     "/api/**": { cors: true },
   },
 
@@ -46,6 +44,8 @@ export default defineNuxtConfig({
   },
 
   typescript: {
+    typeCheck: true,
+
     tsConfig: {
       compilerOptions: {
         verbatimModuleSyntax: false,

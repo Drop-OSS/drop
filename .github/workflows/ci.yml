@@ -1,0 +1,25 @@
+name: CI
+
+on: [pull_request, push]
+
+jobs:
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install --immutable --network-timeout 1000000
+
+      - name: Typecheck
+        run: yarn typecheck
