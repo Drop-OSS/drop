@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col lg:flex-row grow">
+  <div class="flex flex-col lg:flex-row grow w-screen">
     <TransitionRoot as="template" :show="sidebarOpen">
       <Dialog class="relative z-50 lg:hidden" @close="sidebarOpen = false">
         <TransitionChild
