@@ -109,16 +109,10 @@
       </div>
     </div>
     <div class="relative hidden w-0 flex-1 lg:block">
-      <NuxtImg
+      <img
         src="/wallpapers/signin.jpg"
         class="absolute inset-0 h-full w-full object-cover"
         alt=""
-        width="3000"
-        height="3000"
-        provider="ipx"
-        quality="80"
-        :placeholder="[700, 700, 75, 5]"
-        preload
       />
     </div>
   </div>

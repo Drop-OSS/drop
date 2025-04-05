@@ -1,5 +1,5 @@
 <template>
-  <TransitionRoot as="template" :show="!!open">
+  <TransitionRoot as="template" :show="open">
     <Dialog class="relative z-50" @close="open = false">
       <TransitionChild
         as="template"
@@ -71,9 +71,7 @@
                   type="button"
                   :loading="uploadLoading"
                   @click="() => uploadFile_wrapper()"
-                  :class="[
-                    'inline-flex w-full shadow-sm sm:ml-3 sm:w-auto',
-                  ]"
+                  :class="['inline-flex w-full shadow-sm sm:ml-3 sm:w-auto']"
                 >
                   Upload
                 </LoadingButton>
@@ -121,7 +119,7 @@ import {
 import { ArrowUpTrayIcon } from "@heroicons/vue/20/solid";
 import { XCircleIcon } from "@heroicons/vue/24/solid";
 
-const open = defineModel<boolean>();
+const open: Ref<boolean> = defineModel<boolean>() as any;
 
 const file = ref<FileList | undefined>();
 const currentFile = computed(() => file.value?.item(0));
@@ -146,7 +144,10 @@ async function uploadFile() {
     }
   }
 
-  const result = await $dropFetch(props.endpoint, { method: "POST", body: form });
+  const result = await $dropFetch(props.endpoint, {
+    method: "POST",
+    body: form,
+  });
   open.value = false;
   file.value = undefined;
   emit("upload", result);

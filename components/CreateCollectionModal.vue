@@ -1,5 +1,5 @@
 <template>
-  <ModalTemplate v-model="!!open">
+  <ModalTemplate v-model="open">
     <template #default>
       <div>
         <DialogTitle as="h3" class="text-lg font-medium leading-6 text-white">
@@ -59,7 +59,7 @@ const emit = defineEmits<{
   created: [collectionId: string];
 }>();
 
-const open = defineModel<boolean>();
+const open: Ref<boolean> = defineModel<boolean>() as any;
 
 const collectionName = ref("");
 const createCollectionLoading = ref(false);

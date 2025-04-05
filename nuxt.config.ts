@@ -49,8 +49,6 @@ export default defineNuxtConfig({
     tsConfig: {
       compilerOptions: {
         verbatimModuleSyntax: false,
-        skipDefaultLibCheck: true,
-        skipLibCheck: true,
       },
     },
   },
@@ -61,7 +59,7 @@ export default defineNuxtConfig({
   modules: [
     "vue3-carousel-nuxt",
     "nuxt-security",
-    "@nuxt/image",
+    // "@nuxt/image",
     "@nuxt/fonts",
   ],
 
