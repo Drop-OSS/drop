@@ -47,7 +47,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { DialogTitle } from "@headlessui/vue";
-import ModalTemplate from "~/drop-base/components/ModalTemplate.vue";
 import type { CollectionEntry, Game } from "@prisma/client";
 import type { SerializeObject } from "nitropack";
 
