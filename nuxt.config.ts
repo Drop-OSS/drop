@@ -24,7 +24,6 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    "/auth/**": { prerender: true },
     "/api/**": { cors: true },
   },
 
