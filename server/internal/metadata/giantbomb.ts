@@ -10,8 +10,8 @@ import {
   DeveloperMetadata,
 } from "./types";
 import axios, { AxiosRequestConfig } from "axios";
-import moment from "moment";
 import TurndownService from "turndown";
+import { DateTime } from "luxon";
 
 interface GiantBombResponseType<T> {
   error: "OK" | string;
@@ -140,7 +140,7 @@ export class GiantBombProvider implements MetadataProvider {
     const mapped = results.data.results.map((result) => {
       const date =
         (result.original_release_date
-          ? moment(result.original_release_date).year()
+          ? DateTime.fromISO(result.original_release_date).year
           : result.expected_release_year) ?? 0;
 
       const metadata: GameMetadataSearchResult = {
@@ -191,12 +191,12 @@ export class GiantBombProvider implements MetadataProvider {
     const images = [banner, ...imageURLs.map(createObject)];
 
     const releaseDate = gameData.original_release_date
-      ? moment(gameData.original_release_date).toDate()
-      : moment(
-          `${gameData.expected_release_day ?? 1}/${
+      ? DateTime.fromISO(gameData.original_release_date).toJSDate()
+      : DateTime.fromISO(
+          `${gameData.expected_release_year ?? new Date().getFullYear()}-${
             gameData.expected_release_month ?? 1
-          }/${gameData.expected_release_year ?? new Date().getFullYear()}`
-        ).toDate();
+          }-${gameData.expected_release_day ?? 1}`
+        ).toJSDate();
 
     const metadata: GameMetadata = {
       id: gameData.guid,

@@ -2,10 +2,10 @@ import { H3Event } from "h3";
 import createMemorySessionProvider from "./memory";
 import { Session, SessionProvider } from "./types";
 import { randomUUID } from "node:crypto";
-import moment from "moment";
 import { parse as parseCookies } from "cookie-es";
 import { MinimumRequestObject } from "~/server/h3";
 import createDBSessionHandler from "./db";
+import { DateTime, DurationLike } from "luxon";
 
 /*
 This implementation may need work.
@@ -14,8 +14,12 @@ It exposes an API that should stay static, but there are plenty of opportunities
 */
 
 const dropTokenCookieName = "drop-token";
-const normalSessionLength = [31, "days"];
-const extendedSessionLength = [1, "year"];
+const normalSessionLength: DurationLike = {
+  days: 31,
+};
+const extendedSessionLength: DurationLike = {
+  year: 1,
+};
 
 export class SessionHandler {
   private sessionProvider: SessionProvider;
@@ -96,9 +100,9 @@ export class SessionHandler {
   }
 
   private createExipreAt(rememberMe: boolean) {
-    return moment()
-      .add(...(rememberMe ? extendedSessionLength : normalSessionLength))
-      .toDate();
+    return DateTime.now()
+      .plus(rememberMe ? extendedSessionLength : normalSessionLength)
+      .toJSDate();
   }
 
   /**

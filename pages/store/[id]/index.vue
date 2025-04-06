@@ -54,7 +54,11 @@
                   Released
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
-                  {{ moment(game.mReleased).format("Do MMMM, YYYY") }}
+                  {{
+                    DateTime.fromJSDate(game.mReleased).toFormat(
+                      "Do MMMM, YYYY"
+                    )
+                  }}
                 </td>
               </tr>
               <tr>
@@ -166,7 +170,7 @@ import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
 import { StarIcon } from "@heroicons/vue/24/solid";
 import { type Game, type GameVersion } from "@prisma/client";
 import { micromark } from "micromark";
-import moment from "moment";
+import { DateTime } from "luxon";
 import { PlatformClient } from "~/composables/types";
 import { ref } from "vue";
 import AddLibraryButton from "~/components/AddLibraryButton.vue";

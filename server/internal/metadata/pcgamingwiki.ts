@@ -10,8 +10,8 @@ import {
   DeveloperMetadata,
 } from "./types";
 import axios, { AxiosRequestConfig } from "axios";
-import moment from "moment";
 import * as jdenticon from "jdenticon";
+import { DateTime } from "luxon";
 
 interface PCGamingWikiPage {
   PageID: string;
@@ -116,7 +116,8 @@ export class PCGamingWikiProvider implements MetadataProvider {
         description: "", // TODO: need to render the `Introduction` template somehow (or we could just hardcode it)
         year:
           game.Released !== null && game.Released.length > 0
-            ? moment(game.Released).year()
+            ? // sometimes will provide multiple dates
+              DateTime.fromISO(game.Released.split(";")[0]).year
             : 0,
       };
       return metadata;
@@ -193,7 +194,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
       shortDescription: "", // TODO: (again) need to render the `Introduction` template somehow (or we could just hardcode it)
       description: "",
       released: game.Released
-        ? moment(game.Released.split(";").at(0)).toDate()
+        ? DateTime.fromISO(game.Released.split(";")[0]).toJSDate()
         : new Date(),
 
       reviewCount: 0,

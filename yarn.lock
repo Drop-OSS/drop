@@ -1743,6 +1743,11 @@
   resolved "https://registry.yarnpkg.com/@types/estree/-/estree-1.0.7.tgz#4158d3105276773d5b7695cd4834b1722e4f37a8"
   integrity sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ==
 
+"@types/luxon@^3.6.2":
+  version "3.6.2"
+  resolved "https://registry.yarnpkg.com/@types/luxon/-/luxon-3.6.2.tgz#be6536931801f437eafcb9c0f6d6781f72308041"
+  integrity sha512-R/BdP7OxEMc44l2Ex5lSXHoIXTB2JLNa3y2QISIbr58U/YcsffyQrYW//hZSdrfxrjRZj3GcUoxMPGdO8gSYuw==
+
 "@types/ms@*":
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@types/ms/-/ms-2.1.0.tgz#052aa67a48eccc4309d7f0191b7e41434b90bb78"
@@ -4508,6 +4513,11 @@ lru-cache@^5.1.1:
   dependencies:
     yallist "^3.0.2"
 
+luxon@^3.6.1:
+  version "3.6.1"
+  resolved "https://registry.yarnpkg.com/luxon/-/luxon-3.6.1.tgz#d283ffc4c0076cb0db7885ec6da1c49ba97e47b0"
+  integrity sha512-tJLxrKJhO2ukZ5z0gyjY1zPh3Rh88Ej9P7jNrZiHMUXHae1yvI2imgOZtL1TO8TW6biMMKfTtAOoEJANgtWBMQ==
+
 magic-regexp@^0.8.0:
   version "0.8.0"
   resolved "https://registry.yarnpkg.com/magic-regexp/-/magic-regexp-0.8.0.tgz#c67de16456522a83672c22aa408b774facfd882e"
@@ -4911,11 +4921,6 @@ mocked-exports@^0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/mocked-exports/-/mocked-exports-0.1.1.tgz#6916efea9a9dd0f4abd6a0a72526f56a76c966ea"
   integrity sha512-aF7yRQr/Q0O2/4pIXm6PZ5G+jAd7QS4Yu8m+WEeEHGnbo+7mE36CbLSDQiXYV8bVL3NfmdeqPJct0tUlnjVSnA==
-
-moment@^2.30.1:
-  version "2.30.1"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.30.1.tgz#f8c91c07b7a786e30c59926df530b4eac96974ae"
-  integrity sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==
 
 mrmime@^2.0.0:
   version "2.0.1"

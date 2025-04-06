@@ -10,8 +10,7 @@ import {
   DeveloperMetadata,
 } from "./types";
 import axios, { AxiosRequestConfig } from "axios";
-import { inspect } from "util";
-import moment from "moment";
+import { DateTime } from "luxon";
 
 type IGDBID = number;
 
@@ -132,7 +131,7 @@ export class IGDBProvider implements MetadataProvider {
   private clientId: string;
   private clientSecret: string;
   private accessToken: string;
-  private accessTokenExpiry: moment.Moment;
+  private accessTokenExpiry: DateTime;
 
   constructor() {
     const client_id = process.env.IGDB_CLIENT_ID;
@@ -149,7 +148,9 @@ export class IGDBProvider implements MetadataProvider {
     this.clientSecret = client_secret;
 
     this.accessToken = "";
-    this.accessTokenExpiry = moment(new Date(0));
+    this.accessTokenExpiry = DateTime.now().minus({
+      year: 1,
+    });
   }
 
   private async authWithTwitch() {
@@ -167,15 +168,18 @@ export class IGDBProvider implements MetadataProvider {
     });
 
     this.accessToken = response.data.access_token;
-    this.accessTokenExpiry = moment().add(response.data.expires_in, "seconds");
+    this.accessTokenExpiry = DateTime.now().plus({
+      seconds: response.data.expires_in,
+    });
   }
 
   private async refreshCredentials() {
-    const futureTime = moment().add(1, "day");
+    const futureTime = DateTime.now().plus({
+      day: 1,
+    });
 
     // if the token expires in less than a day
-    if (this.accessTokenExpiry.isBefore(futureTime))
-      await this.authWithTwitch();
+    if (this.accessTokenExpiry < futureTime) await this.authWithTwitch();
   }
 
   private async request<T extends Object>(
@@ -279,7 +283,7 @@ export class IGDBProvider implements MetadataProvider {
         name: response[i].name,
         icon: await this.getCoverURL(response[i].cover),
         description: response[i].summary,
-        year: moment.unix(response[i].first_release_date).year(),
+        year: DateTime.fromSeconds(response[i].first_release_date).year,
       });
     }
 
@@ -340,7 +344,9 @@ export class IGDBProvider implements MetadataProvider {
         name: response[i].name,
         shortDescription: this.trimMessage(response[i].summary, 280),
         description: response[i].summary,
-        released: moment.unix(response[i].first_release_date).toDate(),
+        released: DateTime.fromSeconds(
+          response[i].first_release_date
+        ).toJSDate(),
 
         reviewCount: response[i]?.total_rating_count ?? 0,
         reviewRating: (response[i]?.total_rating ?? 0) / 100,
