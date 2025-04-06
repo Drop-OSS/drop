@@ -93,7 +93,7 @@
 import { CheckIcon } from "@heroicons/vue/24/outline";
 import moment from "moment";
 
-const clients = ref(await $dropFetch("/api/v1/user/client"));
+const clients = await $dropFetch("/api/v1/user/client");
 
 async function revokeClient(id: string) {
   await $dropFetch(`/api/v1/user/client/${id}`, { method: "DELETE" });
@@ -102,8 +102,8 @@ async function revokeClient(id: string) {
 function revokeClientWrapper(id: string) {
   revokeClient(id)
     .then(() => {
-      const index = clients.value.findIndex((e) => e.id == id);
-      clients.value.splice(index, 1);
+      const index = clients.findIndex((e) => e.id == id);
+      clients.splice(index, 1);
     })
     .catch((e) => {
       createModal(
