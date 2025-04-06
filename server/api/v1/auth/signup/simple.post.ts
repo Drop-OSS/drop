@@ -1,12 +1,10 @@
 import { AuthMec, Invitation } from "@prisma/client";
 import prisma from "~/server/internal/db/database";
-import {
-  createHashArgon2,
-} from "~/server/internal/security/simple";
-import { v4 as uuidv4 } from "uuid";
+import { createHashArgon2 } from "~/server/internal/security/simple";
 import * as jdenticon from "jdenticon";
 import objectHandler from "~/server/internal/objects";
 import { type } from "arktype";
+import { randomUUID } from "node:crypto";
 import { writeNonLiteralDefaultMessage } from "arktype/internal/parser/shift/operator/default.ts";
 
 const userValidator = type({
@@ -59,9 +57,9 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Username already taken.",
     });
 
-  const userId = uuidv4();
+  const userId = randomUUID();
 
-  const profilePictureId = uuidv4();
+  const profilePictureId = randomUUID();
   await objectHandler.createFromSource(
     profilePictureId,
     async () => jdenticon.toPng(user.username, 256),

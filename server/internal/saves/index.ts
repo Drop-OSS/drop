@@ -2,7 +2,7 @@ import Stream, { Readable } from "stream";
 import prisma from "../db/database";
 import { applicationSettings } from "../config/application-configuration";
 import objectHandler from "../objects";
-import { v4 as uuidv4 } from "uuid";
+import { randomUUID } from "node:crypto";
 import crypto from "crypto";
 import { IncomingMessage } from "http";
 
@@ -35,7 +35,7 @@ class SaveManager {
     if (!save)
       throw createError({ statusCode: 404, statusMessage: "Save not found" });
 
-    const newSaveObjectId = uuidv4();
+    const newSaveObjectId = randomUUID();
     const newSaveStream = await objectHandler.createWithStream(
       newSaveObjectId,
       { saveSlot: JSON.stringify({ userId, gameId, index }) },

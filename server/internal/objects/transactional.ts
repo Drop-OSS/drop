@@ -3,7 +3,7 @@ The purpose of this class is to hold references to remote objects (like images) 
 This is used as a utility in metadata handling, so we only fetch the objects if we're actually creating a database record.
 */
 import { Readable } from "stream";
-import { v4 as uuidv4 } from "uuid";
+import { randomUUID } from "node:crypto";
 import objectHandler from ".";
 
 export type TransactionDataType = string | Readable | Buffer;
@@ -21,12 +21,12 @@ export class ObjectTransactionalHandler {
     metadata: { [key: string]: string },
     permissions: Array<string>
   ): [Register, Pull, Dump] {
-    const transactionId = uuidv4();
+    const transactionId = randomUUID();
 
     this.record[transactionId] ??= {};
 
     const register = (data: TransactionDataType) => {
-      const objectId = uuidv4();
+      const objectId = randomUUID();
       this.record[transactionId][objectId] = data;
 
       return objectId;
