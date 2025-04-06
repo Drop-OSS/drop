@@ -2,8 +2,7 @@ import Stream, { Readable } from "stream";
 import prisma from "../db/database";
 import { applicationSettings } from "../config/application-configuration";
 import objectHandler from "../objects";
-import { randomUUID } from "node:crypto";
-import crypto from "crypto";
+import { randomUUID, createHash } from "node:crypto";
 import { IncomingMessage } from "http";
 
 class SaveManager {
@@ -50,7 +49,7 @@ class SaveManager {
     let hash: string | undefined;
     const hashPromise = Stream.promises.pipeline(
       stream,
-      crypto.createHash("sha256").setEncoding("hex"),
+      createHash("sha256").setEncoding("hex"),
       async function (source) {
         // Not sure how to get this to be typed
         // @ts-expect-error
