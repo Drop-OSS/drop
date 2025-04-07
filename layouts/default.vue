@@ -16,6 +16,16 @@ const route = useRoute();
 const noWrapper = !!route.query.noWrapper;
 
 useHead({
+  htmlAttrs: {
+    lang: "en",
+  },
+  link: [
+    {
+      rel: "icon",
+      type: "image/png",
+      href: "/favicon.png",
+    },
+  ],
   titleTemplate(title) {
     if (title) return `${title} | Drop`;
     return `Drop`;
