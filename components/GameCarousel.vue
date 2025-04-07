@@ -1,6 +1,6 @@
 <template>
   <div ref="currentComponent">
-    <ClientOnly>
+    <ClientOnly fallback-tag="span">
       <VueCarousel :itemsToShow="singlePage" :itemsToScroll="singlePage">
         <VueSlide
           class="justify-start"
@@ -14,6 +14,21 @@
           <VueNavigation />
         </template>
       </VueCarousel>
+      <template #fallback>
+        <!-- this will be rendered on server side -->
+        <div class="min-h-55">
+          <div class="flex items-center justify-center p-4">
+            <div
+              class="flex items-center space-x-2 animate-pulse rounded-xl shadow-lg p-6"
+            >
+              <div class="w-4 h-4 bg-gray-400 rounded-full"></div>
+              <div class="w-4 h-4 bg-gray-400 rounded-full"></div>
+              <div class="w-4 h-4 bg-gray-400 rounded-full"></div>
+              <span class="ml-4 text-gray-200 font-medium">Loading...</span>
+            </div>
+          </div>
+        </div>
+      </template>
     </ClientOnly>
   </div>
 </template>
