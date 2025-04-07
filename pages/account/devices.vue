@@ -93,6 +93,7 @@
 import { CheckIcon } from "@heroicons/vue/24/outline";
 import { DateTime } from "luxon";
 
+// @ts-ignore pending https://github.com/nitrojs/nitro/issues/2758
 const clients = ref(await $dropFetch("/api/v1/user/client"));
 
 async function revokeClient(id: string) {
