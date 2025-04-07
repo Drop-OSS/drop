@@ -49,6 +49,8 @@ export default defineNuxtConfig({
     tsConfig: {
       compilerOptions: {
         verbatimModuleSyntax: false,
+        strictNullChecks: true,
+        exactOptionalPropertyTypes: true,
       },
     },
   },
