@@ -6,7 +6,14 @@ export default defineNuxtConfig({
   // Nuxt-only config
   telemetry: false,
   compatibilityDate: "2024-04-03",
-  devtools: { enabled: false },
+  devtools: {
+    enabled: true,
+    telemetry: false,
+    timeline: {
+      // seems to break things
+      enabled: false,
+    },
+  },
   css: ["~/assets/tailwindcss.css", "~/assets/core.scss"],
 
   experimental: {
