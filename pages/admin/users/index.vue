@@ -81,10 +81,10 @@
                   class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-3"
                 >
                   <!--
-                  <a href="#" class="text-blue-600 hover:text-blue-500"
+                  <NuxtLink to="#" class="text-blue-600 hover:text-blue-500"
                     >Edit<span class="sr-only"
                       >, {{ user.displayName }}</span
-                    ></a
+                    ></NuxtLink
                   >
                   -->
                 </td>

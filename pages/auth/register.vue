@@ -175,11 +175,11 @@
       <p v-if="false" class="mt-10 text-center text-sm text-zinc-400">
         What's Drop?
         {{ " " }}
-        <a
-          href="https://github.com/Drop-OSS/drop"
+        <NuxtLink
+          to="https://github.com/Drop-OSS/drop"
           target="_blank"
           class="font-semibold leading-6 text-blue-600 hover:text-blue-500"
-          >Check us out here &rarr;</a
+          >Check us out here &rarr;</NuxtLink
         >
       </p>
     </div>
