@@ -1,7 +1,7 @@
 <template>
   <div class="hidden lg:flex bg-zinc-950 flex-row px-12 xl:px-48 py-5">
     <div class="grow inline-flex items-center gap-x-20">
-      <NuxtLink to="/">
+      <NuxtLink to="/store">
         <Wordmark class="h-8" />
       </NuxtLink>
       <nav class="inline-flex items-center">
