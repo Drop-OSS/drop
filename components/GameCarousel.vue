@@ -37,13 +37,22 @@ const games: Ref<Array<SerializeObject<Game> | undefined>> = computed(() =>
     .map((_, i) => props.items[i])
 );
 
-const singlePage = ref(1);
+const singlePage = ref(2);
 const sizeOfCard = 192 + 10;
 
-onMounted(() => {
+const handleResize = () => {
   singlePage.value =
     (props.width ??
       currentComponent.value?.parentElement?.clientWidth ??
       window.innerWidth) / sizeOfCard;
+};
+
+onMounted(() => {
+  handleResize();
+  window.addEventListener("resize", handleResize);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("resize", handleResize);
 });
 </script>
