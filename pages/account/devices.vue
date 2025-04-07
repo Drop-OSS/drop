@@ -68,9 +68,7 @@
                   </ul>
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
-                  {{
-                    DateTime.fromISO(client.lastConnected).diffNow().toHuman()
-                  }}
+                  {{ DateTime.fromISO(client.lastConnected).toRelative() }}
                 </td>
                 <td
                   class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-3"
@@ -95,7 +93,7 @@
 import { CheckIcon } from "@heroicons/vue/24/outline";
 import { DateTime } from "luxon";
 
-const clients = await $dropFetch("/api/v1/user/client");
+const clients = ref(await $dropFetch("/api/v1/user/client"));
 
 async function revokeClient(id: string) {
   await $dropFetch(`/api/v1/user/client/${id}`, { method: "DELETE" });
@@ -104,8 +102,8 @@ async function revokeClient(id: string) {
 function revokeClientWrapper(id: string) {
   revokeClient(id)
     .then(() => {
-      const index = clients.findIndex((e) => e.id == id);
-      clients.splice(index, 1);
+      const index = clients.value.findIndex((e) => e.id == id);
+      clients.value.splice(index, 1);
     })
     .catch((e) => {
       createModal(
