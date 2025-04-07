@@ -1,6 +1,5 @@
 <template>
   <div ref="currentComponent">
-    {{ singlePage }}
     <ClientOnly>
       <VueCarousel :itemsToShow="singlePage" :itemsToScroll="singlePage">
         <VueSlide
