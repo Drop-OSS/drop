@@ -1,6 +1,7 @@
 import aclManager from "~/server/internal/acls";
 import objectHandler from "~/server/internal/objects";
 
+// this request method is purely used by the browser to check if etag values are still valid
 export default defineEventHandler(async (h3) => {
   const id = getRouterParam(h3, "id");
   if (!id) throw createError({ statusCode: 400, statusMessage: "Invalid ID" });
@@ -19,13 +20,5 @@ export default defineEventHandler(async (h3) => {
     return null;
   }
 
-  // just return object id has etag since object should never change
-  setHeader(h3, "ETag", id);
-  setHeader(h3, "Content-Type", object.mime);
-  setHeader(
-    h3,
-    "Cache-Control",
-    "private, max-age=31536000, s-maxage=31536000, immutable"
-  );
-  return object.data;
+  return null;
 });
