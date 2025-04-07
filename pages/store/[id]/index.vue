@@ -55,9 +55,7 @@
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
                   {{
-                    DateTime.fromJSDate(game.mReleased).toFormat(
-                      "Do MMMM, YYYY"
-                    )
+                    DateTime.fromISO(game.mReleased).toFormat("d MMMM, yyyy")
                   }}
                 </td>
               </tr>
@@ -171,18 +169,17 @@ import { StarIcon } from "@heroicons/vue/24/solid";
 import { type Game, type GameVersion } from "@prisma/client";
 import { micromark } from "micromark";
 import { DateTime } from "luxon";
+import { SerializeObject } from "nitropack";
 import { PlatformClient } from "~/composables/types";
-import { ref } from "vue";
-import AddLibraryButton from "~/components/AddLibraryButton.vue";
 
 const route = useRoute();
 const gameId = route.params.id.toString();
 
 const user = useUser();
 
-const game = await $dropFetch<Game & { versions: GameVersion[] }>(
-  `/api/v1/games/${gameId}`
-);
+const game = await $dropFetch<
+  SerializeObject<Game> & { versions: GameVersion[] }
+>(`/api/v1/games/${gameId}`);
 
 // Preview description (first 30 lines)
 const showPreview = ref(true);
