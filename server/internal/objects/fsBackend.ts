@@ -11,7 +11,6 @@ import sanitize from "sanitize-filename";
 import fs from "fs";
 import path from "path";
 import { Readable, Stream } from "stream";
-import { v4 as uuidv4 } from "uuid";
 
 export class FsObjectBackend extends ObjectBackend {
   private baseObjectPath: string;

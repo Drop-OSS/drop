@@ -3,7 +3,6 @@ import { EventHandlerRequest, H3Event } from "h3";
 import droplet from "@drop-oss/droplet";
 import prisma from "../db/database";
 import { useCertificateAuthority } from "~/server/plugins/ca";
-import moment from "moment";
 
 export type EventHandlerFunction<T> = (
   h3: H3Event<EventHandlerRequest>,

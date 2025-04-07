@@ -352,7 +352,6 @@
 </template>
 
 <script setup lang="ts">
-import { ClientOnly } from "#build/components";
 import {
   Dialog,
   DialogPanel,
@@ -380,8 +379,8 @@ import {
   XCircleIcon,
 } from "@heroicons/vue/24/solid";
 import type { Invitation } from "@prisma/client";
-import moment from "moment";
 import type { SerializeObject } from "nitropack";
+import { DateTime, DurationLike } from "luxon";
 
 definePageMeta({
   layout: "admin",
@@ -439,13 +438,25 @@ const validEmail = computed(() =>
 const isAdmin = ref(false);
 
 // Label to parameters to moment.js .add()
-const expiry = {
-  "3 days": [3, "days"],
-  "7 days": [7, "days"],
-  "1 month": [1, "month"],
-  "6 months": [6, "month"],
-  "1 year": [1, "year"],
-  Never: [3000, "year"], // Never is relative, right?
+const expiry: Record<string, DurationLike> = {
+  "3 days": {
+    days: 3,
+  },
+  "7 days": {
+    days: 7,
+  },
+  "1 month": {
+    month: 1,
+  },
+  "6 months": {
+    months: 6,
+  },
+  "1 year": {
+    year: 1,
+  },
+  Never: {
+    year: 3000,
+  }, // Never is relative, right?
 };
 const expiryKey = ref<keyof typeof expiry>(Object.keys(expiry)[0] as any); // Cast to any because we just know it's okay
 
@@ -453,9 +464,7 @@ const loading = ref(false);
 const error = ref<undefined | string>();
 
 async function invite() {
-  const expiryDate = moment()
-    .add(...expiry[expiryKey.value])
-    .toJSON();
+  const expiryDate = DateTime.now().plus(expiry[expiryKey.value]).toJSON();
 
   const newInvitation = await $dropFetch("/api/v1/admin/auth/invitation", {
     method: "POST",

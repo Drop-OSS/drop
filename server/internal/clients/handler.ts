@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from "uuid";
+import { randomUUID } from "node:crypto";
 import { CertificateBundle } from "./ca";
 import prisma from "../db/database";
 import { Platform } from "@prisma/client";
@@ -20,7 +20,7 @@ export class ClientHandler {
   } = {};
 
   async initiate(metadata: ClientMetadata) {
-    const clientId = uuidv4();
+    const clientId = randomUUID();
 
     this.temporaryClientTable[clientId] = {
       data: metadata,
@@ -53,7 +53,7 @@ export class ClientHandler {
     const entry = this.temporaryClientTable[clientId];
     if (!entry) throw new Error("Invalid clientId to generate token");
 
-    const token = uuidv4();
+    const token = randomUUID();
     this.temporaryClientTable[clientId].authToken = token;
 
     return token;

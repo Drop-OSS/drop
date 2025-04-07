@@ -17,7 +17,6 @@
 import { parse as getMimeTypeBuffer } from "file-type-mime";
 import Stream, { Readable, Writable } from "stream";
 import { getMimeType as getMimeTypeStream } from "stream-mime-type";
-import { v4 as uuidv4 } from "uuid";
 
 export type ObjectReference = string;
 export type ObjectMetadata = {

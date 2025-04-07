@@ -68,7 +68,7 @@
                   </ul>
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
-                  {{ moment(client.lastConnected).fromNow() }}
+                  {{ DateTime.fromISO(client.lastConnected).toRelative() }}
                 </td>
                 <td
                   class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-3"
@@ -91,7 +91,7 @@
 
 <script setup lang="ts">
 import { CheckIcon } from "@heroicons/vue/24/outline";
-import moment from "moment";
+import { DateTime } from "luxon";
 
 const clients = ref(await $dropFetch("/api/v1/user/client"));
 
