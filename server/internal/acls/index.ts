@@ -33,7 +33,7 @@ export const userACLs = [
 ] as const;
 const userACLPrefix = "user:";
 
-type UserACL = Array<(typeof userACLs)[number]>;
+export type UserACL = Array<(typeof userACLs)[number]>;
 
 export const systemACLs = [
   "auth:read",
@@ -69,7 +69,7 @@ export const systemACLs = [
 ] as const;
 const systemACLPrefix = "system:";
 
-type SystemACL = Array<(typeof systemACLs)[number]>;
+export type SystemACL = Array<(typeof systemACLs)[number]>;
 
 class ACLManager {
   private getAuthorizationToken(request: MinimumRequestObject) {
@@ -90,15 +90,24 @@ class ACLManager {
     const authorizationToken = this.getAuthorizationToken(request);
     if (!authorizationToken) return undefined;
     const token = await prisma.aPIToken.findUnique({
-      where: { token: authorizationToken },
+      where: {
+        token: authorizationToken,
+        mode: { in: [APITokenMode.User, APITokenMode.Client] },
+      },
     });
     if (!token) return undefined;
-    if (token.mode != APITokenMode.User || !token.userId) return undefined; // If it's a system token
+    if (!token.userId)
+      throw new Error(
+        "No userId on user or client token - is something broken?"
+      );
 
     for (const acl of acls) {
       const tokenACLIndex = token.acls.findIndex((e) => e == acl);
       if (tokenACLIndex != -1) return token.userId;
     }
+
+    console.log(token);
+    console.log(acls);
 
     return undefined;
   }

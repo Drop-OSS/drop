@@ -27,6 +27,7 @@ model Invitation {
 enum APITokenMode {
     User
     System
+    Client
 }
 
 model APIToken {
@@ -37,6 +38,9 @@ model APIToken {
 
     userId String?
     user   User?   @relation(fields: [userId], references: [id])
+
+    clientId String?
+    client   Client? @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
     acls String[]
 

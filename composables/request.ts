@@ -42,7 +42,7 @@ export const $dropFetch: DropFetch = async (request, opts) => {
     return object;
   }
 
-  const headers = useRequestHeaders(["cookie"]);
+  const headers = useRequestHeaders(["cookie", "authorization"]);
   const data = await $fetch(request, {
     ...opts,
     headers: { ...opts?.headers, ...headers },
