@@ -70,6 +70,7 @@ export default defineNuxtConfig({
     "nuxt-security",
     // "@nuxt/image",
     "@nuxt/fonts",
+    "@nuxt/eslint",
   ],
 
   carousel: {
