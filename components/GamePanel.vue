@@ -32,14 +32,7 @@
       </p>
     </div>
   </NuxtLink>
-  <div
-    v-else
-    class="rounded-lg w-48 h-64 bg-zinc-800/50 flex items-center justify-center transition-all duration-300 hover:bg-zinc-800"
-  >
-    <p class="text-zinc-700 text-sm font-semibold font-display uppercase">
-      no game
-    </p>
-  </div>
+  <SkeletonCard v-else message="no game" />>
 </template>
 
 <script setup lang="ts">
