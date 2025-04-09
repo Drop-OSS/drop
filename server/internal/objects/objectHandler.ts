@@ -49,20 +49,21 @@ export abstract class ObjectBackend {
   abstract create(
     id: string,
     source: Source,
-    metadata: ObjectMetadata
+    metadata: ObjectMetadata,
   ): Promise<ObjectReference | undefined>;
   abstract createWithWriteStream(
     id: string,
-    metadata: ObjectMetadata
+    metadata: ObjectMetadata,
   ): Promise<Writable | undefined>;
   abstract delete(id: ObjectReference): Promise<boolean>;
   abstract fetchMetadata(
-    id: ObjectReference
+    id: ObjectReference,
   ): Promise<ObjectMetadata | undefined>;
   abstract writeMetadata(
     id: ObjectReference,
-    metadata: ObjectMetadata
+    metadata: ObjectMetadata,
   ): Promise<boolean>;
+  abstract fetchHash(id: ObjectReference): Promise<string | undefined>;
 
   private async fetchMimeType(source: Source) {
     if (source instanceof ReadableStream) {
@@ -86,7 +87,7 @@ export abstract class ObjectBackend {
     id: string,
     sourceFetcher: () => Promise<Source>,
     metadata: { [key: string]: string },
-    permissions: Array<string>
+    permissions: Array<string>,
   ) {
     const { source, mime } = await this.fetchMimeType(await sourceFetcher());
     if (!mime)
@@ -102,7 +103,7 @@ export abstract class ObjectBackend {
   async createWithStream(
     id: string,
     metadata: { [key: string]: string },
-    permissions: Array<string>
+    permissions: Array<string>,
   ) {
     return this.createWithWriteStream(id, {
       permissions,
@@ -111,6 +112,12 @@ export abstract class ObjectBackend {
     });
   }
 
+  /**
+   * Fetches object, but also checks if user has perms to access it 
+   * @param id 
+   * @param userId 
+   * @returns 
+   */
   async fetchWithPermissions(id: ObjectReference, userId?: string) {
     const metadata = await this.fetchMetadata(id);
     if (!metadata) return;
@@ -147,7 +154,7 @@ export abstract class ObjectBackend {
   async writeWithPermissions(
     id: ObjectReference,
     sourceFetcher: () => Promise<Source>,
-    userId?: string
+    userId?: string,
   ) {
     const metadata = await this.fetchMetadata(id);
     if (!metadata) return false;

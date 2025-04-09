@@ -7,14 +7,21 @@ import {
 } from "./objectHandler";
 
 import sanitize from "sanitize-filename";
-
+import { LRUCache } from "lru-cache";
 import fs from "fs";
 import path from "path";
 import { Readable, Stream } from "stream";
+import { createHash } from "crypto";
 
 export class FsObjectBackend extends ObjectBackend {
   private baseObjectPath: string;
   private baseMetadataPath: string;
+
+  // TODO: should probably make this save into db or something if we agree to never
+  // overwrite an object
+  private cache = new LRUCache<string, string>({
+    max: 1000, // number of items
+  });
 
   constructor() {
     super();
@@ -35,6 +42,9 @@ export class FsObjectBackend extends ObjectBackend {
     const objectPath = path.join(this.baseObjectPath, sanitize(id));
     if (!fs.existsSync(objectPath)) return false;
 
+    // remove item from cache
+    this.cache.delete(id);
+
     if (source instanceof Readable) {
       const outputStream = fs.createWriteStream(objectPath);
       source.pipe(outputStream, { end: true });
@@ -52,7 +62,8 @@ export class FsObjectBackend extends ObjectBackend {
   async startWriteStream(id: ObjectReference) {
     const objectPath = path.join(this.baseObjectPath, sanitize(id));
     if (!fs.existsSync(objectPath)) return undefined;
-
+    // remove item from cache
+    this.cache.delete(id);
     return fs.createWriteStream(objectPath);
   }
   async create(
@@ -100,6 +111,8 @@ export class FsObjectBackend extends ObjectBackend {
     const objectPath = path.join(this.baseObjectPath, sanitize(id));
     if (!fs.existsSync(objectPath)) return true;
     fs.rmSync(objectPath);
+    // remove item from cache
+    this.cache.delete(id);
     return true;
   }
   async fetchMetadata(
@@ -124,5 +137,27 @@ export class FsObjectBackend extends ObjectBackend {
     if (!fs.existsSync(metadataPath)) return false;
     fs.writeFileSync(metadataPath, JSON.stringify(metadata));
     return true;
+  }
+  async fetchHash(id: ObjectReference): Promise<string | undefined> {
+    const cacheResult = this.cache.get(id);
+    if (cacheResult !== undefined) return cacheResult;
+
+    const obj = await this.fetch(id);
+    if (obj === undefined) return;
+
+    // local variable to point to object
+    const cache = this.cache;
+
+    // hash object
+    const hash = createHash("md5");
+    hash.setEncoding("hex");
+    obj.on("end", function () {
+      hash.end();
+      cache.set(id, hash.read());
+    });
+    // read obj into hash
+    obj.pipe(hash);
+
+    return this.cache.get(id);
   }
 }
