@@ -1,3 +1,5 @@
 import { FsObjectBackend } from "./fsBackend";
-export const objectHandler = new FsObjectBackend();
-export default objectHandler
+import { ObjectHandler } from "./objectHandler";
+
+export const objectHandler = new ObjectHandler(new FsObjectBackend());
+export default objectHandler;

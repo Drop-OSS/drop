@@ -3,9 +3,7 @@ import prisma from "~/server/internal/db/database";
 import objectHandler from "~/server/internal/objects";
 
 export default defineEventHandler(async (h3) => {
-  const allowed = await aclManager.allowSystemACL(h3, [
-    "game:image:delete",
-  ]);
+  const allowed = await aclManager.allowSystemACL(h3, ["game:image:delete"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
   const body = await readBody(h3);
@@ -37,8 +35,8 @@ export default defineEventHandler(async (h3) => {
     throw createError({ statusCode: 400, statusMessage: "Image not found" });
 
   game.mImageLibrary.splice(imageIndex, 1);
-  await objectHandler.delete(imageId);
-  
+  await objectHandler.deleteWithPermission(imageId);
+
   if (game.mBannerId === imageId) {
     game.mBannerId = game.mImageLibrary[0];
   }

@@ -1,5 +1,4 @@
 import {
-  Object,
   ObjectBackend,
   ObjectMetadata,
   ObjectReference,

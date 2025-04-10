@@ -49,21 +49,29 @@ export abstract class ObjectBackend {
   abstract create(
     id: string,
     source: Source,
-    metadata: ObjectMetadata,
+    metadata: ObjectMetadata
   ): Promise<ObjectReference | undefined>;
   abstract createWithWriteStream(
     id: string,
-    metadata: ObjectMetadata,
+    metadata: ObjectMetadata
   ): Promise<Writable | undefined>;
   abstract delete(id: ObjectReference): Promise<boolean>;
   abstract fetchMetadata(
-    id: ObjectReference,
+    id: ObjectReference
   ): Promise<ObjectMetadata | undefined>;
   abstract writeMetadata(
     id: ObjectReference,
-    metadata: ObjectMetadata,
+    metadata: ObjectMetadata
   ): Promise<boolean>;
   abstract fetchHash(id: ObjectReference): Promise<string | undefined>;
+}
+
+export class ObjectHandler {
+  private backend: ObjectBackend;
+
+  constructor(backend: ObjectBackend) {
+    this.backend = backend;
+  }
 
   private async fetchMimeType(source: Source) {
     if (source instanceof ReadableStream) {
@@ -87,13 +95,13 @@ export abstract class ObjectBackend {
     id: string,
     sourceFetcher: () => Promise<Source>,
     metadata: { [key: string]: string },
-    permissions: Array<string>,
+    permissions: Array<string>
   ) {
     const { source, mime } = await this.fetchMimeType(await sourceFetcher());
     if (!mime)
       throw new Error("Unable to calculate MIME type - is the source empty?");
 
-    await this.create(id, source, {
+    await this.backend.create(id, source, {
       permissions,
       userMetadata: metadata,
       mime,
@@ -103,9 +111,9 @@ export abstract class ObjectBackend {
   async createWithStream(
     id: string,
     metadata: { [key: string]: string },
-    permissions: Array<string>,
+    permissions: Array<string>
   ) {
-    return this.createWithWriteStream(id, {
+    return this.backend.createWithWriteStream(id, {
       permissions,
       userMetadata: metadata,
       mime: "application/octet-stream",
@@ -113,13 +121,13 @@ export abstract class ObjectBackend {
   }
 
   /**
-   * Fetches object, but also checks if user has perms to access it 
-   * @param id 
-   * @param userId 
-   * @returns 
+   * Fetches object, but also checks if user has perms to access it
+   * @param id
+   * @param userId
+   * @returns
    */
   async fetchWithPermissions(id: ObjectReference, userId?: string) {
-    const metadata = await this.fetchMetadata(id);
+    const metadata = await this.backend.fetchMetadata(id);
     if (!metadata) return;
 
     // We only need one permission, so find instead of filter is faster
@@ -137,13 +145,35 @@ export abstract class ObjectBackend {
 
     // Because any permission can be read or up, we automatically know we can read this object
     // So just straight return the object
-    const source = await this.fetch(id);
+    const source = await this.backend.fetch(id);
     if (!source) return undefined;
     const object: Object = {
       data: source,
       mime: metadata.mime,
     };
     return object;
+  }
+
+  async fetchHashWithWithPermissions(id: ObjectReference, userId?: string) {
+    const metadata = await this.backend.fetchMetadata(id);
+    if (!metadata) return;
+
+    // We only need one permission, so find instead of filter is faster
+    const myPermissions = metadata.permissions.find((e) => {
+      if (userId !== undefined && e.startsWith(userId)) return true;
+      if (userId !== undefined && e.startsWith("internal")) return true;
+      if (e.startsWith("anonymous")) return true;
+      return false;
+    });
+
+    if (!myPermissions) {
+      // We do not have access to this object
+      return;
+    }
+
+    // Because any permission can be read or up, we automatically know we can read this object
+    // So just straight return the object
+    return await this.backend.fetchHash(id);
   }
 
   // If we need to fetch a remote resource, it doesn't make sense
@@ -154,9 +184,9 @@ export abstract class ObjectBackend {
   async writeWithPermissions(
     id: ObjectReference,
     sourceFetcher: () => Promise<Source>,
-    userId?: string,
+    userId?: string
   ) {
-    const metadata = await this.fetchMetadata(id);
+    const metadata = await this.backend.fetchMetadata(id);
     if (!metadata) return false;
 
     const myPermissions = metadata.permissions
@@ -178,13 +208,13 @@ export abstract class ObjectBackend {
     if (!hasPermission) return false;
 
     const source = await sourceFetcher();
-    const result = await this.write(id, source);
+    const result = await this.backend.write(id, source);
 
     return result;
   }
 
   async deleteWithPermission(id: ObjectReference, userId?: string) {
-    const metadata = await this.fetchMetadata(id);
+    const metadata = await this.backend.fetchMetadata(id);
     if (!metadata) return false;
 
     const myPermissions = metadata.permissions
@@ -205,7 +235,7 @@ export abstract class ObjectBackend {
 
     if (!hasPermission) return false;
 
-    const result = await this.delete(id);
+    const result = await this.backend.delete(id);
     return result;
   }
 }

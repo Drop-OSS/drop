@@ -129,7 +129,7 @@ class NewsManager {
       where: { id },
     });
     if (article.image) {
-      return await objectHandler.delete(article.image);
+      return await objectHandler.deleteWithPermission(article.image);
     }
     return true;
   }

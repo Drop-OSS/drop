@@ -12,7 +12,7 @@ class SaveManager {
     index: number,
     objectId: string
   ) {
-    await objectHandler.delete(objectId);
+    await objectHandler.deleteWithPermission(objectId, userId);
   }
 
   async pushSave(
@@ -62,7 +62,7 @@ class SaveManager {
     await Promise.all([hashPromise, uploadStream]);
 
     if (!hash) {
-      await objectHandler.delete(newSaveObjectId);
+      await objectHandler.deleteWithPermission(newSaveObjectId, userId);
       throw createError({
         statusCode: 500,
         statusMessage: "Hash failed to generate",
