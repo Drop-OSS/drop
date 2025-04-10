@@ -35,7 +35,6 @@
     "prisma": "^6.5.0",
     "sanitize-filename": "^1.6.3",
     "sharp": "^0.33.5",
-    "stream": "^0.0.3",
     "stream-mime-type": "^2.0.0",
     "turndown": "^7.2.0",
     "vue": "latest",
