@@ -64,7 +64,7 @@ export default defineEventHandler(async (h3) => {
     profilePictureId,
     async () => jdenticon.toPng(user.username, 256),
     {},
-    [`internal:read`, `${userId}:write`]
+    [`internal:read`, `${userId}:delete`]
   );
   const [linkMec] = await prisma.$transaction([
     prisma.linkedAuthMec.create({
