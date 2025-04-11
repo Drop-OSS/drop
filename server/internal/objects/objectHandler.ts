@@ -122,8 +122,8 @@ export class ObjectHandler {
 
   /**
    * Fetches object, but also checks if user has perms to access it
-   * @param id
-   * @param userId
+   * @param id object id
+   * @param userId user to check, or act as anon user
    * @returns
    */
   async fetchWithPermissions(id: ObjectReference, userId?: string) {
@@ -154,6 +154,12 @@ export class ObjectHandler {
     return object;
   }
 
+  /**
+   * Fetch object hash, but also checks if user has perms to access it
+   * @param id object id
+   * @param userId user to check, or act as anon user
+   * @returns
+   */
   async fetchHashWithWithPermissions(id: ObjectReference, userId?: string) {
     const metadata = await this.backend.fetchMetadata(id);
     if (!metadata) return;
@@ -176,11 +182,18 @@ export class ObjectHandler {
     return await this.backend.fetchHash(id);
   }
 
-  // If we need to fetch a remote resource, it doesn't make sense
-  // to immediately fetch the object, *then* check permissions.
-  // Instead the caller can pass a simple anonymous funciton, like
-  // () => $dropFetch('/my-image');
-  // And if we actually have permission to write, it fetches it then.
+  /**
+   *
+   * @param id object id
+   * @param sourceFetcher callback used to provide image
+   * @param userId user to check, or act as anon user
+   * @returns
+   * @description If we need to fetch a remote resource, it doesn't make sense
+   * to immediately fetch the object, *then* check permissions.
+   * Instead the caller can pass a simple anonymous funciton, like
+   * () => $dropFetch('/my-image');
+   * And if we actually have permission to write, it fetches it then.
+   */
   async writeWithPermissions(
     id: ObjectReference,
     sourceFetcher: () => Promise<Source>,
@@ -213,6 +226,12 @@ export class ObjectHandler {
     return result;
   }
 
+  /**
+   *
+   * @param id object id
+   * @param userId user to check, or act as anon user
+   * @returns
+   */
   async deleteWithPermission(id: ObjectReference, userId?: string) {
     const metadata = await this.backend.fetchMetadata(id);
     if (!metadata) return false;
@@ -237,5 +256,14 @@ export class ObjectHandler {
 
     const result = await this.backend.delete(id);
     return result;
+  }
+
+  /**
+   * Deletes object without checking permission
+   * @param id
+   * @returns
+   */
+  async deleteAsServer(id: ObjectReference) {
+    return await this.backend.delete(id);
   }
 }

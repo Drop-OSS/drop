@@ -5,7 +5,6 @@ import * as jdenticon from "jdenticon";
 import objectHandler from "~/server/internal/objects";
 import { type } from "arktype";
 import { randomUUID } from "node:crypto";
-import { writeNonLiteralDefaultMessage } from "arktype/internal/parser/shift/operator/default.ts";
 
 const userValidator = type({
   username: "string >= 5",
@@ -64,7 +63,7 @@ export default defineEventHandler(async (h3) => {
     profilePictureId,
     async () => jdenticon.toPng(user.username, 256),
     {},
-    [`internal:read`, `${userId}:delete`]
+    [`internal:read`, `${userId}:read`]
   );
   const [linkMec] = await prisma.$transaction([
     prisma.linkedAuthMec.create({

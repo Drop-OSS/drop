@@ -35,7 +35,7 @@ export default defineEventHandler(async (h3) => {
     throw createError({ statusCode: 400, statusMessage: "Image not found" });
 
   game.mImageLibrary.splice(imageIndex, 1);
-  await objectHandler.deleteWithPermission(imageId);
+  await objectHandler.deleteAsServer(imageId);
 
   if (game.mBannerId === imageId) {
     game.mBannerId = game.mImageLibrary[0];
