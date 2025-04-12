@@ -24,6 +24,7 @@
     >
       <GamePanel
         v-for="entry in collection?.entries"
+        :key="entry.gameId"
         :game="entry.game"
         :href="`/library/game/${entry.game.id}`"
       />

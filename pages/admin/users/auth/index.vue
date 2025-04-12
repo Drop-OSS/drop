@@ -80,6 +80,7 @@
           <div v-if="authMech.settings">
             <div
               v-for="[key, value] in Object.entries(authMech.settings)"
+              :key="key"
               class="flex justify-between gap-x-4 py-2"
             >
               <dt class="text-zinc-400">{{ key }}</dt>

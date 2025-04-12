@@ -72,12 +72,11 @@
 
     <!-- game library grid -->
     <div>
-      <h1 class="text-zinc-100 text-xl font-bold font-display">
-        All Games
-      </h1>
+      <h1 class="text-zinc-100 text-xl font-bold font-display">All Games</h1>
       <div class="mt-4 flex flex-row flex-wrap justify-left gap-4">
         <GamePanel
           v-for="game in games"
+          :key="game.id"
           :game="game"
           :href="`/library/game/${game?.id}`"
         />

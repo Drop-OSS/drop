@@ -8,6 +8,7 @@
         <ol class="inline-flex items-center gap-x-12">
           <NuxtLink
             v-for="(nav, navIdx) in navigation"
+            :key="navIdx"
             :href="nav.route"
             :class="[
               'transition hover:text-zinc-200 uppercase font-display font-semibold text-md',
@@ -141,6 +142,7 @@
                 <ol class="flex flex-col gap-y-3">
                   <NuxtLink
                     v-for="(nav, navIdx) in navigation"
+                    :key="navIdx"
                     :href="nav.route"
                     :class="[
                       'transition hover:text-zinc-200 uppercase font-display font-semibold text-md',
