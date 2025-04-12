@@ -221,6 +221,7 @@ export class ObjectHandler {
     if (!hasPermission) return false;
 
     const source = await sourceFetcher();
+    // TODO: prevent user from overwriting existing object
     const result = await this.backend.write(id, source);
 
     return result;

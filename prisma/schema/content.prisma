@@ -122,3 +122,8 @@ model Publisher {
 
     @@unique([metadataSource, metadataId, metadataOriginalQuery], name: "metadataKey")
 }
+
+model ObjectHash {
+    id   String @id
+    hash String
+}

@@ -11,16 +11,13 @@ import fs from "fs";
 import path from "path";
 import { Readable, Stream } from "stream";
 import { createHash } from "crypto";
+import prisma from "../db/database";
 
 export class FsObjectBackend extends ObjectBackend {
   private baseObjectPath: string;
   private baseMetadataPath: string;
 
-  // TODO: should probably make this save into db or something if we agree to never
-  // overwrite an object
-  private cache = new LRUCache<string, string>({
-    max: 1000, // number of items
-  });
+  private hashStore = new FsHashStore();
 
   constructor() {
     super();
@@ -42,7 +39,7 @@ export class FsObjectBackend extends ObjectBackend {
     if (!fs.existsSync(objectPath)) return false;
 
     // remove item from cache
-    this.cache.delete(id);
+    this.hashStore.delete(id);
 
     if (source instanceof Readable) {
       const outputStream = fs.createWriteStream(objectPath);
@@ -62,7 +59,7 @@ export class FsObjectBackend extends ObjectBackend {
     const objectPath = path.join(this.baseObjectPath, sanitize(id));
     if (!fs.existsSync(objectPath)) return undefined;
     // remove item from cache
-    this.cache.delete(id);
+    this.hashStore.delete(id);
     return fs.createWriteStream(objectPath);
   }
   async create(
@@ -111,7 +108,7 @@ export class FsObjectBackend extends ObjectBackend {
     if (!fs.existsSync(objectPath)) return true;
     fs.rmSync(objectPath);
     // remove item from cache
-    this.cache.delete(id);
+    this.hashStore.delete(id);
     return true;
   }
   async fetchMetadata(
@@ -138,25 +135,92 @@ export class FsObjectBackend extends ObjectBackend {
     return true;
   }
   async fetchHash(id: ObjectReference): Promise<string | undefined> {
-    const cacheResult = this.cache.get(id);
+    const cacheResult = this.hashStore.get(id);
     if (cacheResult !== undefined) return cacheResult;
 
     const obj = await this.fetch(id);
     if (obj === undefined) return;
 
     // local variable to point to object
-    const cache = this.cache;
+    const cache = this.hashStore;
 
     // hash object
     const hash = createHash("md5");
     hash.setEncoding("hex");
     obj.on("end", function () {
       hash.end();
-      cache.set(id, hash.read());
+      cache.save(id, hash.read());
     });
     // read obj into hash
     obj.pipe(hash);
 
-    return this.cache.get(id);
+    return this.hashStore.get(id);
+  }
+}
+
+class FsHashStore {
+  private cache = new LRUCache<string, string>({
+    max: 1000, // number of items
+  });
+
+  constructor() {}
+
+  /**
+   * Gets hash of object
+   * @param id
+   * @returns
+   */
+  async get(id: ObjectReference) {
+    const cacheRes = this.cache.get(id);
+    if (cacheRes !== undefined) return cacheRes;
+
+    const dbRes = await prisma.objectHash.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        hash: true,
+      },
+    });
+    if (dbRes === null) return undefined;
+    this.cache.set(id, dbRes.hash);
+    return dbRes.hash;
+  }
+
+  /**
+   * Saves hash of object
+   * @param id
+   */
+  async save(id: ObjectReference, hash: string) {
+    await prisma.objectHash.upsert({
+      where: {
+        id,
+      },
+      create: {
+        id,
+        hash,
+      },
+      update: {
+        hash,
+      },
+    });
+    this.cache.set(id, hash);
+  }
+
+  /**
+   * Hash is no longer valid for whatever reason
+   * @param id
+   */
+  async delete(id: ObjectReference) {
+    this.cache.delete(id);
+
+    try {
+      // need to catch in case the object doesn't exist
+      await prisma.objectHash.delete({
+        where: {
+          id,
+        },
+      });
+    } catch {}
   }
 }
