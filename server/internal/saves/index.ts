@@ -62,7 +62,7 @@ class SaveManager {
     await Promise.all([hashPromise, uploadStream]);
 
     if (!hash) {
-      await objectHandler.deleteAsServer(newSaveObjectId);
+      await objectHandler.deleteAsSystem(newSaveObjectId);
       throw createError({
         statusCode: 500,
         statusMessage: "Hash failed to generate",

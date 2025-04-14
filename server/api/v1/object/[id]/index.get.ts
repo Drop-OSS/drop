@@ -13,11 +13,12 @@ export default defineEventHandler(async (h3) => {
 
   // https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/ETag
   const etagRequestValue = h3.headers.get("If-None-Match");
-  const etagActualValue = await objectHandler.fetchHashWithWithPermissions(
-    id,
-    userId
-  );
-  if (etagRequestValue !== null && etagActualValue === etagRequestValue) {
+  const etagActualValue = await objectHandler.fetchHash(id);
+  if (
+    etagRequestValue &&
+    etagActualValue &&
+    etagActualValue === etagRequestValue
+  ) {
     // would compare if etag is valid, but objects should never change
     setResponseStatus(h3, 304);
     return null;

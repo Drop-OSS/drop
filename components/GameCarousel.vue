@@ -21,6 +21,7 @@
           <SkeletonCard
             v-for="index in 10"
             :key="index"
+            :loading="true"
             class="mr-3 flex-none"
           />
         </div>

@@ -5,7 +5,6 @@ import {
   Source,
 } from "./objectHandler";
 
-import sanitize from "sanitize-filename";
 import { LRUCache } from "lru-cache";
 import fs from "fs";
 import path from "path";
@@ -30,12 +29,13 @@ export class FsObjectBackend extends ObjectBackend {
   }
 
   async fetch(id: ObjectReference) {
-    const objectPath = path.join(this.baseObjectPath, sanitize(id));
+    console.log("ID: " + id);
+    const objectPath = path.join(this.baseObjectPath, id);
     if (!fs.existsSync(objectPath)) return undefined;
     return fs.createReadStream(objectPath);
   }
   async write(id: ObjectReference, source: Source): Promise<boolean> {
-    const objectPath = path.join(this.baseObjectPath, sanitize(id));
+    const objectPath = path.join(this.baseObjectPath, id);
     if (!fs.existsSync(objectPath)) return false;
 
     // remove item from cache
@@ -56,7 +56,7 @@ export class FsObjectBackend extends ObjectBackend {
     return false;
   }
   async startWriteStream(id: ObjectReference) {
-    const objectPath = path.join(this.baseObjectPath, sanitize(id));
+    const objectPath = path.join(this.baseObjectPath, id);
     if (!fs.existsSync(objectPath)) return undefined;
     // remove item from cache
     this.hashStore.delete(id);
@@ -67,11 +67,8 @@ export class FsObjectBackend extends ObjectBackend {
     source: Source,
     metadata: ObjectMetadata
   ): Promise<ObjectReference | undefined> {
-    const objectPath = path.join(this.baseObjectPath, sanitize(id));
-    const metadataPath = path.join(
-      this.baseMetadataPath,
-      `${sanitize(id)}.json`
-    );
+    const objectPath = path.join(this.baseObjectPath, id);
+    const metadataPath = path.join(this.baseMetadataPath, `${id}.json`);
     if (fs.existsSync(objectPath) || fs.existsSync(metadataPath))
       return undefined;
 
@@ -87,11 +84,8 @@ export class FsObjectBackend extends ObjectBackend {
     return id;
   }
   async createWithWriteStream(id: string, metadata: ObjectMetadata) {
-    const objectPath = path.join(this.baseObjectPath, sanitize(id));
-    const metadataPath = path.join(
-      this.baseMetadataPath,
-      `${sanitize(id)}.json`
-    );
+    const objectPath = path.join(this.baseObjectPath, id);
+    const metadataPath = path.join(this.baseMetadataPath, `${id}.json`);
     if (fs.existsSync(objectPath) || fs.existsSync(metadataPath))
       return undefined;
 
@@ -101,10 +95,12 @@ export class FsObjectBackend extends ObjectBackend {
     // Create file so write passes
     fs.writeFileSync(objectPath, "");
 
-    return this.startWriteStream(id);
+    const stream = await this.startWriteStream(id);
+    if (!stream) throw new Error("Could not create write stream");
+    return stream;
   }
   async delete(id: ObjectReference): Promise<boolean> {
-    const objectPath = path.join(this.baseObjectPath, sanitize(id));
+    const objectPath = path.join(this.baseObjectPath, id);
     if (!fs.existsSync(objectPath)) return true;
     fs.rmSync(objectPath);
     // remove item from cache
@@ -114,10 +110,7 @@ export class FsObjectBackend extends ObjectBackend {
   async fetchMetadata(
     id: ObjectReference
   ): Promise<ObjectMetadata | undefined> {
-    const metadataPath = path.join(
-      this.baseMetadataPath,
-      `${sanitize(id)}.json`
-    );
+    const metadataPath = path.join(this.baseMetadataPath, `${id}.json`);
     if (!fs.existsSync(metadataPath)) return undefined;
     const metadata = JSON.parse(fs.readFileSync(metadataPath, "utf-8"));
     return metadata as ObjectMetadata;
@@ -126,16 +119,13 @@ export class FsObjectBackend extends ObjectBackend {
     id: ObjectReference,
     metadata: ObjectMetadata
   ): Promise<boolean> {
-    const metadataPath = path.join(
-      this.baseMetadataPath,
-      `${sanitize(id)}.json`
-    );
+    const metadataPath = path.join(this.baseMetadataPath, `${id}.json`);
     if (!fs.existsSync(metadataPath)) return false;
     fs.writeFileSync(metadataPath, JSON.stringify(metadata));
     return true;
   }
   async fetchHash(id: ObjectReference): Promise<string | undefined> {
-    const cacheResult = this.hashStore.get(id);
+    const cacheResult = await this.hashStore.get(id);
     if (cacheResult !== undefined) return cacheResult;
 
     const obj = await this.fetch(id);
@@ -147,14 +137,18 @@ export class FsObjectBackend extends ObjectBackend {
     // hash object
     const hash = createHash("md5");
     hash.setEncoding("hex");
-    obj.on("end", function () {
-      hash.end();
-      cache.save(id, hash.read());
-    });
+
     // read obj into hash
     obj.pipe(hash);
+    await new Promise<void>((r) => {
+      obj.on("end", function () {
+        hash.end();
+        cache.save(id, hash.read());
+        r();
+      });
+    });
 
-    return this.hashStore.get(id);
+    return await this.hashStore.get(id);
   }
 }
 
@@ -174,7 +168,7 @@ class FsHashStore {
     const cacheRes = this.cache.get(id);
     if (cacheRes !== undefined) return cacheRes;
 
-    const dbRes = await prisma.objectHash.findUnique({
+    const objectHash = await prisma.objectHash.findUnique({
       where: {
         id,
       },
@@ -182,9 +176,9 @@ class FsHashStore {
         hash: true,
       },
     });
-    if (dbRes === null) return undefined;
-    this.cache.set(id, dbRes.hash);
-    return dbRes.hash;
+    if (objectHash === null) return undefined;
+    this.cache.set(id, objectHash.hash);
+    return objectHash.hash;
   }
 
   /**
