@@ -41,6 +41,7 @@
           <div class="flex flex-col">
             <MenuItem
               v-for="(nav, navIdx) in navigation"
+              :key="navIdx"
               v-slot="{ active, close }"
               hydrate-on-visible
             >

@@ -63,6 +63,15 @@ export abstract class ObjectBackend {
     id: ObjectReference,
     metadata: ObjectMetadata
   ): Promise<boolean>;
+  abstract fetchHash(id: ObjectReference): Promise<string | undefined>;
+}
+
+export class ObjectHandler {
+  private backend: ObjectBackend;
+
+  constructor(backend: ObjectBackend) {
+    this.backend = backend;
+  }
 
   private async fetchMimeType(source: Source) {
     if (source instanceof ReadableStream) {
@@ -92,7 +101,7 @@ export abstract class ObjectBackend {
     if (!mime)
       throw new Error("Unable to calculate MIME type - is the source empty?");
 
-    await this.create(id, source, {
+    await this.backend.create(id, source, {
       permissions,
       userMetadata: metadata,
       mime,
@@ -104,33 +113,54 @@ export abstract class ObjectBackend {
     metadata: { [key: string]: string },
     permissions: Array<string>
   ) {
-    return this.createWithWriteStream(id, {
+    return this.backend.createWithWriteStream(id, {
       permissions,
       userMetadata: metadata,
       mime: "application/octet-stream",
     });
   }
 
-  async fetchWithPermissions(id: ObjectReference, userId?: string) {
-    const metadata = await this.fetchMetadata(id);
-    if (!metadata) return;
-
-    // We only need one permission, so find instead of filter is faster
-    const myPermissions = metadata.permissions.find((e) => {
+  // We only need one permission, so find instead of filter is faster
+  private hasAnyPermissions(permissions: string[], userId?: string) {
+    return !!permissions.find((e) => {
       if (userId !== undefined && e.startsWith(userId)) return true;
       if (userId !== undefined && e.startsWith("internal")) return true;
       if (e.startsWith("anonymous")) return true;
       return false;
     });
+  }
 
-    if (!myPermissions) {
-      // We do not have access to this object
-      return;
-    }
+  private fetchPermissions(permissions: string[], userId?: string) {
+    return (
+      permissions
+        .filter((e) => {
+          if (userId !== undefined && e.startsWith(userId)) return true;
+          if (userId !== undefined && e.startsWith("internal")) return true;
+          if (e.startsWith("anonymous")) return true;
+          return false;
+        })
+        // Strip IDs from permissions
+        .map((e) => e.split(":").at(1))
+        // Map to priority according to array
+        .map((e) => ObjectPermissionPriority.findIndex((c) => c === e))
+    );
+  }
+
+  /**
+   * Fetches object, but also checks if user has perms to access it
+   * @param id object id
+   * @param userId user to check, or act as anon user
+   * @returns
+   */
+  async fetchWithPermissions(id: ObjectReference, userId?: string) {
+    const metadata = await this.backend.fetchMetadata(id);
+    if (!metadata) return;
+
+    if (!this.hasAnyPermissions(metadata.permissions, userId)) return;
 
     // Because any permission can be read or up, we automatically know we can read this object
     // So just straight return the object
-    const source = await this.fetch(id);
+    const source = await this.backend.fetch(id);
     if (!source) return undefined;
     const object: Object = {
       data: source,
@@ -139,66 +169,78 @@ export abstract class ObjectBackend {
     return object;
   }
 
-  // If we need to fetch a remote resource, it doesn't make sense
-  // to immediately fetch the object, *then* check permissions.
-  // Instead the caller can pass a simple anonymous funciton, like
-  // () => $dropFetch('/my-image');
-  // And if we actually have permission to write, it fetches it then.
+  /**
+   * Fetch object hash. Permissions check should be done on read
+   * @param id object id
+   * @returns
+   */
+  async fetchHash(id: ObjectReference) {
+    return await this.backend.fetchHash(id);
+  }
+
+  /**
+   *
+   * @param id object id
+   * @param sourceFetcher callback used to provide image
+   * @param userId user to check, or act as anon user
+   * @returns
+   * @description If we need to fetch a remote resource, it doesn't make sense
+   * to immediately fetch the object, *then* check permissions.
+   * Instead the caller can pass a simple anonymous funciton, like
+   * () => $dropFetch('/my-image');
+   * And if we actually have permission to write, it fetches it then.
+   */
   async writeWithPermissions(
     id: ObjectReference,
     sourceFetcher: () => Promise<Source>,
     userId?: string
   ) {
-    const metadata = await this.fetchMetadata(id);
+    const metadata = await this.backend.fetchMetadata(id);
     if (!metadata) return false;
 
-    const myPermissions = metadata.permissions
-      .filter((e) => {
-        if (userId !== undefined && e.startsWith(userId)) return true;
-        if (userId !== undefined && e.startsWith("internal")) return true;
-        if (e.startsWith("anonymous")) return true;
-        return false;
-      })
-      // Strip IDs from permissions
-      .map((e) => e.split(":").at(1))
-      // Map to priority according to array
-      .map((e) => ObjectPermissionPriority.findIndex((c) => c === e));
+    const permissions = this.fetchPermissions(metadata.permissions, userId);
 
     const requiredPermissionIndex = 1;
     const hasPermission =
-      myPermissions.find((e) => e >= requiredPermissionIndex) != undefined;
+      permissions.find((e) => e >= requiredPermissionIndex) != undefined;
 
     if (!hasPermission) return false;
 
     const source = await sourceFetcher();
-    const result = await this.write(id, source);
+    // TODO: prevent user from overwriting existing object
+    const result = await this.backend.write(id, source);
 
     return result;
   }
 
+  /**
+   *
+   * @param id object id
+   * @param userId user to check, or act as anon user
+   * @returns
+   */
   async deleteWithPermission(id: ObjectReference, userId?: string) {
-    const metadata = await this.fetchMetadata(id);
+    const metadata = await this.backend.fetchMetadata(id);
     if (!metadata) return false;
 
-    const myPermissions = metadata.permissions
-      .filter((e) => {
-        if (userId !== undefined && e.startsWith(userId)) return true;
-        if (userId !== undefined && e.startsWith("internal")) return true;
-        if (e.startsWith("anonymous")) return true;
-        return false;
-      })
-      // Strip IDs from permissions
-      .map((e) => e.split(":").at(1))
-      // Map to priority according to array
-      .map((e) => ObjectPermissionPriority.findIndex((c) => c === e));
+    const permissions = this.fetchPermissions(metadata.permissions, userId);
 
     const requiredPermissionIndex = 2;
     const hasPermission =
-      myPermissions.find((e) => e >= requiredPermissionIndex) != undefined;
+      permissions.find((e) => e >= requiredPermissionIndex) != undefined;
 
     if (!hasPermission) return false;
 
-    const result = await this.delete(id);
+    const result = await this.backend.delete(id);
     return result;
+  }
+
+  /**
+   * Deletes object without checking permission
+   * @param id
+   * @returns
+   */
+  async deleteAsSystem(id: ObjectReference) {
+    return await this.backend.delete(id);
   }
 }

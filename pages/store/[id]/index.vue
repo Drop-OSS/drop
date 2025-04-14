@@ -27,8 +27,9 @@
           class="col-start-1 lg:col-start-4 flex flex-col gap-y-6 items-center"
         >
           <img
-            class="transition-all duration-300 hover:scale-105 hover:rotate-[-1deg] w-64 h-auto rounded"
+            class="transition-all duration-300 hover:scale-105 hover:rotate-[-1deg] w-64 h-auto rounded gameCover"
             :src="useObject(game.mCoverId)"
+            :alt="game.mName"
           />
           <div class="flex items-center gap-x-2">
             <AddLibraryButton :gameId="game.id" />
@@ -70,6 +71,7 @@
                 >
                   <component
                     v-for="platform in platforms"
+                    :key="platform"
                     :is="PLATFORM_ICONS[platform]"
                     class="text-blue-600 w-6 h-6"
                   />
@@ -90,7 +92,8 @@
                   class="whitespace-nowrap flex flex-row items-center gap-x-1 px-3 py-4 text-sm text-zinc-400"
                 >
                   <StarIcon
-                    v-for="value in ratingArray"
+                    v-for="(value, idx) in ratingArray"
+                    :key="idx"
                     :class="[
                       value ? 'text-yellow-600' : 'text-zinc-600',
                       'w-4 h-4',
@@ -219,3 +222,19 @@ useHead({
   title: game.mName,
 });
 </script>
+
+<style scoped>
+h1 {
+  view-transition-name: header;
+}
+img.gameCover {
+  view-transition-name: selected-game;
+}
+</style>
+
+<style>
+::view-transition-old(header),
+::view-transition-new(header) {
+  width: auto;
+}
+</style>

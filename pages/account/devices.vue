@@ -62,6 +62,7 @@
                     <li
                       class="inline-flex items-center gap-x-0.5"
                       v-for="capability in client.capabilities"
+                      :key="capability"
                     >
                       <CheckIcon class="size-4" /> {{ capability }}
                     </li>

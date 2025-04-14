@@ -1,13 +1,14 @@
 <template>
   <div class="hidden lg:flex bg-zinc-950 flex-row px-12 xl:px-48 py-5">
     <div class="grow inline-flex items-center gap-x-20">
-      <NuxtLink to="/">
+      <NuxtLink to="/store">
         <Wordmark class="h-8" />
       </NuxtLink>
       <nav class="inline-flex items-center">
         <ol class="inline-flex items-center gap-x-12">
           <NuxtLink
             v-for="(nav, navIdx) in navigation"
+            :key="navIdx"
             :href="nav.route"
             :class="[
               'transition hover:text-zinc-200 uppercase font-display font-semibold text-md',
@@ -141,6 +142,7 @@
                 <ol class="flex flex-col gap-y-3">
                   <NuxtLink
                     v-for="(nav, navIdx) in navigation"
+                    :key="navIdx"
                     :href="nav.route"
                     :class="[
                       'transition hover:text-zinc-200 uppercase font-display font-semibold text-md',

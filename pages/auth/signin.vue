@@ -74,10 +74,10 @@
                 </div>
 
                 <div class="text-sm leading-6">
-                  <a
-                    href="#"
+                  <NuxtLink
+                    to="#"
                     class="font-semibold text-blue-600 hover:text-blue-500"
-                    >Forgot password?</a
+                    >Forgot password?</NuxtLink
                   >
                 </div>
               </div>

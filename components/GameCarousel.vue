@@ -1,6 +1,6 @@
 <template>
   <div ref="currentComponent">
-    <ClientOnly>
+    <ClientOnly fallback-tag="span">
       <VueCarousel :itemsToShow="singlePage" :itemsToScroll="singlePage">
         <VueSlide
           class="justify-start"
@@ -14,6 +14,18 @@
           <VueNavigation />
         </template>
       </VueCarousel>
+      <template #fallback>
+        <div
+          class="flex flex-nowrap flex-row overflow-hidden whitespace-nowrap"
+        >
+          <SkeletonCard
+            v-for="index in 10"
+            :key="index"
+            :loading="true"
+            class="mr-3 flex-none"
+          />
+        </div>
+      </template>
     </ClientOnly>
   </div>
 </template>
@@ -37,13 +49,22 @@ const games: Ref<Array<SerializeObject<Game> | undefined>> = computed(() =>
     .map((_, i) => props.items[i])
 );
 
-const singlePage = ref(1);
+const singlePage = ref(2);
 const sizeOfCard = 192 + 10;
 
-onMounted(() => {
+const handleResize = () => {
   singlePage.value =
     (props.width ??
       currentComponent.value?.parentElement?.clientWidth ??
       window.innerWidth) / sizeOfCard;
+};
+
+onMounted(() => {
+  handleResize();
+  window.addEventListener("resize", handleResize);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("resize", handleResize);
 });
 </script>

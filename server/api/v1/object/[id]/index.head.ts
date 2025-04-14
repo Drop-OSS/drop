@@ -1,6 +1,7 @@
 import aclManager from "~/server/internal/acls";
 import objectHandler from "~/server/internal/objects";
 
+// this request method is purely used by the browser to check if etag values are still valid
 export default defineEventHandler(async (h3) => {
   const id = getRouterParam(h3, "id");
   if (!id) throw createError({ statusCode: 400, statusMessage: "Invalid ID" });
@@ -14,23 +15,11 @@ export default defineEventHandler(async (h3) => {
   // https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/ETag
   const etagRequestValue = h3.headers.get("If-None-Match");
   const etagActualValue = await objectHandler.fetchHash(id);
-  if (
-    etagRequestValue &&
-    etagActualValue &&
-    etagActualValue === etagRequestValue
-  ) {
+  if (etagRequestValue !== null && etagActualValue === etagRequestValue) {
     // would compare if etag is valid, but objects should never change
     setResponseStatus(h3, 304);
     return null;
   }
 
-  // TODO: fix undefined etagValue
-  setHeader(h3, "ETag", etagActualValue ?? "");
-  setHeader(h3, "Content-Type", object.mime);
-  setHeader(
-    h3,
-    "Cache-Control",
-    "private, max-age=31536000, s-maxage=31536000, immutable"
-  );
-  return object.data;
+  return null;
 });

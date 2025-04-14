@@ -63,11 +63,11 @@ if (import.meta.client) {
         </p>
         <div class="mt-10">
           <!-- full app reload to fix errors -->
-          <a
+          <NuxtLink
             v-if="user && !showSignIn"
-            href="/"
+            to="/"
             class="text-sm font-semibold leading-7 text-blue-600"
-            ><span aria-hidden="true">&larr;</span> Back to home</a
+            ><span aria-hidden="true">&larr;</span> Back to home</NuxtLink
           >
           <button
             v-else
@@ -92,9 +92,9 @@ if (import.meta.client) {
           >
             <circle cx="1" cy="1" r="1" />
           </svg>
-          <a href="https://discord.gg/NHx46XKJWA" target="_blank"
-            >Support Discord</a
-          >
+          <NuxtLink to="https://discord.gg/NHx46XKJWA" target="_blank">
+            Support Discord
+          </NuxtLink>
         </nav>
       </div>
     </footer>

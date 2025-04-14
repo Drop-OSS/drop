@@ -17,6 +17,7 @@
               v-for="[name, link] in notification.actions.map((e) =>
                 e.split('|')
               )"
+              :key="name"
               type="button"
               :href="link"
               class="rounded-md text-sm font-medium text-blue-600 hover:text-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
