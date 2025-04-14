@@ -1,6 +1,8 @@
-import { Developer, MetadataSource, Publisher } from "@prisma/client";
-import { MetadataProvider, MissingMetadataProviderConfig } from ".";
-import {
+import type { Developer, Publisher } from "@prisma/client";
+import { MetadataSource } from "@prisma/client";
+import type { MetadataProvider} from ".";
+import { MissingMetadataProviderConfig } from ".";
+import type {
   GameMetadataSearchResult,
   _FetchGameMetadataParams,
   GameMetadata,
@@ -9,7 +11,8 @@ import {
   _FetchDeveloperMetadataParams,
   DeveloperMetadata,
 } from "./types";
-import axios, { AxiosRequestConfig } from "axios";
+import type { AxiosRequestConfig } from "axios";
+import axios from "axios";
 import { DateTime } from "luxon";
 
 type IGDBID = number;
@@ -182,7 +185,7 @@ export class IGDBProvider implements MetadataProvider {
     if (this.accessTokenExpiry < futureTime) await this.authWithTwitch();
   }
 
-  private async request<T extends Object>(
+  private async request<T extends object>(
     resource: string,
     body: string,
     options?: AxiosRequestConfig

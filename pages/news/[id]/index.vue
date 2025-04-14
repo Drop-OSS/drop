@@ -2,12 +2,12 @@
   <div v-if="article" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <!-- Banner header with blurred background -->
     <div class="relative w-full h-[300px] mb-8 rounded-lg overflow-hidden">
-      <div class="absolute inset-0" v-if="article.image">
+      <div v-if="article.image" class="absolute inset-0">
         <img
           :src="useObject(article.image)"
           alt=""
           class="w-full h-full object-cover blur-sm scale-110"
-        />
+        >
         <div
           class="absolute inset-0 bg-gradient-to-b from-transparent to-zinc-950"
         />
@@ -16,7 +16,7 @@
         <!-- Fallback gradient background when no image -->
         <div
           class="absolute inset-0 bg-gradient-to-b from-zinc-800 to-zinc-900"
-        ></div>
+        />
       </div>
 
       <div class="relative h-full flex flex-col justify-end p-8">
@@ -31,8 +31,8 @@
 
           <button
             v-if="user?.admin"
-            @click="() => (currentlyDeleting = article)"
             class="px-2 py-1 rounded bg-red-900/50 backdrop-blur-sm transition text-sm/6 font-semibold text-red-400 hover:text-red-100 inline-flex gap-x-2 items-center duration-200 hover:scale-105"
+            @click="() => (currentlyDeleting = article)"
           >
             <TrashIcon class="h-4 w-4" aria-hidden="true" />
             Delete Article

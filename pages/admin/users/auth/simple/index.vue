@@ -26,9 +26,9 @@
           </div>
           <div class="ml-4 mt-2 shrink-0">
             <button
-              @click="() => (createModalOpen = true)"
               type="button"
               class="relative inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+              @click="() => (createModalOpen = true)"
             >
               Create invitation
             </button>
@@ -84,7 +84,7 @@
         </li>
       </ul>
 
-      <div class="py-4 text-zinc-400 text-sm" v-if="invitations.length == 0">
+      <div v-if="invitations.length == 0" class="py-4 text-zinc-400 text-sm">
         No invitations.
       </div>
     </div>
@@ -119,8 +119,8 @@
               leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
               <form
-                @submit.prevent="() => invite_wrapper()"
                 class="relative transform rounded-lg bg-zinc-900 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg"
+                @submit.prevent="() => invite_wrapper()"
               >
                 <div class="px-4 pb-4 pt-5 space-y-4 sm:p-6 sm:pb-4">
                   <div class="sm:flex sm:items-start">
@@ -158,13 +158,13 @@
                       <div class="mt-2">
                         <input
                           id="username"
+                          v-model="username"
                           name="invite-username"
                           type="text"
                           autocomplete="username"
-                          v-model="username"
                           placeholder="myUsername"
                           class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                        />
+                        >
                       </div>
                     </div>
 
@@ -185,13 +185,13 @@
                       <div class="mt-2">
                         <input
                           id="email"
+                          v-model="email"
                           name="invite-email"
                           type="email"
                           autocomplete="email"
-                          v-model="email"
                           placeholder="me@example.com"
                           class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                        />
+                        >
                       </div>
                     </div>
 
@@ -233,7 +233,7 @@
                     </div>
 
                     <div>
-                      <Listbox as="div" v-model="expiryKey">
+                      <Listbox v-model="expiryKey" as="div">
                         <ListboxLabel
                           class="block text-sm/6 font-medium text-zinc-100"
                           >Expires in</ListboxLabel
@@ -262,11 +262,11 @@
                               class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
                             >
                               <ListboxOption
-                                as="template"
                                 v-for="[label, _] in Object.entries(expiry)"
                                 :key="label"
-                                :value="label"
                                 v-slot="{ active, selected }"
+                                as="template"
+                                :value="label"
                               >
                                 <li
                                   :class="[
@@ -334,10 +334,10 @@
                     Invite
                   </LoadingButton>
                   <button
+                    ref="cancelButtonRef"
                     type="button"
                     class="mt-3 inline-flex w-full justify-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-700 hover:bg-zinc-900 sm:mt-0 sm:w-auto"
                     @click="createModalOpen = false"
-                    ref="cancelButtonRef"
                   >
                     Cancel
                   </button>
@@ -380,7 +380,8 @@ import {
 } from "@heroicons/vue/24/solid";
 import type { Invitation } from "@prisma/client";
 import type { SerializeObject } from "nitropack";
-import { DateTime, DurationLike } from "luxon";
+import type { DurationLike } from "luxon";
+import { DateTime } from "luxon";
 
 definePageMeta({
   layout: "admin",

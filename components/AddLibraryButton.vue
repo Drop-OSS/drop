@@ -1,10 +1,12 @@
 <template>
-  <div class="inline-flex w-full group hover:scale-105 transition-all duration-200">
+  <div
+    class="inline-flex w-full group hover:scale-105 transition-all duration-200"
+  >
     <LoadingButton
       :loading="isLibraryLoading"
-      @click="() => toggleLibrary()"
       :style="'none'"
       class="transition w-full inline-flex items-center justify-center h-full gap-x-2 rounded-none rounded-l-md bg-white/10 hover:bg-white/20 text-zinc-100 backdrop-blur px-5 py-3 active:scale-95"
+      @click="() => toggleLibrary()"
     >
       {{ inLibrary ? "In Library" : "Add to Library" }}
       <CheckIcon v-if="inLibrary" class="-mr-0.5 h-5 w-5" aria-hidden="true" />
@@ -69,8 +71,8 @@
             <div class="border-t border-zinc-700 pt-1">
               <LoadingButton
                 :loading="false"
-                @click="createCollectionModal = true"
                 class="w-full"
+                @click="createCollectionModal = true"
               >
                 <PlusIcon class="mr-2 h-4 w-4" />
                 Add to new collection
@@ -84,14 +86,13 @@
 
   <CreateCollectionModal
     v-model="createCollectionModal"
-    :gameId="props.gameId"
+    :game-id="props.gameId"
   />
 </template>
 
 <script setup lang="ts">
 import { PlusIcon, ChevronDownIcon, CheckIcon } from "@heroicons/vue/24/solid";
 import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
-import type { ComponentPublicInstance } from "vue";
 
 const props = defineProps<{
   gameId: string;
@@ -104,12 +105,12 @@ const collections = await useCollections();
 const library = await useLibrary();
 
 const inLibrary = computed(
-  () => library.value.entries.findIndex((e) => e.gameId == props.gameId) != -1
+  () => library.value.entries.findIndex((e) => e.gameId == props.gameId) != -1,
 );
 const inCollections = computed(() =>
   collections.value.map(
-    (e) => e.entries.findIndex((e) => e.gameId == props.gameId) != -1
-  )
+    (e) => e.entries.findIndex((e) => e.gameId == props.gameId) != -1,
+  ),
 );
 
 async function toggleLibrary() {
@@ -122,14 +123,15 @@ async function toggleLibrary() {
       },
     });
     await refreshLibrary();
-  } catch (e: any) {
+  } catch (e) {
     createModal(
       ModalType.Notification,
       {
         title: "Failed to add game to library",
+        // @ts-expect-error attempt to display statusMessage on error
         description: `Drop couldn't add this game to your library: ${e?.statusMessage}`,
       },
-      (_, c) => c()
+      (_, c) => c(),
     );
   } finally {
     isLibraryLoading.value = false;
@@ -150,16 +152,16 @@ async function toggleCollection(id: string) {
     });
 
     await refreshCollection(id);
-  } catch (e: any) {
+  } catch (e) {
     createModal(
       ModalType.Notification,
       {
         title: "Failed to add game to library",
+        // @ts-expect-error attempt to display statusMessage on error
         description: `Drop couldn't add this game to your library: ${e?.statusMessage}`,
       },
-      (_, c) => c()
+      (_, c) => c(),
     );
-  } finally {
   }
 }
 </script>

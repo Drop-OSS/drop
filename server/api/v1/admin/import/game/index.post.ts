@@ -1,7 +1,7 @@
 import aclManager from "~/server/internal/acls";
 import libraryManager from "~/server/internal/library";
 import metadataHandler from "~/server/internal/metadata";
-import {
+import type {
   GameMetadataSearchResult,
   GameMetadataSource,
 } from "~/server/internal/metadata/types";

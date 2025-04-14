@@ -8,7 +8,7 @@
         class="flex flex-col lg:flex-row lg:justify-between items-start lg:items-center gap-2"
       >
         <div class="inline-flex items-center gap-4">
-          <img :src="useObject(game.mIconId)" class="size-20" />
+          <img :src="useObject(game.mIconId)" class="size-20" >
           <div>
             <h1 class="text-5xl font-bold font-display text-zinc-100">
               {{ game.mName }}
@@ -19,9 +19,9 @@
           </div>
         </div>
         <button
-          @click="() => (showEditCoreMetadata = true)"
           type="button"
           class="relative inline-flex gap-x-3 items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+          @click="() => (showEditCoreMetadata = true)"
         >
           Edit <PencilIcon class="size-4" />
         </button>
@@ -44,9 +44,9 @@
             </div>
             <div class="ml-4 mt-4 shrink-0">
               <button
-                @click="() => (showAddCarouselModal = true)"
                 type="button"
                 class="relative inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                @click="() => (showAddCarouselModal = true)"
               >
                 Add from image library
               </button>
@@ -54,28 +54,28 @@
           </div>
         </div>
         <div
-          class="text-zinc-400 text-center py-8"
           v-if="game.mImageCarousel.length == 0"
+          class="text-zinc-400 text-center py-8"
         >
           No images added to the carousel yet.
         </div>
 
         <draggable
           v-else
-          @update="() => updateImageCarousel()"
           :list="game.mImageCarousel"
           class="w-full flex flex-row gap-x-4 overflow-x-auto my-2 py-4"
+          @update="() => updateImageCarousel()"
         >
           <template #item="{ element }: { element: string }">
             <div class="relative group min-w-fit">
-              <img :src="useObject(element)" class="h-48 w-auto" />
+              <img :src="useObject(element)" class="h-48 w-auto" >
               <div
                 class="transition-all lg:opacity-0 lg:group-hover:opacity-100 absolute inset-0 flex flex-col items-center justify-center gap-y-2 bg-zinc-950/50"
               >
                 <button
-                  @click="() => removeImageFromCarousel(element)"
                   type="button"
                   class="inline-flex items-center gap-x-1.5 rounded-md bg-blue-600 px-1.5 py-0.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                  @click="() => removeImageFromCarousel(element)"
                 >
                   Remove image
                 </button>
@@ -129,10 +129,10 @@
           </button>
 
           <button
+            class="block lg:hidden"
             @click="
               () => (mobileShowFinalDescription = !mobileShowFinalDescription)
             "
-            class="block lg:hidden"
           >
             <DocumentIcon
               v-if="!mobileShowFinalDescription"
@@ -166,7 +166,7 @@
               'lg:block prose prose-invert prose-blue bg-zinc-950/30 rounded px-4 py-3',
             ]"
             v-html="descriptionHTML"
-          ></div>
+          />
         </div>
       </div>
     </div>
@@ -229,9 +229,9 @@
             </div>
             <div class="flex-shrink-0">
               <button
-                @click="() => (showUploadModal = true)"
                 type="button"
                 class="relative inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                @click="() => (showUploadModal = true)"
               >
                 Upload
               </button>
@@ -244,30 +244,30 @@
             :key="image"
             class="group relative flex items-center bg-zinc-950/30"
           >
-            <img :src="useObject(image)" class="w-full h-auto" />
+            <img :src="useObject(image)" class="w-full h-auto" >
             <div
               class="transition-all lg:opacity-0 lg:group-hover:opacity-100 absolute inset-0 flex flex-col items-center justify-center gap-y-2 bg-zinc-950/50"
             >
               <button
                 v-if="image !== game.mBannerId"
-                @click="() => updateBannerImage(image)"
                 type="button"
                 class="inline-flex items-center gap-x-1.5 rounded-md bg-blue-600 px-1.5 py-0.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                @click="() => updateBannerImage(image)"
               >
                 Set as banner
               </button>
               <button
                 v-if="image !== game.mCoverId"
-                @click="() => updateCoverImage(image)"
                 type="button"
                 class="inline-flex items-center gap-x-1.5 rounded-md bg-blue-600 px-1.5 py-0.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                @click="() => updateCoverImage(image)"
               >
                 Set as cover
               </button>
               <button
-                @click="() => deleteImage(image)"
                 type="button"
                 class="inline-flex items-center gap-x-1.5 rounded-md bg-red-600 px-1.5 py-0.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                @click="() => deleteImage(image)"
               >
                 Delete image
               </button>
@@ -305,10 +305,10 @@
 
         <div class="mt-4 text-center w-full text-sm text-zinc-600">lowest</div>
         <draggable
-          @update="() => updateVersionOrder()"
           :list="game.versions"
           handle=".handle"
           class="mt-2 space-y-4"
+          @update="() => updateVersionOrder()"
         >
           <template #item="{ element: item }: { element: GameVersion }">
             <div
@@ -334,8 +334,8 @@
           </template>
         </draggable>
         <div
-          class="text-center font-bold text-zinc-400 my-3"
           v-if="game.versions.length == 0"
+          class="text-center font-bold text-zinc-400 my-3"
         >
           no versions added
         </div>
@@ -358,14 +358,14 @@
           :key="image"
           class="group relative flex items-center bg-zinc-950/30"
         >
-          <img :src="useObject(image)" class="w-full h-auto" />
+          <img :src="useObject(image)" class="w-full h-auto" >
           <div
             class="transition-all lg:opacity-0 lg:group-hover:opacity-100 absolute inset-0 flex flex-col items-center justify-center gap-y-2 bg-zinc-950/50"
           >
             <button
-              @click="() => addImageToCarousel(image)"
               type="button"
               class="inline-flex items-center gap-x-1.5 rounded-md bg-blue-600 px-1.5 py-0.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+              @click="() => addImageToCarousel(image)"
             >
               Add
             </button>
@@ -381,10 +381,10 @@
     </template>
     <template #buttons>
       <button
+        ref="cancelButtonRef"
         type="button"
         class="mt-3 inline-flex w-full justify-center rounded-md bg-zinc-900 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-700 hover:bg-zinc-950 sm:mt-0 sm:w-auto"
         @click="showAddCarouselModal = false"
-        ref="cancelButtonRef"
       >
         Cancel
       </button>
@@ -398,14 +398,14 @@
           :key="image"
           class="group relative flex items-center bg-zinc-950/30"
         >
-          <img :src="useObject(image)" class="w-full h-auto" />
+          <img :src="useObject(image)" class="w-full h-auto" >
           <div
             class="transition-all lg:opacity-0 lg:group-hover:opacity-100 absolute inset-0 flex flex-col items-center justify-center gap-y-2 bg-zinc-950/50"
           >
             <button
-              @click="() => insertImageAtCursor(image)"
               type="button"
               class="inline-flex items-center gap-x-1.5 rounded-md bg-blue-600 px-1.5 py-0.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+              @click="() => insertImageAtCursor(image)"
             >
               Insert
             </button>
@@ -421,10 +421,10 @@
     </template>
     <template #buttons>
       <button
+        ref="cancelButtonRef"
         type="button"
         class="mt-3 inline-flex w-full justify-center rounded-md bg-zinc-900 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-700 hover:bg-zinc-950 sm:mt-0 sm:w-auto"
         @click="showAddCarouselModal = false"
-        ref="cancelButtonRef"
       >
         Cancel
       </button>
@@ -435,7 +435,7 @@
       <div class="flex flex-col lg:flex-row gap-6">
         <!-- icon upload div -->
         <div class="flex flex-col items-center gap-4">
-          <img :src="coreMetadataIconUrl" class="size-24 aspect-square" />
+          <img :src="coreMetadataIconUrl" class="size-24 aspect-square" >
           <label for="file-upload">
             <span
               type="button"
@@ -444,12 +444,12 @@
               Upload
             </span>
             <input
+              id="file-upload"
               accept="image/*"
-              @change="(e) => coreMetadataUploadFiles(e as any)"
               class="hidden"
               type="file"
-              id="file-upload"
-            />
+              @change="(e) => coreMetadataUploadFiles(e as any)"
+            >
           </label>
         </div>
         <!-- edit title -->
@@ -460,12 +460,12 @@
             >
             <div class="mt-2">
               <input
+                id="name"
+                v-model="coreMetadataName"
                 type="text"
                 name="name"
-                id="name"
                 class="block w-full rounded-md bg-zinc-800 px-3 py-1.5 text-base text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 placeholder:text-zinc-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6"
-                v-model="coreMetadataName"
-              />
+              >
             </div>
           </div>
           <div>
@@ -476,12 +476,12 @@
             >
             <div class="mt-2">
               <input
+                id="description"
+                v-model="coreMetadataDescription"
                 type="text"
                 name="description"
-                id="description"
                 class="block w-full rounded-md bg-zinc-800 px-3 py-1.5 text-base text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 placeholder:text-zinc-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6"
-                v-model="coreMetadataDescription"
-              />
+              >
             </div>
           </div>
         </div>
@@ -491,16 +491,16 @@
       <LoadingButton
         type="button"
         :loading="coreMetadataLoading"
-        @click="() => coreMetadataUpdate_wrapper()"
         :class="['inline-flex w-full shadow-sm sm:ml-3 sm:w-auto']"
+        @click="() => coreMetadataUpdate_wrapper()"
       >
         Save
       </LoadingButton>
       <button
+        ref="cancelButtonRef"
         type="button"
         class="mt-3 inline-flex w-full justify-center rounded-md bg-zinc-900 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-700 hover:bg-zinc-950 sm:mt-0 sm:w-auto"
         @click="showEditCoreMetadata = false"
-        ref="cancelButtonRef"
       >
         Cancel
       </button>

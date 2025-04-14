@@ -1,13 +1,14 @@
 import { MetadataSource } from "@prisma/client";
-import { MetadataProvider } from ".";
-import {
-  GameMetadataSearchResult,
+import type { MetadataProvider } from ".";
+import type {
   _FetchGameMetadataParams,
   GameMetadata,
   _FetchPublisherMetadataParams,
   PublisherMetadata,
   _FetchDeveloperMetadataParams,
-  DeveloperMetadata,
+  DeveloperMetadata} from "./types";
+import {
+  GameMetadataSearchResult
 } from "./types";
 import * as jdenticon from "jdenticon";
 

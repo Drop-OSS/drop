@@ -1,7 +1,7 @@
 import session from "~/server/internal/session";
 import taskHandler, { TaskMessage } from "~/server/internal/tasks";
 import { parse as parseCookies } from "cookie-es";
-import { MinimumRequestObject } from "~/server/h3";
+import type { MinimumRequestObject } from "~/server/h3";
 
 // TODO add web socket sessions for horizontal scaling
 // ID to admin

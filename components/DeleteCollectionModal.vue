@@ -1,5 +1,5 @@
 <template>
-  <ModalTemplate :modelValue="!!collection">
+  <ModalTemplate :model-value="!!collection">
     <template #default>
       <div>
         <DialogTitle
@@ -19,14 +19,14 @@
     <template #buttons>
       <LoadingButton
         :loading="deleteLoading"
-        @click="() => deleteCollection()"
         class="bg-red-600 text-white hover:bg-red-500"
+        @click="() => deleteCollection()"
       >
         Delete
       </LoadingButton>
       <button
-        @click="() => (collection = undefined)"
         class="inline-flex items-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold font-display text-white hover:bg-zinc-700"
+        @click="() => (collection = undefined)"
       >
         Cancel
       </button>
@@ -49,23 +49,24 @@ async function deleteCollection() {
 
     deleteLoading.value = true;
     await $dropFetch(`/api/v1/collection/${collection.value.id}`, {
-      // @ts-ignore
+      // @ts-expect-error not documented
       method: "DELETE",
     });
     const index = collections.value.findIndex(
-      (e) => e.id == collection.value?.id
+      (e) => e.id == collection.value?.id,
     );
     collections.value.splice(index, 1);
 
     collection.value = undefined;
-  } catch (e: any) {
+  } catch (e) {
     createModal(
       ModalType.Notification,
       {
         title: "Failed to add game to library",
+        // @ts-expect-error attempt to display statusMessage on error
         description: `Drop couldn't add this game to your library: ${e?.statusMessage}`,
       },
-      (_, c) => c()
+      (_, c) => c(),
     );
   } finally {
     deleteLoading.value = false;

@@ -1,4 +1,4 @@
-import { FilterConditionally } from "./types";
+import type { FilterConditionally } from "./types";
 
 interface PriorityTagged<T> {
     object: T,

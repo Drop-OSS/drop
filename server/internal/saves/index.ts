@@ -3,7 +3,7 @@ import prisma from "../db/database";
 import { applicationSettings } from "../config/application-configuration";
 import objectHandler from "../objects";
 import { randomUUID, createHash } from "node:crypto";
-import { IncomingMessage } from "http";
+import type { IncomingMessage } from "http";
 
 class SaveManager {
   async deleteObjectFromSave(

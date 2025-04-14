@@ -2,7 +2,7 @@
 The purpose of this class is to hold references to remote objects (like images) until they're actually needed
 This is used as a utility in metadata handling, so we only fetch the objects if we're actually creating a database record.
 */
-import { Readable } from "stream";
+import type { Readable } from "stream";
 import { randomUUID } from "node:crypto";
 import objectHandler from ".";
 

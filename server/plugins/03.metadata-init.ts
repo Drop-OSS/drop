@@ -1,5 +1,6 @@
 import { applicationSettings } from "../internal/config/application-configuration";
-import metadataHandler, { MetadataProvider } from "../internal/metadata";
+import type { MetadataProvider } from "../internal/metadata";
+import metadataHandler from "../internal/metadata";
 import { GiantBombProvider } from "../internal/metadata/giantbomb";
 import { IGDBProvider } from "../internal/metadata/igdb";
 import { ManualMetadataProvider } from "../internal/metadata/manual";

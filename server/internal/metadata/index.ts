@@ -1,11 +1,12 @@
-import {
+import type {
   Developer,
+  Publisher} from "@prisma/client";
+import {
   MetadataSource,
-  PrismaClient,
-  Publisher,
+  PrismaClient
 } from "@prisma/client";
 import prisma from "../db/database";
-import {
+import type {
   _FetchDeveloperMetadataParams,
   _FetchGameMetadataParams,
   _FetchPublisherMetadataParams,

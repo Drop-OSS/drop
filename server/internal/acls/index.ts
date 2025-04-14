@@ -2,7 +2,7 @@ import { APITokenMode, User } from "@prisma/client";
 import { H3Context, H3Event } from "h3";
 import prisma from "../db/database";
 import sessionHandler from "../session";
-import { MinimumRequestObject } from "~/server/h3";
+import type { MinimumRequestObject } from "~/server/h3";
 
 export const userACLs = [
   "read",

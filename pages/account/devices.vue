@@ -60,9 +60,9 @@
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
                   <ul class="flex flex-col gap-y-2">
                     <li
-                      class="inline-flex items-center gap-x-0.5"
                       v-for="capability in client.capabilities"
                       :key="capability"
+                      class="inline-flex items-center gap-x-0.5"
                     >
                       <CheckIcon class="size-4" /> {{ capability }}
                     </li>
@@ -75,8 +75,8 @@
                   class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-3"
                 >
                   <button
-                    @click="() => revokeClientWrapper(client.id)"
                     class="text-red-600 hover:text-red-900"
+                    @click="() => revokeClientWrapper(client.id)"
                   >
                     Revoke<span class="sr-only">, {{ client.name }}</span>
                   </button>

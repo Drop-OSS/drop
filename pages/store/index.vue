@@ -3,11 +3,11 @@
     <!-- Hero section -->
     <VueCarousel
       v-if="recent.length > 0"
-      :wrapAround="true"
+      :wrap-around="true"
       :items-to-show="1"
       :autoplay="15 * 1000"
       :transition="500"
-      :pauseAutoplayOnHover="true"
+      :pause-autoplay-on-hover="true"
       class="store-carousel"
     >
       <VueSlide v-for="game in recent" :key="game.id">
@@ -17,7 +17,7 @@
               :src="useObject(game.mBannerId)"
               alt=""
               class="size-full object-cover object-center"
-            />
+            >
           </div>
           <div
             class="relative flex items-center justify-center w-full h-full bg-zinc-900/75 px-6 py-32 sm:px-12 sm:py-40 lg:px-16"
@@ -43,7 +43,7 @@
                     class="block w-full rounded-md border border-transparent bg-white px-8 py-3 text-base font-medium text-gray-900 hover:bg-gray-100 sm:w-auto duration-200 hover:scale-105"
                     >Check it out</NuxtLink
                   >
-                  <AddLibraryButton :gameId="game.id" />
+                  <AddLibraryButton :game-id="game.id" />
                 </div>
               </div>
             </div>

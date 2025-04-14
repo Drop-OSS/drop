@@ -1,7 +1,8 @@
 <template>
   <div class="flex flex-col gap-y-6 w-full max-w-md">
-    <Listbox as="div" v-on:update:model-value="(value) => updateSelectedGame_wrapper(value)"
-      :model="currentlySelectedGame">
+    <Listbox
+as="div" :model="currentlySelectedGame"
+      @update:model-value="(value) => updateSelectedGame_wrapper(value)">
       <ListboxLabel class="block text-sm font-medium leading-6 text-zinc-100">Select game to import</ListboxLabel>
       <div class="relative mt-2">
         <ListboxButton
@@ -15,22 +16,27 @@
           </span>
         </ListboxButton>
 
-        <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100"
+        <transition
+leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100"
           leave-to-class="opacity-0">
           <ListboxOptions
             class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-zinc-800 focus:outline-none sm:text-sm">
-            <ListboxOption as="template" v-for="(game, gameIdx) in games.unimportedGames" :key="game" :value="gameIdx"
-              v-slot="{ active, selected }">
-              <li :class="[
+            <ListboxOption
+v-for="(game, gameIdx) in games.unimportedGames" :key="game" v-slot="{ active, selected }" as="template"
+              :value="gameIdx">
+              <li
+:class="[
                 active ? 'bg-blue-600 text-white' : 'text-zinc-100',
                 'relative cursor-default select-none py-2 pl-3 pr-9',
               ]">
-                <span :class="[
+                <span
+:class="[
                   selected ? 'font-semibold' : 'font-normal',
                   'block truncate',
                 ]">{{ game }}</span>
 
-                <span v-if="selected" :class="[
+                <span
+v-if="selected" :class="[
                   active ? 'text-white' : 'text-blue-600',
                   'absolute inset-y-0 right-0 flex items-center pr-4',
                 ]">
@@ -46,7 +52,7 @@
     <div v-if="currentlySelectedGame !== -1" class="flex flex-col gap-y-4">
       <!-- without metadata option -->
       <div>
-        <LoadingButton @click="() => importGame_wrapper(false)" class="w-fit" :loading="importLoading">Import without
+        <LoadingButton class="w-fit" :loading="importLoading" @click="() => importGame_wrapper(false)">Import without
           metadata
         </LoadingButton>
 
@@ -60,12 +66,13 @@
 
       <!-- with metadata option -->
       <div class="flex flex-col gap-y-4">
-        <Listbox as="div" v-if="metadataResults && metadataResults.length > 0" v-model="currentlySelectedMetadata">
+        <Listbox v-if="metadataResults && metadataResults.length > 0" v-model="currentlySelectedMetadata" as="div">
           <ListboxLabel class="block text-sm font-medium leading-6 text-zinc-100">Select game</ListboxLabel>
           <div class="relative mt-2">
             <ListboxButton
               class="relative w-full cursor-default rounded-md bg-zinc-950 py-1.5 pl-3 pr-10 text-left text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6">
-              <GameSearchResultWidget v-if="currentlySelectedMetadata != -1"
+              <GameSearchResultWidget
+v-if="currentlySelectedMetadata != -1"
                 :game="metadataResults[currentlySelectedMetadata]" />
               <span v-else class="block truncate text-zinc-600">Please select a game...</span>
               <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
@@ -73,13 +80,16 @@
               </span>
             </ListboxButton>
 
-            <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100"
+            <transition
+leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100"
               leave-to-class="opacity-0">
               <ListboxOptions
                 class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                <ListboxOption as="template" v-for="(result, resultIdx) in metadataResults" :key="result.id"
-                  :value="resultIdx" v-slot="{ active, selected }">
-                  <li :class="[
+                <ListboxOption
+v-for="(result, resultIdx) in metadataResults" :key="result.id" v-slot="{ active, selected }"
+                  as="template" :value="resultIdx">
+                  <li
+:class="[
                     active ? 'bg-blue-600 text-white' : 'text-zinc-100',
                     'relative cursor-default select-none py-2 pl-3 pr-9',
                   ]">
@@ -90,10 +100,12 @@
             </transition>
           </div>
         </Listbox>
-        <div v-else-if="gameSearchResultsLoading" role="status"
+        <div
+v-else-if="gameSearchResultsLoading" role="status"
           class="inline-flex text-zinc-100 font-display font-semibold items-center gap-x-4">
           Loading game results...
-          <svg aria-hidden="true" class="w-6 h-6 text-transparent animate-spin fill-white" viewBox="0 0 100 101"
+          <svg
+aria-hidden="true" class="w-6 h-6 text-transparent animate-spin fill-white" viewBox="0 0 100 101"
             fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
               d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
@@ -119,8 +131,9 @@
         </div>
 
         <div>
-          <LoadingButton @click="() => importGame_wrapper()" class="w-fit" :loading="importLoading"
-            :disabled="currentlySelectedMetadata === -1">Import
+          <LoadingButton
+class="w-fit" :loading="importLoading" :disabled="currentlySelectedMetadata === -1"
+            @click="() => importGame_wrapper()">Import
           </LoadingButton>
 
           <div v-if="importError" class="mt-4 w-fit rounded-md bg-red-600/10 p-4">

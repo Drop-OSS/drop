@@ -22,7 +22,7 @@
         src="/wallpapers/signin.jpg"
         class="absolute inset-0 h-full w-full object-cover"
         alt=""
-      />
+      >
     </div>
   </div>
 </template>

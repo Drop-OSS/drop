@@ -1,6 +1,8 @@
-import { Developer, MetadataSource, Publisher } from "@prisma/client";
-import { MetadataProvider, MissingMetadataProviderConfig } from ".";
-import {
+import type { Developer, Publisher } from "@prisma/client";
+import { MetadataSource } from "@prisma/client";
+import type { MetadataProvider} from ".";
+import { MissingMetadataProviderConfig } from ".";
+import type {
   GameMetadataSearchResult,
   _FetchGameMetadataParams,
   GameMetadata,
@@ -9,7 +11,8 @@ import {
   _FetchDeveloperMetadataParams,
   DeveloperMetadata,
 } from "./types";
-import axios, { AxiosRequestConfig } from "axios";
+import type { AxiosRequestConfig } from "axios";
+import axios from "axios";
 import TurndownService from "turndown";
 import { DateTime } from "luxon";
 

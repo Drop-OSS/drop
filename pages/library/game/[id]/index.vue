@@ -7,7 +7,7 @@
       <img
         :src="useObject(game.mBannerId)"
         class="w-full h-[24rem] object-cover blur-sm scale-105"
-      />
+      >
       <div
         class="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent opacity-90"
       />
@@ -50,7 +50,7 @@
             />
           </button>
           <div class="relative z-50">
-            <AddLibraryButton class="font-bold" :gameId="game.id" />
+            <AddLibraryButton class="font-bold" :game-id="game.id" />
           </div>
           <NuxtLink
             :to="`/store/${game.id}`"
@@ -76,7 +76,7 @@
                     <img
                       class="w-fit h-48 lg:h-96 rounded"
                       :src="useObject(image)"
-                    />
+                    >
                   </VueSlide>
                   <VueSlide v-if="game.mImageCarousel.length == 0">
                     <div
@@ -98,9 +98,9 @@
           <div class="space-y-6">
             <div class="bg-zinc-800/50 rounded-xl p-6 backdrop-blur-sm">
               <div
-                v-html="descriptionHTML"
                 class="prose prose-invert prose-blue overflow-y-auto custom-scrollbar max-w-none"
-              ></div>
+                v-html="descriptionHTML"
+              />
             </div>
           </div>
         </div>

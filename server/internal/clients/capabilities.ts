@@ -1,4 +1,4 @@
-import { EnumDictionary } from "../utils/types";
+import type { EnumDictionary } from "../utils/types";
 import https from "https";
 import { useCertificateAuthority } from "~/server/plugins/ca";
 import prisma from "../db/database";

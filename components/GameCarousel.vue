@@ -1,11 +1,11 @@
 <template>
   <div ref="currentComponent">
     <ClientOnly fallback-tag="span">
-      <VueCarousel :itemsToShow="singlePage" :itemsToScroll="singlePage">
+      <VueCarousel :items-to-show="singlePage" :items-to-scroll="singlePage">
         <VueSlide
-          class="justify-start"
           v-for="(game, gameIdx) in games"
           :key="gameIdx"
+          class="justify-start"
         >
           <GamePanel :game="game" />
         </VueSlide>

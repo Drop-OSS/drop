@@ -1,4 +1,4 @@
-import { systemACLs, userACLs } from ".";
+import type { systemACLs, userACLs } from ".";
 
 type ObjectFromList<T extends ReadonlyArray<string>, V = string> = {
   [K in T extends ReadonlyArray<infer U> ? U : never]: V;

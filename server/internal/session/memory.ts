@@ -1,4 +1,4 @@
-import { Session, SessionProvider } from "./types";
+import type { Session, SessionProvider } from "./types";
 
 export default function createMemorySessionHandler() {
   const sessions: { [key: string]: Session } = {};
@@ -21,7 +21,7 @@ export default function createMemorySessionHandler() {
     },
     async cleanupSessions() {
       const now = new Date();
-      for (let token in sessions) {
+      for (const token in sessions) {
         // if expires at time is before now, the session is expired
         if (sessions[token].expiresAt < now) await this.removeSession(token);
       }

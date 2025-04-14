@@ -1,5 +1,5 @@
-import { Client, User } from "@prisma/client";
-import { EventHandlerRequest, H3Event } from "h3";
+import type { Client, User } from "@prisma/client";
+import type { EventHandlerRequest, H3Event } from "h3";
 import droplet from "@drop-oss/droplet";
 import prisma from "../db/database";
 import { useCertificateAuthority } from "~/server/plugins/ca";
@@ -26,7 +26,7 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
     let clientId: string;
     switch (method) {
       case "Debug":
-        if (!process.dev) throw createError({ statusCode: 403 });
+        if (!import.meta.dev) throw createError({ statusCode: 403 });
         const client = await prisma.client.findFirst({ select: { id: true } });
         if (!client)
           throw createError({

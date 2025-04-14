@@ -6,7 +6,7 @@
           <img
             :src="useObject(user.profilePicture)"
             class="w-5 h-5 rounded-sm"
-          />
+          >
           <span class="ml-2 text-sm font-bold">{{ user.displayName }}</span>
           <ChevronDownIcon class="ml-3 h-4" />
         </div>
@@ -33,7 +33,7 @@
               <img
                 :src="useObject(user.profilePicture)"
                 class="w-5 h-5 rounded-sm"
-              />
+              >
               <span class="ml-2 text-sm font-bold">{{ user.displayName }}</span>
             </div>
           </NuxtLink>
@@ -47,11 +47,11 @@
             >
               <button
                 :href="nav.route"
-                @click="() => navigateTo(nav.route, close)"
                 :class="[
                   active ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400',
                   'text-left transition block px-4 py-2 text-sm',
                 ]"
+                @click="() => navigateTo(nav.route, close)"
               >
                 {{ nav.label }}
               </button>

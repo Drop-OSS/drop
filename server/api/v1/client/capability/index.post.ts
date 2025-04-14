@@ -1,5 +1,6 @@
+import type {
+  InternalClientCapability} from "~/server/internal/clients/capabilities";
 import capabilityManager, {
-  InternalClientCapability,
   validCapabilities,
 } from "~/server/internal/clients/capabilities";
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";

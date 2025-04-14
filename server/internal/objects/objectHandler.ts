@@ -15,7 +15,8 @@
  */
 
 import { parse as getMimeTypeBuffer } from "file-type-mime";
-import Stream, { Readable, Writable } from "stream";
+import type { Writable } from "stream";
+import Stream, { Readable } from "stream";
 import { getMimeType as getMimeTypeStream } from "stream-mime-type";
 
 export type ObjectReference = string;

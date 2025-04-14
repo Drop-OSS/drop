@@ -51,17 +51,17 @@
                         class="transition mt-2 block text-sm font-semibold text-zinc-400 group-hover:text-zinc-500"
                         >Upload file</span
                       >
-                      <p class="mt-1 text-xs text-zinc-400" v-if="currentFile">
+                      <p v-if="currentFile" class="mt-1 text-xs text-zinc-400">
                         {{ currentFile.name }}
                       </p>
                     </label>
                     <input
+                      id="file-upload"
                       :accept="props.accept"
-                      @change="(e) => file = (e.target as any)?.files"
                       class="hidden"
                       type="file"
-                      id="file-upload"
-                    />
+                      @change="(e) => file = (e.target as any)?.files"
+                    >
                   </div>
                 </div>
               </div>
@@ -70,16 +70,16 @@
                   :disabled="currentFile == undefined"
                   type="button"
                   :loading="uploadLoading"
-                  @click="() => uploadFile_wrapper()"
                   :class="['inline-flex w-full shadow-sm sm:ml-3 sm:w-auto']"
+                  @click="() => uploadFile_wrapper()"
                 >
                   Upload
                 </LoadingButton>
                 <button
+                  ref="cancelButtonRef"
                   type="button"
                   class="mt-3 inline-flex w-full justify-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-800 hover:bg-zinc-900 sm:mt-0 sm:w-auto"
                   @click="open = false"
-                  ref="cancelButtonRef"
                 >
                   Cancel
                 </button>

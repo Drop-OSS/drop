@@ -18,7 +18,7 @@
 
         <div class="mt-10">
           <div>
-            <form @submit.prevent="signin_wrapper" class="space-y-6">
+            <form class="space-y-6" @submit.prevent="signin_wrapper">
               <div>
                 <label
                   for="username"
@@ -28,13 +28,13 @@
                 <div class="mt-2">
                   <input
                     id="username"
+                    v-model="username"
                     name="username"
                     type="username"
                     autocomplete="username"
                     required
                     class="block w-full rounded-md border-0 py-1.5 px-3 shadow-sm bg-zinc-950/20 text-zinc-300 ring-1 ring-inset ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                    v-model="username"
-                  />
+                  >
                 </div>
               </div>
 
@@ -47,13 +47,13 @@
                 <div class="mt-2">
                   <input
                     id="password"
+                    v-model="password"
                     name="password"
                     type="password"
                     autocomplete="current-password"
-                    v-model="password"
                     required
                     class="block w-full rounded-md border-0 py-1.5 px-3 shadow-sm bg-zinc-950/20 text-zinc-300 ring-1 ring-inset ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                  />
+                  >
                 </div>
               </div>
 
@@ -61,11 +61,11 @@
                 <div class="flex items-center">
                   <input
                     id="remember-me"
+                    v-model="rememberMe"
                     name="remember-me"
                     type="checkbox"
-                    v-model="rememberMe"
                     class="h-4 w-4 rounded bg-zinc-800 border-zinc-700 text-blue-600 focus:ring-blue-600"
-                  />
+                  >
                   <label
                     for="remember-me"
                     class="ml-3 block text-sm leading-6 text-zinc-400"
@@ -113,7 +113,7 @@
         src="/wallpapers/signin.jpg"
         class="absolute inset-0 h-full w-full object-cover"
         alt=""
-      />
+      >
     </div>
   </div>
 </template>

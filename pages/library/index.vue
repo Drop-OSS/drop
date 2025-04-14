@@ -34,8 +34,8 @@
 
         <!-- Delete button (only show for non-default collections) -->
         <button
-          @click="() => (currentlyDeleting = collection)"
           class="group px-3 ml-[2px] bg-zinc-800/50 hover:bg-zinc-800 group focus:bg-zinc-800 focus:outline-none"
+          @click="() => (currentlyDeleting = collection)"
         >
           <TrashIcon
             class="transition-all size-5 text-zinc-400 group-hover:text-red-400 group-hover:rotate-[8deg]"
@@ -46,8 +46,8 @@
       <!-- Create new collection button (also wrap in div) -->
       <div>
         <button
-          @click="collectionCreateOpen = true"
           class="group flex flex-row rounded-lg overflow-hidden transition-all duration-200 text-left w-full hover:scale-105"
+          @click="collectionCreateOpen = true"
         >
           <div
             class="grow p-4 bg-zinc-800/50 hover:bg-zinc-800 border-2 border-dashed border-zinc-700"
@@ -93,10 +93,9 @@ import {
   ArrowTopRightOnSquareIcon,
   ArrowUpRightIcon,
   TrashIcon,
-  ArrowLeftIcon,
+  ArrowLeftIcon, PlusIcon 
 } from "@heroicons/vue/20/solid";
-import { type Collection, type Game, type GameVersion } from "@prisma/client";
-import { PlusIcon } from "@heroicons/vue/20/solid";
+import type { Collection, Game, GameVersion } from "@prisma/client";
 
 const collections = await useCollections();
 const collectionCreateOpen = ref(false);

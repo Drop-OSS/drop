@@ -3,8 +3,8 @@
     <!-- Create article button - only show for admin users -->
     <button
       v-if="user?.admin"
-      @click="modalOpen = !modalOpen"
       class="transition inline-flex w-full items-center px-4 gap-x-2 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold text-sm shadow-sm"
+      @click="modalOpen = !modalOpen"
     >
       <PlusIcon
         class="h-5 w-5 transition-transform duration-200"
@@ -13,11 +13,11 @@
       <span>New article</span>
     </button>
 
-    <ModalTemplate size-class="sm:max-w-[80vw]" v-model="modalOpen">
+    <ModalTemplate v-model="modalOpen" size-class="sm:max-w-[80vw]">
       <h3 class="text-lg font-semibold text-zinc-100 mb-4">
         Create New Article
       </h3>
-      <form @submit.prevent="() => createArticle()" class="space-y-4">
+      <form class="space-y-4" @submit.prevent="() => createArticle()">
         <div>
           <label for="title" class="block text-sm font-medium text-zinc-400"
             >Title</label
@@ -29,7 +29,7 @@
             autocomplete="off"
             class="mt-1 block w-full rounded-md bg-zinc-900 border-zinc-700 text-zinc-100 shadow-sm focus:border-primary-500 focus:ring-primary-500"
             required
-          />
+          >
         </div>
 
         <div>
@@ -42,7 +42,7 @@
             type="text"
             class="mt-1 block w-full rounded-md bg-zinc-900 border-zinc-700 text-zinc-100 shadow-sm focus:border-primary-500 focus:ring-primary-500"
             required
-          />
+          >
         </div>
 
         <div>
@@ -56,8 +56,8 @@
                 v-for="shortcut in markdownShortcuts"
                 :key="shortcut.label"
                 type="button"
-                @click="applyMarkdown(shortcut)"
                 class="px-2 py-1 text-sm rounded bg-zinc-800 text-zinc-300 hover:bg-zinc-700 transition-colors"
+                @click="applyMarkdown(shortcut)"
               >
                 {{ shortcut.label }}
               </button>
@@ -71,12 +71,12 @@
                 <span class="text-sm text-zinc-500 mb-2">Editor</span>
                 <textarea
                   id="content"
-                  v-model="newArticle.content"
                   ref="contentEditor"
-                  @keydown="handleContentKeydown"
+                  v-model="newArticle.content"
                   class="flex-1 rounded-md bg-zinc-900 border-zinc-700 text-zinc-100 shadow-sm focus:border-primary-500 focus:ring-primary-500 font-mono resize-none"
                   required
-                ></textarea>
+                  @keydown="handleContentKeydown"
+                />
               </div>
 
               <!-- Preview -->
@@ -115,17 +115,17 @@
               class="transition mt-2 block text-sm font-semibold text-zinc-400 group-hover:text-zinc-500"
               >Upload cover image</span
             >
-            <p class="mt-1 text-xs text-zinc-400" v-if="currentFile">
+            <p v-if="currentFile" class="mt-1 text-xs text-zinc-400">
               {{ currentFile.name }}
             </p>
           </label>
           <input
+            id="file-upload"
             accept="image/*"
-            @change="(e) => file = (e.target as any)?.files"
             class="hidden"
             type="file"
-            id="file-upload"
-          />
+            @change="(e) => file = (e.target as any)?.files"
+          >
         </div>
 
         <div>
@@ -141,8 +141,8 @@
               {{ tag }}
               <button
                 type="button"
-                @click="removeTag(tag)"
                 class="text-white hover:text-white/80"
+                @click="removeTag(tag)"
               >
                 <XMarkIcon class="h-3 w-3" />
               </button>
@@ -150,16 +150,16 @@
           </div>
           <div class="flex gap-x-2">
             <input
-              type="text"
               v-model="newTagInput"
-              @keydown.enter.prevent="addTag"
+              type="text"
               placeholder="Add a tag..."
               class="mt-1 block w-full rounded-md bg-zinc-900 border-zinc-700 text-zinc-100 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-            />
+              @keydown.enter.prevent="addTag"
+            >
             <button
               type="button"
-              @click="addTag"
               class="mt-1 px-3 py-2 rounded-md bg-zinc-800 text-zinc-100 hover:bg-zinc-700"
+              @click="addTag"
             >
               Add
             </button>
@@ -184,14 +184,14 @@
       <template #buttons>
         <LoadingButton
           :loading="loading"
-          @click="() => createArticle()"
           class="bg-blue-600 text-white hover:bg-blue-500"
+          @click="() => createArticle()"
         >
           Submit
         </LoadingButton>
         <button
-          @click="() => (modalOpen = !modalOpen)"
           class="inline-flex items-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold font-display text-white hover:bg-zinc-700"
+          @click="() => (modalOpen = !modalOpen)"
         >
           Cancel
         </button>

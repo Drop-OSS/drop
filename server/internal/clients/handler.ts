@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { CertificateBundle } from "./ca";
 import prisma from "../db/database";
-import { Platform } from "@prisma/client";
+import type { Platform } from "@prisma/client";
 import { useCertificateAuthority } from "~/server/plugins/ca";
 
 export interface ClientMetadata {

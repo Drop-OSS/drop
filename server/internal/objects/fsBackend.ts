@@ -1,9 +1,5 @@
-import {
-  ObjectBackend,
-  ObjectMetadata,
-  ObjectReference,
-  Source,
-} from "./objectHandler";
+import type { ObjectMetadata, ObjectReference, Source } from "./objectHandler";
+import { ObjectBackend } from "./objectHandler";
 
 import { LRUCache } from "lru-cache";
 import fs from "fs";

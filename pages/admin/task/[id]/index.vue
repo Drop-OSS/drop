@@ -1,7 +1,7 @@
 <template>
   <div
-    class="grow w-full flex items-center justify-center"
     v-if="task && task.success"
+    class="grow w-full flex items-center justify-center"
   >
     <div class="flex flex-col items-center">
       <CheckCircleIcon class="h-12 w-12 text-green-600" aria-hidden="true" />
@@ -18,8 +18,8 @@
     </div>
   </div>
   <div
-    class="grow w-full flex items-center justify-center"
     v-else-if="task && task.error"
+    class="grow w-full flex items-center justify-center"
   >
     <div class="flex flex-col items-center">
       <ExclamationCircleIcon

@@ -71,8 +71,8 @@ if (import.meta.client) {
           >
           <button
             v-else
-            @click="signIn"
             class="text-sm font-semibold leading-7 text-blue-600"
+            @click="signIn"
           >
             Sign in <span aria-hidden="true">&rarr;</span>
           </button>
@@ -105,7 +105,7 @@ if (import.meta.client) {
         src="/wallpapers/error-wallpaper.jpg"
         class="absolute inset-0 h-full w-full object-cover"
         alt=""
-      />
+      >
     </div>
   </div>
 </template>

@@ -8,7 +8,8 @@
 import fs from "fs";
 import path from "path";
 import prisma from "../db/database";
-import { GameVersion, Platform } from "@prisma/client";
+import type { GameVersion} from "@prisma/client";
+import { Platform } from "@prisma/client";
 import { fuzzy } from "fast-fuzzy";
 import { recursivelyReaddir } from "../utils/recursivedirs";
 import taskHandler from "../tasks";

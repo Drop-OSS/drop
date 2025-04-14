@@ -17,11 +17,11 @@
           </div>
           <input
             id="search"
-            type="text"
             v-model="searchQuery"
+            type="text"
             class="block w-full rounded-md border-0 bg-zinc-800 py-2.5 pl-10 pr-3 text-zinc-100 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6"
             placeholder="Search articles..."
-          />
+          >
         </div>
       </div>
 
@@ -49,13 +49,13 @@
           <button
             v-for="tag in availableTags"
             :key="tag"
-            @click="toggleTag(tag)"
             class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors duration-200"
             :class="[
               selectedTags.includes(tag)
                 ? 'bg-blue-600 text-white'
                 : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700',
             ]"
+            @click="toggleTag(tag)"
           >
             {{ tag }}
           </button>
@@ -85,7 +85,7 @@
             <img
               :src="useObject(article.image)"
               class="absolute blur-sm inset-0 w-full h-full object-cover transition-all duration-200 group-hover:scale-110"
-            />
+            >
             <div
               class="absolute inset-0 bg-gradient-to-b from-transparent to-zinc-800 transition-all duration-200"
             />
@@ -97,7 +97,7 @@
           <p
             class="relative mt-1 text-xs text-zinc-400 line-clamp-2"
             v-html="formatExcerpt(article.description)"
-          ></p>
+          />
           <div
             class="relative mt-2 flex items-center gap-x-2 text-xs text-zinc-500"
           >

@@ -1,5 +1,5 @@
 import droplet from "@drop-oss/droplet";
-import { MinimumRequestObject } from "~/server/h3";
+import type { MinimumRequestObject } from "~/server/h3";
 import aclManager from "../acls";
 
 /**

@@ -1,5 +1,5 @@
 <template>
-  <Listbox as="div" v-model="typedModel">
+  <Listbox v-model="typedModel" as="div">
     <ListboxLabel class="block text-sm font-medium leading-6 text-zinc-100"
       ><slot
     /></ListboxLabel>
@@ -32,11 +32,11 @@
           class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-zinc-950 ring-opacity-5 focus:outline-none sm:text-sm"
         >
           <ListboxOption
-            as="template"
             v-for="[name, value] in Object.entries(values)"
             :key="value"
-            :value="value"
             v-slot="{ active, selected }"
+            as="template"
+            :value="value"
           >
             <li
               :class="[

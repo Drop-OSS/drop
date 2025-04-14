@@ -1,5 +1,6 @@
-import { EventHandlerRequest, H3Event } from "h3";
-import { Dump, ObjectTransactionalHandler, Pull } from "../objects/transactional";
+import type { EventHandlerRequest, H3Event } from "h3";
+import type { Dump, Pull } from "../objects/transactional";
+import { ObjectTransactionalHandler } from "../objects/transactional";
 
 export async function handleFileUpload(
   h3: H3Event<EventHandlerRequest>,

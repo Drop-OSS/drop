@@ -1,7 +1,7 @@
 <template>
   <div
-    class="min-h-full w-full flex items-center justify-center"
     v-if="completed"
+    class="min-h-full w-full flex items-center justify-center"
   >
     <div class="flex flex-col items-center">
       <CheckCircleIcon class="h-12 w-12 text-green-600" aria-hidden="true" />
@@ -15,7 +15,7 @@
             window.
           </p>
 
-          <Disclosure as="div" class="mt-8" v-slot="{ open }">
+          <Disclosure v-slot="{ open }" as="div" class="mt-8">
             <dt>
               <DisclosureButton
                 class="pb-2 flex w-full items-start justify-between text-left text-zinc-400"
@@ -66,10 +66,10 @@
           method="post"
           class="mt-10 gap-x-6"
         >
-          <input type="text" class="hidden" name="id" :value="clientId" />
+          <input type="text" class="hidden" name="id" :value="clientId" >
           <button
-            @click="() => authorize_wrapper()"
             class="rounded-md bg-blue-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+            @click="() => authorize_wrapper()"
           >
             Authorize
           </button>

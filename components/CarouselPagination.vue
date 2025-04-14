@@ -3,7 +3,6 @@
     <button
       v-for="(_, i) in amount"
       :key="i"
-      @click="() => slideTo(i)"
       :class="[
         carousel.currentSlide == i ? 'bg-blue-600 w-6' : 'bg-zinc-700 w-3',
         'transition-all cursor-pointer h-2 rounded-full',
@@ -15,7 +14,7 @@
 <script setup lang="ts">
 import { injectCarousel } from "vue3-carousel";
 
-const carousel = inject(injectCarousel)!!;
+const carousel = inject(injectCarousel)!;
 
 const amount = carousel.maxSlide - carousel.minSlide + 1;
 
