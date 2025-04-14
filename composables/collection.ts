@@ -6,7 +6,7 @@ type FullCollection = Collection & {
 };
 
 export const useCollections = async () => {
-  // @ts-expect-error
+  // @ts-expect-error undefined is used to tell if value has been fetched or not
   const state = useState<FullCollection[]>("collections", () => undefined);
   if (state.value === undefined) {
     state.value = await $dropFetch<FullCollection[]>("/api/v1/collection");
@@ -17,7 +17,9 @@ export const useCollections = async () => {
 
 export async function refreshCollection(id: string) {
   const state = useState<FullCollection[]>("collections");
-  const collection = await $dropFetch<FullCollection>(`/api/v1/collection/${id}`);
+  const collection = await $dropFetch<FullCollection>(
+    `/api/v1/collection/${id}`,
+  );
   const index = state.value.findIndex((e) => e.id == id);
   if (index == -1) {
     state.value.push(collection);
@@ -27,7 +29,7 @@ export async function refreshCollection(id: string) {
 }
 
 export const useLibrary = async () => {
-  // @ts-expect-error
+  // @ts-expect-error undefined is used to tell if value has been fetched or not
   const state = useState<FullCollection>("library", () => undefined);
   if (state.value === undefined) {
     await refreshLibrary();

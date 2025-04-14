@@ -31,7 +31,7 @@ export const fetchNews = async (options?: {
 
   const news = useNews();
 
-  // @ts-ignore
+  // @ts-ignore forget why this ignor exists
   const newValue = await $dropFetch(`/api/v1/news?${query.toString()}`);
 
   news.value = newValue;

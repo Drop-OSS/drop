@@ -21,7 +21,7 @@
             type="text"
             class="block w-full rounded-md border-0 bg-zinc-800 py-2.5 pl-10 pr-3 text-zinc-100 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6"
             placeholder="Search articles..."
-          >
+          />
         </div>
       </div>
 
@@ -85,7 +85,7 @@
             <img
               :src="useObject(article.image)"
               class="absolute blur-sm inset-0 w-full h-full object-cover transition-all duration-200 group-hover:scale-110"
-            >
+            />
             <div
               class="absolute inset-0 bg-gradient-to-b from-transparent to-zinc-800 transition-all duration-200"
             />
@@ -117,7 +117,7 @@ import { MagnifyingGlassIcon } from "@heroicons/vue/24/solid";
 import { micromark } from "micromark";
 
 const news = useNews();
-if(!news.value){
+if (!news.value) {
   news.value = await fetchNews();
 }
 
@@ -154,6 +154,7 @@ const formatDate = (date: string) => {
 };
 
 const formatExcerpt = (excerpt: string) => {
+  // TODO: same as one in NewsArticleCreateButton
   // Convert markdown to HTML
   const html = micromark(excerpt);
   // Strip HTML tags using regex
@@ -175,28 +176,32 @@ const filteredArticles = computed(() => {
     const now = new Date();
     let matchesDate = true;
 
-    switch (dateFilter.value) {
-      case "today":
+    switch (dateFilter.value.toLowerCase()) {
+      case "today": {
         matchesDate = articleDate.toDateString() === now.toDateString();
         break;
-      case "week":
+      }
+      case "week": {
         const weekAgo = new Date(now.setDate(now.getDate() - 7));
         matchesDate = articleDate >= weekAgo;
         break;
-      case "month":
+      }
+      case "month": {
         matchesDate =
           articleDate.getMonth() === now.getMonth() &&
           articleDate.getFullYear() === now.getFullYear();
         break;
-      case "year":
+      }
+      case "year": {
         matchesDate = articleDate.getFullYear() === now.getFullYear();
         break;
+      }
     }
 
     const matchesTags =
       selectedTags.value.length === 0 ||
       selectedTags.value.every((tag) =>
-        article.tags.find((e) => e.name == tag)
+        article.tags.find((e) => e.name == tag),
       );
 
     return matchesSearch && matchesDate && matchesTags;

@@ -1,5 +1,4 @@
 import type {
-  $Fetch,
   ExtractedRouteMethod,
   NitroFetchOptions,
   NitroFetchRequest,
@@ -8,15 +7,15 @@ import type {
 
 interface DropFetch<
   DefaultT = unknown,
-  DefaultR extends NitroFetchRequest = NitroFetchRequest
+  DefaultR extends NitroFetchRequest = NitroFetchRequest,
 > {
   <
     T = DefaultT,
     R extends NitroFetchRequest = DefaultR,
-    O extends NitroFetchOptions<R> = NitroFetchOptions<R>
+    O extends NitroFetchOptions<R> = NitroFetchOptions<R>,
   >(
     request: R,
-    opts?: O
+    opts?: O,
   ): Promise<
     // @ts-ignore
     TypedInternalResponse<

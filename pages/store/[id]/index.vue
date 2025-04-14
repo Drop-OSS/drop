@@ -70,9 +70,9 @@
                   class="whitespace-nowrap inline-flex gap-x-4 px-3 py-4 text-sm text-zinc-400"
                 >
                   <component
+                    :is="PLATFORM_ICONS[platform]"
                     v-for="platform in platforms"
                     :key="platform"
-                    :is="PLATFORM_ICONS[platform]"
                     class="text-blue-600 w-6 h-6"
                   />
                   <span

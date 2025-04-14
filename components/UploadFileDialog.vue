@@ -60,8 +60,8 @@
                       :accept="props.accept"
                       class="hidden"
                       type="file"
-                      @change="(e) => file = (e.target as any)?.files"
-                    >
+                      @change="(e) => (file = (e.target as any)?.files)"
+                    />
                   </div>
                 </div>
               </div>
@@ -112,14 +112,15 @@ import { ref } from "vue";
 import {
   Dialog,
   DialogPanel,
-  DialogTitle,
   TransitionChild,
   TransitionRoot,
 } from "@headlessui/vue";
 import { ArrowUpTrayIcon } from "@heroicons/vue/20/solid";
 import { XCircleIcon } from "@heroicons/vue/24/solid";
 
-const open: Ref<boolean> = defineModel<boolean>() as any;
+const open = defineModel<boolean>({
+  required: true,
+});
 
 const file = ref<FileList | undefined>();
 const currentFile = computed(() => file.value?.item(0));

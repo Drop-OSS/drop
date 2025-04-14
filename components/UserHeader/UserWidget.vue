@@ -6,7 +6,7 @@
           <img
             :src="useObject(user.profilePicture)"
             class="w-5 h-5 rounded-sm"
-          >
+          />
           <span class="ml-2 text-sm font-bold">{{ user.displayName }}</span>
           <ChevronDownIcon class="ml-3 h-4" />
         </div>
@@ -33,7 +33,7 @@
               <img
                 :src="useObject(user.profilePicture)"
                 class="w-5 h-5 rounded-sm"
-              >
+              />
               <span class="ml-2 text-sm font-bold">{{ user.displayName }}</span>
             </div>
           </NuxtLink>
@@ -45,6 +45,7 @@
               v-slot="{ active, close }"
               hydrate-on-visible
             >
+              <!-- TODO: think this would work better as a NuxtLink instead of a button -->
               <button
                 :href="nav.route"
                 :class="[
@@ -92,9 +93,4 @@ const navigation: NavigationItem[] = [
 ].filter((e) => e !== undefined);
 
 const router = useRouter();
-
-function navigateLink(href: string, closeFn: () => any) {
-  closeFn();
-  router.push(href);
-}
 </script>

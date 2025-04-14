@@ -22,13 +22,13 @@
         src="/wallpapers/signin.jpg"
         class="absolute inset-0 h-full w-full object-cover"
         alt=""
-      >
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import Logo from "~/components/Logo.vue";
+import Logo from "~/components/DropLogo.vue";
 const router = useRouter();
 
 // Clear the user state

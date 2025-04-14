@@ -34,7 +34,7 @@
                     autocomplete="username"
                     required
                     class="block w-full rounded-md border-0 py-1.5 px-3 shadow-sm bg-zinc-950/20 text-zinc-300 ring-1 ring-inset ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                  >
+                  />
                 </div>
               </div>
 
@@ -53,7 +53,7 @@
                     autocomplete="current-password"
                     required
                     class="block w-full rounded-md border-0 py-1.5 px-3 shadow-sm bg-zinc-950/20 text-zinc-300 ring-1 ring-inset ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                  >
+                  />
                 </div>
               </div>
 
@@ -65,7 +65,7 @@
                     name="remember-me"
                     type="checkbox"
                     class="h-4 w-4 rounded bg-zinc-800 border-zinc-700 text-blue-600 focus:ring-blue-600"
-                  >
+                  />
                   <label
                     for="remember-me"
                     class="ml-3 block text-sm leading-6 text-zinc-400"
@@ -113,7 +113,7 @@
         src="/wallpapers/signin.jpg"
         class="absolute inset-0 h-full w-full object-cover"
         alt=""
-      >
+      />
     </div>
   </div>
 </template>
@@ -121,7 +121,7 @@
 <script setup lang="ts">
 import { XCircleIcon } from "@heroicons/vue/20/solid";
 import type { User } from "@prisma/client";
-import Logo from "~/components/Logo.vue";
+import Logo from "~/components/DropLogo.vue";
 
 const username = ref("");
 const password = ref("");

@@ -29,7 +29,7 @@
             autocomplete="off"
             class="mt-1 block w-full rounded-md bg-zinc-900 border-zinc-700 text-zinc-100 shadow-sm focus:border-primary-500 focus:ring-primary-500"
             required
-          >
+          />
         </div>
 
         <div>
@@ -42,7 +42,7 @@
             type="text"
             class="mt-1 block w-full rounded-md bg-zinc-900 border-zinc-700 text-zinc-100 shadow-sm focus:border-primary-500 focus:ring-primary-500"
             required
-          >
+          />
         </div>
 
         <div>
@@ -124,8 +124,8 @@
             accept="image/*"
             class="hidden"
             type="file"
-            @change="(e) => file = (e.target as any)?.files"
-          >
+            @change="(e) => (file = (e.target as any)?.files)"
+          />
         </div>
 
         <div>
@@ -155,7 +155,7 @@
               placeholder="Add a tag..."
               class="mt-1 block w-full rounded-md bg-zinc-900 border-zinc-700 text-zinc-100 shadow-sm focus:border-primary-500 focus:ring-primary-500"
               @keydown.enter.prevent="addTag"
-            >
+            />
             <button
               type="button"
               class="mt-1 px-3 py-2 rounded-md bg-zinc-800 text-zinc-100 hover:bg-zinc-700"
@@ -207,12 +207,10 @@ import {
   XCircleIcon,
   XMarkIcon,
 } from "@heroicons/vue/24/solid";
-import type { Article } from "@prisma/client";
 import { micromark } from "micromark";
-import type { SerializeObject } from "nitropack/types";
 
 const news = useNews();
-if(!news.value){
+if (!news.value) {
   news.value = await fetchNews();
 }
 
@@ -230,6 +228,8 @@ const newArticle = ref({
 });
 
 const markdownPreview = computed(() => {
+  // TODO: maybe?? add https://github.com/cure53/DOMPurify
+  // micromark says its safe, but this is straight html we are injecting
   return micromark(newArticle.value.content);
 });
 
@@ -302,7 +302,7 @@ function addTag() {
 
 function removeTag(tagToRemove: string) {
   newArticle.value.tags = newArticle.value.tags.filter(
-    (tag) => tag !== tagToRemove
+    (tag) => tag !== tagToRemove,
   );
 }
 
@@ -367,7 +367,8 @@ async function createArticle() {
 
     modalOpen.value = false;
   } catch (e) {
-    error.value = (e as any)?.statusMessage ?? "An unknown error occured.";
+    // @ts-expect-error attempt to get statusMessage on error
+    error.value = e?.statusMessage ?? "An unknown error occured.";
   } finally {
     loading.value = false;
   }

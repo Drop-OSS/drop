@@ -14,7 +14,7 @@
         autocomplete="off"
         class="block w-full rounded-md bg-zinc-900 py-2 pl-9 pr-2 text-sm text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600"
         placeholder="Search library..."
-      >
+      />
       <MagnifyingGlassIcon
         class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400"
         aria-hidden="true"
@@ -37,9 +37,11 @@
             :src="useObject(game.mCoverId)"
             class="h-9 w-9 flex-shrink-0 rounded transition-all duration-300 group-hover:scale-105 hover:rotate-[-2deg] hover:shadow-lg"
             alt=""
-          >
+          />
           <div class="min-w-0 flex-1 pl-2.5">
-            <p class="text-sm font-semibold text-display text-zinc-200 truncate text-left">
+            <p
+              class="text-sm font-semibold text-display text-zinc-200 truncate text-left"
+            >
               {{ game.mName }}
             </p>
           </div>
@@ -57,7 +59,6 @@
 </template>
 
 <script setup lang="ts">
-import { HomeIcon } from "@heroicons/vue/24/outline";
 import { Bars3Icon, MagnifyingGlassIcon } from "@heroicons/vue/24/solid";
 
 const library = await useLibrary();
@@ -68,7 +69,7 @@ const filteredLibrary = computed(() =>
   library.value.entries
     .map((e) => e.game)
     .filter((e) =>
-      e.mName.toLowerCase().includes(searchQuery.value.toLowerCase())
-    )
+      e.mName.toLowerCase().includes(searchQuery.value.toLowerCase()),
+    ),
 );
 </script>

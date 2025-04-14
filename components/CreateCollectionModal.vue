@@ -58,7 +58,7 @@ const emit = defineEmits<{
   created: [collectionId: string];
 }>();
 
-const open: Ref<boolean> = defineModel<boolean>();
+const open = defineModel<boolean>({ required: true });
 
 const collectionName = ref("");
 const createCollectionLoading = ref(false);

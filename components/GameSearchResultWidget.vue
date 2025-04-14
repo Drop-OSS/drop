@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-row items-center gap-x-2">
-    <img :src="game.icon" class="w-12 h-12 rounded-sm object-cover" >
+    <img :src="game.icon" class="w-12 h-12 rounded-sm object-cover" />
     <div class="flex flex-col items-left">
       <h1 class="font-semibold font-display text-lg text-zinc-100">
         {{ game.name }}
@@ -18,7 +18,7 @@
 <script setup lang="ts">
 import type { GameMetadataSearchResult } from "~/server/internal/metadata/types";
 
-const props = defineProps<{
+const { game } = defineProps<{
   game: GameMetadataSearchResult & { sourceName?: string };
 }>();
 </script>

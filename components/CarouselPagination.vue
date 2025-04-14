@@ -18,8 +18,8 @@ const carousel = inject(injectCarousel)!;
 
 const amount = carousel.maxSlide - carousel.minSlide + 1;
 
-function slideTo(index: number) {
-  const offsetIndex = index + carousel.minSlide;
-  carousel.nav.slideTo(offsetIndex);
-}
+// function slideTo(index: number) {
+//   const offsetIndex = index + carousel.minSlide;
+//   carousel.nav.slideTo(offsetIndex);
+// }
 </script>
