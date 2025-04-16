@@ -30,6 +30,8 @@ interface DropFetch<
 
 export const $dropFetch: DropFetch = async (request, opts) => {
   if (!getCurrentInstance()?.proxy) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore Excessive stack depth comparing types
     return await $fetch(request, opts);
   }
   const id = request.toString();
