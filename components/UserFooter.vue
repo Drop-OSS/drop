@@ -4,7 +4,7 @@
     <div class="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8">
       <div class="xl:grid xl:grid-cols-3 xl:gap-8">
         <div class="space-y-8">
-          <Wordmark class="h-10" />
+          <DropWordmark class="h-10" />
           <p class="text-sm leading-6 text-zinc-300">
             An open-source game distribution platform built for speed,
             flexibility and beauty.

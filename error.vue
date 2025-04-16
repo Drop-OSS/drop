@@ -39,7 +39,7 @@ if (import.meta.client) {
     <header
       class="mx-auto w-full max-w-7xl px-6 pt-6 sm:pt-10 lg:col-span-2 lg:col-start-1 lg:row-start-1 lg:px-8"
     >
-      <Logo class="h-10 w-auto sm:h-12" />
+      <DropLogo class="h-10 w-auto sm:h-12" />
     </header>
     <main
       class="mx-auto w-full max-w-7xl px-6 py-24 sm:py-32 lg:col-span-2 lg:col-start-1 lg:row-start-2 lg:px-8"

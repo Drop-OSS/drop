@@ -5,7 +5,7 @@
     >
       <div class="mx-auto w-full max-w-sm lg:w-96">
         <div>
-          <Logo class="h-10 w-auto" />
+          <DropLogo class="h-10 w-auto" />
           <h2
             class="mt-8 text-2xl font-bold font-display leading-9 tracking-tight text-zinc-100"
           >
@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import Logo from "~/components/DropLogo.vue";
+import DropLogo from "~/components/DropLogo.vue";
 const router = useRouter();
 
 // Clear the user state
