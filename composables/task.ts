@@ -2,11 +2,12 @@ import type { TaskMessage } from "~/server/internal/tasks";
 import { WebSocketHandler } from "./ws";
 
 const websocketHandler = new WebSocketHandler("/api/v1/task");
-const taskStates: { [key: string]: Ref<TaskMessage | undefined> } = {};
+// const taskStates: { [key: string]:  } = {};
+const taskStates = new Map<string, Ref<TaskMessage | undefined>>();
 
 function handleUpdateMessage(msg: TaskMessage) {
   const taskStates = useTaskStates();
-  const state = taskStates[msg.id];
+  const state = taskStates.get(msg.id);
   if (!state) return;
   if (!state.value || msg.reset) {
     state.value = msg;
@@ -29,18 +30,22 @@ websocketHandler.listen((message) => {
     const [action, ...data] = message.split("/");
 
     switch (action) {
-      case "connect":
+      case "connect": {
         const taskReady = useTaskReady();
         taskReady.value = true;
         break;
-      case "disconnect":
+      }
+      case "disconnect": {
         const disconnectTaskId = data[0];
-        delete taskStates[disconnectTaskId];
+        taskStates.delete(disconnectTaskId);
         console.log(`disconnected from ${disconnectTaskId}`);
         break;
-      case "error":
+      }
+      case "error": {
         const [taskId, title, description] = data;
-        taskStates[taskId].value ??= {
+        const state = taskStates.get(taskId);
+        if (!state) break;
+        state.value ??= {
           id: taskId,
           name: "Unknown task",
           success: false,
@@ -48,8 +53,9 @@ websocketHandler.listen((message) => {
           error: undefined,
           log: [],
         };
-        taskStates[taskId].value.error = { title, description };
+        state.value.error = { title, description };
         break;
+      }
     }
   }
 });
@@ -61,15 +67,12 @@ export const useTaskReady = () => useState("taskready", () => false);
 export const useTask = (taskId: string): Ref<TaskMessage | undefined> => {
   if (import.meta.server) return ref(undefined);
   const taskStates = useTaskStates();
-  if (
-    taskStates[taskId] &&
-    taskStates[taskId].value &&
-    !taskStates[taskId].value.error
-  )
-    return taskStates[taskId];
+  const task = taskStates.get(taskId);
+  if (task && task.value && !task.value.error) return task;
 
-  taskStates[taskId] = ref(undefined);
+  taskStates.set(taskId, ref(undefined));
   console.log("connecting to " + taskId);
   websocketHandler.send(`connect/${taskId}`);
-  return taskStates[taskId];
+  // TODO: this may have changed behavior
+  return taskStates.get(taskId) ?? ref(undefined);
 };

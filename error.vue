@@ -2,7 +2,10 @@
 import type { NuxtError } from "#app";
 
 const props = defineProps({
-  error: Object as () => NuxtError,
+  error: {
+    type: Object as () => NuxtError,
+    default: () => ({}),
+  },
 });
 
 const route = useRoute();
@@ -105,7 +108,7 @@ if (import.meta.client) {
         src="/wallpapers/error-wallpaper.jpg"
         class="absolute inset-0 h-full w-full object-cover"
         alt=""
-      >
+      />
     </div>
   </div>
 </template>

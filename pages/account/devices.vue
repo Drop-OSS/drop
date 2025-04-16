@@ -94,6 +94,7 @@
 import { CheckIcon } from "@heroicons/vue/24/outline";
 import { DateTime } from "luxon";
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore pending https://github.com/nitrojs/nitro/issues/2758
 const clients = ref(await $dropFetch("/api/v1/user/client"));
 
@@ -114,7 +115,7 @@ function revokeClientWrapper(id: string) {
           title: "Failed to revoke client",
           description: `Failed to revoke client: ${e}`,
         },
-        (_, c) => c()
+        (_, c) => c(),
       );
     });
 }

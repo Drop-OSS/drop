@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-v-html -->
 <template>
   <div class="w-full">
     <!-- Create article button - only show for admin users -->

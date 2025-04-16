@@ -152,10 +152,6 @@ import { ref, type Component } from "vue";
 import {
   Dialog,
   DialogPanel,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuItems,
   TransitionChild,
   TransitionRoot,
 } from "@headlessui/vue";
@@ -163,10 +159,7 @@ import {
   Bars3Icon,
   ServerStackIcon,
   HomeIcon,
-  LockClosedIcon,
   Cog6ToothIcon,
-  FlagIcon,
-  BellIcon,
   DocumentIcon,
   UserGroupIcon,
 } from "@heroicons/vue/24/outline";
@@ -209,10 +202,10 @@ const navigation: Array<NavigationItem & { icon: Component }> = [
   },
 ];
 
-const notifications = useNotifications();
-const unreadNotifications = computed(() =>
-  notifications.value.filter((e) => !e.read)
-);
+// const notifications = useNotifications();
+// const unreadNotifications = computed(() =>
+//   notifications.value.filter((e) => !e.read)
+// );
 
 const currentNavigationIndex = useCurrentNavigationIndex(navigation);
 

@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-v-html -->
 <template>
   <div
     class="flex grow flex-col gap-y-5 overflow-y-auto bg-zinc-900 px-6 py-6 ring-1 ring-white/10"
