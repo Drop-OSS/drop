@@ -1,9 +1,8 @@
-import { H3Event } from "h3";
-
 export type Session = {
   userId: string;
   expiresAt: Date;
   data: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
   };
 };

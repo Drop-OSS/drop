@@ -1,6 +1,5 @@
 import bcrypt from "bcryptjs";
 import * as argon2 from "argon2";
-import { type } from "arktype";
 
 export async function checkHashBcrypt(password: string, hash: string) {
   return await bcrypt.compare(password, hash);

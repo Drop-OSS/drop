@@ -13,17 +13,17 @@ type TaskRegistryEntry = {
   progress: number;
   log: string[];
   error: { title: string; description: string } | undefined;
-  clients: { [key: string]: boolean };
+  clients: Map<string, boolean>;
   name: string;
   acls: string[];
 };
 
 class TaskHandler {
-  private taskRegistry: { [key: string]: TaskRegistryEntry } = {};
-  private clientRegistry: { [key: string]: PeerImpl } = {};
+  // TODO: make these maps, using objects like this has performance impacts
+  // https://typescript-eslint.io/rules/no-dynamic-delete/
+  private taskRegistry = new Map<string, TaskRegistryEntry>();
+  private clientRegistry = new Map<string, PeerImpl>();
   startTasks: (() => void)[] = [];
-
-  constructor() {}
 
   create(task: Task) {
     let updateCollectTimeout: NodeJS.Timeout | undefined;
@@ -37,7 +37,7 @@ class TaskHandler {
           return;
         }
         updateCollectTimeout = setTimeout(() => {
-          const taskEntry = this.taskRegistry[task.id];
+          const taskEntry = this.taskRegistry.get(task.id);
           if (!taskEntry) return;
 
           const taskMessage: TaskMessage = {
@@ -51,9 +51,10 @@ class TaskHandler {
           };
           logOffset = taskEntry.log.length;
 
-          for (const client of Object.keys(taskEntry.clients)) {
-            if (!this.clientRegistry[client]) continue;
-            this.clientRegistry[client].send(JSON.stringify(taskMessage));
+          for (const clientId of Object.keys(taskEntry.clients)) {
+            const client = this.clientRegistry.get(clientId);
+            if (!client) continue;
+            client.send(JSON.stringify(taskMessage));
           }
           updateCollectTimeout = undefined;
 
@@ -66,65 +67,65 @@ class TaskHandler {
       });
 
     const progress = (progress: number) => {
-      const taskEntry = this.taskRegistry[task.id];
+      const taskEntry = this.taskRegistry.get(task.id);
       if (!taskEntry) return;
-      this.taskRegistry[task.id].progress = progress;
+      taskEntry.progress = progress;
       updateAllClients();
     };
 
     const log = (entry: string) => {
-      const taskEntry = this.taskRegistry[task.id];
+      const taskEntry = this.taskRegistry.get(task.id);
       if (!taskEntry) return;
-      this.taskRegistry[task.id].log.push(entry);
+      taskEntry.log.push(entry);
       updateAllClients();
     };
 
-    this.taskRegistry[task.id] = {
+    this.taskRegistry.set(task.id, {
       name: task.name,
       success: false,
       progress: 0,
       error: undefined,
       log: [],
-      clients: {},
+      clients: new Map(),
       acls: task.acls,
-    };
+    });
 
     updateAllClients(true);
 
     droplet.callAltThreadFunc(async () => {
-      const taskEntry = this.taskRegistry[task.id];
+      const taskEntry = this.taskRegistry.get(task.id);
       if (!taskEntry) throw new Error("No task entry");
 
       try {
         await task.run({ progress, log });
-        this.taskRegistry[task.id].success = true;
+        taskEntry.success = true;
       } catch (error: unknown) {
-        this.taskRegistry[task.id].success = false;
-        this.taskRegistry[task.id].error = {
+        taskEntry.success = false;
+        taskEntry.error = {
           title: "An error occurred",
           description: (error as string).toString(),
         };
       }
       await updateAllClients();
 
-      for (const client of Object.keys(taskEntry.clients)) {
-        if (!this.clientRegistry[client]) continue;
-        this.disconnect(client, task.id);
+      for (const clientId of Object.keys(taskEntry.clients)) {
+        if (!this.clientRegistry.get(clientId)) continue;
+        this.disconnect(clientId, task.id);
       }
-      delete this.taskRegistry[task.id];
+      this.taskRegistry.delete(task.id);
     });
   }
 
   async connect(
-    id: string,
+    clientId: string,
     taskId: string,
     peer: PeerImpl,
-    request: MinimumRequestObject
+    request: MinimumRequestObject,
   ) {
-    const task = this.taskRegistry[taskId];
+    const task = this.taskRegistry.get(taskId);
     if (!task) {
       peer.send(
-        `error/${taskId}/Unknown task/Drop couldn't find the task you're looking for.`
+        `error/${taskId}/Unknown task/Drop couldn't find the task you're looking for.`,
       );
       return;
     }
@@ -133,13 +134,13 @@ class TaskHandler {
     if (!allowed) {
       console.warn("user does not have necessary ACLs");
       peer.send(
-        `error/${taskId}/Unknown task/Drop couldn't find the task you're looking for.`
+        `error/${taskId}/Unknown task/Drop couldn't find the task you're looking for.`,
       );
       return;
     }
 
-    this.clientRegistry[id] = peer;
-    this.taskRegistry[taskId].clients[id] = true; // Uniquely insert client to avoid sending duplicate traffic
+    this.clientRegistry.set(clientId, peer);
+    task.clients.set(clientId, true); // Uniquely insert client to avoid sending duplicate traffic
 
     const catchupMessage: TaskMessage = {
       id: taskId,
@@ -153,24 +154,25 @@ class TaskHandler {
   }
 
   sendDisconnectEvent(id: string, taskId: string) {
-    const client = this.clientRegistry[id];
+    const client = this.clientRegistry.get(id);
     if (!client) return;
     client.send(`disconnect/${taskId}`);
   }
 
   disconnectAll(id: string) {
     for (const taskId of Object.keys(this.taskRegistry)) {
-      delete this.taskRegistry[taskId].clients[id];
+      this.taskRegistry.get(taskId)?.clients.delete(id);
       this.sendDisconnectEvent(id, taskId);
     }
 
-    delete this.clientRegistry[id];
+    this.clientRegistry.delete(id);
   }
 
   disconnect(id: string, taskId: string) {
-    if (!this.taskRegistry[taskId]) return false;
+    const task = this.taskRegistry.get(taskId);
+    if (!task) return false;
 
-    delete this.taskRegistry[taskId].clients[id];
+    task.clients.delete(id);
     this.sendDisconnectEvent(id, taskId);
 
     const allClientIds = Object.values(this.taskRegistry)
@@ -178,7 +180,7 @@ class TaskHandler {
       .flat();
 
     if (!allClientIds.includes(id)) {
-      delete this.clientRegistry[id];
+      this.clientRegistry.delete(id);
     }
 
     return true;

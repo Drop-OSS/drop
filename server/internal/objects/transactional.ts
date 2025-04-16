@@ -7,33 +7,35 @@ import { randomUUID } from "node:crypto";
 import objectHandler from ".";
 
 export type TransactionDataType = string | Readable | Buffer;
-type TransactionTable = { [key: string]: TransactionDataType }; // ID to data
-type GlobalTransactionRecord = { [key: string]: TransactionTable }; // Transaction ID to table
+type TransactionTable = Map<string, TransactionDataType>; // ID to data
+type GlobalTransactionRecord = Map<string, TransactionTable>; // Transaction ID to table
 
 export type Register = (url: TransactionDataType) => string;
 export type Pull = () => Promise<void>;
 export type Dump = () => void;
 
 export class ObjectTransactionalHandler {
-  private record: GlobalTransactionRecord = {};
+  private record: GlobalTransactionRecord = new Map();
 
   new(
     metadata: { [key: string]: string },
-    permissions: Array<string>
+    permissions: Array<string>,
   ): [Register, Pull, Dump] {
     const transactionId = randomUUID();
 
-    this.record[transactionId] ??= {};
+    this.record.set(transactionId, new Map());
 
     const register = (data: TransactionDataType) => {
       const objectId = randomUUID();
-      this.record[transactionId][objectId] = data;
+      this.record.get(transactionId)?.set(objectId, data);
 
       return objectId;
     };
 
     const pull = async () => {
-      for (const [id, data] of Object.entries(this.record[transactionId])) {
+      const transaction = this.record.get(transactionId);
+      if (!transaction) return;
+      for (const [id, data] of transaction) {
         await objectHandler.createFromSource(
           id,
           () => {
@@ -43,13 +45,13 @@ export class ObjectTransactionalHandler {
             return (async () => data)();
           },
           metadata,
-          permissions
+          permissions,
         );
       }
     };
 
     const dump = () => {
-      delete this.record[transactionId];
+      this.record.delete(transactionId);
     };
 
     return [register, pull, dump];

@@ -1,5 +1,4 @@
 import type { H3Event } from "h3";
-import createMemorySessionProvider from "./memory";
 import type { Session, SessionProvider } from "./types";
 import { randomUUID } from "node:crypto";
 import { parse as parseCookies } from "cookie-es";
@@ -90,7 +89,7 @@ export class SessionHandler {
    * @returns session token
    */
   private getSessionToken(
-    request: MinimumRequestObject | undefined
+    request: MinimumRequestObject | undefined,
   ): string | undefined {
     if (!request) throw new Error("Native web request not available");
     const cookieHeader = request.headers.get("Cookie");

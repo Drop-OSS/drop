@@ -91,6 +91,4 @@ const navigation: NavigationItem[] = [
     prefix: "",
   },
 ].filter((e) => e !== undefined);
-
-const router = useRouter();
 </script>

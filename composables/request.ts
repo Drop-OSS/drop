@@ -17,6 +17,8 @@ interface DropFetch<
     request: R,
     opts?: O,
   ): Promise<
+    // sometimes there is an error, other times there isn't
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     TypedInternalResponse<
       R,
@@ -28,7 +30,7 @@ interface DropFetch<
 
 export const $dropFetch: DropFetch = async (request, opts) => {
   if (!getCurrentInstance()?.proxy) {
-    return (await $fetch(request, opts)) as any;
+    return await $fetch(request, opts);
   }
   const id = request.toString();
 
@@ -45,7 +47,7 @@ export const $dropFetch: DropFetch = async (request, opts) => {
   const data = await $fetch(request, {
     ...opts,
     headers: { ...opts?.headers, ...headers },
-  } as any);
+  });
   if (import.meta.server) state.value = data;
-  return data as any;
+  return data;
 };

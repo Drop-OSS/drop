@@ -1,7 +1,6 @@
 import { LRUCache } from "lru-cache";
 import prisma from "../db/database";
 import type { Session, SessionProvider } from "./types";
-import { Prisma } from "@prisma/client";
 
 export default function createDBSessionHandler(): SessionProvider {
   const cache = new LRUCache<string, Session>({

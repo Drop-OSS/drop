@@ -1,4 +1,4 @@
-import Stream, { Readable } from "stream";
+import Stream from "stream";
 import prisma from "../db/database";
 import { applicationSettings } from "../config/application-configuration";
 import objectHandler from "../objects";
@@ -10,7 +10,7 @@ class SaveManager {
     gameId: string,
     userId: string,
     index: number,
-    objectId: string
+    objectId: string,
   ) {
     await objectHandler.deleteWithPermission(objectId, userId);
   }
@@ -20,7 +20,7 @@ class SaveManager {
     userId: string,
     index: number,
     stream: IncomingMessage,
-    clientId: string | undefined = undefined
+    clientId: string | undefined = undefined,
   ) {
     const save = await prisma.saveSlot.findUnique({
       where: {
@@ -38,7 +38,7 @@ class SaveManager {
     const newSaveStream = await objectHandler.createWithStream(
       newSaveObjectId,
       { saveSlot: JSON.stringify({ userId, gameId, index }) },
-      []
+      [],
     );
     if (!newSaveStream)
       throw createError({
@@ -51,10 +51,9 @@ class SaveManager {
       stream,
       createHash("sha256").setEncoding("hex"),
       async function (source) {
-        // Not sure how to get this to be typed
-        // @ts-expect-error
+        // @ts-expect-error Not sure how to get this to be typed
         hash = (await source.toArray())[0];
-      }
+      },
     );
 
     const uploadStream = Stream.promises.pipeline(stream, newSaveStream);
