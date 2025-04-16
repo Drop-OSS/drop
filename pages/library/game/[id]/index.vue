@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-v-html -->
 <template>
   <div
     class="mx-auto w-full relative flex flex-col justify-center pt-72 overflow-hidden"
@@ -7,7 +8,7 @@
       <img
         :src="useObject(game.mBannerId)"
         class="w-full h-[24rem] object-cover blur-sm scale-105"
-      >
+      />
       <div
         class="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent opacity-90"
       />
@@ -76,7 +77,7 @@
                     <img
                       class="w-fit h-48 lg:h-96 rounded"
                       :src="useObject(image)"
-                    >
+                    />
                   </VueSlide>
                   <VueSlide v-if="game.mImageCarousel.length == 0">
                     <div
@@ -112,13 +113,9 @@
 <script setup lang="ts">
 import {
   ArrowLeftIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  PhotoIcon,
   ArrowTopRightOnSquareIcon,
   ArrowUpRightIcon,
 } from "@heroicons/vue/20/solid";
-import { BuildingStorefrontIcon } from "@heroicons/vue/24/outline";
 import { micromark } from "micromark";
 import type { Game } from "@prisma/client";
 
@@ -135,23 +132,23 @@ const game = computed(() => {
 
 // Convert markdown to HTML
 const descriptionHTML = computed(() =>
-  micromark(game.value.mDescription ?? "")
+  micromark(game.value.mDescription ?? ""),
 );
 
-const currentImageIndex = ref(0);
+// const currentImageIndex = ref(0);
 
-function nextImage() {
-  if (!game.value?.mImageCarousel) return;
-  currentImageIndex.value =
-    (currentImageIndex.value + 1) % game.value.mImageCarousel.length;
-}
+// function nextImage() {
+//   if (!game.value?.mImageCarousel) return;
+//   currentImageIndex.value =
+//     (currentImageIndex.value + 1) % game.value.mImageCarousel.length;
+// }
 
-function previousImage() {
-  if (!game.value?.mImageCarousel) return;
-  currentImageIndex.value =
-    (currentImageIndex.value - 1 + game.value.mImageCarousel.length) %
-    game.value.mImageCarousel.length;
-}
+// function previousImage() {
+//   if (!game.value?.mImageCarousel) return;
+//   currentImageIndex.value =
+//     (currentImageIndex.value - 1 + game.value.mImageCarousel.length) %
+//     game.value.mImageCarousel.length;
+// }
 </script>
 
 <style scoped>

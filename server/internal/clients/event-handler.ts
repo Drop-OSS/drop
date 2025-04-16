@@ -6,7 +6,7 @@ import { useCertificateAuthority } from "~/server/plugins/ca";
 
 export type EventHandlerFunction<T> = (
   h3: H3Event<EventHandlerRequest>,
-  utils: ClientUtils
+  utils: ClientUtils,
 ) => Promise<T> | T;
 
 type ClientUtils = {
@@ -25,7 +25,7 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
 
     let clientId: string;
     switch (method) {
-      case "Debug":
+      case "Debug": {
         if (!import.meta.dev) throw createError({ statusCode: 403 });
         const client = await prisma.client.findFirst({ select: { id: true } });
         if (!client)
@@ -35,7 +35,8 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
           });
         clientId = client.id;
         break;
-      case "Nonce":
+      }
+      case "Nonce": {
         clientId = parts[0];
         const nonce = parts[1];
         const signature = parts[2];
@@ -59,9 +60,8 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
         }
 
         const certificateAuthority = useCertificateAuthority();
-        const certBundle = await certificateAuthority.fetchClientCertificate(
-          clientId
-        );
+        const certBundle =
+          await certificateAuthority.fetchClientCertificate(clientId);
         // This does the blacklist check already
         if (!certBundle)
           throw createError({
@@ -76,11 +76,13 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
             statusMessage: "Invalid nonce signature.",
           });
         break;
-      default:
+      }
+      default: {
         throw createError({
           statusCode: 403,
           statusMessage: "No authentication",
         });
+      }
     }
 
     if (clientId === undefined)
@@ -95,7 +97,7 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
       });
       if (!client)
         throw new Error(
-          "client util fetch client broke - this should NOT happen"
+          "client util fetch client broke - this should NOT happen",
         );
       return client;
     }
@@ -110,7 +112,7 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
 
       if (!client)
         throw new Error(
-          "client util fetch client broke - this should NOT happen"
+          "client util fetch client broke - this should NOT happen",
         );
 
       return client.user;

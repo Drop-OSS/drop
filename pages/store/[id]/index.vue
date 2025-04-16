@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-v-html -->
 <template>
   <div
     class="mx-auto bg-zinc-950 w-full relative flex flex-col justify-center pt-32 xl:pt-24 z-10 overflow-hidden"
@@ -197,7 +198,7 @@ const descriptionSplitIndex = gameDescriptionCharacters.findIndex(
     if (i < 500) return false;
     if (v != "\n") return false;
     return true;
-  }
+  },
 );
 
 const previewDescription = gameDescriptionCharacters

@@ -1,5 +1,4 @@
 import { randomUUID } from "node:crypto";
-import { CertificateBundle } from "./ca";
 import prisma from "../db/database";
 import type { Platform } from "@prisma/client";
 import { useCertificateAuthority } from "~/server/plugins/ca";
@@ -10,25 +9,29 @@ export interface ClientMetadata {
 }
 
 export class ClientHandler {
-  private temporaryClientTable: {
-    [key: string]: {
+  private temporaryClientTable = new Map<
+    string,
+    {
       timeout: NodeJS.Timeout;
       data: ClientMetadata;
       userId?: string;
       authToken?: string;
-    };
-  } = {};
+    }
+  >();
 
   async initiate(metadata: ClientMetadata) {
     const clientId = randomUUID();
 
-    this.temporaryClientTable[clientId] = {
+    this.temporaryClientTable.set(clientId, {
       data: metadata,
-      timeout: setTimeout(() => {
-        if (this.temporaryClientTable[clientId])
-          delete this.temporaryClientTable[clientId];
-      }, 1000 * 60 * 10), // 10 minutes
-    };
+      timeout: setTimeout(
+        () => {
+          if (this.temporaryClientTable.has(clientId))
+            this.temporaryClientTable.delete(clientId);
+        },
+        1000 * 60 * 10,
+      ), // 10 minutes
+    });
 
     return clientId;
   }
@@ -38,23 +41,23 @@ export class ClientHandler {
   }
 
   async fetchClient(clientId: string) {
-    const entry = this.temporaryClientTable[clientId];
+    const entry = this.temporaryClientTable.get(clientId);
     if (!entry) return undefined;
     return entry;
   }
 
   async attachUserId(clientId: string, userId: string) {
-    if (!this.temporaryClientTable[clientId])
-      throw new Error("Invalid clientId for attaching userId");
-    this.temporaryClientTable[clientId].userId = userId;
+    const clientTable = this.temporaryClientTable.get(clientId);
+    if (!clientTable) throw new Error("Invalid clientId for attaching userId");
+    clientTable.userId = userId;
   }
 
   async generateAuthToken(clientId: string) {
-    const entry = this.temporaryClientTable[clientId];
+    const entry = this.temporaryClientTable.get(clientId);
     if (!entry) throw new Error("Invalid clientId to generate token");
 
     const token = randomUUID();
-    this.temporaryClientTable[clientId].authToken = token;
+    entry.authToken = token;
 
     return token;
   }
@@ -66,7 +69,7 @@ export class ClientHandler {
   }
 
   async finialiseClient(id: string) {
-    const metadata = this.temporaryClientTable[id];
+    const metadata = this.temporaryClientTable.get(id);
     if (!metadata) throw new Error("Invalid client ID");
     if (!metadata.userId) throw new Error("Un-authorized client ID");
 

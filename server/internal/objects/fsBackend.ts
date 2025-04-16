@@ -4,7 +4,7 @@ import { ObjectBackend } from "./objectHandler";
 import { LRUCache } from "lru-cache";
 import fs from "fs";
 import path from "path";
-import { Readable, Stream } from "stream";
+import { Readable } from "stream";
 import { createHash } from "crypto";
 import prisma from "../db/database";
 
@@ -40,7 +40,7 @@ export class FsObjectBackend extends ObjectBackend {
     if (source instanceof Readable) {
       const outputStream = fs.createWriteStream(objectPath);
       source.pipe(outputStream, { end: true });
-      await new Promise((r, j) => source.on("end", r));
+      await new Promise((r, _j) => source.on("end", r));
       return true;
     }
 
@@ -61,7 +61,7 @@ export class FsObjectBackend extends ObjectBackend {
   async create(
     id: string,
     source: Source,
-    metadata: ObjectMetadata
+    metadata: ObjectMetadata,
   ): Promise<ObjectReference | undefined> {
     const objectPath = path.join(this.baseObjectPath, id);
     const metadataPath = path.join(this.baseMetadataPath, `${id}.json`);
@@ -104,7 +104,7 @@ export class FsObjectBackend extends ObjectBackend {
     return true;
   }
   async fetchMetadata(
-    id: ObjectReference
+    id: ObjectReference,
   ): Promise<ObjectMetadata | undefined> {
     const metadataPath = path.join(this.baseMetadataPath, `${id}.json`);
     if (!fs.existsSync(metadataPath)) return undefined;
@@ -113,7 +113,7 @@ export class FsObjectBackend extends ObjectBackend {
   }
   async writeMetadata(
     id: ObjectReference,
-    metadata: ObjectMetadata
+    metadata: ObjectMetadata,
   ): Promise<boolean> {
     const metadataPath = path.join(this.baseMetadataPath, `${id}.json`);
     if (!fs.existsSync(metadataPath)) return false;
@@ -152,8 +152,6 @@ class FsHashStore {
   private cache = new LRUCache<string, string>({
     max: 1000, // number of items
   });
-
-  constructor() {}
 
   /**
    * Gets hash of object
@@ -211,6 +209,8 @@ class FsHashStore {
           id,
         },
       });
-    } catch {}
+    } catch {
+      /* empty */
+    }
   }
 }

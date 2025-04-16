@@ -1,6 +1,6 @@
 import prisma from "../internal/db/database";
 
-export default defineNitroPlugin(async () => {
+export default defineNitroPlugin(async (_nitro) => {
   // Ensure system user exists
   // The system user owns any user-based code
   // that we want to re-use for the app

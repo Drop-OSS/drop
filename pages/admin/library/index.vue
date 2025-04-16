@@ -49,7 +49,7 @@
         name="search"
         class="col-start-1 row-start-1 block w-full rounded-md bg-zinc-900 py-1.5 pl-10 pr-3 text-base text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:pl-9 sm:text-sm/6"
         placeholder="Search library..."
-      >
+      />
       <MagnifyingGlassIcon
         class="pointer-events-none col-start-1 row-start-1 ml-3 size-5 self-center text-zinc-400 sm:size-4"
         aria-hidden="true"
@@ -69,7 +69,7 @@
             class="h-16 w-16 flex-shrink-0 rounded-md"
             :src="useObject(game.mIconId)"
             alt=""
-          >
+          />
           <div class="flex flex-col">
             <h3 class="text-sm font-medium text-zinc-100 font-display">
               {{ game.mName }}
@@ -87,17 +87,17 @@
             </dl>
             <div class="inline-flex gap-x-2 items-center">
               <NuxtLink
-              :href="`/admin/library/${game.id}`"
-              class="mt-2 w-fit rounded-md bg-blue-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-            >
-              Edit &rarr;
-            </NuxtLink>
-            <button
-              class="mt-2 w-fit rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
-              @click="() => deleteGame(game.id)"
-            >
-              Delete
-            </button>
+                :href="`/admin/library/${game.id}`"
+                class="mt-2 w-fit rounded-md bg-blue-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+              >
+                Edit &rarr;
+              </NuxtLink>
+              <button
+                class="mt-2 w-fit rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                @click="() => deleteGame(game.id)"
+              >
+                Delete
+              </button>
             </div>
           </div>
         </div>
@@ -193,11 +193,12 @@ const libraryGames = ref(
       },
       hasNotifications: noVersions || toImport,
     };
-  })
+  }),
 );
 
 const filteredLibraryGames = computed(() =>
-  // @ts-ignore
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore excessively deep ts
   libraryGames.value.filter((e) => {
     if (!searchQuery.value) return true;
     const searchQueryLower = searchQuery.value.toLowerCase();
@@ -205,7 +206,7 @@ const filteredLibraryGames = computed(() =>
     if (e.mShortDescription.toLowerCase().includes(searchQueryLower))
       return true;
     return false;
-  })
+  }),
 );
 
 async function deleteGame(id: string) {

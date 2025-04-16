@@ -164,7 +164,7 @@
                           autocomplete="username"
                           placeholder="myUsername"
                           class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                        >
+                        />
                       </div>
                     </div>
 
@@ -191,7 +191,7 @@
                           autocomplete="email"
                           placeholder="me@example.com"
                           class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                        >
+                        />
                       </div>
                     </div>
 
@@ -262,7 +262,7 @@
                               class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
                             >
                               <ListboxOption
-                                v-for="[label, _] in Object.entries(expiry)"
+                                v-for="[label] in Object.entries(expiry)"
                                 :key="label"
                                 v-slot="{ active, selected }"
                                 as="template"
@@ -354,7 +354,6 @@
 <script setup lang="ts">
 import {
   Dialog,
-  DialogPanel,
   DialogTitle,
   TransitionChild,
   TransitionRoot,
@@ -368,16 +367,8 @@ import {
   ListboxOption,
   ListboxOptions,
 } from "@headlessui/vue";
-import {
-  ChevronRightIcon,
-  CheckIcon,
-  ChevronUpDownIcon,
-} from "@heroicons/vue/20/solid";
-import {
-  CalendarDateRangeIcon,
-  TrashIcon,
-  XCircleIcon,
-} from "@heroicons/vue/24/solid";
+import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
+import { TrashIcon, XCircleIcon } from "@heroicons/vue/24/solid";
 import type { Invitation } from "@prisma/client";
 import type { SerializeObject } from "nitropack";
 import type { DurationLike } from "luxon";
@@ -392,7 +383,7 @@ useHead({
 });
 
 const data = await $dropFetch<Array<SerializeObject<Invitation>>>(
-  "/api/v1/admin/auth/invitation"
+  "/api/v1/admin/auth/invitation",
 );
 const invitations = ref(data ?? []);
 
@@ -401,7 +392,7 @@ const generateInvitationUrl = (id: string) =>
 const invitationUrls = ref<undefined | Array<string>>();
 onMounted(() => {
   invitationUrls.value = invitations.value.map((invitation) =>
-    generateInvitationUrl(invitation.id)
+    generateInvitationUrl(invitation.id),
   );
 });
 
@@ -417,7 +408,7 @@ const username = computed({
   },
 });
 const validUsername = computed(() =>
-  _username.value === undefined ? true : _username.value.length >= 5
+  _username.value === undefined ? true : _username.value.length >= 5,
 );
 
 // Same as above
@@ -433,7 +424,7 @@ const email = computed({
 });
 const mailRegex = /^\S+@\S+\.\S+$/;
 const validEmail = computed(() =>
-  _email.value === undefined ? true : mailRegex.test(email.value as string)
+  _email.value === undefined ? true : mailRegex.test(email.value as string),
 );
 
 const isAdmin = ref(false);
@@ -459,7 +450,7 @@ const expiry: Record<string, DurationLike> = {
     year: 3000,
   }, // Never is relative, right?
 };
-const expiryKey = ref<keyof typeof expiry>(Object.keys(expiry)[0] as any); // Cast to any because we just know it's okay
+const expiryKey = ref<keyof typeof expiry>(Object.keys(expiry)[0]); // Cast to any because we just know it's okay
 
 const loading = ref(false);
 const error = ref<undefined | string>();
@@ -481,7 +472,7 @@ async function invite() {
   email.value = "";
   username.value = "";
   isAdmin.value = false;
-  expiryKey.value = Object.keys(expiry)[0] as any; // Same reason as above
+  expiryKey.value = Object.keys(expiry)[0]; // Same reason as above
   return newInvitation;
 }
 

@@ -6,7 +6,7 @@ import { IGDBProvider } from "../internal/metadata/igdb";
 import { ManualMetadataProvider } from "../internal/metadata/manual";
 import { PCGamingWikiProvider } from "../internal/metadata/pcgamingwiki";
 
-export default defineNitroPlugin(async () => {
+export default defineNitroPlugin(async (_nitro) => {
   const metadataProviders = [
     GiantBombProvider,
     PCGamingWikiProvider,

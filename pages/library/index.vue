@@ -1,101 +1,98 @@
 <template>
-  <div class="flex flex-col gap-y-8">
-    <div class="max-w-2xl">
-      <h2 class="text-2xl font-bold font-display text-zinc-100">Library</h2>
-      <p class="mt-2 text-zinc-400">
-        Organize your games into collections for easy access, and access all
-        your games.
-      </p>
-    </div>
+  <div>
+    <div class="flex flex-col gap-y-8">
+      <div class="max-w-2xl">
+        <h2 class="text-2xl font-bold font-display text-zinc-100">Library</h2>
+        <p class="mt-2 text-zinc-400">
+          Organize your games into collections for easy access, and access all
+          your games.
+        </p>
+      </div>
 
-    <!-- Collections grid -->
-    <TransitionGroup
-      name="collection-list"
-      tag="div"
-      class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
-    >
-      <!-- Collection buttons (wrap each in a div for grid layout) -->
-      <div
-        v-for="collection in collections"
-        :key="collection.id"
-        class="flex flex-row rounded-lg overflow-hidden transition-all duration-200 text-left w-full hover:scale-105 focus:scale-105"
+      <!-- Collections grid -->
+      <TransitionGroup
+        name="collection-list"
+        tag="div"
+        class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
       >
-        <NuxtLink
-          class="grow p-4 bg-zinc-800/50 hover:bg-zinc-800 focus:bg-zinc-800 focus:outline-none"
-          :href="`/library/collection/${collection.id}`"
+        <!-- Collection buttons (wrap each in a div for grid layout) -->
+        <div
+          v-for="collection in collections"
+          :key="collection.id"
+          class="flex flex-row rounded-lg overflow-hidden transition-all duration-200 text-left w-full hover:scale-105 focus:scale-105"
         >
-          <h3 class="text-lg font-semibold text-zinc-100">
-            {{ collection.name }}
-          </h3>
-          <p class="mt-1 text-sm text-zinc-400">
-            {{ collection.entries.length }} game(s)
-          </p>
-        </NuxtLink>
-
-        <!-- Delete button (only show for non-default collections) -->
-        <button
-          class="group px-3 ml-[2px] bg-zinc-800/50 hover:bg-zinc-800 group focus:bg-zinc-800 focus:outline-none"
-          @click="() => (currentlyDeleting = collection)"
-        >
-          <TrashIcon
-            class="transition-all size-5 text-zinc-400 group-hover:text-red-400 group-hover:rotate-[8deg]"
-          />
-        </button>
-      </div>
-
-      <!-- Create new collection button (also wrap in div) -->
-      <div>
-        <button
-          class="group flex flex-row rounded-lg overflow-hidden transition-all duration-200 text-left w-full hover:scale-105"
-          @click="collectionCreateOpen = true"
-        >
-          <div
-            class="grow p-4 bg-zinc-800/50 hover:bg-zinc-800 border-2 border-dashed border-zinc-700"
+          <NuxtLink
+            class="grow p-4 bg-zinc-800/50 hover:bg-zinc-800 focus:bg-zinc-800 focus:outline-none"
+            :href="`/library/collection/${collection.id}`"
           >
-            <div class="flex items-center gap-3">
-              <PlusIcon
-                class="h-5 w-5 text-zinc-400 group-hover:text-zinc-300 transition-all duration-300 group-hover:rotate-90"
-              />
-              <h3
-                class="text-lg font-semibold text-zinc-400 group-hover:text-zinc-300"
-              >
-                Create Collection
-              </h3>
-            </div>
-            <p class="mt-1 text-sm text-zinc-500 group-hover:text-zinc-400">
-              Add a new collection to organize your games
+            <h3 class="text-lg font-semibold text-zinc-100">
+              {{ collection.name }}
+            </h3>
+            <p class="mt-1 text-sm text-zinc-400">
+              {{ collection.entries.length }} game(s)
             </p>
-          </div>
-        </button>
-      </div>
-    </TransitionGroup>
+          </NuxtLink>
 
-    <!-- game library grid -->
-    <div>
-      <h1 class="text-zinc-100 text-xl font-bold font-display">All Games</h1>
-      <div class="mt-4 flex flex-row flex-wrap justify-left gap-4">
-        <GamePanel
-          v-for="game in games"
-          :key="game.id"
-          :game="game"
-          :href="`/library/game/${game?.id}`"
-        />
+          <!-- Delete button (only show for non-default collections) -->
+          <button
+            class="group px-3 ml-[2px] bg-zinc-800/50 hover:bg-zinc-800 group focus:bg-zinc-800 focus:outline-none"
+            @click="() => (currentlyDeleting = collection)"
+          >
+            <TrashIcon
+              class="transition-all size-5 text-zinc-400 group-hover:text-red-400 group-hover:rotate-[8deg]"
+            />
+          </button>
+        </div>
+
+        <!-- Create new collection button (also wrap in div) -->
+        <div>
+          <button
+            class="group flex flex-row rounded-lg overflow-hidden transition-all duration-200 text-left w-full hover:scale-105"
+            @click="collectionCreateOpen = true"
+          >
+            <div
+              class="grow p-4 bg-zinc-800/50 hover:bg-zinc-800 border-2 border-dashed border-zinc-700"
+            >
+              <div class="flex items-center gap-3">
+                <PlusIcon
+                  class="h-5 w-5 text-zinc-400 group-hover:text-zinc-300 transition-all duration-300 group-hover:rotate-90"
+                />
+                <h3
+                  class="text-lg font-semibold text-zinc-400 group-hover:text-zinc-300"
+                >
+                  Create Collection
+                </h3>
+              </div>
+              <p class="mt-1 text-sm text-zinc-500 group-hover:text-zinc-400">
+                Add a new collection to organize your games
+              </p>
+            </div>
+          </button>
+        </div>
+      </TransitionGroup>
+
+      <!-- game library grid -->
+      <div>
+        <h1 class="text-zinc-100 text-xl font-bold font-display">All Games</h1>
+        <div class="mt-4 flex flex-row flex-wrap justify-left gap-4">
+          <GamePanel
+            v-for="game in games"
+            :key="game.id"
+            :game="game"
+            :href="`/library/game/${game?.id}`"
+          />
+        </div>
       </div>
     </div>
-  </div>
 
-  <CreateCollectionModal v-model="collectionCreateOpen" />
-  <DeleteCollectionModal v-model="currentlyDeleting" />
+    <CreateCollectionModal v-model="collectionCreateOpen" />
+    <DeleteCollectionModal v-model="currentlyDeleting" />
+  </div>
 </template>
 
 <script setup lang="ts">
-import {
-  ArrowTopRightOnSquareIcon,
-  ArrowUpRightIcon,
-  TrashIcon,
-  ArrowLeftIcon, PlusIcon 
-} from "@heroicons/vue/20/solid";
-import type { Collection, Game, GameVersion } from "@prisma/client";
+import { TrashIcon, PlusIcon } from "@heroicons/vue/20/solid";
+import type { Collection } from "@prisma/client";
 
 const collections = await useCollections();
 const collectionCreateOpen = ref(false);

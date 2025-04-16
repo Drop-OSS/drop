@@ -1,6 +1,5 @@
 import type { Developer, Publisher } from "@prisma/client";
 import type { TransactionDataType } from "../objects/transactional";
-import { ObjectTransactionalHandler } from "../objects/transactional";
 import type { ObjectReference } from "../objects/objectHandler";
 
 export interface GameMetadataSearchResult {

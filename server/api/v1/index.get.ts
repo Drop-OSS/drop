@@ -1,4 +1,4 @@
-export default defineEventHandler((h3) => {
+export default defineEventHandler((_h3) => {
   return {
     appName: "Drop",
   };

@@ -195,7 +195,7 @@
               name="startup"
               class="border-l border-zinc-700 block flex-1 border-0 py-1.5 pl-2 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
               placeholder="--setup"
-            >
+            />
           </div>
         </div>
       </div>
@@ -351,7 +351,7 @@
               name="startup"
               class="border-l border-zinc-700 block flex-1 border-0 py-1.5 pl-2 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
               placeholder="--launch"
-            >
+            />
           </div>
         </div>
         <div
@@ -461,7 +461,7 @@
                   :disabled="!umuIdEnabled"
                   placeholder="umu-starcitizen"
                   class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-950 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                >
+                />
               </div>
             </div>
           </div>
@@ -536,7 +536,6 @@ import {
   Combobox,
   ComboboxButton,
   ComboboxInput,
-  ComboboxLabel,
   ComboboxOption,
   ComboboxOptions,
 } from "@headlessui/vue";
@@ -553,7 +552,7 @@ const router = useRouter();
 const route = useRoute();
 const gameId = route.params.id.toString();
 const versions = await $dropFetch(
-  `/api/v1/admin/import/version?id=${encodeURIComponent(gameId)}`
+  `/api/v1/admin/import/version?id=${encodeURIComponent(gameId)}`,
 );
 const currentlySelectedVersion = ref(-1);
 const versionSettings = ref<{
@@ -585,13 +584,13 @@ const setupProcessQuery = ref("");
 
 const launchFilteredVersionGuesses = computed(() =>
   versionGuesses.value?.filter((e) =>
-    e.filename.toLowerCase().includes(launchProcessQuery.value.toLowerCase())
-  )
+    e.filename.toLowerCase().includes(launchProcessQuery.value.toLowerCase()),
+  ),
 );
 const setupFilteredVersionGuesses = computed(() =>
   versionGuesses.value?.filter((e) =>
-    e.filename.toLowerCase().includes(setupProcessQuery.value.toLowerCase())
-  )
+    e.filename.toLowerCase().includes(setupProcessQuery.value.toLowerCase()),
+  ),
 );
 
 function updateLaunchCommand(value: string) {
@@ -608,7 +607,7 @@ function autosetPlatform(value: string) {
   if (!versionGuesses.value) return;
   if (versionSettings.value.platform) return;
   const guessIndex = versionGuesses.value.findIndex(
-    (e) => e.filename === value
+    (e) => e.filename === value,
   );
   if (guessIndex == -1) return;
   versionSettings.value.platform = versionGuesses.value[guessIndex].platform;
@@ -636,8 +635,8 @@ async function updateCurrentlySelectedVersion(value: number) {
   const version = versions[currentlySelectedVersion.value];
   const results = await $dropFetch(
     `/api/v1/admin/import/version/preload?id=${encodeURIComponent(
-      gameId
-    )}&version=${encodeURIComponent(version)}`
+      gameId,
+    )}&version=${encodeURIComponent(version)}`,
   );
   versionGuesses.value = results.map((e) => ({
     ...e,

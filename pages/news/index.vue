@@ -30,7 +30,7 @@
               :src="useObject(article.image)"
               alt=""
               class="h-full w-full object-cover object-center transition-all duration-500 group-hover:scale-110 scale-105"
-            >
+            />
             <div class="absolute top-4 left-4 flex gap-2">
               <span
                 v-for="tag in article.tags"
@@ -84,7 +84,7 @@ import { DocumentIcon } from "@heroicons/vue/24/outline";
 import type { Article } from "@prisma/client";
 import type { SerializeObject } from "nitropack/types";
 
-const props = defineProps<{
+const { articles } = defineProps<{
   articles: SerializeObject<
     Article & {
       tags: Array<{ name: string; id: string }>;

@@ -15,27 +15,28 @@ export type NotificationCreateArgs = Pick<
 >;
 
 class NotificationSystem {
-  private listeners: {
-    [key: string]: Map<string, (notification: Notification) => any>;
-  } = {};
+  private listeners = new Map<
+    string,
+    Map<string, (notification: Notification) => void>
+  >();
 
   listen(
     userId: string,
     id: string,
-    callback: (notification: Notification) => any
+    callback: (notification: Notification) => void,
   ) {
-    this.listeners[userId] ??= new Map();
-    this.listeners[userId].set(id, callback);
+    this.listeners.set(userId, new Map());
+    this.listeners.get(userId)?.set(id, callback);
 
     this.catchupListener(userId, id);
   }
 
   unlisten(userId: string, id: string) {
-    this.listeners[userId].delete(id);
+    this.listeners.get(userId)?.delete(id);
   }
 
   private async catchupListener(userId: string, id: string) {
-    const callback = this.listeners[userId].get(id);
+    const callback = this.listeners.get(userId)?.get(id);
     if (!callback)
       throw new Error("Failed to catch-up listener: callback does not exist");
     const notifications = await prisma.notification.findMany({
@@ -50,7 +51,7 @@ class NotificationSystem {
   }
 
   private async pushNotification(userId: string, notification: Notification) {
-    for (const listener of this.listeners[userId] ?? []) {
+    for (const listener of this.listeners.get(userId) ?? []) {
       await listener[1](notification);
     }
   }

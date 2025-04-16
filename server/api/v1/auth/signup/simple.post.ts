@@ -1,4 +1,4 @@
-import { AuthMec, Invitation } from "@prisma/client";
+import { AuthMec } from "@prisma/client";
 import prisma from "~/server/internal/db/database";
 import { createHashArgon2 } from "~/server/internal/security/simple";
 import * as jdenticon from "jdenticon";
@@ -63,7 +63,7 @@ export default defineEventHandler(async (h3) => {
     profilePictureId,
     async () => jdenticon.toPng(user.username, 256),
     {},
-    [`internal:read`, `${userId}:read`]
+    [`internal:read`, `${userId}:read`],
   );
   const [linkMec] = await prisma.$transaction([
     prisma.linkedAuthMec.create({

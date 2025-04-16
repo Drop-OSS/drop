@@ -17,7 +17,7 @@
               :src="useObject(game.mBannerId)"
               alt=""
               class="size-full object-cover object-center"
-            >
+            />
           </div>
           <div
             class="relative flex items-center justify-center w-full h-full bg-zinc-900/75 px-6 py-32 sm:px-12 sm:py-40 lg:px-16"
@@ -99,8 +99,8 @@ const recent = await $dropFetch("/api/v1/store/recent");
 const updated = await $dropFetch("/api/v1/store/updated");
 const released = await $dropFetch("/api/v1/store/released");
 
-const developers = await $dropFetch("/api/v1/store/developers");
-const publishers = await $dropFetch("/api/v1/store/publishers");
+// const developers = await $dropFetch("/api/v1/store/developers");
+// const publishers = await $dropFetch("/api/v1/store/publishers");
 
 useHead({
   title: "Store",

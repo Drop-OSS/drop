@@ -80,7 +80,7 @@
 
 <script setup lang="ts">
 import { CheckCircleIcon } from "@heroicons/vue/16/solid";
-import { ExclamationCircleIcon, XMarkIcon } from "@heroicons/vue/24/solid";
+import { ExclamationCircleIcon } from "@heroicons/vue/24/solid";
 
 const route = useRoute();
 const taskId = route.params.id.toString();

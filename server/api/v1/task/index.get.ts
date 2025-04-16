@@ -1,11 +1,9 @@
-import session from "~/server/internal/session";
-import taskHandler, { TaskMessage } from "~/server/internal/tasks";
-import { parse as parseCookies } from "cookie-es";
+import taskHandler from "~/server/internal/tasks";
 import type { MinimumRequestObject } from "~/server/h3";
 
 // TODO add web socket sessions for horizontal scaling
 // ID to admin
-const socketHeaders: { [key: string]: MinimumRequestObject } = {};
+const socketHeaders = new Map<string, MinimumRequestObject>();
 
 export default defineWebSocketHandler({
   async open(peer) {
@@ -15,25 +13,26 @@ export default defineWebSocketHandler({
       return;
     }
 
-    socketHeaders[peer.id] = {
+    socketHeaders.set(peer.id, {
       headers: request.headers ?? new Headers(),
-    };
+    });
     peer.send(`connect`);
   },
   message(peer, message) {
     if (!peer.id) return;
-    if (socketHeaders[peer.id] === undefined) return;
+    const headers = socketHeaders.get(peer.id);
+    if (headers === undefined) return;
     const text = message.text();
     if (text.startsWith("connect/")) {
       const id = text.substring("connect/".length);
-      taskHandler.connect(peer.id, id, peer, socketHeaders[peer.id]);
+      taskHandler.connect(peer.id, id, peer, headers);
       return;
     }
   },
-  close(peer, details) {
+  close(peer, _details) {
     if (!peer.id) return;
-    if (socketHeaders[peer.id] === undefined) return;
-    delete socketHeaders[peer.id];
+    if (!socketHeaders.has(peer.id)) return;
+    socketHeaders.delete(peer.id);
 
     taskHandler.disconnectAll(peer.id);
   },

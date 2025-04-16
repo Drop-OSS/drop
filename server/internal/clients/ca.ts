@@ -1,8 +1,5 @@
-import path from "path";
-import fs from "fs";
 import droplet from "@drop-oss/droplet";
-import type { CertificateStore} from "./ca-store";
-import { fsCertificateStore } from "./ca-store";
+import type { CertificateStore } from "./ca-store";
 
 export type CertificateBundle = {
   priv: string;
@@ -50,7 +47,7 @@ export class CertificateAuthority {
       clientId,
       clientName,
       caCertificate.cert,
-      caCertificate.priv
+      caCertificate.priv,
     );
     const certBundle: CertificateBundle = {
       priv,
@@ -65,7 +62,7 @@ export class CertificateAuthority {
 
   async fetchClientCertificate(clientId: string) {
     const isBlacklist = await this.certificateStore.checkBlacklistCertificate(
-      `client:${clientId}`
+      `client:${clientId}`,
     );
     if (isBlacklist) return undefined;
     return await this.certificateStore.fetch(`client:${clientId}`);

@@ -1,11 +1,9 @@
 import notificationSystem from "~/server/internal/notifications";
-import session from "~/server/internal/session";
-import { parse as parseCookies } from "cookie-es";
 import aclManager from "~/server/internal/acls";
 
 // TODO add web socket sessions for horizontal scaling
 // Peer ID to user ID
-const socketSessions: { [key: string]: string } = {};
+const socketSessions = new Map<string, string>();
 
 export default defineWebSocketHandler({
   async open(peer) {
@@ -25,7 +23,7 @@ export default defineWebSocketHandler({
       userIds.push("system");
     }
 
-    socketSessions[peer.id] = userId;
+    socketSessions.set(peer.id, userId);
 
     for (const listenUserId of userIds) {
       notificationSystem.listen(listenUserId, peer.id, (notification) => {
@@ -33,8 +31,8 @@ export default defineWebSocketHandler({
       });
     }
   },
-  async close(peer, details) {
-    const userId = socketSessions[peer.id];
+  async close(peer, _details) {
+    const userId = socketSessions.get(peer.id);
     if (!userId) {
       console.log(`skipping websocket close for ${peer.id}`);
       return;
@@ -42,6 +40,6 @@ export default defineWebSocketHandler({
 
     notificationSystem.unlisten(userId, peer.id);
     notificationSystem.unlisten("system", peer.id); // In case we were listening as 'system'
-    delete socketSessions[peer.id];
+    socketSessions.delete(peer.id);
   },
 });

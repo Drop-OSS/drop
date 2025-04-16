@@ -1,5 +1,4 @@
-import { APITokenMode, User } from "@prisma/client";
-import { H3Context, H3Event } from "h3";
+import { APITokenMode } from "@prisma/client";
 import prisma from "../db/database";
 import sessionHandler from "../session";
 import type { MinimumRequestObject } from "~/server/h3";
@@ -98,7 +97,7 @@ class ACLManager {
     if (!token) return undefined;
     if (!token.userId)
       throw new Error(
-        "No userId on user or client token - is something broken?"
+        "No userId on user or client token - is something broken?",
       );
 
     for (const acl of acls) {
@@ -124,7 +123,7 @@ class ACLManager {
 
   async allowSystemACL(
     request: MinimumRequestObject | undefined,
-    acls: SystemACL
+    acls: SystemACL,
   ) {
     if (!request)
       throw new Error("Native web requests not available - weird deployment?");
@@ -157,13 +156,17 @@ class ACLManager {
     for (const acl of acls) {
       if (acl.startsWith(userACLPrefix)) {
         const rawACL = acl.substring(userACLPrefix.length);
-        const userId = await this.getUserIdACL(request, [rawACL as any]);
+        const userId = await this.getUserIdACL(request, [
+          rawACL as UserACL[number],
+        ]);
         if (!userId) return false;
       }
 
       if (acl.startsWith(systemACLPrefix)) {
         const rawACL = acl.substring(systemACLPrefix.length);
-        const allowed = await this.allowSystemACL(request, [rawACL as any]);
+        const allowed = await this.allowSystemACL(request, [
+          rawACL as SystemACL[number],
+        ]);
         if (!allowed) return false;
       }
     }

@@ -1,79 +1,85 @@
+<!-- eslint-disable vue/no-v-html -->
 <template>
-  <div v-if="article" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <!-- Banner header with blurred background -->
-    <div class="relative w-full h-[300px] mb-8 rounded-lg overflow-hidden">
-      <div v-if="article.image" class="absolute inset-0">
-        <img
-          :src="useObject(article.image)"
-          alt=""
-          class="w-full h-full object-cover blur-sm scale-110"
-        >
-        <div
-          class="absolute inset-0 bg-gradient-to-b from-transparent to-zinc-950"
-        />
-      </div>
-      <div v-else>
-        <!-- Fallback gradient background when no image -->
-        <div
-          class="absolute inset-0 bg-gradient-to-b from-zinc-800 to-zinc-900"
-        />
-      </div>
-
-      <div class="relative h-full flex flex-col justify-end p-8">
-        <div class="flex items-center gap-x-3 mb-6">
-          <NuxtLink
-            to="/news"
-            class="px-2 py-1 rounded bg-zinc-900/80 backdrop-blur-sm transition text-sm/6 font-semibold text-zinc-400 hover:text-zinc-100 inline-flex gap-x-2 items-center duration-200 hover:scale-105"
-          >
-            <ArrowLeftIcon class="h-4 w-4" aria-hidden="true" />
-            Back to News
-          </NuxtLink>
-
-          <button
-            v-if="user?.admin"
-            class="px-2 py-1 rounded bg-red-900/50 backdrop-blur-sm transition text-sm/6 font-semibold text-red-400 hover:text-red-100 inline-flex gap-x-2 items-center duration-200 hover:scale-105"
-            @click="() => (currentlyDeleting = article)"
-          >
-            <TrashIcon class="h-4 w-4" aria-hidden="true" />
-            Delete Article
-          </button>
-        </div>
-
-        <div class="max-w-[calc(100%-2rem)]">
-          <h1 class="text-4xl font-bold text-white mb-3">
-            {{ article.title }}
-          </h1>
+  <div>
+    <div v-if="article" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Banner header with blurred background -->
+      <div class="relative w-full h-[300px] mb-8 rounded-lg overflow-hidden">
+        <div v-if="article.image" class="absolute inset-0">
+          <img
+            :src="useObject(article.image)"
+            alt=""
+            class="w-full h-full object-cover blur-sm scale-110"
+          />
           <div
-            class="flex flex-col gap-y-3 sm:flex-row sm:items-center sm:gap-x-4 text-zinc-300"
-          >
-            <div class="flex items-center gap-x-4">
-              <time :datetime="article.publishedAt">{{
-                formatDate(article.publishedAt)
-              }}</time>
-              <span class="text-blue-400">{{
-                article.author?.displayName ?? "System"
-              }}</span>
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <span
-                v-for="tag in article.tags"
-                :key="tag.id"
-                class="inline-flex items-center rounded-full bg-zinc-800/80 backdrop-blur-sm px-3 py-1 text-sm font-semibold text-zinc-100"
-              >
-                {{ tag.name }}
-              </span>
-            </div>
+            class="absolute inset-0 bg-gradient-to-b from-transparent to-zinc-950"
+          />
+        </div>
+        <div v-else>
+          <!-- Fallback gradient background when no image -->
+          <div
+            class="absolute inset-0 bg-gradient-to-b from-zinc-800 to-zinc-900"
+          />
+        </div>
+
+        <div class="relative h-full flex flex-col justify-end p-8">
+          <div class="flex items-center gap-x-3 mb-6">
+            <NuxtLink
+              to="/news"
+              class="px-2 py-1 rounded bg-zinc-900/80 backdrop-blur-sm transition text-sm/6 font-semibold text-zinc-400 hover:text-zinc-100 inline-flex gap-x-2 items-center duration-200 hover:scale-105"
+            >
+              <ArrowLeftIcon class="h-4 w-4" aria-hidden="true" />
+              Back to News
+            </NuxtLink>
+
+            <button
+              v-if="user?.admin"
+              class="px-2 py-1 rounded bg-red-900/50 backdrop-blur-sm transition text-sm/6 font-semibold text-red-400 hover:text-red-100 inline-flex gap-x-2 items-center duration-200 hover:scale-105"
+              @click="() => (currentlyDeleting = article)"
+            >
+              <TrashIcon class="h-4 w-4" aria-hidden="true" />
+              Delete Article
+            </button>
           </div>
-          <p class="mt-4 text-lg text-zinc-300">{{ article.description }}</p>
+
+          <div class="max-w-[calc(100%-2rem)]">
+            <h1 class="text-4xl font-bold text-white mb-3">
+              {{ article.title }}
+            </h1>
+            <div
+              class="flex flex-col gap-y-3 sm:flex-row sm:items-center sm:gap-x-4 text-zinc-300"
+            >
+              <div class="flex items-center gap-x-4">
+                <time :datetime="article.publishedAt">{{
+                  formatDate(article.publishedAt)
+                }}</time>
+                <span class="text-blue-400">{{
+                  article.author?.displayName ?? "System"
+                }}</span>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <span
+                  v-for="tag in article.tags"
+                  :key="tag.id"
+                  class="inline-flex items-center rounded-full bg-zinc-800/80 backdrop-blur-sm px-3 py-1 text-sm font-semibold text-zinc-100"
+                >
+                  {{ tag.name }}
+                </span>
+              </div>
+            </div>
+            <p class="mt-4 text-lg text-zinc-300">{{ article.description }}</p>
+          </div>
         </div>
       </div>
+
+      <!-- Article content - markdown -->
+      <div
+        class="mx-auto prose prose-invert prose-lg"
+        v-html="renderedContent"
+      />
     </div>
 
-    <!-- Article content - markdown -->
-    <div class="mx-auto prose prose-invert prose-lg" v-html="renderedContent" />
+    <DeleteNewsModal v-model="currentlyDeleting" />
   </div>
-
-  <DeleteNewsModal v-model="currentlyDeleting" />
 </template>
 
 <script setup lang="ts">
@@ -88,7 +94,9 @@ const news = useNews();
 if (!news.value) {
   news.value = await fetchNews();
 }
-const article = computed(() => news.value?.find((e) => e.id == route.params.id));
+const article = computed(() =>
+  news.value?.find((e) => e.id == route.params.id),
+);
 if (!article.value)
   throw createError({
     statusCode: 404,

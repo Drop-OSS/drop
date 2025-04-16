@@ -18,8 +18,8 @@ export const validCapabilities = Object.values(InternalClientCapability);
 
 export type CapabilityConfiguration = {
   [InternalClientCapability.PeerAPI]: { endpoints: string[] };
-  [InternalClientCapability.UserStatus]: {};
-  [InternalClientCapability.CloudSaves]: {};
+  [InternalClientCapability.UserStatus]: object;
+  [InternalClientCapability.CloudSaves]: object;
 };
 
 class CapabilityManager {
@@ -53,7 +53,7 @@ class CapabilityManager {
       const serverCertificate = await ca.fetchClientCertificate("server");
       if (!serverCertificate)
         throw new Error(
-          "CA not initialised properly - server mTLS certificate not present"
+          "CA not initialised properly - server mTLS certificate not present",
         );
       const httpsAgent = new https.Agent({
         key: serverCertificate.priv,
@@ -70,7 +70,9 @@ class CapabilityManager {
           });
           valid = true;
           break;
-        } catch {}
+        } catch {
+          /* empty */
+        }
       }
 
       return valid;
@@ -81,7 +83,7 @@ class CapabilityManager {
 
   async validateCapabilityConfiguration(
     capability: InternalClientCapability,
-    configuration: object
+    configuration: object,
   ) {
     const validationFunction = this.validationFunctions[capability];
     if (!validationFunction) return false;
@@ -91,7 +93,7 @@ class CapabilityManager {
   async upsertClientCapability(
     capability: InternalClientCapability,
     rawCapability: object,
-    clientId: string
+    clientId: string,
   ) {
     const upsertFunctions: EnumDictionary<
       InternalClientCapability,
