@@ -223,7 +223,7 @@ const currentPageIndex = useCurrentNavigationIndex(navigation);
 
 const notifications = useNotifications();
 const unreadNotifications = computed(() =>
-  notifications.value.filter((e) => !e.read)
+  notifications.value.filter((e) => !e.read),
 );
 
 const sidebarOpen = ref(false);

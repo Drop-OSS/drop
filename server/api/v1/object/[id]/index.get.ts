@@ -30,7 +30,7 @@ export default defineEventHandler(async (h3) => {
   setHeader(
     h3,
     "Cache-Control",
-    "private, max-age=31536000, s-maxage=31536000, immutable"
+    "private, max-age=31536000, s-maxage=31536000, immutable",
   );
   return object.data;
 });

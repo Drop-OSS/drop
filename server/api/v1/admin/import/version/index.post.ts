@@ -4,9 +4,7 @@ import libraryManager from "~/server/internal/library";
 import { parsePlatform } from "~/server/internal/utils/parseplatform";
 
 export default defineEventHandler(async (h3) => {
-  const allowed = await aclManager.allowSystemACL(h3, [
-    "import:version:new",
-  ]);
+  const allowed = await aclManager.allowSystemACL(h3, ["import:version:new"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
   const body = await readBody(h3);

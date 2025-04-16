@@ -19,4 +19,4 @@ export default defineEventHandler(async (h3) => {
 
   await newsManager.delete(id);
   return { success: true };
-}); 
+});

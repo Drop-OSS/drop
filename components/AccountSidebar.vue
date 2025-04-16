@@ -44,7 +44,7 @@ import {
   HomeIcon,
   LockClosedIcon,
   DevicePhoneMobileIcon,
-  WrenchScrewdriverIcon
+  WrenchScrewdriverIcon,
 } from "@heroicons/vue/24/outline";
 import { UserIcon } from "@heroicons/vue/24/solid";
 import type { Component } from "vue";

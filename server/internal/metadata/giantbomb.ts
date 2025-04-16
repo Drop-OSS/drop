@@ -1,6 +1,6 @@
 import type { Developer, Publisher } from "@prisma/client";
 import { MetadataSource } from "@prisma/client";
-import type { MetadataProvider} from ".";
+import type { MetadataProvider } from ".";
 import { MissingMetadataProviderConfig } from ".";
 import type {
   GameMetadataSearchResult,
@@ -87,7 +87,7 @@ export class GiantBombProvider implements MetadataProvider {
     if (!apikey)
       throw new MissingMetadataProviderConfig(
         "GIANT_BOMB_API_KEY",
-        this.name()
+        this.name(),
       );
 
     this.apikey = apikey;
@@ -105,7 +105,7 @@ export class GiantBombProvider implements MetadataProvider {
     resource: string,
     url: string,
     query: { [key: string]: string },
-    options?: AxiosRequestConfig
+    options?: AxiosRequestConfig,
   ) {
     const queryString = new URLSearchParams({
       ...query,
@@ -120,7 +120,7 @@ export class GiantBombProvider implements MetadataProvider {
       baseURL: "",
     };
     const response = await axios.request<GiantBombResponseType<T>>(
-      Object.assign({}, options, overlay)
+      Object.assign({}, options, overlay),
     );
     return response;
   }
@@ -198,7 +198,7 @@ export class GiantBombProvider implements MetadataProvider {
       : DateTime.fromISO(
           `${gameData.expected_release_year ?? new Date().getFullYear()}-${
             gameData.expected_release_month ?? 1
-          }-${gameData.expected_release_day ?? 1}`
+          }-${gameData.expected_release_day ?? 1}`,
         ).toJSDate();
 
     const metadata: GameMetadata = {
@@ -229,7 +229,7 @@ export class GiantBombProvider implements MetadataProvider {
     const results = await this.request<Array<CompanySearchResult>>(
       "search",
       "",
-      { query, resources: "company" }
+      { query, resources: "company" },
     );
 
     // Find the right entry
@@ -256,7 +256,7 @@ export class GiantBombProvider implements MetadataProvider {
     return metadata;
   }
   async fetchDeveloper(
-    params: _FetchDeveloperMetadataParams
+    params: _FetchDeveloperMetadataParams,
   ): Promise<DeveloperMetadata> {
     return await this.fetchPublisher(params);
   }

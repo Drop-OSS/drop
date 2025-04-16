@@ -30,7 +30,7 @@
                 required
                 placeholder="AwesomeDropGamer771"
                 class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-              >
+              />
             </div>
           </div>
 
@@ -59,7 +59,7 @@
                 :disabled="!!invitation.data.value?.email"
                 placeholder="me@example.com"
                 class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-              >
+              />
             </div>
           </div>
 
@@ -90,7 +90,7 @@
                 :disabled="!!invitation.data.value?.username"
                 placeholder="myUsername"
                 class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-              >
+              />
             </div>
           </div>
 
@@ -119,7 +119,7 @@
                 autocomplete="password"
                 required
                 class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-              >
+              />
             </div>
           </div>
 
@@ -146,7 +146,7 @@
                 autocomplete="confirm-password"
                 required
                 class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-              >
+              />
             </div>
           </div>
 
@@ -200,7 +200,7 @@ if (!invitationId)
   });
 
 const invitation = await useFetch(
-  `/api/v1/auth/signup/simple?id=${encodeURIComponent(invitationId)}`
+  `/api/v1/auth/signup/simple?id=${encodeURIComponent(invitationId)}`,
 );
 
 const email = ref(invitation.data.value?.email);
@@ -211,20 +211,20 @@ const confirmPassword = ref(undefined);
 
 const emailValidator = type("string.email");
 const validEmail = computed(
-  () => !(emailValidator(email.value) instanceof type.errors)
+  () => !(emailValidator(email.value) instanceof type.errors),
 );
 
 const usernameValidator = type("string.alphanumeric >= 5").to("string.lower");
 const validUsername = computed(
-  () => !(usernameValidator(username.value) instanceof type.errors)
+  () => !(usernameValidator(username.value) instanceof type.errors),
 );
 
 const passwordValidator = type("string >= 14");
 const validPassword = computed(
-  () => !(passwordValidator(password.value) instanceof type.errors)
+  () => !(passwordValidator(password.value) instanceof type.errors),
 );
 const validConfirmPassword = computed(
-  () => password.value == confirmPassword.value
+  () => password.value == confirmPassword.value,
 );
 
 const loading = ref(false);

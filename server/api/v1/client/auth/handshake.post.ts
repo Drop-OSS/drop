@@ -31,7 +31,7 @@ export default defineEventHandler(async (h3) => {
   const certificateAuthority = useCertificateAuthority();
   const bundle = await certificateAuthority.generateClientCertificate(
     clientId,
-    metadata.data.name
+    metadata.data.name,
   );
 
   const client = await clientHandler.finialiseClient(clientId);

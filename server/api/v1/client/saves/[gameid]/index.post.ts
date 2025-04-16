@@ -58,5 +58,5 @@ export default defineClientEventHandler(
     });
 
     return newSlot;
-  }
+  },
 );

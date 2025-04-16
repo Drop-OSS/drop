@@ -1,4 +1,4 @@
-import type { ApplicationSettings} from "@prisma/client";
+import type { ApplicationSettings } from "@prisma/client";
 import { AuthMec } from "@prisma/client";
 import prisma from "../db/database";
 
@@ -24,7 +24,7 @@ class ApplicationConfiguration {
   private async init() {
     if (this.currentApplicationSettings === undefined) {
       const applicationSettingsCount = await prisma.applicationSettings.count(
-        {}
+        {},
       );
       if (applicationSettingsCount > 0) {
         await applicationSettings.pullConfiguration();
@@ -60,7 +60,7 @@ class ApplicationConfiguration {
 
   async set<T extends keyof ApplicationSettings>(
     key: T,
-    value: ApplicationSettings[T]
+    value: ApplicationSettings[T],
   ) {
     await this.init();
     if (!this.currentApplicationSettings)
@@ -73,7 +73,9 @@ class ApplicationConfiguration {
     }
   }
 
-  async get<T extends keyof ApplicationSettings>(key: T): Promise<ApplicationSettings[T]> {
+  async get<T extends keyof ApplicationSettings>(
+    key: T,
+  ): Promise<ApplicationSettings[T]> {
     await this.init();
     if (!this.currentApplicationSettings)
       throw new Error("Somehow, failed to initialise application settings");

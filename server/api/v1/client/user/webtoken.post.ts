@@ -27,5 +27,5 @@ export default defineClientEventHandler(
     });
 
     return token.token;
-  }
+  },
 );

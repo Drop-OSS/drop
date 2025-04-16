@@ -46,7 +46,7 @@ const min = computed(() => Math.max(props.min ?? 8, props.items.length));
 const games: Ref<Array<SerializeObject<Game> | undefined>> = computed(() =>
   Array(min.value)
     .fill(0)
-    .map((_, i) => props.items[i])
+    .map((_, i) => props.items[i]),
 );
 
 const singlePage = ref(2);

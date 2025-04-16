@@ -38,7 +38,8 @@ export const userACLDescriptions: ObjectFromList<typeof userACLs> = {
 };
 
 export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
-  "auth:read": "Fetch the list of enabled authentication mechanisms configured.",
+  "auth:read":
+    "Fetch the list of enabled authentication mechanisms configured.",
   "auth:simple:invitation:read": "Fetch simple auth invitations.",
   "auth:simple:invitation:new": "Create new simple auth invitations.",
   "auth:simple:invitation:delete": "Delete a simple auth invitation.",
@@ -66,8 +67,8 @@ export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
   "import:game:new": "Import a game.",
 
   "user:read": "Fetch any user's information.",
-  
+
   "news:read": "Read news articles.",
   "news:create": "Create a new news article.",
-  "news:delete": "Delete a news article."
+  "news:delete": "Delete a news article.",
 };

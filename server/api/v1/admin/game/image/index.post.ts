@@ -3,9 +3,7 @@ import prisma from "~/server/internal/db/database";
 import { handleFileUpload } from "~/server/internal/utils/handlefileupload";
 
 export default defineEventHandler(async (h3) => {
-  const allowed = await aclManager.allowSystemACL(h3, [
-    "game:image:new",
-  ]);
+  const allowed = await aclManager.allowSystemACL(h3, ["game:image:new"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
   const form = await readMultipartFormData(h3);

@@ -7,7 +7,7 @@ export default defineEventHandler(async (h3) => {
     throw createError({
       statusCode: 403,
     });
-    
+
   const collections = await userLibraryManager.fetchCollections(userId);
   return collections;
 });

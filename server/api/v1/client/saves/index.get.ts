@@ -19,5 +19,5 @@ export default defineClientEventHandler(
     });
 
     return saves;
-  }
+  },
 );

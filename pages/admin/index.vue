@@ -113,7 +113,7 @@
             class="h-[min(152px,40cqw)] object-cover"
             src="https://tailwindcss.com/plus-assets/img/component-images/bento-03-security.png"
             alt=""
-          >
+          />
         </div>
       </div>
       <div

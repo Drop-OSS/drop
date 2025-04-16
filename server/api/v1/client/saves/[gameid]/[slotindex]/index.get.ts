@@ -51,5 +51,5 @@ export default defineClientEventHandler(
       throw createError({ statusCode: 404, statusMessage: "Save not found" });
 
     return save;
-  }
+  },
 );

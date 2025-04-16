@@ -41,7 +41,8 @@ TODO: Add Troubleshooting
 If not, look at the [Troubleshooting](https://github.com/Drop-OSS/docs/Troubleshooting)
 page for instructions on how to gather data to better debug your problem.
 -->
-If you cannot find an existing issue, you can go ahead and create an issue with as much 
+
+If you cannot find an existing issue, you can go ahead and create an issue with as much
 detail as you can provide.
 It should include the data gathered as indicated above, along with the following:
 
@@ -69,7 +70,8 @@ maintainers) by mentioning their GitHub handle (starting with `@`) in your messa
 ### Getting started
 
 You should be familiar with the basics of
-[contributing on GitHub](https://help.github.com/articles/using-pull-requests) 
+[contributing on GitHub](https://help.github.com/articles/using-pull-requests)
+
 <!--and have a fork
 [properly set up](https://github.com/drop/docs/Contribution-Technical-Practices).
 -->
@@ -95,8 +97,8 @@ maintainers) by mentioning their GitHub handle (starting with `@`) in your messa
 
 ### You have an addition
 
-We are absolutely accepting more contributions or features to drop, but please, make sure 
-that it is reasonable. Contributions that only cover a very small niche are likely to not 
+We are absolutely accepting more contributions or features to drop, but please, make sure
+that it is reasonable. Contributions that only cover a very small niche are likely to not
 be added.
 
 Please be so kind as to [search](#use-the-search-luke) for any pending, merged or rejected Pull Requests
@@ -109,7 +111,7 @@ maintainers) by mentioning their GitHub handle (starting with `@`) in your messa
 
 For any extensive change, such as API changes, you will have to find testers to +1 your PR.
 
-----
+---
 
 ## Use the Search, Luke
 
@@ -126,7 +128,7 @@ to be sure your contribution has not already come up.
 If all fails, your thing has probably not been reported yet, so you can go ahead
 and [create an issue](#reporting-issues) or [submit a PR](#submitting-pull-requests).
 
-----
+---
 
 ## Commit Guidelines
 
@@ -161,11 +163,13 @@ type(scope)!: subject
   Examples:
 
   - Commit that changes the `git` plugin:
+
   ```
   feat(git): add alias for `git commit`
   ```
 
   - Commit that changes many plugins:
+
   ```
   style: fix inline declaration of arrays
   ```
@@ -203,6 +207,7 @@ type(scope)!: subject
   Formatting tricks: the commit subject may contain:
 
   - Links to related issues or PRs by writing `#issue`. This will be highlighted by the changelog tool:
+
     ```
     feat(archlinux): add support for aura AUR helper (#9467)
     ```
@@ -219,7 +224,7 @@ Try to keep the first commit line short. It's harder to do using this commit sty
 concise, and if you need more space, you can use the commit body. Try to make sure that the commit
 subject is clear and precise enough that users will know what changed by just looking at the changelog.
 
-----
+---
 
 <!--
 ## Volunteer
@@ -229,7 +234,9 @@ Very nice!! :)
 Please have a look at the [Volunteer](https://github.com/ohmyzsh/ohmyzsh/wiki/Volunteers)
 page for instructions on where to start and more.
 -->
+
 ## Reference
-This contributing guide is adapted from the 
-[oh-my-zsh contribution guide](https://github.com/ohmyzsh/ohmyzsh/blob/master/CONTRIBUTING.md). 
+
+This contributing guide is adapted from the
+[oh-my-zsh contribution guide](https://github.com/ohmyzsh/ohmyzsh/blob/master/CONTRIBUTING.md).
 If there are any issues with this, please email admin@deepcore.dev.

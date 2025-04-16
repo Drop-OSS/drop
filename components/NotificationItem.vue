@@ -15,7 +15,7 @@
           >
             <NuxtLink
               v-for="[name, link] in notification.actions.map((e) =>
-                e.split('|')
+                e.split('|'),
               )"
               :key="name"
               type="button"
@@ -54,7 +54,7 @@ async function deleteMe() {
   });
   const notifications = useNotifications();
   const indexOfMe = notifications.value.findIndex(
-    (e) => e.id === props.notification.id
+    (e) => e.id === props.notification.id,
   );
   // Delete me
   notifications.value.splice(indexOfMe, 1);

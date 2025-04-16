@@ -7,7 +7,7 @@ export default defineEventHandler(async (h3) => {
   if (!allowed) throw createError({ statusCode: 403 });
 
   const enabledMechanisms: AuthMec[] = await applicationSettings.get(
-    "enabledAuthencationMechanisms"
+    "enabledAuthencationMechanisms",
   );
 
   return enabledMechanisms;

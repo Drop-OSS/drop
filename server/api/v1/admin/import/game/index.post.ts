@@ -7,9 +7,7 @@ import type {
 } from "~/server/internal/metadata/types";
 
 export default defineEventHandler(async (h3) => {
-  const allowed = await aclManager.allowSystemACL(h3, [
-    "import:game:new",
-  ]);
+  const allowed = await aclManager.allowSystemACL(h3, ["import:game:new"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
   const body = await readBody(h3);
@@ -29,7 +27,6 @@ export default defineEventHandler(async (h3) => {
       statusCode: 400,
       statusMessage: "Invalid unimported game path",
     });
-
 
   if (!metadata || !metadata.id || !metadata.sourceId) {
     console.log(metadata);

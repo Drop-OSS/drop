@@ -23,7 +23,7 @@ export default defineEventHandler(async (h3) => {
   const successful = await userLibraryManager.collectionRemove(
     gameId,
     id,
-    userId
+    userId,
   );
   if (!successful)
     throw createError({

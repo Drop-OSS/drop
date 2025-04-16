@@ -1,5 +1,4 @@
-import type {
-  InternalClientCapability} from "~/server/internal/clients/capabilities";
+import type { InternalClientCapability } from "~/server/internal/clients/capabilities";
 import capabilityManager, {
   validCapabilities,
 } from "~/server/internal/clients/capabilities";
@@ -34,7 +33,7 @@ export default defineClientEventHandler(
 
     const isValid = await capabilityManager.validateCapabilityConfiguration(
       capability,
-      configuration
+      configuration,
     );
     if (!isValid)
       throw createError({
@@ -45,7 +44,7 @@ export default defineClientEventHandler(
     await capabilityManager.upsertClientCapability(
       capability,
       configuration,
-      clientId
+      clientId,
     );
 
     const client = await fetchClient();
@@ -59,5 +58,5 @@ export default defineClientEventHandler(
     });
 
     return {};
-  }
+  },
 );

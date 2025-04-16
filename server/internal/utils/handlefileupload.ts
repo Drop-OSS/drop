@@ -5,8 +5,10 @@ import { ObjectTransactionalHandler } from "../objects/transactional";
 export async function handleFileUpload(
   h3: H3Event<EventHandlerRequest>,
   metadata: { [key: string]: string },
-  permissions: Array<string>
-): Promise<[string | undefined, {[key: string]: string}, Pull, Dump] | undefined> {
+  permissions: Array<string>,
+): Promise<
+  [string | undefined, { [key: string]: string }, Pull, Dump] | undefined
+> {
   const formData = await readMultipartFormData(h3);
   if (!formData) return undefined;
   const transactionalHandler = new ObjectTransactionalHandler();
