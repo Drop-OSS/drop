@@ -44,6 +44,7 @@
               :key="navIdx"
               v-slot="{ active, close }"
               hydrate-on-visible
+              as="div"
             >
               <!-- TODO: think this would work better as a NuxtLink instead of a button -->
               <button
