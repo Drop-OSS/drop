@@ -88,8 +88,6 @@ export default defineNuxtConfig({
           "https://images.pcgamingwiki.com",
           "https://images.igdb.com",
         ],
-
-        "script-src": ["'nonce-{{nonce}}'"],
       },
       strictTransportSecurity: false,
     },
