@@ -70,5 +70,8 @@
     "vue3-carousel-nuxt": {
       "vue3-carousel": "^0.15.0"
     }
+  },
+  "prisma": {
+    "schema": "./prisma/schema"
   }
 }
