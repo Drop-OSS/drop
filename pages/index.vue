@@ -1,12 +1,12 @@
 <template>
-    
+  <div></div>
 </template>
 
 <script setup lang="ts">
 useHead({
-    title: "Home",
+  title: "Home",
 });
 
 const router = useRouter();
-router.replace('/store')
+router.replace("/store");
 </script>

@@ -3,11 +3,11 @@
     <!-- Hero section -->
     <VueCarousel
       v-if="recent.length > 0"
-      :wrapAround="true"
+      :wrap-around="true"
       :items-to-show="1"
       :autoplay="15 * 1000"
       :transition="500"
-      :pauseAutoplayOnHover="true"
+      :pause-autoplay-on-hover="true"
       class="store-carousel"
     >
       <VueSlide v-for="game in recent" :key="game.id">
@@ -43,7 +43,7 @@
                     class="block w-full rounded-md border border-transparent bg-white px-8 py-3 text-base font-medium text-gray-900 hover:bg-gray-100 sm:w-auto duration-200 hover:scale-105"
                     >Check it out</NuxtLink
                   >
-                  <AddLibraryButton :gameId="game.id" />
+                  <AddLibraryButton :game-id="game.id" />
                 </div>
               </div>
             </div>
@@ -99,8 +99,8 @@ const recent = await $dropFetch("/api/v1/store/recent");
 const updated = await $dropFetch("/api/v1/store/updated");
 const released = await $dropFetch("/api/v1/store/released");
 
-const developers = await $dropFetch("/api/v1/store/developers");
-const publishers = await $dropFetch("/api/v1/store/publishers");
+// const developers = await $dropFetch("/api/v1/store/developers");
+// const publishers = await $dropFetch("/api/v1/store/publishers");
 
 useHead({
   title: "Store",

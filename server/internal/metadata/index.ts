@@ -1,11 +1,7 @@
-import {
-  Developer,
-  MetadataSource,
-  PrismaClient,
-  Publisher,
-} from "@prisma/client";
+import type { Developer, Publisher } from "@prisma/client";
+import { MetadataSource } from "@prisma/client";
 import prisma from "../db/database";
-import {
+import type {
   _FetchDeveloperMetadataParams,
   _FetchGameMetadataParams,
   _FetchPublisherMetadataParams,
@@ -16,11 +12,7 @@ import {
   PublisherMetadata,
 } from "./types";
 import { ObjectTransactionalHandler } from "../objects/transactional";
-import { PriorityList, PriorityListIndexed } from "../utils/prioritylist";
-import { GiantBombProvider } from "./giantbomb";
-import { ManualMetadataProvider } from "./manual";
-import { PCGamingWikiProvider } from "./pcgamingwiki";
-import { IGDBProvider } from "./igdb";
+import { PriorityListIndexed } from "../utils/prioritylist";
 
 export class MissingMetadataProviderConfig extends Error {
   private providerName: string;
@@ -46,10 +38,10 @@ export abstract class MetadataProvider {
   abstract search(query: string): Promise<GameMetadataSearchResult[]>;
   abstract fetchGame(params: _FetchGameMetadataParams): Promise<GameMetadata>;
   abstract fetchPublisher(
-    params: _FetchPublisherMetadataParams
+    params: _FetchPublisherMetadataParams,
   ): Promise<PublisherMetadata>;
   abstract fetchDeveloper(
-    params: _FetchDeveloperMetadataParams
+    params: _FetchDeveloperMetadataParams,
   ): Promise<DeveloperMetadata>;
 }
 
@@ -80,6 +72,8 @@ export class MetadataHandler {
     for (const provider of this.providers.values()) {
       const queryTransformationPromise = new Promise<
         InternalGameMetadataResult[]
+        // TODO: fix eslint error
+        // eslint-disable-next-line no-async-promise-executor
       >(async (resolve, reject) => {
         try {
           const results = await provider.search(query);
@@ -88,7 +82,7 @@ export class MetadataHandler {
               Object.assign({}, result, {
                 sourceId: provider.id(),
                 sourceName: provider.name(),
-              })
+              }),
           );
           resolve(mappedResults);
         } catch (e) {
@@ -118,13 +112,13 @@ export class MetadataHandler {
         sourceId: "manual",
         sourceName: "Manual",
       },
-      libraryBasePath
+      libraryBasePath,
     );
   }
 
   async createGame(
     result: InternalGameMetadataResult,
-    libraryBasePath: string
+    libraryBasePath: string,
   ) {
     const provider = this.providers.get(result.sourceId);
     if (!provider)
@@ -142,7 +136,7 @@ export class MetadataHandler {
 
     const [createObject, pullObjects, dumpObjects] = this.objectHandler.new(
       {},
-      ["internal:read"]
+      ["internal:read"],
     );
 
     let metadata;
@@ -196,7 +190,7 @@ export class MetadataHandler {
     return (await this.fetchDeveloperPublisher(
       query,
       "fetchDeveloper",
-      "developer"
+      "developer",
     )) as Developer;
   }
 
@@ -204,7 +198,7 @@ export class MetadataHandler {
     return (await this.fetchDeveloperPublisher(
       query,
       "fetchPublisher",
-      "publisher"
+      "publisher",
     )) as Publisher;
   }
 
@@ -213,8 +207,9 @@ export class MetadataHandler {
   private async fetchDeveloperPublisher(
     query: string,
     functionName: "fetchDeveloper" | "fetchPublisher",
-    databaseName: "developer" | "publisher"
+    databaseName: "developer" | "publisher",
   ) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const existing = await (prisma as any)[databaseName].findFirst({
       where: {
         metadataOriginalQuery: query,
@@ -228,7 +223,7 @@ export class MetadataHandler {
 
       const [createObject, pullObjects, dumpObjects] = this.objectHandler.new(
         {},
-        ["internal:read"]
+        ["internal:read"],
       );
       let result: PublisherMetadata;
       try {
@@ -242,6 +237,7 @@ export class MetadataHandler {
       // If we're successful
       await pullObjects();
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const object = await (prisma as any)[databaseName].create({
         data: {
           metadataSource: provider.source(),
@@ -261,7 +257,7 @@ export class MetadataHandler {
     }
 
     throw new Error(
-      `No metadata provider found a ${databaseName} for "${query}"`
+      `No metadata provider found a ${databaseName} for "${query}"`,
     );
   }
 }

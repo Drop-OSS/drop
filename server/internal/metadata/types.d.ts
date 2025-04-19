@@ -1,6 +1,6 @@
-import { Developer, Publisher } from "@prisma/client";
-import { ObjectTransactionalHandler, TransactionDataType } from "../objects/transactional";
-import { ObjectReference } from "../objects/objectHandler";
+import type { Developer, Publisher } from "@prisma/client";
+import type { TransactionDataType } from "../objects/transactional";
+import type { ObjectReference } from "../objects/objectHandler";
 
 export interface GameMetadataSearchResult {
   id: string;
@@ -48,7 +48,7 @@ export interface PublisherMetadata {
 
   logo: ObjectReference;
   banner: ObjectReference;
-  website: String;
+  website: string;
 }
 
 export type DeveloperMetadata = PublisherMetadata;

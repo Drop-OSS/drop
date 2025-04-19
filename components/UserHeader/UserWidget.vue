@@ -44,14 +44,16 @@
               :key="navIdx"
               v-slot="{ active, close }"
               hydrate-on-visible
+              as="div"
             >
+              <!-- TODO: think this would work better as a NuxtLink instead of a button -->
               <button
                 :href="nav.route"
-                @click="() => navigateTo(nav.route, close)"
                 :class="[
                   active ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400',
                   'text-left transition block px-4 py-2 text-sm',
                 ]"
+                @click="() => navigateTo(nav.route, close)"
               >
                 {{ nav.label }}
               </button>
@@ -90,11 +92,4 @@ const navigation: NavigationItem[] = [
     prefix: "",
   },
 ].filter((e) => e !== undefined);
-
-const router = useRouter();
-
-function navigateLink(href: string, closeFn: () => any) {
-  closeFn();
-  router.push(href);
-}
 </script>

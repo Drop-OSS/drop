@@ -1,4 +1,3 @@
-import aclManager from "~/server/internal/acls";
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import userLibraryManager from "~/server/internal/userlibrary";
 

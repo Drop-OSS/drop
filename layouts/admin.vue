@@ -52,7 +52,7 @@
                 class="flex grow flex-col gap-y-5 overflow-y-auto bg-zinc-950 px-4 pb-4"
               >
                 <div class="inline-flex items-center py-4 px-4">
-                  <Wordmark class="h-full w-auto" alt="Drop`" />
+                  <DropWordmark class="h-full w-auto" alt="Drop`" />
                 </div>
                 <nav>
                   <ul
@@ -93,7 +93,7 @@
       class="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:block lg:w-20 lg:overflow-y-auto lg:bg-zinc-950 lg:pb-4"
     >
       <div class="flex flex-col h-24 shrink-0 items-center justify-center">
-        <Logo class="h-8 w-auto" />
+        <DropLogo class="h-8 w-auto" />
         <span
           class="mt-1 bg-blue-400 px-1 py-0.5 rounded-md text-xs font-bold font-display"
           >Admin</span
@@ -152,10 +152,6 @@ import { ref, type Component } from "vue";
 import {
   Dialog,
   DialogPanel,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuItems,
   TransitionChild,
   TransitionRoot,
 } from "@headlessui/vue";
@@ -163,10 +159,7 @@ import {
   Bars3Icon,
   ServerStackIcon,
   HomeIcon,
-  LockClosedIcon,
   Cog6ToothIcon,
-  FlagIcon,
-  BellIcon,
   DocumentIcon,
   UserGroupIcon,
 } from "@heroicons/vue/24/outline";
@@ -209,10 +202,10 @@ const navigation: Array<NavigationItem & { icon: Component }> = [
   },
 ];
 
-const notifications = useNotifications();
-const unreadNotifications = computed(() =>
-  notifications.value.filter((e) => !e.read)
-);
+// const notifications = useNotifications();
+// const unreadNotifications = computed(() =>
+//   notifications.value.filter((e) => !e.read)
+// );
 
 const currentNavigationIndex = useCurrentNavigationIndex(navigation);
 

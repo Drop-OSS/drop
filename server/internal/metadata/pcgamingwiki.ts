@@ -1,6 +1,7 @@
-import { Developer, MetadataSource, Publisher } from "@prisma/client";
-import { MetadataProvider, MissingMetadataProviderConfig } from ".";
-import {
+import type { Developer, Publisher } from "@prisma/client";
+import { MetadataSource } from "@prisma/client";
+import type { MetadataProvider } from ".";
+import type {
   GameMetadataSearchResult,
   _FetchGameMetadataParams,
   GameMetadata,
@@ -9,7 +10,8 @@ import {
   _FetchDeveloperMetadataParams,
   DeveloperMetadata,
 } from "./types";
-import axios, { AxiosRequestConfig } from "axios";
+import type { AxiosRequestConfig } from "axios";
+import axios from "axios";
 import * as jdenticon from "jdenticon";
 import { DateTime } from "luxon";
 
@@ -45,7 +47,7 @@ interface PCGamingWikiCargoResult<T> {
   cargoquery: [
     {
       title: T;
-    }
+    },
   ];
   error?: {
     code?: string;
@@ -58,8 +60,6 @@ interface PCGamingWikiCargoResult<T> {
 // Api Docs: https://www.pcgamingwiki.com/wiki/PCGamingWiki:API
 // Good tool for helping build cargo queries: https://www.pcgamingwiki.com/wiki/Special:CargoQuery
 export class PCGamingWikiProvider implements MetadataProvider {
-  constructor() {}
-
   id() {
     return "pcgamingwiki";
   }
@@ -72,7 +72,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
 
   private async request<T>(
     query: URLSearchParams,
-    options?: AxiosRequestConfig
+    options?: AxiosRequestConfig,
   ) {
     const finalURL = `https://www.pcgamingwiki.com/w/api.php?${query.toString()}`;
 
@@ -81,12 +81,12 @@ export class PCGamingWikiProvider implements MetadataProvider {
       baseURL: "",
     };
     const response = await axios.request<PCGamingWikiCargoResult<T>>(
-      Object.assign({}, options, overlay)
+      Object.assign({}, options, overlay),
     );
 
     if (response.status !== 200)
       throw new Error(
-        `Error in pcgamingwiki \nStatus Code: ${response.status}`
+        `Error in pcgamingwiki \nStatus Code: ${response.status}`,
       );
     else if (response.data.error !== undefined)
       throw new Error(`Error in pcgamingwiki, malformed query`);
@@ -253,7 +253,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
   }
 
   async fetchDeveloper(
-    params: _FetchDeveloperMetadataParams
+    params: _FetchDeveloperMetadataParams,
   ): Promise<DeveloperMetadata> {
     return await this.fetchPublisher(params);
   }

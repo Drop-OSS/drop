@@ -1,7 +1,7 @@
 <template>
   <div
-    class="min-h-full w-full flex items-center justify-center"
     v-if="completed"
+    class="min-h-full w-full flex items-center justify-center"
   >
     <div class="flex flex-col items-center">
       <CheckCircleIcon class="h-12 w-12 text-green-600" aria-hidden="true" />
@@ -15,7 +15,7 @@
             window.
           </p>
 
-          <Disclosure as="div" class="mt-8" v-slot="{ open }">
+          <Disclosure v-slot="{ open }" as="div" class="mt-8">
             <dt>
               <DisclosureButton
                 class="pb-2 flex w-full items-start justify-between text-left text-zinc-400"
@@ -58,8 +58,7 @@
           Authorize client?
         </h1>
         <p class="mt-6 text-base leading-7 text-zinc-400">
-          "{{ clientData.name }}" has requested access to your Drop
-          account.
+          "{{ clientData.name }}" has requested access to your Drop account.
         </p>
         <div
           action="/api/v1/client/callback"
@@ -68,8 +67,8 @@
         >
           <input type="text" class="hidden" name="id" :value="clientId" />
           <button
-            @click="() => authorize_wrapper()"
             class="rounded-md bg-blue-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+            @click="() => authorize_wrapper()"
           >
             Authorize
           </button>
@@ -94,8 +93,9 @@
         <p
           class="mt-6 font-semibold font-display text-lg leading-8 text-zinc-100"
         >
-          Accepting this request will allow "{{ clientData.name }}"
-          on "{{ clientData.platform }}" to:
+          Accepting this request will allow "{{ clientData.name }}" on "{{
+            clientData.platform
+          }}" to:
         </p>
       </div>
       <div class="mt-8 max-w-2xl sm:mt-12 lg:mt-14">
@@ -149,7 +149,7 @@ const route = useRoute();
 const clientId = route.params.id;
 
 const clientData = await $dropFetch(
-  `/api/v1/client/auth/callback?id=${clientId}`
+  `/api/v1/client/auth/callback?id=${clientId}`,
 );
 
 const completed = ref(false);

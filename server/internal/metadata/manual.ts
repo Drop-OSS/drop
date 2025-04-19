@@ -1,7 +1,6 @@
 import { MetadataSource } from "@prisma/client";
-import { MetadataProvider } from ".";
-import {
-  GameMetadataSearchResult,
+import type { MetadataProvider } from ".";
+import type {
   _FetchGameMetadataParams,
   GameMetadata,
   _FetchPublisherMetadataParams,
@@ -21,13 +20,11 @@ export class ManualMetadataProvider implements MetadataProvider {
   source() {
     return MetadataSource.Manual;
   }
-  async search(query: string) {
+  async search(_query: string) {
     return [];
   }
   async fetchGame({
     name,
-    publisher,
-    developer,
     createObject,
   }: _FetchGameMetadataParams): Promise<GameMetadata> {
     const icon = jdenticon.toPng(name, 512);
@@ -51,12 +48,12 @@ export class ManualMetadataProvider implements MetadataProvider {
     };
   }
   async fetchPublisher(
-    params: _FetchPublisherMetadataParams
+    _params: _FetchPublisherMetadataParams,
   ): Promise<PublisherMetadata> {
     throw new Error("Method not implemented.");
   }
   async fetchDeveloper(
-    params: _FetchDeveloperMetadataParams
+    _params: _FetchDeveloperMetadataParams,
   ): Promise<DeveloperMetadata> {
     throw new Error("Method not implemented.");
   }

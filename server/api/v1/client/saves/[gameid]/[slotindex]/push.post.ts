@@ -44,9 +44,9 @@ export default defineClientEventHandler(
       user.id,
       slotIndex,
       h3.node.req,
-      client.id
+      client.id,
     );
 
     return;
-  }
+  },
 );

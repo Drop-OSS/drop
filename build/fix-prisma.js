@@ -43,6 +43,7 @@ async function main() {
   try {
     await fs.rename(oldPath, newPath);
     console.log("Directory renamed from .prisma to _prisma");
+    // eslint-disable-next-line no-unused-vars
   } catch (err) {
     console.log("Directory .prisma does not exist or has already been renamed");
   }

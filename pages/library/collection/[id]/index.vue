@@ -33,12 +33,12 @@
 </template>
 
 <script setup lang="ts">
-import { ArrowLeftIcon, TrashIcon } from "@heroicons/vue/20/solid";
+import { ArrowLeftIcon } from "@heroicons/vue/20/solid";
 
 const route = useRoute();
 const collections = await useCollections();
 const collection = computed(() =>
-  collections.value.find((e) => e.id == route.params.id)
+  collections.value.find((e) => e.id == route.params.id),
 );
 if (collection.value === undefined) {
   throw createError({ statusCode: 404, statusMessage: "Collection not found" });

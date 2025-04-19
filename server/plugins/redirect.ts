@@ -13,13 +13,14 @@ export default defineNitroPlugin((nitro) => {
 
     switch (error.statusCode) {
       case 401:
-      case 403:
+      case 403: {
         const user = await sessionHandler.getSession(event);
         if (user) break;
         return sendRedirect(
           event,
-          `/auth/signin?redirect=${encodeURIComponent(event.path)}`
+          `/auth/signin?redirect=${encodeURIComponent(event.path)}`,
         );
+      }
     }
   });
 });

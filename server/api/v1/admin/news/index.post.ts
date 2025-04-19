@@ -1,4 +1,4 @@
-import { defineEventHandler, createError, readBody } from "h3";
+import { defineEventHandler, createError } from "h3";
 import aclManager from "~/server/internal/acls";
 import newsManager from "~/server/internal/news";
 import { handleFileUpload } from "~/server/internal/utils/handlefileupload";
@@ -21,7 +21,7 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Failed to upload file",
     });
 
-  const [imageId, options, pull, dump] = uploadResult;
+  const [imageId, options, pull, _dump] = uploadResult;
 
   const title = options.title;
   const description = options.description;

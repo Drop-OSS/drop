@@ -5,7 +5,7 @@
     >
       <div class="mx-auto w-full max-w-sm lg:w-96">
         <div>
-          <Logo class="h-10 w-auto" />
+          <DropLogo class="h-10 w-auto" />
           <h2
             class="mt-8 text-2xl font-bold font-display leading-9 tracking-tight text-zinc-100"
           >
@@ -18,7 +18,7 @@
 
         <div class="mt-10">
           <div>
-            <form @submit.prevent="signin_wrapper" class="space-y-6">
+            <form class="space-y-6" @submit.prevent="signin_wrapper">
               <div>
                 <label
                   for="username"
@@ -28,12 +28,12 @@
                 <div class="mt-2">
                   <input
                     id="username"
+                    v-model="username"
                     name="username"
                     type="username"
                     autocomplete="username"
                     required
                     class="block w-full rounded-md border-0 py-1.5 px-3 shadow-sm bg-zinc-950/20 text-zinc-300 ring-1 ring-inset ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                    v-model="username"
                   />
                 </div>
               </div>
@@ -47,10 +47,10 @@
                 <div class="mt-2">
                   <input
                     id="password"
+                    v-model="password"
                     name="password"
                     type="password"
                     autocomplete="current-password"
-                    v-model="password"
                     required
                     class="block w-full rounded-md border-0 py-1.5 px-3 shadow-sm bg-zinc-950/20 text-zinc-300 ring-1 ring-inset ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
                   />
@@ -61,9 +61,9 @@
                 <div class="flex items-center">
                   <input
                     id="remember-me"
+                    v-model="rememberMe"
                     name="remember-me"
                     type="checkbox"
-                    v-model="rememberMe"
                     class="h-4 w-4 rounded bg-zinc-800 border-zinc-700 text-blue-600 focus:ring-blue-600"
                   />
                   <label
@@ -121,7 +121,7 @@
 <script setup lang="ts">
 import { XCircleIcon } from "@heroicons/vue/20/solid";
 import type { User } from "@prisma/client";
-import Logo from "~/components/Logo.vue";
+import DropLogo from "~/components/DropLogo.vue";
 
 const username = ref("");
 const password = ref("");

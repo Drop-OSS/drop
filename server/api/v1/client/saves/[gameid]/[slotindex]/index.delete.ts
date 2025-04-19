@@ -49,5 +49,5 @@ export default defineClientEventHandler(
     });
     if (!save)
       throw createError({ statusCode: 404, statusMessage: "Save not found" });
-  }
+  },
 );

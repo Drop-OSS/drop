@@ -2,9 +2,7 @@ import aclManager from "~/server/internal/acls";
 import metadataHandler from "~/server/internal/metadata";
 
 export default defineEventHandler(async (h3) => {
-  const allowed = await aclManager.allowSystemACL(h3, [
-    "import:game:read",
-  ]);
+  const allowed = await aclManager.allowSystemACL(h3, ["import:game:read"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
   const query = getQuery(h3);

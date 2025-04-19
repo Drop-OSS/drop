@@ -10,7 +10,6 @@ These use public HTTPS certificate, and while are authenticated, are 'public' in
 
 Drop clients use P2P mTLS aided by the P2P co-ordinator to transfer chunks between themselves. This happens over HTTP.
 
-
 ## Private mTLS Wireguard tunnels
 
-Drop clients can establish P2P Wireguard 
+Drop clients can establish P2P Wireguard

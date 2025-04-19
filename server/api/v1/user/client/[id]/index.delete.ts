@@ -1,6 +1,5 @@
 import aclManager from "~/server/internal/acls";
 import clientHandler from "~/server/internal/clients/handler";
-import prisma from "~/server/internal/db/database";
 
 export default defineEventHandler(async (h3) => {
   const userId = await aclManager.getUserIdACL(h3, ["clients:revoke"]);

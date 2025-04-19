@@ -2,9 +2,7 @@ import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 
 export default defineEventHandler(async (h3) => {
-  const allowed = await aclManager.allowSystemACL(h3, [
-    "game:version:update",
-  ]);
+  const allowed = await aclManager.allowSystemACL(h3, ["game:version:update"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
   const body = await readBody(h3);
@@ -30,13 +28,13 @@ export default defineEventHandler(async (h3) => {
           versionIndex: versionIndex,
         },
         select: {
-            versionIndex: true,
-            versionName: true,
-            platform: true,
-            delta: true,
-        }
-      })
-    )
+          versionIndex: true,
+          versionName: true,
+          platform: true,
+          delta: true,
+        },
+      }),
+    ),
   );
 
   return newVersions;

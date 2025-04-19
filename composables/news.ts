@@ -31,7 +31,8 @@ export const fetchNews = async (options?: {
 
   const news = useNews();
 
-  // @ts-ignore
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore forget why this ignor exists
   const newValue = await $dropFetch(`/api/v1/news?${query.toString()}`);
 
   news.value = newValue;

@@ -1,4 +1,3 @@
-import { triggerAsyncId } from "async_hooks";
 import prisma from "../db/database";
 import objectHandler from "../objects";
 
@@ -50,7 +49,7 @@ class NewsManager {
       orderBy?: "asc" | "desc";
       tags?: string[];
       search?: string;
-    } = {}
+    } = {},
   ) {
     return await prisma.article.findMany({
       where: {
@@ -116,7 +115,7 @@ class NewsManager {
       content?: string;
       excerpt?: string;
       image?: string;
-    }
+    },
   ) {
     return await prisma.article.update({
       where: { id },

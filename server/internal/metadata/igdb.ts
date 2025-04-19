@@ -1,6 +1,8 @@
-import { Developer, MetadataSource, Publisher } from "@prisma/client";
-import { MetadataProvider, MissingMetadataProviderConfig } from ".";
-import {
+import type { Developer, Publisher } from "@prisma/client";
+import { MetadataSource } from "@prisma/client";
+import type { MetadataProvider } from ".";
+import { MissingMetadataProviderConfig } from ".";
+import type {
   GameMetadataSearchResult,
   _FetchGameMetadataParams,
   GameMetadata,
@@ -9,7 +11,8 @@ import {
   _FetchDeveloperMetadataParams,
   DeveloperMetadata,
 } from "./types";
-import axios, { AxiosRequestConfig } from "axios";
+import type { AxiosRequestConfig } from "axios";
+import axios from "axios";
 import { DateTime } from "luxon";
 
 type IGDBID = number;
@@ -141,7 +144,7 @@ export class IGDBProvider implements MetadataProvider {
     if (!client_secret)
       throw new MissingMetadataProviderConfig(
         "IGDB_CLIENT_SECRET",
-        this.name()
+        this.name(),
       );
 
     this.clientId = client_id;
@@ -182,17 +185,17 @@ export class IGDBProvider implements MetadataProvider {
     if (this.accessTokenExpiry < futureTime) await this.authWithTwitch();
   }
 
-  private async request<T extends Object>(
+  private async request<T extends object>(
     resource: string,
     body: string,
-    options?: AxiosRequestConfig
+    options?: AxiosRequestConfig,
   ) {
     await this.refreshCredentials();
 
     // prevent calling api before auth is complete
     if (this.accessToken.length <= 0)
       throw new Error(
-        "IGDB either failed to authenticate, or has not done so yet"
+        "IGDB either failed to authenticate, or has not done so yet",
       );
 
     const finalURL = `https://api.igdb.com/v4/${resource}`;
@@ -210,7 +213,7 @@ export class IGDBProvider implements MetadataProvider {
       },
     };
     const response = await axios.request<T[] | IGDBErrorResponse[]>(
-      Object.assign({}, options, overlay)
+      Object.assign({}, options, overlay),
     );
 
     if (response.status !== 200) {
@@ -221,7 +224,7 @@ export class IGDBProvider implements MetadataProvider {
       });
 
       throw new Error(
-        `Error in igdb \nStatus Code: ${response.status} \nCause: ${cause}`
+        `Error in igdb \nStatus Code: ${response.status} \nCause: ${cause}`,
       );
     }
 
@@ -320,7 +323,7 @@ export class IGDBProvider implements MetadataProvider {
         const involved_company_response =
           await this.request<IGDBInvolvedCompany>(
             "involved_companies",
-            `where id = ${involvedCompany}; fields *;`
+            `where id = ${involvedCompany}; fields *;`,
           );
         for (const foundInvolved of involved_company_response) {
           // now we need to get the actual company so we can get the name
@@ -345,7 +348,7 @@ export class IGDBProvider implements MetadataProvider {
         shortDescription: this.trimMessage(response[i].summary, 280),
         description: response[i].summary,
         released: DateTime.fromSeconds(
-          response[i].first_release_date
+          response[i].first_release_date,
         ).toJSDate(),
 
         reviewCount: response[i]?.total_rating_count ?? 0,
@@ -369,7 +372,7 @@ export class IGDBProvider implements MetadataProvider {
   }: _FetchPublisherMetadataParams): Promise<PublisherMetadata> {
     const response = await this.request<IGDBCompany>(
       "companies",
-      `where name = "${query}"; fields *; limit 1;`
+      `where name = "${query}"; fields *; limit 1;`,
     );
 
     for (const company of response) {
@@ -379,7 +382,7 @@ export class IGDBProvider implements MetadataProvider {
       for (const companySite of company.websites) {
         const companySiteRes = await this.request<IGDBCompanyWebsite>(
           "company_websites",
-          `where id = ${companySite}; fields *;`
+          `where id = ${companySite}; fields *;`,
         );
 
         for (const site of companySiteRes) {
@@ -403,7 +406,7 @@ export class IGDBProvider implements MetadataProvider {
     throw new Error("No results found");
   }
   async fetchDeveloper(
-    params: _FetchDeveloperMetadataParams
+    params: _FetchDeveloperMetadataParams,
   ): Promise<DeveloperMetadata> {
     return await this.fetchPublisher(params);
   }

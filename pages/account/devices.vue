@@ -60,9 +60,9 @@
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
                   <ul class="flex flex-col gap-y-2">
                     <li
-                      class="inline-flex items-center gap-x-0.5"
                       v-for="capability in client.capabilities"
                       :key="capability"
+                      class="inline-flex items-center gap-x-0.5"
                     >
                       <CheckIcon class="size-4" /> {{ capability }}
                     </li>
@@ -75,8 +75,8 @@
                   class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-3"
                 >
                   <button
-                    @click="() => revokeClientWrapper(client.id)"
                     class="text-red-600 hover:text-red-900"
+                    @click="() => revokeClientWrapper(client.id)"
                   >
                     Revoke<span class="sr-only">, {{ client.name }}</span>
                   </button>
@@ -94,6 +94,7 @@
 import { CheckIcon } from "@heroicons/vue/24/outline";
 import { DateTime } from "luxon";
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore pending https://github.com/nitrojs/nitro/issues/2758
 const clients = ref(await $dropFetch("/api/v1/user/client"));
 
@@ -114,7 +115,7 @@ function revokeClientWrapper(id: string) {
           title: "Failed to revoke client",
           description: `Failed to revoke client: ${e}`,
         },
-        (_, c) => c()
+        (_, c) => c(),
       );
     });
 }

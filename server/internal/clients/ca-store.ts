@@ -1,6 +1,6 @@
 import path from "path";
 import fs from "fs";
-import { CertificateBundle } from "./ca";
+import type { CertificateBundle } from "./ca";
 import prisma from "../db/database";
 
 export type CertificateStore = {

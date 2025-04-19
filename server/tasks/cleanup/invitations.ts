@@ -4,7 +4,7 @@ export default defineTask({
   meta: {
     name: "cleanup:invitations",
   },
-  async run({}) {
+  async run() {
     const now = new Date();
 
     await prisma.invitation.deleteMany({

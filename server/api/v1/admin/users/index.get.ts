@@ -13,9 +13,9 @@ export default defineEventHandler(async (h3) => {
       authMecs: {
         select: {
           mec: true,
-        }
-      }
-    }
+        },
+      },
+    },
   });
 
   return users;

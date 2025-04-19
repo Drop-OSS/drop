@@ -84,7 +84,7 @@ import { DocumentIcon } from "@heroicons/vue/24/outline";
 import type { Article } from "@prisma/client";
 import type { SerializeObject } from "nitropack/types";
 
-const props = defineProps<{
+const { articles } = defineProps<{
   articles: SerializeObject<
     Article & {
       tags: Array<{ name: string; id: string }>;

@@ -1,5 +1,5 @@
 <template>
-  <ModalTemplate :modelValue="!!article">
+  <ModalTemplate :model-value="!!article">
     <template #default>
       <div>
         <DialogTitle
@@ -19,14 +19,14 @@
     <template #buttons>
       <LoadingButton
         :loading="deleteLoading"
-        @click="() => deleteArticle()"
         class="bg-red-600 text-white hover:bg-red-500"
+        @click="() => deleteArticle()"
       >
         Delete
       </LoadingButton>
       <button
-        @click="() => (article = undefined)"
         class="inline-flex items-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold font-display text-white hover:bg-zinc-700"
+        @click="() => (article = undefined)"
       >
         Cancel
       </button>
@@ -55,21 +55,24 @@ async function deleteArticle() {
     if (!article.value || !news.value) return;
 
     deleteLoading.value = true;
-    await $dropFetch(`/api/v1/admin/news/${article.value.id}`, { method: "DELETE" });
+    await $dropFetch(`/api/v1/admin/news/${article.value.id}`, {
+      method: "DELETE",
+    });
 
     const index = news.value.findIndex((e) => e.id == article.value?.id);
     news.value.splice(index, 1);
 
     article.value = undefined;
     router.push("/news");
-  } catch (e: any) {
+  } catch (e) {
     createModal(
       ModalType.Notification,
       {
         title: "Failed to delete article",
+        // @ts-expect-error attempt to display statusMessage on error
         description: `Drop couldn't delete this article: ${e?.statusMessage}`,
       },
-      (_, c) => c()
+      (_, c) => c(),
     );
   } finally {
     deleteLoading.value = false;

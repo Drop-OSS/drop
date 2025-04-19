@@ -1,5 +1,4 @@
 import type {
-  $Fetch,
   ExtractedRouteMethod,
   NitroFetchOptions,
   NitroFetchRequest,
@@ -8,16 +7,18 @@ import type {
 
 interface DropFetch<
   DefaultT = unknown,
-  DefaultR extends NitroFetchRequest = NitroFetchRequest
+  DefaultR extends NitroFetchRequest = NitroFetchRequest,
 > {
   <
     T = DefaultT,
     R extends NitroFetchRequest = DefaultR,
-    O extends NitroFetchOptions<R> = NitroFetchOptions<R>
+    O extends NitroFetchOptions<R> = NitroFetchOptions<R>,
   >(
     request: R,
-    opts?: O
+    opts?: O,
   ): Promise<
+    // sometimes there is an error, other times there isn't
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     TypedInternalResponse<
       R,
@@ -29,7 +30,9 @@ interface DropFetch<
 
 export const $dropFetch: DropFetch = async (request, opts) => {
   if (!getCurrentInstance()?.proxy) {
-    return (await $fetch(request, opts)) as any;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore Excessive stack depth comparing types
+    return await $fetch(request, opts);
   }
   const id = request.toString();
 
@@ -46,7 +49,7 @@ export const $dropFetch: DropFetch = async (request, opts) => {
   const data = await $fetch(request, {
     ...opts,
     headers: { ...opts?.headers, ...headers },
-  } as any);
+  });
   if (import.meta.server) state.value = data;
-  return data as any;
+  return data;
 };

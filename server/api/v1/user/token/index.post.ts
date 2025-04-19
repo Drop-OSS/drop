@@ -1,6 +1,5 @@
 import { APITokenMode } from "@prisma/client";
 import aclManager, { userACLs } from "~/server/internal/acls";
-import { userACLDescriptions } from "~/server/internal/acls/descriptions";
 import prisma from "~/server/internal/db/database";
 
 export default defineEventHandler(async (h3) => {
@@ -25,17 +24,23 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Token requires more than zero ACLs",
     });
 
-    const invalidACLs = acls.filter((e) => userACLs.findIndex((v) => e == v) == -1);
-    if(invalidACLs.length > 0) throw createError({statusCode: 400, statusMessage: `Invalid ACLs: ${invalidACLs.join(", ")}`});
+  const invalidACLs = acls.filter(
+    (e) => userACLs.findIndex((v) => e == v) == -1,
+  );
+  if (invalidACLs.length > 0)
+    throw createError({
+      statusCode: 400,
+      statusMessage: `Invalid ACLs: ${invalidACLs.join(", ")}`,
+    });
 
-    const token = await prisma.aPIToken.create({
-      data: {
-        mode: APITokenMode.User,
-        name: name,
-        userId: userId,
-        acls: acls,
-      }
-    })
-    
-    return token;
+  const token = await prisma.aPIToken.create({
+    data: {
+      mode: APITokenMode.User,
+      name: name,
+      userId: userId,
+      acls: acls,
+    },
+  });
+
+  return token;
 });

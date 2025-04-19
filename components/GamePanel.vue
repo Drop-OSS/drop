@@ -3,7 +3,7 @@
     v-if="game"
     :href="props.href ?? `/store/${game.id}`"
     class="group relative w-48 h-64 rounded-lg overflow-hidden transition-all duration-300 text-left hover:scale-[1.02] hover:shadow-lg hover:-translate-y-0.5"
-    @click.native="active = game.id"
+    @click="active = game.id"
   >
     <div
       class="absolute inset-0 transition-all duration-300 group-hover:scale-110"

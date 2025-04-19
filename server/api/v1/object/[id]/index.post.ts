@@ -18,7 +18,7 @@ export default defineEventHandler(async (h3) => {
   const result = await objectHandler.writeWithPermissions(
     id,
     async () => buffer,
-    userId
+    userId,
   );
   return { success: result };
 });

@@ -8,4 +8,4 @@ The game name is only used for initial matching, and doesn't affect actual metad
 
 ## /{game name}/{version name}
 
-The version name can be anything. Versions have to manually imported within the web UI. There, you can change the order of the updates and mark them as deltas. Delta updates apply files over the previous versions. 
+The version name can be anything. Versions have to manually imported within the web UI. There, you can change the order of the updates and mark them as deltas. Delta updates apply files over the previous versions.

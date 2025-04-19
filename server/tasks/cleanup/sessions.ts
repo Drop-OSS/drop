@@ -4,7 +4,7 @@ export default defineTask({
   meta: {
     name: "cleanup:invitations",
   },
-  async run({}) {
+  async run() {
     await sessionHandler.cleanupSessions();
 
     return { result: true };

@@ -3,7 +3,7 @@
     class="flex min-h-screen bg-zinc-950 flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8"
   >
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
-      <Logo class="mx-auto h-10 w-auto" />
+      <DropLogo class="mx-auto h-10 w-auto" />
       <h2
         class="mt-6 text-center text-2xl font-bold font-display leading-9 tracking-tight text-zinc-100"
       >
@@ -23,11 +23,11 @@
             <div class="mt-2">
               <input
                 id="display-name"
+                v-model="displayName"
                 name="display-name"
                 type="text"
                 autocomplete="display-name"
                 required
-                v-model="displayName"
                 placeholder="AwesomeDropGamer771"
                 class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
               />
@@ -51,12 +51,12 @@
             <div class="mt-2">
               <input
                 id="email"
+                v-model="email"
                 name="email"
                 type="email"
                 autocomplete="email"
                 required
                 :disabled="!!invitation.data.value?.email"
-                v-model="email"
                 placeholder="me@example.com"
                 class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
               />
@@ -82,12 +82,12 @@
             <div class="mt-2">
               <input
                 id="username"
+                v-model="username"
                 name="username"
                 type="text"
                 autocomplete="username"
                 required
                 :disabled="!!invitation.data.value?.username"
-                v-model="username"
                 placeholder="myUsername"
                 class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
               />
@@ -113,11 +113,11 @@
             <div class="mt-2">
               <input
                 id="password"
+                v-model="password"
                 name="password"
                 type="password"
                 autocomplete="password"
                 required
-                v-model="password"
                 class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
               />
             </div>
@@ -140,11 +140,11 @@
             <div class="mt-2">
               <input
                 id="confirm-password"
+                v-model="confirmPassword"
                 name="confirm-password"
                 type="password"
                 autocomplete="confirm-password"
                 required
-                v-model="confirmPassword"
                 class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
               />
             </div>
@@ -200,7 +200,7 @@ if (!invitationId)
   });
 
 const invitation = await useFetch(
-  `/api/v1/auth/signup/simple?id=${encodeURIComponent(invitationId)}`
+  `/api/v1/auth/signup/simple?id=${encodeURIComponent(invitationId)}`,
 );
 
 const email = ref(invitation.data.value?.email);
@@ -211,20 +211,20 @@ const confirmPassword = ref(undefined);
 
 const emailValidator = type("string.email");
 const validEmail = computed(
-  () => !(emailValidator(email.value) instanceof type.errors)
+  () => !(emailValidator(email.value) instanceof type.errors),
 );
 
 const usernameValidator = type("string.alphanumeric >= 5").to("string.lower");
 const validUsername = computed(
-  () => !(usernameValidator(username.value) instanceof type.errors)
+  () => !(usernameValidator(username.value) instanceof type.errors),
 );
 
 const passwordValidator = type("string >= 14");
 const validPassword = computed(
-  () => !(passwordValidator(password.value) instanceof type.errors)
+  () => !(passwordValidator(password.value) instanceof type.errors),
 );
 const validConfirmPassword = computed(
-  () => password.value == confirmPassword.value
+  () => password.value == confirmPassword.value,
 );
 
 const loading = ref(false);

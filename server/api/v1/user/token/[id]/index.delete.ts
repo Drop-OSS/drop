@@ -15,7 +15,7 @@ export default defineEventHandler(async (h3) => {
 
   const deleted = await prisma.aPIToken.delete({
     where: { id: id, userId: userId, mode: APITokenMode.User },
-  })!!;
+  })!;
   if (!deleted)
     throw createError({ statusCode: 404, statusMessage: "Token not found" });
 

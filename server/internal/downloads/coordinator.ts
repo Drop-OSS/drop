@@ -5,6 +5,5 @@ When a client signs on and registers itself as a peer
 
 */
 
-class DownloadCoordinator {
-
-}
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class, @typescript-eslint/no-unused-vars
+class DownloadCoordinator {}

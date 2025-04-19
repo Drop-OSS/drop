@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-v-html -->
 <template>
   <div
     class="mx-auto bg-zinc-950 w-full relative flex flex-col justify-center pt-32 xl:pt-24 z-10 overflow-hidden"
@@ -32,7 +33,7 @@
             :alt="game.mName"
           />
           <div class="flex items-center gap-x-2">
-            <AddLibraryButton :gameId="game.id" />
+            <AddLibraryButton :game-id="game.id" />
           </div>
           <NuxtLink
             v-if="user?.admin"
@@ -70,9 +71,9 @@
                   class="whitespace-nowrap inline-flex gap-x-4 px-3 py-4 text-sm text-zinc-400"
                 >
                   <component
+                    :is="PLATFORM_ICONS[platform]"
                     v-for="platform in platforms"
                     :key="platform"
-                    :is="PLATFORM_ICONS[platform]"
                     class="text-blue-600 w-6 h-6"
                   />
                   <span
@@ -138,13 +139,13 @@
           <div>
             <div
               v-if="showPreview"
-              v-html="previewHTML"
               class="mt-12 prose prose-invert prose-blue max-w-none"
+              v-html="previewHTML"
             />
             <div
               v-else
-              v-html="descriptionHTML"
               class="mt-12 prose prose-invert prose-blue max-w-none"
+              v-html="descriptionHTML"
             />
 
             <button
@@ -169,11 +170,11 @@
 <script setup lang="ts">
 import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
 import { StarIcon } from "@heroicons/vue/24/solid";
-import { type Game, type GameVersion } from "@prisma/client";
+import type { Game, GameVersion } from "@prisma/client";
 import { micromark } from "micromark";
 import { DateTime } from "luxon";
-import { SerializeObject } from "nitropack";
-import { PlatformClient } from "~/composables/types";
+import type { SerializeObject } from "nitropack";
+import type { PlatformClient } from "~/composables/types";
 
 const route = useRoute();
 const gameId = route.params.id.toString();
@@ -197,7 +198,7 @@ const descriptionSplitIndex = gameDescriptionCharacters.findIndex(
     if (i < 500) return false;
     if (v != "\n") return false;
     return true;
-  }
+  },
 );
 
 const previewDescription = gameDescriptionCharacters

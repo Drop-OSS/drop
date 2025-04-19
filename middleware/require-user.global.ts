@@ -1,7 +1,7 @@
 const whitelistedPrefixes = ["/auth", "/api", "/setup"];
 const requireAdmin = ["/admin"];
 
-export default defineNuxtRouteMiddleware(async (to, from) => {
+export default defineNuxtRouteMiddleware(async (to, _from) => {
   if (import.meta.server) return;
   const error = useError();
   if (error.value !== undefined) return;

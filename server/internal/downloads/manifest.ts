@@ -1,4 +1,4 @@
-import { GameVersion } from "@prisma/client";
+import type { GameVersion } from "@prisma/client";
 import prisma from "../db/database";
 
 export type DropChunk = {
@@ -33,7 +33,7 @@ class ManifestGenerator {
             key,
             Object.assign({}, value, { versionName: rootManifest.versionName }),
           ];
-        })
+        }),
       );
     }
 
@@ -71,6 +71,7 @@ class ManifestGenerator {
     if (baseVersion.delta) {
       // Start at the same index minus one, and keep grabbing them
       // until we run out or we hit something that isn't a delta
+      // eslint-disable-next-line no-constant-condition
       for (let i = baseVersion.versionIndex - 1; true; i--) {
         const currentVersion = await prisma.gameVersion.findFirst({
           where: {
@@ -88,7 +89,7 @@ class ManifestGenerator {
     const metadata: DropManifestMetadata[] = leastToMost.map((e) => {
       return {
         manifest: JSON.parse(
-          e.dropletManifest?.toString() ?? "{}"
+          e.dropletManifest?.toString() ?? "{}",
         ) as DropManifest,
         versionName: e.versionName,
       };
@@ -96,7 +97,7 @@ class ManifestGenerator {
 
     const manifest = ManifestGenerator.generateManifestFromMetadata(
       metadata[0],
-      ...metadata.slice(1)
+      ...metadata.slice(1),
     );
 
     return manifest;

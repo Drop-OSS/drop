@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-v-html -->
 <template>
   <div
     class="flex grow flex-col gap-y-5 overflow-y-auto bg-zinc-900 px-6 py-6 ring-1 ring-white/10"
@@ -17,8 +18,8 @@
           </div>
           <input
             id="search"
-            type="text"
             v-model="searchQuery"
+            type="text"
             class="block w-full rounded-md border-0 bg-zinc-800 py-2.5 pl-10 pr-3 text-zinc-100 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6"
             placeholder="Search articles..."
           />
@@ -49,13 +50,13 @@
           <button
             v-for="tag in availableTags"
             :key="tag"
-            @click="toggleTag(tag)"
             class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors duration-200"
             :class="[
               selectedTags.includes(tag)
                 ? 'bg-blue-600 text-white'
                 : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700',
             ]"
+            @click="toggleTag(tag)"
           >
             {{ tag }}
           </button>
@@ -97,7 +98,7 @@
           <p
             class="relative mt-1 text-xs text-zinc-400 line-clamp-2"
             v-html="formatExcerpt(article.description)"
-          ></p>
+          />
           <div
             class="relative mt-2 flex items-center gap-x-2 text-xs text-zinc-500"
           >
@@ -117,7 +118,7 @@ import { MagnifyingGlassIcon } from "@heroicons/vue/24/solid";
 import { micromark } from "micromark";
 
 const news = useNews();
-if(!news.value){
+if (!news.value) {
   news.value = await fetchNews();
 }
 
@@ -154,6 +155,7 @@ const formatDate = (date: string) => {
 };
 
 const formatExcerpt = (excerpt: string) => {
+  // TODO: same as one in NewsArticleCreateButton
   // Convert markdown to HTML
   const html = micromark(excerpt);
   // Strip HTML tags using regex
@@ -175,28 +177,32 @@ const filteredArticles = computed(() => {
     const now = new Date();
     let matchesDate = true;
 
-    switch (dateFilter.value) {
-      case "today":
+    switch (dateFilter.value.toLowerCase()) {
+      case "today": {
         matchesDate = articleDate.toDateString() === now.toDateString();
         break;
-      case "week":
+      }
+      case "week": {
         const weekAgo = new Date(now.setDate(now.getDate() - 7));
         matchesDate = articleDate >= weekAgo;
         break;
-      case "month":
+      }
+      case "month": {
         matchesDate =
           articleDate.getMonth() === now.getMonth() &&
           articleDate.getFullYear() === now.getFullYear();
         break;
-      case "year":
+      }
+      case "year": {
         matchesDate = articleDate.getFullYear() === now.getFullYear();
         break;
+      }
     }
 
     const matchesTags =
       selectedTags.value.length === 0 ||
       selectedTags.value.every((tag) =>
-        article.tags.find((e) => e.name == tag)
+        article.tags.find((e) => e.name == tag),
       );
 
     return matchesSearch && matchesDate && matchesTags;

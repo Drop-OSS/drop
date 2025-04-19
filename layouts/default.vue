@@ -6,7 +6,7 @@
     </div>
     <UserFooter class="z-50" hydrate-on-interaction />
   </div>
-  <div class="flex w-full min-h-screen bg-zinc-900" v-else>
+  <div v-else class="flex w-full min-h-screen bg-zinc-900">
     <NuxtPage />
   </div>
 </template>

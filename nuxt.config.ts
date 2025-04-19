@@ -1,4 +1,3 @@
-import path from "path";
 import tailwindcss from "@tailwindcss/vite";
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
@@ -70,6 +69,7 @@ export default defineNuxtConfig({
     "nuxt-security",
     // "@nuxt/image",
     "@nuxt/fonts",
+    "@nuxt/eslint",
   ],
 
   carousel: {
@@ -88,8 +88,6 @@ export default defineNuxtConfig({
           "https://images.pcgamingwiki.com",
           "https://images.igdb.com",
         ],
-
-        "script-src": ["'nonce-{{nonce}}'"],
       },
       strictTransportSecurity: false,
     },

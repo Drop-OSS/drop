@@ -7,13 +7,13 @@
     <!-- Search bar -->
     <div class="mt-5 relative">
       <input
+        id="search"
+        v-model="searchQuery"
         type="text"
         name="search"
-        id="search"
         autocomplete="off"
         class="block w-full rounded-md bg-zinc-900 py-2 pl-9 pr-2 text-sm text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600"
         placeholder="Search library..."
-        v-model="searchQuery"
       />
       <MagnifyingGlassIcon
         class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400"
@@ -22,11 +22,11 @@
     </div>
 
     <TransitionGroup
+      v-if="filteredLibrary.length > 0"
       name="list"
       tag="ul"
       role="list"
       class="mt-2 space-y-0.5"
-      v-if="filteredLibrary.length > 0"
     >
       <li v-for="game in filteredLibrary" :key="game.id" class="flex">
         <NuxtLink
@@ -39,7 +39,9 @@
             alt=""
           />
           <div class="min-w-0 flex-1 pl-2.5">
-            <p class="text-sm font-semibold text-display text-zinc-200 truncate text-left">
+            <p
+              class="text-sm font-semibold text-display text-zinc-200 truncate text-left"
+            >
               {{ game.mName }}
             </p>
           </div>
@@ -57,7 +59,6 @@
 </template>
 
 <script setup lang="ts">
-import { HomeIcon } from "@heroicons/vue/24/outline";
 import { Bars3Icon, MagnifyingGlassIcon } from "@heroicons/vue/24/solid";
 
 const library = await useLibrary();
@@ -68,7 +69,7 @@ const filteredLibrary = computed(() =>
   library.value.entries
     .map((e) => e.game)
     .filter((e) =>
-      e.mName.toLowerCase().includes(searchQuery.value.toLowerCase())
-    )
+      e.mName.toLowerCase().includes(searchQuery.value.toLowerCase()),
+    ),
 );
 </script>

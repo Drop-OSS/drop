@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-v-html -->
 <template>
   <div
     class="mx-auto w-full relative flex flex-col justify-center pt-72 overflow-hidden"
@@ -50,7 +51,7 @@
             />
           </button>
           <div class="relative z-50">
-            <AddLibraryButton class="font-bold" :gameId="game.id" />
+            <AddLibraryButton class="font-bold" :game-id="game.id" />
           </div>
           <NuxtLink
             :to="`/store/${game.id}`"
@@ -98,9 +99,9 @@
           <div class="space-y-6">
             <div class="bg-zinc-800/50 rounded-xl p-6 backdrop-blur-sm">
               <div
-                v-html="descriptionHTML"
                 class="prose prose-invert prose-blue overflow-y-auto custom-scrollbar max-w-none"
-              ></div>
+                v-html="descriptionHTML"
+              />
             </div>
           </div>
         </div>
@@ -112,13 +113,9 @@
 <script setup lang="ts">
 import {
   ArrowLeftIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  PhotoIcon,
   ArrowTopRightOnSquareIcon,
   ArrowUpRightIcon,
 } from "@heroicons/vue/20/solid";
-import { BuildingStorefrontIcon } from "@heroicons/vue/24/outline";
 import { micromark } from "micromark";
 import type { Game } from "@prisma/client";
 
@@ -135,23 +132,23 @@ const game = computed(() => {
 
 // Convert markdown to HTML
 const descriptionHTML = computed(() =>
-  micromark(game.value.mDescription ?? "")
+  micromark(game.value.mDescription ?? ""),
 );
 
-const currentImageIndex = ref(0);
+// const currentImageIndex = ref(0);
 
-function nextImage() {
-  if (!game.value?.mImageCarousel) return;
-  currentImageIndex.value =
-    (currentImageIndex.value + 1) % game.value.mImageCarousel.length;
-}
+// function nextImage() {
+//   if (!game.value?.mImageCarousel) return;
+//   currentImageIndex.value =
+//     (currentImageIndex.value + 1) % game.value.mImageCarousel.length;
+// }
 
-function previousImage() {
-  if (!game.value?.mImageCarousel) return;
-  currentImageIndex.value =
-    (currentImageIndex.value - 1 + game.value.mImageCarousel.length) %
-    game.value.mImageCarousel.length;
-}
+// function previousImage() {
+//   if (!game.value?.mImageCarousel) return;
+//   currentImageIndex.value =
+//     (currentImageIndex.value - 1 + game.value.mImageCarousel.length) %
+//     game.value.mImageCarousel.length;
+// }
 </script>
 
 <style scoped>

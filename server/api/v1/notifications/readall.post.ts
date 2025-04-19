@@ -9,7 +9,7 @@ export default defineEventHandler(async (h3) => {
   const hasSystemPerms = await aclManager.allowSystemACL(h3, [
     "notifications:mark",
   ]);
-  if(hasSystemPerms){
+  if (hasSystemPerms) {
     userIds.push("system");
   }
 

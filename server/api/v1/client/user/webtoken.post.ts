@@ -1,6 +1,6 @@
 import { APITokenMode } from "@prisma/client";
 import { DateTime } from "luxon";
-import { UserACL } from "~/server/internal/acls";
+import type { UserACL } from "~/server/internal/acls";
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import prisma from "~/server/internal/db/database";
 
@@ -27,5 +27,5 @@ export default defineClientEventHandler(
     });
 
     return token.token;
-  }
+  },
 );

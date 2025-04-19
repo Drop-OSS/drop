@@ -1,4 +1,3 @@
-import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import prisma from "~/server/internal/db/database";
 import fs from "fs";
 import path from "path";
@@ -33,7 +32,7 @@ export default defineEventHandler(async (h3) => {
   const versionDir = path.join(
     libraryManager.fetchLibraryPath(),
     game.libraryBasePath,
-    versionName
+    versionName,
   );
   if (!fs.existsSync(versionDir))
     throw createError({

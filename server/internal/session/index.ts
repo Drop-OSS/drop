@@ -1,11 +1,11 @@
-import { H3Event } from "h3";
-import createMemorySessionProvider from "./memory";
-import { Session, SessionProvider } from "./types";
+import type { H3Event } from "h3";
+import type { Session, SessionProvider } from "./types";
 import { randomUUID } from "node:crypto";
 import { parse as parseCookies } from "cookie-es";
-import { MinimumRequestObject } from "~/server/h3";
+import type { MinimumRequestObject } from "~/server/h3";
 import createDBSessionHandler from "./db";
-import { DateTime, DurationLike } from "luxon";
+import type { DurationLike } from "luxon";
+import { DateTime } from "luxon";
 
 /*
 This implementation may need work.
@@ -89,7 +89,7 @@ export class SessionHandler {
    * @returns session token
    */
   private getSessionToken(
-    request: MinimumRequestObject | undefined
+    request: MinimumRequestObject | undefined,
   ): string | undefined {
     if (!request) throw new Error("Native web request not available");
     const cookieHeader = request.headers.get("Cookie");

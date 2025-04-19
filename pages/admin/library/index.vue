@@ -43,12 +43,12 @@
     </div>
     <div class="mt-2 grid grid-cols-1">
       <input
+        id="search"
+        v-model="searchQuery"
         type="text"
         name="search"
-        id="search"
         class="col-start-1 row-start-1 block w-full rounded-md bg-zinc-900 py-1.5 pl-10 pr-3 text-base text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:pl-9 sm:text-sm/6"
         placeholder="Search library..."
-        v-model="searchQuery"
       />
       <MagnifyingGlassIcon
         class="pointer-events-none col-start-1 row-start-1 ml-3 size-5 self-center text-zinc-400 sm:size-4"
@@ -87,17 +87,17 @@
             </dl>
             <div class="inline-flex gap-x-2 items-center">
               <NuxtLink
-              :href="`/admin/library/${game.id}`"
-              class="mt-2 w-fit rounded-md bg-blue-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-            >
-              Edit &rarr;
-            </NuxtLink>
-            <button
-              @click="() => deleteGame(game.id)"
-              class="mt-2 w-fit rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
-            >
-              Delete
-            </button>
+                :href="`/admin/library/${game.id}`"
+                class="mt-2 w-fit rounded-md bg-blue-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+              >
+                Edit &rarr;
+              </NuxtLink>
+              <button
+                class="mt-2 w-fit rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                @click="() => deleteGame(game.id)"
+              >
+                Delete
+              </button>
             </div>
           </div>
         </div>
@@ -150,14 +150,14 @@
         </div>
       </li>
       <p
-        class="text-zinc-600 text-sm font-display font-bold uppercase text-center col-span-4"
         v-if="filteredLibraryGames.length == 0 && libraryGames.length != 0"
+        class="text-zinc-600 text-sm font-display font-bold uppercase text-center col-span-4"
       >
         No results
       </p>
       <p
-        class="text-zinc-600 text-sm font-display font-bold uppercase text-center col-span-4"
         v-if="filteredLibraryGames.length == 0 && libraryGames.length == 0"
+        class="text-zinc-600 text-sm font-display font-bold uppercase text-center col-span-4"
       >
         No games imported
       </p>
@@ -193,11 +193,12 @@ const libraryGames = ref(
       },
       hasNotifications: noVersions || toImport,
     };
-  })
+  }),
 );
 
 const filteredLibraryGames = computed(() =>
-  // @ts-ignore
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore excessively deep ts
   libraryGames.value.filter((e) => {
     if (!searchQuery.value) return true;
     const searchQueryLower = searchQuery.value.toLowerCase();
@@ -205,7 +206,7 @@ const filteredLibraryGames = computed(() =>
     if (e.mShortDescription.toLowerCase().includes(searchQueryLower))
       return true;
     return false;
-  })
+  }),
 );
 
 async function deleteGame(id: string) {

@@ -2,8 +2,8 @@
   <div class="flex flex-col gap-y-4 max-w-lg">
     <Listbox
       as="div"
-      v-on:update:model-value="(value) => updateCurrentlySelectedVersion(value)"
       :model-value="currentlySelectedVersion"
+      @update:model-value="(value) => updateCurrentlySelectedVersion(value)"
     >
       <ListboxLabel class="block text-sm font-medium leading-6 text-zinc-100"
         >Select version to import</ListboxLabel
@@ -37,11 +37,11 @@
             class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-zinc-800 focus:outline-none sm:text-sm"
           >
             <ListboxOption
-              as="template"
               v-for="(version, versionIdx) in versions"
               :key="version"
-              :value="versionIdx"
               v-slot="{ active, selected }"
+              as="template"
+              :value="versionIdx"
             >
               <li
                 :class="[
@@ -73,7 +73,7 @@
       </div>
     </Listbox>
 
-    <div class="flex flex-col gap-8" v-if="versionGuesses">
+    <div v-if="versionGuesses" class="flex flex-col gap-8">
       <!-- setup executable -->
       <div>
         <label
@@ -93,15 +93,15 @@
             <Combobox
               as="div"
               :value="versionSettings.setup"
-              @update:model-value="(v) => updateSetupCommand(v)"
               nullable
+              @update:model-value="(v) => updateSetupCommand(v)"
             >
               <div class="relative">
                 <ComboboxInput
                   class="block flex-1 border-0 py-1.5 pl-1 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
+                  :placeholder="'setup.exe'"
                   @change="setupProcessQuery = $event.target.value"
                   @blur="setupProcessQuery = ''"
-                  :placeholder="'setup.exe'"
                 />
                 <ComboboxButton
                   v-if="setupFilteredVersionGuesses?.length ?? 0 > 0"
@@ -119,9 +119,9 @@
                   <ComboboxOption
                     v-for="guess in setupFilteredVersionGuesses"
                     :key="guess.filename"
+                    v-slot="{ active, selected }"
                     :value="guess.filename"
                     as="template"
-                    v-slot="{ active, selected }"
                   >
                     <li
                       :class="[
@@ -156,9 +156,9 @@
                     </li>
                   </ComboboxOption>
                   <ComboboxOption
-                    :value="setupProcessQuery"
                     v-if="setupProcessQuery"
                     v-slot="{ active, selected }"
+                    :value="setupProcessQuery"
                   >
                     <li
                       :class="[
@@ -189,10 +189,10 @@
               </div>
             </Combobox>
             <input
-              type="text"
-              name="startup"
               id="startup"
               v-model="versionSettings.setupArgs"
+              type="text"
+              name="startup"
               class="border-l border-zinc-700 block flex-1 border-0 py-1.5 pl-2 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
               placeholder="--setup"
             />
@@ -249,15 +249,15 @@
             <Combobox
               as="div"
               :value="versionSettings.launch"
-              @update:model-value="(v) => updateLaunchCommand(v)"
               nullable
+              @update:model-value="(v) => updateLaunchCommand(v)"
             >
               <div class="relative">
                 <ComboboxInput
                   class="block flex-1 border-0 py-1.5 pl-1 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
+                  :placeholder="'game.exe'"
                   @change="launchProcessQuery = $event.target.value"
                   @blur="launchProcessQuery = ''"
-                  :placeholder="'game.exe'"
                 />
                 <ComboboxButton
                   v-if="launchFilteredVersionGuesses?.length ?? 0 > 0"
@@ -275,9 +275,9 @@
                   <ComboboxOption
                     v-for="guess in launchFilteredVersionGuesses"
                     :key="guess.filename"
+                    v-slot="{ active, selected }"
                     :value="guess.filename"
                     as="template"
-                    v-slot="{ active, selected }"
                   >
                     <li
                       :class="[
@@ -312,9 +312,9 @@
                     </li>
                   </ComboboxOption>
                   <ComboboxOption
-                    :value="launchProcessQuery"
                     v-if="launchProcessQuery"
                     v-slot="{ active, selected }"
+                    :value="launchProcessQuery"
                   >
                     <li
                       :class="[
@@ -345,18 +345,18 @@
               </div>
             </Combobox>
             <input
-              type="text"
-              name="startup"
               id="startup"
               v-model="versionSettings.launchArgs"
+              type="text"
+              name="startup"
               class="border-l border-zinc-700 block flex-1 border-0 py-1.5 pl-2 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
               placeholder="--launch"
             />
           </div>
         </div>
         <div
-          class="absolute inset-0 bg-zinc-900/50"
           v-if="versionSettings.onlySetup"
+          class="absolute inset-0 bg-zinc-900/50"
         />
       </div>
 
@@ -393,7 +393,7 @@
           />
         </Switch>
       </SwitchGroup>
-      <Disclosure as="div" class="py-2" v-slot="{ open }">
+      <Disclosure v-slot="{ open }" as="div" class="py-2">
         <dt>
           <DisclosureButton
             class="border-b border-zinc-600 pb-2 flex w-full items-start justify-between text-left text-zinc-100"
@@ -453,12 +453,12 @@
               <div class="mt-2">
                 <input
                   id="umu-id"
+                  v-model="umuId"
                   name="umu-id"
                   type="text"
                   autocomplete="umu-id"
                   required
                   :disabled="!umuIdEnabled"
-                  v-model="umuId"
                   placeholder="umu-starcitizen"
                   class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-950 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
                 />
@@ -473,9 +473,9 @@
       </Disclosure>
 
       <LoadingButton
-        @click="startImport_wrapper"
         class="w-fit"
         :loading="importLoading"
+        @click="startImport_wrapper"
       >
         Import
       </LoadingButton>
@@ -536,7 +536,6 @@ import {
   Combobox,
   ComboboxButton,
   ComboboxInput,
-  ComboboxLabel,
   ComboboxOption,
   ComboboxOptions,
 } from "@headlessui/vue";
@@ -553,7 +552,7 @@ const router = useRouter();
 const route = useRoute();
 const gameId = route.params.id.toString();
 const versions = await $dropFetch(
-  `/api/v1/admin/import/version?id=${encodeURIComponent(gameId)}`
+  `/api/v1/admin/import/version?id=${encodeURIComponent(gameId)}`,
 );
 const currentlySelectedVersion = ref(-1);
 const versionSettings = ref<{
@@ -585,13 +584,13 @@ const setupProcessQuery = ref("");
 
 const launchFilteredVersionGuesses = computed(() =>
   versionGuesses.value?.filter((e) =>
-    e.filename.toLowerCase().includes(launchProcessQuery.value.toLowerCase())
-  )
+    e.filename.toLowerCase().includes(launchProcessQuery.value.toLowerCase()),
+  ),
 );
 const setupFilteredVersionGuesses = computed(() =>
   versionGuesses.value?.filter((e) =>
-    e.filename.toLowerCase().includes(setupProcessQuery.value.toLowerCase())
-  )
+    e.filename.toLowerCase().includes(setupProcessQuery.value.toLowerCase()),
+  ),
 );
 
 function updateLaunchCommand(value: string) {
@@ -608,7 +607,7 @@ function autosetPlatform(value: string) {
   if (!versionGuesses.value) return;
   if (versionSettings.value.platform) return;
   const guessIndex = versionGuesses.value.findIndex(
-    (e) => e.filename === value
+    (e) => e.filename === value,
   );
   if (guessIndex == -1) return;
   versionSettings.value.platform = versionGuesses.value[guessIndex].platform;
@@ -636,8 +635,8 @@ async function updateCurrentlySelectedVersion(value: number) {
   const version = versions[currentlySelectedVersion.value];
   const results = await $dropFetch(
     `/api/v1/admin/import/version/preload?id=${encodeURIComponent(
-      gameId
-    )}&version=${encodeURIComponent(version)}`
+      gameId,
+    )}&version=${encodeURIComponent(version)}`,
   );
   versionGuesses.value = results.map((e) => ({
     ...e,

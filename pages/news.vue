@@ -97,22 +97,13 @@ import {
   TransitionChild,
   TransitionRoot,
 } from "@headlessui/vue";
-import {
-  Bars3Icon,
-  CalendarIcon,
-  ChartPieIcon,
-  DocumentDuplicateIcon,
-  FolderIcon,
-  HomeIcon,
-  UsersIcon,
-  XMarkIcon,
-} from "@heroicons/vue/24/outline";
+import { Bars3Icon, XMarkIcon } from "@heroicons/vue/24/outline";
 
 const news = useNews();
 
 if (!news.value) {
   await fetchNews();
-  console.log('fetched news')
+  console.log("fetched news");
 }
 
 const router = useRouter();

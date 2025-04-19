@@ -1,11 +1,11 @@
 <template>
   <div ref="currentComponent">
     <ClientOnly fallback-tag="span">
-      <VueCarousel :itemsToShow="singlePage" :itemsToScroll="singlePage">
+      <VueCarousel :items-to-show="singlePage" :items-to-scroll="singlePage">
         <VueSlide
-          class="justify-start"
           v-for="(game, gameIdx) in games"
           :key="gameIdx"
+          class="justify-start"
         >
           <GamePanel :game="game" />
         </VueSlide>
@@ -46,7 +46,7 @@ const min = computed(() => Math.max(props.min ?? 8, props.items.length));
 const games: Ref<Array<SerializeObject<Game> | undefined>> = computed(() =>
   Array(min.value)
     .fill(0)
-    .map((_, i) => props.items[i])
+    .map((_, i) => props.items[i]),
 );
 
 const singlePage = ref(2);

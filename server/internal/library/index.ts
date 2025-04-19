@@ -8,7 +8,7 @@
 import fs from "fs";
 import path from "path";
 import prisma from "../db/database";
-import { GameVersion, Platform } from "@prisma/client";
+import type { GameVersion } from "@prisma/client";
 import { fuzzy } from "fast-fuzzy";
 import { recursivelyReaddir } from "../utils/recursivedirs";
 import taskHandler from "../tasks";
@@ -51,13 +51,13 @@ class LibraryManager {
 
   async fetchUnimportedGameVersions(
     libraryBasePath: string,
-    versions: Array<GameVersion>
+    versions: Array<GameVersion>,
   ) {
     const gameDir = path.join(this.basePath, libraryBasePath);
     const versionsDirs = fs.readdirSync(gameDir);
     const importedVersionDirs = versions.map((e) => e.versionName);
     const unimportedVersions = versionsDirs.filter(
-      (e) => !importedVersionDirs.includes(e)
+      (e) => !importedVersionDirs.includes(e),
     );
 
     return unimportedVersions;
@@ -88,10 +88,10 @@ class LibraryManager {
           noVersions: e.versions.length == 0,
           unimportedVersions: await this.fetchUnimportedGameVersions(
             e.libraryBasePath,
-            e.versions
+            e.versions,
           ),
         },
-      }))
+      })),
     );
   }
 
@@ -112,7 +112,7 @@ class LibraryManager {
     const targetDir = path.join(this.basePath, game.libraryBasePath);
     if (!fs.existsSync(targetDir))
       throw new Error(
-        "Game in database, but no physical directory? Something is very very wrong..."
+        "Game in database, but no physical directory? Something is very very wrong...",
       );
     const versions = fs.readdirSync(targetDir);
     const validVersions = versions.filter((versionDir) => {
@@ -123,7 +123,7 @@ class LibraryManager {
     const currentVersions = game.versions.map((e) => e.versionName);
 
     const unimportedVersions = validVersions.filter(
-      (e) => !currentVersions.includes(e)
+      (e) => !currentVersions.includes(e),
     );
     return unimportedVersions;
   }
@@ -137,7 +137,7 @@ class LibraryManager {
     const targetDir = path.join(
       this.basePath,
       game.libraryBasePath,
-      versionName
+      versionName,
     );
     if (!fs.existsSync(targetDir)) return undefined;
 
@@ -216,7 +216,7 @@ class LibraryManager {
       delta: boolean;
 
       umuId: string;
-    }
+    },
   ) {
     const taskId = `import:${gameId}:${versionName}`;
 
@@ -253,7 +253,7 @@ class LibraryManager {
             (err, manifest) => {
               if (err) return reject(err);
               resolve(manifest);
-            }
+            },
           );
         });
 

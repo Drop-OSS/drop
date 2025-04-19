@@ -8,8 +8,6 @@ class UserLibraryManager {
   // Caches the user's core library
   private userCoreLibraryCache: { [key: string]: string } = {};
 
-  constructor() {}
-
   private async fetchUserLibrary(userId: string) {
     if (this.userCoreLibraryCache[userId])
       return this.userCoreLibraryCache[userId];
