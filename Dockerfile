@@ -21,6 +21,7 @@ WORKDIR /app
 
 COPY --from=build-system /build/.output ./app
 COPY --from=build-system /build/prisma ./prisma
+COPY --from=build-system /build/package.json .
 COPY --from=build-system /build/build ./startup
 
 # OpenSSL as a dependency for Drop (TODO: seperate build environment)
