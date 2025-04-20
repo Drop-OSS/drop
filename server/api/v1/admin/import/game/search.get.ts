@@ -14,7 +14,7 @@ export default defineEventHandler(async (h3) => {
 
   if (results.length == 0)
     throw createError({
-      statusCode: 500,
+      statusCode: 404,
       statusMessage: "No metadata provider returned search results.",
     });
 
