@@ -21,7 +21,7 @@
     "@heroicons/vue": "^2.1.5",
     "@nuxt/fonts": "^0.11.0",
     "@nuxt/image": "^1.10.0",
-    "@prisma/client": "^6.5.0",
+    "@prisma/client": "^6.6.0",
     "@tailwindcss/vite": "^4.0.6",
     "argon2": "^0.41.1",
     "arktype": "^2.1.10",
@@ -36,7 +36,7 @@
     "micromark": "^4.0.1",
     "nuxt": "^3.16.2",
     "nuxt-security": "2.2.0",
-    "prisma": "^6.5.0",
+    "prisma": "^6.6.0",
     "sharp": "^0.33.5",
     "stream-mime-type": "^2.0.0",
     "turndown": "^7.2.0",
@@ -72,6 +72,6 @@
     }
   },
   "prisma": {
-    "schema": "./prisma/schema"
+    "schema": "./prisma"
   }
 }
