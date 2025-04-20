@@ -1,5 +1,5 @@
 <template>
-  <div class="grid gap-4 lg:grid-cols-3 lg:grid-rows-2">
+  <div v-if="false" class="grid gap-4 lg:grid-cols-3 lg:grid-rows-2">
     <div class="relative lg:row-span-2">
       <div
         class="absolute inset-px rounded-lg bg-zinc-950 lg:rounded-l-[2rem]"
