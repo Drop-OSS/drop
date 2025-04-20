@@ -25,7 +25,6 @@ export class FsObjectBackend extends ObjectBackend {
   }
 
   async fetch(id: ObjectReference) {
-    console.log("ID: " + id);
     const objectPath = path.join(this.baseObjectPath, id);
     if (!fs.existsSync(objectPath)) return undefined;
     return fs.createReadStream(objectPath);

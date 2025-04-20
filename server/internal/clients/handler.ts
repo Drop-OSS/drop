@@ -63,7 +63,9 @@ export class ClientHandler {
   }
 
   async fetchClientMetadataByToken(token: string) {
-    return Object.entries(this.temporaryClientTable)
+    return this.temporaryClientTable
+      .entries()
+      .toArray()
       .map((e) => Object.assign(e[1], { id: e[0] }))
       .find((e) => e.authToken === token);
   }

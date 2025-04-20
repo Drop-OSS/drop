@@ -51,7 +51,7 @@ class TaskHandler {
           };
           logOffset = taskEntry.log.length;
 
-          for (const clientId of Object.keys(taskEntry.clients)) {
+          for (const clientId of taskEntry.clients.keys()) {
             const client = this.clientRegistry.get(clientId);
             if (!client) continue;
             client.send(JSON.stringify(taskMessage));
@@ -108,7 +108,7 @@ class TaskHandler {
       }
       await updateAllClients();
 
-      for (const clientId of Object.keys(taskEntry.clients)) {
+      for (const clientId of taskEntry.clients.keys()) {
         if (!this.clientRegistry.get(clientId)) continue;
         this.disconnect(clientId, task.id);
       }
@@ -160,7 +160,7 @@ class TaskHandler {
   }
 
   disconnectAll(id: string) {
-    for (const taskId of Object.keys(this.taskRegistry)) {
+    for (const taskId of this.taskRegistry.keys()) {
       this.taskRegistry.get(taskId)?.clients.delete(id);
       this.sendDisconnectEvent(id, taskId);
     }
@@ -175,8 +175,10 @@ class TaskHandler {
     task.clients.delete(id);
     this.sendDisconnectEvent(id, taskId);
 
-    const allClientIds = Object.values(this.taskRegistry)
-      .map((_) => Object.keys(_.clients))
+    const allClientIds = this.taskRegistry
+      .values()
+      .toArray()
+      .map((e) => e.clients.keys().toArray())
       .flat();
 
     if (!allClientIds.includes(id)) {

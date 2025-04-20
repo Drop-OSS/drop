@@ -57,8 +57,15 @@ class NotificationSystem {
   }
 
   async push(userId: string, notificationCreateArgs: NotificationCreateArgs) {
-    const notification = await prisma.notification.create({
-      data: {
+    const notification = await prisma.notification.upsert({
+      where: {
+        nonce: notificationCreateArgs.nonce!!
+      },
+      update: {
+        userId: userId,
+        ...notificationCreateArgs,
+      },
+      create: {
         userId: userId,
         ...notificationCreateArgs,
       },
