@@ -86,7 +86,6 @@ export class MetadataHandler {
           );
           resolve(mappedResults);
         } catch (e) {
-          console.error(e);
           reject(e);
         }
       });

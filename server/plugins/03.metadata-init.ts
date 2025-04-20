@@ -27,6 +27,7 @@ export default defineNitroPlugin(async (_nitro) => {
     }
   }
 
+
   // Add providers based on their position in the application settings
   const configuredProviderList =
     await applicationSettings.get("metadataProviders");
@@ -43,7 +44,7 @@ export default defineNitroPlugin(async (_nitro) => {
   }
 
   // Add the rest with no position
-  for (const [, provider] of Object.entries(providers)) {
+  for (const [, provider] of providers.entries()) {
     metadataHandler.addProvider(provider);
   }
 
