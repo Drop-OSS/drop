@@ -1,6 +1,7 @@
 name: Release Workflow
 
 on:
+  workflow_dispatch: {}
   release:
     types: [published]
   # This can be used to automatically publish nightlies at UTC nighttime
