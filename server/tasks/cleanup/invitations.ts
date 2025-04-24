@@ -5,6 +5,8 @@ export default defineTask({
     name: "cleanup:invitations",
   },
   async run() {
+    console.log("[Task cleanup:invitations]: Cleaning invitations");
+
     const now = new Date();
 
     await prisma.invitation.deleteMany({
@@ -15,6 +17,7 @@ export default defineTask({
       },
     });
 
+    console.log("[Task cleanup:invitations]: Done");
     return { result: true };
   },
 });
