@@ -22,7 +22,7 @@
     </div>
 
     <div class="flex flex-col gap-y-2 max-h-[300px] overflow-y-scroll">
-      <Notification
+      <NotificationItem
         v-for="notification in props.notifications"
         :key="notification.id"
         :notification="notification"
