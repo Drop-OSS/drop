@@ -1,7 +1,7 @@
 <template>
   <div class="hidden lg:flex bg-zinc-950 flex-row px-12 xl:px-48 py-5">
     <div class="grow inline-flex items-center gap-x-20">
-      <NuxtLink to="/store">
+      <NuxtLink :to="homepageURL">
         <DropWordmark class="h-8" />
       </NuxtLink>
       <nav class="inline-flex items-center">
@@ -62,7 +62,10 @@
   <div
     class="sticky lg:hidden top-0 z-40 flex h-16 justify-between items-center gap-x-4 border-b border-zinc-700 bg-zinc-950 px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8"
   >
+    <NuxtLink :to="homepageURL">
     <DropWordmark class="mb-0.5" />
+    </NuxtLink>
+
     <div class="flex gap-x-4 lg:gap-x-6">
       <div class="flex items-center gap-x-3">
         <!-- Profile dropdown -->
@@ -132,7 +135,7 @@
               class="flex grow flex-col gap-y-5 overflow-y-auto bg-zinc-950 px-6 pb-4"
             >
               <div class="flex shrink-0 h-16 items-center justify-between">
-                <NuxtLink to="/store">
+                <NuxtLink :to="homepageURL">
                   <DropLogo class="h-8 w-auto" />
                 </NuxtLink>
 
@@ -180,7 +183,11 @@
 </template>
 
 <script setup lang="ts">
-import { BellIcon, UserGroupIcon } from "@heroicons/vue/16/solid";
+import {
+  BellIcon,
+  UserGroupIcon,
+  ArrowDownTrayIcon,
+} from "@heroicons/vue/16/solid";
 import {
   Dialog,
   DialogPanel,
@@ -196,6 +203,7 @@ import { XMarkIcon } from "@heroicons/vue/24/solid";
 
 const router = useRouter();
 
+const homepageURL = "/store";
 const navigation: Array<NavigationItem> = [
   {
     prefix: "/store",
