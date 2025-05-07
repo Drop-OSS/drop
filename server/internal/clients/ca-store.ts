@@ -70,14 +70,17 @@ export const dbCertificateStore = () => {
       };
     },
     async blacklistCertificate(name: string) {
-      await prisma.certificate.update({
-        where: {
-          id: name,
-        },
-        data: {
-          blacklisted: true,
-        },
-      });
+      try {
+        await prisma.certificate.update({
+          where: {
+            id: name,
+          },
+          data: {
+            blacklisted: true,
+          },
+        });
+      } finally {
+      }
     },
     async checkBlacklistCertificate(name: string): Promise<boolean> {
       const result = await prisma.certificate.findUnique({
@@ -88,7 +91,7 @@ export const dbCertificateStore = () => {
           blacklisted: true,
         },
       });
-      if (result === null) return false;
+      if (result === null) return true;
       return result.blacklisted;
     },
   };

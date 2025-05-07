@@ -7,6 +7,7 @@ export default defineNitroPlugin((nitro) => {
 
     // Don't handle for API routes
     if (event.path.startsWith("/api")) return;
+    if (event.path.startsWith("/auth")) return;
 
     // Make sure it's a web error
     if (!(error instanceof H3Error)) return;

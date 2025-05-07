@@ -1,5 +1,6 @@
 enum AuthMec {
     Simple
+    OpenID
 }
 
 model LinkedAuthMec {

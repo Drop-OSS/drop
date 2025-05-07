@@ -56,7 +56,7 @@
                 type="email"
                 autocomplete="email"
                 required
-                :disabled="!!invitation.data.value?.email"
+                :disabled="!!invitation?.email"
                 placeholder="me@example.com"
                 class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
               />
@@ -87,7 +87,7 @@
                 type="text"
                 autocomplete="username"
                 required
-                :disabled="!!invitation.data.value?.username"
+                :disabled="!!invitation?.username"
                 placeholder="myUsername"
                 class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
               />
@@ -199,13 +199,13 @@ if (!invitationId)
     statusMessage: "Invitation required to sign up.",
   });
 
-const invitation = await useFetch(
+const invitation = await $dropFetch(
   `/api/v1/auth/signup/simple?id=${encodeURIComponent(invitationId)}`,
 );
 
-const email = ref(invitation.data.value?.email);
+const email = ref(invitation?.email);
 const displayName = ref("");
-const username = ref(invitation.data.value?.username);
+const username = ref(invitation?.username);
 const password = ref("");
 const confirmPassword = ref(undefined);
 
