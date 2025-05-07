@@ -7,6 +7,7 @@ import {
   checkHashBcrypt,
 } from "~/server/internal/security/simple";
 import sessionHandler from "~/server/internal/session";
+import { enabledAuthManagers } from "~/server/plugins/04.auth-init";
 
 const signinValidator = type({
   username: "string",
@@ -15,6 +16,12 @@ const signinValidator = type({
 });
 
 export default defineEventHandler(async (h3) => {
+  if (!enabledAuthManagers.simple)
+    throw createError({
+      statusCode: 403,
+      statusMessage: "Sign in method not enabled",
+    });
+
   const body = signinValidator(await readBody(h3));
   if (body instanceof type.errors) {
     // hover out.summary to see validation errors
