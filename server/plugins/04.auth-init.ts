@@ -9,7 +9,7 @@ export const enabledAuthManagers: {
 };
 
 const initFunctions: {
-  [K in keyof typeof enabledAuthManagers]: () => Promise<any>;
+  [K in keyof typeof enabledAuthManagers]: () => Promise<unknown>;
 } = {
   oidc: OIDCManager.prototype.create,
   simple: async () => {
@@ -18,11 +18,12 @@ const initFunctions: {
   },
 };
 
-export default defineNitroPlugin(async (nitro) => {
+export default defineNitroPlugin(async (_nitro) => {
   for (const [key, init] of Object.entries(initFunctions)) {
     try {
       const object = await init();
       if (!object) break;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (enabledAuthManagers as any)[key] = object;
       console.log(`enabled auth: ${key}`);
     } catch (e) {
