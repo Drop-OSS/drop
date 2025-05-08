@@ -35,6 +35,7 @@ model Game {
 
     collections CollectionEntry[]
     saves       SaveSlot[]
+    screenshots Screenshot[]
 
     @@unique([metadataSource, metadataId], name: "metadataKey")
 }
@@ -83,6 +84,22 @@ model SaveSlot {
     historyChecksums String[] // list of hashes
 
     @@id([gameId, userId, index], name: "id")
+}
+
+model Screenshot {
+    id String @id @default(uuid())
+
+    gameId String
+    game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    objectId String
+    private  Boolean @default(true)
+
+    createdAt DateTime @default(now()) @db.Timestamptz(0)
+
+    @@index([gameId, userId])
 }
 
 model Developer {
