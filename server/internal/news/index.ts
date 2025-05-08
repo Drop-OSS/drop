@@ -127,8 +127,8 @@ class NewsManager {
     const article = await prisma.article.delete({
       where: { id },
     });
-    if (article.image) {
-      return await objectHandler.deleteAsSystem(article.image);
+    if (article.imageObjectId) {
+      return await objectHandler.deleteAsSystem(article.imageObjectId);
     }
     return true;
   }

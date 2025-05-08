@@ -26,8 +26,8 @@
         >
           <div class="relative h-48 w-full overflow-hidden">
             <img
-              v-if="article.image"
-              :src="useObject(article.image)"
+              v-if="article.imageObjectId"
+              :src="useObject(article.imageObjectId)"
               alt=""
               class="h-full w-full object-cover object-center transition-all duration-500 group-hover:scale-110 scale-105"
             />

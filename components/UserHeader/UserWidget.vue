@@ -4,7 +4,7 @@
       <UserHeaderWidget>
         <div class="inline-flex items-center text-zinc-300 hover:text-white">
           <img
-            :src="useObject(user.profilePicture)"
+            :src="useObject(user.profilePictureObjectId)"
             class="w-5 h-5 rounded-sm"
           />
           <span class="ml-2 text-sm font-bold">{{ user.displayName }}</span>
@@ -31,7 +31,7 @@
           >
             <div class="inline-flex items-center text-zinc-300">
               <img
-                :src="useObject(user.profilePicture)"
+                :src="useObject(user.profilePictureObjectId)"
                 class="w-5 h-5 rounded-sm"
               />
               <span class="ml-2 text-sm font-bold">{{ user.displayName }}</span>
