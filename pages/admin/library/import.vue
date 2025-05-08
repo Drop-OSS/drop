@@ -95,6 +95,30 @@
 
       <!-- with metadata option -->
       <div class="flex flex-col gap-y-4">
+        <form @submit.prevent="searchGame">
+          <div class="items-center">
+            <label
+              for="searchTerm"
+              class="block text-sm font-medium leading-6 text-zinc-300"
+              >Search Term</label
+            >
+            <div class="mt-2">
+              <input
+                id="searchTerm"
+                v-model="gameSearchTerm"
+                name="searchTerm"
+                type="searchTerm"
+                autocomplete="searchTerm"
+                required
+                class="block w-full rounded-md border-0 py-1.5 px-3 shadow-sm bg-zinc-950/20 text-zinc-300 ring-1 ring-inset ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+              />
+            </div>
+          </div>
+          <LoadingButton class="w-full" :loading="gameSearchLoading">
+            Search</LoadingButton
+          >
+        </form>
+
         <Listbox
           v-if="metadataResults && metadataResults.length > 0"
           v-model="currentlySelectedMetadata"
@@ -245,6 +269,8 @@ const games = await $dropFetch("/api/v1/admin/import/game");
 const currentlySelectedGame = ref(-1);
 const gameSearchResultsLoading = ref(false);
 const gameSearchResultsError = ref<string | undefined>();
+const gameSearchTerm = ref("");
+const gameSearchLoading = ref(false);
 
 async function updateSelectedGame(value: number) {
   if (currentlySelectedGame.value == value) return;
@@ -255,11 +281,18 @@ async function updateSelectedGame(value: number) {
 
   metadataResults.value = undefined;
   currentlySelectedMetadata.value = -1;
+  gameSearchTerm.value = game;
 
+  await searchGame();
+}
+
+async function searchGame() {
+  gameSearchLoading.value = true;
   const results = await $dropFetch(
-    `/api/v1/admin/import/game/search?q=${encodeURIComponent(game)}`,
+    `/api/v1/admin/import/game/search?q=${encodeURIComponent(gameSearchTerm.value)}`,
   );
   metadataResults.value = results;
+  gameSearchLoading.value = false;
 }
 
 function updateSelectedGame_wrapper(value: number) {
