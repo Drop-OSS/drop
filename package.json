@@ -8,7 +8,7 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "prisma generate && nuxt prepare",
+    "postinstall": "nuxt prepare && prisma generate",
     "typecheck": "nuxt typecheck",
     "lint": "yarn lint:eslint && yarn lint:prettier",
     "lint:eslint": "eslint .",
