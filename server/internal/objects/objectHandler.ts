@@ -65,6 +65,7 @@ export abstract class ObjectBackend {
     metadata: ObjectMetadata,
   ): Promise<boolean>;
   abstract fetchHash(id: ObjectReference): Promise<string | undefined>;
+  abstract listAll(): Promise<string[]>;
 }
 
 export class ObjectHandler {
@@ -243,5 +244,12 @@ export class ObjectHandler {
    */
   async deleteAsSystem(id: ObjectReference) {
     return await this.backend.delete(id);
+  }
+
+  /**
+   * List all objects
+   */
+  async listAll() {
+    return await this.backend.listAll();
   }
 }

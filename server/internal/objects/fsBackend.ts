@@ -152,6 +152,9 @@ export class FsObjectBackend extends ObjectBackend {
     await store.save(id, hashResult);
     return typeof hashResult;
   }
+  async listAll(): Promise<string[]> {
+    return fs.readdirSync(this.baseObjectPath);
+  }
 }
 
 class FsHashStore {
