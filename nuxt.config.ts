@@ -9,7 +9,8 @@ export default defineNuxtConfig({
     enabled: true,
     telemetry: false,
     timeline: {
-      // seems to break things
+      // this seems to be the tracking issue, composables not registered
+      // https://github.com/nuxt/devtools/issues/662
       enabled: false,
     },
   },
@@ -47,6 +48,20 @@ export default defineNuxtConfig({
     },
 
     compressPublicAssets: true,
+
+    storage: {
+      appCache: {
+        driver: "lru-cache",
+      },
+    },
+
+    devStorage: {
+      appCache: {
+        // store cache on fs to handle dev server restarts
+        driver: "fs",
+        base: "./.data/appCache",
+      },
+    },
   },
 
   typescript: {

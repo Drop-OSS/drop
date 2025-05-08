@@ -1,4 +1,4 @@
-import prisma from "../internal/db/database";
+import prisma from "~/server/internal/db/database";
 
 export default defineNitroPlugin(async (_nitro) => {
   const userCount = await prisma.user.count({

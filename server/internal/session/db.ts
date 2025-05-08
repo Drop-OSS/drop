@@ -1,16 +1,13 @@
-import { LRUCache } from "lru-cache";
 import prisma from "../db/database";
 import type { Session, SessionProvider } from "./types";
+import cacheHandler from "../cache";
 
 export default function createDBSessionHandler(): SessionProvider {
-  const cache = new LRUCache<string, Session>({
-    max: 50, // number of items
-    ttl: 30 * 100, // 30s (in ms)
-  });
+  const cache = cacheHandler.createCache<Session>("DBSession");
 
   return {
     async setSession(token, session) {
-      cache.set(token, session);
+      await cache.set(token, session);
 
       //   const strData = JSON.stringify(data);
       await prisma.session.upsert({
@@ -29,8 +26,8 @@ export default function createDBSessionHandler(): SessionProvider {
       return await this.setSession(token, data);
     },
     async getSession<T extends Session>(token: string) {
-      const cached = cache.get(token);
-      if (cached !== undefined) return cached as T;
+      const cached = await cache.get(token);
+      if (cached !== null) return cached as T;
 
       const result = await prisma.session.findUnique({
         where: {
@@ -45,7 +42,7 @@ export default function createDBSessionHandler(): SessionProvider {
       return result as unknown as T;
     },
     async removeSession(token) {
-      cache.delete(token);
+      await cache.remove(token);
       await prisma.session.delete({
         where: {
           token,
