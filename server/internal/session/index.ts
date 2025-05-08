@@ -5,7 +5,7 @@ import { parse as parseCookies } from "cookie-es";
 import type { MinimumRequestObject } from "~/server/h3";
 import type { DurationLike } from "luxon";
 import { DateTime } from "luxon";
-import createCacheSessionProvider from "./cache";
+import createDBSessionHandler from "./db";
 
 /*
 This implementation may need work.
@@ -26,8 +26,8 @@ export class SessionHandler {
 
   constructor() {
     // Create a new provider
-    this.sessionProvider = createCacheSessionProvider();
-    // this.sessionProvider = createDBSessionHandler();
+    // this.sessionProvider = createCacheSessionProvider();
+    this.sessionProvider = createDBSessionHandler();
     // this.sessionProvider = createMemorySessionProvider();
   }
 

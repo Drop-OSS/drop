@@ -1,6 +1,11 @@
 import cacheHandler from "../cache";
 import type { Session, SessionProvider } from "./types";
 
+/**
+ * DO NOT USE THIS. THE CACHE EVICTS SESSIONS.
+ * 
+ * This needs work. TODO.
+ */
 export default function createCacheSessionProvider() {
   const sessions = cacheHandler.createCache<Session>("cacheSessionProvider");
 
