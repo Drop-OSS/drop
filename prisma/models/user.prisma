@@ -17,7 +17,8 @@ model User {
     tokens   APIToken[]
     sessions Session[]
 
-    saves SaveSlot[]
+    saves       SaveSlot[]
+    screenshots Screenshot[]
 }
 
 model Notification {

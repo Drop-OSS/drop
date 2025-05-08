@@ -1,9 +1,9 @@
-import Stream from "stream";
+import Stream from "node:stream";
 import prisma from "../db/database";
 import { applicationSettings } from "../config/application-configuration";
 import objectHandler from "../objects";
 import { randomUUID, createHash } from "node:crypto";
-import type { IncomingMessage } from "http";
+import type { IncomingMessage } from "node:http";
 
 class SaveManager {
   async deleteObjectFromSave(
