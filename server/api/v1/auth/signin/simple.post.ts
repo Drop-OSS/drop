@@ -16,7 +16,7 @@ const signinValidator = type({
 });
 
 export default defineEventHandler(async (h3) => {
-  if (!enabledAuthManagers.simple)
+  if (!enabledAuthManagers.Simple)
     throw createError({
       statusCode: 403,
       statusMessage: "Sign in method not enabled",

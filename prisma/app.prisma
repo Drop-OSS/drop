@@ -1,7 +1,6 @@
 model ApplicationSettings {
     timestamp DateTime @id @default(now())
 
-    enabledAuthencationMechanisms AuthMec[]
     metadataProviders             String[]
 
     saveSlotCountLimit   Int   @default(5)

@@ -2,9 +2,9 @@ import sessionHandler from "~/server/internal/session";
 import { enabledAuthManagers } from "~/server/plugins/04.auth-init";
 
 export default defineEventHandler(async (h3) => {
-  if (!enabledAuthManagers.oidc) return sendRedirect(h3, "/auth/signin");
+  if (!enabledAuthManagers.OpenID) return sendRedirect(h3, "/auth/signin");
 
-  const manager = enabledAuthManagers.oidc;
+  const manager = enabledAuthManagers.OpenID;
 
   const query = getQuery(h3);
   const code = query.code?.toString();
@@ -28,7 +28,6 @@ export default defineEventHandler(async (h3) => {
       statusCode: 403,
       statusMessage: `Failed to sign in: "${user}". Please try again.`,
     });
-
 
   await sessionHandler.signin(h3, user.id, true);
 

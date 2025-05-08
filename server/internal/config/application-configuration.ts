@@ -1,5 +1,4 @@
 import type { ApplicationSettings } from "@prisma/client";
-import { AuthMec } from "@prisma/client";
 import prisma from "../db/database";
 
 class ApplicationConfiguration {
@@ -38,7 +37,6 @@ class ApplicationConfiguration {
   async initialiseConfiguration() {
     const initialState = await prisma.applicationSettings.create({
       data: {
-        enabledAuthencationMechanisms: [AuthMec.Simple],
         metadataProviders: [],
       },
     });

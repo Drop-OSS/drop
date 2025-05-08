@@ -32,7 +32,7 @@
           <div class="text-sm/6 font-medium text-zinc-100">
             {{ authMech.name }}
           </div>
-          <Menu as="div" class="relative ml-auto">
+          <Menu v-if="authMech.route" as="div" class="relative ml-auto">
             <MenuButton
               class="-m-2.5 block p-2.5 text-gray-400 hover:text-gray-500"
             >
@@ -81,10 +81,10 @@
             <div
               v-for="[key, value] in Object.entries(authMech.settings)"
               :key="key"
-              class="flex justify-between gap-x-4 py-2"
+              class="flex flex-nowrap justify-between gap-x-4 py-2"
             >
               <dt class="text-zinc-400">{{ key }}</dt>
-              <dd class="text-gray-500">
+              <dd class="text-gray-500 truncate">
                 {{ value }}
               </dd>
             </div>
@@ -96,7 +96,7 @@
 </template>
 
 <script setup lang="ts">
-import { IconsSimpleAuthenticationLogo } from "#components";
+import { IconsSimpleAuthenticationLogo, IconsSSOLogo } from "#components";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
 import { EllipsisHorizontalIcon } from "@heroicons/vue/20/solid";
 import { CheckIcon, XMarkIcon } from "@heroicons/vue/24/solid";
@@ -117,9 +117,9 @@ const authenticationMechanisms: Array<{
   name: string;
   mec: AuthMec;
   icon: Component;
-  route: string;
+  route?: string;
   enabled: boolean;
-  settings?: { [key: string]: string };
+  settings?: { [key: string]: string | undefined } | undefined | boolean;
 }> = [
   {
     name: "Simple (username/password)",
@@ -127,5 +127,15 @@ const authenticationMechanisms: Array<{
     icon: IconsSimpleAuthenticationLogo,
     route: "/admin/users/auth/simple",
   },
-].map((e) => ({ ...e, enabled: enabledMechanisms.includes(e.mec) }));
+  {
+    name: "OpenID Connect",
+    mec: "OpenID" as AuthMec,
+    icon: IconsSSOLogo,
+  },
+].map((e) => ({
+  ...e,
+  enabled: !!enabledMechanisms[e.mec],
+  settings:
+    typeof enabledMechanisms[e.mec] === "object" && enabledMechanisms[e.mec],
+}));
 </script>
