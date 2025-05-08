@@ -8,8 +8,10 @@ export default defineEventHandler(async (h3) => {
 
   const authData = {
     [AuthMec.Simple]: enabledAuthManagers.Simple,
-    [AuthMec.OpenID]: enabledAuthManagers.OpenID && enabledAuthManagers.OpenID.generateConfiguration(),
-  }
+    [AuthMec.OpenID]:
+      enabledAuthManagers.OpenID &&
+      enabledAuthManagers.OpenID.generateConfiguration(),
+  };
 
   return authData;
 });

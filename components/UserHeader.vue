@@ -63,7 +63,7 @@
     class="sticky lg:hidden top-0 z-40 flex h-16 justify-between items-center gap-x-4 border-b border-zinc-700 bg-zinc-950 px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8"
   >
     <NuxtLink :to="homepageURL">
-    <DropWordmark class="mb-0.5" />
+      <DropWordmark class="mb-0.5" />
     </NuxtLink>
 
     <div class="flex gap-x-4 lg:gap-x-6">
@@ -183,11 +183,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  BellIcon,
-  UserGroupIcon,
-  ArrowDownTrayIcon,
-} from "@heroicons/vue/16/solid";
+import { BellIcon, UserGroupIcon } from "@heroicons/vue/16/solid";
 import {
   Dialog,
   DialogPanel,
