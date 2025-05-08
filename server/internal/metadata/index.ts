@@ -1,5 +1,5 @@
-import type { Developer, Publisher } from "@prisma/client";
-import { MetadataSource } from "@prisma/client";
+import type { Developer, Publisher } from "~/prisma/client";
+import { MetadataSource } from "~/prisma/client";
 import prisma from "../db/database";
 import type {
   _FetchDeveloperMetadataParams,

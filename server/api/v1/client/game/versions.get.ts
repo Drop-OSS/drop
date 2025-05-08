@@ -24,7 +24,8 @@ export default defineClientEventHandler(async (h3) => {
       if (!version.dropletManifest) return undefined;
 
       const newVersion = { ...version, dropletManifest: undefined };
-      // @ts-expect-error idk why we delete an undefined object
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore idk why we delete an undefined object
       delete newVersion.dropletManifest;
       return {
         ...newVersion,

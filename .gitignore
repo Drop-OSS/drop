@@ -31,3 +31,6 @@ logs
 deploy-template/*
 
 !deploy-template/compose.yml
+
+# generated prisma client
+/prisma/client

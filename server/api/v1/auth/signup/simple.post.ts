@@ -1,4 +1,4 @@
-import { AuthMec } from "@prisma/client";
+import { AuthMec } from "~/prisma/client";
 import prisma from "~/server/internal/db/database";
 import { createHashArgon2 } from "~/server/internal/security/simple";
 import * as jdenticon from "jdenticon";

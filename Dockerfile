@@ -26,6 +26,6 @@ COPY --from=build-system /build/build ./startup
 
 # OpenSSL as a dependency for Drop (TODO: seperate build environment)
 RUN apt-get update -y && apt-get install -y openssl
-RUN yarn global add prisma@6.6.0
+RUN yarn global add prisma@6.7.0
 
 CMD ["/app/startup/launch.sh"]

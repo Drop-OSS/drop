@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Collection } from "@prisma/client";
+import type { Collection } from "~/prisma/client";
 import { DialogTitle } from "@headlessui/vue";
 
 const collection = defineModel<Collection | undefined>();

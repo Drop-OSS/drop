@@ -44,7 +44,7 @@
 
 <script setup lang="ts">
 import { XMarkIcon } from "@heroicons/vue/24/solid";
-import type { Notification } from "@prisma/client";
+import type { Notification } from "~/prisma/client";
 
 const props = defineProps<{ notification: Notification }>();
 

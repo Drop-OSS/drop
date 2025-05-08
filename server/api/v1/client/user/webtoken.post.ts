@@ -1,4 +1,4 @@
-import { APITokenMode } from "@prisma/client";
+import { APITokenMode } from "~/prisma/client";
 import { DateTime } from "luxon";
 import type { UserACL } from "~/server/internal/acls";
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";

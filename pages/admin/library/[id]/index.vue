@@ -519,7 +519,7 @@
 
 <script setup lang="ts">
 import { Bars3Icon, TrashIcon } from "@heroicons/vue/16/solid";
-import type { Game, GameVersion } from "@prisma/client";
+import type { Game, GameVersion } from "~/prisma/client";
 import { micromark } from "micromark";
 import {
   ArrowTopRightOnSquareIcon,

@@ -1,4 +1,4 @@
-import { AuthMec } from "@prisma/client";
+import { AuthMec } from "~/prisma/client";
 import aclManager from "~/server/internal/acls";
 import { enabledAuthManagers } from "~/server/plugins/04.auth-init";
 

@@ -3,6 +3,8 @@
 
 generator client {
   provider        = "prisma-client-js"
+  output          = "client"
+  moduleFormat    = "esm"
   previewFeatures = ["prismaSchemaFolder", "fullTextSearchPostgres"]
 }
 

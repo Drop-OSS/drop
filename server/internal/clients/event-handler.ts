@@ -1,4 +1,4 @@
-import type { Client, User } from "@prisma/client";
+import type { Client, User } from "~/prisma/client";
 import type { EventHandlerRequest, H3Event } from "h3";
 import droplet from "@drop-oss/droplet";
 import prisma from "../db/database";

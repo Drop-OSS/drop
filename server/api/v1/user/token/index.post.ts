@@ -1,4 +1,4 @@
-import { APITokenMode } from "@prisma/client";
+import { APITokenMode } from "~/prisma/client";
 import aclManager, { userACLs } from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 

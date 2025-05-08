@@ -1,4 +1,4 @@
-import type { Notification } from "@prisma/client";
+import type { Notification } from "~/prisma/client";
 
 const ws = new WebSocketHandler("/api/v1/notifications/ws");
 

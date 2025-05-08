@@ -2,7 +2,7 @@ import type { EnumDictionary } from "../utils/types";
 import https from "https";
 import { useCertificateAuthority } from "~/server/plugins/ca";
 import prisma from "../db/database";
-import { ClientCapabilities } from "@prisma/client";
+import { ClientCapabilities } from "~/prisma/client";
 
 // These values are technically mapped to the database,
 // but Typescript/Prisma doesn't let me link them

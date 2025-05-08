@@ -92,7 +92,7 @@
 
 <script setup lang="ts">
 import { TrashIcon, PlusIcon } from "@heroicons/vue/20/solid";
-import type { Collection } from "@prisma/client";
+import type { Collection } from "~/prisma/client";
 
 const collections = await useCollections();
 const collectionCreateOpen = ref(false);

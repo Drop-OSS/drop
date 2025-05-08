@@ -100,7 +100,7 @@ import { IconsSimpleAuthenticationLogo, IconsSSOLogo } from "#components";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
 import { EllipsisHorizontalIcon } from "@heroicons/vue/20/solid";
 import { CheckIcon, XMarkIcon } from "@heroicons/vue/24/solid";
-import type { AuthMec } from "@prisma/client";
+import type { AuthMec } from "~/prisma/client";
 import type { Component } from "vue";
 
 useHead({

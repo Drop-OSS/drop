@@ -1,4 +1,4 @@
-import type { ApplicationSettings } from "@prisma/client";
+import type { ApplicationSettings } from "~/prisma/client";
 import prisma from "../db/database";
 
 class ApplicationConfiguration {

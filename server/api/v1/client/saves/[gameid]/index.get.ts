@@ -1,4 +1,4 @@
-import { ClientCapabilities } from "@prisma/client";
+import { ClientCapabilities } from "~/prisma/client";
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import prisma from "~/server/internal/db/database";
 

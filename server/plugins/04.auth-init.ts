@@ -1,4 +1,4 @@
-import { AuthMec } from "@prisma/client";
+import { AuthMec } from "~/prisma/client";
 import { OIDCManager } from "../internal/oidc";
 
 export const enabledAuthManagers: {

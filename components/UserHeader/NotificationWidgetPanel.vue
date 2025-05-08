@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Notification } from "@prisma/client";
+import type { Notification } from "~/prisma/client";
 
 const props = defineProps<{ notifications: Array<Notification> }>();
 </script>

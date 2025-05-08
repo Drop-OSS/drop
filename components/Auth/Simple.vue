@@ -82,7 +82,7 @@
 
 <script setup lang="ts">
 import { XCircleIcon } from "@heroicons/vue/20/solid";
-import type { User } from "@prisma/client";
+import type { User } from "~/prisma/client";
 
 const username = ref("");
 const password = ref("");

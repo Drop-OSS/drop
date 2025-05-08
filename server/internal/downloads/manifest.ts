@@ -1,4 +1,4 @@
-import type { GameVersion } from "@prisma/client";
+import type { GameVersion } from "~/prisma/client";
 import prisma from "../db/database";
 
 export type DropChunk = {

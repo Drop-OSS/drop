@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import prisma from "../db/database";
-import { AuthMec } from "@prisma/client";
+import { AuthMec } from "~/prisma/client";
 import objectHandler from "../objects";
 import type { Readable } from "stream";
 import * as jdenticon from "jdenticon";

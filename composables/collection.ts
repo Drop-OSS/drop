@@ -1,4 +1,4 @@
-import type { Collection, CollectionEntry, Game } from "@prisma/client";
+import type { Collection, CollectionEntry, Game } from "~/prisma/client";
 import type { SerializeObject } from "nitropack";
 
 type FullCollection = Collection & {

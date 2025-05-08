@@ -170,7 +170,7 @@
 <script setup lang="ts">
 import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
 import { StarIcon } from "@heroicons/vue/24/solid";
-import type { Game, GameVersion } from "@prisma/client";
+import type { Game, GameVersion } from "~/prisma/client";
 import { micromark } from "micromark";
 import { DateTime } from "luxon";
 import type { SerializeObject } from "nitropack";

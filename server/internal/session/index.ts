@@ -3,9 +3,9 @@ import type { Session, SessionProvider } from "./types";
 import { randomUUID } from "node:crypto";
 import { parse as parseCookies } from "cookie-es";
 import type { MinimumRequestObject } from "~/server/h3";
-import createDBSessionHandler from "./db";
 import type { DurationLike } from "luxon";
 import { DateTime } from "luxon";
+import createCacheSessionProvider from "./cache";
 
 /*
 This implementation may need work.
@@ -26,7 +26,8 @@ export class SessionHandler {
 
   constructor() {
     // Create a new provider
-    this.sessionProvider = createDBSessionHandler();
+    this.sessionProvider = createCacheSessionProvider();
+    // this.sessionProvider = createDBSessionHandler();
     // this.sessionProvider = createMemorySessionProvider();
   }
 

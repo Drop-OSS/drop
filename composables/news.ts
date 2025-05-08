@@ -1,4 +1,4 @@
-import type { Article } from "@prisma/client";
+import type { Article } from "~/prisma/client";
 import type { SerializeObject } from "nitropack";
 
 export const useNews = () =>

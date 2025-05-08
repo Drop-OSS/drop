@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Game } from "@prisma/client";
+import type { Game } from "~/prisma/client";
 import type { SerializeObject } from "nitropack";
 
 const props = defineProps<{

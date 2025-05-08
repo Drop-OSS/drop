@@ -1,4 +1,4 @@
-import { APITokenMode } from "@prisma/client";
+import { APITokenMode } from "~/prisma/client";
 import prisma from "../db/database";
 import sessionHandler from "../session";
 import type { MinimumRequestObject } from "~/server/h3";
