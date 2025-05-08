@@ -174,10 +174,10 @@ export class MetadataHandler {
         mReviewRating: metadata.reviewRating,
         mReleased: metadata.released,
 
-        mIconId: metadata.icon,
-        mBannerId: metadata.bannerId,
-        mCoverId: metadata.coverId,
-        mImageLibrary: metadata.images,
+        mIconObjectId: metadata.icon,
+        mBannerObjectId: metadata.bannerId,
+        mCoverObjectId: metadata.coverId,
+        mImageLibraryObjectIds: metadata.images,
 
         libraryBasePath,
       },

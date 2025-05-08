@@ -73,7 +73,7 @@ class LibraryManager {
         metadataSource: true,
         mDevelopers: true,
         mPublishers: true,
-        mIconId: true,
+        mIconObjectId: true,
         libraryBasePath: true,
       },
       orderBy: {

@@ -9,7 +9,7 @@
       class="absolute inset-0 transition-all duration-300 group-hover:scale-110"
     >
       <img
-        :src="useObject(game.mCoverId)"
+        :src="useObject(game.mCoverObjectId)"
         class="w-full h-full object-cover brightness-[90%]"
         :class="{ active: active === game.id }"
         :alt="game.mName"
@@ -42,7 +42,7 @@ const props = defineProps<{
   game:
     | SerializeObject<{
         id: string;
-        mCoverId: string;
+        mCoverObjectId: string;
         mName: string;
         mShortDescription: string;
       }>

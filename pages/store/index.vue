@@ -14,7 +14,7 @@
         <div class="w-full h-full relative">
           <div class="absolute inset-0">
             <img
-              :src="useObject(game.mBannerId)"
+              :src="useObject(game.mBannerObjectId)"
               alt=""
               class="size-full object-cover object-center"
             />

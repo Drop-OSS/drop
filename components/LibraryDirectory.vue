@@ -34,7 +34,7 @@
           class="flex flex-row items-center w-full p-1 rounded-md transition-all duration-200 hover:bg-zinc-800 hover:scale-105 hover:shadow-lg active:scale-95"
         >
           <img
-            :src="useObject(game.mCoverId)"
+            :src="useObject(game.mCoverObjectId)"
             class="h-9 w-9 flex-shrink-0 rounded transition-all duration-300 group-hover:scale-105 hover:rotate-[-2deg] hover:shadow-lg"
             alt=""
           />

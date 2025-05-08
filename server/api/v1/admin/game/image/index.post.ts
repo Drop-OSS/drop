@@ -47,7 +47,7 @@ export default defineEventHandler(async (h3) => {
       id: gameId,
     },
     data: {
-      mImageLibrary: {
+      mImageLibraryObjectIds: {
         push: id,
       },
     },
