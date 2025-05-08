@@ -132,19 +132,27 @@ export class FsObjectBackend extends ObjectBackend {
 
     // local variable to point to object
     const store = this.hashStore;
+    let hashResult = "";
 
-    // read obj into hash
-    obj.pipe(hash);
-    await new Promise<void>((r) => {
+    const objEnd = new Promise<void>((r) => {
       obj.on("end", async function () {
         hash.end();
-        await store.save(id, hash.read());
+        hashResult = hash.read();
         r();
       });
     });
+    // read obj into hash
+    obj.pipe(hash);
+    await objEnd;
 
-    const result = await this.hashStore.get(id);
-    return result === null ? undefined : result;
+    console.log("object hash: ", hashResult);
+
+    // if hash isn't a string somehow, mark as unknown hash
+    if (typeof hashResult !== "string") {
+      return undefined;
+    }
+    await store.save(id, hashResult);
+    return typeof hashResult;
   }
 }
 
