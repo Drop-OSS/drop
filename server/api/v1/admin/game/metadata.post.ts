@@ -42,7 +42,7 @@ export default defineEventHandler(async (h3) => {
       id: gameId,
     },
     data: {
-      mIconId: id,
+      mIconObjectId: id,
       mName: name,
       mShortDescription: description,
     },

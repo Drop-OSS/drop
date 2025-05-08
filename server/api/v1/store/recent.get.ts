@@ -10,8 +10,8 @@ export default defineEventHandler(async (h3) => {
       id: true,
       mName: true,
       mShortDescription: true,
-      mCoverId: true,
-      mBannerId: true,
+      mCoverObjectId: true,
+      mBannerObjectId: true,
       mDevelopers: {
         select: {
           id: true,

@@ -77,7 +77,7 @@ class SaveManager {
         },
       },
       data: {
-        history: {
+        historyObjectIds: {
           push: newSaveObjectId,
         },
         historyChecksums: {
@@ -88,12 +88,12 @@ class SaveManager {
     });
 
     const historyLimit = await applicationSettings.get("saveSlotHistoryLimit");
-    if (newSave.history.length > historyLimit) {
+    if (newSave.historyObjectIds.length > historyLimit) {
       // Delete previous
-      const safeFromIndex = newSave.history.length - historyLimit;
+      const safeFromIndex = newSave.historyObjectIds.length - historyLimit;
 
-      const toDelete = newSave.history.slice(0, safeFromIndex);
-      const toKeepObjects = newSave.history.slice(safeFromIndex);
+      const toDelete = newSave.historyObjectIds.slice(0, safeFromIndex);
+      const toKeepObjects = newSave.historyObjectIds.slice(safeFromIndex);
       const toKeepHashes = newSave.historyChecksums.slice(safeFromIndex);
 
       // Delete objects first, so if we error out, we don't lose track of objects in backend
@@ -110,7 +110,7 @@ class SaveManager {
           },
         },
         data: {
-          history: toKeepObjects,
+          historyObjectIds: toKeepObjects,
           historyChecksums: toKeepHashes,
         },
       });

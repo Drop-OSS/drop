@@ -6,7 +6,7 @@
     <!-- Banner background with gradient overlays -->
     <div class="absolute inset-0 z-0 rounded-xl overflow-hidden">
       <img
-        :src="useObject(game.mBannerId)"
+        :src="useObject(game.mBannerObjectId)"
         class="w-full h-[24rem] object-cover blur-sm scale-105"
       />
       <div
@@ -73,13 +73,16 @@
               </h2>
               <div class="relative">
                 <VueCarousel :items-to-show="1">
-                  <VueSlide v-for="image in game.mImageCarousel" :key="image">
+                  <VueSlide
+                    v-for="image in game.mImageCarouselObjectIds"
+                    :key="image"
+                  >
                     <img
                       class="w-fit h-48 lg:h-96 rounded"
                       :src="useObject(image)"
                     />
                   </VueSlide>
-                  <VueSlide v-if="game.mImageCarousel.length == 0">
+                  <VueSlide v-if="game.mImageCarouselObjectIds.length == 0">
                     <div
                       class="h-48 lg:h-96 aspect-[1/2] flex items-center justify-center text-zinc-700 font-bold font-display"
                     >

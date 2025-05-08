@@ -10,7 +10,7 @@
           class="flex flex-col lg:flex-row lg:justify-between items-start lg:items-center gap-2"
         >
           <div class="inline-flex items-center gap-4">
-            <img :src="useObject(game.mIconId)" class="size-20" />
+            <img :src="useObject(game.mIconObjectId)" class="size-20" />
             <div>
               <h1 class="text-5xl font-bold font-display text-zinc-100">
                 {{ game.mName }}
@@ -56,7 +56,7 @@
             </div>
           </div>
           <div
-            v-if="game.mImageCarousel.length == 0"
+            v-if="game.mImageCarouselObjectIds.length == 0"
             class="text-zinc-400 text-center py-8"
           >
             No images added to the carousel yet.
@@ -64,7 +64,7 @@
 
           <draggable
             v-else
-            :list="game.mImageCarousel"
+            :list="game.mImageCarouselObjectIds"
             class="w-full flex flex-row gap-x-4 overflow-x-auto my-2 py-4"
             @update="() => updateImageCarousel()"
           >
@@ -242,7 +242,7 @@
           </div>
           <div class="mt-3 grid grid-cols-2 grid-flow-dense gap-8">
             <div
-              v-for="(image, imageIdx) in game.mImageLibrary"
+              v-for="(image, imageIdx) in game.mImageLibraryObjectIds"
               :key="imageIdx"
               class="group relative flex items-center bg-zinc-950/30"
             >
@@ -251,7 +251,7 @@
                 class="transition-all lg:opacity-0 lg:group-hover:opacity-100 absolute inset-0 flex flex-col items-center justify-center gap-y-2 bg-zinc-950/50"
               >
                 <button
-                  v-if="image !== game.mBannerId"
+                  v-if="image !== game.mBannerObjectId"
                   type="button"
                   class="inline-flex items-center gap-x-1.5 rounded-md bg-blue-600 px-1.5 py-0.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                   @click="() => updateBannerImage(image)"
@@ -259,7 +259,7 @@
                   Set as banner
                 </button>
                 <button
-                  v-if="image !== game.mCoverId"
+                  v-if="image !== game.mCoverObjectId"
                   type="button"
                   class="inline-flex items-center gap-x-1.5 rounded-md bg-blue-600 px-1.5 py-0.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                   @click="() => updateCoverImage(image)"
@@ -275,14 +275,17 @@
                 </button>
               </div>
               <div
-                v-if="image === game.mBannerId || image === game.mCoverId"
+                v-if="
+                  image === game.mBannerObjectId ||
+                  image === game.mCoverObjectId
+                "
                 class="absolute bottom-0 left-0 bg-zinc-950/75 text-zinc-100 text-sm font-semibold px-2 py-1 rounded-tr"
               >
                 current
                 {{
                   [
-                    image === game.mBannerId ? "banner" : undefined,
-                    image === game.mCoverId ? "cover" : undefined,
+                    image === game.mBannerObjectId ? "banner" : undefined,
+                    image === game.mCoverObjectId ? "cover" : undefined,
                   ]
                     .filter((e) => e)
                     .join(" & ")
@@ -400,7 +403,7 @@
       <template #default>
         <div class="grid grid-cols-2 grid-flow-dense gap-4">
           <div
-            v-for="(image, imageIdx) in game.mImageLibrary"
+            v-for="(image, imageIdx) in game.mImageLibraryObjectIds"
             :key="imageIdx"
             class="group relative flex items-center bg-zinc-950/30"
           >
@@ -418,7 +421,7 @@
             </div>
           </div>
           <div
-            v-if="game.mImageLibrary.length == 0"
+            v-if="game.mImageLibraryObjectIds.length == 0"
             class="text-zinc-400 col-span-2"
           >
             No images to add.
@@ -548,7 +551,7 @@ const game = ref(rawGame);
 
 const coreMetadataName = ref(game.value.mName);
 const coreMetadataDescription = ref(game.value.mShortDescription);
-const coreMetadataIconUrl = ref(useObject(game.value.mIconId));
+const coreMetadataIconUrl = ref(useObject(game.value.mIconObjectId));
 const coreMetadataIconFileUpload = ref<FileList | undefined>();
 const coreMetadataLoading = ref(false);
 
@@ -665,8 +668,8 @@ watch(descriptionHTML, (_v) => {
 });
 
 const validAddCarouselImages = computed(() =>
-  game.value.mImageLibrary.filter(
-    (e) => !game.value.mImageCarousel.includes(e),
+  game.value.mImageLibraryObjectIds.filter(
+    (e) => !game.value.mImageCarouselObjectIds.includes(e),
   ),
 );
 
@@ -683,15 +686,15 @@ function insertImageAtCursor(id: string) {
 
 async function updateBannerImage(id: string) {
   try {
-    if (game.value.mBannerId == id) return;
-    const { mBannerId } = await $dropFetch("/api/v1/admin/game", {
+    if (game.value.mBannerObjectId == id) return;
+    const { mBannerObjectId } = await $dropFetch("/api/v1/admin/game", {
       method: "PATCH",
       body: {
         id: gameId,
         mBannerId: id,
       },
     });
-    game.value.mBannerId = mBannerId;
+    game.value.mBannerObjectId = mBannerObjectId;
   } catch (e) {
     createModal(
       ModalType.Notification,
@@ -710,15 +713,15 @@ async function updateBannerImage(id: string) {
 
 async function updateCoverImage(id: string) {
   try {
-    if (game.value.mCoverId == id) return;
-    const { mCoverId } = await $dropFetch("/api/v1/admin/game", {
+    if (game.value.mCoverObjectId == id) return;
+    const { mCoverObjectId } = await $dropFetch("/api/v1/admin/game", {
       method: "PATCH",
       body: {
         id: gameId,
         mCoverId: id,
       },
     });
-    game.value.mCoverId = mCoverId;
+    game.value.mCoverObjectId = mCoverObjectId;
   } catch (e) {
     createModal(
       ModalType.Notification,
@@ -737,7 +740,7 @@ async function updateCoverImage(id: string) {
 
 async function deleteImage(id: string) {
   try {
-    const { mBannerId, mImageLibrary } = await $dropFetch(
+    const { mBannerObjectId, mImageLibraryObjectIds } = await $dropFetch(
       "/api/v1/admin/game/image",
       {
         method: "DELETE",
@@ -747,8 +750,8 @@ async function deleteImage(id: string) {
         },
       },
     );
-    game.value.mImageLibrary = mImageLibrary;
-    game.value.mBannerId = mBannerId;
+    game.value.mImageLibraryObjectIds = mImageLibraryObjectIds;
+    game.value.mBannerObjectId = mBannerObjectId;
   } catch (e) {
     createModal(
       ModalType.Notification,
@@ -767,7 +770,7 @@ async function deleteImage(id: string) {
 
 async function uploadAfterImageUpload(result: Game) {
   if (!game.value) return;
-  game.value.mImageLibrary = result.mImageLibrary;
+  game.value.mImageLibraryObjectIds = result.mImageLibraryObjectIds;
 }
 
 async function deleteVersion(versionName: string) {
@@ -827,13 +830,15 @@ async function updateVersionOrder() {
 
 function addImageToCarousel(id: string) {
   showAddCarouselModal.value = false;
-  game.value.mImageCarousel.push(id);
+  game.value.mImageCarouselObjectIds.push(id);
   updateImageCarousel();
 }
 
 function removeImageFromCarousel(id: string) {
-  const imageIndex = game.value.mImageCarousel.findIndex((e) => e == id);
-  game.value.mImageCarousel.splice(imageIndex, 1);
+  const imageIndex = game.value.mImageCarouselObjectIds.findIndex(
+    (e) => e == id,
+  );
+  game.value.mImageCarouselObjectIds.splice(imageIndex, 1);
   updateImageCarousel();
 }
 
@@ -843,7 +848,7 @@ async function updateImageCarousel() {
       method: "PATCH",
       body: {
         id: gameId,
-        mImageCarousel: game.value.mImageCarousel,
+        mImageCarousel: game.value.mImageCarouselObjectIds,
       },
     });
   } catch (e) {

@@ -21,27 +21,27 @@ export default defineEventHandler(async (h3) => {
       id: gameId,
     },
     select: {
-      mBannerId: true,
-      mImageLibrary: true,
-      mCoverId: true,
+      mBannerObjectId: true,
+      mImageLibraryObjectIds: true,
+      mCoverObjectId: true,
     },
   });
 
   if (!game)
     throw createError({ statusCode: 400, statusMessage: "Invalid game ID" });
 
-  const imageIndex = game.mImageLibrary.findIndex((e) => e == imageId);
+  const imageIndex = game.mImageLibraryObjectIds.findIndex((e) => e == imageId);
   if (imageIndex == -1)
     throw createError({ statusCode: 400, statusMessage: "Image not found" });
 
-  game.mImageLibrary.splice(imageIndex, 1);
+  game.mImageLibraryObjectIds.splice(imageIndex, 1);
   await objectHandler.deleteAsSystem(imageId);
 
-  if (game.mBannerId === imageId) {
-    game.mBannerId = game.mImageLibrary[0];
+  if (game.mBannerObjectId === imageId) {
+    game.mBannerObjectId = game.mImageLibraryObjectIds[0];
   }
-  if (game.mCoverId === imageId) {
-    game.mCoverId = game.mImageLibrary[0];
+  if (game.mCoverObjectId === imageId) {
+    game.mCoverObjectId = game.mImageLibraryObjectIds[0];
   }
 
   const result = await prisma.game.update({
@@ -49,14 +49,14 @@ export default defineEventHandler(async (h3) => {
       id: gameId,
     },
     data: {
-      mBannerId: game.mBannerId,
-      mImageLibrary: game.mImageLibrary,
-      mCoverId: game.mCoverId,
+      mBannerObjectId: game.mBannerObjectId,
+      mImageLibraryObjectIds: game.mImageLibraryObjectIds,
+      mCoverObjectId: game.mCoverObjectId,
     },
     select: {
-      mBannerId: true,
-      mImageLibrary: true,
-      mCoverId: true,
+      mBannerObjectId: true,
+      mImageLibraryObjectIds: true,
+      mCoverObjectId: true,
     },
   });
 

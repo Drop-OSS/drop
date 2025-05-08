@@ -5,7 +5,10 @@
   >
     <!-- banner image -->
     <div class="absolute flex top-0 h-fit inset-x-0 h-12 -z-[20] pb-4">
-      <img :src="useObject(game.mBannerId)" class="blur-sm w-full h-auto" />
+      <img
+        :src="useObject(game.mBannerObjectId)"
+        class="blur-sm w-full h-auto"
+      />
       <div
         class="absolute inset-0 bg-gradient-to-b from-transparent to-80% to-zinc-950"
       />
@@ -29,7 +32,7 @@
         >
           <img
             class="transition-all duration-300 hover:scale-105 hover:rotate-[-1deg] w-64 h-auto rounded gameCover"
-            :src="useObject(game.mCoverId)"
+            :src="useObject(game.mCoverObjectId)"
             :alt="game.mName"
           />
           <div class="flex items-center gap-x-2">
@@ -115,13 +118,16 @@
           </p>
           <div class="mt-6 py-4 rounded">
             <VueCarousel :items-to-show="1">
-              <VueSlide v-for="image in game.mImageCarousel" :key="image">
+              <VueSlide
+                v-for="image in game.mImageCarouselObjectIds"
+                :key="image"
+              >
                 <img
                   class="w-fit h-48 lg:h-96 rounded"
                   :src="useObject(image)"
                 />
               </VueSlide>
-              <VueSlide v-if="game.mImageCarousel.length == 0">
+              <VueSlide v-if="game.mImageCarouselObjectIds.length == 0">
                 <div
                   class="h-48 lg:h-96 aspect-[1/2] flex items-center justify-center text-zinc-700 font-bold font-display"
                 >
