@@ -175,14 +175,18 @@ export class GiantBombProvider implements MetadataProvider {
     const publishers: Publisher[] = [];
     if (gameData.publishers) {
       for (const pub of gameData.publishers) {
-        publishers.push(await publisher(pub.name));
+        const res = await publisher(pub.name);
+        if (res === undefined) continue;
+        publishers.push(res);
       }
     }
 
     const developers: Developer[] = [];
     if (gameData.developers) {
       for (const dev of gameData.developers) {
-        developers.push(await developer(dev.name));
+        const res = await developer(dev.name);
+        if (res === undefined) continue;
+        developers.push(res);
       }
     }
 

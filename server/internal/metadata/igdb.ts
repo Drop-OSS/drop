@@ -334,10 +334,16 @@ export class IGDBProvider implements MetadataProvider {
           for (const company of findCompanyResponse) {
             // if company was a dev or publisher
             // CANNOT use else since a company can be both
-            if (foundInvolved.developer)
-              developers.push(await developer(company.name));
-            if (foundInvolved.publisher)
-              publishers.push(await publisher(company.name));
+            if (foundInvolved.developer) {
+              const res = await developer(company.name);
+              if (res === undefined) continue;
+              developers.push(res);
+            }
+            if (foundInvolved.publisher) {
+              const res = await publisher(company.name);
+              if (res === undefined) continue;
+              publishers.push(res);
+            }
           }
         }
       }
@@ -403,7 +409,7 @@ export class IGDBProvider implements MetadataProvider {
       return metadata;
     }
 
-    throw new Error("No results found");
+    throw new Error(`igdb failed to find publisher/developer ${query}`);
   }
   async fetchDeveloper(
     params: _FetchDeveloperMetadataParams,

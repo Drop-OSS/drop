@@ -39,10 +39,10 @@ export abstract class MetadataProvider {
   abstract fetchGame(params: _FetchGameMetadataParams): Promise<GameMetadata>;
   abstract fetchPublisher(
     params: _FetchPublisherMetadataParams,
-  ): Promise<PublisherMetadata>;
+  ): Promise<PublisherMetadata | undefined>;
   abstract fetchDeveloper(
     params: _FetchDeveloperMetadataParams,
-  ): Promise<DeveloperMetadata>;
+  ): Promise<DeveloperMetadata | undefined>;
 }
 
 export class MetadataHandler {
@@ -192,7 +192,7 @@ export class MetadataHandler {
       query,
       "fetchDeveloper",
       "developer",
-    )) as Developer;
+    )) as Developer | undefined;
   }
 
   async fetchPublisher(query: string) {
@@ -200,7 +200,7 @@ export class MetadataHandler {
       query,
       "fetchPublisher",
       "publisher",
-    )) as Publisher;
+    )) as Publisher | undefined;
   }
 
   // Careful with this function, it has no typechecking
@@ -226,9 +226,14 @@ export class MetadataHandler {
         {},
         ["internal:read"],
       );
-      let result: PublisherMetadata;
+      let result: PublisherMetadata | undefined;
       try {
         result = await provider[functionName]({ query, createObject });
+        if (result === undefined) {
+          throw new Error(
+            `${provider.source()} failed to find a ${databaseName} for "${query}`,
+          );
+        }
       } catch (e) {
         console.warn(e);
         dumpObjects();
@@ -257,9 +262,10 @@ export class MetadataHandler {
       return object;
     }
 
-    throw new Error(
-      `No metadata provider found a ${databaseName} for "${query}"`,
-    );
+    // throw new Error(
+    //   `No metadata provider found a ${databaseName} for "${query}"`,
+    // );
+    return undefined;
   }
 }
 
