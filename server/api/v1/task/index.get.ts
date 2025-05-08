@@ -1,9 +1,9 @@
 import taskHandler from "~/server/internal/tasks";
 import type { MinimumRequestObject } from "~/server/h3";
-import cacheHandler from "~/server/internal/cache";
 
+// TODO add web socket sessions for horizontal scaling
 // ID to admin
-const socketHeaders = cacheHandler.createCache<MinimumRequestObject>("taskSocketHeaders");
+const socketHeaders = new Map<string, MinimumRequestObject>();
 
 export default defineWebSocketHandler({
   async open(peer) {
@@ -13,15 +13,15 @@ export default defineWebSocketHandler({
       return;
     }
 
-    await socketHeaders.set(peer.id, {
+    socketHeaders.set(peer.id, {
       headers: request.headers ?? new Headers(),
     });
     peer.send(`connect`);
   },
-  async message(peer, message) {
+  message(peer, message) {
     if (!peer.id) return;
-    const headers = await socketHeaders.get(peer.id);
-    if (!headers) return;
+    const headers = socketHeaders.get(peer.id);
+    if (headers === undefined) return;
     const text = message.text();
     if (text.startsWith("connect/")) {
       const id = text.substring("connect/".length);
@@ -29,10 +29,10 @@ export default defineWebSocketHandler({
       return;
     }
   },
-  async close(peer, _details) {
+  close(peer, _details) {
     if (!peer.id) return;
     if (!socketHeaders.has(peer.id)) return;
-    await socketHeaders.remove(peer.id);
+    socketHeaders.delete(peer.id);
 
     taskHandler.disconnectAll(peer.id);
   },
