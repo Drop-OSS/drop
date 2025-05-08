@@ -145,8 +145,6 @@ export class FsObjectBackend extends ObjectBackend {
     obj.pipe(hash);
     await objEnd;
 
-    console.log("object hash: ", hashResult);
-
     // if hash isn't a string somehow, mark as unknown hash
     if (typeof hashResult !== "string") {
       return undefined;
@@ -167,7 +165,6 @@ class FsHashStore {
   async get(id: ObjectReference) {
     const cacheRes = await this.cache.get(id);
     if (cacheRes !== null) {
-      console.log("object cache hit");
       return cacheRes;
     }
 
