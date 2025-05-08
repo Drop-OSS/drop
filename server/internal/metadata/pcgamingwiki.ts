@@ -171,7 +171,9 @@ export class PCGamingWikiProvider implements MetadataProvider {
     if (game.Publishers !== null) {
       const pubListClean = this.parseCompanyStr(game.Publishers);
       for (const pub of pubListClean) {
-        publishers.push(await publisher(pub));
+        const res = await publisher(pub);
+        if (res === undefined) continue;
+        publishers.push(res);
       }
     }
 
@@ -179,7 +181,9 @@ export class PCGamingWikiProvider implements MetadataProvider {
     if (game.Developers !== null) {
       const devListClean = this.parseCompanyStr(game.Developers);
       for (const dev of devListClean) {
-        developers.push(await developer(dev));
+        const res = await developer(dev);
+        if (res === undefined) continue;
+        developers.push(res);
       }
     }
 
@@ -249,7 +253,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
       return metadata;
     }
 
-    throw new Error("Error in pcgamingwiki, no publisher");
+    throw new Error(`pcgamingwiki failed to find publisher/developer ${query}`);
   }
 
   async fetchDeveloper(

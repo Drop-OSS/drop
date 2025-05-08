@@ -57,8 +57,8 @@ export interface _FetchGameMetadataParams {
   id: string;
   name: string;
 
-  publisher: (query: string) => Promise<Publisher>;
-  developer: (query: string) => Promise<Developer>;
+  publisher: (query: string) => Promise<Publisher | undefined>;
+  developer: (query: string) => Promise<Developer | undefined>;
 
   createObject: (data: TransactionDataType) => ObjectReference;
 }
