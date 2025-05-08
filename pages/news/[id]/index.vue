@@ -4,9 +4,9 @@
     <div v-if="article" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Banner header with blurred background -->
       <div class="relative w-full h-[300px] mb-8 rounded-lg overflow-hidden">
-        <div v-if="article.image" class="absolute inset-0">
+        <div v-if="article.imageObjectId" class="absolute inset-0">
           <img
-            :src="useObject(article.image)"
+            :src="useObject(article.imageObjectId)"
             alt=""
             class="w-full h-full object-cover blur-sm scale-110"
           />

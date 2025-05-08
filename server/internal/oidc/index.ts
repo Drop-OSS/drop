@@ -276,7 +276,7 @@ export class OIDCManager {
               username,
               email: userinfo.email ?? "",
               displayName: userinfo.name ?? username,
-              profilePicture: profilePictureId,
+              profilePictureObjectId: profilePictureId,
               admin: isAdmin,
             },
           },

@@ -4,9 +4,9 @@ model User {
     admin    Boolean @default(false)
     enabled  Boolean @default(true)
 
-    email          String
-    displayName    String
-    profilePicture String // Object
+    email                  String
+    displayName            String
+    profilePictureObjectId String // Object
 
     authMecs      LinkedAuthMec[]
     clients       Client[]

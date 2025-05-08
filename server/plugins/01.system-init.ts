@@ -16,7 +16,7 @@ export default defineNitroPlugin(async (_nitro) => {
       displayName: "System",
       username: "system",
       email: "system@drop",
-      profilePicture: "",
+      profilePictureObjectId: "",
     },
     update: {
       admin: true,

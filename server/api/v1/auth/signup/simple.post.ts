@@ -77,7 +77,7 @@ export default defineEventHandler(async (h3) => {
             username: user.username,
             displayName: user.displayName ?? user.username,
             email: user.email,
-            profilePicture: profilePictureId,
+            profilePictureObjectId: profilePictureId,
             admin: invitation.isAdmin,
           },
         },

@@ -13,8 +13,8 @@ model Article {
 
   tags Tag[]
 
-  image       String? // Object ID
-  publishedAt DateTime @default(now())
+  imageObjectId String? // Object ID
+  publishedAt   DateTime @default(now())
 
   author   User?   @relation(fields: [authorId], references: [id]) // Optional, if no user, it's a system post
   authorId String?

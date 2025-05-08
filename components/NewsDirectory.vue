@@ -80,11 +80,11 @@
           ]"
         >
           <div
-            v-if="article.image"
+            v-if="article.imageObjectId"
             class="absolute inset-0 rounded-lg transition-all duration-200 overflow-hidden"
           >
             <img
-              :src="useObject(article.image)"
+              :src="useObject(article.imageObjectId)"
               class="absolute blur-sm inset-0 w-full h-full object-cover transition-all duration-200 group-hover:scale-110"
             />
             <div
