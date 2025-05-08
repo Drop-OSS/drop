@@ -48,6 +48,20 @@ export default defineNuxtConfig({
     },
 
     compressPublicAssets: true,
+
+    storage: {
+      appCache: {
+        driver: "lru-cache",
+      },
+    },
+
+    devStorage: {
+      appCache: {
+        // store cache on fs to handle dev server restarts
+        driver: "fs",
+        base: "./.data/appCache",
+      },
+    },
   },
 
   typescript: {

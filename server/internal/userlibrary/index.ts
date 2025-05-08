@@ -2,15 +2,17 @@
 Handles managing collections
 */
 
+import cacheHandler from "../cache";
 import prisma from "../db/database";
 
 class UserLibraryManager {
   // Caches the user's core library
-  private userCoreLibraryCache: { [key: string]: string } = {};
+  private coreLibraryCache =
+    cacheHandler.createCache<string>("UserCoreLibrary");
 
   private async fetchUserLibrary(userId: string) {
-    if (this.userCoreLibraryCache[userId])
-      return this.userCoreLibraryCache[userId];
+    const cached = await this.coreLibraryCache.get(userId);
+    if (cached !== null) return cached;
 
     let collection = await prisma.collection.findFirst({
       where: {
@@ -28,7 +30,7 @@ class UserLibraryManager {
         },
       });
 
-    this.userCoreLibraryCache[userId] = collection.id;
+    await this.coreLibraryCache.set(userId, collection.id);
 
     return collection.id;
   }

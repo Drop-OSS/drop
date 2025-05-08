@@ -1,12 +1,12 @@
 import type { ObjectMetadata, ObjectReference, Source } from "./objectHandler";
 import { ObjectBackend } from "./objectHandler";
 
-import { LRUCache } from "lru-cache";
 import fs from "fs";
 import path from "path";
 import { Readable } from "stream";
 import { createHash } from "crypto";
 import prisma from "../db/database";
+import cacheHandler from "../cache";
 
 export class FsObjectBackend extends ObjectBackend {
   private baseObjectPath: string;
@@ -34,7 +34,7 @@ export class FsObjectBackend extends ObjectBackend {
     if (!fs.existsSync(objectPath)) return false;
 
     // remove item from cache
-    this.hashStore.delete(id);
+    await this.hashStore.delete(id);
 
     if (source instanceof Readable) {
       const outputStream = fs.createWriteStream(objectPath);
@@ -54,7 +54,7 @@ export class FsObjectBackend extends ObjectBackend {
     const objectPath = path.join(this.baseObjectPath, id);
     if (!fs.existsSync(objectPath)) return undefined;
     // remove item from cache
-    this.hashStore.delete(id);
+    await this.hashStore.delete(id);
     return fs.createWriteStream(objectPath);
   }
   async create(
@@ -99,7 +99,7 @@ export class FsObjectBackend extends ObjectBackend {
     if (!fs.existsSync(objectPath)) return true;
     fs.rmSync(objectPath);
     // remove item from cache
-    this.hashStore.delete(id);
+    await this.hashStore.delete(id);
     return true;
   }
   async fetchMetadata(
@@ -121,36 +121,35 @@ export class FsObjectBackend extends ObjectBackend {
   }
   async fetchHash(id: ObjectReference): Promise<string | undefined> {
     const cacheResult = await this.hashStore.get(id);
-    if (cacheResult !== undefined) return cacheResult;
+    if (cacheResult !== null) return cacheResult;
 
     const obj = await this.fetch(id);
     if (obj === undefined) return;
-
-    // local variable to point to object
-    const cache = this.hashStore;
 
     // hash object
     const hash = createHash("md5");
     hash.setEncoding("hex");
 
+    // local variable to point to object
+    const store = this.hashStore;
+
     // read obj into hash
     obj.pipe(hash);
     await new Promise<void>((r) => {
-      obj.on("end", function () {
+      obj.on("end", async function () {
         hash.end();
-        cache.save(id, hash.read());
+        await store.save(id, hash.read());
         r();
       });
     });
 
-    return await this.hashStore.get(id);
+    const result = await this.hashStore.get(id);
+    return result === null ? undefined : result;
   }
 }
 
 class FsHashStore {
-  private cache = new LRUCache<string, string>({
-    max: 1000, // number of items
-  });
+  private cache = cacheHandler.createCache<string>("ObjectHashStore");
 
   /**
    * Gets hash of object
@@ -158,8 +157,11 @@ class FsHashStore {
    * @returns
    */
   async get(id: ObjectReference) {
-    const cacheRes = this.cache.get(id);
-    if (cacheRes !== undefined) return cacheRes;
+    const cacheRes = await this.cache.get(id);
+    if (cacheRes !== null) {
+      console.log("object cache hit");
+      return cacheRes;
+    }
 
     const objectHash = await prisma.objectHash.findUnique({
       where: {
@@ -170,7 +172,7 @@ class FsHashStore {
       },
     });
     if (objectHash === null) return undefined;
-    this.cache.set(id, objectHash.hash);
+    await this.cache.set(id, objectHash.hash);
     return objectHash.hash;
   }
 
@@ -191,7 +193,7 @@ class FsHashStore {
         hash,
       },
     });
-    this.cache.set(id, hash);
+    await this.cache.set(id, hash);
   }
 
   /**
@@ -199,7 +201,7 @@ class FsHashStore {
    * @param id
    */
   async delete(id: ObjectReference) {
-    this.cache.delete(id);
+    await this.cache.remove(id);
 
     try {
       // need to catch in case the object doesn't exist
