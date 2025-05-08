@@ -57,9 +57,11 @@ class NotificationSystem {
   }
 
   async push(userId: string, notificationCreateArgs: NotificationCreateArgs) {
+    if (!notificationCreateArgs.nonce)
+      throw new Error("No nonce in notificationCreateArgs");
     const notification = await prisma.notification.upsert({
       where: {
-        nonce: notificationCreateArgs.nonce!!
+        nonce: notificationCreateArgs.nonce,
       },
       update: {
         userId: userId,

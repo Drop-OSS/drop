@@ -1,8 +1,8 @@
 import { randomUUID } from "crypto";
 import prisma from "../db/database";
-import { AuthMec, Prisma } from "@prisma/client";
+import { AuthMec } from "@prisma/client";
 import objectHandler from "../objects";
-import { Readable } from "stream";
+import type { Readable } from "stream";
 import * as jdenticon from "jdenticon";
 
 interface OIDCWellKnown {
@@ -39,7 +39,8 @@ export class OIDCManager {
 
   private adminGroup?: string = process.env.OIDC_ADMIN_GROUP;
   private usernameClaim: keyof OIDCUserInfo =
-    (process.env.OIDC_USERNAME_CLAIM as any) ?? "preferred_username";
+    (process.env.OIDC_USERNAME_CLAIM as keyof OIDCUserInfo) ??
+    "preferred_username";
 
   private signinStateTable: { [key: string]: OIDCAuthSession } = {};
 
@@ -119,6 +120,16 @@ export class OIDCManager {
     if (!externalUrl) throw new Error("EXTERNAL_URL required for OIDC");
 
     return new OIDCManager(configuration, clientId, clientSecret, externalUrl);
+  }
+
+  generateConfiguration() {
+    return {
+      authorizationUrl: this.oidcConfiguration.authorization_endpoint,
+      scopes: this.oidcConfiguration.scopes_supported.join(", "),
+      adminGroup: this.adminGroup,
+      usernameClaim: this.usernameClaim,
+      externalUrl: this.externalUrl,
+    };
   }
 
   generateAuthSession(): OIDCAuthSession {
@@ -226,11 +237,12 @@ export class OIDCManager {
     const userId = randomUUID();
     const profilePictureId = randomUUID();
 
-    if (userinfo.picture) {
+    const picture = userinfo.picture;
+    if (picture) {
       await objectHandler.createFromSource(
         profilePictureId,
         async () =>
-          await $fetch<Readable>(userinfo.picture!!, {
+          await $fetch<Readable>(picture, {
             responseType: "stream",
           }),
         {},
@@ -269,6 +281,7 @@ export class OIDCManager {
             },
           },
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         credentials: creds as any, // Prisma converts this to the Json type for us
       },
       include: {

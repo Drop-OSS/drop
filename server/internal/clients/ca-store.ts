@@ -80,6 +80,7 @@ export const dbCertificateStore = () => {
           },
         });
       } finally {
+        /* empty */
       }
     },
     async checkBlacklistCertificate(name: string): Promise<boolean> {

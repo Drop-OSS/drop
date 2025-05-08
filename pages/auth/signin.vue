@@ -18,13 +18,16 @@
 
         <div class="mt-10">
           <div>
-            <AuthSimple v-if="enabledAuths.includes('simple')" />
-            <div v-if="enabledAuths.length > 1" class="py-4 flex flex-row items-center justify-center gap-x-4 font-bold text-sm text-zinc-600">
+            <AuthSimple v-if="enabledAuths.includes(AuthMec.Simple)" />
+            <div
+              v-if="enabledAuths.length > 1"
+              class="py-4 flex flex-row items-center justify-center gap-x-4 font-bold text-sm text-zinc-600"
+            >
               <span class="h-[1px] grow bg-zinc-600" />
               OR
               <span class="h-[1px] grow bg-zinc-600" />
             </div>
-            <AuthOpenID v-if="enabledAuths.includes('oidc')" />
+            <AuthOpenID v-if="enabledAuths.includes(AuthMec.OpenID)" />
           </div>
         </div>
       </div>
@@ -40,6 +43,7 @@
 </template>
 
 <script setup lang="ts">
+import { AuthMec } from "@prisma/client";
 import DropLogo from "~/components/DropLogo.vue";
 
 const enabledAuths = await $dropFetch("/api/v1/auth");
