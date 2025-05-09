@@ -18,7 +18,7 @@ export default defineNitroPlugin(async (_nitro) => {
   for (const provider of metadataProviders) {
     try {
       const prov = new provider();
-      const id = prov.id();
+      const id = prov.source();
       providers.set(id, prov);
 
       console.log(`enabled metadata provider: ${prov.name()}`);

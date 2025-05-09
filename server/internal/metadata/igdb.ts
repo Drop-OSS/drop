@@ -7,9 +7,8 @@ import type {
   _FetchGameMetadataParams,
   GameMetadata,
   _FetchPublisherMetadataParams,
-  PublisherMetadata,
+  CompanyMetadata,
   _FetchDeveloperMetadataParams,
-  DeveloperMetadata,
 } from "./types";
 import type { AxiosRequestConfig } from "axios";
 import axios from "axios";
@@ -265,9 +264,6 @@ export class IGDBProvider implements MetadataProvider {
     return msg.length > len ? msg.substring(0, 280) + "..." : msg;
   }
 
-  id() {
-    return "igdb";
-  }
   name() {
     return "IGDB";
   }
@@ -375,7 +371,7 @@ export class IGDBProvider implements MetadataProvider {
   async fetchPublisher({
     query,
     createObject,
-  }: _FetchPublisherMetadataParams): Promise<PublisherMetadata> {
+  }: _FetchPublisherMetadataParams): Promise<CompanyMetadata> {
     const response = await this.request<IGDBCompany>(
       "companies",
       `where name = "${query}"; fields *; limit 1;`,
@@ -395,7 +391,7 @@ export class IGDBProvider implements MetadataProvider {
           if (company_url.length <= 0) company_url = site.url;
         }
       }
-      const metadata: PublisherMetadata = {
+      const metadata: CompanyMetadata = {
         id: "" + company.id,
         name: company.name,
         shortDescription: this.trimMessage(company.description, 280),
@@ -413,7 +409,7 @@ export class IGDBProvider implements MetadataProvider {
   }
   async fetchDeveloper(
     params: _FetchDeveloperMetadataParams,
-  ): Promise<DeveloperMetadata> {
+  ): Promise<CompanyMetadata> {
     return await this.fetchPublisher(params);
   }
 }

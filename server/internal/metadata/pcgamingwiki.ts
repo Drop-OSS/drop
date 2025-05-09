@@ -6,9 +6,8 @@ import type {
   _FetchGameMetadataParams,
   GameMetadata,
   _FetchPublisherMetadataParams,
-  PublisherMetadata,
+  CompanyMetadata,
   _FetchDeveloperMetadataParams,
-  DeveloperMetadata,
 } from "./types";
 import type { AxiosRequestConfig } from "axios";
 import axios from "axios";
@@ -60,9 +59,6 @@ interface PCGamingWikiCargoResult<T> {
 // Api Docs: https://www.pcgamingwiki.com/wiki/PCGamingWiki:API
 // Good tool for helping build cargo queries: https://www.pcgamingwiki.com/wiki/Special:CargoQuery
 export class PCGamingWikiProvider implements MetadataProvider {
-  id() {
-    return "pcgamingwiki";
-  }
   name() {
     return "PCGamingWiki";
   }
@@ -219,12 +215,12 @@ export class PCGamingWikiProvider implements MetadataProvider {
   async fetchPublisher({
     query,
     createObject,
-  }: _FetchPublisherMetadataParams): Promise<PublisherMetadata> {
+  }: _FetchPublisherMetadataParams): Promise<CompanyMetadata> {
     const searchParams = new URLSearchParams({
       action: "cargoquery",
       tables: "Company",
       fields:
-        "Company.Parent,Company.Founded,Company.Defunct,Company.Website,Company._pageName=PageName,Company._pageID=pageID",
+        "Company.Parent,Company.Founded,Company.Defunct,Company.Website,Company._pageName=PageName,Company._pageID=PageID",
       where: `Company._pageName="Company:${query}"`,
       format: "json",
     });
@@ -240,7 +236,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
       const fixedCompanyName =
         company.PageName.split("Company:").at(1) ?? company.PageName;
 
-      const metadata: PublisherMetadata = {
+      const metadata: CompanyMetadata = {
         id: company.PageID,
         name: fixedCompanyName,
         shortDescription: "",
@@ -258,7 +254,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
 
   async fetchDeveloper(
     params: _FetchDeveloperMetadataParams,
-  ): Promise<DeveloperMetadata> {
+  ): Promise<CompanyMetadata> {
     return await this.fetchPublisher(params);
   }
 }

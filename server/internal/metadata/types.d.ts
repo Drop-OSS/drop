@@ -40,7 +40,7 @@ export interface GameMetadata {
   images: ObjectReference[];
 }
 
-export interface PublisherMetadata {
+export interface CompanyMetadata {
   id: string;
   name: string;
   shortDescription: string;
@@ -50,8 +50,6 @@ export interface PublisherMetadata {
   banner: ObjectReference;
   website: string;
 }
-
-export type DeveloperMetadata = PublisherMetadata;
 
 export interface _FetchGameMetadataParams {
   id: string;
