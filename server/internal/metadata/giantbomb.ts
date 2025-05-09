@@ -7,9 +7,8 @@ import type {
   _FetchGameMetadataParams,
   GameMetadata,
   _FetchPublisherMetadataParams,
-  PublisherMetadata,
+  CompanyMetadata,
   _FetchDeveloperMetadataParams,
-  DeveloperMetadata,
 } from "./types";
 import type { AxiosRequestConfig } from "axios";
 import axios from "axios";
@@ -125,9 +124,6 @@ export class GiantBombProvider implements MetadataProvider {
     return response;
   }
 
-  id() {
-    return "giantbomb";
-  }
   name() {
     return "GiantBomb";
   }
@@ -229,7 +225,7 @@ export class GiantBombProvider implements MetadataProvider {
   async fetchPublisher({
     query,
     createObject,
-  }: _FetchPublisherMetadataParams): Promise<PublisherMetadata> {
+  }: _FetchPublisherMetadataParams): Promise<CompanyMetadata> {
     const results = await this.request<Array<CompanySearchResult>>(
       "search",
       "",
@@ -246,7 +242,7 @@ export class GiantBombProvider implements MetadataProvider {
       ? this.turndown.turndown(company.description)
       : company.deck;
 
-    const metadata: PublisherMetadata = {
+    const metadata: CompanyMetadata = {
       id: company.guid,
       name: company.name,
       shortDescription: company.deck ?? "",
@@ -261,7 +257,7 @@ export class GiantBombProvider implements MetadataProvider {
   }
   async fetchDeveloper(
     params: _FetchDeveloperMetadataParams,
-  ): Promise<DeveloperMetadata> {
+  ): Promise<CompanyMetadata> {
     return await this.fetchPublisher(params);
   }
 }

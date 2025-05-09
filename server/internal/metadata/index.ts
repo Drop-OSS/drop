@@ -5,11 +5,10 @@ import type {
   _FetchDeveloperMetadataParams,
   _FetchGameMetadataParams,
   _FetchPublisherMetadataParams,
-  DeveloperMetadata,
   GameMetadata,
   GameMetadataSearchResult,
   InternalGameMetadataResult,
-  PublisherMetadata,
+  CompanyMetadata,
 } from "./types";
 import { ObjectTransactionalHandler } from "../objects/transactional";
 import { PriorityListIndexed } from "../utils/prioritylist";
@@ -31,7 +30,6 @@ export class MissingMetadataProviderConfig extends Error {
 export const DropUserAgent = "Drop/0.2";
 
 export abstract class MetadataProvider {
-  abstract id(): string;
   abstract name(): string;
   abstract source(): MetadataSource;
 
@@ -39,16 +37,16 @@ export abstract class MetadataProvider {
   abstract fetchGame(params: _FetchGameMetadataParams): Promise<GameMetadata>;
   abstract fetchPublisher(
     params: _FetchPublisherMetadataParams,
-  ): Promise<PublisherMetadata | undefined>;
+  ): Promise<CompanyMetadata | undefined>;
   abstract fetchDeveloper(
     params: _FetchDeveloperMetadataParams,
-  ): Promise<DeveloperMetadata | undefined>;
+  ): Promise<CompanyMetadata | undefined>;
 }
 
 export class MetadataHandler {
   // Ordered by priority
   private providers: PriorityListIndexed<MetadataProvider> =
-    new PriorityListIndexed("id");
+    new PriorityListIndexed("source");
   private objectHandler: ObjectTransactionalHandler =
     new ObjectTransactionalHandler();
 
@@ -63,8 +61,8 @@ export class MetadataHandler {
   fetchProviderIdsInOrder() {
     return this.providers
       .values()
-      .map((e) => e.id())
-      .filter((e) => e !== "manual");
+      .map((e) => e.source())
+      .filter((e) => e !== "Manual");
   }
 
   async search(query: string) {
@@ -80,7 +78,7 @@ export class MetadataHandler {
           const mappedResults: InternalGameMetadataResult[] = results.map(
             (result) =>
               Object.assign({}, result, {
-                sourceId: provider.id(),
+                sourceId: provider.source(),
                 sourceName: provider.name(),
               }),
           );
@@ -129,7 +127,7 @@ export class MetadataHandler {
       where: {
         metadataKey: {
           metadataSource: provider.source(),
-          metadataId: provider.id(),
+          metadataId: result.id,
         },
       },
     });
@@ -163,12 +161,6 @@ export class MetadataHandler {
         mName: metadata.name,
         mShortDescription: metadata.shortDescription,
         mDescription: metadata.description,
-        mDevelopers: {
-          connect: metadata.developers,
-        },
-        mPublishers: {
-          connect: metadata.publishers,
-        },
 
         mReviewCount: metadata.reviewCount,
         mReviewRating: metadata.reviewRating,
@@ -182,6 +174,44 @@ export class MetadataHandler {
         libraryBasePath,
       },
     });
+    // relate companies to game
+    for (const pub of metadata.publishers) {
+      await prisma.companyGameRelation.upsert({
+        where: {
+          companyGame: {
+            gameId: game.id,
+            companyId: pub.id,
+          },
+        },
+        create: {
+          gameId: game.id,
+          companyId: pub.id,
+          publisher: true,
+        },
+        update: {
+          publisher: true,
+        },
+      });
+    }
+    for (const dev of metadata.developers) {
+      await prisma.companyGameRelation.upsert({
+        where: {
+          companyGame: {
+            gameId: game.id,
+            companyId: dev.id,
+          },
+        },
+        create: {
+          gameId: game.id,
+          companyId: dev.id,
+          developer: true,
+        },
+        update: {
+          developer: true,
+        },
+      });
+    }
+
     await pullObjects();
 
     return game;
@@ -208,10 +238,10 @@ export class MetadataHandler {
   private async fetchDeveloperPublisher(
     query: string,
     functionName: "fetchDeveloper" | "fetchPublisher",
-    databaseName: "developer" | "publisher",
+    type: "developer" | "publisher",
   ) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const existing = await (prisma as any)[databaseName].findFirst({
+    const existing = await (prisma as any)[type].findFirst({
       where: {
         metadataOriginalQuery: query,
       },
@@ -226,12 +256,12 @@ export class MetadataHandler {
         {},
         ["internal:read"],
       );
-      let result: PublisherMetadata | undefined;
+      let result: CompanyMetadata | undefined;
       try {
         result = await provider[functionName]({ query, createObject });
         if (result === undefined) {
           throw new Error(
-            `${provider.source()} failed to find a ${databaseName} for "${query}`,
+            `${provider.source()} failed to find a ${type} for "${query}`,
           );
         }
       } catch (e) {
@@ -243,18 +273,32 @@ export class MetadataHandler {
       // If we're successful
       await pullObjects();
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const object = await (prisma as any)[databaseName].create({
-        data: {
+      // TODO: dedupe metadata in event that a company with same source and id appears
+      const object = await prisma.company.upsert({
+        where: {
+          metadataKey: {
+            metadataId: result.id,
+            metadataSource: provider.source(),
+          },
+        },
+        create: {
           metadataSource: provider.source(),
-          metadataId: provider.id(),
+          metadataId: result.id,
           metadataOriginalQuery: query,
 
           mName: result.name,
           mShortDescription: result.shortDescription,
           mDescription: result.description,
-          mLogo: result.logo,
-          mBanner: result.banner,
+          mLogoObjectId: result.logo,
+          mBannerObjectId: result.banner,
+          mWebsite: result.website,
+        },
+        update: {
+          mName: result.name,
+          mShortDescription: result.shortDescription,
+          mDescription: result.description,
+          mLogoObjectId: result.logo,
+          mBannerObjectId: result.banner,
           mWebsite: result.website,
         },
       });

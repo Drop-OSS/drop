@@ -33,9 +33,10 @@ model Game {
     versions        GameVersion[]
     libraryBasePath String        @unique // Base dir for all the game versions
 
-    collections CollectionEntry[]
-    saves       SaveSlot[]
-    screenshots Screenshot[]
+    collections      CollectionEntry[]
+    saves            SaveSlot[]
+    screenshots      Screenshot[]
+    companyRelations CompanyGameRelation[]
 
     @@unique([metadataSource, metadataId], name: "metadataKey")
 }
@@ -100,6 +101,38 @@ model Screenshot {
     createdAt DateTime @default(now()) @db.Timestamptz(0)
 
     @@index([gameId, userId])
+}
+
+model Company {
+    id String @id @default(uuid())
+
+    metadataSource        MetadataSource
+    metadataId            String
+    metadataOriginalQuery String
+
+    mName             String
+    mShortDescription String
+    mDescription      String
+    mLogoObjectId     String
+    mBannerObjectId   String
+    mWebsite          String
+
+    gameRelations CompanyGameRelation[]
+
+    @@unique([metadataSource, metadataId], name: "metadataKey")
+}
+
+model CompanyGameRelation {
+    companyId String
+    company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+    gameId    String
+    game      Game    @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+    // what the company did for the game
+    developer Boolean @default(false)
+    publisher Boolean @default(false)
+
+    @@unique([companyId, gameId], name: "companyGame")
 }
 
 model Developer {

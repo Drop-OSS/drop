@@ -4,16 +4,12 @@ import type {
   _FetchGameMetadataParams,
   GameMetadata,
   _FetchPublisherMetadataParams,
-  PublisherMetadata,
+  CompanyMetadata,
   _FetchDeveloperMetadataParams,
-  DeveloperMetadata,
 } from "./types";
 import * as jdenticon from "jdenticon";
 
 export class ManualMetadataProvider implements MetadataProvider {
-  id() {
-    return "manual";
-  }
   name() {
     return "Manual";
   }
@@ -49,12 +45,12 @@ export class ManualMetadataProvider implements MetadataProvider {
   }
   async fetchPublisher(
     _params: _FetchPublisherMetadataParams,
-  ): Promise<PublisherMetadata> {
+  ): Promise<CompanyMetadata> {
     throw new Error("Method not implemented.");
   }
   async fetchDeveloper(
     _params: _FetchDeveloperMetadataParams,
-  ): Promise<DeveloperMetadata> {
+  ): Promise<CompanyMetadata> {
     throw new Error("Method not implemented.");
   }
 }
