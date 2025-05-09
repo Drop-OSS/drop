@@ -113,7 +113,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
         year:
           game.Released !== null && game.Released.length > 0
             ? // sometimes will provide multiple dates
-              DateTime.fromISO(game.Released.split(";")[0]).year
+              this.parseTS(game.Released).year
             : 0,
       };
       return metadata;
@@ -139,6 +139,22 @@ export class PCGamingWikiProvider implements MetadataProvider {
     });
 
     return results;
+  }
+
+  /**
+   * Parses the specific format that the wiki returns when specifying a iso timestamp
+   * @param isoStr
+   * @returns
+   */
+  private parseTS(isoStr: string): DateTime {
+    return DateTime.fromISO(isoStr.split(";")[0]);
+  }
+
+  private parseWebsitesGetFirst(websiteStr?: string | null): string {
+    if (websiteStr === undefined || websiteStr === null) return "";
+
+    // string comes in format: "[https://www.gamesci.com.cn www.gamesci.com.cn]"
+    return websiteStr.replaceAll(/\[|]/g, "").split(" ")[0] ?? "";
   }
 
   async fetchGame({
@@ -234,14 +250,14 @@ export class PCGamingWikiProvider implements MetadataProvider {
       const company = res.data.cargoquery[i].title;
 
       const fixedCompanyName =
-        company.PageName.split("Company:").at(1) ?? company.PageName;
+        this.parseCompanyStr(company.PageName)[0] ?? company.PageName;
 
       const metadata: CompanyMetadata = {
         id: company.PageID,
         name: fixedCompanyName,
         shortDescription: "",
         description: "",
-        website: company?.Website ?? "",
+        website: this.parseWebsitesGetFirst(company?.Website),
 
         logo: icon,
         banner: icon,

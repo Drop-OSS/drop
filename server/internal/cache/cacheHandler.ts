@@ -1,17 +1,5 @@
 import { prefixStorage, type StorageValue, type Storage } from "unstorage";
 
-export interface CacheProviderOptions {
-  /**
-   * Max number of items in the cache
-   */
-  max?: number;
-
-  /**
-   * Time to live (in ms)
-   */
-  ttl?: number;
-}
-
 /**
  * Creates and manages the lifecycles of various caches
  */
