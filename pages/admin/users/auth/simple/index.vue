@@ -388,7 +388,7 @@ const data = await $dropFetch<Array<SerializeObject<Invitation>>>(
 const invitations = ref(data ?? []);
 
 const generateInvitationUrl = (id: string) =>
-  `${window.location.protocol}//${window.location.host}/register?id=${id}`;
+  `${window.location.protocol}//${window.location.host}/auth/register?id=${id}`;
 const invitationUrls = ref<undefined | Array<string>>();
 onMounted(() => {
   invitationUrls.value = invitations.value.map((invitation) =>
