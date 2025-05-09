@@ -22,7 +22,10 @@ export default defineTask({
     );
     console.log(objects);
     const results = await findUnreferencedStrings(objects, buildRefMap());
-    console.log("[Task cleanup:objects]: Unreferenced objects: ", results);
+    console.log(
+      `[Task cleanup:objects]: found ${results.length} Unreferenced objects`,
+    );
+    console.log(results);
 
     console.log("[Task cleanup:objects]: Done");
     return { result: true };
@@ -60,6 +63,8 @@ async function isReferencedInModelFields(
   id: string,
   fieldRefMap: FieldReferenceMap,
 ): Promise<boolean> {
+  // TODO: optimize the built queries
+  // rn it runs a query for every id over each db table
   for (const { model, fields, arrayFields } of Object.values(fieldRefMap)) {
     const singleFieldOrConditions = fields
       ? fields.map((field) => ({
