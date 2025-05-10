@@ -1,30 +1,40 @@
-# pull pre-configured and updated build environment
-FROM debian:testing-20250317-slim AS build-system
+# Unified deps builder
+FROM node:lts-alpine AS deps
+WORKDIR /app
+COPY package.json yarn.lock ./
+RUN yarn install --network-timeout 1000000 --ignore-scripts
 
+# Build for app
+FROM node:lts-alpine AS build-system
 # setup workdir - has to be the same filepath as app because fuckin' Prisma
 WORKDIR /app
 
-# install dependencies and build
-RUN apt-get update -y
-RUN apt-get install node-corepack -y
-RUN corepack enable
+ENV NODE_ENV=production
+ENV NUXT_TELEMETRY_DISABLED=1
+
+# copy deps and rest of project files
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN NUXT_TELEMETRY_DISABLED=1 yarn install --network-timeout 1000000
-RUN NUXT_TELEMETRY_DISABLED=1 yarn prisma generate
-RUN NUXT_TELEMETRY_DISABLED=1 yarn build
+
+# build
+RUN yarn postinstall
+RUN yarn build
 
 # create run environment for Drop
-FROM node:lts-slim AS run-system
-
+FROM node:lts-alpine AS run-system
 WORKDIR /app
 
+ENV NODE_ENV=production
+ENV NUXT_TELEMETRY_DISABLED=1
+
+RUN yarn add --network-timeout 1000000 --no-lockfile prisma@6.7.0
+
+COPY --from=build-system /app/package.json ./
 COPY --from=build-system /app/.output ./app
 COPY --from=build-system /app/prisma ./prisma
-COPY --from=build-system /app/package.json ./
 COPY --from=build-system /app/build ./startup
 
-# OpenSSL as a dependency for Drop (TODO: seperate build environment)
-RUN apt-get update -y && apt-get install -y openssl
-RUN yarn global add prisma@6.7.0
+ENV LIBRARY="/library"
+ENV DATA="/data"
 
-CMD ["/app/startup/launch.sh"]
+CMD ["sh", "/app/startup/launch.sh"]

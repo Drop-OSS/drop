@@ -1,6 +1,7 @@
 services:
   postgres:
-    image: postgres:14-alpine
+    # using alpine image to reduce image size
+    image: postgres:alpine
     ports:
       - 5432:5432
     healthcheck:
@@ -16,7 +17,7 @@ services:
       - POSTGRES_USER=drop
       - POSTGRES_DB=drop
   drop:
-    image: registry.deepcore.dev/drop-oss/drop/main:latest
+    image: ghcr.io/drop-oss/drop
     depends_on:
       postgres:
         condition: service_healthy
@@ -24,11 +25,6 @@ services:
       - 3000:3000
     volumes:
       - ./library:/library
-      - ./certs:/certs
-      - ./objects:/objects
+      - ./data:/data
     environment:
       - DATABASE_URL=postgres://drop:drop@postgres:5432/drop
-      - FS_BACKEND_PATH=/objects
-      - CLIENT_CERTIFICATES=/certs
-      - LIBRARY=/library
-      - GIANT_BOMB_API_KEY=REPLACE_WITH_YOUR_KEY
