@@ -7,6 +7,7 @@ import { Readable } from "stream";
 import { createHash } from "crypto";
 import prisma from "../db/database";
 import cacheHandler from "../cache";
+import { systemConfig } from "../config/sys-conf";
 
 export class FsObjectBackend extends ObjectBackend {
   private baseObjectPath: string;
@@ -16,7 +17,7 @@ export class FsObjectBackend extends ObjectBackend {
 
   constructor() {
     super();
-    const basePath = process.env.FS_BACKEND_PATH ?? "./.data/objects";
+    const basePath = path.join(systemConfig.getDataFolder(), "objects");
     this.baseObjectPath = path.join(basePath, "objects");
     this.baseMetadataPath = path.join(basePath, "metadata");
 

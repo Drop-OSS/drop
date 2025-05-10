@@ -2,6 +2,17 @@ import tailwindcss from "@tailwindcss/vite";
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  extends: ["./drop-base"],
+
+  // Module config from here down
+  modules: [
+    "vue3-carousel-nuxt",
+    "nuxt-security",
+    // "@nuxt/image",
+    "@nuxt/fonts",
+    "@nuxt/eslint",
+  ],
+
   // Nuxt-only config
   telemetry: false,
   compatibilityDate: "2024-04-03",
@@ -20,6 +31,10 @@ export default defineNuxtConfig({
     buildCache: true,
     viewTransition: true,
   },
+
+  // future: {
+  //   compatibilityVersion: 4,
+  // },
 
   vite: {
     plugins: [tailwindcss()],
@@ -75,17 +90,6 @@ export default defineNuxtConfig({
       },
     },
   },
-
-  extends: ["./drop-base"],
-
-  // Module config from here down
-  modules: [
-    "vue3-carousel-nuxt",
-    "nuxt-security",
-    // "@nuxt/image",
-    "@nuxt/fonts",
-    "@nuxt/eslint",
-  ],
 
   carousel: {
     prefix: "Vue",

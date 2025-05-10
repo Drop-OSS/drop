@@ -15,12 +15,13 @@ import taskHandler from "../tasks";
 import { parsePlatform } from "../utils/parseplatform";
 import droplet from "@drop-oss/droplet";
 import notificationSystem from "../notifications";
+import { systemConfig } from "../config/sys-conf";
 
 class LibraryManager {
   private basePath: string;
 
   constructor() {
-    this.basePath = process.env.LIBRARY ?? "./.data/library";
+    this.basePath = systemConfig.getLibraryFolder();
     fs.mkdirSync(this.basePath, { recursive: true });
   }
 
