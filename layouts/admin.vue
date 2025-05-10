@@ -196,7 +196,7 @@ const navigation: Array<NavigationItem & { icon: Component }> = [
   },
   {
     label: "Back",
-    route: "/",
+    route: "/store",
     prefix: ".",
     icon: ArrowLeftIcon,
   },
