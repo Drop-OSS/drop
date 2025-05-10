@@ -4,42 +4,16 @@
       <h2
         class="mt-2 text-xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
       >
-        Library
+        Metadata Library
       </h2>
       <p
         class="mt-2 text-pretty text-sm font-medium text-gray-500 sm:text-md/8"
       >
-        As you add folders to your library, Drop will detect it and prompt you
-        to import it. Each game needs to be imported before you can import a
-        version.
+        <span class="text-zinc-100 font-bold"
+          >To import or delete games, visit the Library tab.</span
+        >
+        Here, you can edit and update your game's metadata.
       </p>
-    </div>
-    <div
-      v-if="libraryState.unimportedGames.length > 0"
-      class="rounded-md bg-blue-600/10 p-4"
-    >
-      <div class="flex">
-        <div class="flex-shrink-0">
-          <InformationCircleIcon
-            class="h-5 w-5 text-blue-400"
-            aria-hidden="true"
-          />
-        </div>
-        <div class="ml-3 flex-1 md:flex md:justify-between">
-          <p class="text-sm text-blue-400">
-            Drop has detected you have new games to import.
-          </p>
-          <p class="mt-3 text-sm md:ml-6 md:mt-0">
-            <NuxtLink
-              href="/admin/library/import"
-              class="whitespace-nowrap font-medium text-blue-400 hover:text-blue-500"
-            >
-              Import
-              <span aria-hidden="true"> &rarr;</span>
-            </NuxtLink>
-          </p>
-        </div>
-      </div>
     </div>
     <div class="mt-2 grid grid-cols-1">
       <input
@@ -87,70 +61,17 @@
             </dl>
             <div class="mt-4 flex flex-col gap-y-1">
               <NuxtLink
-                :href="`/admin/library/${game.id}`"
-                class="w-fit rounded-md bg-blue-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-              >
-                Open with Library &rarr;
-              </NuxtLink>
-              <NuxtLink
                 :href="`/admin/metadata/games/${game.id}`"
-                class="w-fit rounded-md bg-zinc-800 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                class="w-fit rounded-md bg-blue-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               >
                 Open with Metadata &rarr;
               </NuxtLink>
-              <button
-                class="w-fit rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
-                @click="() => deleteGame(game.id)"
+              <NuxtLink
+                :href="`/admin/library/${game.id}`"
+                class="w-fit rounded-md bg-zinc-800 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-        <div v-if="game.hasNotifications" class="flex flex-col gap-y-2 p-2">
-          <div
-            v-if="game.notifications.toImport"
-            class="rounded-md bg-blue-600/10 p-4"
-          >
-            <div class="flex">
-              <div class="flex-shrink-0">
-                <InformationCircleIcon
-                  class="h-5 w-5 text-blue-400"
-                  aria-hidden="true"
-                />
-              </div>
-              <div class="ml-3 flex-1 md:flex md:justify-between">
-                <p class="text-sm text-blue-400">
-                  Drop has detected you have new verions of this game to import.
-                </p>
-                <p class="mt-3 text-sm md:ml-6 md:mt-0">
-                  <NuxtLink
-                    :href="`/admin/library/${game.id}/import`"
-                    class="whitespace-nowrap font-medium text-blue-400 hover:text-blue-500"
-                  >
-                    Import
-                    <span aria-hidden="true"> &rarr;</span>
-                  </NuxtLink>
-                </p>
-              </div>
-            </div>
-          </div>
-          <div
-            v-if="game.notifications.noVersions"
-            class="rounded-md bg-yellow-600/10 p-4"
-          >
-            <div class="flex">
-              <div class="flex-shrink-0">
-                <ExclamationTriangleIcon
-                  class="h-5 w-5 text-yellow-600"
-                  aria-hidden="true"
-                />
-              </div>
-              <div class="ml-3">
-                <h3 class="text-sm font-medium text-yellow-600">
-                  You have no versions of this game available.
-                </h3>
-              </div>
+                Open with Library &rarr;
+              </NuxtLink>
             </div>
           </div>
         </div>
@@ -172,35 +93,19 @@
 </template>
 
 <script setup lang="ts">
-import { ExclamationTriangleIcon } from "@heroicons/vue/16/solid";
-import { InformationCircleIcon } from "@heroicons/vue/20/solid";
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
 definePageMeta({
   layout: "admin",
 });
 
 useHead({
-  title: "Libraries",
+  title: "Game Library | Metadata",
 });
 
 const searchQuery = ref("");
 
 const libraryState = await $dropFetch("/api/v1/admin/library");
-const libraryGames = ref(
-  libraryState.games.map((e) => {
-    const noVersions = e.status.noVersions;
-    const toImport = e.status.unimportedVersions.length > 0;
-
-    return {
-      ...e.game,
-      notifications: {
-        noVersions,
-        toImport,
-      },
-      hasNotifications: noVersions || toImport,
-    };
-  }),
-);
+const libraryGames = ref(libraryState.games.map((e) => e.game));
 
 const filteredLibraryGames = computed(() =>
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -214,10 +119,4 @@ const filteredLibraryGames = computed(() =>
     return false;
   }),
 );
-
-async function deleteGame(id: string) {
-  await $dropFetch(`/api/v1/admin/game?id=${id}`, { method: "DELETE" });
-  const index = libraryGames.value.findIndex((e) => e.id === id);
-  libraryGames.value.splice(index, 1);
-}
 </script>
