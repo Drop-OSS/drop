@@ -1,13 +1,12 @@
-import type { Developer, Publisher } from "~/prisma/client";
+import type { Company } from "~/prisma/client";
 import { MetadataSource } from "~/prisma/client";
 import type { MetadataProvider } from ".";
 import type {
   GameMetadataSearchResult,
   _FetchGameMetadataParams,
   GameMetadata,
-  _FetchPublisherMetadataParams,
+  _FetchCompanyMetadataParams,
   CompanyMetadata,
-  _FetchDeveloperMetadataParams,
 } from "./types";
 import type { AxiosRequestConfig } from "axios";
 import axios from "axios";
@@ -179,7 +178,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
 
     const game = res.data.cargoquery[0].title;
 
-    const publishers: Publisher[] = [];
+    const publishers: Company[] = [];
     if (game.Publishers !== null) {
       const pubListClean = this.parseCompanyStr(game.Publishers);
       for (const pub of pubListClean) {
@@ -189,7 +188,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
       }
     }
 
-    const developers: Developer[] = [];
+    const developers: Company[] = [];
     if (game.Developers !== null) {
       const devListClean = this.parseCompanyStr(game.Developers);
       for (const dev of devListClean) {
@@ -228,10 +227,10 @@ export class PCGamingWikiProvider implements MetadataProvider {
     return metadata;
   }
 
-  async fetchPublisher({
+  async fetchCompany({
     query,
     createObject,
-  }: _FetchPublisherMetadataParams): Promise<CompanyMetadata> {
+  }: _FetchCompanyMetadataParams): Promise<CompanyMetadata> {
     const searchParams = new URLSearchParams({
       action: "cargoquery",
       tables: "Company",
@@ -266,11 +265,5 @@ export class PCGamingWikiProvider implements MetadataProvider {
     }
 
     throw new Error(`pcgamingwiki failed to find publisher/developer ${query}`);
-  }
-
-  async fetchDeveloper(
-    params: _FetchDeveloperMetadataParams,
-  ): Promise<CompanyMetadata> {
-    return await this.fetchPublisher(params);
   }
 }

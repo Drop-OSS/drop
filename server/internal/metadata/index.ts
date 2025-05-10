@@ -1,10 +1,8 @@
-import type { Developer, Publisher } from "~/prisma/client";
 import { MetadataSource } from "~/prisma/client";
 import prisma from "../db/database";
 import type {
-  _FetchDeveloperMetadataParams,
   _FetchGameMetadataParams,
-  _FetchPublisherMetadataParams,
+  _FetchCompanyMetadataParams,
   GameMetadata,
   GameMetadataSearchResult,
   InternalGameMetadataResult,
@@ -35,11 +33,8 @@ export abstract class MetadataProvider {
 
   abstract search(query: string): Promise<GameMetadataSearchResult[]>;
   abstract fetchGame(params: _FetchGameMetadataParams): Promise<GameMetadata>;
-  abstract fetchPublisher(
-    params: _FetchPublisherMetadataParams,
-  ): Promise<CompanyMetadata | undefined>;
-  abstract fetchDeveloper(
-    params: _FetchDeveloperMetadataParams,
+  abstract fetchCompany(
+    params: _FetchCompanyMetadataParams,
   ): Promise<CompanyMetadata | undefined>;
 }
 
@@ -138,14 +133,14 @@ export class MetadataHandler {
       ["internal:read"],
     );
 
-    let metadata;
+    let metadata: GameMetadata | undefined = undefined;
     try {
       metadata = await provider.fetchGame({
         id: result.id,
         name: result.name,
         // wrap in anonymous functions to keep references to this
-        publisher: (name: string) => this.fetchPublisher(name),
-        developer: (name: string) => this.fetchDeveloper(name),
+        publisher: (name: string) => this.fetchCompany(name),
+        developer: (name: string) => this.fetchCompany(name),
         createObject,
       });
     } catch (e) {
@@ -171,77 +166,27 @@ export class MetadataHandler {
         mCoverObjectId: metadata.coverId,
         mImageLibraryObjectIds: metadata.images,
 
+        publishers: {
+          connect: metadata.publishers,
+        },
+        developers: {
+          connect: metadata.developers,
+        },
+
         libraryBasePath,
       },
     });
     // relate companies to game
-    for (const pub of metadata.publishers) {
-      await prisma.companyGameRelation.upsert({
-        where: {
-          companyGame: {
-            gameId: game.id,
-            companyId: pub.id,
-          },
-        },
-        create: {
-          gameId: game.id,
-          companyId: pub.id,
-          publisher: true,
-        },
-        update: {
-          publisher: true,
-        },
-      });
-    }
-    for (const dev of metadata.developers) {
-      await prisma.companyGameRelation.upsert({
-        where: {
-          companyGame: {
-            gameId: game.id,
-            companyId: dev.id,
-          },
-        },
-        create: {
-          gameId: game.id,
-          companyId: dev.id,
-          developer: true,
-        },
-        update: {
-          developer: true,
-        },
-      });
-    }
 
     await pullObjects();
 
     return game;
   }
 
-  async fetchDeveloper(query: string) {
-    return (await this.fetchDeveloperPublisher(
-      query,
-      "fetchDeveloper",
-      "developer",
-    )) as Developer | undefined;
-  }
-
-  async fetchPublisher(query: string) {
-    return (await this.fetchDeveloperPublisher(
-      query,
-      "fetchPublisher",
-      "publisher",
-    )) as Publisher | undefined;
-  }
-
   // Careful with this function, it has no typechecking
   // Type-checking this thing is impossible
-  private async fetchDeveloperPublisher(
-    query: string,
-    functionName: "fetchDeveloper" | "fetchPublisher",
-    type: "developer" | "publisher",
-  ) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const existing = await (prisma as any)[type].findFirst({
+  private async fetchCompany(query: string) {
+    const existing = await prisma.company.findFirst({
       where: {
         metadataOriginalQuery: query,
       },
@@ -258,10 +203,10 @@ export class MetadataHandler {
       );
       let result: CompanyMetadata | undefined;
       try {
-        result = await provider[functionName]({ query, createObject });
+        result = await provider.fetchCompany({ query, createObject });
         if (result === undefined) {
           throw new Error(
-            `${provider.source()} failed to find a ${type} for "${query}`,
+            `${provider.source()} failed to find a company for "${query}`,
           );
         }
       } catch (e) {
@@ -273,27 +218,12 @@ export class MetadataHandler {
       // If we're successful
       await pullObjects();
 
-      // TODO: dedupe metadata in event that a company with same source and id appears
-      const object = await prisma.company.upsert({
-        where: {
-          metadataKey: {
-            metadataId: result.id,
-            metadataSource: provider.source(),
-          },
-        },
-        create: {
+      const object = await prisma.company.create({
+        data: {
           metadataSource: provider.source(),
           metadataId: result.id,
           metadataOriginalQuery: query,
 
-          mName: result.name,
-          mShortDescription: result.shortDescription,
-          mDescription: result.description,
-          mLogoObjectId: result.logo,
-          mBannerObjectId: result.banner,
-          mWebsite: result.website,
-        },
-        update: {
           mName: result.name,
           mShortDescription: result.shortDescription,
           mDescription: result.description,

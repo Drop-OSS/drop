@@ -1,4 +1,4 @@
-import type { Developer, Publisher } from "~/prisma/client";
+import type { Company } from "~/prisma/client";
 import { MetadataSource } from "~/prisma/client";
 import type { MetadataProvider } from ".";
 import { MissingMetadataProviderConfig } from ".";
@@ -6,9 +6,8 @@ import type {
   GameMetadataSearchResult,
   _FetchGameMetadataParams,
   GameMetadata,
-  _FetchPublisherMetadataParams,
+  _FetchCompanyMetadataParams,
   CompanyMetadata,
-  _FetchDeveloperMetadataParams,
 } from "./types";
 import type { AxiosRequestConfig } from "axios";
 import axios from "axios";
@@ -168,7 +167,7 @@ export class GiantBombProvider implements MetadataProvider {
       ? this.turndown.turndown(gameData.description)
       : gameData.deck;
 
-    const publishers: Publisher[] = [];
+    const publishers: Company[] = [];
     if (gameData.publishers) {
       for (const pub of gameData.publishers) {
         const res = await publisher(pub.name);
@@ -177,7 +176,7 @@ export class GiantBombProvider implements MetadataProvider {
       }
     }
 
-    const developers: Developer[] = [];
+    const developers: Company[] = [];
     if (gameData.developers) {
       for (const dev of gameData.developers) {
         const res = await developer(dev.name);
@@ -222,10 +221,10 @@ export class GiantBombProvider implements MetadataProvider {
 
     return metadata;
   }
-  async fetchPublisher({
+  async fetchCompany({
     query,
     createObject,
-  }: _FetchPublisherMetadataParams): Promise<CompanyMetadata> {
+  }: _FetchCompanyMetadataParams): Promise<CompanyMetadata> {
     const results = await this.request<Array<CompanySearchResult>>(
       "search",
       "",
@@ -254,10 +253,5 @@ export class GiantBombProvider implements MetadataProvider {
     };
 
     return metadata;
-  }
-  async fetchDeveloper(
-    params: _FetchDeveloperMetadataParams,
-  ): Promise<CompanyMetadata> {
-    return await this.fetchPublisher(params);
   }
 }

@@ -17,8 +17,6 @@ model Game {
     mName             String // Name of game
     mShortDescription String // Short description
     mDescription      String // Supports markdown
-    mDevelopers       Developer[]
-    mPublishers       Publisher[]
     mReleased         DateTime // When the game was released
 
     mReviewCount  Int
@@ -33,10 +31,12 @@ model Game {
     versions        GameVersion[]
     libraryBasePath String        @unique // Base dir for all the game versions
 
-    collections      CollectionEntry[]
-    saves            SaveSlot[]
-    screenshots      Screenshot[]
-    companyRelations CompanyGameRelation[]
+    collections CollectionEntry[]
+    saves       SaveSlot[]
+    screenshots Screenshot[]
+
+    developers Company[] @relation(name: "developers")
+    publishers Company[] @relation(name: "publishers")
 
     @@unique([metadataSource, metadataId], name: "metadataKey")
 }
@@ -117,60 +117,10 @@ model Company {
     mBannerObjectId   String
     mWebsite          String
 
-    gameRelations CompanyGameRelation[]
+    developed Game[] @relation(name: "developers")
+    published Game[] @relation(name: "publishers")
 
     @@unique([metadataSource, metadataId], name: "metadataKey")
-}
-
-model CompanyGameRelation {
-    companyId String
-    company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-    gameId    String
-    game      Game    @relation(fields: [gameId], references: [id], onDelete: Cascade)
-
-    // what the company did for the game
-    developer Boolean @default(false)
-    publisher Boolean @default(false)
-
-    @@unique([companyId, gameId], name: "companyGame")
-}
-
-model Developer {
-    id String @id @default(uuid())
-
-    metadataSource        MetadataSource
-    metadataId            String
-    metadataOriginalQuery String
-
-    mName             String
-    mShortDescription String
-    mDescription      String
-    mLogo             String
-    mBanner           String
-    mWebsite          String
-
-    games Game[]
-
-    @@unique([metadataSource, metadataId, metadataOriginalQuery], name: "metadataKey")
-}
-
-model Publisher {
-    id String @id @default(uuid())
-
-    metadataSource        MetadataSource
-    metadataId            String
-    metadataOriginalQuery String
-
-    mName             String
-    mShortDescription String
-    mDescription      String
-    mLogo             String
-    mBanner           String
-    mWebsite          String
-
-    games Game[]
-
-    @@unique([metadataSource, metadataId, metadataOriginalQuery], name: "metadataKey")
 }
 
 model ObjectHash {

@@ -1,4 +1,4 @@
-import type { Developer, Publisher } from "~/prisma/client";
+import type { Company } from "~/prisma/client";
 import { MetadataSource } from "~/prisma/client";
 import type { MetadataProvider } from ".";
 import { MissingMetadataProviderConfig } from ".";
@@ -6,9 +6,8 @@ import type {
   GameMetadataSearchResult,
   _FetchGameMetadataParams,
   GameMetadata,
-  _FetchPublisherMetadataParams,
+  _FetchCompanyMetadataParams,
   CompanyMetadata,
-  _FetchDeveloperMetadataParams,
 } from "./types";
 import type { AxiosRequestConfig } from "axios";
 import axios from "axios";
@@ -312,8 +311,8 @@ export class IGDBProvider implements MetadataProvider {
         }
       }
 
-      const publishers: Publisher[] = [];
-      const developers: Developer[] = [];
+      const publishers: Company[] = [];
+      const developers: Company[] = [];
       for (const involvedCompany of response[i]?.involved_companies ?? []) {
         // get details about the involved company
         const involved_company_response =
@@ -368,10 +367,10 @@ export class IGDBProvider implements MetadataProvider {
 
     throw new Error("No game found on igdb with that id");
   }
-  async fetchPublisher({
+  async fetchCompany({
     query,
     createObject,
-  }: _FetchPublisherMetadataParams): Promise<CompanyMetadata> {
+  }: _FetchCompanyMetadataParams): Promise<CompanyMetadata> {
     const response = await this.request<IGDBCompany>(
       "companies",
       `where name = "${query}"; fields *; limit 1;`,
@@ -406,10 +405,5 @@ export class IGDBProvider implements MetadataProvider {
     }
 
     throw new Error(`igdb failed to find publisher/developer ${query}`);
-  }
-  async fetchDeveloper(
-    params: _FetchDeveloperMetadataParams,
-  ): Promise<CompanyMetadata> {
-    return await this.fetchPublisher(params);
   }
 }

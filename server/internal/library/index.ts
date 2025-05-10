@@ -71,8 +71,6 @@ class LibraryManager {
         mName: true,
         mShortDescription: true,
         metadataSource: true,
-        mDevelopers: true,
-        mPublishers: true,
         mIconObjectId: true,
         libraryBasePath: true,
       },

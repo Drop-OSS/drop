@@ -3,9 +3,8 @@ import type { MetadataProvider } from ".";
 import type {
   _FetchGameMetadataParams,
   GameMetadata,
-  _FetchPublisherMetadataParams,
+  _FetchCompanyMetadataParams,
   CompanyMetadata,
-  _FetchDeveloperMetadataParams,
 } from "./types";
 import * as jdenticon from "jdenticon";
 
@@ -43,13 +42,8 @@ export class ManualMetadataProvider implements MetadataProvider {
       images: [iconId],
     };
   }
-  async fetchPublisher(
-    _params: _FetchPublisherMetadataParams,
-  ): Promise<CompanyMetadata> {
-    throw new Error("Method not implemented.");
-  }
-  async fetchDeveloper(
-    _params: _FetchDeveloperMetadataParams,
+  async fetchCompany(
+    _params: _FetchCompanyMetadataParams,
   ): Promise<CompanyMetadata> {
     throw new Error("Method not implemented.");
   }

@@ -1,4 +1,4 @@
-import type { Developer, Publisher } from "~/prisma/client";
+import type { Company } from "~/prisma/client";
 import type { TransactionDataType } from "../objects/transactional";
 import type { ObjectReference } from "../objects/objectHandler";
 
@@ -27,8 +27,8 @@ export interface GameMetadata {
 
   // These are created using utility functions passed to the metadata loader
   // (that then call back into the metadata provider chain)
-  publishers: Publisher[];
-  developers: Developer[];
+  publishers: Company[];
+  developers: Company[];
 
   reviewCount: number;
   reviewRating: number;
@@ -55,15 +55,13 @@ export interface _FetchGameMetadataParams {
   id: string;
   name: string;
 
-  publisher: (query: string) => Promise<Publisher | undefined>;
-  developer: (query: string) => Promise<Developer | undefined>;
+  publisher: (query: string) => Promise<Company | undefined>;
+  developer: (query: string) => Promise<Company | undefined>;
 
   createObject: (data: TransactionDataType) => ObjectReference;
 }
 
-export interface _FetchPublisherMetadataParams {
+export interface _FetchCompanyMetadataParams {
   query: string;
   createObject: (data: TransactionDataType) => ObjectReference;
 }
-
-export type _FetchDeveloperMetadataParams = _FetchPublisherMetadataParams;

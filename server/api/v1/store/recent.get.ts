@@ -12,13 +12,13 @@ export default defineEventHandler(async (h3) => {
       mShortDescription: true,
       mCoverObjectId: true,
       mBannerObjectId: true,
-      mDevelopers: {
+      developers: {
         select: {
           id: true,
           mName: true,
         },
       },
-      mPublishers: {
+      publishers: {
         select: {
           id: true,
           mName: true,
