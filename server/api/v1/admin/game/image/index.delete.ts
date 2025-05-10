@@ -1,20 +1,31 @@
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import objectHandler from "~/server/internal/objects";
+import { type } from "arktype";
 
-export default defineEventHandler(async (h3) => {
+const ModifyGameImage = type({
+  gameId: "string",
+  imageId: "string",
+});
+
+export default defineEventHandler<{
+  body: typeof ModifyGameImage.infer;
+}>(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["game:image:delete"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
-  const body = await readBody(h3);
-  const gameId = body.gameId;
-  const imageId = body.imageId;
+  const body = ModifyGameImage(await readBody(h3));
+  if (body instanceof type.errors) {
+    // hover out.summary to see validation errors
+    console.error(body.summary);
 
-  if (!gameId || !imageId)
     throw createError({
       statusCode: 400,
-      statusMessage: "Missing gameId or imageId in body",
+      statusMessage: body.summary,
     });
+  }
+  const gameId = body.gameId;
+  const imageId = body.imageId;
 
   const game = await prisma.game.findUnique({
     where: {

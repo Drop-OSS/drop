@@ -1,5 +1,7 @@
 import tailwindcss from "@tailwindcss/vite";
 
+const dropVersion = "0.3";
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   // Nuxt-only config
@@ -31,23 +33,37 @@ export default defineNuxtConfig({
     },
   },
 
+  appConfig: {
+    dropVersion: dropVersion,
+  },
+
   routeRules: {
     "/api/**": { cors: true },
   },
 
   nitro: {
     minify: true,
+    compressPublicAssets: true,
 
     experimental: {
       websocket: true,
       tasks: true,
+      openAPI: true,
+    },
+
+    openAPI: {
+      // tracking for dynamic openapi schema https://github.com/nitrojs/nitro/issues/2974
+      meta: {
+        title: "Drop",
+        description:
+          "Drop is an open-source, self-hosted game distribution platform, creating a Steam-like experience for DRM-free games.",
+        version: dropVersion,
+      },
     },
 
     scheduledTasks: {
       "0 * * * *": ["cleanup:invitations", "cleanup:sessions"],
     },
-
-    compressPublicAssets: true,
 
     storage: {
       appCache: {
