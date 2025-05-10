@@ -94,29 +94,38 @@
       </div>
 
       <!-- with metadata option -->
+
       <div class="flex flex-col gap-y-4">
-        <form @submit.prevent="searchGame">
-          <div class="items-center">
-            <label
-              for="searchTerm"
-              class="block text-sm font-medium leading-6 text-zinc-300"
-              >Search Term</label
-            >
-            <div class="mt-2">
+        <form @submit.prevent="() => searchGame()">
+          <label
+            for="searchTerm"
+            class="block text-sm/6 font-medium text-zinc-100"
+            >Search</label
+          >
+          <div class="mt-2 flex">
+            <div class="-mr-px grid grow grid-cols-1 focus-within:relative">
               <input
                 id="searchTerm"
                 v-model="gameSearchTerm"
+                type="text"
                 name="searchTerm"
-                type="searchTerm"
-                autocomplete="searchTerm"
-                required
-                class="block w-full rounded-md border-0 py-1.5 px-3 shadow-sm bg-zinc-950/20 text-zinc-300 ring-1 ring-inset ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                class="col-start-1 row-start-1 block w-full rounded-l-md bg-zinc-950 py-1.5 px-3 text-base text-zinc-100 outline-1 -outline-offset-1 outline-zinc-800 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6"
+                placeholder="John Smith"
               />
             </div>
+            <LoadingButton
+              :loading="gameSearchLoading"
+              :style="'none'"
+              type="submit"
+              class="w-24 flex shrink-0 items-center justify-center gap-x-1.5 rounded-r-md bg-zinc-950 px-3 py-2 text-sm font-semibold text-zinc-100 outline-1 -outline-offset-1 outline-zinc-800 hover:bg-zinc-900 focus:relative focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600"
+            >
+              <MagnifyingGlassIcon
+                class="-ml-0.5 size-4 text-gray-400"
+                aria-hidden="true"
+              />
+              Search
+            </LoadingButton>
           </div>
-          <LoadingButton class="w-full" :loading="gameSearchLoading">
-            Search</LoadingButton
-          >
         </form>
 
         <Listbox
@@ -258,6 +267,7 @@ import {
 } from "@headlessui/vue";
 import { XCircleIcon } from "@heroicons/vue/16/solid";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
+import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
 import type { GameMetadataSearchResult } from "~/server/internal/metadata/types";
 
 definePageMeta({
