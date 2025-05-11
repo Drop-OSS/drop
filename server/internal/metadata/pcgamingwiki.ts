@@ -12,6 +12,29 @@ import type { AxiosRequestConfig } from "axios";
 import axios from "axios";
 import * as jdenticon from "jdenticon";
 import { DateTime } from "luxon";
+import * as cheerio from "cheerio";
+
+interface PCGamingWikiParseRawPage {
+  parse: {
+    title: string;
+    pageid: number;
+    revid: number;
+    displaytitle: string;
+    // array of links
+    externallinks: string[];
+    // array of wiki file names
+    images: string[];
+    text: {
+      // rendered page contents
+      "*": string;
+    };
+  };
+}
+
+interface PCGamingWikiParsedPage {
+  shortIntro: string;
+  introduction: string;
+}
 
 interface PCGamingWikiPage {
   PageID: string;
@@ -75,7 +98,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
       url: finalURL,
       baseURL: "",
     };
-    const response = await axios.request<PCGamingWikiCargoResult<T>>(
+    const response = await axios.request<T>(
       Object.assign({}, options, overlay),
     );
 
@@ -83,10 +106,40 @@ export class PCGamingWikiProvider implements MetadataProvider {
       throw new Error(
         `Error in pcgamingwiki \nStatus Code: ${response.status}`,
       );
-    else if (response.data.error !== undefined)
-      throw new Error(`Error in pcgamingwiki, malformed query`);
 
     return response;
+  }
+
+  private async cargoQuery<T>(
+    query: URLSearchParams,
+    options?: AxiosRequestConfig,
+  ) {
+    const response = await this.request<PCGamingWikiCargoResult<T>>(
+      query,
+      options,
+    );
+    if (response.data.error !== undefined)
+      throw new Error(`Error in pcgamingwiki cargo query`);
+    return response;
+  }
+
+  private async getPageContent(
+    pageID: string,
+  ): Promise<PCGamingWikiParsedPage> {
+    const searchParams = new URLSearchParams({
+      action: "parse",
+      format: "json",
+      pageid: pageID,
+    });
+    const res = await this.request<PCGamingWikiParseRawPage>(searchParams);
+    const $ = cheerio.load(res.data.parse.text["*"]);
+    // get intro based on 'introduction' class
+    const introductionEle = $(".introduction").first();
+
+    return {
+      shortIntro: introductionEle.find("p").first().text(),
+      introduction: introductionEle.text(),
+    };
   }
 
   async search(query: string) {
@@ -99,7 +152,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
       format: "json",
     });
 
-    const res = await this.request<PCGamingWikiSearchStub>(searchParams);
+    const res = await this.cargoQuery<PCGamingWikiSearchStub>(searchParams);
 
     const mapped = res.data.cargoquery.map((result) => {
       const game = result.title;
@@ -172,7 +225,10 @@ export class PCGamingWikiProvider implements MetadataProvider {
       format: "json",
     });
 
-    const res = await this.request<PCGamingWikiGame>(searchParams);
+    const [res, pageContent] = await Promise.all([
+      this.cargoQuery<PCGamingWikiGame>(searchParams),
+      this.getPageContent(id),
+    ]);
     if (res.data.cargoquery.length < 1)
       throw new Error("Error in pcgamingwiki, no game");
 
@@ -206,8 +262,8 @@ export class PCGamingWikiProvider implements MetadataProvider {
     const metadata: GameMetadata = {
       id: game.PageID,
       name: game.PageName,
-      shortDescription: "", // TODO: (again) need to render the `Introduction` template somehow (or we could just hardcode it)
-      description: "",
+      shortDescription: pageContent.shortIntro,
+      description: pageContent.introduction,
       released: game.Released
         ? DateTime.fromISO(game.Released.split(";")[0]).toJSDate()
         : new Date(),
@@ -240,9 +296,9 @@ export class PCGamingWikiProvider implements MetadataProvider {
       format: "json",
     });
 
-    const res = await this.request<PCGamingWikiCompany>(searchParams);
+    const res = await this.cargoQuery<PCGamingWikiCompany>(searchParams);
 
-    // TODO: replace
+    // TODO: replace with company logo
     const icon = createObject(jdenticon.toPng(query, 512));
 
     for (let i = 0; i < res.data.cargoquery.length; i++) {

@@ -3,6 +3,7 @@ model Tag {
   name String @unique
 
   articles Article[]
+  games    Game[]
 }
 
 model Article {

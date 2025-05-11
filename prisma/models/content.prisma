@@ -34,6 +34,7 @@ model Game {
     collections CollectionEntry[]
     saves       SaveSlot[]
     screenshots Screenshot[]
+    tags        Tag[]
 
     developers Company[] @relation(name: "developers")
     publishers Company[] @relation(name: "publishers")

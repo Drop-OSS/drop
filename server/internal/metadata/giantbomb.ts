@@ -1,5 +1,4 @@
-import type { Company } from "~/prisma/client";
-import { MetadataSource } from "~/prisma/client";
+import { MetadataSource, type Company } from "~/prisma/client";
 import type { MetadataProvider } from ".";
 import { MissingMetadataProviderConfig } from ".";
 import type {
@@ -9,8 +8,7 @@ import type {
   _FetchCompanyMetadataParams,
   CompanyMetadata,
 } from "./types";
-import type { AxiosRequestConfig } from "axios";
-import axios from "axios";
+import axios, { type AxiosRequestConfig } from "axios";
 import TurndownService from "turndown";
 import { DateTime } from "luxon";
 
