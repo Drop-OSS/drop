@@ -110,6 +110,30 @@ export class MetadataHandler {
     );
   }
 
+  private parseTags(tags: string[]) {
+    const results: {
+      where: {
+        name: string;
+      };
+      create: {
+        name: string;
+      };
+    }[] = [];
+
+    tags.forEach((t) =>
+      results.push({
+        where: {
+          name: t,
+        },
+        create: {
+          name: t,
+        },
+      }),
+    );
+
+    return results;
+  }
+
   async createGame(
     result: InternalGameMetadataResult,
     libraryBasePath: string,
@@ -171,6 +195,10 @@ export class MetadataHandler {
         },
         developers: {
           connect: metadata.developers,
+        },
+
+        tags: {
+          connectOrCreate: this.parseTags(metadata.tags),
         },
 
         libraryBasePath,

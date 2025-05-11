@@ -358,6 +358,9 @@ export class IGDBProvider implements MetadataProvider {
         publishers: [],
         developers: [],
 
+        // TODO: support tags
+        tags: [],
+
         icon,
         bannerId: banner,
         coverId: icon,

@@ -205,6 +205,8 @@ export class GiantBombProvider implements MetadataProvider {
       description: longDescription,
       released: releaseDate,
 
+      tags: [],
+
       reviewCount: 0,
       reviewRating: 0,
 

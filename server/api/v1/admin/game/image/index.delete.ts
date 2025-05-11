@@ -3,18 +3,18 @@ import prisma from "~/server/internal/db/database";
 import objectHandler from "~/server/internal/objects";
 import { type } from "arktype";
 
-const ModifyGameImage = type({
+const DeleteGameImage = type({
   gameId: "string",
   imageId: "string",
 });
 
 export default defineEventHandler<{
-  body: typeof ModifyGameImage.infer;
+  body: typeof DeleteGameImage.infer;
 }>(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["game:image:delete"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
-  const body = ModifyGameImage(await readBody(h3));
+  const body = DeleteGameImage(await readBody(h3));
   if (body instanceof type.errors) {
     // hover out.summary to see validation errors
     console.error(body.summary);
