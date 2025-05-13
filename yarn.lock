@@ -371,11 +371,14 @@
     "@drop-oss/droplet-win32-arm64-msvc" "0.7.2"
     "@drop-oss/droplet-win32-x64-msvc" "0.7.2"
 
-"@drop-oss/headscalez@^0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@drop-oss/headscalez/-/headscalez-0.0.3.tgz#deb6eae13b9b65cf225bb2e0e84bc47159b4a91e"
-  integrity sha512-Zsl0T/pwJyw7vbLwEUVAf9zXKKTG3qAbUVQEDiRe88bwhzauPG9/MgBBHA2N/9GHXMUFRRDcchPbwGjCcmcJ3Q==
+"@drop-oss/headscalez@0.0.4":
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/@drop-oss/headscalez/-/headscalez-0.0.4.tgz#7558fbbc542d93fb0c69bdcf48917bdae676c62d"
+  integrity sha512-vdDq6Qe/T5S0FKKYdnBXvOh53wGs8nxy6O3ACVyUjTbTGkDn3z5og4joh5TxoAOFodPHRLCihVuroiymS7yNTg==
   dependencies:
+    "@protobuf-ts/grpcweb-transport" "^2.10.0"
+    "@protobuf-ts/runtime" "^2.10.0"
+    "@protobuf-ts/runtime-rpc" "^2.10.0"
     execa "^9.5.3"
     fs-extra "^11.3.0"
     node-graceful-shutdown "^1.1.5"
@@ -1548,6 +1551,26 @@
   integrity sha512-i9IH5lO4fQwnMLvQLYNdgVh9TK3PuWBfQd7QLk/YurnAIg+VeADcZDbmhAi4XBBDD+hDif9hrKyASu0hbjwabw==
   dependencies:
     "@prisma/debug" "6.7.0"
+
+"@protobuf-ts/grpcweb-transport@^2.10.0":
+  version "2.10.0"
+  resolved "https://registry.yarnpkg.com/@protobuf-ts/grpcweb-transport/-/grpcweb-transport-2.10.0.tgz#c09f29694ec7dc4fc1107a0bf30d359325939311"
+  integrity sha512-VUyD+8kn4XEfWoEiKjAsWX5XWkt8Gfdp/uquS17yt9hdfMBVx3o5tlXX5ylwfWhcIjbRvkf7WHEEdS2wMuq86Q==
+  dependencies:
+    "@protobuf-ts/runtime" "^2.10.0"
+    "@protobuf-ts/runtime-rpc" "^2.10.0"
+
+"@protobuf-ts/runtime-rpc@^2.10.0":
+  version "2.10.0"
+  resolved "https://registry.yarnpkg.com/@protobuf-ts/runtime-rpc/-/runtime-rpc-2.10.0.tgz#68de8dcc369e56579569a4deafd394cf4683dc66"
+  integrity sha512-8CS/XPv3+pMK4v8UKhtCdvbS4h9l7aqlteKdRt0/UbIKZ8n0qHj6hX8cBhz2ngvohxCOS0N08zPr9aCLBNhW3Q==
+  dependencies:
+    "@protobuf-ts/runtime" "^2.10.0"
+
+"@protobuf-ts/runtime@^2.10.0":
+  version "2.10.0"
+  resolved "https://registry.yarnpkg.com/@protobuf-ts/runtime/-/runtime-2.10.0.tgz#bc90f632647ff2ae72887546ddf3d193f3f43d98"
+  integrity sha512-ypYwGg9Pn3W/2lZ7/HW60hONGuSdzphvOY8Dq7LeNttymDe0y3LaTUUMRpuGqOT6FfrWEMnfQbyqU8AAreo8wA==
 
 "@rollup/plugin-alias@^5.1.1":
   version "5.1.1"
