@@ -10,7 +10,8 @@
           class="flex flex-col lg:flex-row lg:justify-between items-start lg:items-center gap-2"
         >
           <div class="inline-flex items-center gap-4">
-            <img :src="useObject(game.mIconObjectId)" class="size-20" />
+            <!-- cover image -->
+            <img :src="coreMetadataIconUrl" class="size-20" />
             <div>
               <h1 class="text-5xl font-bold font-display text-zinc-100">
                 {{ game.mName }}
@@ -285,7 +286,6 @@
             </div>
           </div>
         </div>
-        
       </div>
     </div>
     <UploadFileDialog
@@ -626,7 +626,7 @@ async function updateBannerImage(id: string) {
       method: "PATCH",
       body: {
         id: gameId,
-        mBannerId: id,
+        mBannerObjectId: id,
       },
     });
     game.value.mBannerObjectId = mBannerObjectId;
@@ -653,10 +653,11 @@ async function updateCoverImage(id: string) {
       method: "PATCH",
       body: {
         id: gameId,
-        mCoverId: id,
+        mCoverObjectId: id,
       },
     });
     game.value.mCoverObjectId = mCoverObjectId;
+    coreMetadataIconUrl.value = useObject(mCoverObjectId);
   } catch (e) {
     createModal(
       ModalType.Notification,
@@ -708,8 +709,6 @@ async function uploadAfterImageUpload(result: Game) {
   game.value.mImageLibraryObjectIds = result.mImageLibraryObjectIds;
 }
 
-
-
 function addImageToCarousel(id: string) {
   showAddCarouselModal.value = false;
   game.value.mImageCarouselObjectIds.push(id);
@@ -730,7 +729,7 @@ async function updateImageCarousel() {
       method: "PATCH",
       body: {
         id: gameId,
-        mImageCarousel: game.value.mImageCarouselObjectIds,
+        mImageCarouselObjectIds: game.value.mImageCarouselObjectIds,
       },
     });
   } catch (e) {

@@ -16,9 +16,7 @@ export default defineEventHandler<{
 
   const body = DeleteGameImage(await readBody(h3));
   if (body instanceof type.errors) {
-    // hover out.summary to see validation errors
-    console.error(body.summary);
-
+    console.error(h3.path, body.summary);
     throw createError({
       statusCode: 400,
       statusMessage: body.summary,
