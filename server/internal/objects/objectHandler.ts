@@ -14,17 +14,22 @@
  * anotherUserId:write
  */
 
+import { type } from "arktype";
 import { parse as getMimeTypeBuffer } from "file-type-mime";
 import type { Writable } from "stream";
 import { Readable } from "stream";
 import { getMimeType as getMimeTypeStream } from "stream-mime-type";
 
 export type ObjectReference = string;
-export type ObjectMetadata = {
-  mime: string;
-  permissions: string[];
-  userMetadata: { [key: string]: string };
-};
+
+export const objectMetadata = type({
+  mime: "string",
+  permissions: "string[]",
+  userMetadata: {
+    "[string]": "string",
+  },
+});
+export type ObjectMetadata = typeof objectMetadata.infer;
 
 export enum ObjectPermission {
   Read = "read",

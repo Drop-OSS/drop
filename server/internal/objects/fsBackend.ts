@@ -1,5 +1,5 @@
 import type { ObjectMetadata, ObjectReference, Source } from "./objectHandler";
-import { ObjectBackend } from "./objectHandler";
+import { ObjectBackend, objectMetadata } from "./objectHandler";
 
 import fs from "fs";
 import path from "path";
@@ -8,12 +8,15 @@ import { createHash } from "crypto";
 import prisma from "../db/database";
 import cacheHandler from "../cache";
 import { systemConfig } from "../config/sys-conf";
+import { type } from "arktype";
 
 export class FsObjectBackend extends ObjectBackend {
   private baseObjectPath: string;
   private baseMetadataPath: string;
 
   private hashStore = new FsHashStore();
+  private metadataCache =
+    cacheHandler.createCache<ObjectMetadata>("ObjectMetadata");
 
   constructor() {
     super();
@@ -102,17 +105,27 @@ export class FsObjectBackend extends ObjectBackend {
     const metadataPath = path.join(this.baseMetadataPath, `${id}.json`);
     if (!fs.existsSync(metadataPath)) return true;
     fs.rmSync(metadataPath);
-    // remove item from cache
+    // remove item from caches
+    await this.metadataCache.remove(id);
     await this.hashStore.delete(id);
     return true;
   }
   async fetchMetadata(
     id: ObjectReference,
   ): Promise<ObjectMetadata | undefined> {
+    const cacheResult = await this.metadataCache.get(id);
+    if (cacheResult !== null) return cacheResult;
+
     const metadataPath = path.join(this.baseMetadataPath, `${id}.json`);
     if (!fs.existsSync(metadataPath)) return undefined;
-    const metadata = JSON.parse(fs.readFileSync(metadataPath, "utf-8"));
-    return metadata as ObjectMetadata;
+    const metadataRaw = JSON.parse(fs.readFileSync(metadataPath, "utf-8"));
+    const metadata = objectMetadata(metadataRaw);
+    if (metadata instanceof type.errors) {
+      console.error("FsObjectBackend#fetchMetadata", metadata.summary);
+      return undefined;
+    }
+    await this.metadataCache.set(id, metadata);
+    return metadata;
   }
   async writeMetadata(
     id: ObjectReference,
@@ -121,6 +134,7 @@ export class FsObjectBackend extends ObjectBackend {
     const metadataPath = path.join(this.baseMetadataPath, `${id}.json`);
     if (!fs.existsSync(metadataPath)) return false;
     fs.writeFileSync(metadataPath, JSON.stringify(metadata));
+    await this.metadataCache.set(id, metadata);
     return true;
   }
   async fetchHash(id: ObjectReference): Promise<string | undefined> {
