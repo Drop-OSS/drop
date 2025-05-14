@@ -1,6 +1,6 @@
 import tailwindcss from "@tailwindcss/vite";
 
-const dropVersion = "0.3";
+const dropVersion = "v0.3.0";
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({

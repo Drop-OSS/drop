@@ -10,6 +10,7 @@ import type {
 } from "./types";
 import { ObjectTransactionalHandler } from "../objects/transactional";
 import { PriorityListIndexed } from "../utils/prioritylist";
+import { systemConfig } from "../config/sys-conf";
 
 export class MissingMetadataProviderConfig extends Error {
   private providerName: string;
@@ -25,7 +26,7 @@ export class MissingMetadataProviderConfig extends Error {
 }
 
 // TODO: add useragent to all outbound api calls (best practice)
-export const DropUserAgent = "Drop/0.2";
+export const DropUserAgent = `Drop/${systemConfig.getDropVersion()}`;
 
 export abstract class MetadataProvider {
   abstract name(): string;

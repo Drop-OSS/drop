@@ -9,6 +9,7 @@ Design goals:
 import type { Notification } from "~/prisma/client";
 import prisma from "../db/database";
 
+// TODO: document notification action format
 export type NotificationCreateArgs = Pick<
   Notification,
   "title" | "description" | "actions" | "nonce"
@@ -61,14 +62,18 @@ class NotificationSystem {
       throw new Error("No nonce in notificationCreateArgs");
     const notification = await prisma.notification.upsert({
       where: {
-        nonce: notificationCreateArgs.nonce,
+        userId_nonce: {
+          nonce: notificationCreateArgs.nonce,
+          userId,
+        },
       },
       update: {
-        userId: userId,
+        // we don't need to update the userid right?
+        // userId: userId,
         ...notificationCreateArgs,
       },
       create: {
-        userId: userId,
+        userId,
         ...notificationCreateArgs,
       },
     });
@@ -84,13 +89,34 @@ class NotificationSystem {
       },
     });
 
+    const res: Promise<void>[] = [];
     for (const user of users) {
-      await this.push(user.id, notificationCreateArgs);
+      res.push(this.push(user.id, notificationCreateArgs));
     }
+    // wait for all notifications to pass
+    await Promise.all(res);
   }
 
   async systemPush(notificationCreateArgs: NotificationCreateArgs) {
-    return await this.push("system", notificationCreateArgs);
+    await this.push("system", notificationCreateArgs);
+  }
+
+  async pushAllAdmins(notificationCreateArgs: NotificationCreateArgs) {
+    const users = await prisma.user.findMany({
+      where: {
+        admin: true,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const res: Promise<void>[] = [];
+    for (const user of users) {
+      res.push(this.push(user.id, notificationCreateArgs));
+    }
+    // wait for all notifications to pass
+    await Promise.all(res);
   }
 }
 
