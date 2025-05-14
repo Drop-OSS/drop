@@ -99,6 +99,9 @@ export class FsObjectBackend extends ObjectBackend {
     const objectPath = path.join(this.baseObjectPath, id);
     if (!fs.existsSync(objectPath)) return true;
     fs.rmSync(objectPath);
+    const metadataPath = path.join(this.baseMetadataPath, `${id}.json`);
+    if (!fs.existsSync(metadataPath)) return true;
+    fs.rmSync(metadataPath);
     // remove item from cache
     await this.hashStore.delete(id);
     return true;
@@ -153,6 +156,7 @@ export class FsObjectBackend extends ObjectBackend {
     await store.save(id, hashResult);
     return typeof hashResult;
   }
+
   async listAll(): Promise<string[]> {
     return fs.readdirSync(this.baseObjectPath);
   }
