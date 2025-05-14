@@ -23,11 +23,28 @@ export default defineTask<TaskReturn>({
   async run() {
     if (systemConfig.shouldCheckForUpdates()) {
       console.log("[Task check:update]: Checking for update");
+
+      const currVerStr = systemConfig.getDropVersion();
+      const currVer = semver.coerce(currVerStr);
+      if (currVer === null) {
+        const msg = "Drop provided a invalid semver tag";
+        console.log("[Task check:update]:", msg);
+        return {
+          result: {
+            success: false,
+            error: {
+              message: msg,
+            },
+          },
+        };
+      }
+
       try {
         const response = await fetch(
           "https://api.github.com/repos/Drop-OSS/drop/releases/latest",
         );
 
+        // if response failed somehow
         if (!response.ok) {
           console.log("[Task check:update]: Failed to check for update", {
             status: response.status,
@@ -44,6 +61,7 @@ export default defineTask<TaskReturn>({
           };
         }
 
+        // parse and validate response
         const resJson = await response.json();
         const body = latestRelease(resJson);
         if (body instanceof type.errors) {
@@ -59,11 +77,8 @@ export default defineTask<TaskReturn>({
           };
         }
 
-        // const currVerStr = systemConfig.getDropVersion()
-        const currVerStr = "v0.1";
-
+        // parse remote version
         const latestVer = semver.coerce(body.tag_name);
-        const currVer = semver.coerce(currVerStr);
         if (latestVer === null) {
           const msg = "Github Api returned invalid semver tag";
           console.log("[Task check:update]:", msg);
@@ -75,19 +90,9 @@ export default defineTask<TaskReturn>({
               },
             },
           };
-        } else if (currVer === null) {
-          const msg = "Drop provided a invalid semver tag";
-          console.log("[Task check:update]:", msg);
-          return {
-            result: {
-              success: false,
-              error: {
-                message: msg,
-              },
-            },
-          };
         }
 
+        // check if is newer version
         if (semver.gt(latestVer, currVer)) {
           console.log("[Task check:update]: Update available");
           notificationSystem.pushAllAdmins({
