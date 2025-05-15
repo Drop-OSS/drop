@@ -13,5 +13,16 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Missing screenshot ID",
     });
 
-  return await screenshotManager.delete(screenshotId);
+  const result = await screenshotManager.get(screenshotId);
+  if (!result)
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Incorrect screenshot ID",
+    });
+  else if (result.userId !== userId)
+    throw createError({
+      statusCode: 403,
+    });
+
+  await screenshotManager.delete(screenshotId);
 });
