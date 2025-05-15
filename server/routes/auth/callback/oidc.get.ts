@@ -21,15 +21,19 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "No state in query params.",
     });
 
-  const user = await manager.authorize(code, state);
+  const result = await manager.authorize(code, state);
 
-  if (typeof user === "string")
+  if (typeof result === "string")
     throw createError({
       statusCode: 403,
-      statusMessage: `Failed to sign in: "${user}". Please try again.`,
+      statusMessage: `Failed to sign in: "${result}". Please try again.`,
     });
 
-  await sessionHandler.signin(h3, user.id, true);
+  await sessionHandler.signin(h3, result.user.id, true);
+
+  if (result.options.redirect) {
+    return sendRedirect(h3, result.options.redirect);
+  }
 
   return sendRedirect(h3, "/");
 });
