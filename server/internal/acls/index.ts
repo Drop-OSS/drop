@@ -70,6 +70,8 @@ const systemACLPrefix = "system:";
 
 export type SystemACL = Array<(typeof systemACLs)[number]>;
 
+export type GlobalACL = `${typeof systemACLPrefix}${(typeof systemACLs)[number]}` | `${typeof userACLPrefix}${(typeof userACLs)[number]}`;
+
 class ACLManager {
   private getAuthorizationToken(request: MinimumRequestObject) {
     const [type, token] =
@@ -172,6 +174,36 @@ class ACLManager {
     }
 
     return true;
+  }
+
+  async fetchAllACLs(request: MinimumRequestObject): Promise<GlobalACL[] | undefined> {
+    const userSession = await sessionHandler.getSession(request);
+    if (!userSession) {
+      const authorizationToken = this.getAuthorizationToken(request);
+      if (!authorizationToken) return undefined;
+      const token = await prisma.aPIToken.findUnique({
+        where: { token: authorizationToken },
+      });
+      if (!token) return undefined;
+      return token.acls as GlobalACL[];
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userSession.userId },
+      select: {
+        admin: true,
+      },
+    });
+    if (!user)
+      throw new Error("User session without user - did something break?");
+
+    const acls = userACLs.map((e) => `${userACLPrefix}${e}`);
+
+    if (user.admin) {
+      acls.push(...systemACLs.map((e) => `${systemACLPrefix}${e}`));
+    }
+
+    return acls as GlobalACL[];
   }
 }
 

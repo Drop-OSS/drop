@@ -27,7 +27,8 @@ model Notification {
     nonce String? @unique
 
     userId String
-    user   User   @relation(fields: [userId], references: [id])
+    user   User     @relation(fields: [userId], references: [id])
+    acls   String[]
 
     created     DateTime @default(now())
     title       String
