@@ -1,4 +1,4 @@
-import aclManager, { type SystemACL } from "~/server/internal/acls";
+import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 
 export default defineEventHandler(async (h3) => {
@@ -23,37 +23,6 @@ export default defineEventHandler(async (h3) => {
       created: "desc", // Newest first
     },
   });
-
-  let i = notifications.length;
-  while (i--) {
-    const notif = notifications[i];
-
-    const hasPermsForNotif = await aclManager.allowSystemACL(
-      h3,
-      notif.requiredPerms as SystemACL,
-    );
-
-    if (!hasPermsForNotif) {
-      // remove element
-      console.log(
-        userId,
-        "did not have perms to access",
-        notif.id,
-        "based on",
-        notif.requiredPerms,
-      );
-
-      notifications.splice(i, 1);
-    } else {
-      console.log(
-        userId,
-        "had perms to access",
-        notif.id,
-        "based on",
-        notif.requiredPerms,
-      );
-    }
-  }
 
   return notifications;
 });
