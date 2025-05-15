@@ -5,17 +5,19 @@ export default defineEventHandler(async (h3) => {
   const userId = await aclManager.getUserIdACL(h3, ["notifications:read"]);
   if (!userId) throw createError({ statusCode: 403 });
 
-  const userIds = [userId];
-  const hasSystemPerms = await aclManager.allowSystemACL(h3, [
-    "notifications:mark",
-  ]);
-  if (hasSystemPerms) {
-    userIds.push("system");
-  }
+  const acls = await aclManager.fetchAllACLs(h3);
+  if (!acls)
+    throw createError({
+      statusCode: 500,
+      statusMessage: "Got userId but no ACLs - what?",
+    });
 
   const notifications = await prisma.notification.findMany({
     where: {
-      userId: { in: userIds },
+      userId,
+      acls: {
+        hasSome: acls,
+      },
     },
     orderBy: {
       created: "desc", // Newest first

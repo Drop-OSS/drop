@@ -16,17 +16,6 @@ model Client {
     platform      Platform
     lastConnected DateTime
 
-    peerAPI ClientPeerAPIConfiguration?
-
     lastAccessedSaves SaveSlot[]
     tokens            APIToken[]
-}
-
-model ClientPeerAPIConfiguration {
-    id String @id @default(uuid())
-
-    clientId String @unique
-    client   Client @relation(fields: [clientId], references: [id])
-
-    endpoints String[]
 }

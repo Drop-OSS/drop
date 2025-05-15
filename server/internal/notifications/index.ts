@@ -8,28 +8,35 @@ Design goals:
 
 import type { Notification } from "~/prisma/client";
 import prisma from "../db/database";
+import type { GlobalACL } from "../acls";
 
 // type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 
 // TODO: document notification action format
 export type NotificationCreateArgs = Pick<
   Notification,
-  "title" | "description" | "actions" | "nonce" | "requiredPerms"
->;
+  "title" | "description" | "actions" | "nonce"
+> & { acls: Array<GlobalACL> };
 
 class NotificationSystem {
+  // userId to acl to listenerId
   private listeners = new Map<
     string,
-    Map<string, (notification: Notification) => void>
+    Map<
+      string,
+      { callback: (notification: Notification) => void; acls: GlobalACL[] }
+    >
   >();
 
   listen(
     userId: string,
+    acls: Array<GlobalACL>,
     id: string,
     callback: (notification: Notification) => void,
   ) {
-    this.listeners.set(userId, new Map());
-    this.listeners.get(userId)?.set(id, callback);
+    if (!this.listeners.has(userId)) this.listeners.set(userId, new Map());
+    // eslint-disable-next-line @typescript-eslint/no-extra-non-null-assertion
+    this.listeners.get(userId)!!.set(id, { callback, acls });
 
     this.catchupListener(userId, id);
   }
@@ -39,23 +46,27 @@ class NotificationSystem {
   }
 
   private async catchupListener(userId: string, id: string) {
-    const callback = this.listeners.get(userId)?.get(id);
-    if (!callback)
+    const listener = this.listeners.get(userId)?.get(id);
+    if (!listener)
       throw new Error("Failed to catch-up listener: callback does not exist");
     const notifications = await prisma.notification.findMany({
-      where: { userId: userId },
+      where: { userId: userId, acls: { hasSome: listener.acls } },
       orderBy: {
         created: "asc", // Oldest first, because they arrive in reverse order
       },
     });
     for (const notification of notifications) {
-      await callback(notification);
+      await listener.callback(notification);
     }
   }
 
   private async pushNotification(userId: string, notification: Notification) {
-    for (const listener of this.listeners.get(userId) ?? []) {
-      await listener[1](notification);
+    for (const [_, listener] of this.listeners.get(userId) ?? []) {
+      const hasSome =
+        notification.acls.findIndex(
+          (e) => listener.acls.findIndex((v) => v === e) != -1,
+        ) != -1;
+      if (hasSome) await listener.callback(notification);
     }
   }
 
@@ -100,25 +111,7 @@ class NotificationSystem {
   }
 
   async systemPush(notificationCreateArgs: NotificationCreateArgs) {
-    await this.push("system", notificationCreateArgs);
-  }
-
-  async pushAllAdmins(notificationCreateArgs: NotificationCreateArgs) {
-    const users = await prisma.user.findMany({
-      where: {
-        admin: true,
-      },
-      select: {
-        id: true,
-      },
-    });
-
-    const res: Promise<void>[] = [];
-    for (const user of users) {
-      res.push(this.push(user.id, notificationCreateArgs));
-    }
-    // wait for all notifications to pass
-    await Promise.all(res);
+    return await this.pushAll(notificationCreateArgs);
   }
 }
 

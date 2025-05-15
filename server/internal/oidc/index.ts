@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 import prisma from "../db/database";
+import type { User } from "~/prisma/client";
 import { AuthMec } from "~/prisma/client";
 import objectHandler from "../objects";
 import type { Readable } from "stream";
@@ -12,10 +13,15 @@ interface OIDCWellKnown {
   scopes_supported: string[];
 }
 
+interface OIDCAuthSessionOptions {
+  redirect: string | undefined;
+}
+
 interface OIDCAuthSession {
   redirectUrl: string;
   callbackUrl: string;
   state: string;
+  options: OIDCAuthSessionOptions;
 }
 
 interface OIDCUserInfo {
@@ -132,7 +138,7 @@ export class OIDCManager {
     };
   }
 
-  generateAuthSession(): OIDCAuthSession {
+  generateAuthSession(options?: OIDCAuthSessionOptions): OIDCAuthSession {
     const stateKey = randomUUID();
 
     const normalisedUrl = new URL(
@@ -148,12 +154,16 @@ export class OIDCManager {
       redirectUrl: finalUrl,
       callbackUrl: redirectUrl,
       state: stateKey,
+      options: options ?? { redirect: undefined },
     };
     this.signinStateTable[stateKey] = session;
     return session;
   }
 
-  async authorize(code: string, state: string) {
+  async authorize(
+    code: string,
+    state: string,
+  ): Promise<{ user: User; options: OIDCAuthSessionOptions } | string> {
     const session = this.signinStateTable[state];
     if (!session) return "Invalid state parameter";
 
@@ -191,7 +201,9 @@ export class OIDCManager {
 
       const user = await this.fetchOrCreateUser(userinfo);
 
-      return user;
+      if (typeof user === "string") return user;
+
+      return { user, options: session.options };
     } catch (e) {
       console.error(e);
       return `Request to identity provider failed: ${e}`;

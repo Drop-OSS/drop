@@ -14,22 +14,17 @@ export default defineWebSocketHandler({
       return;
     }
 
-    const userIds = [userId];
-
-    const hasSystemPerms = await aclManager.allowSystemACL(h3, [
-      "notifications:listen",
-    ]);
-    if (hasSystemPerms) {
-      userIds.push("system");
+    const acls = await aclManager.fetchAllACLs(h3);
+    if (!acls) {
+      peer.send("unauthenticated");
+      return;
     }
 
     socketSessions.set(peer.id, userId);
 
-    for (const listenUserId of userIds) {
-      notificationSystem.listen(listenUserId, peer.id, (notification) => {
-        peer.send(JSON.stringify(notification));
-      });
-    }
+    notificationSystem.listen(userId, acls, peer.id, (notification) => {
+      peer.send(JSON.stringify(notification));
+    });
   },
   async close(peer, _details) {
     const userId = socketSessions.get(peer.id);

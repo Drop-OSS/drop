@@ -184,7 +184,7 @@
             type="button"
             class="inline-flex w-fit items-center gap-x-2 rounded-md bg-zinc-800 px-3 py-1 text-sm font-semibold font-display text-white shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
           >
-            Open in Library &rarr;
+            Open in Library
             <ArrowTopRightOnSquareIcon
               class="-mr-0.5 h-7 w-7 p-1"
               aria-hidden="true"

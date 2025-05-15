@@ -1,6 +1,4 @@
 import type { EnumDictionary } from "../utils/types";
-import https from "https";
-import { useCertificateAuthority } from "~/server/plugins/ca";
 import prisma from "../db/database";
 import { ClientCapabilities } from "~/prisma/client";
 
@@ -17,7 +15,7 @@ export enum InternalClientCapability {
 export const validCapabilities = Object.values(InternalClientCapability);
 
 export type CapabilityConfiguration = {
-  [InternalClientCapability.PeerAPI]: { endpoints: string[] };
+  [InternalClientCapability.PeerAPI]: object;
   [InternalClientCapability.UserStatus]: object;
   [InternalClientCapability.CloudSaves]: object;
 };
@@ -27,6 +25,7 @@ class CapabilityManager {
     InternalClientCapability,
     (configuration: object) => Promise<boolean>
   > = {
+    /*
     [InternalClientCapability.PeerAPI]: async (rawConfiguration) => {
       const configuration =
         rawConfiguration as CapabilityConfiguration[InternalClientCapability.PeerAPI];
@@ -71,12 +70,13 @@ class CapabilityManager {
           valid = true;
           break;
         } catch {
-          /* empty */
         }
       }
 
       return valid;
     },
+    */
+    [InternalClientCapability.PeerAPI]: async () => true,
     [InternalClientCapability.UserStatus]: async () => true, // No requirements for user status
     [InternalClientCapability.CloudSaves]: async () => true, // No requirements for cloud saves
   };
@@ -92,7 +92,7 @@ class CapabilityManager {
 
   async upsertClientCapability(
     capability: InternalClientCapability,
-    rawCapability: object,
+    rawCapabilityConfiguration: object,
     clientId: string,
   ) {
     const upsertFunctions: EnumDictionary<
@@ -100,8 +100,7 @@ class CapabilityManager {
       () => Promise<void> | void
     > = {
       [InternalClientCapability.PeerAPI]: async function () {
-        const configuration =
-          rawCapability as CapabilityConfiguration[InternalClientCapability.PeerAPI];
+        // const configuration =rawCapability as CapabilityConfiguration[InternalClientCapability.PeerAPI];
 
         const currentClient = await prisma.client.findUnique({
           where: { id: clientId },
@@ -110,6 +109,7 @@ class CapabilityManager {
           },
         });
         if (!currentClient) throw new Error("Invalid client ID");
+        /*
         if (currentClient.capabilities.includes(ClientCapabilities.PeerAPI)) {
           await prisma.clientPeerAPIConfiguration.update({
             where: { clientId },
@@ -126,6 +126,7 @@ class CapabilityManager {
             endpoints: configuration.endpoints,
           },
         });
+        */
 
         await prisma.client.update({
           where: { id: clientId },

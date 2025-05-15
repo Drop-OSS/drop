@@ -55,7 +55,7 @@ export default defineClientEventHandler(
       title: `"${client.name}" can now access ${capability}`,
       description: `A device called "${client.name}" now has access to your ${capability}.`,
       actions: ["Review|/account/devices"],
-      requiredPerms: ["clients:read"],
+      acls: ["user:clients:read"],
     });
 
     return {};
