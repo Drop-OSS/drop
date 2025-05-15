@@ -17,6 +17,10 @@ export const userACLs = [
   "notifications:listen",
   "notifications:delete",
 
+  "screenshots:new",
+  "screenshots:read",
+  "screenshots:delete",
+
   "collections:new",
   "collections:read",
   "collections:delete",
@@ -83,6 +87,12 @@ class ACLManager {
     return token;
   }
 
+  /**
+   * Get userId and require one of the specified acls
+   * @param request
+   * @param acls
+   * @returns
+   */
   async getUserIdACL(request: MinimumRequestObject | undefined, acls: UserACL) {
     if (!request)
       throw new Error("Native web requests not available - weird deployment?");

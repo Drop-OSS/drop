@@ -116,11 +116,12 @@ model Screenshot {
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     objectId String
-    private  Boolean @default(true)
+    private  Boolean // if other users can see
 
     createdAt DateTime @default(now()) @db.Timestamptz(0)
 
     @@index([gameId, userId])
+    @@index([userId])
 }
 
 model Company {
