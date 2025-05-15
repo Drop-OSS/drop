@@ -2,7 +2,10 @@ import { randomUUID } from "node:crypto";
 import prisma from "../db/database";
 import type { Platform } from "~/prisma/client";
 import { useCertificateAuthority } from "~/server/plugins/ca";
-import type { CapabilityConfiguration, InternalClientCapability } from "./capabilities";
+import type {
+  CapabilityConfiguration,
+  InternalClientCapability,
+} from "./capabilities";
 import capabilityManager from "./capabilities";
 
 export interface ClientMetadata {
