@@ -100,6 +100,7 @@ export default defineTask<TaskReturn>({
             title: `Update available to v${latestVer}`,
             description: `A new version of Drop is available v${latestVer}`,
             actions: [`View|${body.html_url}`],
+            requiredPerms: [""],
           });
         } else {
           console.log("[Task check:update]: no update available");

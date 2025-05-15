@@ -34,6 +34,9 @@ model Notification {
     description String
     actions     String[]
 
+    // ACL items
+    requiredPerms String[] @default([])
+
     read Boolean @default(false)
 
     @@unique([userId, nonce])

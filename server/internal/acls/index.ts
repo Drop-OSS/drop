@@ -70,6 +70,8 @@ const systemACLPrefix = "system:";
 
 export type SystemACL = Array<(typeof systemACLs)[number]>;
 
+export type ValidACLItems = Array<SystemACL[number] | UserACL[number]>;
+
 class ACLManager {
   private getAuthorizationToken(request: MinimumRequestObject) {
     const [type, token] =

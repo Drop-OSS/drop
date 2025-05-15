@@ -9,10 +9,12 @@ Design goals:
 import type { Notification } from "~/prisma/client";
 import prisma from "../db/database";
 
+// type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
+
 // TODO: document notification action format
 export type NotificationCreateArgs = Pick<
   Notification,
-  "title" | "description" | "actions" | "nonce"
+  "title" | "description" | "actions" | "nonce" | "requiredPerms"
 >;
 
 class NotificationSystem {
