@@ -95,12 +95,12 @@ export default defineTask<TaskReturn>({
         // check if is newer version
         if (semver.gt(latestVer, currVer)) {
           console.log("[Task check:update]: Update available");
-          notificationSystem.pushAllAdmins({
+          notificationSystem.systemPush({
             nonce: `drop-update-available-${currVer}-to-${latestVer}`,
             title: `Update available to v${latestVer}`,
             description: `A new version of Drop is available v${latestVer}`,
             actions: [`View|${body.html_url}`],
-            requiredPerms: [""],
+            acls: ["system:notifications:read"],
           });
         } else {
           console.log("[Task check:update]: no update available");
