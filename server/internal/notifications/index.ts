@@ -58,8 +58,12 @@ class NotificationSystem {
   }
 
   private async pushNotification(userId: string, notification: Notification) {
-    for (const listener of this.listeners.get(userId) ?? []) {
-      await listener[1].callback(notification);
+    for (const [_, listener] of this.listeners.get(userId) ?? []) {
+      const hasSome =
+        notification.acls.findIndex(
+          (e) => listener.acls.findIndex((v) => v === e) != -1,
+        ) != -1;
+      if (hasSome) await listener.callback(notification);
     }
   }
 
