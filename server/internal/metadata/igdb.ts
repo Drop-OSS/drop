@@ -32,6 +32,12 @@ interface IGDBItem {
   id: IGDBID;
 }
 
+interface IGDBGenre extends IGDBItem {
+  name: string;
+  slug: string;
+  url: string;
+}
+
 // denotes role a company had in a game
 interface IGDBInvolvedCompany extends IGDBItem {
   company: IGDBID;
@@ -250,8 +256,6 @@ export class IGDBProvider implements MetadataProvider {
     let result = "";
 
     response.forEach((cover) => {
-      console.log(cover);
-
       if (cover.url.startsWith("https:")) {
         result = cover.url;
       } else {
@@ -279,6 +283,34 @@ export class IGDBProvider implements MetadataProvider {
     return msg.length > len ? msg.substring(0, 280) + "..." : msg;
   }
 
+  private async _getGenreInternal(genreID: IGDBID) {
+    if (genreID === undefined) throw new Error(`IGDB genreID was undefined`);
+
+    const body = `where id = ${genreID}; fields slug,name,url;`;
+    const response = await this.request<IGDBGenre>("genres", body);
+
+    let result = "";
+
+    response.forEach((genre) => {
+      result = genre.name;
+    });
+
+    return result;
+  }
+
+  private async getGenres(genres: IGDBID[] | undefined): Promise<string[]> {
+    if (genres === undefined) return [];
+
+    const results: string[] = [];
+    for (const genre of genres) {
+      results.push(await this._getGenreInternal(genre));
+    }
+
+    console.log(results);
+
+    return results;
+  }
+
   name() {
     return "IGDB";
   }
@@ -297,7 +329,7 @@ export class IGDBProvider implements MetadataProvider {
       if (cover !== undefined) {
         icon = await this.getCoverURL(cover);
       } else {
-        icon = "/wallpapers/error-wallpaper.jpg";
+        icon = "";
       }
 
       const firstReleaseDate = response[i].first_release_date;
@@ -308,7 +340,7 @@ export class IGDBProvider implements MetadataProvider {
         description: response[i].summary,
         year:
           firstReleaseDate === undefined
-            ? DateTime.now().year
+            ? 0
             : DateTime.fromSeconds(firstReleaseDate).year,
       });
     }
@@ -387,7 +419,7 @@ export class IGDBProvider implements MetadataProvider {
         description: response[i].summary,
         released:
           firstReleaseDate === undefined
-            ? DateTime.now().toJSDate()
+            ? new Date()
             : DateTime.fromSeconds(firstReleaseDate).toJSDate(),
 
         reviews: [
@@ -403,8 +435,7 @@ export class IGDBProvider implements MetadataProvider {
         publishers: [],
         developers: [],
 
-        // TODO: support tags
-        tags: [],
+        tags: await this.getGenres(response[i].genres),
 
         icon,
         bannerId: banner,
