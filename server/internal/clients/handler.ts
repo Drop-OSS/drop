@@ -2,10 +2,13 @@ import { randomUUID } from "node:crypto";
 import prisma from "../db/database";
 import type { Platform } from "~/prisma/client";
 import { useCertificateAuthority } from "~/server/plugins/ca";
+import type { CapabilityConfiguration, InternalClientCapability } from "./capabilities";
+import capabilityManager from "./capabilities";
 
 export interface ClientMetadata {
   name: string;
   platform: Platform;
+  capabilities: Partial<CapabilityConfiguration>;
 }
 
 export class ClientHandler {
@@ -75,7 +78,7 @@ export class ClientHandler {
     if (!metadata) throw new Error("Invalid client ID");
     if (!metadata.userId) throw new Error("Un-authorized client ID");
 
-    return await prisma.client.create({
+    const client = await prisma.client.create({
       data: {
         id: id,
         userId: metadata.userId,
@@ -87,6 +90,20 @@ export class ClientHandler {
         lastConnected: new Date(),
       },
     });
+
+    for (const [capability, configuration] of Object.entries(
+      metadata.data.capabilities,
+    )) {
+      await capabilityManager.upsertClientCapability(
+        capability as InternalClientCapability,
+        configuration,
+        client.id,
+      );
+    }
+
+    this.temporaryClientTable.delete(id);
+
+    return client;
   }
 
   async removeClient(id: string) {
