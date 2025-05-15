@@ -258,8 +258,6 @@ export class PCGamingWikiProvider implements MetadataProvider {
       receptionResults.push(getRating(MetadataSource.OpenCritic));
     }
 
-    console.log(res.data.parse.title, receptionResults);
-
     return {
       shortIntro: introductionEle.find("p").first().text().trim(),
       introduction: introductionEle.text().trim(),
@@ -277,26 +275,28 @@ export class PCGamingWikiProvider implements MetadataProvider {
       format: "json",
     });
 
-    const res = await this.cargoQuery<PCGamingWikiSearchStub>(searchParams);
+    const response =
+      await this.cargoQuery<PCGamingWikiSearchStub>(searchParams);
 
-    const mapped = res.data.cargoquery.map((result) => {
+    const results: GameMetadataSearchResult[] = [];
+    for (const result of response.data.cargoquery) {
       const game = result.title;
+      const pageContent = await this.getPageContent(game.PageID);
 
-      const metadata: GameMetadataSearchResult = {
+      results.push({
         id: game.PageID,
         name: game.PageName,
         icon: game["Cover URL"] ?? "",
-        description: "", // TODO: need to render the `Introduction` template somehow (or we could just hardcode it)
+        description: pageContent.shortIntro,
         year:
           game.Released !== null && game.Released.length > 0
             ? // sometimes will provide multiple dates
               this.parseTS(game.Released).year
             : 0,
-      };
-      return metadata;
-    });
+      });
+    }
 
-    return mapped;
+    return results;
   }
 
   /**
