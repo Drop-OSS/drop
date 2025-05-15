@@ -55,8 +55,8 @@ model GameRating {
 
     mReviewHref String?
 
-    Game   Game?   @relation(fields: [gameId], references: [id], onDelete: Cascade)
-    gameId String?
+    Game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+    gameId String
 
     @@unique([metadataSource, metadataId], name: "metadataKey")
 }
