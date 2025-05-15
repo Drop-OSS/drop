@@ -20,7 +20,8 @@
         to="/admin/metadata/games"
         class="transition group aspect-[3/2] flex flex-col justify-center items-center rounded-lg bg-zinc-950 hover:bg-zinc-950/50 shadow"
       >
-        <span class="transition-all text-4xl font-bold text-zinc-400 group-hover:text-zinc-100 uppercase tracking-widest"
+        <span
+          class="transition-all text-4xl font-bold text-zinc-400 group-hover:text-zinc-100 uppercase tracking-widest"
           >Games</span
         >
       </NuxtLink>
@@ -28,7 +29,8 @@
         to="/admin/metadata/companies"
         class="transition group aspect-[3/2] flex flex-col justify-center items-center rounded-lg bg-zinc-950 hover:bg-zinc-950/50 shadow"
       >
-        <span class="transition-all text-4xl font-bold text-zinc-400 group-hover:text-zinc-100 uppercase tracking-widest"
+        <span
+          class="transition-all text-4xl font-bold text-zinc-400 group-hover:text-zinc-100 uppercase tracking-widest"
           >Companies</span
         >
       </NuxtLink>

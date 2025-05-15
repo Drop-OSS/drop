@@ -305,7 +305,7 @@ class LibraryManager {
           title: `'${game.mName}' ('${versionName}') finished importing.`,
           description: `Drop finished importing version ${versionName} for ${game.mName}.`,
           actions: [`View|/admin/library/${gameId}`],
-          acls: ["system:import:version:read"]
+          acls: ["system:import:version:read"],
         });
 
         progress(100);

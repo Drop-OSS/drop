@@ -70,7 +70,9 @@ const systemACLPrefix = "system:";
 
 export type SystemACL = Array<(typeof systemACLs)[number]>;
 
-export type GlobalACL = `${typeof systemACLPrefix}${(typeof systemACLs)[number]}` | `${typeof userACLPrefix}${(typeof userACLs)[number]}`;
+export type GlobalACL =
+  | `${typeof systemACLPrefix}${(typeof systemACLs)[number]}`
+  | `${typeof userACLPrefix}${(typeof userACLs)[number]}`;
 
 class ACLManager {
   private getAuthorizationToken(request: MinimumRequestObject) {
@@ -176,7 +178,9 @@ class ACLManager {
     return true;
   }
 
-  async fetchAllACLs(request: MinimumRequestObject): Promise<GlobalACL[] | undefined> {
+  async fetchAllACLs(
+    request: MinimumRequestObject,
+  ): Promise<GlobalACL[] | undefined> {
     const userSession = await sessionHandler.getSession(request);
     if (!userSession) {
       const authorizationToken = this.getAuthorizationToken(request);

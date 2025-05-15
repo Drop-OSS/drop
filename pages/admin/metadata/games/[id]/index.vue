@@ -285,7 +285,6 @@
             </div>
           </div>
         </div>
-        
       </div>
     </div>
     <UploadFileDialog
@@ -707,8 +706,6 @@ async function uploadAfterImageUpload(result: Game) {
   if (!game.value) return;
   game.value.mImageLibraryObjectIds = result.mImageLibraryObjectIds;
 }
-
-
 
 function addImageToCarousel(id: string) {
   showAddCarouselModal.value = false;
