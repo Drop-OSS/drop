@@ -1,4 +1,4 @@
-import { MetadataSource } from "~/prisma/client";
+import { MetadataSource, type GameRating } from "~/prisma/client";
 import prisma from "../db/database";
 import type {
   _FetchGameMetadataParams,
@@ -7,6 +7,7 @@ import type {
   GameMetadataSearchResult,
   InternalGameMetadataResult,
   CompanyMetadata,
+  GameMetadataRating,
 } from "./types";
 import { ObjectTransactionalHandler } from "../objects/transactional";
 import { PriorityListIndexed } from "../utils/prioritylist";
@@ -135,6 +136,34 @@ export class MetadataHandler {
     return results;
   }
 
+  private parseRatings(ratings: GameMetadataRating[]) {
+    const results: {
+      where: {
+        metadataKey: {
+          metadataId: string;
+          metadataSource: MetadataSource;
+        };
+      };
+      create: Omit<GameRating, "gameId" | "created" | "id">;
+    }[] = [];
+
+    ratings.forEach((r) => {
+      results.push({
+        where: {
+          metadataKey: {
+            metadataId: r.metadataId,
+            metadataSource: r.metadataSource,
+          },
+        },
+        create: {
+          ...r,
+        },
+      });
+    });
+
+    return results;
+  }
+
   async createGame(
     result: InternalGameMetadataResult,
     libraryBasePath: string,
@@ -181,9 +210,6 @@ export class MetadataHandler {
         mName: metadata.name,
         mShortDescription: metadata.shortDescription,
         mDescription: metadata.description,
-
-        mReviewCount: metadata.reviewCount,
-        mReviewRating: metadata.reviewRating,
         mReleased: metadata.released,
 
         mIconObjectId: metadata.icon,
@@ -198,6 +224,9 @@ export class MetadataHandler {
           connect: metadata.developers,
         },
 
+        ratings: {
+          connectOrCreate: this.parseRatings(metadata.reviews),
+        },
         tags: {
           connectOrCreate: this.parseTags(metadata.tags),
         },

@@ -34,8 +34,7 @@ export class ManualMetadataProvider implements MetadataProvider {
       publishers: [],
       developers: [],
       tags: [],
-      reviewCount: 0,
-      reviewRating: 0,
+      reviews: [],
 
       icon: iconId,
       coverId: iconId,

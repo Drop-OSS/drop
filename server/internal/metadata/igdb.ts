@@ -390,8 +390,15 @@ export class IGDBProvider implements MetadataProvider {
             ? DateTime.now().toJSDate()
             : DateTime.fromSeconds(firstReleaseDate).toJSDate(),
 
-        reviewCount: response[i]?.total_rating_count ?? 0,
-        reviewRating: (response[i]?.total_rating ?? 0) / 100,
+        reviews: [
+          {
+            metadataId: "" + response[i].id,
+            metadataSource: MetadataSource.IGDB,
+            mReviewCount: response[i]?.total_rating_count ?? 0,
+            mReviewRating: (response[i]?.total_rating ?? 0) / 100,
+            mReviewHref: response[i].url,
+          },
+        ],
 
         publishers: [],
         developers: [],

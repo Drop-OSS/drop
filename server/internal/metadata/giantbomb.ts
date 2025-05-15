@@ -207,8 +207,7 @@ export class GiantBombProvider implements MetadataProvider {
 
       tags: [],
 
-      reviewCount: 0,
-      reviewRating: 0,
+      reviews: [],
 
       publishers,
       developers,

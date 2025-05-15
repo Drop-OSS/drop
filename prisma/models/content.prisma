@@ -3,6 +3,8 @@ enum MetadataSource {
     GiantBomb
     PCGamingWiki
     IGDB
+    Metacritic
+    OpenCritic
 }
 
 model Game {
@@ -19,8 +21,7 @@ model Game {
     mDescription      String // Supports markdown
     mReleased         DateTime // When the game was released
 
-    mReviewCount  Int
-    mReviewRating Float // 0 to 1
+    ratings GameRating[]
 
     mIconObjectId           String // linked to objects in s3
     mBannerObjectId         String // linked to objects in s3
@@ -38,6 +39,24 @@ model Game {
 
     developers Company[] @relation(name: "developers")
     publishers Company[] @relation(name: "publishers")
+
+    @@unique([metadataSource, metadataId], name: "metadataKey")
+}
+
+model GameRating {
+    id String @id @default(uuid())
+
+    metadataSource MetadataSource
+    metadataId     String
+    created        DateTime       @default(now())
+
+    mReviewCount  Int
+    mReviewRating Float // 0 to 1
+
+    mReviewHref String?
+
+    Game   Game?   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+    gameId String?
 
     @@unique([metadataSource, metadataId], name: "metadataKey")
 }

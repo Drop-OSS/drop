@@ -7,12 +7,14 @@ import type {
   GameMetadata,
   _FetchCompanyMetadataParams,
   CompanyMetadata,
+  GameMetadataRating,
 } from "./types";
 import type { AxiosRequestConfig } from "axios";
 import axios from "axios";
 import * as jdenticon from "jdenticon";
 import { DateTime } from "luxon";
 import * as cheerio from "cheerio";
+import { type } from "arktype";
 
 interface PCGamingWikiParseRawPage {
   parse: {
@@ -29,11 +31,6 @@ interface PCGamingWikiParseRawPage {
       "*": string;
     };
   };
-}
-
-interface PCGamingWikiParsedPage {
-  shortIntro: string;
-  introduction: string;
 }
 
 interface PCGamingWikiPage {
@@ -89,6 +86,10 @@ type StringArrayKeys<T> = {
   [K in keyof T]: T[K] extends string | string[] | null ? K : never;
 }[keyof T];
 
+const ratingProviderReview = type({
+  rating: "string.integer.parse",
+});
+
 // Api Docs: https://www.pcgamingwiki.com/wiki/PCGamingWiki:API
 // Good tool for helping build cargo queries: https://www.pcgamingwiki.com/wiki/Special:CargoQuery
 export class PCGamingWikiProvider implements MetadataProvider {
@@ -115,7 +116,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
 
     if (response.status !== 200)
       throw new Error(
-        `Error in pcgamingwiki \nStatus Code: ${response.status}`,
+        `Error in pcgamingwiki \nStatus Code: ${response.status}\n${response.data}`,
       );
 
     return response;
@@ -134,9 +135,13 @@ export class PCGamingWikiProvider implements MetadataProvider {
     return response;
   }
 
-  private async getPageContent(
-    pageID: string,
-  ): Promise<PCGamingWikiParsedPage> {
+  /**
+   * Gets the raw wiki page for parsing,
+   * requested values are to be considered unstable as compared to cargo queries
+   * @param pageID
+   * @returns
+   */
+  private async getPageContent(pageID: string) {
     const searchParams = new URLSearchParams({
       action: "parse",
       format: "json",
@@ -149,9 +154,116 @@ export class PCGamingWikiProvider implements MetadataProvider {
     // remove citations from intro
     introductionEle.find("sup").remove();
 
+    const infoBoxEle = $(".template-infobox").first();
+    const receptionEle = infoBoxEle
+      .find(".template-infobox-header")
+      .filter((_, el) => $(el).text().trim() === "Reception");
+
+    const receptionResults: (GameMetadataRating | undefined)[] = [];
+    if (receptionEle.length > 0) {
+      // we have a match!
+
+      const ratingElements = infoBoxEle.find(".template-infobox-type");
+
+      // TODO: cleanup this ratnest
+      const parseIdFromHref = (href: string): string | undefined => {
+        const url = new URL(href);
+        const opencriticRegex = /^\/game\/(\d+)\/.+$/;
+        switch (url.hostname.toLocaleLowerCase()) {
+          case "www.metacritic.com": {
+            // https://www.metacritic.com/game/elden-ring/critic-reviews/?platform=pc
+            return url.pathname
+              .replace("/game/", "")
+              .replace("/critic-reviews", "")
+              .replace(/\/$/, "");
+          }
+          case "opencritic.com": {
+            // https://opencritic.com/game/12090/elden-ring
+            let id = "unknown";
+            let matches;
+            if ((matches = opencriticRegex.exec(url.pathname)) !== null) {
+              matches.forEach((match, _groupIndex) => {
+                // console.log(`Found match, group ${_groupIndex}: ${match}`);
+                id = match;
+              });
+            }
+
+            if (id === "unknown") {
+              return undefined;
+            }
+            return id;
+          }
+          case "www.igdb.com": {
+            // https://www.igdb.com/games/elden-ring
+            return url.pathname.replace("/games/", "").replace(/\/$/, "");
+          }
+          default: {
+            console.warn("Pcgamingwiki, unknown host", url.hostname);
+            return undefined;
+          }
+        }
+      };
+      const getRating = (
+        source: MetadataSource,
+      ): GameMetadataRating | undefined => {
+        const providerEle = ratingElements.filter(
+          (_, el) =>
+            $(el).text().trim().toLocaleLowerCase() ===
+            source.toLocaleLowerCase(),
+        );
+        if (providerEle.length > 0) {
+          // get info associated with provider
+          const reviewEle = providerEle
+            .first()
+            .parent()
+            .find(".template-infobox-info")
+            .find("a")
+            .first();
+
+          const href = reviewEle.attr("href");
+          if (!href) {
+            console.log(
+              `pcgamingwiki: failed to properly get review href for ${source}`,
+            );
+            return undefined;
+          }
+          const ratingObj = ratingProviderReview({
+            rating: reviewEle.text().trim(),
+          });
+          if (ratingObj instanceof type.errors) {
+            console.log(
+              "pcgamingwiki: failed to properly get review rating",
+              ratingObj.summary,
+            );
+            return undefined;
+          }
+
+          const id = parseIdFromHref(href);
+          if (!id) return undefined;
+
+          return {
+            mReviewHref: href,
+            metadataId: id,
+            metadataSource: source,
+            mReviewCount: 0,
+            // make float within 0 to 1
+            mReviewRating: ratingObj.rating / 100,
+          };
+        }
+
+        return undefined;
+      };
+      receptionResults.push(getRating(MetadataSource.Metacritic));
+      receptionResults.push(getRating(MetadataSource.IGDB));
+      receptionResults.push(getRating(MetadataSource.OpenCritic));
+    }
+
+    console.log(res.data.parse.title, receptionResults);
+
     return {
-      shortIntro: introductionEle.find("p").first().text(),
-      introduction: introductionEle.text(),
+      shortIntro: introductionEle.find("p").first().text().trim(),
+      introduction: introductionEle.text().trim(),
+      reception: receptionResults,
     };
   }
 
@@ -318,9 +430,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
 
       tags: this.compileTags(game),
 
-      reviewCount: 0,
-      reviewRating: 0,
-
+      reviews: pageContent.reception.filter((v) => typeof v !== "undefined"),
       publishers,
       developers,
 
