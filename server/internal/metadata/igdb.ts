@@ -12,6 +12,7 @@ import type {
 import type { AxiosRequestConfig } from "axios";
 import axios from "axios";
 import { DateTime } from "luxon";
+import * as jdenticon from "jdenticon";
 
 type IGDBID = number;
 
@@ -68,8 +69,8 @@ interface IGDBCover extends IGDBItem {
 
 interface IGDBSearchStub extends IGDBItem {
   name: string;
-  cover: IGDBID;
-  first_release_date: number; // unix timestamp
+  cover?: IGDBID;
+  first_release_date?: number; // unix timestamp
   summary: string;
 }
 
@@ -155,7 +156,7 @@ export class IGDBProvider implements MetadataProvider {
   }
 
   private async authWithTwitch() {
-    console.log("authorizing with twitch");
+    console.log("IGDB authorizing with twitch");
     const params = new URLSearchParams({
       client_id: this.clientId,
       client_secret: this.clientSecret,
@@ -168,10 +169,17 @@ export class IGDBProvider implements MetadataProvider {
       method: "POST",
     });
 
+    if (response.status !== 200)
+      throw new Error(
+        `Error in IDGB \nStatus Code: ${response.status}\n${response.data}`,
+      );
+
     this.accessToken = response.data.access_token;
     this.accessTokenExpiry = DateTime.now().plus({
       seconds: response.data.expires_in,
     });
+
+    console.log("IDGB done authorizing with twitch");
   }
 
   private async refreshCredentials() {
@@ -231,12 +239,19 @@ export class IGDBProvider implements MetadataProvider {
   }
 
   private async _getMediaInternal(mediaID: IGDBID, type: string) {
+    if (mediaID === undefined)
+      throw new Error(
+        `IGDB mediaID when getting item of type ${type} was undefined`,
+      );
+
     const body = `where id = ${mediaID}; fields url;`;
     const response = await this.request<IGDBCover>(type, body);
 
     let result = "";
 
     response.forEach((cover) => {
+      console.log(cover);
+
       if (cover.url.startsWith("https:")) {
         result = cover.url;
       } else {
@@ -244,6 +259,7 @@ export class IGDBProvider implements MetadataProvider {
         result = `https:${cover.url}`;
       }
     });
+
     return result;
   }
 
@@ -276,12 +292,24 @@ export class IGDBProvider implements MetadataProvider {
 
     const results: GameMetadataSearchResult[] = [];
     for (let i = 0; i < response.length; i++) {
+      let icon = "";
+      const cover = response[i].cover;
+      if (cover !== undefined) {
+        icon = await this.getCoverURL(cover);
+      } else {
+        icon = "/wallpapers/error-wallpaper.jpg";
+      }
+
+      const firstReleaseDate = response[i].first_release_date;
       results.push({
         id: "" + response[i].id,
         name: response[i].name,
-        icon: await this.getCoverURL(response[i].cover),
+        icon,
         description: response[i].summary,
-        year: DateTime.fromSeconds(response[i].first_release_date).year,
+        year:
+          firstReleaseDate === undefined
+            ? DateTime.now().year
+            : DateTime.fromSeconds(firstReleaseDate).year,
       });
     }
 
@@ -297,7 +325,14 @@ export class IGDBProvider implements MetadataProvider {
     const response = await this.request<IGDBGameFull>("games", body);
 
     for (let i = 0; i < response.length; i++) {
-      const icon = createObject(await this.getCoverURL(response[i].cover));
+      let iconRaw;
+      const cover = response[i].cover;
+      if (cover !== undefined) {
+        iconRaw = await this.getCoverURL(cover);
+      } else {
+        iconRaw = jdenticon.toPng(id, 512);
+      }
+      const icon = createObject(iconRaw);
       let banner = "";
 
       const images = [icon];
@@ -343,14 +378,17 @@ export class IGDBProvider implements MetadataProvider {
         }
       }
 
+      const firstReleaseDate = response[i].first_release_date;
+
       return {
         id: "" + response[i].id,
         name: response[i].name,
         shortDescription: this.trimMessage(response[i].summary, 280),
         description: response[i].summary,
-        released: DateTime.fromSeconds(
-          response[i].first_release_date,
-        ).toJSDate(),
+        released:
+          firstReleaseDate === undefined
+            ? DateTime.now().toJSDate()
+            : DateTime.fromSeconds(firstReleaseDate).toJSDate(),
 
         reviewCount: response[i]?.total_rating_count ?? 0,
         reviewRating: (response[i]?.total_rating ?? 0) / 100,
