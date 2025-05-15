@@ -94,14 +94,15 @@ class NotificationSystem {
     await this.pushNotification(userId, notification);
   }
 
-  async pushAll(notificationCreateArgs: NotificationCreateArgs) {
-    const users = await prisma.user.findMany({
-      where: { id: { not: "system" } },
-      select: {
-        id: true,
-      },
-    });
-
+  /**
+   * Internal call to batch push notifications to many users
+   * @param notificationCreateArgs
+   * @param users
+   */
+  private async _pushMany(
+    notificationCreateArgs: NotificationCreateArgs,
+    users: { id: string }[],
+  ) {
     const res: Promise<void>[] = [];
     for (const user of users) {
       res.push(this.push(user.id, notificationCreateArgs));
@@ -110,8 +111,39 @@ class NotificationSystem {
     await Promise.all(res);
   }
 
+  /**
+   * Send a notification to all users
+   * @param notificationCreateArgs
+   */
+  async pushAll(notificationCreateArgs: NotificationCreateArgs) {
+    const users = await prisma.user.findMany({
+      where: { id: { not: "system" } },
+      select: {
+        id: true,
+      },
+    });
+
+    await this._pushMany(notificationCreateArgs, users);
+  }
+
+  /**
+   * Send a notification to all system level users
+   * @param notificationCreateArgs
+   * @returns
+   */
   async systemPush(notificationCreateArgs: NotificationCreateArgs) {
-    return await this.pushAll(notificationCreateArgs);
+    const users = await prisma.user.findMany({
+      where: {
+        id: { not: "system" },
+        // no reason to send to any users other then admins rn
+        admin: true,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    await this._pushMany(notificationCreateArgs, users);
   }
 }
 
