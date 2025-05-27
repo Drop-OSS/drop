@@ -36,6 +36,7 @@ model Game {
     saves       SaveSlot[]
     screenshots Screenshot[]
     tags        Tag[]
+    playtime    Playtime[]
 
     developers Company[] @relation(name: "developers")
     publishers Company[] @relation(name: "publishers")
@@ -121,6 +122,21 @@ model Screenshot {
     createdAt DateTime @default(now()) @db.Timestamptz(0)
 
     @@index([gameId, userId])
+    @@index([userId])
+}
+
+model Playtime {
+    gameId String
+    game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    seconds Int // seconds user has spent playing the game
+
+    updatedAt DateTime @updatedAt @db.Timestamptz(6)
+    createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+    @@id([gameId, userId])
     @@index([userId])
 }
 

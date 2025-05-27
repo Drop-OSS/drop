@@ -10,6 +10,7 @@ export enum InternalClientCapability {
   PeerAPI = "peerAPI",
   UserStatus = "userStatus",
   CloudSaves = "cloudSaves",
+  TrackPlaytime = "trackPlaytime",
 }
 
 export const validCapabilities = Object.values(InternalClientCapability);
@@ -79,6 +80,7 @@ class CapabilityManager {
     [InternalClientCapability.PeerAPI]: async () => true,
     [InternalClientCapability.UserStatus]: async () => true, // No requirements for user status
     [InternalClientCapability.CloudSaves]: async () => true, // No requirements for cloud saves
+    [InternalClientCapability.TrackPlaytime]: async () => true,
   };
 
   async validateCapabilityConfiguration(
@@ -156,6 +158,28 @@ class CapabilityManager {
           data: {
             capabilities: {
               push: ClientCapabilities.CloudSaves,
+            },
+          },
+        });
+      },
+      [InternalClientCapability.TrackPlaytime]: async function () {
+        const currentClient = await prisma.client.findUnique({
+          where: { id: clientId },
+          select: {
+            capabilities: true,
+          },
+        });
+        if (!currentClient) throw new Error("Invalid client ID");
+        if (
+          currentClient.capabilities.includes(ClientCapabilities.TrackPlaytime)
+        )
+          return;
+
+        await prisma.client.update({
+          where: { id: clientId },
+          data: {
+            capabilities: {
+              push: ClientCapabilities.TrackPlaytime,
             },
           },
         });

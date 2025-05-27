@@ -19,6 +19,7 @@ model User {
 
     saves       SaveSlot[]
     screenshots Screenshot[]
+    playtime    Playtime[]
 }
 
 model Notification {
