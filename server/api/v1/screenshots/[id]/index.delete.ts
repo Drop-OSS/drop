@@ -16,12 +16,11 @@ export default defineEventHandler(async (h3) => {
   const result = await screenshotManager.get(screenshotId);
   if (!result)
     throw createError({
-      statusCode: 400,
-      statusMessage: "Incorrect screenshot ID",
+      statusCode: 404,
     });
   else if (result.userId !== userId)
     throw createError({
-      statusCode: 403,
+      statusCode: 404,
     });
 
   await screenshotManager.delete(screenshotId);

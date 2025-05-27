@@ -5,6 +5,11 @@ import stream from "node:stream/promises";
 import prisma from "../db/database";
 
 class ScreenshotManager {
+  /**
+   * Gets a specific screenshot
+   * @param id
+   * @returns
+   */
   async get(id: string) {
     return await prisma.screenshot.findUnique({
       where: {
@@ -13,6 +18,11 @@ class ScreenshotManager {
     });
   }
 
+  /**
+   * Get all user screenshots
+   * @param userId
+   * @returns
+   */
   async getUserAll(userId: string) {
     const results = await prisma.screenshot.findMany({
       where: {
@@ -22,6 +32,12 @@ class ScreenshotManager {
     return results;
   }
 
+  /**
+   * Get all user screenshots in a specific game
+   * @param userId
+   * @param gameId
+   * @returns
+   */
   async getUserAllByGame(userId: string, gameId: string) {
     const results = await prisma.screenshot.findMany({
       where: {
@@ -32,6 +48,10 @@ class ScreenshotManager {
     return results;
   }
 
+  /**
+   * Delete a specific screenshot
+   * @param id
+   */
   async delete(id: string) {
     await prisma.screenshot.delete({
       where: {
@@ -40,6 +60,12 @@ class ScreenshotManager {
     });
   }
 
+  /**
+   * Allows a user to upload a screenshot
+   * @param userId
+   * @param gameId
+   * @param inputStream
+   */
   async upload(userId: string, gameId: string, inputStream: IncomingMessage) {
     const objectId = randomUUID();
     const saveStream = await objectHandler.createWithStream(
