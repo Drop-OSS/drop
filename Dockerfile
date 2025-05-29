@@ -15,7 +15,7 @@ ENV NODE_ENV=production
 ENV NUXT_TELEMETRY_DISABLED=1
 
 # add git so drop can determine its git ref at build
-RUN apk add git
+RUN apk add --no-cache git
 
 # copy deps and rest of project files
 COPY --from=deps /app/node_modules ./node_modules
