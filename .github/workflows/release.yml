@@ -26,8 +26,11 @@ jobs:
       - name: Get base tag
         id: get_base_tag
         run: |
-          BASE_TAG=$(git describe --tags --abbrev=0)
-          echo "base_tag=$BASE_TAG" >> $GITHUB_OUTPUT
+          git fetch --tags
+
+          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "Using base tag: $TAG"
+          echo "base_tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Determine final tag
         id: get_final_tag
