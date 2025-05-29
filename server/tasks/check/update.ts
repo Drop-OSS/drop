@@ -92,6 +92,7 @@ export default defineTask<TaskReturn>({
           };
         }
 
+        // TODO: handle prerelease identifiers https://github.com/npm/node-semver#prerelease-identifiers
         // check if is newer version
         if (semver.gt(latestVer, currVer)) {
           console.log("[Task check:update]: Update available");
