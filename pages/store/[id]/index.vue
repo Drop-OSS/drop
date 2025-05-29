@@ -103,9 +103,7 @@
                       'w-4 h-4',
                     ]"
                   />
-                  <span class="text-zinc-600"
-                    >({{ game.mReviewCount }} reviews)</span
-                  >
+                  <span class="text-zinc-600">({{ 0 }} reviews)</span>
                 </td>
               </tr>
             </tbody>
@@ -220,7 +218,8 @@ const platforms = game.versions
   .flat()
   .filter((e, i, u) => u.indexOf(e) === i);
 
-const rating = Math.round(game.mReviewRating * 5);
+// const rating = Math.round(game.mReviewRating * 5);
+const rating = Math.round(0 * 5);
 const ratingArray = Array(5)
   .fill(null)
   .map((_, i) => i + 1 <= rating);

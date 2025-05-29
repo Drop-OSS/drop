@@ -1,5 +1,13 @@
 import { enabledAuthManagers } from "~/server/plugins/04.auth-init";
 
+defineRouteMeta({
+  openAPI: {
+    tags: ["Auth"],
+    description: "OIDC Signin redirect",
+    parameters: [],
+  },
+});
+
 export default defineEventHandler((h3) => {
   const redirect = getQuery(h3).redirect?.toString();
 

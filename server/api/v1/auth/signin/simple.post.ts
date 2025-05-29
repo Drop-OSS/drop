@@ -15,7 +15,9 @@ const signinValidator = type({
   "rememberMe?": "boolean | undefined",
 });
 
-export default defineEventHandler(async (h3) => {
+export default defineEventHandler<{
+  body: typeof signinValidator.infer;
+}>(async (h3) => {
   if (!enabledAuthManagers.Simple)
     throw createError({
       statusCode: 403,

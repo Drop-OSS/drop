@@ -9,9 +9,7 @@ export const useCertificateAuthority = () => {
 };
 
 export default defineNitroPlugin(async () => {
-  // const basePath = process.env.CLIENT_CERTIFICATES ?? "./certs";
-  // fs.mkdirSync(basePath, { recursive: true });
-  // const store = fsCertificateStore(basePath);
+  // const store = fsCertificateStore();
 
   ca = await CertificateAuthority.new(dbCertificateStore());
 });

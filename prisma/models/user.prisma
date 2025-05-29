@@ -19,12 +19,13 @@ model User {
 
     saves       SaveSlot[]
     screenshots Screenshot[]
+    playtime    Playtime[]
 }
 
 model Notification {
     id String @id @default(uuid())
 
-    nonce String? @unique
+    nonce String?
 
     userId String
     user   User     @relation(fields: [userId], references: [id])
@@ -36,4 +37,6 @@ model Notification {
     actions     String[]
 
     read Boolean @default(false)
+
+    @@unique([userId, nonce])
 }

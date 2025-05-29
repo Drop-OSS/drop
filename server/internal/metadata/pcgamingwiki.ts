@@ -7,11 +7,31 @@ import type {
   GameMetadata,
   _FetchCompanyMetadataParams,
   CompanyMetadata,
+  GameMetadataRating,
 } from "./types";
 import type { AxiosRequestConfig } from "axios";
 import axios from "axios";
 import * as jdenticon from "jdenticon";
 import { DateTime } from "luxon";
+import * as cheerio from "cheerio";
+import { type } from "arktype";
+
+interface PCGamingWikiParseRawPage {
+  parse: {
+    title: string;
+    pageid: number;
+    revid: number;
+    displaytitle: string;
+    // array of links
+    externallinks: string[];
+    // array of wiki file names
+    images: string[];
+    text: {
+      // rendered page contents
+      "*": string;
+    };
+  };
+}
 
 interface PCGamingWikiPage {
   PageID: string;
@@ -25,12 +45,19 @@ interface PCGamingWikiSearchStub extends PCGamingWikiPage {
 }
 
 interface PCGamingWikiGame extends PCGamingWikiSearchStub {
-  Developers: string | null;
-  Genres: string | null;
-  Publishers: string | null;
-  Themes: string | null;
+  Developers: string | string[] | null;
+  Publishers: string | string[] | null;
+
+  // TODO: save this somewhere, maybe a tag?
   Series: string | null;
-  Modes: string | null;
+
+  // tags
+  Perspectives: string | string[] | null; // ie: First-person
+  Genres: string | string[] | null; // ie: Action, FPS
+  "Art styles": string | string[] | null; // ie: Stylized
+  Themes: string | string[] | null; // ie: Post-apocalyptic, Sci-fi, Space
+  Modes: string | string[] | null; // ie: Singleplayer, Multiplayer
+  Pacing: string | string[] | null; // ie: Real-time
 }
 
 interface PCGamingWikiCompany extends PCGamingWikiPage {
@@ -55,6 +82,14 @@ interface PCGamingWikiCargoResult<T> {
   };
 }
 
+type StringArrayKeys<T> = {
+  [K in keyof T]: T[K] extends string | string[] | null ? K : never;
+}[keyof T];
+
+const ratingProviderReview = type({
+  rating: "string.integer.parse",
+});
+
 // Api Docs: https://www.pcgamingwiki.com/wiki/PCGamingWiki:API
 // Good tool for helping build cargo queries: https://www.pcgamingwiki.com/wiki/Special:CargoQuery
 export class PCGamingWikiProvider implements MetadataProvider {
@@ -75,18 +110,159 @@ export class PCGamingWikiProvider implements MetadataProvider {
       url: finalURL,
       baseURL: "",
     };
-    const response = await axios.request<PCGamingWikiCargoResult<T>>(
+    const response = await axios.request<T>(
       Object.assign({}, options, overlay),
     );
 
     if (response.status !== 200)
       throw new Error(
-        `Error in pcgamingwiki \nStatus Code: ${response.status}`,
+        `Error in pcgamingwiki \nStatus Code: ${response.status}\n${response.data}`,
       );
-    else if (response.data.error !== undefined)
-      throw new Error(`Error in pcgamingwiki, malformed query`);
 
     return response;
+  }
+
+  private async cargoQuery<T>(
+    query: URLSearchParams,
+    options?: AxiosRequestConfig,
+  ) {
+    const response = await this.request<PCGamingWikiCargoResult<T>>(
+      query,
+      options,
+    );
+    if (response.data.error !== undefined)
+      throw new Error(`Error in pcgamingwiki cargo query`);
+    return response;
+  }
+
+  /**
+   * Gets the raw wiki page for parsing,
+   * requested values are to be considered unstable as compared to cargo queries
+   * @param pageID
+   * @returns
+   */
+  private async getPageContent(pageID: string) {
+    const searchParams = new URLSearchParams({
+      action: "parse",
+      format: "json",
+      pageid: pageID,
+    });
+    const res = await this.request<PCGamingWikiParseRawPage>(searchParams);
+    const $ = cheerio.load(res.data.parse.text["*"]);
+    // get intro based on 'introduction' class
+    const introductionEle = $(".introduction").first();
+    // remove citations from intro
+    introductionEle.find("sup").remove();
+
+    const infoBoxEle = $(".template-infobox").first();
+    const receptionEle = infoBoxEle
+      .find(".template-infobox-header")
+      .filter((_, el) => $(el).text().trim() === "Reception");
+
+    const receptionResults: (GameMetadataRating | undefined)[] = [];
+    if (receptionEle.length > 0) {
+      // we have a match!
+
+      const ratingElements = infoBoxEle.find(".template-infobox-type");
+
+      // TODO: cleanup this ratnest
+      const parseIdFromHref = (href: string): string | undefined => {
+        const url = new URL(href);
+        const opencriticRegex = /^\/game\/(\d+)\/.+$/;
+        switch (url.hostname.toLocaleLowerCase()) {
+          case "www.metacritic.com": {
+            // https://www.metacritic.com/game/elden-ring/critic-reviews/?platform=pc
+            return url.pathname
+              .replace("/game/", "")
+              .replace("/critic-reviews", "")
+              .replace(/\/$/, "");
+          }
+          case "opencritic.com": {
+            // https://opencritic.com/game/12090/elden-ring
+            let id = "unknown";
+            let matches;
+            if ((matches = opencriticRegex.exec(url.pathname)) !== null) {
+              matches.forEach((match, _groupIndex) => {
+                // console.log(`Found match, group ${_groupIndex}: ${match}`);
+                id = match;
+              });
+            }
+
+            if (id === "unknown") {
+              return undefined;
+            }
+            return id;
+          }
+          case "www.igdb.com": {
+            // https://www.igdb.com/games/elden-ring
+            return url.pathname.replace("/games/", "").replace(/\/$/, "");
+          }
+          default: {
+            console.warn("Pcgamingwiki, unknown host", url.hostname);
+            return undefined;
+          }
+        }
+      };
+      const getRating = (
+        source: MetadataSource,
+      ): GameMetadataRating | undefined => {
+        const providerEle = ratingElements.filter(
+          (_, el) =>
+            $(el).text().trim().toLocaleLowerCase() ===
+            source.toLocaleLowerCase(),
+        );
+        if (providerEle.length > 0) {
+          // get info associated with provider
+          const reviewEle = providerEle
+            .first()
+            .parent()
+            .find(".template-infobox-info")
+            .find("a")
+            .first();
+
+          const href = reviewEle.attr("href");
+          if (!href) {
+            console.log(
+              `pcgamingwiki: failed to properly get review href for ${source}`,
+            );
+            return undefined;
+          }
+          const ratingObj = ratingProviderReview({
+            rating: reviewEle.text().trim(),
+          });
+          if (ratingObj instanceof type.errors) {
+            console.log(
+              "pcgamingwiki: failed to properly get review rating",
+              ratingObj.summary,
+            );
+            return undefined;
+          }
+
+          const id = parseIdFromHref(href);
+          if (!id) return undefined;
+
+          return {
+            mReviewHref: href,
+            metadataId: id,
+            metadataSource: source,
+            mReviewCount: 0,
+            // make float within 0 to 1
+            mReviewRating: ratingObj.rating / 100,
+          };
+        }
+
+        return undefined;
+      };
+      receptionResults.push(getRating(MetadataSource.Metacritic));
+      receptionResults.push(getRating(MetadataSource.IGDB));
+      receptionResults.push(getRating(MetadataSource.OpenCritic));
+    }
+
+    return {
+      shortIntro: introductionEle.find("p").first().text().trim(),
+      introduction: introductionEle.text().trim(),
+      reception: receptionResults,
+    };
   }
 
   async search(query: string) {
@@ -99,43 +275,58 @@ export class PCGamingWikiProvider implements MetadataProvider {
       format: "json",
     });
 
-    const res = await this.request<PCGamingWikiSearchStub>(searchParams);
+    const response =
+      await this.cargoQuery<PCGamingWikiSearchStub>(searchParams);
 
-    const mapped = res.data.cargoquery.map((result) => {
+    const results: GameMetadataSearchResult[] = [];
+    for (const result of response.data.cargoquery) {
       const game = result.title;
+      const pageContent = await this.getPageContent(game.PageID);
 
-      const metadata: GameMetadataSearchResult = {
+      results.push({
         id: game.PageID,
         name: game.PageName,
         icon: game["Cover URL"] ?? "",
-        description: "", // TODO: need to render the `Introduction` template somehow (or we could just hardcode it)
+        description: pageContent.shortIntro,
         year:
           game.Released !== null && game.Released.length > 0
             ? // sometimes will provide multiple dates
               this.parseTS(game.Released).year
             : 0,
-      };
-      return metadata;
-    });
+      });
+    }
 
-    return mapped;
+    return results;
   }
 
   /**
-   * Parses the specific format that the wiki returns when specifying a company
-   * @param companyStr
+   * Parses the specific format that the wiki returns when specifying an array
+   * @param input string or array
    * @returns
    */
-  private parseCompanyStr(companyStr: string): string[] {
-    const results: string[] = [];
-    // provides the string as a list of companies
-    // ie: "Company:Digerati Distribution,Company:Greylock Studio"
-    const items = companyStr.split(",");
+  private parseWikiStringArray(input: string | string[]): string[] {
+    const cleanStr = (str: string): string => {
+      // remove any dumb prefixes we don't care about
+      return str.replace("Company:", "").trim();
+    };
 
-    items.forEach((item) => {
-      // remove the `Company:` and trim and whitespace
-      results.push(item.replace("Company:", "").trim());
-    });
+    // input can provides the string as a list
+    // ie: "Company:Digerati Distribution,Company:Greylock Studio"
+    // or as an array, sometimes the array has empty values
+
+    const results: string[] = [];
+    if (Array.isArray(input)) {
+      input.forEach((c) => {
+        const clean = cleanStr(c);
+        if (clean !== "") results.push(clean);
+      });
+    } else {
+      const items = input.split(",");
+      items.forEach((item) => {
+        const clean = cleanStr(item);
+        if (clean !== "") results.push(clean);
+      });
+    }
 
     return results;
   }
@@ -156,6 +347,28 @@ export class PCGamingWikiProvider implements MetadataProvider {
     return websiteStr.replaceAll(/\[|]/g, "").split(" ")[0] ?? "";
   }
 
+  private compileTags(game: PCGamingWikiGame): string[] {
+    const results: string[] = [];
+
+    const properties: StringArrayKeys<PCGamingWikiGame>[] = [
+      "Art styles",
+      "Genres",
+      "Modes",
+      "Pacing",
+      "Perspectives",
+      "Themes",
+    ];
+
+    // loop through all above keys, get the tags they contain
+    properties.forEach((p) => {
+      if (game[p] === null) return;
+
+      results.push(...this.parseWikiStringArray(game[p]));
+    });
+
+    return results;
+  }
+
   async fetchGame({
     id,
     name,
@@ -167,12 +380,15 @@ export class PCGamingWikiProvider implements MetadataProvider {
       action: "cargoquery",
       tables: "Infobox_game",
       fields:
-        "Infobox_game._pageID=PageID,Infobox_game._pageName=PageName,Infobox_game.Cover_URL,Infobox_game.Developers,Infobox_game.Released,Infobox_game.Genres,Infobox_game.Publishers,Infobox_game.Themes,Infobox_game.Series,Infobox_game.Modes",
+        "Infobox_game._pageID=PageID,Infobox_game._pageName=PageName,Infobox_game.Cover_URL,Infobox_game.Developers,Infobox_game.Released,Infobox_game.Genres,Infobox_game.Publishers,Infobox_game.Themes,Infobox_game.Series,Infobox_game.Modes,Infobox_game.Perspectives,Infobox_game.Art_styles,Infobox_game.Pacing",
       where: `Infobox_game._pageID="${id}"`,
       format: "json",
     });
 
-    const res = await this.request<PCGamingWikiGame>(searchParams);
+    const [res, pageContent] = await Promise.all([
+      this.cargoQuery<PCGamingWikiGame>(searchParams),
+      this.getPageContent(id),
+    ]);
     if (res.data.cargoquery.length < 1)
       throw new Error("Error in pcgamingwiki, no game");
 
@@ -180,7 +396,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
 
     const publishers: Company[] = [];
     if (game.Publishers !== null) {
-      const pubListClean = this.parseCompanyStr(game.Publishers);
+      const pubListClean = this.parseWikiStringArray(game.Publishers);
       for (const pub of pubListClean) {
         const res = await publisher(pub);
         if (res === undefined) continue;
@@ -190,7 +406,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
 
     const developers: Company[] = [];
     if (game.Developers !== null) {
-      const devListClean = this.parseCompanyStr(game.Developers);
+      const devListClean = this.parseWikiStringArray(game.Developers);
       for (const dev of devListClean) {
         const res = await developer(dev);
         if (res === undefined) continue;
@@ -206,15 +422,15 @@ export class PCGamingWikiProvider implements MetadataProvider {
     const metadata: GameMetadata = {
       id: game.PageID,
       name: game.PageName,
-      shortDescription: "", // TODO: (again) need to render the `Introduction` template somehow (or we could just hardcode it)
-      description: "",
+      shortDescription: pageContent.shortIntro,
+      description: pageContent.introduction,
       released: game.Released
         ? DateTime.fromISO(game.Released.split(";")[0]).toJSDate()
         : new Date(),
 
-      reviewCount: 0,
-      reviewRating: 0,
+      tags: this.compileTags(game),
 
+      reviews: pageContent.reception.filter((v) => typeof v !== "undefined"),
       publishers,
       developers,
 
@@ -240,16 +456,16 @@ export class PCGamingWikiProvider implements MetadataProvider {
       format: "json",
     });
 
-    const res = await this.request<PCGamingWikiCompany>(searchParams);
+    const res = await this.cargoQuery<PCGamingWikiCompany>(searchParams);
 
-    // TODO: replace
+    // TODO: replace with company logo
     const icon = createObject(jdenticon.toPng(query, 512));
 
     for (let i = 0; i < res.data.cargoquery.length; i++) {
       const company = res.data.cargoquery[i].title;
 
       const fixedCompanyName =
-        this.parseCompanyStr(company.PageName)[0] ?? company.PageName;
+        this.parseWikiStringArray(company.PageName)[0] ?? company.PageName;
 
       const metadata: CompanyMetadata = {
         id: company.PageID,

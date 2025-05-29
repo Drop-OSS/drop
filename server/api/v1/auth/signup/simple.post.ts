@@ -7,13 +7,16 @@ import { type } from "arktype";
 import { randomUUID } from "node:crypto";
 
 const userValidator = type({
+  invitation: "string",
   username: "string >= 5",
   email: "string.email",
   password: "string >= 14",
   "displayName?": "string | undefined",
 });
 
-export default defineEventHandler(async (h3) => {
+export default defineEventHandler<{
+  body: typeof userValidator.infer;
+}>(async (h3) => {
   const body = await readBody(h3);
 
   const invitationId = body.invitation;

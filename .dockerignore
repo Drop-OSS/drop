@@ -8,6 +8,7 @@ dist
 
 # Node dependencies
 node_modules
+.yarn
 
 # Logs
 logs
@@ -23,4 +24,8 @@ logs
 .env.*
 !.env.example
 
-.data
+# deploy template
+deploy-template/
+
+# generated prisma client
+/prisma/client

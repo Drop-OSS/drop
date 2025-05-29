@@ -22,6 +22,10 @@ export const userACLDescriptions: ObjectFromList<typeof userACLs> = {
   "notifications:listen": "Connect to a websocket to recieve notifications.",
   "notifications:delete": "Delete this account's notifications.",
 
+  "screenshots:new": "Create screenshots for this account",
+  "screenshots:read": "Read all screenshots for this account",
+  "screenshots:delete": "Delete a screenshot for this account",
+
   "collections:new": "Create collections for this account.",
   "collections:read": "Fetch all collections (including library).",
   "collections:delete": "Delete a collection for this account.",

@@ -1,4 +1,4 @@
-import { MetadataSource } from "~/prisma/client";
+import { MetadataSource, type GameRating } from "~/prisma/client";
 import prisma from "../db/database";
 import type {
   _FetchGameMetadataParams,
@@ -7,10 +7,11 @@ import type {
   GameMetadataSearchResult,
   InternalGameMetadataResult,
   CompanyMetadata,
+  GameMetadataRating,
 } from "./types";
 import { ObjectTransactionalHandler } from "../objects/transactional";
 import { PriorityListIndexed } from "../utils/prioritylist";
-import { DROP_VERSION } from "../consts";
+import { systemConfig } from "../config/sys-conf";
 
 export class MissingMetadataProviderConfig extends Error {
   private providerName: string;
@@ -26,7 +27,7 @@ export class MissingMetadataProviderConfig extends Error {
 }
 
 // TODO: add useragent to all outbound api calls (best practice)
-export const DropUserAgent = `Drop/${DROP_VERSION}`;
+export const DropUserAgent = `Drop/${systemConfig.getDropVersion()}`;
 
 export abstract class MetadataProvider {
   abstract name(): string;
@@ -111,6 +112,58 @@ export class MetadataHandler {
     );
   }
 
+  private parseTags(tags: string[]) {
+    const results: {
+      where: {
+        name: string;
+      };
+      create: {
+        name: string;
+      };
+    }[] = [];
+
+    tags.forEach((t) =>
+      results.push({
+        where: {
+          name: t,
+        },
+        create: {
+          name: t,
+        },
+      }),
+    );
+
+    return results;
+  }
+
+  private parseRatings(ratings: GameMetadataRating[]) {
+    const results: {
+      where: {
+        metadataKey: {
+          metadataId: string;
+          metadataSource: MetadataSource;
+        };
+      };
+      create: Omit<GameRating, "gameId" | "created" | "id">;
+    }[] = [];
+
+    ratings.forEach((r) => {
+      results.push({
+        where: {
+          metadataKey: {
+            metadataId: r.metadataId,
+            metadataSource: r.metadataSource,
+          },
+        },
+        create: {
+          ...r,
+        },
+      });
+    });
+
+    return results;
+  }
+
   async createGame(
     result: InternalGameMetadataResult,
     libraryBasePath: string,
@@ -157,9 +210,6 @@ export class MetadataHandler {
         mName: metadata.name,
         mShortDescription: metadata.shortDescription,
         mDescription: metadata.description,
-
-        mReviewCount: metadata.reviewCount,
-        mReviewRating: metadata.reviewRating,
         mReleased: metadata.released,
 
         mIconObjectId: metadata.icon,
@@ -172,6 +222,13 @@ export class MetadataHandler {
         },
         developers: {
           connect: metadata.developers,
+        },
+
+        ratings: {
+          connectOrCreate: this.parseRatings(metadata.reviews),
+        },
+        tags: {
+          connectOrCreate: this.parseTags(metadata.tags),
         },
 
         libraryBasePath,
@@ -216,11 +273,14 @@ export class MetadataHandler {
         continue;
       }
 
-      // If we're successful
-      await pullObjects();
-
-      const object = await prisma.company.create({
-        data: {
+      const object = await prisma.company.upsert({
+        where: {
+          metadataKey: {
+            metadataSource: provider.source(),
+            metadataId: result.id,
+          },
+        },
+        create: {
           metadataSource: provider.source(),
           metadataId: result.id,
           metadataOriginalQuery: query,
@@ -232,7 +292,14 @@ export class MetadataHandler {
           mBannerObjectId: result.banner,
           mWebsite: result.website,
         },
+        update: {},
       });
+
+      if (object.mLogoObjectId == result.logo) {
+        // We created, and didn't update
+        // So pull objects
+        await pullObjects();
+      }
 
       return object;
     }

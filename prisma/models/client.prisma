@@ -1,7 +1,8 @@
 enum ClientCapabilities {
-    PeerAPI    @map("peerAPI") // other clients can use the HTTP API to P2P with this client
-    UserStatus @map("userStatus") // this client can report this user's status (playing, online, etc etc)
-    CloudSaves @map("cloudSaves") // ability to save to save slots
+    PeerAPI       @map("peerAPI") // other clients can use the HTTP API to P2P with this client
+    UserStatus    @map("userStatus") // this client can report this user's status (playing, online, etc etc)
+    CloudSaves    @map("cloudSaves") // ability to save to save slots
+    TrackPlaytime @map("trackPlaytime") // ability to track user playtime
 }
 
 // References a device

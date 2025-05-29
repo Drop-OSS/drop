@@ -1,5 +1,5 @@
 import type { ObjectMetadata, ObjectReference, Source } from "./objectHandler";
-import { ObjectBackend } from "./objectHandler";
+import { ObjectBackend, objectMetadata } from "./objectHandler";
 
 import fs from "fs";
 import path from "path";
@@ -7,16 +7,20 @@ import { Readable } from "stream";
 import { createHash } from "crypto";
 import prisma from "../db/database";
 import cacheHandler from "../cache";
+import { systemConfig } from "../config/sys-conf";
+import { type } from "arktype";
 
 export class FsObjectBackend extends ObjectBackend {
   private baseObjectPath: string;
   private baseMetadataPath: string;
 
   private hashStore = new FsHashStore();
+  private metadataCache =
+    cacheHandler.createCache<ObjectMetadata>("ObjectMetadata");
 
   constructor() {
     super();
-    const basePath = process.env.FS_BACKEND_PATH ?? "./.data/objects";
+    const basePath = path.join(systemConfig.getDataFolder(), "objects");
     this.baseObjectPath = path.join(basePath, "objects");
     this.baseMetadataPath = path.join(basePath, "metadata");
 
@@ -98,17 +102,30 @@ export class FsObjectBackend extends ObjectBackend {
     const objectPath = path.join(this.baseObjectPath, id);
     if (!fs.existsSync(objectPath)) return true;
     fs.rmSync(objectPath);
-    // remove item from cache
+    const metadataPath = path.join(this.baseMetadataPath, `${id}.json`);
+    if (!fs.existsSync(metadataPath)) return true;
+    fs.rmSync(metadataPath);
+    // remove item from caches
+    await this.metadataCache.remove(id);
     await this.hashStore.delete(id);
     return true;
   }
   async fetchMetadata(
     id: ObjectReference,
   ): Promise<ObjectMetadata | undefined> {
+    const cacheResult = await this.metadataCache.get(id);
+    if (cacheResult !== null) return cacheResult;
+
     const metadataPath = path.join(this.baseMetadataPath, `${id}.json`);
     if (!fs.existsSync(metadataPath)) return undefined;
-    const metadata = JSON.parse(fs.readFileSync(metadataPath, "utf-8"));
-    return metadata as ObjectMetadata;
+    const metadataRaw = JSON.parse(fs.readFileSync(metadataPath, "utf-8"));
+    const metadata = objectMetadata(metadataRaw);
+    if (metadata instanceof type.errors) {
+      console.error("FsObjectBackend#fetchMetadata", metadata.summary);
+      return undefined;
+    }
+    await this.metadataCache.set(id, metadata);
+    return metadata;
   }
   async writeMetadata(
     id: ObjectReference,
@@ -117,6 +134,7 @@ export class FsObjectBackend extends ObjectBackend {
     const metadataPath = path.join(this.baseMetadataPath, `${id}.json`);
     if (!fs.existsSync(metadataPath)) return false;
     fs.writeFileSync(metadataPath, JSON.stringify(metadata));
+    await this.metadataCache.set(id, metadata);
     return true;
   }
   async fetchHash(id: ObjectReference): Promise<string | undefined> {
@@ -152,8 +170,33 @@ export class FsObjectBackend extends ObjectBackend {
     await store.save(id, hashResult);
     return typeof hashResult;
   }
+
   async listAll(): Promise<string[]> {
     return fs.readdirSync(this.baseObjectPath);
+  }
+
+  async cleanupMetadata() {
+    const metadataFiles = fs.readdirSync(this.baseMetadataPath);
+    const objects = await this.listAll();
+
+    const extraFiles = metadataFiles.filter(
+      (file) => !objects.includes(file.replace(/\.json$/, "")),
+    );
+    console.log(
+      `[FsObjectBackend#cleanupMetadata]: Found ${extraFiles.length} metadata files without corresponding objects.`,
+    );
+    for (const file of extraFiles) {
+      const filePath = path.join(this.baseMetadataPath, file);
+      try {
+        fs.rmSync(filePath);
+        console.log(`[FsObjectBackend#cleanupMetadata]: Removed ${file}`);
+      } catch (error) {
+        console.error(
+          `[FsObjectBackend#cleanupMetadata]: Failed to remove ${file}`,
+          error,
+        );
+      }
+    }
   }
 }
 

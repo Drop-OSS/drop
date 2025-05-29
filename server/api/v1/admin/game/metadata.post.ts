@@ -1,3 +1,4 @@
+import type { Prisma } from "~/prisma/client";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import { handleFileUpload } from "~/server/internal/utils/handlefileupload";
@@ -27,25 +28,24 @@ export default defineEventHandler(async (h3) => {
   const description = options.description;
   const gameId = options.id;
 
-  if (!id || !name || !description) {
-    dump();
+  const changes: Prisma.GameUpdateInput = {
+    mName: name,
+    mShortDescription: description,
+  };
 
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Nothing has changed",
-    });
+  // handle if user uploaded new icon
+  if (id) {
+    changes.mIconObjectId = id;
+    await pull();
+  } else {
+    dump();
   }
 
-  await pull();
   const newObject = await prisma.game.update({
     where: {
       id: gameId,
     },
-    data: {
-      mIconObjectId: id,
-      mName: name,
-      mShortDescription: description,
-    },
+    data: changes,
   });
 
   return newObject;

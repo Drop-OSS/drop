@@ -5,6 +5,11 @@ import stream from "node:stream/promises";
 import prisma from "../db/database";
 
 class ScreenshotManager {
+  /**
+   * Gets a specific screenshot
+   * @param id
+   * @returns
+   */
   async get(id: string) {
     return await prisma.screenshot.findUnique({
       where: {
@@ -13,7 +18,27 @@ class ScreenshotManager {
     });
   }
 
-  async getAllByGame(gameId: string, userId: string) {
+  /**
+   * Get all user screenshots
+   * @param userId
+   * @returns
+   */
+  async getUserAll(userId: string) {
+    const results = await prisma.screenshot.findMany({
+      where: {
+        userId,
+      },
+    });
+    return results;
+  }
+
+  /**
+   * Get all user screenshots in a specific game
+   * @param userId
+   * @param gameId
+   * @returns
+   */
+  async getUserAllByGame(userId: string, gameId: string) {
     const results = await prisma.screenshot.findMany({
       where: {
         gameId,
@@ -23,6 +48,10 @@ class ScreenshotManager {
     return results;
   }
 
+  /**
+   * Delete a specific screenshot
+   * @param id
+   */
   async delete(id: string) {
     await prisma.screenshot.delete({
       where: {
@@ -31,9 +60,22 @@ class ScreenshotManager {
     });
   }
 
-  async upload(gameId: string, userId: string, inputStream: IncomingMessage) {
+  /**
+   * Allows a user to upload a screenshot
+   * @param userId
+   * @param gameId
+   * @param inputStream
+   */
+  async upload(userId: string, gameId: string, inputStream: IncomingMessage) {
     const objectId = randomUUID();
-    const saveStream = await objectHandler.createWithStream(objectId, {}, []);
+    const saveStream = await objectHandler.createWithStream(
+      objectId,
+      {
+        // TODO: set createAt to the time screenshot was taken
+        createdAt: new Date().toISOString(),
+      },
+      [`${userId}:read`, `${userId}:delete`],
+    );
     if (!saveStream)
       throw createError({
         statusCode: 500,
@@ -43,12 +85,12 @@ class ScreenshotManager {
     // pipe into object store
     await stream.pipeline(inputStream, saveStream);
 
-    // TODO: set createAt to the time screenshot was taken
     await prisma.screenshot.create({
       data: {
         gameId,
         userId,
         objectId,
+        private: true,
       },
     });
   }

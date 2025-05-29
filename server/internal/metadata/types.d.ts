@@ -1,4 +1,4 @@
-import type { Company } from "~/prisma/client";
+import type { Company, GameRating } from "~/prisma/client";
 import type { TransactionDataType } from "../objects/transactional";
 import type { ObjectReference } from "../objects/objectHandler";
 
@@ -18,6 +18,15 @@ export interface GameMetadataSource {
 export type InternalGameMetadataResult = GameMetadataSearchResult &
   GameMetadataSource;
 
+export type GameMetadataRating = Pick<
+  GameRating,
+  | "metadataSource"
+  | "metadataId"
+  | "mReviewCount"
+  | "mReviewHref"
+  | "mReviewRating"
+>;
+
 export interface GameMetadata {
   id: string;
   name: string;
@@ -30,8 +39,9 @@ export interface GameMetadata {
   publishers: Company[];
   developers: Company[];
 
-  reviewCount: number;
-  reviewRating: number;
+  tags: string[];
+
+  reviews: GameMetadataRating[];
 
   // Created with another utility function
   icon: ObjectReference;
