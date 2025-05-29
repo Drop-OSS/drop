@@ -18,6 +18,9 @@ services:
       - POSTGRES_DB=drop
   drop:
     image: ghcr.io/drop-oss/drop:latest
+    stdin_open: true
+    tty: true
+    init: true
     depends_on:
       postgres:
         condition: service_healthy
