@@ -71,6 +71,7 @@ export abstract class ObjectBackend {
   ): Promise<boolean>;
   abstract fetchHash(id: ObjectReference): Promise<string | undefined>;
   abstract listAll(): Promise<string[]>;
+  abstract cleanupMetadata(): Promise<void>;
 }
 
 export class ObjectHandler {
@@ -256,5 +257,14 @@ export class ObjectHandler {
    */
   async listAll() {
     return await this.backend.listAll();
+  }
+
+  /**
+   * Purges metadata for objects that no longer exist
+   * This is useful for cleaning up metadata files that are left behinds
+   * @returns
+   */
+  async cleanupMetadata() {
+    return await this.backend.cleanupMetadata();
   }
 }

@@ -174,6 +174,30 @@ export class FsObjectBackend extends ObjectBackend {
   async listAll(): Promise<string[]> {
     return fs.readdirSync(this.baseObjectPath);
   }
+
+  async cleanupMetadata() {
+    const metadataFiles = fs.readdirSync(this.baseMetadataPath);
+    const objects = await this.listAll();
+
+    const extraFiles = metadataFiles.filter(
+      (file) => !objects.includes(file.replace(/\.json$/, "")),
+    );
+    console.log(
+      `[FsObjectBackend#cleanupMetadata]: Found ${extraFiles.length} metadata files without corresponding objects.`,
+    );
+    for (const file of extraFiles) {
+      const filePath = path.join(this.baseMetadataPath, file);
+      try {
+        fs.rmSync(filePath);
+        console.log(`[FsObjectBackend#cleanupMetadata]: Removed ${file}`);
+      } catch (error) {
+        console.error(
+          `[FsObjectBackend#cleanupMetadata]: Failed to remove ${file}`,
+          error,
+        );
+      }
+    }
+  }
 }
 
 class FsHashStore {

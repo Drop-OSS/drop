@@ -44,6 +44,9 @@ export default defineTask<TaskReturn>({
     }
     await Promise.all(deletePromises);
 
+    // Remove any possible leftover metadata
+    objectHandler.cleanupMetadata();
+
     console.log("[Task cleanup:objects]: Done");
     return {
       result: {
