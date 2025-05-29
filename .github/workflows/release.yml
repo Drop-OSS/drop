@@ -70,6 +70,7 @@ jobs:
           images: |
             ghcr.io/drop-OSS/drop
           tags: |
+            type=schedule,pattern=nightly
             type=schedule,pattern=nightly.${{ steps.get_final_tag.outputs.today }}
             type=semver,pattern=v{{version}}
             type=semver,pattern=v{{major}}.{{minor}}
