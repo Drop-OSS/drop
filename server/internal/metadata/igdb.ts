@@ -306,8 +306,6 @@ export class IGDBProvider implements MetadataProvider {
       results.push(await this._getGenreInternal(genre));
     }
 
-    console.log(results);
-
     return results;
   }
 
