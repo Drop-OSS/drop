@@ -570,6 +570,8 @@ const descriptionSaving = ref<number>(0);
 
 let savingTimeout: undefined | NodeJS.Timeout;
 
+type PatchGameBody = Partial<Game>;
+
 watch(descriptionHTML, (_v) => {
   console.log(game.value.mDescription);
   descriptionSaving.value = 1;
@@ -582,7 +584,7 @@ watch(descriptionHTML, (_v) => {
         body: {
           id: gameId,
           mDescription: game.value.mDescription,
-        },
+        } satisfies PatchGameBody,
       });
       descriptionSaving.value = 0;
     } catch (e) {
@@ -627,7 +629,7 @@ async function updateBannerImage(id: string) {
       body: {
         id: gameId,
         mBannerObjectId: id,
-      },
+      } satisfies PatchGameBody,
     });
     game.value.mBannerObjectId = mBannerObjectId;
   } catch (e) {
@@ -654,7 +656,7 @@ async function updateCoverImage(id: string) {
       body: {
         id: gameId,
         mCoverObjectId: id,
-      },
+      } satisfies PatchGameBody,
     });
     game.value.mCoverObjectId = mCoverObjectId;
     coreMetadataIconUrl.value = useObject(mCoverObjectId);
@@ -730,7 +732,7 @@ async function updateImageCarousel() {
       body: {
         id: gameId,
         mImageCarouselObjectIds: game.value.mImageCarouselObjectIds,
-      },
+      } satisfies PatchGameBody,
     });
   } catch (e) {
     createModal(

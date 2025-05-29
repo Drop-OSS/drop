@@ -273,11 +273,14 @@ export class MetadataHandler {
         continue;
       }
 
-      // If we're successful
-      await pullObjects();
-
-      const object = await prisma.company.create({
-        data: {
+      const object = await prisma.company.upsert({
+        where: {
+          metadataKey: {
+            metadataSource: provider.source(),
+            metadataId: result.id,
+          },
+        },
+        create: {
           metadataSource: provider.source(),
           metadataId: result.id,
           metadataOriginalQuery: query,
@@ -289,7 +292,14 @@ export class MetadataHandler {
           mBannerObjectId: result.banner,
           mWebsite: result.website,
         },
+        update: {},
       });
+
+      if (object.mLogoObjectId == result.logo) {
+        // We created, and didn't update
+        // So pull objects
+        await pullObjects();
+      }
 
       return object;
     }
