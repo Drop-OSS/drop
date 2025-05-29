@@ -219,13 +219,7 @@ useHead({
   htmlAttrs: {
     lang: "en",
   },
-  link: [
-    {
-      rel: "icon",
-      type: "image/png",
-      href: "/favicon.png",
-    },
-  ],
+  link: [],
   titleTemplate(title) {
     return title ? `${title} | Admin | Drop` : `Admin Dashboard | Drop`;
   },
