@@ -2,6 +2,7 @@ import path from "path";
 import fs from "fs";
 import type { CertificateBundle } from "./ca";
 import prisma from "../db/database";
+import { systemConfig } from "../config/sys-conf";
 
 export type CertificateStore = {
   store(name: string, data: CertificateBundle): Promise<void>;
@@ -10,7 +11,8 @@ export type CertificateStore = {
   checkBlacklistCertificate(name: string): Promise<boolean>;
 };
 
-export const fsCertificateStore = (base: string) => {
+export const fsCertificateStore = () => {
+  const base = path.join(systemConfig.getDataFolder(), "certs");
   const blacklist = path.join(base, ".blacklist");
   fs.mkdirSync(blacklist, { recursive: true });
   const store: CertificateStore = {
