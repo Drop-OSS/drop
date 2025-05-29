@@ -569,6 +569,8 @@ const descriptionSaving = ref<number>(0);
 
 let savingTimeout: undefined | NodeJS.Timeout;
 
+type PatchGameBody = Partial<Game>;
+
 watch(descriptionHTML, (_v) => {
   console.log(game.value.mDescription);
   descriptionSaving.value = 1;
@@ -581,7 +583,7 @@ watch(descriptionHTML, (_v) => {
         body: {
           id: gameId,
           mDescription: game.value.mDescription,
-        },
+        } satisfies PatchGameBody,
       });
       descriptionSaving.value = 0;
     } catch (e) {
@@ -625,8 +627,8 @@ async function updateBannerImage(id: string) {
       method: "PATCH",
       body: {
         id: gameId,
-        mBannerId: id,
-      },
+        mBannerObjectId: id,
+      } satisfies PatchGameBody,
     });
     game.value.mBannerObjectId = mBannerObjectId;
   } catch (e) {
@@ -652,8 +654,8 @@ async function updateCoverImage(id: string) {
       method: "PATCH",
       body: {
         id: gameId,
-        mCoverId: id,
-      },
+        mCoverObjectId: id,
+      } satisfies PatchGameBody,
     });
     game.value.mCoverObjectId = mCoverObjectId;
   } catch (e) {
@@ -727,8 +729,8 @@ async function updateImageCarousel() {
       method: "PATCH",
       body: {
         id: gameId,
-        mImageCarousel: game.value.mImageCarouselObjectIds,
-      },
+        mImageCarouselObjectIds: game.value.mImageCarouselObjectIds,
+      } satisfies PatchGameBody,
     });
   } catch (e) {
     createModal(
