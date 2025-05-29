@@ -22,6 +22,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 ARG BUILD_DROP_VERSION="v0.0.0-unknown.1"
+ARG BUILD_GIT_REF
 
 # build
 RUN yarn postinstall
