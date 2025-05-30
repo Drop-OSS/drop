@@ -1,13 +1,14 @@
 import { type } from "arktype";
+import { throwingArktype } from "~/server/arktype";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 
 const CreateInvite = type({
-  isAdmin: "boolean",
-  username: "string",
-  email: "string.email",
+  isAdmin: "boolean?",
+  username: "string?",
+  email: "string.email?",
   expires: "string.date.iso.parse",
-});
+}).configure(throwingArktype);
 
 export default defineEventHandler<{
   body: typeof CreateInvite.infer;
@@ -17,16 +18,7 @@ export default defineEventHandler<{
   ]);
   if (!allowed) throw createError({ statusCode: 403 });
 
-  const body = CreateInvite(await readBody(h3));
-  if (body instanceof type.errors) {
-    // hover out.summary to see validation errors
-    console.error(body.summary);
-
-    throw createError({
-      statusCode: 400,
-      statusMessage: body.summary,
-    });
-  }
+  const body = await readValidatedBody(h3, CreateInvite);
 
   const invitation = await prisma.invitation.create({
     data: body,

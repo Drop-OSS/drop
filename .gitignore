@@ -34,3 +34,4 @@ deploy-template/*
 
 # generated prisma client
 /prisma/client
+/prisma/validate

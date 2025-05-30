@@ -3,6 +3,7 @@ import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import { handleFileUpload } from "~/server/internal/utils/handlefileupload";
 
+
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["game:update"]);
   if (!allowed) throw createError({ statusCode: 403 });
@@ -28,24 +29,32 @@ export default defineEventHandler(async (h3) => {
   const description = options.description;
   const gameId = options.id;
 
-  const changes: Prisma.GameUpdateInput = {
+  const updateModel: Prisma.GameUpdateInput = {
     mName: name,
     mShortDescription: description,
   };
 
   // handle if user uploaded new icon
   if (id) {
-    changes.mIconObjectId = id;
+    updateModel.mIconObjectId = id;
     await pull();
   } else {
     dump();
+  }
+
+  // If the API call doesn't provide values, don't set them
+  for (const [key, value] of Object.entries(updateModel)) {
+    if (value === undefined) {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+      delete updateModel[key as keyof typeof updateModel];
+    }
   }
 
   const newObject = await prisma.game.update({
     where: {
       id: gameId,
     },
-    data: changes,
+    data: updateModel,
   });
 
   return newObject;

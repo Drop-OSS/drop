@@ -7,6 +7,7 @@ import type {
   GameMetadata,
   _FetchCompanyMetadataParams,
   CompanyMetadata,
+  GameMetadataRating,
 } from "./types";
 import axios, { type AxiosRequestConfig } from "axios";
 import TurndownService from "turndown";
@@ -58,6 +59,17 @@ interface GameResult {
     tags: string; // If it's "All Images", art, otherwise screenshot
     original: string;
   }>;
+
+  reviews: Array<{
+    api_detail_url: string;
+  }>;
+}
+
+interface ReviewResult {
+  deck: string;
+  score: number; // Out of 5
+  reviewer: string;
+  site_detail_url: string;
 }
 
 interface CompanySearchResult {
@@ -198,6 +210,21 @@ export class GiantBombProvider implements MetadataProvider {
           }-${gameData.expected_release_day ?? 1}`,
         ).toJSDate();
 
+    const reviews: GameMetadataRating[] = [];
+    for (const { api_detail_url } of gameData.reviews) {
+      const reviewId = api_detail_url.split("/").at(-2);
+      if (!reviewId) continue;
+      const review = await this.request<ReviewResult>("review", reviewId, {});
+      console.log(review.data);
+      reviews.push({
+        metadataSource: MetadataSource.GiantBomb,
+        metadataId: reviewId,
+        mReviewCount: 1,
+        mReviewRating: review.data.results.score / 5,
+        mReviewHref: review.data.results.site_detail_url,
+      });
+    }
+
     const metadata: GameMetadata = {
       id: gameData.guid,
       name: gameData.name,
@@ -207,7 +234,7 @@ export class GiantBombProvider implements MetadataProvider {
 
       tags: [],
 
-      reviews: [],
+      reviews,
 
       publishers,
       developers,

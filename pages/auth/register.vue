@@ -211,17 +211,19 @@ const confirmPassword = ref(undefined);
 
 const emailValidator = type("string.email");
 const validEmail = computed(
-  () => !(emailValidator(email.value) instanceof type.errors),
+  () => !((emailValidator(email.value) as unknown) instanceof type.errors),
 );
 
 const usernameValidator = type("string.alphanumeric >= 5").to("string.lower");
 const validUsername = computed(
-  () => !(usernameValidator(username.value) instanceof type.errors),
+  () =>
+    !((usernameValidator(username.value) as unknown) instanceof type.errors),
 );
 
 const passwordValidator = type("string >= 14");
 const validPassword = computed(
-  () => !(passwordValidator(password.value) instanceof type.errors),
+  () =>
+    !((passwordValidator(password.value) as unknown) instanceof type.errors),
 );
 const validConfirmPassword = computed(
   () => password.value == confirmPassword.value,

@@ -22,5 +22,17 @@ export default defineEventHandler(async (h3) => {
   if (!game)
     throw createError({ statusCode: 404, statusMessage: "Game not found" });
 
-  return game;
+  const rating = await prisma.gameRating.aggregate({
+    where: {
+      gameId: game.id,
+    },
+    _avg: {
+      mReviewRating: true,
+    },
+    _sum: {
+      mReviewCount: true,
+    },
+  });
+
+  return { game, rating };
 });

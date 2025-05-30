@@ -59,5 +59,5 @@ export default defineEventHandler(async (h3) => {
 
   const gameReadStream = fs.createReadStream(gameFile, { start, end: end - 1 }); // end needs to be offset by 1
 
-  return gameReadStream;
+  return sendStream(h3, gameReadStream);
 });

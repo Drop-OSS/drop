@@ -18,7 +18,7 @@ export default defineEventHandler(async (h3) => {
     throw createError({
       statusCode: 404,
     });
-  else if (result.userId !== userId)
+  if (result.userId !== userId)
     throw createError({
       statusCode: 404,
     });
