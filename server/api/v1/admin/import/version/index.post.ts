@@ -51,12 +51,6 @@ export default defineEventHandler(async (h3) => {
       });
   }
 
-  if (umuId && typeof umuId !== "string")
-    throw createError({
-      statusCode: 400,
-      statusMessage: "If specified, UMU ID must be a string.",
-    });
-
   if (onlySetup) {
     if (!setup)
       throw createError({
