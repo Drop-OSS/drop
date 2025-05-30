@@ -218,7 +218,6 @@ class LibraryManager {
     },
   ) {
     const taskId = `import:${gameId}:${versionName}`;
-    const taskGroup = `import:game`;
 
     const platform = parsePlatform(metadata.platform);
     if (!platform) return undefined;
@@ -234,7 +233,7 @@ class LibraryManager {
 
     taskHandler.create({
       id: taskId,
-      taskGroup: taskGroup,
+      taskGroup: "import:game",
       name: `Importing version ${versionName} for ${game.mName}`,
       acls: ["system:import:version:read"],
       async run({ progress, log }) {

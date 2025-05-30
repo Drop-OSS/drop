@@ -6,20 +6,16 @@ import cleanupInvites from "./registry/invitations";
 import cleanupSessions from "./registry/sessions";
 import checkUpdate from "./registry/update";
 import cleanupObjects from "./registry/objects";
+import { taskGroups, type TaskGroup } from "./group";
 
-/**
- * The TaskHandler setups up two-way connections to web clients and manages the state for them
- * This allows long-running tasks (like game imports and such) to report progress, success and error states
- * easily without re-inventing the wheel every time.
- */
-
-type TaskPoolEntry = {
+// a task that has been run
+type FinishedTask = {
   success: boolean;
   progress: number;
   log: string[];
   error: { title: string; description: string } | undefined;
-  clients: Map<string, boolean>;
   name: string;
+  taskGroup: TaskGroup;
   acls: string[];
 
   // ISO timestamp of when the task started
@@ -28,11 +24,23 @@ type TaskPoolEntry = {
   endTime: string | undefined;
 };
 
+// a currently running task in the pool
+type TaskPoolEntry = FinishedTask & {
+  clients: Map<string, boolean>;
+};
+
+/**
+ * The TaskHandler setups up two-way connections to web clients and manages the state for them
+ * This allows long-running tasks (like game imports and such) to report progress, success and error states
+ * easily without re-inventing the wheel every time.
+ */
 class TaskHandler {
   // registry of schedualed tasks to be created
-  private scheduledTasks: Map<string, () => Task> = new Map();
+  private scheduledTasks: Map<TaskGroup, () => Task> = new Map();
+  // list of all finished tasks
+  private finishedTasks: Map<string, FinishedTask> = new Map();
 
-  // list of all tasks currently running
+  // list of all currently running tasks
   private taskPool = new Map<string, TaskPoolEntry>();
   // list of all clients currently connected to tasks
   private clientRegistry = new Map<string, PeerImpl>();
@@ -57,6 +65,22 @@ class TaskHandler {
     let updateCollectTimeout: NodeJS.Timeout | undefined;
     let updateCollectResolves: Array<(value: unknown) => void> = [];
     let logOffset: number = 0;
+
+    // if taskgroup disallows concurrency
+    if (!taskGroups[task.taskGroup].concurrency) {
+      for (const existingTask of this.taskPool.values()) {
+        // if a task is already running, we don't want to start another
+        if (existingTask.taskGroup === task.taskGroup) {
+          // TODO: handle this more gracefully, maybe with a queue? should be configurable
+          console.warn(
+            `Task group ${task.taskGroup} does not allow concurrent tasks. Task ${task.id} will not be started.`,
+          );
+          throw new Error(
+            `Task group ${task.taskGroup} does not allow concurrent tasks.`,
+          );
+        }
+      }
+    }
 
     const updateAllClients = (reset = false) =>
       new Promise((r) => {
@@ -111,6 +135,7 @@ class TaskHandler {
 
     this.taskPool.set(task.id, {
       name: task.name,
+      taskGroup: task.taskGroup,
       success: false,
       progress: 0,
       error: undefined,
@@ -145,6 +170,13 @@ class TaskHandler {
         if (!this.clientRegistry.get(clientId)) continue;
         this.disconnect(clientId, task.id);
       }
+
+      // so we can drop the clients from the task entry
+      const { clients, ...copied } = taskEntry;
+      this.finishedTasks.set(task.id, {
+        ...copied,
+      });
+
       this.taskPool.delete(task.id);
     });
   }
@@ -221,6 +253,9 @@ class TaskHandler {
     return true;
   }
 
+  /**]
+   * Runs all daily tasks that are scheduled to run once a day.
+   */
   triggerDailyTasks() {
     const invites = this.scheduledTasks.get("cleanup:invitations");
     if (invites) {
@@ -244,7 +279,7 @@ export type TaskRunContext = {
 
 export interface Task {
   id: string;
-  taskGroup: string;
+  taskGroup: TaskGroup;
   name: string;
   run: (context: TaskRunContext) => Promise<void>;
   acls: string[];
@@ -266,14 +301,14 @@ export type PeerImpl = {
 
 export interface BuildTask {
   buildId: () => string;
-  taskGroup: string;
+  taskGroup: TaskGroup;
   name: string;
   run: (context: TaskRunContext) => Promise<void>;
   acls: string[];
 }
 
 interface DropTask {
-  taskGroup: string;
+  taskGroup: TaskGroup;
   build: () => Task;
 }
 
