@@ -2,18 +2,14 @@ import tailwindcss from "@tailwindcss/vite";
 import { execSync } from "node:child_process";
 
 // get drop version
-const dropVersion =
-  process.env.BUILD_DROP_VERSION === undefined
-    ? "v0.3.0-alpha.1"
-    : process.env.BUILD_DROP_VERSION;
+const dropVersion = process.env.BUILD_DROP_VERSION ?? "v0.3.0-alpha.1";
 // example nightly: "v0.3.0-nightly.2025.05.28"
 
 // get git ref or supply during build
 const commitHash =
-  process.env.BUILD_GIT_REF === undefined
-    ? execSync("git rev-parse --short HEAD").toString().trim()
-    : process.env.BUILD_GIT_REF;
-
+  process.env.BUILD_GIT_REF ??
+  execSync("git rev-parse --short HEAD").toString().trim();
+  
 console.log(`Building Drop ${dropVersion} #${commitHash}`);
 
 // https://nuxt.com/docs/api/configuration/nuxt-config

@@ -234,7 +234,6 @@ export class MetadataHandler {
         libraryBasePath,
       },
     });
-    // relate companies to game
 
     await pullObjects();
 

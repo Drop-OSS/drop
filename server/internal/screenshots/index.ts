@@ -53,11 +53,12 @@ class ScreenshotManager {
    * @param id
    */
   async delete(id: string) {
-    await prisma.screenshot.delete({
+    const deletedScreenshot = await prisma.screenshot.delete({
       where: {
         id,
       },
     });
+    await objectHandler.deleteAsSystem(deletedScreenshot.objectId);
   }
 
   /**
@@ -74,7 +75,7 @@ class ScreenshotManager {
         // TODO: set createAt to the time screenshot was taken
         createdAt: new Date().toISOString(),
       },
-      [`${userId}:read`, `${userId}:delete`],
+      [`${userId}:read`], // This is a system tracked object, so we don't want users to have direct write access to it
     );
     if (!saveStream)
       throw createError({

@@ -10,7 +10,7 @@
           class="flex flex-col lg:flex-row lg:justify-between items-start lg:items-center gap-2"
         >
           <div class="inline-flex items-center gap-4">
-            <!-- cover image -->
+            <!-- icon image -->
             <img :src="coreMetadataIconUrl" class="size-20" />
             <div>
               <h1 class="text-5xl font-bold font-display text-zinc-100">
