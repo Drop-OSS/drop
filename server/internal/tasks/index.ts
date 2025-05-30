@@ -5,6 +5,7 @@ import aclManager from "../acls";
 import cleanupInvites from "./registry/invitations";
 import cleanupSessions from "./registry/sessions";
 import checkUpdate from "./registry/update";
+import cleanupObjects from "./registry/objects";
 
 /**
  * The TaskHandler setups up two-way connections to web clients and manages the state for them
@@ -35,22 +36,21 @@ class TaskHandler {
   private taskPool = new Map<string, TaskPoolEntry>();
   // list of all clients currently connected to tasks
   private clientRegistry = new Map<string, PeerImpl>();
-  startTasks: (() => void)[] = [];
 
   constructor() {
     // register the cleanup invitations task
     this.saveScheduledTask(cleanupInvites);
     this.saveScheduledTask(cleanupSessions);
     this.saveScheduledTask(checkUpdate);
+    this.saveScheduledTask(cleanupObjects);
   }
 
   /**
    * Saves scheduled task to the registry
    * @param createTask
    */
-  private saveScheduledTask(createTask: () => Task) {
-    const task = createTask();
-    this.scheduledTasks.set(task.taskGroup, createTask);
+  private saveScheduledTask(task: DropTask) {
+    this.scheduledTasks.set(task.taskGroup, task.build);
   }
 
   create(task: Task) {
@@ -272,14 +272,24 @@ export interface BuildTask {
   acls: string[];
 }
 
-export function defineDropTask(buildTask: BuildTask): () => Task {
-  return () => ({
-    id: buildTask.buildId(),
+interface DropTask {
+  taskGroup: string;
+  build: () => Task;
+}
+
+export function defineDropTask(buildTask: BuildTask): DropTask {
+  // TODO: only let one task with the same taskGroup run at the same time if specified
+
+  return {
     taskGroup: buildTask.taskGroup,
-    name: buildTask.name,
-    run: buildTask.run,
-    acls: buildTask.acls,
-  });
+    build: () => ({
+      id: buildTask.buildId(),
+      taskGroup: buildTask.taskGroup,
+      name: buildTask.name,
+      run: buildTask.run,
+      acls: buildTask.acls,
+    }),
+  };
 }
 
 export const taskHandler = new TaskHandler();
