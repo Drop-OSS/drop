@@ -2,13 +2,17 @@ import droplet from "@drop-oss/droplet";
 import type { MinimumRequestObject } from "~/server/h3";
 import aclManager from "../acls";
 
+import cleanupInvites from "./registry/invitations";
+import cleanupSessions from "./registry/sessions";
+import checkUpdate from "./registry/update";
+
 /**
  * The TaskHandler setups up two-way connections to web clients and manages the state for them
  * This allows long-running tasks (like game imports and such) to report progress, success and error states
  * easily without re-inventing the wheel every time.
  */
 
-type TaskRegistryEntry = {
+type TaskPoolEntry = {
   success: boolean;
   progress: number;
   log: string[];
@@ -16,14 +20,38 @@ type TaskRegistryEntry = {
   clients: Map<string, boolean>;
   name: string;
   acls: string[];
+
+  // ISO timestamp of when the task started
+  startTime: string;
+  // ISO timestamp of when the task ended
+  endTime: string | undefined;
 };
 
 class TaskHandler {
-  // TODO: make these maps, using objects like this has performance impacts
-  // https://typescript-eslint.io/rules/no-dynamic-delete/
-  private taskRegistry = new Map<string, TaskRegistryEntry>();
+  // registry of schedualed tasks to be created
+  private scheduledTasks: Map<string, () => Task> = new Map();
+
+  // list of all tasks currently running
+  private taskPool = new Map<string, TaskPoolEntry>();
+  // list of all clients currently connected to tasks
   private clientRegistry = new Map<string, PeerImpl>();
   startTasks: (() => void)[] = [];
+
+  constructor() {
+    // register the cleanup invitations task
+    this.saveScheduledTask(cleanupInvites);
+    this.saveScheduledTask(cleanupSessions);
+    this.saveScheduledTask(checkUpdate);
+  }
+
+  /**
+   * Saves scheduled task to the registry
+   * @param createTask
+   */
+  private saveScheduledTask(createTask: () => Task) {
+    const task = createTask();
+    this.scheduledTasks.set(task.taskGroup, createTask);
+  }
 
   create(task: Task) {
     let updateCollectTimeout: NodeJS.Timeout | undefined;
@@ -37,7 +65,7 @@ class TaskHandler {
           return;
         }
         updateCollectTimeout = setTimeout(() => {
-          const taskEntry = this.taskRegistry.get(task.id);
+          const taskEntry = this.taskPool.get(task.id);
           if (!taskEntry) return;
 
           const taskMessage: TaskMessage = {
@@ -67,20 +95,21 @@ class TaskHandler {
       });
 
     const progress = (progress: number) => {
-      const taskEntry = this.taskRegistry.get(task.id);
+      const taskEntry = this.taskPool.get(task.id);
       if (!taskEntry) return;
       taskEntry.progress = progress;
       updateAllClients();
     };
 
     const log = (entry: string) => {
-      const taskEntry = this.taskRegistry.get(task.id);
+      const taskEntry = this.taskPool.get(task.id);
       if (!taskEntry) return;
       taskEntry.log.push(entry);
+      console.log(`[Task ${task.taskGroup}]: ${entry}`);
       updateAllClients();
     };
 
-    this.taskRegistry.set(task.id, {
+    this.taskPool.set(task.id, {
       name: task.name,
       success: false,
       progress: 0,
@@ -88,12 +117,14 @@ class TaskHandler {
       log: [],
       clients: new Map(),
       acls: task.acls,
+      startTime: new Date().toISOString(),
+      endTime: undefined,
     });
 
     updateAllClients(true);
 
     droplet.callAltThreadFunc(async () => {
-      const taskEntry = this.taskRegistry.get(task.id);
+      const taskEntry = this.taskPool.get(task.id);
       if (!taskEntry) throw new Error("No task entry");
 
       try {
@@ -106,13 +137,15 @@ class TaskHandler {
           description: (error as string).toString(),
         };
       }
+
+      taskEntry.endTime = new Date().toISOString();
       await updateAllClients();
 
       for (const clientId of taskEntry.clients.keys()) {
         if (!this.clientRegistry.get(clientId)) continue;
         this.disconnect(clientId, task.id);
       }
-      this.taskRegistry.delete(task.id);
+      this.taskPool.delete(task.id);
     });
   }
 
@@ -122,7 +155,7 @@ class TaskHandler {
     peer: PeerImpl,
     request: MinimumRequestObject,
   ) {
-    const task = this.taskRegistry.get(taskId);
+    const task = this.taskPool.get(taskId);
     if (!task) {
       peer.send(
         `error/${taskId}/Unknown task/Drop couldn't find the task you're looking for.`,
@@ -160,8 +193,8 @@ class TaskHandler {
   }
 
   disconnectAll(id: string) {
-    for (const taskId of this.taskRegistry.keys()) {
-      this.taskRegistry.get(taskId)?.clients.delete(id);
+    for (const taskId of this.taskPool.keys()) {
+      this.taskPool.get(taskId)?.clients.delete(id);
       this.sendDisconnectEvent(id, taskId);
     }
 
@@ -169,13 +202,13 @@ class TaskHandler {
   }
 
   disconnect(id: string, taskId: string) {
-    const task = this.taskRegistry.get(taskId);
+    const task = this.taskPool.get(taskId);
     if (!task) return false;
 
     task.clients.delete(id);
     this.sendDisconnectEvent(id, taskId);
 
-    const allClientIds = this.taskRegistry
+    const allClientIds = this.taskPool
       .values()
       .toArray()
       .map((e) => e.clients.keys().toArray())
@@ -187,6 +220,21 @@ class TaskHandler {
 
     return true;
   }
+
+  triggerDailyTasks() {
+    const invites = this.scheduledTasks.get("cleanup:invitations");
+    if (invites) {
+      this.create(invites());
+    }
+    const sessions = this.scheduledTasks.get("cleanup:sessions");
+    if (sessions) {
+      this.create(sessions());
+    }
+    const update = this.scheduledTasks.get("check:update");
+    if (update) {
+      this.create(update());
+    }
+  }
 }
 
 export type TaskRunContext = {
@@ -196,6 +244,7 @@ export type TaskRunContext = {
 
 export interface Task {
   id: string;
+  taskGroup: string;
   name: string;
   run: (context: TaskRunContext) => Promise<void>;
   acls: string[];
@@ -214,6 +263,24 @@ export type TaskMessage = {
 export type PeerImpl = {
   send: (message: string) => void;
 };
+
+export interface BuildTask {
+  buildId: () => string;
+  taskGroup: string;
+  name: string;
+  run: (context: TaskRunContext) => Promise<void>;
+  acls: string[];
+}
+
+export function defineDropTask(buildTask: BuildTask): () => Task {
+  return () => ({
+    id: buildTask.buildId(),
+    taskGroup: buildTask.taskGroup,
+    name: buildTask.name,
+    run: buildTask.run,
+    acls: buildTask.acls,
+  });
+}
 
 export const taskHandler = new TaskHandler();
 export default taskHandler;

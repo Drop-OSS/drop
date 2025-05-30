@@ -92,7 +92,7 @@ export default defineNuxtConfig({
     },
 
     scheduledTasks: {
-      "0 * * * *": ["cleanup:invitations", "cleanup:sessions"],
+      "0 * * * *": ["dailyTasks"],
     },
 
     storage: {
