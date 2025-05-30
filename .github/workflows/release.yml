@@ -23,32 +23,23 @@ jobs:
           fetch-tags: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get base tag
-        id: get_base_tag
+      - name: Determine final version
+        id: get_final_ver
         run: |
-          git fetch --tags
-
-          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          echo "Using base tag: $TAG"
-          echo "base_tag=$TAG" >> $GITHUB_OUTPUT
-
-      - name: Determine final tag
-        id: get_final_tag
-        run: |
-          BASE_TAG=${{ steps.get_base_tag.outputs.base_tag }}
+          BASE_VER=v$(jq -r '.version' package.json)
           TODAY=$(date +'%Y.%m.%d')
 
           echo "Today will be: $TODAY"
           echo "today=$TODAY" >> $GITHUB_OUTPUT
 
           if [[ "${{ github.event_name }}" == "release" ]]; then
-            FINAL_TAG="$BASE_TAG"
+            FINAL_VER="$BASE_VER"
           else
-            FINAL_TAG="${BASE_TAG}-nightly.$TODAY"
+            FINAL_VER="${BASE_VER}-nightly.$TODAY"
           fi
 
-          echo "Drop's release tag will be: $FINAL_TAG"
-          echo "final_tag=$FINAL_TAG" >> $GITHUB_OUTPUT
+          echo "Drop's release tag will be: $FINAL_VER"
+          echo "final_ver=$FINAL_VER" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -74,7 +65,7 @@ jobs:
             ghcr.io/drop-OSS/drop
           tags: |
             type=schedule,pattern=nightly
-            type=schedule,pattern=nightly.${{ steps.get_final_tag.outputs.today }}
+            type=schedule,pattern=nightly.${{ steps.get_final_ver.outputs.today }}
             type=semver,pattern=v{{version}}
             type=semver,pattern=v{{major}}.{{minor}}
             type=semver,pattern=v{{major}}
@@ -98,4 +89,4 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            BUILD_DROP_VERSION=${{ steps.get_final_tag.outputs.final_tag }}
+            BUILD_DROP_VERSION=${{ steps.get_final_ver.outputs.final_ver }}
