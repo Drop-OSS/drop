@@ -162,6 +162,7 @@ import {
   Cog6ToothIcon,
   DocumentIcon,
   UserGroupIcon,
+  RectangleStackIcon,
 } from "@heroicons/vue/24/outline";
 import type { NavigationItem } from "~/composables/types";
 import { useCurrentNavigationIndex } from "~/composables/current-page-engine";
@@ -187,6 +188,12 @@ const navigation: Array<NavigationItem & { icon: Component }> = [
     route: "/admin/users",
     prefix: "/admin/users",
     icon: UserGroupIcon,
+  },
+  {
+    label: "Tasks",
+    route: "/admin/task",
+    prefix: "/admin/task",
+    icon: RectangleStackIcon,
   },
   {
     label: "Settings",
