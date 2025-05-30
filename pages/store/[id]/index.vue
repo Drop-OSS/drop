@@ -103,7 +103,9 @@
                       'w-4 h-4',
                     ]"
                   />
-                  <span class="text-zinc-600">({{ 0 }} reviews)</span>
+                  <span class="text-zinc-600"
+                    >({{ rating._sum.mReviewCount ?? 0 }} reviews)</span
+                  >
                 </td>
               </tr>
             </tbody>
@@ -174,10 +176,8 @@
 <script setup lang="ts">
 import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
 import { StarIcon } from "@heroicons/vue/24/solid";
-import type { Game, GameVersion } from "~/prisma/client";
 import { micromark } from "micromark";
 import { DateTime } from "luxon";
-import type { SerializeObject } from "nitropack";
 import type { PlatformClient } from "~/composables/types";
 
 const route = useRoute();
@@ -185,9 +185,7 @@ const gameId = route.params.id.toString();
 
 const user = useUser();
 
-const game = await $dropFetch<
-  SerializeObject<Game> & { versions: GameVersion[] }
->(`/api/v1/games/${gameId}`);
+const { game, rating } = await $dropFetch(`/api/v1/games/${gameId}`);
 
 // Preview description (first 30 lines)
 const showPreview = ref(true);
@@ -219,10 +217,10 @@ const platforms = game.versions
   .filter((e, i, u) => u.indexOf(e) === i);
 
 // const rating = Math.round(game.mReviewRating * 5);
-const rating = Math.round(0 * 5);
+const averageRating = Math.round((rating._avg.mReviewRating ?? 0) * 5);
 const ratingArray = Array(5)
   .fill(null)
-  .map((_, i) => i + 1 <= rating);
+  .map((_, i) => i + 1 <= averageRating);
 
 useHead({
   title: game.mName,

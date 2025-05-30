@@ -355,8 +355,11 @@ export class IGDBProvider implements MetadataProvider {
     const response = await this.request<IGDBGameFull>("games", body);
 
     for (let i = 0; i < response.length; i++) {
+      const currentGame = response[i];
+      if(!currentGame) continue;
+
       let iconRaw;
-      const cover = response[i].cover;
+      const cover = currentGame.cover;
       if (cover !== undefined) {
         iconRaw = await this.getCoverURL(cover);
       } else {
@@ -366,7 +369,7 @@ export class IGDBProvider implements MetadataProvider {
       let banner = "";
 
       const images = [icon];
-      for (const art of response[i]?.artworks ?? []) {
+      for (const art of currentGame.artworks ?? []) {
         // if banner not set
         if (banner.length <= 0) {
           banner = createObject(await this.getArtworkURL(art));
@@ -378,7 +381,7 @@ export class IGDBProvider implements MetadataProvider {
 
       const publishers: Company[] = [];
       const developers: Company[] = [];
-      for (const involvedCompany of response[i]?.involved_companies ?? []) {
+      for (const involvedCompany of currentGame.involved_companies ?? []) {
         // get details about the involved company
         const involved_company_response =
           await this.request<IGDBInvolvedCompany>(
@@ -408,13 +411,13 @@ export class IGDBProvider implements MetadataProvider {
         }
       }
 
-      const firstReleaseDate = response[i].first_release_date;
+      const firstReleaseDate = currentGame.first_release_date;
 
       return {
         id: "" + response[i].id,
         name: response[i].name,
-        shortDescription: this.trimMessage(response[i].summary, 280),
-        description: response[i].summary,
+        shortDescription: this.trimMessage(currentGame.summary, 280),
+        description: currentGame.summary,
         released:
           firstReleaseDate === undefined
             ? new Date()
@@ -422,18 +425,18 @@ export class IGDBProvider implements MetadataProvider {
 
         reviews: [
           {
-            metadataId: "" + response[i].id,
+            metadataId: "" + currentGame.id,
             metadataSource: MetadataSource.IGDB,
-            mReviewCount: response[i]?.total_rating_count ?? 0,
-            mReviewRating: (response[i]?.total_rating ?? 0) / 100,
-            mReviewHref: response[i].url,
+            mReviewCount: currentGame.total_rating_count ?? 0,
+            mReviewRating: (currentGame.total_rating ?? 0) / 100,
+            mReviewHref: currentGame.url,
           },
         ],
 
         publishers: [],
         developers: [],
 
-        tags: await this.getGenres(response[i].genres),
+        tags: await this.getGenres(currentGame.genres),
 
         icon,
         bannerId: banner,

@@ -120,12 +120,11 @@ import {
   ArrowUpRightIcon,
 } from "@heroicons/vue/20/solid";
 import { micromark } from "micromark";
-import type { Game } from "~/prisma/client";
 
 const route = useRoute();
 const id = route.params.id.toString();
 
-const rawGame = await $dropFetch<Game>(`/api/v1/games/${id}`);
+const { game: rawGame } = await $dropFetch(`/api/v1/games/${id}`);
 const game = computed(() => {
   if (!rawGame) {
     throw createError({ statusCode: 404, message: "Game not found" });
