@@ -9,7 +9,7 @@ const dropVersion = process.env.BUILD_DROP_VERSION ?? "v0.3.0-alpha.1";
 const commitHash =
   process.env.BUILD_GIT_REF ??
   execSync("git rev-parse --short HEAD").toString().trim();
-  
+
 console.log(`Building Drop ${dropVersion} #${commitHash}`);
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
@@ -79,6 +79,7 @@ export default defineNuxtConfig({
 
     openAPI: {
       // tracking for dynamic openapi schema https://github.com/nitrojs/nitro/issues/2974
+      // create body from types: https://github.com/nitrojs/nitro/issues/3275
       meta: {
         title: "Drop",
         description:

@@ -1,10 +1,11 @@
 import { type } from "arktype";
+import { throwingArktype } from "~/server/arktype";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 
 const DeleteInvite = type({
   id: "string",
-});
+}).configure(throwingArktype);
 
 export default defineEventHandler<{
   body: typeof DeleteInvite.infer;
@@ -14,16 +15,7 @@ export default defineEventHandler<{
   ]);
   if (!allowed) throw createError({ statusCode: 403 });
 
-  const body = DeleteInvite(await readBody(h3));
-  if (body instanceof type.errors) {
-    // hover out.summary to see validation errors
-    console.error(body.summary);
-
-    throw createError({
-      statusCode: 400,
-      statusMessage: body.summary,
-    });
-  }
+  const body = await readValidatedBody(h3, DeleteInvite);
 
   await prisma.invitation.delete({ where: { id: body.id } });
   return {};

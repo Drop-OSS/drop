@@ -9,6 +9,15 @@ generator client {
   binaryTargets   = ["native", "debian-openssl-3.0.x"]
 }
 
+/**
+ * generator arktype {
+ * provider    = "yarn prismark"
+ * output      = "./validate"
+ * fileName    = "schema.ts"
+ * nullish     = true
+ * }
+ */
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")

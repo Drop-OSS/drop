@@ -34,10 +34,22 @@
   dependencies:
     "@ark/util" "0.45.5"
 
+"@ark/schema@0.46.0":
+  version "0.46.0"
+  resolved "https://registry.yarnpkg.com/@ark/schema/-/schema-0.46.0.tgz#81a1a0dc1ff0f2faa098cba05de505a174bdc64e"
+  integrity sha512-c2UQdKgP2eqqDArfBqQIJppxJHvNNXuQPeuSPlDML4rjw+f1cu0qAlzOG4b8ujgm9ctIDWwhpyw6gjG5ledIVQ==
+  dependencies:
+    "@ark/util" "0.46.0"
+
 "@ark/util@0.45.5":
   version "0.45.5"
   resolved "https://registry.yarnpkg.com/@ark/util/-/util-0.45.5.tgz#7742fa3973bfeea253442a44b51a0ea492c43e51"
   integrity sha512-BbuDOKJJYZ2dzZDNhBavkhgGD2hv4/idEhXpEPA5weOlE9/kU7XwAvEWn74tCuySHrD7peDqe2Ct/EDUlM40qg==
+
+"@ark/util@0.46.0":
+  version "0.46.0"
+  resolved "https://registry.yarnpkg.com/@ark/util/-/util-0.46.0.tgz#aee240bdaf413793e5ca4c4e8e3707aa965f4be3"
+  integrity sha512-JPy/NGWn/lvf1WmGCPw2VGpBg5utZraE84I7wli18EDF3p3zc/e9WolT35tINeZO3l7C77SjqRJeAUoT0CvMRg==
 
 "@babel/code-frame@^7.26.2":
   version "7.26.2"
@@ -752,6 +764,14 @@
   resolved "https://registry.yarnpkg.com/@kwsites/promise-deferred/-/promise-deferred-1.1.1.tgz#8ace5259254426ccef57f3175bc64ed7095ed919"
   integrity sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==
 
+"@lobomfz/prismark@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@lobomfz/prismark/-/prismark-0.0.3.tgz#8b4eb34963e96cf3fff01432e62de22f184f2f2d"
+  integrity sha512-g2xfR/F+sRBRUhWYlpUkafqZjqsQBetjfzdWvQndRU4wdoavn3zblM3OQwb7vrsrKB6Wmbs+DtLGaD5XBQ2v8A==
+  dependencies:
+    "@prisma/generator-helper" "^6.5.0"
+    arktype "^2.1.9"
+
 "@mapbox/node-pre-gyp@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@mapbox/node-pre-gyp/-/node-pre-gyp-2.0.0.tgz#16d1d9049c0218820da81a12ae084e7fe67790d1"
@@ -1390,6 +1410,16 @@
   resolved "https://registry.yarnpkg.com/@prisma/debug/-/debug-6.7.0.tgz#a955174e4f481b0ca5d7c0fd458ef848432afd59"
   integrity sha512-RabHn9emKoYFsv99RLxvfG2GHzWk2ZI1BuVzqYtmMSIcuGboHY5uFt3Q3boOREM9de6z5s3bQoyKeWnq8Fz22w==
 
+"@prisma/debug@6.8.2":
+  version "6.8.2"
+  resolved "https://registry.yarnpkg.com/@prisma/debug/-/debug-6.8.2.tgz#59fb9e0ccb0f431fe7011c36c95f9bfcbe051749"
+  integrity sha512-4muBSSUwJJ9BYth5N8tqts8JtiLT8QI/RSAzEogwEfpbYGFo9mYsInsVo8dqXdPO2+Rm5OG5q0qWDDE3nyUbVg==
+
+"@prisma/dmmf@6.8.2":
+  version "6.8.2"
+  resolved "https://registry.yarnpkg.com/@prisma/dmmf/-/dmmf-6.8.2.tgz#46632cfeda537b37f616febc68fb1ea7ef656fe4"
+  integrity sha512-okGJF/7hQZam/2wt+Y0hPyNxyY5S+L0FzAgtL932Q3YxUWHusRllrN39bCV45oF3QWY992g7rTWYdL2Rynt1qg==
+
 "@prisma/engines-version@6.7.0-36.3cff47a7f5d65c3ea74883f1d736e41d68ce91ed":
   version "6.7.0-36.3cff47a7f5d65c3ea74883f1d736e41d68ce91ed"
   resolved "https://registry.yarnpkg.com/@prisma/engines-version/-/engines-version-6.7.0-36.3cff47a7f5d65c3ea74883f1d736e41d68ce91ed.tgz#4ec7c8ee187924a910ec244e3790412d1069d723"
@@ -1413,6 +1443,20 @@
     "@prisma/debug" "6.7.0"
     "@prisma/engines-version" "6.7.0-36.3cff47a7f5d65c3ea74883f1d736e41d68ce91ed"
     "@prisma/get-platform" "6.7.0"
+
+"@prisma/generator-helper@^6.5.0":
+  version "6.8.2"
+  resolved "https://registry.yarnpkg.com/@prisma/generator-helper/-/generator-helper-6.8.2.tgz#09a72522384690223d4a047f71667eeb36d5ae70"
+  integrity sha512-KBLW47sbwFBKKYMiICIAEWsG6TdpPapPT7e7hpmpF3xMgYAm6YIXu4JGwfQVDY9Vbcb+0vPdPdSEQtInYOOe5g==
+  dependencies:
+    "@prisma/debug" "6.8.2"
+    "@prisma/dmmf" "6.8.2"
+    "@prisma/generator" "6.8.2"
+
+"@prisma/generator@6.8.2":
+  version "6.8.2"
+  resolved "https://registry.yarnpkg.com/@prisma/generator/-/generator-6.8.2.tgz#6b523cc9107293d848cd59482271806dafe629bc"
+  integrity sha512-yExkvgqiKg1WHzjYttz40g5DsOtud8RhapM0Mum6pw+wrDoQyhSAxs5NHyFCV+9VPvRd2v+jAP2CTT07bsibjw==
 
 "@prisma/get-platform@6.7.0":
   version "6.7.0"
@@ -2375,6 +2419,14 @@ arktype@^2.1.10:
   dependencies:
     "@ark/schema" "0.45.5"
     "@ark/util" "0.45.5"
+
+arktype@^2.1.9:
+  version "2.1.20"
+  resolved "https://registry.yarnpkg.com/arktype/-/arktype-2.1.20.tgz#dd46726b0faf23c2753369876c77bb037e7089d9"
+  integrity sha512-IZCEEXaJ8g+Ijd59WtSYwtjnqXiwM8sWQ5EjGamcto7+HVN9eK0C4p0zDlCuAwWhpqr6fIBkxPuYDl4/Mcj/+Q==
+  dependencies:
+    "@ark/schema" "0.46.0"
+    "@ark/util" "0.46.0"
 
 ast-kit@^1.0.1, ast-kit@^1.4.0:
   version "1.4.2"

@@ -1,33 +1,39 @@
+import { type } from "arktype";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import libraryManager from "~/server/internal/library";
 import { parsePlatform } from "~/server/internal/utils/parseplatform";
 
+const ImportVersion = type({
+  id: "string",
+  version: "string",
+
+  platform: "string",
+  launch: "string?",
+  launchArgs: "string?",
+  setup: "string?",
+  setupArgs: "string?",
+  onlySetup: "boolean?",
+  delta: "boolean?",
+  umuId: "string?",
+});
+
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["import:version:new"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
-  const body = await readBody(h3);
+  const body = await readValidatedBody(h3, ImportVersion);
   const gameId = body.id;
   const versionName = body.version;
 
-  const platform = body.platform as string | undefined;
-  const launch = (body.launch ?? "") as string;
-  const launchArgs = (body.launchArgs ?? "") as string;
-  const setup = (body.setup ?? "") as string;
-  const setupArgs = (body.setupArgs ?? "") as string;
-  const onlySetup = body.onlySetup ?? (false as boolean);
-  const delta = (body.delta ?? false) as boolean;
-  const umuId = (body.umuId ?? "") as string;
-
-  if (!gameId || !versionName)
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Game ID and version are required.",
-    });
-
-  if (!platform)
-    throw createError({ statusCode: 400, statusMessage: "Missing platform." });
+  const platform = body.platform;
+  const launch = body.launch ?? "";
+  const launchArgs = body.launchArgs ?? "";
+  const setup = body.setup ?? "";
+  const setupArgs = body.setupArgs ?? "";
+  const onlySetup = body.onlySetup ?? false;
+  const delta = body.delta ?? false;
+  const umuId = body.umuId ?? "";
 
   const platformParsed = parsePlatform(platform);
   if (!platformParsed)
