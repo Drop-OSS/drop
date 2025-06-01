@@ -6,5 +6,10 @@ export default defineEventHandler(async (h3) => {
   if (!allowed) throw createError({ statusCode: 403 });
 
   const unimportedGames = await libraryManager.fetchAllUnimportedGames();
-  return { unimportedGames };
+  const iterableUnimportedGames = Object.entries(unimportedGames)
+    .map(([libraryId, gameArray]) =>
+      gameArray.map((e) => ({ game: e, library: libraryId })),
+    )
+    .flat();
+  return { unimportedGames: iterableUnimportedGames };
 });

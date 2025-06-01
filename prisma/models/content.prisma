@@ -29,8 +29,13 @@ model Game {
     mImageCarouselObjectIds String[] // linked to below array
     mImageLibraryObjectIds  String[] // linked to objects in s3
 
-    versions        GameVersion[]
-    libraryBasePath String        @unique // Base dir for all the game versions
+    versions GameVersion[]
+
+    // These fields will not be optional in the next version
+    // Any game without a library ID will be assigned one at startup, based on the defaults
+    libraryId   String?
+    library     Library? @relation(fields: [libraryId], references: [id])
+    libraryPath String
 
     collections CollectionEntry[]
     saves       SaveSlot[]
@@ -42,6 +47,7 @@ model Game {
     publishers Company[] @relation(name: "publishers")
 
     @@unique([metadataSource, metadataId], name: "metadataKey")
+    @@unique([libraryId, libraryPath], name: "libraryKey")
 }
 
 model GameRating {

@@ -14,10 +14,7 @@
         version.
       </p>
     </div>
-    <div
-      v-if="libraryState.unimportedGames.length > 0"
-      class="rounded-md bg-blue-600/10 p-4"
-    >
+    <div v-if="toImport" class="rounded-md bg-blue-600/10 p-4">
       <div class="flex">
         <div class="flex-shrink-0">
           <InformationCircleIcon
@@ -186,6 +183,9 @@ useHead({
 const searchQuery = ref("");
 
 const libraryState = await $dropFetch("/api/v1/admin/library");
+
+const toImport = ref(Object.entries(libraryState.unimportedGames).length > 0);
+
 const libraryGames = ref(
   libraryState.games.map((e) => {
     const noVersions = e.status.noVersions;
@@ -219,5 +219,6 @@ async function deleteGame(id: string) {
   await $dropFetch(`/api/v1/admin/game?id=${id}`, { method: "DELETE" });
   const index = libraryGames.value.findIndex((e) => e.id === id);
   libraryGames.value.splice(index, 1);
+  toImport.value = true;
 }
 </script>

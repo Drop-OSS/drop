@@ -1,7 +1,7 @@
 model ApplicationSettings {
     timestamp DateTime @id @default(now())
 
-    metadataProviders             String[]
+    metadataProviders String[]
 
     saveSlotCountLimit   Int   @default(5)
     saveSlotSizeLimit    Float @default(10) // MB
@@ -12,4 +12,18 @@ enum Platform {
     Windows @map("windows")
     Linux   @map("linux")
     macOS   @map("macos")
+}
+
+enum LibraryBackend {
+    Filesystem
+}
+
+model Library {
+    id   String @id @default(uuid())
+    name String
+
+    backend LibraryBackend
+    options Json
+
+    games    Game[]
 }
