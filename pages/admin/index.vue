@@ -28,7 +28,7 @@
           </p>
 
           <div
-            v-if="libraryState.unimportedGames.length > 0"
+            v-if="toImport"
             class="mt-2 rounded-md bg-blue-600/10 p-4"
           >
             <div class="flex">
@@ -177,4 +177,5 @@ useHead({
 });
 
 const libraryState = await $dropFetch("/api/v1/admin/library");
+const toImport = Object.entries(libraryState.unimportedGames).length > 0;
 </script>

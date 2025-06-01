@@ -89,10 +89,10 @@ class LibraryManager {
         game: e,
         status: {
           noVersions: e.versions.length == 0,
-          unimportedVersions: await this.fetchUnimportedGameVersions(
+          unimportedVersions: (await this.fetchUnimportedGameVersions(
             e.libraryId ?? "",
             e.libraryPath,
-          ),
+          ))!,
         },
       })),
     );
