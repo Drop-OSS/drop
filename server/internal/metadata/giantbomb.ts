@@ -60,7 +60,7 @@ interface GameResult {
     original: string;
   }>;
 
-  reviews: Array<{
+  reviews?: Array<{
     api_detail_url: string;
   }>;
 }
@@ -211,20 +211,20 @@ export class GiantBombProvider implements MetadataProvider {
         ).toJSDate();
 
     const reviews: GameMetadataRating[] = [];
-    for (const { api_detail_url } of gameData.reviews) {
-      const reviewId = api_detail_url.split("/").at(-2);
-      if (!reviewId) continue;
-      const review = await this.request<ReviewResult>("review", reviewId, {});
-      console.log(review.data);
-      reviews.push({
-        metadataSource: MetadataSource.GiantBomb,
-        metadataId: reviewId,
-        mReviewCount: 1,
-        mReviewRating: review.data.results.score / 5,
-        mReviewHref: review.data.results.site_detail_url,
-      });
+    if (gameData.reviews) {
+      for (const { api_detail_url } of gameData.reviews) {
+        const reviewId = api_detail_url.split("/").at(-2);
+        if (!reviewId) continue;
+        const review = await this.request<ReviewResult>("review", reviewId, {});
+        reviews.push({
+          metadataSource: MetadataSource.GiantBomb,
+          metadataId: reviewId,
+          mReviewCount: 1,
+          mReviewRating: review.data.results.score / 5,
+          mReviewHref: review.data.results.site_detail_url,
+        });
+      }
     }
-
     const metadata: GameMetadata = {
       id: gameData.guid,
       name: gameData.name,

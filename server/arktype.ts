@@ -2,7 +2,7 @@ import { configure } from "arktype/config";
 
 export const throwingArktype = configure({
   onFail: (errors) => errors.throw(),
-  actual: () => ""
+  actual: () => "",
 });
 
 // be sure to specify both the runtime and static configs
