@@ -7,7 +7,7 @@ import { FilesystemProvider } from "../internal/library/filesystem";
 import libraryManager from "../internal/library";
 import path from "path";
 
-const libraryConstructors: {
+export const libraryConstructors: {
   [key in LibraryBackend]: (
     value: JsonValue,
     id: string,

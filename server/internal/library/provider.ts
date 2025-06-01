@@ -5,7 +5,7 @@ export abstract class LibraryProvider<CFG> {
   constructor(_config: CFG, _id: string) {
     throw new Error("Library doesn't have a proper constructor");
   }
-
+  
   /**
    * @returns ID of the current library provider (fs, smb, s3, etc)
    */
