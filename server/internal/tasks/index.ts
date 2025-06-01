@@ -253,22 +253,22 @@ class TaskHandler {
     return true;
   }
 
+  runTaskGroupByName(name: TaskGroup) {
+    const task = this.scheduledTasks.get(name);
+    if (!task) {
+      console.warn(`No task found for group ${name}`);
+      return;
+    }
+    this.create(task());
+  }
+
   /**]
    * Runs all daily tasks that are scheduled to run once a day.
    */
   triggerDailyTasks() {
-    const invites = this.scheduledTasks.get("cleanup:invitations");
-    if (invites) {
-      this.create(invites());
-    }
-    const sessions = this.scheduledTasks.get("cleanup:sessions");
-    if (sessions) {
-      this.create(sessions());
-    }
-    const update = this.scheduledTasks.get("check:update");
-    if (update) {
-      this.create(update());
-    }
+    this.runTaskGroupByName("cleanup:invitations");
+    this.runTaskGroupByName("cleanup:sessions");
+    this.runTaskGroupByName("check:update");
   }
 }
 
