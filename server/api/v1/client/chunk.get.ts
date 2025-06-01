@@ -1,9 +1,13 @@
+import cacheHandler from "~/server/internal/cache";
 import prisma from "~/server/internal/db/database";
-import fs from "fs";
-import path from "path";
 import libraryManager from "~/server/internal/library";
 
 const chunkSize = 1024 * 1024 * 64;
+
+const gameLookupCache = cacheHandler.createCache<{
+  libraryId: string | null;
+  libraryPath: string;
+}>("downloadGameLookupCache");
 
 export default defineEventHandler(async (h3) => {
   const query = getQuery(h3);
@@ -18,36 +22,40 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Invalid chunk arguments",
     });
 
-  const game = await prisma.game.findUnique({
-    where: {
-      id: gameId,
-    },
-    select: {
-      libraryBasePath: true,
-    },
-  });
-  if (!game)
-    throw createError({ statusCode: 400, statusMessage: "Invalid game ID" });
+  let game = await gameLookupCache.getItem(gameId);
+  if (!game) {
+    game = await prisma.game.findUnique({
+      where: {
+        id: gameId,
+      },
+      select: {
+        libraryId: true,
+        libraryPath: true,
+      },
+    });
+    if (!game || !game.libraryId)
+      throw createError({ statusCode: 400, statusMessage: "Invalid game ID" });
 
-  const versionDir = path.join(
-    libraryManager.fetchLibraryPath(),
-    game.libraryBasePath,
-    versionName,
-  );
-  if (!fs.existsSync(versionDir))
+    await gameLookupCache.setItem(gameId, game);
+  }
+
+  if (!game.libraryId)
     throw createError({
-      statusCode: 400,
-      statusMessage: "Invalid version name",
+      statusCode: 500,
+      statusMessage: "Somehow, we got here.",
     });
 
-  const gameFile = path.join(versionDir, filename);
-  if (!fs.existsSync(gameFile))
-    throw createError({ statusCode: 400, statusMessage: "Invalid game file" });
-
-  const gameFileStats = fs.statSync(gameFile);
+  const peek = await libraryManager.peekFile(
+    game.libraryId,
+    game.libraryPath,
+    versionName,
+    filename,
+  );
+  if (!peek)
+    throw createError({ status: 400, statusMessage: "Failed to peek file" });
 
   const start = chunkIndex * chunkSize;
-  const end = Math.min((chunkIndex + 1) * chunkSize, gameFileStats.size);
+  const end = Math.min((chunkIndex + 1) * chunkSize, peek.size);
   const currentChunkSize = end - start;
   setHeader(h3, "Content-Length", currentChunkSize);
 
@@ -57,7 +65,18 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Invalid chunk index",
     });
 
-  const gameReadStream = fs.createReadStream(gameFile, { start, end: end - 1 }); // end needs to be offset by 1
+  const gameReadStream = await libraryManager.readFile(
+    game.libraryId,
+    game.libraryPath,
+    versionName,
+    filename,
+    { start, end: end - 1 },
+  ); // end needs to be offset by 1
+  if (!gameReadStream)
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Failed to create stream",
+    });
 
   return sendStream(h3, gameReadStream);
 });

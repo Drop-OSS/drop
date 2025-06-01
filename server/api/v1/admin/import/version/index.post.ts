@@ -9,31 +9,31 @@ const ImportVersion = type({
   version: "string",
 
   platform: "string",
-  launch: "string?",
-  launchArgs: "string?",
-  setup: "string?",
-  setupArgs: "string?",
-  onlySetup: "boolean?",
-  delta: "boolean?",
-  umuId: "string?",
+  launch: "string = ''",
+  launchArgs: "string = ''",
+  setup: "string = ''",
+  setupArgs: "string = ''",
+  onlySetup: "boolean = false",
+  delta: "boolean = false",
+  umuId: "string = ''",
 });
 
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["import:version:new"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
-  const body = await readValidatedBody(h3, ImportVersion);
-  const gameId = body.id;
-  const versionName = body.version;
-
-  const platform = body.platform;
-  const launch = body.launch ?? "";
-  const launchArgs = body.launchArgs ?? "";
-  const setup = body.setup ?? "";
-  const setupArgs = body.setupArgs ?? "";
-  const onlySetup = body.onlySetup ?? false;
-  const delta = body.delta ?? false;
-  const umuId = body.umuId ?? "";
+  const {
+    id,
+    version,
+    platform,
+    launch,
+    launchArgs,
+    setup,
+    setupArgs,
+    onlySetup,
+    delta,
+    umuId,
+  } = await readValidatedBody(h3, ImportVersion);
 
   const platformParsed = parsePlatform(platform);
   if (!platformParsed)
@@ -41,7 +41,7 @@ export default defineEventHandler(async (h3) => {
 
   if (delta) {
     const validOverlayVersions = await prisma.gameVersion.count({
-      where: { gameId: gameId, platform: platformParsed, delta: false },
+      where: { gameId: id, platform: platformParsed, delta: false },
     });
     if (validOverlayVersions == 0)
       throw createError({
@@ -66,7 +66,7 @@ export default defineEventHandler(async (h3) => {
   }
 
   // startup & delta require more complex checking logic
-  const taskId = await libraryManager.importVersion(gameId, versionName, {
+  const taskId = await libraryManager.importVersion(id, version, {
     platform,
     onlySetup,
 

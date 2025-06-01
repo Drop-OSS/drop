@@ -97,18 +97,15 @@ export class MetadataHandler {
     return successfulResults;
   }
 
-  async createGameWithoutMetadata(libraryBasePath: string) {
+  async createGameWithoutMetadata(libraryId: string, libraryPath: string) {
     return await this.createGame(
       {
         id: "",
-        name: libraryBasePath,
-        icon: "",
-        description: "",
-        year: 0,
+        name: libraryPath,
         sourceId: "manual",
-        sourceName: "Manual",
       },
-      libraryBasePath,
+      libraryId,
+      libraryPath,
     );
   }
 
@@ -165,8 +162,9 @@ export class MetadataHandler {
   }
 
   async createGame(
-    result: InternalGameMetadataResult,
-    libraryBasePath: string,
+    result: { sourceId: string; id: string; name: string },
+    libraryId: string,
+    libraryPath: string,
   ) {
     const provider = this.providers.get(result.sourceId);
     if (!provider)
@@ -231,7 +229,8 @@ export class MetadataHandler {
           connectOrCreate: this.parseTags(metadata.tags),
         },
 
-        libraryBasePath,
+        libraryId,
+        libraryPath,
       },
     });
 
