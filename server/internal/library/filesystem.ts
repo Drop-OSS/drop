@@ -30,7 +30,9 @@ export class FilesystemProvider
 
     this.myId = id;
     this.config = config;
-    fs.mkdirSync(this.config.baseDir, { recursive: true });
+
+    if (!fs.existsSync(this.config.baseDir))
+      throw "Base directory does not exist.";
   }
 
   id(): string {

@@ -20,6 +20,19 @@ class LibraryManager {
     this.libraries.set(library.id(), library);
   }
 
+  removeLibrary(id: string) {
+    this.libraries.delete(id);
+  }
+
+  async fetchLibraries() {
+    const libraries = await prisma.library.findMany({});
+    const libraryWithMetadata = libraries.map((e) => ({
+      ...e,
+      working: this.libraries.has(e.id),
+    }));
+    return libraryWithMetadata;
+  }
+
   async fetchAllUnimportedGames() {
     const unimportedGames: { [key: string]: string[] } = {};
 

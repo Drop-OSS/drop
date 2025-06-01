@@ -49,6 +49,11 @@ export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
   "auth:simple:invitation:delete": "Delete a simple auth invitation.",
 
   "library:read": "Fetch a list of all games on this instance.",
+  "library:sources:read":
+    "Fetch a list of all library sources on this instance",
+  "library:sources:new": "Create a new library source.",
+  "library:sources:update": "Update existing library sources.",
+  "library:sources:delete": "Delete library sources.",
 
   "notifications:read": "Read system notifications.",
   "notifications:mark": "Mark system notifications as read.",

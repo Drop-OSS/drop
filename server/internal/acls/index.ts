@@ -50,6 +50,11 @@ export const systemACLs = [
   "notifications:delete",
 
   "library:read",
+  "library:sources:read",
+  "library:sources:new",
+  "library:sources:update",
+  "library:sources:delete",
+
   "game:read",
   "game:update",
   "game:delete",
