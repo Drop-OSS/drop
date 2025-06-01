@@ -1,6 +1,8 @@
 <template>
   <div class="w-full flex flex-col overflow-x-hidden">
-    <h1 class="text-gray-100">{{ $t("welcome") }}</h1>
+    <DevOnly
+      ><h1 class="text-gray-100">{{ $t("welcome") }}</h1>
+    </DevOnly>
 
     <!-- Hero section -->
     <VueCarousel
@@ -26,7 +28,7 @@
           >
             <div class="relative text-center">
               <h3 class="text-base/7 font-semibold text-blue-300">
-                Recently added
+                {{ $t("store.recentlyAdded") }}
               </h3>
               <h2
                 class="text-3xl font-bold tracking-tight text-white sm:text-5xl"
@@ -43,7 +45,7 @@
                   <NuxtLink
                     :href="`/store/${game.id}`"
                     class="block w-full rounded-md border border-transparent bg-white px-8 py-3 text-base font-medium text-gray-900 hover:bg-gray-100 sm:w-auto duration-200 hover:scale-105"
-                    >Check it out</NuxtLink
+                    >{{ $t("store.lookAt") }}</NuxtLink
                   >
                   <AddLibraryButton :game-id="game.id" />
                 </div>
@@ -64,18 +66,18 @@
       <h2
         class="uppercase text-xl font-bold tracking-tight text-zinc-700 sm:text-3xl"
       >
-        no game
+        {{ $t("store.noGame") }}
       </h2>
     </div>
 
     <!-- new releases -->
     <div class="px-4 sm:px-12 py-4">
       <h1 class="text-zinc-100 text-2xl font-bold font-display">
-        Recently released
+        {{ $t("store.recentlyReleased") }}
       </h1>
-      <NuxtLink class="text-blue-600 font-semibold"
-        >Explore more &rarr;</NuxtLink
-      >
+      <NuxtLink class="text-blue-600 font-semibold">{{
+        $t("store.exploreMore")
+      }}</NuxtLink>
       <div class="mt-4">
         <GameCarousel :items="released" :min="12" />
       </div>
@@ -84,11 +86,11 @@
     <!-- recently updated -->
     <div class="px-4 sm:px-12 py-4" hydrate-on-visible>
       <h1 class="text-zinc-100 text-2xl font-bold font-display">
-        Recently updated
+        {{ $t("store.recentlyUpdated") }}
       </h1>
-      <NuxtLink class="text-blue-600 font-semibold"
-        >Explore more &rarr;</NuxtLink
-      >
+      <NuxtLink class="text-blue-600 font-semibold">{{
+        $t("store.exploreMore")
+      }}</NuxtLink>
       <div class="mt-4">
         <GameCarousel :items="updated" :min="12" />
       </div>

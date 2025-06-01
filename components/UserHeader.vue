@@ -204,28 +204,29 @@ import { Bars3Icon } from "@heroicons/vue/24/outline";
 import { XMarkIcon } from "@heroicons/vue/24/solid";
 
 const router = useRouter();
+const { t } = useI18n();
 
 const homepageURL = "/store";
 const navigation: Array<NavigationItem> = [
   {
     prefix: "/store",
     route: "/store",
-    label: "Store",
+    label: t("userHeader.links.store"),
   },
   {
     prefix: "/library",
     route: "/library",
-    label: "Library",
+    label: t("userHeader.links.library"),
   },
   {
     prefix: "/community",
     route: "/community",
-    label: "Community",
+    label: t("userHeader.links.community"),
   },
   {
     prefix: "/news",
     route: "/news",
-    label: "News",
+    label: t("userHeader.links.news"),
   },
 ];
 

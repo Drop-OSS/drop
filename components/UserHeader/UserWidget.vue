@@ -67,7 +67,7 @@
                 ]"
                 href="/auth/signout"
               >
-                Signout
+                {{ $t("userHeader.profile.signout") }}
               </a>
             </MenuItem>
           </div>
@@ -84,17 +84,18 @@ import { useObject } from "~/composables/objects";
 import type { NavigationItem } from "~/composables/types";
 
 const user = useUser();
+const { t } = useI18n();
 
 const navigation: NavigationItem[] = [
   user.value?.admin
     ? {
-        label: "Admin Dashboard",
+        label: t("userHeader.profile.admin"),
         route: "/admin",
         prefix: "",
       }
     : undefined,
   {
-    label: "Account settings",
+    label: t("userHeader.profile.settings"),
     route: "/account",
     prefix: "",
   },

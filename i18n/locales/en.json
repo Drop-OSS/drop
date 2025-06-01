@@ -1,4 +1,30 @@
 {
   "welcome": "Welcome",
-  "shared": "Shared between all locales"
+  "shared": "Shared between all en locales",
+  "userHeader": {
+    "links": {
+      "store": "Store",
+      "library": "Library",
+      "community": "Community",
+      "news": "News"
+    },
+    "notifications": {
+      "unread": "Unread Notifications",
+      "all": "View all →",
+      "none": "No notifications"
+    },
+    "profile": {
+      "signout": "Signout",
+      "admin": "Admin Dashboard",
+      "settings": "Account settings"
+    }
+  },
+  "store": {
+    "recentlyAdded": "Recently Added",
+    "lookAt": "Check it out",
+    "noGame": "no game",
+    "recentlyReleased": "Recently released",
+    "exploreMore": "Explore more →",
+    "recentlyUpdated": "Recently Updated"
+  }
 }

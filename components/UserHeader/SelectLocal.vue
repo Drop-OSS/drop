@@ -16,7 +16,7 @@ const { locales, locale: currLocale, setLocale } = useI18n();
             class="w-5 h-5 rounded-sm"
             :text="localToEmoji(currLocale)"
           /> -->
-          {{ currLocale }}
+          {{ localToEmoji(currLocale) }}
           <!-- <span class="ml-2 text-sm font-bold">{{ locale }}</span> -->
           <ChevronDownIcon class="ml-3 h-4" />
         </div>
