@@ -46,6 +46,12 @@ export abstract class LibraryProvider<CFG> {
     log: (err: Error | null, v: string) => void,
   ): Promise<string>;
 
+  abstract peekFile(
+    game: string,
+    version: string,
+    filename: string,
+  ): Promise<{ size: number } | undefined>;
+
   abstract readFile(
     game: string,
     version: string,

@@ -13,7 +13,7 @@
           class="relative w-full cursor-default rounded-md bg-zinc-950 py-1.5 pl-3 pr-10 text-left text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6"
         >
           <span v-if="currentlySelectedGame != -1" class="block truncate">{{
-            games.unimportedGames[currentlySelectedGame]
+            games.unimportedGames[currentlySelectedGame].game
           }}</span>
           <span v-else class="block truncate text-zinc-400"
             >Please select a directory...</span

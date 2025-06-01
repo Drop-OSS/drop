@@ -22,6 +22,7 @@ const libraryConstructors: {
 };
 
 export default defineNitroPlugin(async () => {
+  let successes = 0;
   const libraries = await prisma.library.findMany({});
 
   // Add migration handler
@@ -40,6 +41,16 @@ export default defineNitroPlugin(async () => {
     });
 
     libraries.push(library);
+
+    // Update all existing games
+    await prisma.game.updateMany({
+      where: {
+        libraryId: null,
+      },
+      data: {
+        libraryId: library.id,
+      },
+    });
   }
 
   for (const library of libraries) {
@@ -47,10 +58,17 @@ export default defineNitroPlugin(async () => {
     try {
       const provider = constructor(library.options, library.id);
       libraryManager.addLibrary(provider);
+      successes++;
     } catch (e) {
       console.warn(
         `Failed to create library (${library.id}) of type ${library.backend}:\n ${e}`,
       );
     }
+  }
+
+  if (successes == 0) {
+    console.warn(
+      "No library was successfully initialised. Please check for errors. If you have just set up an instance, this is normal.",
+    );
   }
 });

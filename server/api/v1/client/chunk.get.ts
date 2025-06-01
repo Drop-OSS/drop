@@ -1,7 +1,13 @@
+import cacheHandler from "~/server/internal/cache";
 import prisma from "~/server/internal/db/database";
 import libraryManager from "~/server/internal/library";
 
 const chunkSize = 1024 * 1024 * 64;
+
+const gameLookupCache = cacheHandler.createCache<{
+  libraryId: string | null;
+  libraryPath: string;
+}>("downloadGameLookupCache");
 
 export default defineEventHandler(async (h3) => {
   const query = getQuery(h3);
@@ -16,20 +22,40 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Invalid chunk arguments",
     });
 
-  const game = await prisma.game.findUnique({
-    where: {
-      id: gameId,
-    },
-    select: {
-      libraryId: true,
-      libraryPath: true,
-    },
-  });
-  if (!game || !game.libraryId)
-    throw createError({ statusCode: 400, statusMessage: "Invalid game ID" });
+  let game = await gameLookupCache.getItem(gameId);
+  if (!game) {
+    game = await prisma.game.findUnique({
+      where: {
+        id: gameId,
+      },
+      select: {
+        libraryId: true,
+        libraryPath: true,
+      },
+    });
+    if (!game || !game.libraryId)
+      throw createError({ statusCode: 400, statusMessage: "Invalid game ID" });
+
+    await gameLookupCache.setItem(gameId, game);
+  }
+
+  if (!game.libraryId)
+    throw createError({
+      statusCode: 500,
+      statusMessage: "Somehow, we got here.",
+    });
+
+  const peek = await libraryManager.peekFile(
+    game.libraryId,
+    game.libraryPath,
+    versionName,
+    filename,
+  );
+  if (!peek)
+    throw createError({ status: 400, statusMessage: "Failed to peek file" });
 
   const start = chunkIndex * chunkSize;
-  const end = chunkIndex + 1;
+  const end = Math.min((chunkIndex + 1) * chunkSize, peek.size);
   const currentChunkSize = end - start;
   setHeader(h3, "Content-Length", currentChunkSize);
 

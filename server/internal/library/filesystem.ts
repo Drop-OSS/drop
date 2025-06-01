@@ -76,7 +76,7 @@ export class FilesystemProvider
     const versionDir = path.join(this.config.baseDir, game, version);
     if (!fs.existsSync(versionDir)) throw new VersionNotFoundError();
     const manifest = await new Promise<string>((r, j) =>
-      droplet.generateManifest(game, progress, log, (err, result) => {
+      droplet.generateManifest(versionDir, progress, log, (err, result) => {
         if (err) return j(err);
         r(result);
       }),
@@ -96,5 +96,12 @@ export class FilesystemProvider
     const stream = fs.createReadStream(filepath, options);
 
     return stream;
+  }
+
+  async peekFile(game: string, version: string, filename: string) {
+    const filepath = path.join(this.config.baseDir, game, version, filename);
+    if (!fs.existsSync(filepath)) return undefined;
+    const stat = fs.statSync(filepath);
+    return { size: stat.size };
   }
 }

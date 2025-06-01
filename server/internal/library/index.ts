@@ -283,6 +283,17 @@ class LibraryManager {
     return taskId;
   }
 
+  async peekFile(
+    libraryId: string,
+    game: string,
+    version: string,
+    filename: string,
+  ) {
+    const library = this.libraries.get(libraryId);
+    if (!library) return undefined;
+    return library.peekFile(game, version, filename);
+  }
+
   async readFile(
     libraryId: string,
     game: string,
