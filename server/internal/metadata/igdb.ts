@@ -356,7 +356,7 @@ export class IGDBProvider implements MetadataProvider {
 
     for (let i = 0; i < response.length; i++) {
       const currentGame = response[i];
-      if(!currentGame) continue;
+      if (!currentGame) continue;
 
       let iconRaw;
       const cover = currentGame.cover;

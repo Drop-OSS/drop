@@ -3,7 +3,6 @@ import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import { handleFileUpload } from "~/server/internal/utils/handlefileupload";
 
-
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["game:update"]);
   if (!allowed) throw createError({ statusCode: 403 });
