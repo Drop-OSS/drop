@@ -33,11 +33,12 @@ export default defineEventHandler(async (h3) => {
     },
   });
 
-  if (!game)
+  if (!game || !game.libraryId)
     throw createError({ statusCode: 404, statusMessage: "Game ID not found" });
 
-  const unimportedVersions = await libraryManager.fetchUnimportedVersions(
-    game.id,
+  const unimportedVersions = await libraryManager.fetchUnimportedGameVersions(
+    game.libraryId,
+    game.libraryPath,
   );
 
   return { game, unimportedVersions };

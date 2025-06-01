@@ -5,20 +5,20 @@
  * It also provides the endpoints with information about unmatched games
  */
 
-import fs from "fs";
 import path from "path";
 import prisma from "../db/database";
-import type { GameVersion } from "~/prisma/client";
 import { fuzzy } from "fast-fuzzy";
-import { recursivelyReaddir } from "../utils/recursivedirs";
 import taskHandler from "../tasks";
 import { parsePlatform } from "../utils/parseplatform";
-import droplet from "@drop-oss/droplet";
 import notificationSystem from "../notifications";
 import type { LibraryProvider } from "./provider";
 
 class LibraryManager {
   private libraries: Map<string, LibraryProvider<unknown>> = new Map();
+
+  addLibrary(library: LibraryProvider<unknown>) {
+    this.libraries.set(library.id(), library);
+  }
 
   async fetchAllUnimportedGames() {
     const unimportedGames: { [key: string]: string[] } = {};
@@ -157,16 +157,21 @@ class LibraryManager {
   }
 
   // Checks are done in least to most expensive order
-  async checkUnimportedGamePath(targetPath: string) {
-    const targetDir = path.join(this.basePath, targetPath);
-    if (!fs.existsSync(targetDir)) return false;
-
+  async checkUnimportedGamePath(libraryId: string, libraryPath: string) {
     const hasGame =
-      (await prisma.game.count({ where: { libraryBasePath: targetPath } })) > 0;
+      (await prisma.game.count({ where: { libraryId, libraryPath } })) > 0;
     if (hasGame) return false;
 
     return true;
   }
+
+  /*
+  Game creation happens in metadata, because it's primarily a metadata object
+
+  async createGame(libraryId: string, libraryPath: string, game: Omit<Game, "libraryId" | "libraryPath">) {
+
+  }
+  */
 
   async importVersion(
     gameId: string,
@@ -276,6 +281,18 @@ class LibraryManager {
     });
 
     return taskId;
+  }
+
+  async readFile(
+    libraryId: string,
+    game: string,
+    version: string,
+    filename: string,
+    options?: { start?: number; end?: number },
+  ) {
+    const library = this.libraries.get(libraryId);
+    if (!library) return undefined;
+    return library.readFile(game, version, filename, options);
   }
 }
 

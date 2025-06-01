@@ -8,6 +8,7 @@ import { LibraryBackend } from "~/prisma/client";
 import fs from "fs";
 import path from "path";
 import droplet from "@drop-oss/droplet";
+import type { Readable } from "stream";
 
 const FilesystemProviderConfig = type({
   baseDir: "string",
@@ -81,5 +82,19 @@ export class FilesystemProvider
       }),
     );
     return manifest;
+  }
+
+  // TODO: move this over to the droplet.readfile function it works
+  async readFile(
+    game: string,
+    version: string,
+    filename: string,
+    options?: { start?: number; end?: number },
+  ): Promise<Readable | undefined> {
+    const filepath = path.join(this.config.baseDir, game, version, filename);
+    if (!fs.existsSync(filepath)) return undefined;
+    const stream = fs.createReadStream(filepath, options);
+
+    return stream;
   }
 }

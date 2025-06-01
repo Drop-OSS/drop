@@ -1,3 +1,4 @@
+import type { Readable } from "stream";
 import type { LibraryBackend } from "~/prisma/client";
 
 export abstract class LibraryProvider<CFG> {
@@ -44,6 +45,13 @@ export abstract class LibraryProvider<CFG> {
     progress: (err: Error | null, v: number) => void,
     log: (err: Error | null, v: string) => void,
   ): Promise<string>;
+
+  abstract readFile(
+    game: string,
+    version: string,
+    filename: string,
+    options?: { start?: number; end?: number },
+  ): Promise<Readable | undefined>;
 }
 
 export class GameNotFoundError extends Error {}
