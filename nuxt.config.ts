@@ -137,11 +137,11 @@ export default defineNuxtConfig({
       fallbackLocale: "en_us",
     },
     locales: [
-      { code: "en_us", name: "English", files: ["en.json", "en_us.json"] },
+      { code: "en_us", name: "English", file: "en_us.json" },
       {
         code: "en_pirate",
         name: "English (Pirate)",
-        files: ["en.json", "en_pirate.json"],
+        file: "en_pirate.json",
       },
     ],
   },
