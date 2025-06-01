@@ -10,7 +10,7 @@ import path from "path";
 import droplet from "@drop-oss/droplet";
 import type { Readable } from "stream";
 
-const FilesystemProviderConfig = type({
+export const FilesystemProviderConfig = type({
   baseDir: "string",
 });
 

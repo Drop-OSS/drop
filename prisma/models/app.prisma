@@ -19,11 +19,11 @@ enum LibraryBackend {
 }
 
 model Library {
-    id   String @id
+    id   String @id @default(uuid())
     name String
 
     backend LibraryBackend
     options Json
-    
+
     games    Game[]
 }

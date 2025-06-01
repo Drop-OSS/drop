@@ -1,9 +1,11 @@
-import type { LibraryBackend } from "~/prisma/client";
+import { LibraryBackend } from "~/prisma/client";
 import prisma from "../internal/db/database";
 import type { JsonValue } from "@prisma/client/runtime/library";
 import type { LibraryProvider } from "../internal/library/provider";
+import type { FilesystemProviderConfig } from "../internal/library/filesystem";
 import { FilesystemProvider } from "../internal/library/filesystem";
 import libraryManager from "../internal/library";
+import path from "path";
 
 const libraryConstructors: {
   [key in LibraryBackend]: (
@@ -21,6 +23,24 @@ const libraryConstructors: {
 
 export default defineNitroPlugin(async () => {
   const libraries = await prisma.library.findMany({});
+
+  // Add migration handler
+  const legacyPath = process.env.LIBRARY;
+  if (legacyPath && libraries.length == 0) {
+    const options: typeof FilesystemProviderConfig.infer = {
+      baseDir: path.resolve(legacyPath),
+    };
+
+    const library = await prisma.library.create({
+      data: {
+        name: "Auto-created",
+        backend: LibraryBackend.Filesystem,
+        options,
+      },
+    });
+
+    libraries.push(library);
+  }
 
   for (const library of libraries) {
     const constructor = libraryConstructors[library.backend];
