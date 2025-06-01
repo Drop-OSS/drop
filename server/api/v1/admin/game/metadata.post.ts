@@ -14,14 +14,16 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "This endpoint requires multipart form data.",
     });
 
-  const uploadResult = await handleFileUpload(h3, {}, ["internal:read"]);
+  const uploadResult = await handleFileUpload(h3, {}, ["internal:read"], 1);
   if (!uploadResult)
     throw createError({
       statusCode: 400,
       statusMessage: "Failed to upload file",
     });
 
-  const [id, options, pull, dump] = uploadResult;
+  const [ids, options, pull, dump] = uploadResult;
+
+  const id = ids.at(0);
 
   // handleFileUpload reads the rest of the options for us.
   const name = options.name;
