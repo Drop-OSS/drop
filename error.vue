@@ -12,8 +12,8 @@ const route = useRoute();
 const user = useUser();
 const statusCode = props.error?.statusCode;
 const message =
-  props.error?.statusMessage ||
   props.error?.message ||
+  props.error?.statusMessage ||
   "An unknown error occurred.";
 const showSignIn = statusCode ? statusCode == 403 || statusCode == 401 : false;
 
@@ -64,6 +64,7 @@ if (import.meta.client) {
           this to be a bug, please report it. Try signing in and see if it
           resolves the issue.
         </p>
+        <!-- <p>{{ error. }}</p> -->
         <div class="mt-10">
           <!-- full app reload to fix errors -->
           <NuxtLink
