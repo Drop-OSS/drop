@@ -36,7 +36,7 @@
     "jdenticon": "^3.3.0",
     "luxon": "^3.6.1",
     "micromark": "^4.0.1",
-    "nuxt": "^3.16.2",
+    "nuxt": "^3.17.4",
     "nuxt-security": "2.2.0",
     "prisma": "^6.7.0",
     "semver": "^7.7.1",
