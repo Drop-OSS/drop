@@ -17,9 +17,9 @@ export default defineEventHandler<{ body: typeof DeleteLibrarySource.infer }>(
     const body = await readValidatedBody(h3, DeleteLibrarySource);
 
     return await prisma.library.delete({
-        where: {
-            id: body.id
-        }
-    })
+      where: {
+        id: body.id,
+      },
+    });
   },
 );

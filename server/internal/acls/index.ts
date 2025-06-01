@@ -54,7 +54,7 @@ export const systemACLs = [
   "library:sources:new",
   "library:sources:update",
   "library:sources:delete",
-  
+
   "game:read",
   "game:update",
   "game:delete",
