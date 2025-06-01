@@ -215,7 +215,6 @@ export class GiantBombProvider implements MetadataProvider {
       const reviewId = api_detail_url.split("/").at(-2);
       if (!reviewId) continue;
       const review = await this.request<ReviewResult>("review", reviewId, {});
-      console.log(review.data);
       reviews.push({
         metadataSource: MetadataSource.GiantBomb,
         metadataId: reviewId,
