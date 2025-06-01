@@ -162,7 +162,7 @@ export class MetadataHandler {
   }
 
   async createGame(
-    result: { sourceId: string; id: string; name: string},
+    result: { sourceId: string; id: string; name: string },
     libraryId: string,
     libraryPath: string,
   ) {

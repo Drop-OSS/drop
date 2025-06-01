@@ -27,10 +27,7 @@
             </NuxtLink>
           </p>
 
-          <div
-            v-if="toImport"
-            class="mt-2 rounded-md bg-blue-600/10 p-4"
-          >
+          <div v-if="toImport" class="mt-2 rounded-md bg-blue-600/10 p-4">
             <div class="flex">
               <div class="flex-shrink-0">
                 <InformationCircleIcon
