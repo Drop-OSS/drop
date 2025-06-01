@@ -1,23 +1,24 @@
 <template>
   <div class="space-y-4">
-    <div class="mx-auto max-w-2xl lg:mx-0">
-      <h2
-        class="mt-2 text-xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
-      >
-        Library
-      </h2>
-      <p
-        class="mt-2 text-pretty text-sm font-medium text-gray-500 sm:text-md/8"
-      >
-        As you add folders to your library, Drop will detect it and prompt you
-        to import it. Each game needs to be imported before you can import a
-        version.
-      </p>
+    <div class="sm:flex sm:items-center">
+      <div class="sm:flex-auto">
+        <h1 class="text-base font-semibold text-zinc-100">Game Library</h1>
+        <p class="mt-2 text-sm text-zinc-400">
+          As you add folders to your library sources, Drop will detect it and
+          prompt you to import it. Each game needs to be imported before you can
+          import a version.
+        </p>
+      </div>
+      <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+        <NuxtLink
+          to="/admin/library/sources"
+          class="block rounded-md bg-blue-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+        >
+          Sources &rarr;
+        </NuxtLink>
+      </div>
     </div>
-    <div
-      v-if="libraryState.unimportedGames.length > 0"
-      class="rounded-md bg-blue-600/10 p-4"
-    >
+    <div v-if="toImport" class="rounded-md bg-blue-600/10 p-4">
       <div class="flex">
         <div class="flex-shrink-0">
           <InformationCircleIcon
@@ -186,6 +187,9 @@ useHead({
 const searchQuery = ref("");
 
 const libraryState = await $dropFetch("/api/v1/admin/library");
+
+const toImport = ref(Object.entries(libraryState.unimportedGames).length > 0);
+
 const libraryGames = ref(
   libraryState.games.map((e) => {
     const noVersions = e.status.noVersions;
@@ -219,5 +223,6 @@ async function deleteGame(id: string) {
   await $dropFetch(`/api/v1/admin/game?id=${id}`, { method: "DELETE" });
   const index = libraryGames.value.findIndex((e) => e.id === id);
   libraryGames.value.splice(index, 1);
+  toImport.value = true;
 }
 </script>

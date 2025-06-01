@@ -14,19 +14,20 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "This endpoint requires multipart form data.",
     });
 
-  const uploadResult = await handleFileUpload(h3, {}, ["internal:read"]);
+  const uploadResult = await handleFileUpload(h3, {}, ["internal:read"], 1);
   if (!uploadResult)
     throw createError({
       statusCode: 400,
       statusMessage: "Failed to upload file",
     });
 
-  const [imageId, options, pull, _dump] = uploadResult;
+  const [imageIds, options, pull, _dump] = uploadResult;
 
   const title = options.title;
   const description = options.description;
   const content = options.content;
   const tags = options.tags ? (JSON.parse(options.tags) as string[]) : [];
+  const imageId = imageIds.at(0);
 
   if (!title || !description || !content)
     throw createError({

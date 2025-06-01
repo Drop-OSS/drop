@@ -51,15 +51,22 @@
                         class="transition mt-2 block text-sm font-semibold text-zinc-400 group-hover:text-zinc-500"
                         >Upload file</span
                       >
-                      <p v-if="currentFile" class="mt-1 text-xs text-zinc-400">
-                        {{ currentFile.name }}
-                      </p>
+                      <div v-if="currentFileList">
+                        <p
+                          v-for="currentFile in currentFileList"
+                          :key="currentFile"
+                          class="mt-1 text-[10px] text-zinc-500 whitespace-nowrap"
+                        >
+                          {{ currentFile }}
+                        </p>
+                      </div>
                     </label>
                     <input
                       id="file-upload"
                       :accept="props.accept"
                       class="hidden"
                       type="file"
+                      :multiple="props.multiple"
                       @change="(e) => (file = (e.target as any)?.files)"
                     />
                   </div>
@@ -67,7 +74,7 @@
               </div>
               <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
                 <LoadingButton
-                  :disabled="currentFile == undefined"
+                  :disabled="currentFiles == undefined"
                   type="button"
                   :loading="uploadLoading"
                   :class="['inline-flex w-full shadow-sm sm:ml-3 sm:w-auto']"
@@ -123,10 +130,19 @@ const open = defineModel<boolean>({
 });
 
 const file = ref<FileList | undefined>();
-const currentFile = computed(() => file.value?.item(0));
+const currentFiles = computed(() => file.value);
+const currentFileList = computed(() => {
+  if (!currentFiles.value) return undefined;
+  const list = [];
+  for (const file of currentFiles.value) {
+    list.push(file.name);
+  }
+  return list;
+});
 const props = defineProps<{
   endpoint: string;
   accept: string;
+  multiple?: boolean;
   options?: { [key: string]: string };
 }>();
 const emit = defineEmits(["upload"]);
@@ -134,10 +150,12 @@ const emit = defineEmits(["upload"]);
 const uploadLoading = ref(false);
 const uploadError = ref<string | undefined>();
 async function uploadFile() {
-  if (!currentFile.value) return;
+  if (!currentFiles.value) return;
 
   const form = new FormData();
-  form.append("file", currentFile.value);
+  for (const file of currentFiles.value) {
+    form.append(file.name, file);
+  }
 
   if (props.options) {
     for (const [key, value] of Object.entries(props.options)) {

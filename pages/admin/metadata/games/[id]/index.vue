@@ -293,6 +293,7 @@
       :options="{ id: game.id }"
       accept="image/*"
       endpoint="/api/v1/admin/game/image"
+      :multiple="true"
       @upload="(result: Game) => uploadAfterImageUpload(result)"
     />
     <ModalTemplate v-model="showAddCarouselModal">

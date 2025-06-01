@@ -20,8 +20,8 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Failed to upload file",
     });
 
-  const [id, options, pull, dump] = uploadResult;
-  if (!id) {
+  const [ids, options, pull, dump] = uploadResult;
+  if (ids.length == 0) {
     dump();
     throw createError({
       statusCode: 400,
@@ -48,7 +48,7 @@ export default defineEventHandler(async (h3) => {
     },
     data: {
       mImageLibraryObjectIds: {
-        push: id,
+        push: ids,
       },
     },
   });

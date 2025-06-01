@@ -13,7 +13,7 @@
           class="relative w-full cursor-default rounded-md bg-zinc-950 py-1.5 pl-3 pr-10 text-left text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6"
         >
           <span v-if="currentlySelectedGame != -1" class="block truncate">{{
-            games.unimportedGames[currentlySelectedGame]
+            games.unimportedGames[currentlySelectedGame].game
           }}</span>
           <span v-else class="block truncate text-zinc-400"
             >Please select a directory...</span
@@ -37,7 +37,7 @@
             class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-zinc-800 focus:outline-none sm:text-sm"
           >
             <ListboxOption
-              v-for="(game, gameIdx) in games.unimportedGames"
+              v-for="({ game }, gameIdx) in games.unimportedGames"
               :key="game"
               v-slot="{ active, selected }"
               as="template"
@@ -275,7 +275,6 @@ definePageMeta({
 });
 
 const games = await $dropFetch("/api/v1/admin/import/game");
-
 const currentlySelectedGame = ref(-1);
 const gameSearchResultsLoading = ref(false);
 const gameSearchResultsError = ref<string | undefined>();
@@ -286,12 +285,12 @@ async function updateSelectedGame(value: number) {
   if (currentlySelectedGame.value == value) return;
   currentlySelectedGame.value = value;
   if (currentlySelectedGame.value == -1) return;
-  const game = games.unimportedGames[currentlySelectedGame.value];
-  if (!game) return;
+  const option = games.unimportedGames[currentlySelectedGame.value];
+  if (!option) return;
 
   metadataResults.value = undefined;
   currentlySelectedMetadata.value = -1;
-  gameSearchTerm.value = game;
+  gameSearchTerm.value = option.game;
 
   await searchGame();
 }
@@ -324,17 +323,21 @@ const router = useRouter();
 
 const importLoading = ref(false);
 const importError = ref<string | undefined>();
-async function importGame(metadata: boolean) {
-  if (!metadataResults.value && metadata) return;
+async function importGame(useMetadata: boolean) {
+  if (!metadataResults.value && useMetadata) return;
+
+  const metadata =
+    useMetadata && metadataResults.value
+      ? metadataResults.value[currentlySelectedMetadata.value]
+      : undefined;
+  const option = games.unimportedGames[currentlySelectedGame.value];
 
   const game = await $dropFetch("/api/v1/admin/import/game", {
     method: "POST",
     body: {
-      path: games.unimportedGames[currentlySelectedGame.value],
-      metadata:
-        metadata && metadataResults.value
-          ? metadataResults.value[currentlySelectedMetadata.value]
-          : undefined,
+      path: option.game,
+      library: option.library,
+      metadata,
     },
   });
 
