@@ -22,6 +22,7 @@
     "@lobomfz/prismark": "0.0.3",
     "@nuxt/fonts": "^0.11.0",
     "@nuxt/image": "^1.10.0",
+    "@nuxtjs/i18n": "^9.5.5",
     "@prisma/client": "^6.7.0",
     "@tailwindcss/vite": "^4.0.6",
     "argon2": "^0.41.1",

@@ -23,6 +23,7 @@ export default defineNuxtConfig({
     // "@nuxt/image",
     "@nuxt/fonts",
     "@nuxt/eslint",
+    "@nuxtjs/i18n",
   ],
 
   // Nuxt-only config
@@ -42,6 +43,7 @@ export default defineNuxtConfig({
   experimental: {
     buildCache: true,
     viewTransition: true,
+    componentIslands: true,
   },
 
   // future: {
@@ -121,6 +123,18 @@ export default defineNuxtConfig({
 
   carousel: {
     prefix: "Vue",
+  },
+
+  i18n: {
+    defaultLocale: "en_us",
+    locales: [
+      { code: "en_us", name: "English", files: ["en.json", "en_us.json"] },
+      {
+        code: "en_pirate",
+        name: "English (Pirate)",
+        files: ["en.json", "en_pirate.json"],
+      },
+    ],
   },
 
   security: {

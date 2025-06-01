@@ -54,6 +54,7 @@
             </transition>
           </Menu>
         </li>
+        <UserHeaderSelectLocal />
         <UserHeaderUserWidget />
       </ol>
     </div>
@@ -170,6 +171,11 @@
                       :notifications="unreadNotifications.length"
                     >
                       <BellIcon class="h-5" />
+                    </UserHeaderWidget>
+                  </li>
+                  <li class="w-full">
+                    <UserHeaderWidget class="w-full">
+                      <UserHeaderSelectLocal />
                     </UserHeaderWidget>
                   </li>
                 </div>
