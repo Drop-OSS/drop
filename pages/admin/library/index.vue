@@ -188,7 +188,9 @@ const searchQuery = ref("");
 
 const libraryState = await $dropFetch("/api/v1/admin/library");
 
-const toImport = ref(Object.entries(libraryState.unimportedGames).length > 0);
+console.log(Object.values(libraryState.unimportedGames));
+
+const toImport = ref(Object.values(libraryState.unimportedGames).flat().length > 0);
 
 const libraryGames = ref(
   libraryState.games.map((e) => {
