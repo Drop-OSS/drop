@@ -309,6 +309,7 @@ async function performActionSource() {
       body: {
         id: createMode ? undefined : sources.value[editIndex.value!].id,
         name: sourceName.value,
+        backend: createMode ? currentSourceOption.value : undefined,
         options: sourceConfig.value,
       },
       method: createMode ? "POST" : "PATCH",
