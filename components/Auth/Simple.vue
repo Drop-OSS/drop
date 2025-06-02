@@ -4,7 +4,7 @@
       <label
         for="username"
         class="block text-sm font-medium leading-6 text-zinc-300"
-        >Username</label
+        >{{ $t("auth.username") }}</label
       >
       <div class="mt-2">
         <input
@@ -23,7 +23,7 @@
       <label
         for="password"
         class="block text-sm font-medium leading-6 text-zinc-300"
-        >Password</label
+        >{{ $t("auth.password") }}</label
       >
       <div class="mt-2">
         <input
@@ -50,19 +50,23 @@
         <label
           for="remember-me"
           class="ml-3 block text-sm leading-6 text-zinc-400"
-          >Remember me</label
+          >{{ $t("auth.signin.rememberMe") }}</label
         >
       </div>
 
       <div class="text-sm leading-6">
-        <NuxtLink to="#" class="font-semibold text-blue-600 hover:text-blue-500"
-          >Forgot password?</NuxtLink
+        <NuxtLink
+          to="#"
+          class="font-semibold text-blue-600 hover:text-blue-500"
+          >{{ $t("auth.signin.forgot") }}</NuxtLink
         >
       </div>
     </div>
 
     <div>
-      <LoadingButton class="w-full" :loading="loading"> Sign in</LoadingButton>
+      <LoadingButton class="w-full" :loading="loading">{{
+        $t("auth.signin.signin")
+      }}</LoadingButton>
     </div>
 
     <div v-if="error" class="mt-1 rounded-md bg-red-600/10 p-4">
@@ -93,6 +97,7 @@ const error = ref<string | undefined>();
 
 const route = useRoute();
 const router = useRouter();
+const { t } = useI18n();
 
 function signin_wrapper() {
   loading.value = true;
@@ -101,7 +106,7 @@ function signin_wrapper() {
       router.push(route.query.redirect?.toString() ?? "/");
     })
     .catch((response) => {
-      const message = response.statusMessage || "An unknown error occurred";
+      const message = response.statusMessage || t("errors.unknown");
       error.value = message;
     })
     .finally(() => {

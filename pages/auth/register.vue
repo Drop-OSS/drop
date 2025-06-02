@@ -1,13 +1,19 @@
 <template>
   <div
-    class="flex min-h-screen bg-zinc-950 flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8"
+    class="flex min-h-screen bg-zinc-950 flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8 relative"
   >
+    <div
+      class="flex justify-end items-center sm:mx-auto sm:w-full sm:max-w-md mb-2"
+    >
+      <!-- Not great positioning but it works for now -->
+      <UserHeaderSelectLang />
+    </div>
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
       <DropLogo class="mx-auto h-10 w-auto" />
       <h2
         class="mt-6 text-center text-2xl font-bold font-display leading-9 tracking-tight text-zinc-100"
       >
-        Create your Drop account
+        {{ $t("auth.register.title") }}
       </h2>
     </div>
 
@@ -18,7 +24,7 @@
             <label
               for="display-name"
               class="block text-sm font-medium leading-6 text-zinc-100"
-              >Display Name</label
+              >{{ $t("auth.displayName") }}</label
             >
             <div class="mt-2">
               <input
@@ -38,7 +44,7 @@
             <label
               for="email"
               class="block text-sm font-medium leading-6 text-zinc-100"
-              >Email address</label
+              >{{ $t("auth.email") }}</label
             >
             <p
               :class="[
@@ -46,7 +52,7 @@
                 'block text-xs font-medium leading-6',
               ]"
             >
-              Must be in the format user@example.com
+              {{ $t("auth.register.emailFormat") }}
             </p>
             <div class="mt-2">
               <input
@@ -69,7 +75,7 @@
             <label
               for="username"
               class="block text-sm font-medium leading-6 text-zinc-100"
-              >Username</label
+              >{{ $t("auth.username") }}</label
             >
             <p
               :class="[
@@ -77,7 +83,7 @@
                 'block text-xs font-medium leading-6',
               ]"
             >
-              Must be 5 or more characters, and lowercase
+              {{ $t("auth.register.usernameFormat") }}
             </p>
             <div class="mt-2">
               <input
@@ -100,15 +106,16 @@
             <label
               for="password"
               class="block text-sm font-medium leading-6 text-zinc-100"
-              >Password</label
             >
+              {{ $t("auth.password") }}
+            </label>
             <p
               :class="[
                 validPassword ? 'text-blue-400' : 'text-red-500',
                 'block text-xs font-medium leading-6',
               ]"
             >
-              Must be 14 or more characters
+              {{ $t("auth.register.passwordFormat") }}
             </p>
             <div class="mt-2">
               <input
@@ -127,7 +134,7 @@
             <label
               for="confirm-password"
               class="block text-sm font-medium leading-6 text-zinc-100"
-              >Confirm Password</label
+              >{{ $t("auth.confirmPassword") }}</label
             >
             <p
               :class="[
@@ -135,7 +142,7 @@
                 'block text-xs font-medium leading-6',
               ]"
             >
-              Must be the same as above
+              {{ $t("auth.register.confirmPasswordFormat") }}
             </p>
             <div class="mt-2">
               <input
@@ -151,8 +158,8 @@
           </div>
 
           <div>
-            <LoadingButton type="submit" :loading="loading" class="w-full">
-              Create
+            <LoadingButton type="submit" :loading="!!loading" class="w-full">
+              {{ $t("auth.register.create") }}
             </LoadingButton>
           </div>
 
@@ -173,13 +180,12 @@
 
       <!-- todo: feature to add custom text here -->
       <p v-if="false" class="mt-10 text-center text-sm text-zinc-400">
-        What's Drop?
-        {{ " " }}
+        {{ $t("auth.register.whatIs", [" "]) }}
         <NuxtLink
           to="https://github.com/Drop-OSS/drop"
           target="_blank"
           class="font-semibold leading-6 text-blue-600 hover:text-blue-500"
-          >Check us out here &rarr;</NuxtLink
+          >{{ $t("auth.register.checkOut") }}</NuxtLink
         >
       </p>
     </div>
@@ -190,13 +196,15 @@
 import { XCircleIcon } from "@heroicons/vue/24/solid";
 import { type } from "arktype";
 
+const { t } = useI18n();
+
 const route = useRoute();
 const router = useRouter();
 const invitationId = route.query.id?.toString();
 if (!invitationId)
   throw createError({
     statusCode: 400,
-    statusMessage: "Invitation required to sign up.",
+    statusMessage: t("errors.inviteRequired"),
   });
 
 const invitation = await $dropFetch(
@@ -260,7 +268,7 @@ function register_wrapper() {
       router.push("/auth/signin");
     })
     .catch((response) => {
-      const message = response.statusMessage || "An unknown error occurred";
+      const message = response.statusMessage || t("errors.unknown");
       error.value = message;
     })
     .finally(() => {
@@ -273,6 +281,6 @@ definePageMeta({
 });
 
 useHead({
-  title: "Create your Drop account",
+  title: t("auth.register.title"),
 });
 </script>

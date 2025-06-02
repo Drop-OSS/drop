@@ -44,7 +44,7 @@
             type="button"
             class="inline-flex items-center gap-x-2 rounded-md bg-zinc-800 px-3 py-1 text-sm font-semibold font-display text-white shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 duration-200 hover:scale-105 active:scale-95"
           >
-            Open in Admin Dashboard
+            {{ $t("store.openAdminDashboard") }}
             <ArrowTopRightOnSquareIcon
               class="-mr-0.5 h-7 w-7 p-1"
               aria-hidden="true"
@@ -56,7 +56,7 @@
                 <td
                   class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
                 >
-                  Released
+                  {{ $t("store.released") }}
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
                   {{
@@ -68,7 +68,7 @@
                 <td
                   class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
                 >
-                  Platform(s)
+                  {{ $t("store.platform", platforms.length) }}
                 </td>
                 <td
                   class="whitespace-nowrap inline-flex gap-x-4 px-3 py-4 text-sm text-zinc-400"
@@ -82,7 +82,7 @@
                   <span
                     v-if="platforms.length == 0"
                     class="font-semibold text-blue-600"
-                    >coming soon</span
+                    >{{ $t("store.commingSoon") }}</span
                   >
                 </td>
               </tr>
@@ -90,7 +90,7 @@
                 <td
                   class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
                 >
-                  Rating
+                  {{ $t("store.rating") }}
                 </td>
                 <td
                   class="whitespace-nowrap flex flex-row items-center gap-x-1 px-3 py-4 text-sm text-zinc-400"
@@ -103,9 +103,9 @@
                       'w-4 h-4',
                     ]"
                   />
-                  <span class="text-zinc-600"
-                    >({{ rating._sum.mReviewCount ?? 0 }} reviews)</span
-                  >
+                  <span class="text-zinc-600">{{
+                    $t("store.reviews", [rating._sum.mReviewCount ?? 0])
+                  }}</span>
                 </td>
               </tr>
             </tbody>
@@ -131,7 +131,7 @@
                 <div
                   class="h-48 lg:h-96 aspect-[1/2] flex items-center justify-center text-zinc-700 font-bold font-display"
                 >
-                  No images
+                  {{ $t("store.noImages") }}
                 </div>
               </VueSlide>
 
@@ -162,7 +162,9 @@
               <div class="grow h-[1px] bg-zinc-700 rounded-full" />
               <span
                 class="uppercase text-sm font-semibold font-display text-zinc-600"
-                >Click to read {{ showPreview ? "more" : "less" }}</span
+                >{{
+                  showPreview ? $t("store.readMore") : $t("store.readLess")
+                }}</span
               >
               <div class="grow h-[1px] bg-zinc-700 rounded-full" />
             </button>

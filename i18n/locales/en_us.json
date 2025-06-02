@@ -1,30 +1,70 @@
 {
-  "welcome": "American, Welcome!",
-  "shared": "Shared between all en locales",
-  "userHeader": {
-    "links": {
-      "store": "Store",
-      "library": "Library",
-      "community": "Community",
-      "news": "News"
+  "auth": {
+    "confirmPassword": "Confirm @:auth.password",
+    "displayName": "Display Name",
+    "email": "Email",
+    "password": "Password",
+    "register": {
+      "checkOut": "Check us out here →",
+      "confirmPasswordFormat": "Must be the same as above",
+      "create": "Create",
+      "emailFormat": "Must be in the format user{'@'}example.com",
+      "passwordFormat": "Must be 14 or more characters",
+      "title": "Create your Drop account",
+      "usernameFormat": "Must be 5 or more characters, and lowercase",
+      "whatIs": "What's Drop? {0}"
     },
-    "notifications": {
-      "unread": "Unread Notifications",
-      "all": "View all →",
-      "none": "No notifications"
+    "signin": {
+      "externalProvider": "@:auth.signin.signin with external provider →",
+      "forgot": "Forgot password?",
+      "noAccount": "Don't have an account? Ask an admin to create one for you.",
+      "or": "OR",
+      "pageTitle": "@:auth.signin.signin to Drop",
+      "rememberMe": "Remember me",
+      "signin": "Sign in",
+      "title": "@:auth.signin.signin to your account"
     },
-    "profile": {
-      "signout": "Signout",
-      "admin": "Admin Dashboard",
-      "settings": "Account settings"
-    }
+    "signout": "Signout",
+    "username": "Username"
+  },
+  "errors": {
+    "inviteRequired": "Invitation required to sign up.",
+    "unknown": "An unknown error occurred"
   },
   "store": {
-    "recentlyAdded": "Recently Added",
+    "commingSoon": "coming soon",
+    "exploreMore": "Explore more →",
     "lookAt": "Check it out",
     "noGame": "no game",
+    "noImages": "No images",
+    "openAdminDashboard": "Open in Admin Dashboard",
+    "platform": "Platform | Platform | Platforms",
+    "rating": "Rating",
+    "readLess": "Click to read less",
+    "readMore": "Click to read more",
+    "recentlyAdded": "Recently Added",
     "recentlyReleased": "Recently released",
-    "exploreMore": "Explore more →",
-    "recentlyUpdated": "Recently Updated"
-  }
+    "recentlyUpdated": "Recently Updated",
+    "released": "Released",
+    "reviews": "({0} Reviews)"
+  },
+  "userHeader": {
+    "links": {
+      "community": "Community",
+      "library": "Library",
+      "news": "News",
+      "store": "Store"
+    },
+    "notifications": {
+      "all": "View all →",
+      "none": "No notifications",
+      "unread": "Unread Notifications"
+    },
+    "profile": {
+      "admin": "Admin Dashboard",
+      "settings": "Account settings",
+      "signout": "@:auth.signout"
+    }
+  },
+  "welcome": "American, Welcome!"
 }
