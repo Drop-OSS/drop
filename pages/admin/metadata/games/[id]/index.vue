@@ -298,7 +298,9 @@
     />
     <ModalTemplate v-model="showAddCarouselModal">
       <template #default>
-        <div class="grid grid-cols-2 grid-flow-dense gap-4 max-h-[70vh] overflow-y-auto p-4">
+        <div
+          class="grid grid-cols-2 grid-flow-dense gap-4 max-h-[70vh] overflow-y-auto p-4"
+        >
           <div
             v-for="(image, imageIdx) in validAddCarouselImages"
             :key="imageIdx"

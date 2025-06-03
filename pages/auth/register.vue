@@ -164,7 +164,10 @@
               <div v-if="error" class="mt-1 rounded-md bg-red-600/10 p-3">
                 <div class="flex">
                   <div class="flex-shrink-0">
-                    <XCircleIcon class="h-5 w-5 text-red-600" aria-hidden="true" />
+                    <XCircleIcon
+                      class="h-5 w-5 text-red-600"
+                      aria-hidden="true"
+                    />
                   </div>
                   <div class="ml-3">
                     <h3 class="text-sm font-medium text-red-600">

@@ -20,7 +20,9 @@
     <div class="mt-8 flow-root">
       <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-          <div class="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900 shadow">
+          <div
+            class="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900 shadow"
+          >
             <table class="min-w-full divide-y divide-zinc-700">
               <thead>
                 <tr class="bg-zinc-800/50">
@@ -60,7 +62,11 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-zinc-700">
-                <tr v-for="user in users" :key="user.id" class="hover:bg-zinc-800/50 transition-colors duration-150">
+                <tr
+                  v-for="user in users"
+                  :key="user.id"
+                  class="hover:bg-zinc-800/50 transition-colors duration-150"
+                >
                   <td
                     class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-6"
                   >
@@ -73,17 +79,23 @@
                     {{ user.email }}
                   </td>
                   <td class="whitespace-nowrap px-3 py-4 text-sm">
-                    <span :class="[
-                      user.admin 
-                        ? 'inline-flex items-center rounded-md bg-blue-400/10 px-2 py-1 text-xs font-medium text-blue-400 ring-1 ring-inset ring-blue-400/20'
-                        : 'inline-flex items-center rounded-md bg-zinc-400/10 px-2 py-1 text-xs font-medium text-zinc-400 ring-1 ring-inset ring-zinc-400/20'
-                    ]">
+                    <span
+                      :class="[
+                        user.admin
+                          ? 'inline-flex items-center rounded-md bg-blue-400/10 px-2 py-1 text-xs font-medium text-blue-400 ring-1 ring-inset ring-blue-400/20'
+                          : 'inline-flex items-center rounded-md bg-zinc-400/10 px-2 py-1 text-xs font-medium text-zinc-400 ring-1 ring-inset ring-zinc-400/20',
+                      ]"
+                    >
                       {{ user.admin ? "Admin User" : "Normal user" }}
                     </span>
                   </td>
                   <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
                     <div class="flex flex-wrap gap-1">
-                      <span v-for="mec in user.authMecs" :key="mec.mec" class="inline-flex items-center rounded-md bg-zinc-400/10 px-2 py-1 text-xs font-medium text-zinc-400 ring-1 ring-inset ring-zinc-400/20">
+                      <span
+                        v-for="mec in user.authMecs"
+                        :key="mec.mec"
+                        class="inline-flex items-center rounded-md bg-zinc-400/10 px-2 py-1 text-xs font-medium text-zinc-400 ring-1 ring-inset ring-zinc-400/20"
+                      >
                         {{ mec.mec }}
                       </span>
                     </div>

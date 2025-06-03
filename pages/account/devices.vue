@@ -1,15 +1,21 @@
 <template>
   <div>
     <div class="mx-auto max-w-2xl lg:mx-0">
-      <h2 class="mt-2 text-xl font-semibold tracking-tight text-zinc-100 sm:text-3xl">
+      <h2
+        class="mt-2 text-xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
+      >
         Devices
       </h2>
-      <p class="mt-2 text-pretty text-sm font-medium text-zinc-400 sm:text-md/8">
+      <p
+        class="mt-2 text-pretty text-sm font-medium text-zinc-400 sm:text-md/8"
+      >
         Manage the devices authorized to access your Drop account.
       </p>
     </div>
 
-    <div class="mt-8 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 shadow-sm">
+    <div
+      class="mt-8 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 shadow-sm"
+    >
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-zinc-800">
           <thead>
@@ -55,7 +61,9 @@
                 {{ client.name }}
               </td>
               <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
-                <span class="inline-flex items-center rounded-md bg-zinc-400/10 px-2 py-1 text-xs font-medium text-zinc-400 ring-1 ring-inset ring-zinc-400/20">
+                <span
+                  class="inline-flex items-center rounded-md bg-zinc-400/10 px-2 py-1 text-xs font-medium text-zinc-400 ring-1 ring-inset ring-zinc-400/20"
+                >
                   {{ client.platform }}
                 </span>
               </td>

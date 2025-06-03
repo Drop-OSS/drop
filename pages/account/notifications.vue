@@ -1,10 +1,14 @@
 <template>
   <div>
     <div class="mx-auto max-w-2xl lg:mx-0">
-      <h2 class="mt-2 text-xl font-semibold tracking-tight text-zinc-100 sm:text-3xl">
+      <h2
+        class="mt-2 text-xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
+      >
         Notifications
       </h2>
-      <p class="mt-2 text-pretty text-sm font-medium text-zinc-400 sm:text-md/8">
+      <p
+        class="mt-2 text-pretty text-sm font-medium text-zinc-400 sm:text-md/8"
+      >
         View and manage your notifications.
       </p>
     </div>
@@ -44,7 +48,7 @@
                   :href="action.split('|')[1]"
                   class="inline-flex items-center rounded-md bg-blue-400/10 px-2 py-1 text-xs font-medium text-blue-400 ring-1 ring-inset ring-blue-400/20 transition-all duration-200 hover:bg-blue-400/20 hover:scale-105 active:scale-95"
                 >
-                  {{ action.split('|')[0] }}
+                  {{ action.split("|")[0] }}
                 </a>
               </div>
             </div>
@@ -101,7 +105,9 @@ useHead({
 const notifications = ref<Notification[]>([]);
 
 async function fetchNotifications() {
-  notifications.value = await $dropFetch<Notification[]>("/api/v1/notifications");
+  notifications.value = await $dropFetch<Notification[]>(
+    "/api/v1/notifications",
+  );
 }
 
 // Initial fetch

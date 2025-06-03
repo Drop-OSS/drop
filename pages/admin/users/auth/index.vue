@@ -24,7 +24,9 @@
         class="group overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 shadow-sm transition-all duration-200 hover:shadow-lg hover:shadow-zinc-900/50 hover:scale-[1.02] hover:border-zinc-700"
       >
         <div class="flex items-center gap-x-4 border-b border-zinc-800 p-6">
-          <div class="flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-zinc-800/50 ring-1 ring-zinc-700/50 transition-all duration-200 group-hover:bg-zinc-800 group-hover:ring-zinc-600/50">
+          <div
+            class="flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-zinc-800/50 ring-1 ring-zinc-700/50 transition-all duration-200 group-hover:bg-zinc-800 group-hover:ring-zinc-600/50"
+          >
             <component
               :is="authMech.icon"
               :alt="`${authMech.name} icon`"
@@ -72,17 +74,16 @@
           <div class="flex justify-between gap-x-4 py-3">
             <dt class="text-zinc-400">Enabled</dt>
             <dd class="flex items-center">
-              <span :class="[
-                authMech.enabled 
-                  ? 'inline-flex items-center rounded-md bg-green-400/10 px-2 py-1 text-xs font-medium text-green-400 ring-1 ring-inset ring-green-400/20'
-                  : 'inline-flex items-center rounded-md bg-red-400/10 px-2 py-1 text-xs font-medium text-red-400 ring-1 ring-inset ring-red-400/20'
-              ]">
-                <CheckIcon
-                  v-if="authMech.enabled"
-                  class="w-4 h-4 mr-1"
-                />
+              <span
+                :class="[
+                  authMech.enabled
+                    ? 'inline-flex items-center rounded-md bg-green-400/10 px-2 py-1 text-xs font-medium text-green-400 ring-1 ring-inset ring-green-400/20'
+                    : 'inline-flex items-center rounded-md bg-red-400/10 px-2 py-1 text-xs font-medium text-red-400 ring-1 ring-inset ring-red-400/20',
+                ]"
+              >
+                <CheckIcon v-if="authMech.enabled" class="w-4 h-4 mr-1" />
                 <XMarkIcon v-else class="w-4 h-4 mr-1" />
-                {{ authMech.enabled ? 'Enabled' : 'Disabled' }}
+                {{ authMech.enabled ? "Enabled" : "Disabled" }}
               </span>
             </dd>
           </div>

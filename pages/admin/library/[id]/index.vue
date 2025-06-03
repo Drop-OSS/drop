@@ -5,13 +5,16 @@
       v-if="game && unimportedVersions !== undefined"
       class="grow flex flex-col gap-y-8"
     >
-      <div
-        class="grow w-full h-full lg:pr-[30vw] px-6 py-4 flex flex-col"
-      >
-        <div v-if="game.versions.length === 0" class="flex flex-col items-center justify-center h-full text-zinc-400">
+      <div class="grow w-full h-full lg:pr-[30vw] px-6 py-4 flex flex-col">
+        <div
+          v-if="game.versions.length === 0"
+          class="flex flex-col items-center justify-center h-full text-zinc-400"
+        >
           <InformationCircleIcon class="w-12 h-12 mb-2 text-zinc-400" />
           <div class="font-semibold text-lg">No versions yet</div>
-          <div class="text-sm mt-1">Import your first version to get started!</div>
+          <div class="text-sm mt-1">
+            Import your first version to get started!
+          </div>
         </div>
       </div>
       <div
