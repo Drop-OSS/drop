@@ -4,10 +4,10 @@
       <div class="flex flex-col gap-y-4">
         <div>
           <h2 class="text-2xl font-bold font-display text-zinc-100">
-            Latest News
+            {{ $t("news.title") }}
           </h2>
           <p class="mt-2 text-zinc-400">
-            Stay up to date with the latest updates and announcements.
+            {{ $t("news.subheader") }}
           </p>
         </div>
       </div>
@@ -73,8 +73,10 @@
 
     <div v-if="articles?.length === 0" class="text-center py-12">
       <DocumentIcon class="mx-auto h-12 w-12 text-zinc-400" />
-      <h3 class="mt-2 text-sm font-semibold text-zinc-100">No articles</h3>
-      <p class="mt-1 text-sm text-zinc-500">Check back later for updates.</p>
+      <h3 class="mt-2 text-sm font-semibold text-zinc-100">
+        {{ $t("news.none") }}
+      </h3>
+      <p class="mt-1 text-sm text-zinc-500">{{ $t("news.checkLater") }}</p>
     </div>
   </div>
 </template>
@@ -83,6 +85,8 @@
 import { DocumentIcon } from "@heroicons/vue/24/outline";
 import type { Article } from "~/prisma/client";
 import type { SerializeObject } from "nitropack/types";
+
+const { t } = useI18n();
 
 const { articles } = defineProps<{
   articles: SerializeObject<
@@ -102,7 +106,7 @@ const formatDate = (date: string) => {
 };
 
 useHead({
-  title: "News",
+  title: t("userHeader.links.news"),
 });
 </script>
 

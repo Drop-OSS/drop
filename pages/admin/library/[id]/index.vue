@@ -19,7 +19,7 @@
             type="button"
             class="inline-flex w-fit items-center gap-x-2 rounded-md bg-zinc-800 px-3 py-1 text-sm font-semibold font-display text-white shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
           >
-            Open in Metadata
+            {{ $t("library.admin.openInMetadata") }}
             <ArrowTopRightOnSquareIcon
               class="-mr-0.5 h-7 w-7 p-1"
               aria-hidden="true"
@@ -31,7 +31,7 @@
             type="button"
             class="inline-flex w-fit items-center gap-x-2 rounded-md bg-zinc-800 px-3 py-1 text-sm font-semibold font-display text-white shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
           >
-            Open in Store
+            {{ $t("library.admin.openStore") }}
             <ArrowTopRightOnSquareIcon
               class="-mr-0.5 h-7 w-7 p-1"
               aria-hidden="true"
@@ -50,7 +50,7 @@
                 <h3
                   class="text-base font-semibold font-display leading-6 text-zinc-100"
                 >
-                  Version priority
+                  {{ $t("library.admin.versionPriority") }}
 
                   <!-- import games button -->
 
@@ -71,8 +71,8 @@
                   >
                     {{
                       unimportedVersions.length > 0
-                        ? "Import version"
-                        : "No versions to import"
+                        ? $t("library.admin.import.version.import")
+                        : $t("library.admin.import.version.noVersions")
                     }}
                   </NuxtLink>
                 </h3>
@@ -80,7 +80,7 @@
             </div>
 
             <div class="mt-4 text-center w-full text-sm text-zinc-600">
-              lowest
+              {{ $t("lowest") }}
             </div>
             <draggable
               :list="game.versions"
@@ -96,7 +96,11 @@
                     {{ item.versionName }}
                   </div>
                   <div class="text-zinc-400">
-                    {{ item.delta ? "Upgrade mode" : "" }}
+                    {{
+                      item.delta
+                        ? $t("library.admin.import.version.updateMode")
+                        : ""
+                    }}
                   </div>
                   <div class="inline-flex items-center gap-x-2">
                     <component
@@ -117,10 +121,10 @@
               v-if="game.versions.length == 0"
               class="text-center font-bold text-zinc-400 my-3"
             >
-              no versions added
+              {{ $t("library.admin.noVersionsAdded") }}
             </div>
             <div class="mt-2 text-center w-full text-sm text-zinc-600">
-              highest
+              {{ $t("highest") }}
             </div>
           </div>
         </div>
@@ -140,6 +144,8 @@ import {
 definePageMeta({
   layout: "admin",
 });
+
+const { t } = useI18n();
 
 // TODO implement UI for this
 
@@ -164,12 +170,12 @@ async function updateVersionOrder() {
     createModal(
       ModalType.Notification,
       {
-        title: "There an error while updating the version order",
-        description: `Drop encountered an error while updating the version: ${
+        title: t("errors.version.order.title"),
+        description: t("errors.version.order.desc", {
           // @ts-expect-error attempt to get statusMessage on error
-          e?.statusMessage ?? "An unknown error occurred"
-        }`,
-        buttonText: "Close",
+          error: e?.statusMessage ?? t("errors.unknown"),
+        }),
+        buttonText: t("close"),
       },
       (e, c) => c(),
     );
@@ -193,12 +199,12 @@ async function deleteVersion(versionName: string) {
     createModal(
       ModalType.Notification,
       {
-        title: "There an error while deleting the version",
-        description: `Drop encountered an error while deleting the version: ${
+        title: t("errors.version.delete.title"),
+        description: t("errors.version.delete.desc", {
           // @ts-expect-error attempt to get statusMessage on error
-          e?.statusMessage ?? "An unknown error occurred"
-        }`,
-        buttonText: "Close",
+          error: e?.statusMessage ?? t("errors.unknown"),
+        }),
+        buttonText: t("close"),
       },
       (e, c) => c(),
     );

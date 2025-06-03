@@ -1,11 +1,25 @@
 {
+  "account": {
+    "devices": {
+      "access": "Can Access",
+      "edit": "Edit",
+      "lastConnected": "Last Connected",
+      "name": "Name",
+      "platform": "Platform",
+      "revoke": "Revoke",
+      "revokeClientName": ", {0}",
+      "subheader": "All the devices authorized to access your Drop account.",
+      "title": "Devices"
+    },
+    "title": "Account"
+  },
   "auth": {
     "confirmPassword": "Confirm @:auth.password",
     "displayName": "Display Name",
     "email": "Email",
     "password": "Password",
     "register": {
-      "checkOut": "Check us out here →",
+      "checkOut": "Check us out here {arrow}",
       "confirmPasswordFormat": "Must be the same as above",
       "create": "Create",
       "emailFormat": "Must be in the format user{'@'}example.com",
@@ -15,25 +29,126 @@
       "whatIs": "What's Drop? {0}"
     },
     "signin": {
-      "externalProvider": "@:auth.signin.signin with external provider →",
+      "externalProvider": "Sign in with external provider {arrow}",
       "forgot": "Forgot password?",
       "noAccount": "Don't have an account? Ask an admin to create one for you.",
       "or": "OR",
-      "pageTitle": "@:auth.signin.signin to Drop",
+      "pageTitle": "Sign in to Drop",
       "rememberMe": "Remember me",
       "signin": "Sign in",
-      "title": "@:auth.signin.signin to your account"
+      "title": "Sign in to your account"
     },
     "signout": "Signout",
     "username": "Username"
   },
+  "chars": {
+    "arrow": "→",
+    "quoted": "\"\""
+  },
+  "close": "Close",
   "errors": {
     "inviteRequired": "Invitation required to sign up.",
-    "unknown": "An unknown error occurred"
+    "revokeClient": "Failed to revoke client",
+    "revokeClientFull": "Failed to revoke client {0}",
+    "unknown": "An unknown error occurred",
+    "version": {
+      "delete": {
+        "desc": "Drop encountered an error while deleting the version: {error}",
+        "title": "There an error while deleting the version"
+      },
+      "order": {
+        "desc": "Drop encountered an error while updating the version: {error}",
+        "title": "There an error while updating the version order"
+      }
+    }
+  },
+  "highest": "highest",
+  "library": {
+    "addGames": "All Games",
+    "admin": {
+      "delete": "Delete",
+      "detectedGame": "Drop has detected you have new games to import.",
+      "detectedVersion": "Drop has detected you have new verions of this game to import.",
+      "gameLibrary": "Game Library",
+      "import": {
+        "import": "Import",
+        "link": "Import {arrow}",
+        "loading": "Loading game results...",
+        "search": "Search",
+        "searchPlaceholder": "Fallout 4",
+        "selectDir": "Please select a directory...",
+        "selectGame": "Select game to import",
+        "selectGamePlaceholder": "Please select a game...",
+        "selectGameSearch": "Select game",
+        "version": {
+          "advancedOptions": "Advanced options",
+          "import": "Import version",
+          "installDir": "(install_dir)/",
+          "launchCmd": "Launch executable/command",
+          "launchDesc": "Executable to launch the game",
+          "launchPlaceholder": "game.exe",
+          "loadingVersion": "Loading version metadata...",
+          "noAdv": "No advanced options for this configuration.",
+          "noVersions": "No versions to import",
+          "platform": "Version platform",
+          "setupCmd": "Setup executable/command",
+          "setupDesc": "Ran once when the game is installed",
+          "setupMode": "Setup mode",
+          "setupModeDesc": "When enabled, this version does not have a launch command, and simply runs the executable on the user's computer. Useful for games that only distribute installer and not portable files.",
+          "setupPlaceholder": "setup.exe",
+          "umuLauncherId": "UMU Launcher ID",
+          "umuOverride": "Override UMU Launcher Game ID",
+          "umuOverrideDesc": "By default, Drop uses a non-ID when launching with UMU Launcher. In order to get the right patches for some games, you may have to manually set this field.",
+          "updateMode": "Update mode",
+          "updateModeDesc": "When enabled, these files will be installed on top of (overwriting) the previous version's. If multiple \"update modes\" are chained together, they are applied in order.",
+          "version": "Select version to import"
+        },
+        "withoutMetadata": "Import without metadata"
+      },
+      "metadataProvider": "Metadata provider",
+      "noGames": "No games imported",
+      "noResults": "No results",
+      "noVersions": "You have no versions of this game available.",
+      "noVersionsAdded": "no versions added",
+      "openInMetadata": "Open in Metadata",
+      "openLibrary": "Open with Library {arrow}",
+      "openMetadata": "Open with Metadata {arrow}",
+      "openStore": "Open in Store",
+      "search": "Search library...",
+      "shortDesc": "Short Description",
+      "sources": {
+        "link": "Sources {arrow}"
+      },
+      "subheader": "As you add folders to your library sources, Drop will detect it and prompt you to import it. Each game needs to be imported before you can import a version.",
+      "title": "Libraries",
+      "versionPriority": "Version priority"
+    },
+    "back": "Back to Library",
+    "collection": {
+      "create": "Create Collection",
+      "notFound": "Collection not found",
+      "subheader": "Add a new collection to organize your games",
+      "title": "Collection"
+    },
+    "gameCount": "{0} games | {0} game | {0} games",
+    "launcherOpen": "Open in Launcher",
+    "notFound": "Game not found",
+    "subheader": "Organize your games into collections for easy access, and access all your games."
+  },
+  "lowest": "lowest",
+  "news": {
+    "back": "Back to News",
+    "checkLater": "Check back later for updates.",
+    "delete": "Delete Article",
+    "none": "No articles",
+    "notFound": "Article not found",
+    "subheader": "Stay up to date with the latest updates and announcements.",
+    "title": "Latest News"
   },
   "store": {
     "commingSoon": "coming soon",
-    "exploreMore": "Explore more →",
+    "exploreMore": "Explore more {arrow}",
+    "images": "Game Images",
     "lookAt": "Check it out",
     "noGame": "no game",
     "noImages": "No images",
@@ -46,24 +161,26 @@
     "recentlyReleased": "Recently released",
     "recentlyUpdated": "Recently Updated",
     "released": "Released",
-    "reviews": "({0} Reviews)"
+    "reviews": "({0} Reviews)",
+    "title": "Store",
+    "view": "View in Store"
   },
   "userHeader": {
+    "closeSidebar": "Close sidebar",
     "links": {
       "community": "Community",
       "library": "Library",
-      "news": "News",
-      "store": "Store"
+      "news": "News"
     },
     "notifications": {
-      "all": "View all →",
+      "all": "View all {arrow}",
       "none": "No notifications",
       "unread": "Unread Notifications"
     },
+    "openSidebar": "Open sidebar",
     "profile": {
       "admin": "Admin Dashboard",
-      "settings": "Account settings",
-      "signout": "@:auth.signout"
+      "settings": "Account settings"
     }
   },
   "welcome": "American, Welcome!"

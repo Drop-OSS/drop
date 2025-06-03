@@ -15,7 +15,11 @@
             type="button"
             class="text-sm text-zinc-400"
           >
-            {{ $t("userHeader.notifications.all") }}
+            <i18n-t keypath="userHeader.notifications.all" tag="span">
+              <template #arrow>
+                <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
+              </template>
+            </i18n-t>
           </NuxtLink>
         </div>
       </div>

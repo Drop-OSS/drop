@@ -2,10 +2,11 @@
   <div>
     <div class="flex flex-col gap-y-8">
       <div class="max-w-2xl">
-        <h2 class="text-2xl font-bold font-display text-zinc-100">Library</h2>
+        <h2 class="text-2xl font-bold font-display text-zinc-100">
+          {{ $t("userHeader.links.library") }}
+        </h2>
         <p class="mt-2 text-zinc-400">
-          Organize your games into collections for easy access, and access all
-          your games.
+          {{ $t("library.subheader") }}
         </p>
       </div>
 
@@ -29,7 +30,7 @@
               {{ collection.name }}
             </h3>
             <p class="mt-1 text-sm text-zinc-400">
-              {{ collection.entries.length }} game(s)
+              {{ $t("library.gameCount", [collection.entries.length]) }}
             </p>
           </NuxtLink>
 
@@ -60,11 +61,11 @@
                 <h3
                   class="text-lg font-semibold text-zinc-400 group-hover:text-zinc-300"
                 >
-                  Create Collection
+                  {{ $t("library.collection.create") }}
                 </h3>
               </div>
               <p class="mt-1 text-sm text-zinc-500 group-hover:text-zinc-400">
-                Add a new collection to organize your games
+                {{ $t("library.collection.subheader") }}
               </p>
             </div>
           </button>
@@ -73,7 +74,9 @@
 
       <!-- game library grid -->
       <div>
-        <h1 class="text-zinc-100 text-xl font-bold font-display">All Games</h1>
+        <h1 class="text-zinc-100 text-xl font-bold font-display">
+          {{ $t("library.addGames") }}
+        </h1>
         <div class="mt-4 flex flex-row flex-wrap justify-left gap-4">
           <GamePanel
             v-for="game in games"
@@ -99,11 +102,12 @@ const collectionCreateOpen = ref(false);
 
 const currentlyDeleting = ref<Collection | undefined>();
 
+const { t } = useI18n();
 const library = await useLibrary();
 const games = library.value.entries.map((e) => e.game);
 
 useHead({
-  title: "Home",
+  title: t("userHeader.links.library"),
 });
 </script>
 

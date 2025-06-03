@@ -42,7 +42,9 @@
                     class="-m-2.5 p-2.5"
                     @click="sidebarOpen = false"
                   >
-                    <span class="sr-only">Close sidebar</span>
+                    <span class="sr-only">{{
+                      $t("userHeader.closeSidebar")
+                    }}</span>
                     <XMarkIcon class="size-6 text-white" aria-hidden="true" />
                   </button>
                 </div>
@@ -73,13 +75,13 @@
         class="-m-2.5 p-2.5 text-zinc-400 lg:hidden"
         @click="sidebarOpen = true"
       >
-        <span class="sr-only">Open sidebar</span>
+        <span class="sr-only">{{ $t("userHeader.openSidebar") }}</span>
         <Bars3Icon class="size-6" aria-hidden="true" />
       </button>
       <div
         class="flex-1 text-sm/6 font-semibold uppercase font-display text-zinc-400"
       >
-        Library
+        {{ $t("userHeader.links.library") }}
       </div>
     </div>
 

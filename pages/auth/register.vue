@@ -185,8 +185,13 @@
           to="https://github.com/Drop-OSS/drop"
           target="_blank"
           class="font-semibold leading-6 text-blue-600 hover:text-blue-500"
-          >{{ $t("auth.register.checkOut") }}</NuxtLink
         >
+          <i18n-t keypath="auth.register.checkOut" tag="span" for="tos">
+            <template #arrow>
+              <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
+            </template>
+          </i18n-t>
+        </NuxtLink>
       </p>
     </div>
   </div>

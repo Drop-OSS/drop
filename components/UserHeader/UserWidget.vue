@@ -67,7 +67,7 @@
                 ]"
                 href="/auth/signout"
               >
-                {{ $t("userHeader.profile.signout") }}
+                {{ $t("auth.signout") }}
               </a>
             </MenuItem>
           </div>

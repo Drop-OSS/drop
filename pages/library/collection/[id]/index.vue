@@ -7,14 +7,14 @@
           class="transition text-sm/6 font-semibold text-zinc-400 hover:text-zinc-100 inline-flex gap-x-2 items-center duration-200 hover:scale-105"
         >
           <ArrowLeftIcon class="h-4 w-4" aria-hidden="true" />
-          Back to Library
+          {{ $t("library.back") }}
         </NuxtLink>
       </div>
       <h2 class="text-2xl font-bold font-display text-zinc-100">
         {{ collection?.name }}
       </h2>
       <p class="mt-2 text-zinc-400">
-        {{ collection?.entries?.length || 0 }} games
+        {{ $t("library.gameCount", collection?.entries?.length || 0) }}
       </p>
     </div>
 
@@ -37,15 +37,19 @@ import { ArrowLeftIcon } from "@heroicons/vue/20/solid";
 
 const route = useRoute();
 const collections = await useCollections();
+const { t } = useI18n();
 const collection = computed(() =>
   collections.value.find((e) => e.id == route.params.id),
 );
 if (collection.value === undefined) {
-  throw createError({ statusCode: 404, statusMessage: "Collection not found" });
+  throw createError({
+    statusCode: 404,
+    statusMessage: t("library.collection.notFound"),
+  });
 }
 
 useHead({
-  title: collection.value?.name || "Collection",
+  title: collection.value?.name || t("library.collection.title"),
 });
 </script>
 

@@ -2,11 +2,11 @@
   <div class="space-y-4">
     <div class="sm:flex sm:items-center">
       <div class="sm:flex-auto">
-        <h1 class="text-base font-semibold text-zinc-100">Game Library</h1>
+        <h1 class="text-base font-semibold text-zinc-100">
+          {{ $t("library.admin.gameLibrary") }}
+        </h1>
         <p class="mt-2 text-sm text-zinc-400">
-          As you add folders to your library sources, Drop will detect it and
-          prompt you to import it. Each game needs to be imported before you can
-          import a version.
+          {{ $t("library.admin.subheader") }}
         </p>
       </div>
       <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
@@ -14,7 +14,11 @@
           to="/admin/library/sources"
           class="block rounded-md bg-blue-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
         >
-          Sources &rarr;
+          <i18n-t keypath="library.admin.sources.link" tag="span">
+            <template #arrow>
+              <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
+            </template>
+          </i18n-t>
         </NuxtLink>
       </div>
     </div>
@@ -28,15 +32,18 @@
         </div>
         <div class="ml-3 flex-1 md:flex md:justify-between">
           <p class="text-sm text-blue-400">
-            Drop has detected you have new games to import.
+            {{ $t("library.admin.detectedGame") }}
           </p>
           <p class="mt-3 text-sm md:ml-6 md:mt-0">
             <NuxtLink
               href="/admin/library/import"
               class="whitespace-nowrap font-medium text-blue-400 hover:text-blue-500"
             >
-              Import
-              <span aria-hidden="true"> &rarr;</span>
+              <i18n-t keypath="library.admin.import.link" tag="span">
+                <template #arrow>
+                  <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
+                </template>
+              </i18n-t>
             </NuxtLink>
           </p>
         </div>
@@ -49,7 +56,7 @@
         type="text"
         name="search"
         class="col-start-1 row-start-1 block w-full rounded-md bg-zinc-900 py-1.5 pl-10 pr-3 text-base text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:pl-9 sm:text-sm/6"
-        placeholder="Search library..."
+        :placeholder="$t('library.admin.search')"
       />
       <MagnifyingGlassIcon
         class="pointer-events-none col-start-1 row-start-1 ml-3 size-5 self-center text-zinc-400 sm:size-4"
@@ -80,30 +87,40 @@
               >
             </h3>
             <dl class="mt-1 flex flex-col justify-between">
-              <dt class="sr-only">Short Description</dt>
+              <dt class="sr-only">{{ $t("library.admin.shortDesc") }}</dt>
               <dd class="text-sm text-zinc-400">
                 {{ game.mShortDescription }}
               </dd>
-              <dt class="sr-only">Metadata provider</dt>
+              <dt class="sr-only">
+                {{ $t("library.admin.metadataProvider") }}
+              </dt>
             </dl>
             <div class="mt-4 flex flex-col gap-y-1">
               <NuxtLink
                 :href="`/admin/library/${game.id}`"
                 class="w-fit rounded-md bg-blue-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               >
-                Open with Library &rarr;
+                <i18n-t keypath="library.admin.openLibrary" tag="span">
+                  <template #arrow>
+                    <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
+                  </template>
+                </i18n-t>
               </NuxtLink>
               <NuxtLink
                 :href="`/admin/metadata/games/${game.id}`"
                 class="w-fit rounded-md bg-zinc-800 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-zinc-700u focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               >
-                Open with Metadata &rarr;
+                <i18n-t keypath="library.admin.openMetadata" tag="span">
+                  <template #arrow>
+                    <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
+                  </template>
+                </i18n-t>
               </NuxtLink>
               <button
                 class="w-fit rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
                 @click="() => deleteGame(game.id)"
               >
-                Delete
+                {{ $t("library.admin.delete") }}
               </button>
             </div>
           </div>
@@ -122,15 +139,18 @@
               </div>
               <div class="ml-3 flex-1 md:flex md:justify-between">
                 <p class="text-sm text-blue-400">
-                  Drop has detected you have new verions of this game to import.
+                  {{ $t("library.admin.detectedVersion") }}
                 </p>
                 <p class="mt-3 text-sm md:ml-6 md:mt-0">
                   <NuxtLink
                     :href="`/admin/library/${game.id}/import`"
                     class="whitespace-nowrap font-medium text-blue-400 hover:text-blue-500"
                   >
-                    Import
-                    <span aria-hidden="true"> &rarr;</span>
+                    <i18n-t keypath="library.admin.import.link" tag="span">
+                      <template #arrow>
+                        <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
+                      </template>
+                    </i18n-t>
                   </NuxtLink>
                 </p>
               </div>
@@ -149,7 +169,7 @@
               </div>
               <div class="ml-3">
                 <h3 class="text-sm font-medium text-yellow-600">
-                  You have no versions of this game available.
+                  {{ $t("library.admin.noVersions") }}
                 </h3>
               </div>
             </div>
@@ -160,13 +180,13 @@
         v-if="filteredLibraryGames.length == 0 && libraryGames.length != 0"
         class="text-zinc-600 text-sm font-display font-bold uppercase text-center col-span-4"
       >
-        No results
+        {{ $t("library.admin.noResults") }}
       </p>
       <p
         v-if="filteredLibraryGames.length == 0 && libraryGames.length == 0"
         class="text-zinc-600 text-sm font-display font-bold uppercase text-center col-span-4"
       >
-        No games imported
+        {{ $t("library.admin.noGames") }}
       </p>
     </ul>
   </div>
@@ -176,12 +196,15 @@
 import { ExclamationTriangleIcon } from "@heroicons/vue/16/solid";
 import { InformationCircleIcon } from "@heroicons/vue/20/solid";
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
+
+const { t } = useI18n();
+
 definePageMeta({
   layout: "admin",
 });
 
 useHead({
-  title: "Libraries",
+  title: t("library.admin.title"),
 });
 
 const searchQuery = ref("");

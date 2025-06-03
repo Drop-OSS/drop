@@ -75,9 +75,13 @@
       <h1 class="text-zinc-100 text-2xl font-bold font-display">
         {{ $t("store.recentlyReleased") }}
       </h1>
-      <NuxtLink class="text-blue-600 font-semibold">{{
-        $t("store.exploreMore")
-      }}</NuxtLink>
+      <NuxtLink class="text-blue-600 font-semibold">
+        <i18n-t keypath="store.exploreMore" tag="span">
+          <template #arrow>
+            <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
+          </template>
+        </i18n-t>
+      </NuxtLink>
       <div class="mt-4">
         <GameCarousel :items="released" :min="12" />
       </div>
@@ -88,9 +92,13 @@
       <h1 class="text-zinc-100 text-2xl font-bold font-display">
         {{ $t("store.recentlyUpdated") }}
       </h1>
-      <NuxtLink class="text-blue-600 font-semibold">{{
-        $t("store.exploreMore")
-      }}</NuxtLink>
+      <NuxtLink class="text-blue-600 font-semibold">
+        <i18n-t keypath="store.exploreMore" tag="span">
+          <template #arrow>
+            <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
+          </template>
+        </i18n-t>
+      </NuxtLink>
       <div class="mt-4">
         <GameCarousel :items="updated" :min="12" />
       </div>
@@ -106,7 +114,9 @@ const released = await $dropFetch("/api/v1/store/released");
 // const developers = await $dropFetch("/api/v1/store/developers");
 // const publishers = await $dropFetch("/api/v1/store/publishers");
 
+const { t } = useI18n();
+
 useHead({
-  title: "Store",
+  title: t("store.title"),
 });
 </script>

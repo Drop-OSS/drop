@@ -2,9 +2,11 @@
   <div>
     <div class="sm:flex sm:items-center">
       <div class="sm:flex-auto">
-        <h1 class="text-base font-semibold text-zinc-100">Devices</h1>
+        <h1 class="text-base font-semibold text-zinc-100">
+          {{ $t("account.devices.title") }}
+        </h1>
         <p class="mt-2 text-sm text-zinc-400">
-          All the devices authorized to access your Drop account.
+          {{ $t("account.devices.subheader") }}
         </p>
       </div>
     </div>
@@ -18,28 +20,28 @@
                   scope="col"
                   class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-zinc-100 sm:pl-3"
                 >
-                  Name
+                  {{ $t("account.devices.name") }}
                 </th>
                 <th
                   scope="col"
                   class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
                 >
-                  Platform
+                  {{ $t("account.devices.platform") }}
                 </th>
                 <th
                   scope="col"
                   class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
                 >
-                  Can Access
+                  {{ $t("account.devices.access") }}
                 </th>
                 <th
                   scope="col"
                   class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
                 >
-                  Last Connected
+                  {{ $t("account.devices.lastConnected") }}
                 </th>
                 <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-3">
-                  <span class="sr-only">Edit</span>
+                  <span class="sr-only">{{ $t("account.devices.edit") }}</span>
                 </th>
               </tr>
             </thead>
@@ -78,7 +80,12 @@
                     class="text-red-600 hover:text-red-900"
                     @click="() => revokeClientWrapper(client.id)"
                   >
-                    Revoke<span class="sr-only">, {{ client.name }}</span>
+                    {{ $t("account.devices.revoke") }}
+                    <span class="sr-only">
+                      {{
+                        $t("account.devices.revokeClientName", [client.name])
+                      }}
+                    </span>
                   </button>
                 </td>
               </tr>
@@ -97,6 +104,7 @@ import { DateTime } from "luxon";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore pending https://github.com/nitrojs/nitro/issues/2758
 const clients = ref(await $dropFetch("/api/v1/user/client"));
+const { t } = useI18n();
 
 async function revokeClient(id: string) {
   await $dropFetch(`/api/v1/user/client/${id}`, { method: "DELETE" });
@@ -112,8 +120,8 @@ function revokeClientWrapper(id: string) {
       createModal(
         ModalType.Notification,
         {
-          title: "Failed to revoke client",
-          description: `Failed to revoke client: ${e}`,
+          title: t("errors.revokeClient"),
+          description: t("errors.revokeClientFull", String(e)),
         },
         (_, c) => c(),
       );
