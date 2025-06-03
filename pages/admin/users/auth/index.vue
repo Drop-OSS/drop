@@ -79,7 +79,7 @@
                   'inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset',
                   authMech.enabled
                     ? 'bg-green-400/10 text-green-400 ring-green-400/20'
-                    : 'bg-red-400/10 text-red-400 ring-red-400/20'
+                    : 'bg-red-400/10 text-red-400 ring-red-400/20',
                 ]"
               >
                 <CheckIcon v-if="authMech.enabled" class="w-4 h-4 mr-1" />

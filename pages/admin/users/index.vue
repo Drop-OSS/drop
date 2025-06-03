@@ -84,7 +84,7 @@
                         'inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset',
                         user.admin
                           ? 'bg-blue-400/10 text-blue-400 ring-blue-400/20'
-                          : 'bg-zinc-400/10 text-zinc-400 ring-zinc-400/20'
+                          : 'bg-zinc-400/10 text-zinc-400 ring-zinc-400/20',
                       ]"
                     >
                       {{ user.admin ? "Admin User" : "Normal user" }}

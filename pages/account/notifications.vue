@@ -110,9 +110,9 @@ const notifications = ref<Notification[]>([]);
 
 async function fetchNotifications() {
   const { data } = await useFetch("/api/v1/notifications");
-  notifications.value = (data.value || []).map(notification => ({
+  notifications.value = (data.value || []).map((notification) => ({
     ...notification,
-    created: new Date(notification.created)
+    created: new Date(notification.created),
   }));
 }
 
