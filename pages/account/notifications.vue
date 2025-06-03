@@ -52,13 +52,7 @@
             </div>
             <div class="ml-4 flex flex-shrink-0 items-center gap-x-2">
               <span class="text-xs text-zinc-500">
-                {{
-                  DateTime.fromISO(
-                    typeof notification.created === "string"
-                      ? notification.created
-                      : notification.created.toISOString(),
-                  ).toRelative()
-                }}
+                {{ DateTime.fromISO(notification.created).toRelative() }}
               </span>
               <button
                 v-if="!notification.read"
@@ -96,6 +90,7 @@
 import { CheckIcon, TrashIcon } from "@heroicons/vue/24/outline";
 import { DateTime } from "luxon";
 import type { Notification } from "~/prisma/client";
+import type { SerializeObject } from "nitropack";
 
 definePageMeta({
   layout: "default",
@@ -106,14 +101,11 @@ useHead({
 });
 
 // Fetch notifications
-const notifications = ref<Notification[]>([]);
+const notifications = ref<SerializeObject<Notification>[]>([]);
 
 async function fetchNotifications() {
   const { data } = await useFetch("/api/v1/notifications");
-  notifications.value = (data.value || []).map((notification) => ({
-    ...notification,
-    created: new Date(notification.created),
-  }));
+  notifications.value = data.value || [];
 }
 
 // Initial fetch
@@ -122,7 +114,7 @@ await fetchNotifications();
 // Mark a notification as read
 async function markAsRead(id: string) {
   await $dropFetch(`/api/v1/notifications/${id}/read`, { method: "POST" });
-  const notification = notifications.value.find((n) => n.id === id);
+  const notification = notifications.value.find((n: SerializeObject<Notification>) => n.id === id);
   if (notification) {
     notification.read = true;
   }
@@ -131,7 +123,7 @@ async function markAsRead(id: string) {
 // Mark all notifications as read
 async function markAllAsRead() {
   await $dropFetch("/api/v1/notifications/readall", { method: "POST" });
-  notifications.value.forEach((notification) => {
+  notifications.value.forEach((notification: SerializeObject<Notification>) => {
     notification.read = true;
   });
 }
@@ -139,7 +131,7 @@ async function markAllAsRead() {
 // Delete a notification
 async function deleteNotification(id: string) {
   await $dropFetch(`/api/v1/notifications/${id}`, { method: "DELETE" });
-  const index = notifications.value.findIndex((n) => n.id === id);
+  const index = notifications.value.findIndex((n: SerializeObject<Notification>) => n.id === id);
   if (index !== -1) {
     notifications.value.splice(index, 1);
   }
