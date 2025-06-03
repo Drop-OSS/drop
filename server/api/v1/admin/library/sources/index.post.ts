@@ -1,7 +1,7 @@
 import { type } from "arktype";
 import { randomUUID } from "crypto";
 import { LibraryBackend } from "~/prisma/client";
-import { throwingArktype } from "~/server/arktype";
+import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import libraryManager from "~/server/internal/library";
@@ -21,7 +21,7 @@ export default defineEventHandler<{ body: typeof CreateLibrarySource.infer }>(
     ]);
     if (!allowed) throw createError({ statusCode: 403 });
 
-    const body = await readValidatedBody(h3, CreateLibrarySource);
+    const body = await readDropValidatedBody(h3, CreateLibrarySource);
     const backend = Object.values(LibraryBackend).find(
       (e) => e == body.backend,
     );

@@ -1,5 +1,5 @@
 import { type } from "arktype";
-import { throwingArktype } from "~/server/arktype";
+import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 import aclManager from "~/server/internal/acls";
 import libraryManager from "~/server/internal/library";
 import metadataHandler from "~/server/internal/metadata";
@@ -19,7 +19,7 @@ export default defineEventHandler<{ body: typeof ImportGameBody.infer }>(
     const allowed = await aclManager.allowSystemACL(h3, ["import:game:new"]);
     if (!allowed) throw createError({ statusCode: 403 });
 
-    const { library, path, metadata } = await readValidatedBody(
+    const { library, path, metadata } = await readDropValidatedBody(
       h3,
       ImportGameBody,
     );
