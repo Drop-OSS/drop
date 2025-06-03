@@ -2,7 +2,7 @@ import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import objectHandler from "~/server/internal/objects";
 import { type } from "arktype";
-import { throwingArktype } from "~/server/arktype";
+import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 
 const DeleteGameImage = type({
   gameId: "string",
@@ -15,7 +15,7 @@ export default defineEventHandler<{
   const allowed = await aclManager.allowSystemACL(h3, ["game:image:delete"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
-  const body = await readValidatedBody(h3, DeleteGameImage);
+  const body = await readDropValidatedBody(h3, DeleteGameImage);
 
   const gameId = body.gameId;
   const imageId = body.imageId;

@@ -1,5 +1,5 @@
 import { type } from "arktype";
-import { throwingArktype } from "~/server/arktype";
+import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 
@@ -15,7 +15,7 @@ export default defineEventHandler<{
   ]);
   if (!allowed) throw createError({ statusCode: 403 });
 
-  const body = await readValidatedBody(h3, DeleteInvite);
+  const body = await readDropValidatedBody(h3, DeleteInvite);
 
   await prisma.invitation.delete({ where: { id: body.id } });
   return {};

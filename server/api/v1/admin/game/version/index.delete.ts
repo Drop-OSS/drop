@@ -1,5 +1,5 @@
 import { type } from "arktype";
-import { throwingArktype } from "~/server/arktype";
+import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 
@@ -15,7 +15,7 @@ export default defineEventHandler<{ body: typeof DeleteVersion }>(
     ]);
     if (!allowed) throw createError({ statusCode: 403 });
 
-    const body = await readValidatedBody(h3, DeleteVersion);
+    const body = await readDropValidatedBody(h3, DeleteVersion);
 
     const gameId = body.id.toString();
     const version = body.versionName.toString();

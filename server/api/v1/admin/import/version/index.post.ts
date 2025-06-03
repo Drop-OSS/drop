@@ -1,4 +1,5 @@
 import { type } from "arktype";
+import { readDropValidatedBody } from "~/server/arktype";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import libraryManager from "~/server/internal/library";
@@ -33,7 +34,7 @@ export default defineEventHandler(async (h3) => {
     onlySetup,
     delta,
     umuId,
-  } = await readValidatedBody(h3, ImportVersion);
+  } = await readDropValidatedBody(h3, ImportVersion);
 
   const platformParsed = parsePlatform(platform);
   if (!platformParsed)
