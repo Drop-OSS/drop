@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="mx-auto max-w-2xl lg:mx-0">
+    <div class="mx-auto max-w-2xl lg:mx-0 border-b border-zinc-800 pb-4">
       <h2
         class="mt-2 text-xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
       >
@@ -11,13 +11,10 @@
       >
         View and manage your notifications.
       </p>
-    </div>
-
-    <div class="mt-8 flex justify-end">
       <button
         v-if="notifications.length > 0"
         type="button"
-        class="inline-flex items-center gap-x-1.5 rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm transition-all duration-200 hover:bg-zinc-700 hover:scale-105 hover:shadow-lg active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600"
+        class="mt-4 inline-flex items-center gap-x-1.5 rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm transition-all duration-200 hover:bg-zinc-700 hover:scale-105 hover:shadow-lg active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600"
         @click="markAllAsRead"
       >
         <CheckIcon class="size-4" />
