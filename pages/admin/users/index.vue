@@ -81,9 +81,10 @@
                   <td class="whitespace-nowrap px-3 py-4 text-sm">
                     <span
                       :class="[
+                        'inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset',
                         user.admin
-                          ? 'inline-flex items-center rounded-md bg-blue-400/10 px-2 py-1 text-xs font-medium text-blue-400 ring-1 ring-inset ring-blue-400/20'
-                          : 'inline-flex items-center rounded-md bg-zinc-400/10 px-2 py-1 text-xs font-medium text-zinc-400 ring-1 ring-inset ring-zinc-400/20',
+                          ? 'bg-blue-400/10 text-blue-400 ring-blue-400/20'
+                          : 'bg-zinc-400/10 text-zinc-400 ring-zinc-400/20'
                       ]"
                     >
                       {{ user.admin ? "Admin User" : "Normal user" }}
