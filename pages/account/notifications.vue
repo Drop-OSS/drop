@@ -54,7 +54,7 @@
             </div>
             <div class="ml-4 flex flex-shrink-0 items-center gap-x-2">
               <span class="text-xs text-zinc-500">
-                {{ DateTime.fromISO(notification.created).toRelative() }}
+                {{ DateTime.fromISO(typeof notification.created === 'string' ? notification.created : notification.created.toISOString()).toRelative() }}
               </span>
               <button
                 v-if="!notification.read"
