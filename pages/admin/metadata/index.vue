@@ -20,6 +20,7 @@
         to="/admin/metadata/games"
         class="transition group aspect-[3/2] flex flex-col justify-center items-center rounded-lg bg-zinc-950 hover:bg-zinc-950/50 shadow"
       >
+        <RectangleStackIcon class="mb-2 h-12 w-12 text-zinc-500 group-hover:text-blue-500 transition-all duration-200" />
         <span
           class="transition-all text-4xl font-bold text-zinc-400 group-hover:text-zinc-100 uppercase tracking-widest"
           >Games</span
@@ -29,6 +30,7 @@
         to="/admin/metadata/companies"
         class="transition group aspect-[3/2] flex flex-col justify-center items-center rounded-lg bg-zinc-950 hover:bg-zinc-950/50 shadow"
       >
+        <BuildingOffice2Icon class="mb-2 h-12 w-12 text-zinc-500 group-hover:text-blue-500 transition-all duration-200" />
         <span
           class="transition-all text-4xl font-bold text-zinc-400 group-hover:text-zinc-100 uppercase tracking-widest"
           >Companies</span
@@ -39,6 +41,8 @@
 </template>
 
 <script setup lang="ts">
+import { RectangleStackIcon, BuildingOffice2Icon } from "@heroicons/vue/24/solid";
+
 definePageMeta({
   layout: "admin",
 });
