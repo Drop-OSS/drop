@@ -8,9 +8,8 @@
           Notifications
         </h2>
         <button
-          v-if="notifications.length > 0"
-          type="button"
-          class="inline-flex items-center gap-x-1.5 rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm transition-all duration-200 hover:bg-zinc-700 hover:scale-105 hover:shadow-lg active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600"
+          :disabled="notifications.length === 0"
+          class="inline-flex items-center justify-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm transition-all duration-200 hover:bg-zinc-700 hover:scale-[1.02] hover:shadow-lg active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-zinc-800 disabled:hover:scale-100 disabled:hover:shadow-none"
           @click="markAllAsRead"
         >
           <CheckIcon class="size-4" />
@@ -110,9 +109,11 @@ useHead({
 const notifications = ref<Notification[]>([]);
 
 async function fetchNotifications() {
-  notifications.value = await $dropFetch<Notification[]>(
-    "/api/v1/notifications",
-  );
+  const { data } = await useFetch("/api/v1/notifications");
+  notifications.value = (data.value || []).map(notification => ({
+    ...notification,
+    created: new Date(notification.created)
+  }));
 }
 
 // Initial fetch
