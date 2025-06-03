@@ -1,25 +1,27 @@
 <template>
   <div>
-    <div class="mx-auto max-w-2xl lg:mx-0 border-b border-zinc-800 pb-4">
-      <h2
-        class="mt-2 text-xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
-      >
-        Notifications
-      </h2>
+    <div class="border-b border-zinc-800 pb-4 w-full">
+      <div class="flex items-center justify-between w-full">
+        <h2
+          class="text-xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
+        >
+          Notifications
+        </h2>
+        <button
+          v-if="notifications.length > 0"
+          type="button"
+          class="inline-flex items-center gap-x-1.5 rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm transition-all duration-200 hover:bg-zinc-700 hover:scale-105 hover:shadow-lg active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600"
+          @click="markAllAsRead"
+        >
+          <CheckIcon class="size-4" />
+          Mark all as read
+        </button>
+      </div>
       <p
         class="mt-2 text-pretty text-sm font-medium text-zinc-400 sm:text-md/8"
       >
         View and manage your notifications.
       </p>
-      <button
-        v-if="notifications.length > 0"
-        type="button"
-        class="mt-4 inline-flex items-center gap-x-1.5 rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm transition-all duration-200 hover:bg-zinc-700 hover:scale-105 hover:shadow-lg active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600"
-        @click="markAllAsRead"
-      >
-        <CheckIcon class="size-4" />
-        Mark all as read
-      </button>
     </div>
 
     <div class="mt-4 space-y-4">
