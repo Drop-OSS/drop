@@ -82,7 +82,6 @@
 </template>
 
 <script setup lang="ts">
-import type { User } from "~/prisma/client";
 
 definePageMeta({
   layout: "default",
