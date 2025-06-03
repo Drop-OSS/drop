@@ -114,7 +114,9 @@ await fetchNotifications();
 // Mark a notification as read
 async function markAsRead(id: string) {
   await $dropFetch(`/api/v1/notifications/${id}/read`, { method: "POST" });
-  const notification = notifications.value.find((n: SerializeObject<Notification>) => n.id === id);
+  const notification = notifications.value.find(
+    (n: SerializeObject<Notification>) => n.id === id,
+  );
   if (notification) {
     notification.read = true;
   }
@@ -131,7 +133,9 @@ async function markAllAsRead() {
 // Delete a notification
 async function deleteNotification(id: string) {
   await $dropFetch(`/api/v1/notifications/${id}`, { method: "DELETE" });
-  const index = notifications.value.findIndex((n: SerializeObject<Notification>) => n.id === id);
+  const index = notifications.value.findIndex(
+    (n: SerializeObject<Notification>) => n.id === id,
+  );
   if (index !== -1) {
     notifications.value.splice(index, 1);
   }
