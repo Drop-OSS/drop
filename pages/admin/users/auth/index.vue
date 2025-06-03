@@ -76,9 +76,10 @@
             <dd class="flex items-center">
               <span
                 :class="[
+                  'inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset',
                   authMech.enabled
-                    ? 'inline-flex items-center rounded-md bg-green-400/10 px-2 py-1 text-xs font-medium text-green-400 ring-1 ring-inset ring-green-400/20'
-                    : 'inline-flex items-center rounded-md bg-red-400/10 px-2 py-1 text-xs font-medium text-red-400 ring-1 ring-inset ring-red-400/20',
+                    ? 'bg-green-400/10 text-green-400 ring-green-400/20'
+                    : 'bg-red-400/10 text-red-400 ring-red-400/20'
                 ]"
               >
                 <CheckIcon v-if="authMech.enabled" class="w-4 h-4 mr-1" />
@@ -94,7 +95,7 @@
               class="flex flex-nowrap justify-between gap-x-4 py-2"
             >
               <dt class="text-zinc-400">{{ key }}</dt>
-              <dd class="text-zinc-300 truncate max-w-[200px]">
+              <dd class="text-zinc-300 truncate">
                 {{ value }}
               </dd>
             </div>
