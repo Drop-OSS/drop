@@ -1,4 +1,4 @@
-import { ArkErrors, type } from "arktype";
+import { ArkErrors } from "arktype";
 import { configure } from "arktype/config";
 import type { H3Event } from "h3";
 
