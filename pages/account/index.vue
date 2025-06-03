@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
   <div>
-    <div class="mx-auto max-w-2xl lg:mx-0">
+    <div v-if="user" class="mx-auto max-w-2xl lg:mx-0">
       <h2
         class="mt-2 text-xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
       >
@@ -15,7 +15,7 @@
       </p>
     </div>
 
-    <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
+    <div v-if="user" class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
       <!-- Account Information Card -->
       <div
         class="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 shadow-sm transition-all duration-200 hover:shadow-lg hover:shadow-zinc-900/50"
@@ -38,9 +38,10 @@
               <dd>
                 <span
                   :class="[
+                    'inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset',
                     user.admin
-                      ? 'inline-flex items-center rounded-md bg-blue-400/10 px-2 py-1 text-xs font-medium text-blue-400 ring-1 ring-inset ring-blue-400/20'
-                      : 'inline-flex items-center rounded-md bg-zinc-400/10 px-2 py-1 text-xs font-medium text-zinc-400 ring-1 ring-inset ring-zinc-400/20',
+                      ? 'bg-blue-400/10 text-blue-400 ring-blue-400/20'
+                      : 'bg-zinc-400/10 text-zinc-400 ring-zinc-400/20'
                   ]"
                 >
                   {{ user.admin ? "Administrator" : "Standard User" }}
@@ -74,6 +75,9 @@
         </div>
       </div>
     </div>
+    <div v-else class="flex items-center justify-center min-h-[200px]">
+      <div class="text-zinc-400">Loading account information...</div>
+    </div>
   </div>
 </template>
 
@@ -89,5 +93,5 @@ useHead({
 });
 
 // Fetch user data
-const user = await $dropFetch<User>("/api/v1/user");
+const user = await $dropFetch("/api/v1/user");
 </script>
