@@ -1,18 +1,37 @@
 <script setup lang="ts">
 import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
 import { ChevronDownIcon } from "@heroicons/vue/16/solid";
-import localToEmoji from "~/utils/localToEmoji";
-// import TwemojiText from "../TwemojiText.server.vue";
 
 const { locales, locale: currLocale, setLocale } = useI18n();
+
+function localToEmoji(local: string): string {
+  switch (local) {
+    case "en":
+    case "en-gb":
+    case "en-ca":
+    case "en-au":
+    case "en-us": {
+      return "🇺🇸";
+    }
+    case "en-pirate": {
+      return "🏴‍☠️";
+    }
+
+    default: {
+      return "❓";
+    }
+  }
+}
 </script>
 
 <template>
   <Menu as="div" class="relative inline-block">
     <MenuButton>
       <UserHeaderWidget>
-        <div class="inline-flex items-center text-zinc-300 hover:text-white">
-          {{ localToEmoji(currLocale) }}
+        <div
+          class="inline-flex items-center text-zinc-300 hover:text-white h-5"
+        >
+          <EmojiText :emoji="localToEmoji(currLocale)" />
           <!-- <span class="ml-2 text-sm font-bold">{{ locale }}</span> -->
           <ChevronDownIcon class="ml-3 h-4" />
         </div>
@@ -39,7 +58,7 @@ const { locales, locale: currLocale, setLocale } = useI18n();
               as="div"
             >
               <button @click="setLocale(locale.code)">
-                {{ localToEmoji(locale.code) }}
+                <EmojiText :emoji="localToEmoji(locale.code)" />
                 {{ locale.name }}
               </button>
             </MenuItem>
@@ -49,3 +68,11 @@ const { locales, locale: currLocale, setLocale } = useI18n();
     </transition>
   </Menu>
 </template>
+<style scoped>
+img.emoji {
+  height: 1em;
+  width: 1em;
+  margin: 0 0.05em 0 0.1em;
+  vertical-align: -0.1em;
+}
+</style>

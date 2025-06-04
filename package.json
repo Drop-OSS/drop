@@ -16,6 +16,7 @@
     "lint:fix": "eslint . --fix && prettier --write --list-different ."
   },
   "dependencies": {
+    "@discordapp/twemoji": "^15.1.0",
     "@drop-oss/droplet": "^1.3.1",
     "@headlessui/vue": "^1.7.23",
     "@heroicons/vue": "^2.1.5",
@@ -39,6 +40,7 @@
     "nuxt": "^3.17.4",
     "nuxt-security": "2.2.0",
     "prisma": "^6.7.0",
+    "sanitize-filename": "^1.6.3",
     "semver": "^7.7.1",
     "stream-mime-type": "^2.0.0",
     "turndown": "^7.2.0",
