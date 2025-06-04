@@ -69,16 +69,20 @@
         </Listbox>
 
         <div class="pt-4 inline-flex gap-x-2">
-          <div v-for="[value] in Object.entries(components)" :key="value">
+          <div
+            v-for="[value, { icon }] in Object.entries(components)"
+            :key="value"
+          >
             <button
               :class="[
-                'py-2 px-3 rounded-t-md font-semibold text-sm',
+                'inline-flex items-center gap-x-1 py-2 px-3 rounded-t-md font-semibold text-sm',
                 value == currentMode
                   ? 'bg-zinc-900 text-zinc-100'
                   : 'bg-transparent text-zinc-500',
               ]"
               @click="() => (currentMode = value as GameEditorMode)"
             >
+              <component :is="icon" class="size-4" />
               {{ value }}
             </button>
           </div>
@@ -100,7 +104,7 @@
       </div>
     </div>
     <component
-      :is="components[currentMode]"
+      :is="components[currentMode].editor"
       v-model="game"
       :unimported-versions="unimportedVersions"
     />
@@ -118,7 +122,9 @@ import { ChevronUpDownIcon } from "@heroicons/vue/16/solid";
 import { GameEditorMetadata, GameEditorVersion } from "#components";
 import {
   ArrowTopRightOnSquareIcon,
+  DocumentIcon,
   PencilIcon,
+  ServerStackIcon,
 } from "@heroicons/vue/24/outline";
 import type { Component } from "vue";
 
@@ -143,9 +149,14 @@ enum GameEditorMode {
   Versions = "Versions",
 }
 
-const components: { [key in GameEditorMode]: Component } = {
-  [GameEditorMode.Metadata]: GameEditorMetadata,
-  [GameEditorMode.Versions]: GameEditorVersion,
+const components: {
+  [key in GameEditorMode]: { editor: Component; icon: Component };
+} = {
+  [GameEditorMode.Metadata]: { editor: GameEditorMetadata, icon: DocumentIcon },
+  [GameEditorMode.Versions]: {
+    editor: GameEditorVersion,
+    icon: ServerStackIcon,
+  },
 };
 
 const currentMode = ref<GameEditorMode>(GameEditorMode.Metadata);
