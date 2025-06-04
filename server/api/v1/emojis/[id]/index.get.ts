@@ -3,12 +3,7 @@ import module from "module";
 import fs from "fs/promises";
 import sanitize from "sanitize-filename";
 
-// // Get current file path (for ESM)
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
-
-// const require = createRequire(import.meta.url);
-// const nodeModulesPath = path.dirname(require.resolve("lodash/package.json"));
+import aclManager from "~/server/internal/acls";
 
 const twemojiJson = module.findPackageJSON(
   "@discordapp/twemoji",
@@ -16,6 +11,12 @@ const twemojiJson = module.findPackageJSON(
 );
 
 export default defineEventHandler(async (h3) => {
+  const userId = await aclManager.getUserIdACL(h3, ["object:read"]);
+  if (!userId)
+    throw createError({
+      statusCode: 403,
+    });
+
   if (!twemojiJson)
     throw createError({
       statusCode: 500,
@@ -33,6 +34,12 @@ export default defineEventHandler(async (h3) => {
     sanitize(unsafeId),
   );
 
+  setHeader(
+    h3,
+    "Cache-Control",
+    // 7 days
+    "public, max-age=604800, s-maxage=604800",
+  );
   setHeader(h3, "Content-Type", "image/svg+xml");
   return await fs.readFile(svgPath);
 });
