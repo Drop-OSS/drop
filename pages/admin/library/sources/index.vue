@@ -269,7 +269,7 @@ import { XCircleIcon } from "@heroicons/vue/20/solid";
 import { CheckIcon, DocumentIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 import { FetchError } from "ofetch";
 import type { Component } from "vue";
-import { LibraryBackend } from "~/prisma/client";
+import type { LibraryBackend } from "~/prisma/client";
 import type { WorkingLibrarySource } from "~/server/api/v1/admin/library/sources/index.get";
 
 definePageMeta({
@@ -286,7 +286,7 @@ const editIndex = ref<undefined | number>(undefined);
 const createMode = computed(() => editIndex.value === undefined);
 
 const actionSourceOpen = ref(false);
-const currentSourceOption = ref<LibraryBackend>(LibraryBackend.Filesystem);
+const currentSourceOption = ref<LibraryBackend>("Filesystem");
 const sourceName = ref("");
 const sourceConfig = ref<object>({});
 
