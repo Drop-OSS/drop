@@ -2,12 +2,10 @@
   "account": {
     "devices": {
       "access": "Can Access",
-      "edit": "Edit",
       "lastConnected": "Last Connected",
-      "name": "Name",
       "platform": "Platform",
       "revoke": "Revoke",
-      "revokeClientName": ", {0}",
+      "revokeClientName": "chars.srComma",
       "subheader": "All the devices authorized to access your Drop account.",
       "title": "Devices"
     },
@@ -21,7 +19,6 @@
     "register": {
       "checkOut": "Check us out here {arrow}",
       "confirmPasswordFormat": "Must be the same as above",
-      "create": "Create",
       "emailFormat": "Must be in the format user{'@'}example.com",
       "passwordFormat": "Must be 14 or more characters",
       "title": "Create your Drop account",
@@ -41,11 +38,14 @@
     "signout": "Signout",
     "username": "Username"
   },
+  "cancel": "Cancel",
   "chars": {
     "arrow": "→",
     "quoted": "\"\""
   },
   "close": "Close",
+  "create": "Create",
+  "edit": "Edit",
   "errors": {
     "inviteRequired": "Invitation required to sign up.",
     "revokeClient": "Failed to revoke client",
@@ -117,7 +117,16 @@
       "search": "Search library...",
       "shortDesc": "Short Description",
       "sources": {
-        "link": "Sources {arrow}"
+        "create": "Create source",
+        "createDesc": "Drop will use this source to access your game library, and make them available.",
+        "desc": "Configure your library sources, where Drop will look for new games and versions to import.",
+        "fsDesc": "Imports games from a path on disk. Requires version-based folder structure, and supports archived games.",
+        "link": "Sources {arrow}",
+        "nameDesc": "The name of your source, for reference.",
+        "namePlaceholder": "My New Source",
+        "sources": "Library Sources",
+        "typeDesc": "The type of your source. Changes the required options.",
+        "working": "Working?"
       },
       "subheader": "As you add folders to your library sources, Drop will detect it and prompt you to import it. Each game needs to be imported before you can import a version.",
       "title": "Libraries",
@@ -136,6 +145,7 @@
     "subheader": "Organize your games into collections for easy access, and access all your games."
   },
   "lowest": "lowest",
+  "name": "Name",
   "news": {
     "back": "Back to News",
     "checkLater": "Check back later for updates.",
@@ -145,6 +155,8 @@
     "subheader": "Stay up to date with the latest updates and announcements.",
     "title": "Latest News"
   },
+  "options": "Options",
+  "save": "Save",
   "store": {
     "commingSoon": "coming soon",
     "exploreMore": "Explore more {arrow}",
@@ -165,6 +177,7 @@
     "title": "Store",
     "view": "View in Store"
   },
+  "type": "Type",
   "userHeader": {
     "closeSidebar": "Close sidebar",
     "links": {

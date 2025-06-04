@@ -20,7 +20,7 @@
                   scope="col"
                   class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-zinc-100 sm:pl-3"
                 >
-                  {{ $t("account.devices.name") }}
+                  {{ $t("name") }}
                 </th>
                 <th
                   scope="col"
@@ -41,7 +41,7 @@
                   {{ $t("account.devices.lastConnected") }}
                 </th>
                 <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-3">
-                  <span class="sr-only">{{ $t("account.devices.edit") }}</span>
+                  <span class="sr-only">{{ $t("edit") }}</span>
                 </th>
               </tr>
             </thead>

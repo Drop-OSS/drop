@@ -159,7 +159,7 @@
 
           <div>
             <LoadingButton type="submit" :loading="!!loading" class="w-full">
-              {{ $t("auth.register.create") }}
+              {{ $t("create") }}
             </LoadingButton>
           </div>
 
