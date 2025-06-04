@@ -1,4 +1,3 @@
-<!-- eslint-disable vue/no-v-html -->
 <template>
   <div>
     <div v-if="user" class="mx-auto max-w-2xl lg:mx-0">
