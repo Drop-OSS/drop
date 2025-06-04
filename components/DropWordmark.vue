@@ -11,8 +11,8 @@
       />
     </svg>
     <DropLogo class="h-6" />
-    <span class="text-blue-400 font-display font-bold text-xl uppercase"
-      >Drop</span
-    >
+    <span class="text-blue-400 font-display font-bold text-xl uppercase">
+      {{ $t("drop.drop") }}
+    </span>
   </div>
 </template>

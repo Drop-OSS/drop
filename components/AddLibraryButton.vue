@@ -8,7 +8,7 @@
       class="transition w-full inline-flex items-center justify-center h-full gap-x-2 rounded-none rounded-l-md bg-white/10 hover:bg-white/20 text-zinc-100 backdrop-blur px-5 py-3 active:scale-95"
       @click="() => toggleLibrary()"
     >
-      {{ inLibrary ? "In Library" : "Add to Library" }}
+      {{ inLibrary ? $t("library.inLib") : $t("library.addToLib") }}
       <CheckIcon v-if="inLibrary" class="-mr-0.5 h-5 w-5" aria-hidden="true" />
       <PlusIcon v-else class="-mr-0.5 h-5 w-5" aria-hidden="true" />
     </LoadingButton>
@@ -36,7 +36,7 @@
             <div
               class="font-display uppercase px-3 py-2 text-sm font-semibold text-zinc-500"
             >
-              Collections
+              {{ $t("library.collection.collections") }}
             </div>
             <div
               class="flex flex-col gap-y-2 py-1 max-h-[150px] overflow-y-auto"
@@ -45,7 +45,7 @@
                 v-if="collections.length === 0"
                 class="px-3 py-2 text-sm text-zinc-500"
               >
-                No collections
+                {{ $t("library.collection.noCollections") }}
               </div>
               <MenuItem
                 v-for="(collection, collectionIdx) in collections"
@@ -75,7 +75,7 @@
                 @click="createCollectionModal = true"
               >
                 <PlusIcon class="mr-2 h-4 w-4" />
-                Add to new collection
+                {{ $t("library.collection.addToNew") }}
               </LoadingButton>
             </div>
           </div>
@@ -100,6 +100,7 @@ const props = defineProps<{
 
 const isLibraryLoading = ref(false);
 
+const { t } = useI18n();
 const createCollectionModal = ref(false);
 const collections = await useCollections();
 const library = await useLibrary();
@@ -127,9 +128,11 @@ async function toggleLibrary() {
     createModal(
       ModalType.Notification,
       {
-        title: "Failed to add game to library",
-        // @ts-expect-error attempt to display statusMessage on error
-        description: `Drop couldn't add this game to your library: ${e?.statusMessage}`,
+        title: t("errors.library.add.title"),
+        description: t("errors.library.add.desc", [
+          // @ts-expect-error attempt to display statusMessage on error
+          e?.statusMessage ?? t("errors.unknown"),
+        ]),
       },
       (_, c) => c(),
     );
@@ -156,9 +159,11 @@ async function toggleCollection(id: string) {
     createModal(
       ModalType.Notification,
       {
-        title: "Failed to add game to library",
-        // @ts-expect-error attempt to display statusMessage on error
-        description: `Drop couldn't add this game to your library: ${e?.statusMessage}`,
+        title: t("errors.library.add.title"),
+        description: t("errors.library.add.desc", [
+          // @ts-expect-error attempt to display statusMessage on error
+          e?.statusMessage ?? t("errors.unknown"),
+        ]),
       },
       (_, c) => c(),
     );

@@ -28,5 +28,8 @@
     "string >= 14",
     "string.alphanumeric >= 5",
     "/api/v1/admin/import/version/preload?id=${encodeURIComponent(\n      gameId,\n    )}&version=${encodeURIComponent(version)}"
-  ]
+  ],
+  "i18n-ally.extract.ignoredByFiles": {
+    "pages/admin/library/sources/index.vue": ["Filesystem"]
+  }
 }

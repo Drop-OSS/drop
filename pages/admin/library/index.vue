@@ -56,7 +56,7 @@
         type="text"
         name="search"
         class="col-start-1 row-start-1 block w-full rounded-md bg-zinc-900 py-1.5 pl-10 pr-3 text-base text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:pl-9 sm:text-sm/6"
-        :placeholder="$t('library.admin.search')"
+        :placeholder="$t('library.search')"
       />
       <MagnifyingGlassIcon
         class="pointer-events-none col-start-1 row-start-1 ml-3 size-5 self-center text-zinc-400 sm:size-4"
@@ -120,7 +120,7 @@
                 class="w-fit rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-red-500 hover:scale-105 hover:shadow-lg hover:shadow-red-500/25 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
                 @click="() => deleteGame(game.id)"
               >
-                {{ $t("library.admin.delete") }}
+                {{ $t("delete") }}
               </button>
             </div>
           </div>
@@ -180,7 +180,7 @@
         v-if="filteredLibraryGames.length == 0 && libraryGames.length != 0"
         class="text-zinc-600 text-sm font-display font-bold uppercase text-center col-span-4"
       >
-        {{ $t("library.admin.noResults") }}
+        {{ $t("common.noResults") }}
       </p>
       <p
         v-if="filteredLibraryGames.length == 0 && libraryGames.length == 0"

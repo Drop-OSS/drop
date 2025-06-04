@@ -3,14 +3,28 @@
     "devices": {
       "capabilities": "Capabilities",
       "lastConnected": "Last Connected",
+      "noDevices": "No devices connected to your account.",
       "platform": "Platform",
       "revoke": "Revoke",
       "subheader": "Manage the devices authorized to access your Drop account.",
       "title": "Devices"
     },
+    "notifications": {
+      "all": "View all {arrow}",
+      "desc": "View and manage your notifications.",
+      "markAllAsRead": "Mark all as read",
+      "markAsRead": "Mark as read",
+      "none": "No notifications",
+      "notifications": "Notifications",
+      "title": "Notifications",
+      "unread": "Unread Notifications"
+    },
+    "settings": "Account Settings",
     "title": "Account"
   },
   "actions": "Actions",
+  "adminTitle": "Admin Dashboard | Drop",
+  "adminTitleTemplate": "{0} | Admin | Drop",
   "auth": {
     "confirmPassword": "Confirm @:auth.password",
     "displayName": "Display Name",
@@ -43,15 +57,50 @@
     "srComma": ", {0}"
   },
   "close": "Close",
+  "common": {
+    "cannotUndo": "This action cannot be undone.",
+    "date": "Date",
+    "deleteConfirm": "Are you sure you want to delete \"{0}\"?",
+    "friends": "Friends",
+    "groups": "Groups",
+    "noResults": "No results",
+    "servers": "Servers",
+    "tags": "Tags",
+    "today": "Today"
+  },
   "create": "Create",
+  "delete": "Delete",
+  "drop": {
+    "desc": "An open-source game distribution platform built for speed, flexibility and beauty.",
+    "drop": "Drop"
+  },
   "edit": "Edit",
   "errors": {
+    "invalidBody": "Invalid request body: {0}",
     "inviteRequired": "Invitation required to sign up.",
     "library": {
+      "add": {
+        "desc": "Drop couldn't add this game to your library: {0}",
+        "title": "Failed to add game to library"
+      },
+      "collection": {
+        "create": {
+          "desc": "Drop couldn't create your collection: {0}",
+          "title": "Failed to create collection"
+        }
+      },
       "source": {
         "delete": {
           "desc": "Drop couldn't add delete this source: {0}",
           "title": "Failed to delete library source"
+        }
+      }
+    },
+    "news": {
+      "article": {
+        "delete": {
+          "desc": "Drop couldn't delete this article: {0}",
+          "title": "Failed to delete article"
         }
       }
     },
@@ -69,11 +118,42 @@
       }
     }
   },
+  "footer": {
+    "about": "About",
+    "aboutDrop": "About Drop",
+    "api": "API",
+    "docs": {
+      "client": "Client Docs",
+      "server": "Server Docs"
+    },
+    "documentation": "Documentation",
+    "faq": "FAQ",
+    "features": "Features",
+    "findGame": "Find a Game",
+    "footer": "Footer",
+    "games": "Games",
+    "social": {
+      "discord": "Discord",
+      "github": "GitHub"
+    },
+    "topSellers": "Top Sellers"
+  },
+  "header": {
+    "admin": {
+      "admin": "Admin",
+      "meta": "Meta",
+      "tasks": "Tasks",
+      "users": "Users"
+    },
+    "back": "Back",
+    "openSidebar": "Open sidebar"
+  },
   "highest": "highest",
+  "home": "Home",
   "library": {
     "addGames": "All Games",
+    "addToLib": "Add to Library",
     "admin": {
-      "delete": "Delete",
       "detectedGame": "Drop has detected you have new games to import.",
       "detectedVersion": "Drop has detected you have new verions of this game to import.",
       "gameLibrary": "Game Library",
@@ -87,6 +167,7 @@
         "selectGame": "Select game to import",
         "selectGamePlaceholder": "Please select a game...",
         "selectGameSearch": "Select game",
+        "selectPlatform": "Please select a platform...",
         "version": {
           "advancedOptions": "Advanced options",
           "import": "Import version",
@@ -114,14 +195,12 @@
       },
       "metadataProvider": "Metadata provider",
       "noGames": "No games imported",
-      "noResults": "No results",
       "noVersions": "You have no versions of this game available.",
       "noVersionsAdded": "no versions added",
       "openInMetadata": "Open in Metadata",
       "openLibrary": "Open with Library {arrow}",
       "openMetadata": "Open with Metadata {arrow}",
       "openStore": "Open in Store",
-      "search": "Search library...",
       "shortDesc": "Short Description",
       "sources": {
         "create": "Create source",
@@ -141,14 +220,23 @@
     },
     "back": "Back to Library",
     "collection": {
+      "addToNew": "Add to new collection",
+      "collections": "Collections",
       "create": "Create Collection",
+      "createDesc": "Collections can used to organise your games and find them more easily, especially if you have a large library.",
+      "delete": "Delete Collection",
+      "namePlaceholder": "Collection name",
+      "noCollections": "No collections",
       "notFound": "Collection not found",
       "subheader": "Add a new collection to organize your games",
       "title": "Collection"
     },
     "gameCount": "{0} games | {0} game | {0} games",
+    "inLib": "In Library",
     "launcherOpen": "Open in Launcher",
+    "noGames": "No games in library",
     "notFound": "Game not found",
+    "search": "Search library...",
     "subheader": "Organize your games into collections for easy access, and access all your games."
   },
   "lowest": "lowest",
@@ -157,13 +245,23 @@
     "back": "Back to News",
     "checkLater": "Check back later for updates.",
     "delete": "Delete Article",
+    "filter": {
+      "all": "All time",
+      "month": "This month",
+      "week": "This week",
+      "year": "This year"
+    },
     "none": "No articles",
     "notFound": "Article not found",
+    "search": "Search articles",
+    "searchPlaceholder": "Search articles...",
     "subheader": "Stay up to date with the latest updates and announcements.",
     "title": "Latest News"
   },
   "options": "Options",
   "save": "Save",
+  "security": "Security",
+  "settings": "Settings",
   "store": {
     "commingSoon": "coming soon",
     "exploreMore": "Explore more {arrow}",
@@ -192,12 +290,6 @@
       "library": "Library",
       "news": "News"
     },
-    "notifications": {
-      "all": "View all {arrow}",
-      "none": "No notifications",
-      "unread": "Unread Notifications"
-    },
-    "openSidebar": "Open sidebar",
     "profile": {
       "admin": "Admin Dashboard",
       "settings": "Account settings"

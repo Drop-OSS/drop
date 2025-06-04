@@ -236,6 +236,7 @@ const markdownPreview = computed(() => {
 
 const file = ref<FileList | undefined>();
 const currentFile = computed(() => file.value?.item(0));
+const { t } = useI18n();
 
 const error = ref<string | undefined>();
 
@@ -369,7 +370,7 @@ async function createArticle() {
     modalOpen.value = false;
   } catch (e) {
     // @ts-expect-error attempt to get statusMessage on error
-    error.value = e?.statusMessage ?? "An unknown error occured.";
+    error.value = e?.statusMessage ?? t("errors.unknown");
   } finally {
     loading.value = false;
   }

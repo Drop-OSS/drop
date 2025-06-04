@@ -94,7 +94,7 @@
                     class="text-red-500 hover:text-red-400"
                     @click="() => deleteSource(sourceIdx)"
                   >
-                    {{ $t("library.admin.delete") }}
+                    {{ $t("delete") }}
                     <span class="sr-only">
                       {{ $t("chars.srComma", [source.name]) }}
                     </span>
@@ -379,7 +379,7 @@ async function deleteSource(index: number) {
         title: t("errors.library.source.delete.title"),
         description: t("errors.library.source.delete.desc", [
           // @ts-expect-error attempt to display statusMessage on error
-          e?.statusMessage ?? "",
+          e?.statusMessage ?? t("errors.unknown"),
         ]),
       },
       (_, c) => c(),

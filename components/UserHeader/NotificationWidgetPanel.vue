@@ -6,7 +6,7 @@
       >
         <div class="ml-4 mt-2">
           <h3 class="text-base font-semibold text-zinc-100 text-sm">
-            {{ $t("userHeader.notifications.unread") }}
+            {{ $t("account.notifications.unread") }}
           </h3>
         </div>
         <div class="ml-4 mt-2 shrink-0">
@@ -15,7 +15,11 @@
             type="button"
             class="text-sm text-zinc-400"
           >
-            <i18n-t keypath="userHeader.notifications.all" tag="span">
+            <i18n-t
+              keypath="account.notifications.all"
+              tag="span"
+              scope="global"
+            >
               <template #arrow>
                 <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
               </template>
@@ -36,7 +40,7 @@
       v-if="props.notifications.length == 0"
       class="text-sm text-zinc-400 p-3 text-center w-full"
     >
-      {{ $t("userHeader.notifications.none") }}
+      {{ $t("account.notifications.none") }}
     </div>
   </PanelWidget>
 </template>

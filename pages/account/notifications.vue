@@ -5,7 +5,7 @@
         <h2
           class="text-xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
         >
-          Notifications
+          {{ $t("account.notifications.notifications") }}
         </h2>
         <button
           :disabled="notifications.length === 0"
@@ -13,13 +13,13 @@
           @click="markAllAsRead"
         >
           <CheckIcon class="size-4" />
-          Mark all as read
+          {{ $t("account.notifications.markAllAsRead") }}
         </button>
       </div>
       <p
         class="mt-2 text-pretty text-sm font-medium text-zinc-400 sm:text-md/8"
       >
-        View and manage your notifications.
+        {{ $t("account.notifications.desc") }}
       </p>
     </div>
 
@@ -52,7 +52,7 @@
             </div>
             <div class="ml-4 flex flex-shrink-0 items-center gap-x-2">
               <span class="text-xs text-zinc-500">
-                {{ DateTime.fromISO(notification.created).toRelative() }}
+                <RelativeTime :date="notification.created" />
               </span>
               <button
                 v-if="!notification.read"
@@ -61,7 +61,7 @@
                 @click="markAsRead(notification.id)"
               >
                 <CheckIcon class="size-3" />
-                Mark as read
+                {{ $t("account.notifications.markAsRead") }}
               </button>
               <button
                 type="button"
@@ -69,7 +69,7 @@
                 @click="deleteNotification(notification.id)"
               >
                 <TrashIcon class="size-3" />
-                Delete
+                {{ $t("delete") }}
               </button>
             </div>
           </div>
@@ -80,7 +80,9 @@
         v-if="notifications.length === 0"
         class="rounded-xl border border-zinc-800 bg-zinc-900 p-8 text-center"
       >
-        <p class="text-sm text-zinc-400">No notifications</p>
+        <p class="text-sm text-zinc-400">
+          {{ $t("account.notifications.none") }}
+        </p>
       </div>
     </div>
   </div>
@@ -88,7 +90,6 @@
 
 <script setup lang="ts">
 import { CheckIcon, TrashIcon } from "@heroicons/vue/24/outline";
-import { DateTime } from "luxon";
 import type { Notification } from "~/prisma/client";
 import type { SerializeObject } from "nitropack";
 
@@ -96,8 +97,10 @@ definePageMeta({
   layout: "default",
 });
 
+const { t } = useI18n();
+
 useHead({
-  title: "Notifications",
+  title: t("account.notifications.title"),
 });
 
 // Fetch notifications

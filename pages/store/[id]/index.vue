@@ -59,9 +59,9 @@
                   {{ $t("store.released") }}
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
-                  {{
-                    DateTime.fromISO(game.mReleased).toFormat("d MMMM, yyyy")
-                  }}
+                  <time datetime="game.mReleased">
+                    {{ $d(new Date(game.mReleased), "short") }}
+                  </time>
                 </td>
               </tr>
               <tr>
@@ -179,7 +179,6 @@
 import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
 import { StarIcon } from "@heroicons/vue/24/solid";
 import { micromark } from "micromark";
-import { DateTime } from "luxon";
 import type { PlatformClient } from "~/composables/types";
 
 const route = useRoute();

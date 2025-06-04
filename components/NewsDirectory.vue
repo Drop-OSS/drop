@@ -6,7 +6,7 @@
     <!-- Search and filters -->
     <div class="space-y-6">
       <div>
-        <label for="search" class="sr-only">Search articles</label>
+        <label for="search" class="sr-only">{{ $t("news.search") }}</label>
         <div class="relative">
           <div
             class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
@@ -21,31 +21,35 @@
             v-model="searchQuery"
             type="text"
             class="block w-full rounded-md border-0 bg-zinc-800 py-2.5 pl-10 pr-3 text-zinc-100 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6"
-            placeholder="Search articles..."
+            :placeholder="$t('news.searchPlaceholder')"
           />
         </div>
       </div>
 
       <div class="pt-2">
-        <label for="date" class="block text-sm font-medium text-zinc-400 mb-2"
-          >Date</label
+        <label
+          for="date"
+          class="block text-sm font-medium text-zinc-400 mb-2"
+          >{{ $t("common.date") }}</label
         >
         <select
           id="date"
           v-model="dateFilter"
           class="mt-1 block w-full rounded-md border-0 bg-zinc-800 py-2 pl-3 pr-10 text-zinc-100 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6"
         >
-          <option value="all">All time</option>
-          <option value="today">Today</option>
-          <option value="week">This week</option>
-          <option value="month">This month</option>
-          <option value="year">This year</option>
+          <option value="all">{{ $t("news.filter.all") }}</option>
+          <option value="today">{{ $t("common.today") }}</option>
+          <option value="week">{{ $t("news.filter.week") }}</option>
+          <option value="month">{{ $t("news.filter.month") }}</option>
+          <option value="year">{{ $t("news.filter.year") }}</option>
         </select>
       </div>
 
       <!-- Tags -->
       <div>
-        <label class="block text-sm font-medium text-zinc-400 mb-2">Tags</label>
+        <label class="block text-sm font-medium text-zinc-400 mb-2">
+          {{ $t("common.tags") }}
+        </label>
         <div class="flex flex-wrap gap-2">
           <button
             v-for="tag in availableTags"
@@ -102,9 +106,9 @@
           <div
             class="relative mt-2 flex items-center gap-x-2 text-xs text-zinc-500"
           >
-            <time :datetime="article.publishedAt">{{
-              formatDate(article.publishedAt)
-            }}</time>
+            <time :datetime="article.publishedAt">
+              {{ $d(new Date(article.publishedAt), "short") }}
+            </time>
           </div>
         </div>
       </NuxtLink>
@@ -144,14 +148,6 @@ const toggleTag = (tag: string) => {
   } else {
     selectedTags.value.splice(index, 1);
   }
-};
-
-const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
 };
 
 const formatExcerpt = (excerpt: string) => {

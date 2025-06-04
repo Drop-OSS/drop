@@ -15,7 +15,7 @@
           />
           <span class="ml-3 block truncate">{{ model }}</span>
         </span>
-        <span v-else>Please select a platform...</span>
+        <span v-else>{{ $t("library.admin.import.selectPlatform") }}</span>
         <span
           class="pointer-events-none absolute inset-y-0 right-0 ml-3 flex items-center pr-2"
         >

@@ -33,7 +33,7 @@
             class="inline-flex rounded-md text-zinc-400 hover:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             @click="() => deleteMe()"
           >
-            <span class="sr-only">Close</span>
+            <span class="sr-only">{{ $t("close") }}</span>
             <XMarkIcon class="size-5" aria-hidden="true" />
           </button>
         </div>

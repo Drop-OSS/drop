@@ -49,7 +49,7 @@
                   :datetime="article.publishedAt"
                   class="text-sm text-zinc-400"
                 >
-                  {{ formatDate(article.publishedAt) }}
+                  {{ $d(new Date(article.publishedAt), "short") }}
                 </time>
                 <span class="text-sm text-blue-400">{{
                   article.author?.displayName ?? "System"
@@ -96,14 +96,6 @@ const { articles } = defineProps<{
     }
   >[];
 }>();
-
-const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString("en-AU", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
 
 useHead({
   title: t("userHeader.links.news"),

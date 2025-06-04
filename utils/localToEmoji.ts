@@ -1,12 +1,13 @@
 export default function localToEmoji(local: string): string {
   switch (local) {
     case "en":
-    case "en_gb":
-    case "en_ca":
-    case "en_us": {
+    case "en-gb":
+    case "en-ca":
+    case "en-au":
+    case "en-us": {
       return "🇺🇸";
     }
-    case "en_pirate": {
+    case "en-pirate": {
       return "🏴‍☠️";
     }
 

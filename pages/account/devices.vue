@@ -80,7 +80,7 @@
                 </div>
               </td>
               <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
-                {{ DateTime.fromISO(client.lastConnected).toRelative() }}
+                <RelativeTime :date="client.lastConnected" />
               </td>
               <td
                 class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6"
@@ -98,7 +98,7 @@
             </tr>
             <tr v-if="clients.length === 0">
               <td colspan="5" class="py-8 text-center text-sm text-zinc-400">
-                No devices connected to your account.
+                {{ $t("account.devices.noDevices") }}
               </td>
             </tr>
           </tbody>
@@ -110,7 +110,6 @@
 
 <script setup lang="ts">
 import { CheckIcon } from "@heroicons/vue/24/outline";
-import { DateTime } from "luxon";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore pending https://github.com/nitrojs/nitro/issues/2758
@@ -120,6 +119,15 @@ const { t } = useI18n();
 async function revokeClient(id: string) {
   await $dropFetch(`/api/v1/user/client/${id}`, { method: "DELETE" });
 }
+
+// clients.value.push({
+//   id: "example-client",
+//   userId: "example-user",
+//   name: "Example Client",
+//   platform: "Windows",
+//   capabilities: ["TrackPlaytime"],
+//   lastConnected: new Date().toISOString(),
+// });
 
 function revokeClientWrapper(id: string) {
   revokeClient(id)

@@ -75,7 +75,7 @@
         class="-m-2.5 p-2.5 text-zinc-400 lg:hidden"
         @click="sidebarOpen = true"
       >
-        <span class="sr-only">{{ $t("userHeader.openSidebar") }}</span>
+        <span class="sr-only">{{ $t("header.openSidebar") }}</span>
         <Bars3Icon class="size-6" aria-hidden="true" />
       </button>
       <div
@@ -101,6 +101,7 @@ import {
 } from "@headlessui/vue";
 import { Bars3Icon, XMarkIcon } from "@heroicons/vue/24/outline";
 
+const { t } = useI18n();
 const router = useRouter();
 const sidebarOpen = ref(false);
 
@@ -109,7 +110,7 @@ router.afterEach(() => {
 });
 
 useHead({
-  title: "Library",
+  title: t("userHeader.links.library"),
 });
 </script>
 

@@ -129,6 +129,7 @@ const open = defineModel<boolean>({
   required: true,
 });
 
+const { t } = useI18n();
 const file = ref<FileList | undefined>();
 const currentFiles = computed(() => file.value);
 const currentFileList = computed(() => {
@@ -176,7 +177,7 @@ function uploadFile_wrapper() {
   uploadLoading.value = true;
   uploadFile()
     .catch((error) => {
-      uploadError.value = error.statusMessage ?? "An unknown error occurred.";
+      uploadError.value = error.statusMessage ?? t("errors.unknown");
     })
     .finally(() => {
       uploadLoading.value = false;

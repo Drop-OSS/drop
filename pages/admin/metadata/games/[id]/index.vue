@@ -597,7 +597,7 @@ watch(descriptionHTML, (_v) => {
           title: "Failed to update game description",
           description: `Drop failed to update the game description: ${
             // @ts-expect-error attempt to get statusMessage on error
-            e?.statusMessage ?? "An unknown error occurred."
+            e?.statusMessage ?? t("errors.unknown")
           }`,
           buttonText: "Close",
         },
@@ -642,7 +642,7 @@ async function updateBannerImage(id: string) {
         title: "There an error while updating the banner image",
         description: `Drop encountered an error while updating the banner image: ${
           // @ts-expect-error attempt to get statusMessage on error
-          e?.statusMessage ?? "An unknown error occurred"
+          e?.statusMessage ?? t("errors.unknown")
         }`,
         buttonText: "Close",
       },
@@ -670,7 +670,7 @@ async function updateCoverImage(id: string) {
         title: "There an error while updating the cover image",
         description: `Drop encountered an error while updating the cover image: ${
           // @ts-expect-error attempt to get statusMessage on error
-          e?.statusMessage ?? "An unknown error occurred"
+          e?.statusMessage ?? t("errors.unknown")
         }`,
         buttonText: "Close",
       },
@@ -700,7 +700,7 @@ async function deleteImage(id: string) {
         title: "There an error while deleting the image",
         description: `Drop encountered an error while deleting the image: ${
           // @ts-expect-error attempt to get statusMessage on error
-          e?.statusMessage ?? "An unknown error occurred"
+          e?.statusMessage ?? t("errors.unknown")
         }`,
         buttonText: "Close",
       },
@@ -743,7 +743,7 @@ async function updateImageCarousel() {
         title: "There an error while updating the image carousel",
         description: `Drop encountered an error while updating image carousel: ${
           // @ts-expect-error attempt to get statusMessage on error
-          e?.statusMessage ?? "An unknown error occurred"
+          e?.statusMessage ?? t("errors.unknown")
         }`,
         buttonText: "Close",
       },
