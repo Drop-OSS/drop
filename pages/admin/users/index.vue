@@ -2,7 +2,9 @@
   <div>
     <div class="sm:flex sm:items-center">
       <div class="sm:flex-auto">
-        <h1 class="text-base font-semibold text-zinc-100">Users</h1>
+        <h1 class="text-base font-semibold text-zinc-100">
+          {{ $t("header.admin.users") }}
+        </h1>
         <p class="mt-2 text-sm text-zinc-400">
           Manage the users on your Drop instance, and configure your
           authentication methods.

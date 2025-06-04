@@ -8,13 +8,12 @@ const props = defineProps({
   },
 });
 
+const { t } = useI18n();
 const route = useRoute();
 const user = useUser();
 const statusCode = props.error?.statusCode;
 const message =
-  props.error?.message ||
-  props.error?.statusMessage ||
-  "An unknown error occurred.";
+  props.error?.message || props.error?.statusMessage || t("errors.unknown");
 const showSignIn = statusCode ? statusCode == 403 || statusCode == 401 : false;
 
 async function signIn() {
@@ -24,7 +23,7 @@ async function signIn() {
 }
 
 useHead({
-  title: `${statusCode ?? message} | Drop`,
+  title: t("errors.pageTitle", [statusCode ?? message]),
 });
 
 if (import.meta.client) {
@@ -51,7 +50,7 @@ if (import.meta.client) {
         <h1
           class="mt-4 text-3xl font-bold font-display tracking-tight text-zinc-100 sm:text-5xl"
         >
-          Oh no!
+          {{ $t("errors.ohNo") }}
         </h1>
         <p
           v-if="message"
@@ -60,9 +59,7 @@ if (import.meta.client) {
           {{ message }}
         </p>
         <p class="mt-6 text-base leading-7 text-zinc-400">
-          An error occurred while responding to your request. If you believe
-          this to be a bug, please report it. Try signing in and see if it
-          resolves the issue.
+          {{ $t("errors.occurred") }}
         </p>
         <!-- <p>{{ error. }}</p> -->
         <div class="mt-10">
@@ -71,14 +68,23 @@ if (import.meta.client) {
             v-if="user && !showSignIn"
             to="/"
             class="text-sm font-semibold leading-7 text-blue-600"
-            ><span aria-hidden="true">&larr;</span> Back to home</NuxtLink
           >
+            <i18n-t keypath="errors.backHome" tag="span" scope="global">
+              <template #arrow>
+                <span aria-hidden="true">{{ $t("chars.arrowBack") }}</span>
+              </template>
+            </i18n-t>
+          </NuxtLink>
           <button
             v-else
             class="text-sm font-semibold leading-7 text-blue-600"
             @click="signIn"
           >
-            Sign in <span aria-hidden="true">&rarr;</span>
+            <i18n-t keypath="errors.signIn" tag="span" scope="global">
+              <template #arrow>
+                <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
+              </template>
+            </i18n-t>
           </button>
         </div>
       </div>
@@ -88,7 +94,7 @@ if (import.meta.client) {
         <nav
           class="mx-auto flex w-full max-w-7xl items-center gap-x-4 px-6 text-sm leading-7 text-zinc-400 lg:px-8"
         >
-          <NuxtLink href="/docs">Documentation</NuxtLink>
+          <NuxtLink href="/docs">{{ $t("footer.documentation") }}</NuxtLink>
           <svg
             viewBox="0 0 2 2"
             aria-hidden="true"
@@ -97,7 +103,7 @@ if (import.meta.client) {
             <circle cx="1" cy="1" r="1" />
           </svg>
           <NuxtLink to="https://discord.gg/NHx46XKJWA" target="_blank">
-            Support Discord
+            {{ $t("errors.support") }}
           </NuxtLink>
         </nav>
       </div>

@@ -7,12 +7,11 @@
       <CheckCircleIcon class="h-12 w-12 text-green-600" aria-hidden="true" />
       <div class="mt-3 text-center sm:mt-5">
         <h1 class="text-3xl font-semibold font-display leading-6 text-zinc-100">
-          Successful!
+          {{ $t("auth.callback.success") }}
         </h1>
         <div class="mt-4">
           <p class="mx-auto text-sm text-zinc-400 max-w-sm">
-            Drop has successfully authorized the client. You may now close this
-            window.
+            {{ $t("auth.callback.authorizedClient") }}
           </p>
 
           <Disclosure v-slot="{ open }" as="div" class="mt-8">
@@ -20,7 +19,9 @@
               <DisclosureButton
                 class="pb-2 flex w-full items-start justify-between text-left text-zinc-400"
               >
-                <span class="text-sm font-semibold">Having issues?</span>
+                <span class="text-sm font-semibold">
+                  {{ $t("auth.callback.issues") }}
+                </span>
                 <span class="ml-6 flex h-7 items-center">
                   <ChevronUpIcon
                     v-if="!open"
@@ -33,7 +34,7 @@
             </dt>
             <DisclosurePanel as="dd" class="mt-2">
               <p class="text-zinc-100 font-semibold text-sm mb-3">
-                Paste this code into the client to continue:
+                {{ $t("auth.callback.paste") }}
               </p>
               <p
                 class="max-w-sm text-nowrap overflow-x-auto text-sm bg-zinc-950/50 p-3 text-zinc-300 w-fit mx-auto rounded-xl"
@@ -55,10 +56,10 @@
         <h1
           class="mt-4 text-3xl font-bold font-display tracking-tight text-zinc-100 sm:text-5xl"
         >
-          Authorize client?
+          {{ $t("auth.callback.authClient") }}
         </h1>
         <p class="mt-6 text-base leading-7 text-zinc-400">
-          "{{ clientData.name }}" has requested access to your Drop account.
+          {{ $t("auth.callback.requestedAccess", { name: clientData.name }) }}
         </p>
         <div
           action="/api/v1/client/callback"
@@ -70,7 +71,7 @@
             class="rounded-md bg-blue-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
             @click="() => authorize_wrapper()"
           >
-            Authorize
+            {{ $t("auth.callback.authorize") }}
           </button>
 
           <div v-if="error" class="mt-5 rounded-md bg-red-600/10 p-4">
@@ -93,9 +94,12 @@
         <p
           class="mt-6 font-semibold font-display text-lg leading-8 text-zinc-100"
         >
-          Accepting this request will allow "{{ clientData.name }}" on "{{
-            clientData.platform
-          }}" to:
+          {{
+            $t("auth.callback.permWarning", {
+              name: clientData.name,
+              platform: clientData.platform,
+            })
+          }}
         </p>
       </div>
       <div class="mt-8 max-w-2xl sm:mt-12 lg:mt-14">
@@ -123,8 +127,17 @@
                 <NuxtLink
                   :href="feature.href"
                   class="text-sm font-semibold leading-6 text-blue-600"
-                  >Learn more <span aria-hidden="true">→</span></NuxtLink
                 >
+                  <i18n-t
+                    keypath="auth.callback.learn"
+                    tag="span"
+                    scope="global"
+                  >
+                    <template #arrow>
+                      <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
+                    </template>
+                  </i18n-t>
+                </NuxtLink>
               </p>
             </dd>
           </div>

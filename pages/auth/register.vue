@@ -12,7 +12,7 @@
             {{ $t("auth.register.title") }}
           </h2>
           <p class="mt-1 text-sm leading-6 text-zinc-400">
-            Fill in your details below to create your account.
+            {{ $t("auth.register.subheader") }}
           </p>
         </div>
 

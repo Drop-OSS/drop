@@ -26,6 +26,17 @@
   "adminTitle": "Admin Dashboard | Drop",
   "adminTitleTemplate": "{0} | Admin | Drop",
   "auth": {
+    "callback": {
+      "authClient": "Authorize client?",
+      "authorize": "Authorize",
+      "authorizedClient": "Drop has successfully authorized the client. You may now close this window.",
+      "issues": "Having issues?",
+      "learn": "Learn more {arrow}",
+      "paste": "Paste this code into the client to continue:",
+      "permWarning": "Accepting this request will allow \"{name}\" on \"{platform}\" to:",
+      "requestedAccess": "\"{name}\" has requested access to your Drop account.",
+      "success": "Successful!"
+    },
     "confirmPassword": "Confirm @:auth.password",
     "displayName": "Display Name",
     "email": "Email",
@@ -34,6 +45,7 @@
       "confirmPasswordFormat": "Must be the same as above",
       "emailFormat": "Must be in the format user{'@'}example.com",
       "passwordFormat": "Must be 14 or more characters",
+      "subheader": "Fill in your details below to create your account.",
       "title": "Create your Drop account",
       "usernameFormat": "Must be 5 or more characters, and lowercase"
     },
@@ -53,6 +65,7 @@
   "cancel": "Cancel",
   "chars": {
     "arrow": "→",
+    "arrowBack": "←",
     "quoted": "\"\"",
     "srComma": ", {0}"
   },
@@ -90,6 +103,7 @@
     "listItemPlaceholder": "list item"
   },
   "errors": {
+    "backHome": "{arrow} Back to home",
     "invalidBody": "Invalid request body: {0}",
     "inviteRequired": "Invitation required to sign up.",
     "library": {
@@ -118,8 +132,13 @@
         }
       }
     },
+    "occurred": "An error occurred while responding to your request. If you believe this to be a bug, please report it. Try signing in and see if it resolves the issue.",
+    "ohNo": "Oh no!",
+    "pageTitle": "{0} | Drop",
     "revokeClient": "Failed to revoke client",
     "revokeClientFull": "Failed to revoke client {0}",
+    "signIn": "Sign in {arrow}",
+    "support": "Support Discord",
     "unknown": "An unknown error occurred",
     "version": {
       "delete": {
