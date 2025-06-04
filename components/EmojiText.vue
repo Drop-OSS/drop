@@ -1,5 +1,5 @@
 <template>
-  <img ref="emojiEl" class="inline-block emoji" :src="url" alt="" />
+  <img ref="emojiEl" class="inline-block emoji" :src="url" :alt="emoji" />
 </template>
 
 <script lang="ts" setup>
