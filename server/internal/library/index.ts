@@ -218,6 +218,7 @@ class LibraryManager {
 
     taskHandler.create({
       id: taskId,
+      taskGroup: "import:game",
       name: `Importing version ${versionName} for ${game.mName}`,
       acls: ["system:import:version:read"],
       async run({ progress, log }) {

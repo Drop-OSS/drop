@@ -46,29 +46,28 @@
               hydrate-on-visible
               as="div"
             >
-              <!-- TODO: think this would work better as a NuxtLink instead of a button -->
-              <button
-                :href="nav.route"
+              <NuxtLink
+                :to="nav.route"
                 :class="[
                   active ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400',
                   'w-full text-left transition block px-4 py-2 text-sm',
                 ]"
-                @click="() => navigateTo(nav.route, close)"
+                @click="close"
               >
                 {{ nav.label }}
-              </button>
+              </NuxtLink>
             </MenuItem>
-            <MenuItem v-slot="{ active }" hydrate-on-visible as="div">
-              <!-- TODO: think this would work better as a NuxtLink instead of a button -->
-              <a
+            <MenuItem v-slot="{ active, close }" hydrate-on-visible as="div">
+              <NuxtLink
+                to="/auth/signout"
                 :class="[
                   active ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400',
                   'w-full text-left transition block px-4 py-2 text-sm',
                 ]"
-                href="/auth/signout"
+                @click="close"
               >
-                Signout
-              </a>
+                {{ $t("auth.signout") }}
+              </NuxtLink>
             </MenuItem>
           </div>
         </PanelWidget>
@@ -84,17 +83,18 @@ import { useObject } from "~/composables/objects";
 import type { NavigationItem } from "~/composables/types";
 
 const user = useUser();
+const { t } = useI18n();
 
 const navigation: NavigationItem[] = [
   user.value?.admin
     ? {
-        label: "Admin Dashboard",
+        label: t("userHeader.profile.admin"),
         route: "/admin",
         prefix: "",
       }
     : undefined,
   {
-    label: "Account settings",
+    label: t("userHeader.profile.settings"),
     route: "/account",
     prefix: "",
   },

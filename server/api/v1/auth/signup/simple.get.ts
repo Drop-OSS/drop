@@ -1,4 +1,5 @@
 import prisma from "~/server/internal/db/database";
+import taskHandler from "~/server/internal/tasks";
 
 export default defineEventHandler(async (h3) => {
   const query = getQuery(h3);
@@ -8,8 +9,7 @@ export default defineEventHandler(async (h3) => {
       statusCode: 400,
       statusMessage: "id required in fetching invitation",
     });
-
-  await runTask("cleanup:invitations");
+  taskHandler.runTaskGroupByName("cleanup:invitations");
 
   const invitation = await prisma.invitation.findUnique({ where: { id: id } });
   if (!invitation)

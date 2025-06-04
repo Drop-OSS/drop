@@ -4,12 +4,12 @@
       <h2
         class="mt-2 text-xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
       >
-        Devices
+        {{ $t("account.devices.title") }}
       </h2>
       <p
         class="mt-2 text-pretty text-sm font-medium text-zinc-400 sm:text-md/8"
       >
-        Manage the devices authorized to access your Drop account.
+        {{ $t("account.devices.subheader") }}
       </p>
     </div>
 
@@ -24,28 +24,28 @@
                 scope="col"
                 class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-zinc-100 sm:pl-6"
               >
-                Name
+                {{ $t("name") }}
               </th>
               <th
                 scope="col"
                 class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
               >
-                Platform
+                {{ $t("account.devices.platform") }}
               </th>
               <th
                 scope="col"
                 class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
               >
-                Capabilities
+                {{ $t("account.devices.capabilities") }}
               </th>
               <th
                 scope="col"
                 class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
               >
-                Last Connected
+                {{ $t("account.devices.lastConnected") }}
               </th>
               <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                <span class="sr-only">Actions</span>
+                <span class="sr-only">{{ $t("actions") }}</span>
               </th>
             </tr>
           </thead>
@@ -80,7 +80,7 @@
                 </div>
               </td>
               <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
-                {{ DateTime.fromISO(client.lastConnected).toRelative() }}
+                <RelativeTime :date="client.lastConnected" />
               </td>
               <td
                 class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6"
@@ -89,13 +89,16 @@
                   class="inline-flex items-center rounded-md bg-red-400/10 px-2 py-1 text-xs font-medium text-red-400 ring-1 ring-inset ring-red-400/20 transition-all duration-200 hover:bg-red-400/20 hover:scale-105 active:scale-95"
                   @click="() => revokeClientWrapper(client.id)"
                 >
-                  Revoke<span class="sr-only">, {{ client.name }}</span>
+                  {{ $t("account.devices.revoke") }}
+                  <span class="sr-only">
+                    {{ $t("chars.srComma", [client.name]) }}
+                  </span>
                 </button>
               </td>
             </tr>
             <tr v-if="clients.length === 0">
               <td colspan="5" class="py-8 text-center text-sm text-zinc-400">
-                No devices connected to your account.
+                {{ $t("account.devices.noDevices") }}
               </td>
             </tr>
           </tbody>
@@ -107,15 +110,24 @@
 
 <script setup lang="ts">
 import { CheckIcon } from "@heroicons/vue/24/outline";
-import { DateTime } from "luxon";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore pending https://github.com/nitrojs/nitro/issues/2758
 const clients = ref(await $dropFetch("/api/v1/user/client"));
+const { t } = useI18n();
 
 async function revokeClient(id: string) {
   await $dropFetch(`/api/v1/user/client/${id}`, { method: "DELETE" });
 }
+
+// clients.value.push({
+//   id: "example-client",
+//   userId: "example-user",
+//   name: "Example Client",
+//   platform: "Windows",
+//   capabilities: ["TrackPlaytime"],
+//   lastConnected: new Date().toISOString(),
+// });
 
 function revokeClientWrapper(id: string) {
   revokeClient(id)
@@ -127,8 +139,8 @@ function revokeClientWrapper(id: string) {
       createModal(
         ModalType.Notification,
         {
-          title: "Failed to revoke client",
-          description: `Failed to revoke client: ${e}`,
+          title: t("errors.revokeClient"),
+          description: t("errors.revokeClientFull", String(e)),
         },
         (_, c) => c(),
       );

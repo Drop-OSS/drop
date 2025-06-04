@@ -11,18 +11,18 @@
         class="h-5 w-5 transition-transform duration-200"
         :class="{ 'rotate-90': modalOpen }"
       />
-      <span>New article</span>
+      <span>{{ $t("news.article.new") }}</span>
     </button>
 
     <ModalTemplate v-model="modalOpen" size-class="sm:max-w-[80vw]">
       <h3 class="text-lg font-semibold text-zinc-100 mb-4">
-        Create New Article
+        {{ $t("news.article.create") }}
       </h3>
       <form class="space-y-4" @submit.prevent="() => createArticle()">
         <div>
-          <label for="title" class="block text-sm font-medium text-zinc-400"
-            >Title</label
-          >
+          <label for="title" class="block text-sm font-medium text-zinc-400">{{
+            $t("news.article.titles")
+          }}</label>
           <input
             id="title"
             v-model="newArticle.title"
@@ -34,8 +34,10 @@
         </div>
 
         <div>
-          <label for="excerpt" class="block text-sm font-medium text-zinc-400"
-            >Short description</label
+          <label
+            for="excerpt"
+            class="block text-sm font-medium text-zinc-400"
+            >{{ $t("news.article.shortDesc") }}</label
           >
           <input
             id="excerpt"
@@ -47,8 +49,10 @@
         </div>
 
         <div>
-          <label for="content" class="block text-sm font-medium text-zinc-400"
-            >Content (Markdown)</label
+          <label
+            for="content"
+            class="block text-sm font-medium text-zinc-400"
+            >{{ $t("news.article.content") }}</label
           >
           <div class="mt-1 flex flex-col gap-4">
             <!-- Markdown shortcuts -->
@@ -69,7 +73,9 @@
             >
               <!-- Editor -->
               <div class="flex flex-col">
-                <span class="text-sm text-zinc-500 mb-2">Editor</span>
+                <span class="text-sm text-zinc-500 mb-2">{{
+                  $t("news.article.editor")
+                }}</span>
                 <textarea
                   id="content"
                   ref="contentEditor"
@@ -82,7 +88,9 @@
 
               <!-- Preview -->
               <div class="flex flex-col">
-                <span class="text-sm text-zinc-500 mb-2">Preview</span>
+                <span class="text-sm text-zinc-500 mb-2">{{
+                  $t("news.article.preview")
+                }}</span>
                 <div
                   class="flex-1 p-4 rounded-md bg-zinc-900 border border-zinc-700 overflow-y-auto"
                 >
@@ -95,8 +103,7 @@
             </div>
           </div>
           <p class="mt-2 text-sm text-zinc-500">
-            Use the shortcuts above or write Markdown directly. Supports
-            **bold**, *italic*, [links](url), and more.
+            {{ $t("news.article.editorGuide") }}
           </p>
         </div>
 
@@ -114,7 +121,7 @@
             />
             <span
               class="transition mt-2 block text-sm font-semibold text-zinc-400 group-hover:text-zinc-500"
-              >Upload cover image</span
+              >{{ $t("news.article.uploadCover") }}</span
             >
             <p v-if="currentFile" class="mt-1 text-xs text-zinc-400">
               {{ currentFile.name }}
@@ -130,9 +137,9 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-zinc-400 mb-2"
-            >Tags</label
-          >
+          <label class="block text-sm font-medium text-zinc-400 mb-2">{{
+            $t("common.tags")
+          }}</label>
           <div class="flex flex-wrap gap-2 mb-2">
             <span
               v-for="tag in newArticle.tags"
@@ -153,7 +160,7 @@
             <input
               v-model="newTagInput"
               type="text"
-              placeholder="Add a tag..."
+              :placeholder="$t('news.article.tagPlaceholder')"
               class="mt-1 block w-full rounded-md bg-zinc-900 border-zinc-700 text-zinc-100 shadow-sm focus:border-primary-500 focus:ring-primary-500"
               @keydown.enter.prevent="addTag"
             />
@@ -162,7 +169,7 @@
               class="mt-1 px-3 py-2 rounded-md bg-zinc-800 text-zinc-100 hover:bg-zinc-700"
               @click="addTag"
             >
-              Add
+              {{ $t("news.article.add") }}
             </button>
           </div>
         </div>
@@ -188,13 +195,13 @@
           class="bg-blue-600 text-white hover:bg-blue-500"
           @click="() => createArticle()"
         >
-          Submit
+          {{ $t("news.article.submit") }}
         </LoadingButton>
         <button
           class="inline-flex items-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold font-display text-white hover:bg-zinc-700"
           @click="() => (modalOpen = !modalOpen)"
         >
-          Cancel
+          {{ $t("cancel") }}
         </button>
       </template>
     </ModalTemplate>
@@ -236,18 +243,49 @@ const markdownPreview = computed(() => {
 
 const file = ref<FileList | undefined>();
 const currentFile = computed(() => file.value?.item(0));
+const { t } = useI18n();
 
 const error = ref<string | undefined>();
 
 const contentEditor = ref<HTMLTextAreaElement>();
 
 const markdownShortcuts = [
-  { label: "Bold", prefix: "**", suffix: "**", placeholder: "bold text" },
-  { label: "Italic", prefix: "_", suffix: "_", placeholder: "italic text" },
-  { label: "Link", prefix: "[", suffix: "](url)", placeholder: "link text" },
-  { label: "Code", prefix: "`", suffix: "`", placeholder: "code" },
-  { label: "List Item", prefix: "- ", suffix: "", placeholder: "list item" },
-  { label: "Heading", prefix: "## ", suffix: "", placeholder: "heading" },
+  {
+    label: t("editor.bold"),
+    prefix: "**",
+    suffix: "**",
+    placeholder: t("editor.boldPlaceholder"),
+  },
+  {
+    label: t("editor.italic"),
+    prefix: "_",
+    suffix: "_",
+    placeholder: t("editor.italicPlaceholder"),
+  },
+  {
+    label: t("editor.link"),
+    prefix: "[",
+    suffix: "](url)",
+    placeholder: t("editor.linkPlaceholder"),
+  },
+  {
+    label: t("editor.code"),
+    prefix: "`",
+    suffix: "`",
+    placeholder: t("editor.codePlaceholder"),
+  },
+  {
+    label: t("editor.listItem"),
+    prefix: "- ",
+    suffix: "",
+    placeholder: t("editor.listItemPlaceholder"),
+  },
+  {
+    label: t("editor.heading"),
+    prefix: "## ",
+    suffix: "",
+    placeholder: t("editor.headingPlaceholder"),
+  },
 ];
 
 function handleContentKeydown(e: KeyboardEvent) {
@@ -369,7 +407,7 @@ async function createArticle() {
     modalOpen.value = false;
   } catch (e) {
     // @ts-expect-error attempt to get statusMessage on error
-    error.value = e?.statusMessage ?? "An unknown error occured.";
+    error.value = e?.statusMessage ?? t("errors.unknown");
   } finally {
     loading.value = false;
   }

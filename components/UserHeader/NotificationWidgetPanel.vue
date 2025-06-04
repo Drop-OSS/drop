@@ -6,7 +6,7 @@
       >
         <div class="ml-4 mt-2">
           <h3 class="text-base font-semibold text-zinc-100 text-sm">
-            Unread notifications
+            {{ $t("account.notifications.unread") }}
           </h3>
         </div>
         <div class="ml-4 mt-2 shrink-0">
@@ -15,7 +15,15 @@
             type="button"
             class="text-sm text-zinc-400"
           >
-            View all &rarr;
+            <i18n-t
+              keypath="account.notifications.all"
+              tag="span"
+              scope="global"
+            >
+              <template #arrow>
+                <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
+              </template>
+            </i18n-t>
           </NuxtLink>
         </div>
       </div>
@@ -32,7 +40,7 @@
       v-if="props.notifications.length == 0"
       class="text-sm text-zinc-400 p-3 text-center w-full"
     >
-      No notifications
+      {{ $t("account.notifications.none") }}
     </div>
   </PanelWidget>
 </template>

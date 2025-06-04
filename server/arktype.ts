@@ -23,15 +23,19 @@ export async function readDropValidatedBody<T>(
   try {
     return validate(_body);
   } catch (e) {
+    const t = await useTranslation(event);
+
     if (e instanceof ArkErrors) {
       throw createError({
         statusCode: 400,
-        statusMessage: `Invalid request body: ${e.summary}`,
+        statusMessage: t("errors.invalidBody", [e.summary]),
       });
     }
     throw createError({
       statusCode: 400,
-      statusMessage: `Invalid request body: ${e}`,
+      statusMessage: t("errors.invalidBody", [
+        e instanceof Error ? e.message : `${e}`,
+      ]),
     });
   }
 }

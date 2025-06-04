@@ -25,7 +25,7 @@
             class="transition text-sm/6 font-semibold text-zinc-400 hover:text-zinc-100 inline-flex gap-x-2 items-center duration-200 hover:scale-105"
           >
             <ArrowLeftIcon class="h-4 w-4" aria-hidden="true" />
-            Back to Library
+            {{ $t("library.back") }}
           </NuxtLink>
         </div>
 
@@ -44,7 +44,7 @@
             type="button"
             class="inline-flex items-center justify-center gap-x-2 rounded-md bg-blue-600 px-3.5 py-2.5 text-base font-semibold font-display text-white shadow-sm transition-all duration-200 hover:bg-blue-500 hover:scale-105 hover:shadow-blue-500/25 hover:shadow-lg active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
           >
-            Open in Launcher
+            {{ $t("library.launcherOpen") }}
             <ArrowTopRightOnSquareIcon
               class="-mr-0.5 h-5 w-5"
               aria-hidden="true"
@@ -57,7 +57,7 @@
             :to="`/store/${game.id}`"
             class="inline-flex items-center justify-center gap-x-2 rounded-md bg-zinc-800 px-3.5 py-2.5 text-base font-semibold font-display text-white shadow-sm transition-all duration-200 hover:bg-zinc-700 hover:scale-105 hover:shadow-lg active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600"
           >
-            View in Store
+            {{ $t("store.view") }}
             <ArrowUpRightIcon class="-mr-0.5 h-5 w-5" aria-hidden="true" />
           </NuxtLink>
         </div>
@@ -69,7 +69,7 @@
           <div class="col-start-1 lg:col-start-2 space-y-6">
             <div class="bg-zinc-800/50 rounded-xl p-6 backdrop-blur-sm">
               <h2 class="text-xl font-display font-semibold text-zinc-100 mb-4">
-                Game Images
+                {{ $t("store.images") }}
               </h2>
               <div class="relative">
                 <VueCarousel :items-to-show="1">
@@ -86,7 +86,7 @@
                     <div
                       class="h-48 lg:h-96 aspect-[1/2] flex items-center justify-center text-zinc-700 font-bold font-display"
                     >
-                      No images
+                      {{ $t("store.noImages") }}
                     </div>
                   </VueSlide>
 
@@ -121,13 +121,15 @@ import {
 } from "@heroicons/vue/20/solid";
 import { micromark } from "micromark";
 
+const { t } = useI18n();
+
 const route = useRoute();
 const id = route.params.id.toString();
 
 const { game: rawGame } = await $dropFetch(`/api/v1/games/${id}`);
 const game = computed(() => {
   if (!rawGame) {
-    throw createError({ statusCode: 404, message: "Game not found" });
+    throw createError({ statusCode: 404, message: t("library.notFound") });
   }
   return rawGame;
 });

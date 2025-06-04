@@ -1,6 +1,6 @@
 import prisma from "~/server/internal/db/database";
 import objectHandler from "~/server/internal/objects";
-import type { TaskReturn } from "../../h3";
+import { defineDropTask } from "..";
 
 type FieldReferenceMap = {
   [modelName: string]: {
@@ -10,36 +10,33 @@ type FieldReferenceMap = {
   };
 };
 
-export default defineTask<TaskReturn>({
-  meta: {
-    name: "cleanup:objects",
-  },
-  async run() {
-    console.log("[Task cleanup:objects]: Cleaning unreferenced objects");
+export default defineDropTask({
+  buildId: () => `cleanup:objects:${new Date().toISOString()}`,
+  name: "Cleanup Objects",
+  acls: [],
+  taskGroup: "cleanup:objects",
+  async run({ progress, log }) {
+    log("Cleaning unreferenced objects");
 
     // get all objects
     const objects = await objectHandler.listAll();
-    console.log(
-      `[Task cleanup:objects]: searching for ${objects.length} objects`,
-    );
+    log(`searching for ${objects.length} objects`);
+    progress(30);
 
     // find unreferenced objects
     const refMap = buildRefMap();
-    console.log("[Task cleanup:objects]: Building reference map");
-    console.log(
-      `[Task cleanup:objects]: Found ${Object.keys(refMap).length} models with reference fields`,
-    );
-    console.log("[Task cleanup:objects]: Searching for unreferenced objects");
+    log("Building reference map");
+    log(`Found ${Object.keys(refMap).length} models with reference fields`);
+    log("Searching for unreferenced objects");
     const unrefedObjects = await findUnreferencedStrings(objects, refMap);
-    console.log(
-      `[Task cleanup:objects]: found ${unrefedObjects.length} Unreferenced objects`,
-    );
+    log(`found ${unrefedObjects.length} Unreferenced objects`);
     // console.log(unrefedObjects);
+    progress(60);
 
     // remove objects
     const deletePromises: Promise<boolean>[] = [];
     for (const obj of unrefedObjects) {
-      console.log(`[Task cleanup:objects]: Deleting object ${obj}`);
+      log(`Deleting object ${obj}`);
       deletePromises.push(objectHandler.deleteAsSystem(obj));
     }
     await Promise.all(deletePromises);
@@ -47,13 +44,8 @@ export default defineTask<TaskReturn>({
     // Remove any possible leftover metadata
     objectHandler.cleanupMetadata();
 
-    console.log("[Task cleanup:objects]: Done");
-    return {
-      result: {
-        success: true,
-        data: unrefedObjects,
-      },
-    };
+    log("Done");
+    progress(100);
   },
 });
 

@@ -130,6 +130,10 @@ and [create an issue](#reporting-issues) or [submit a PR](#submitting-pull-reque
 
 ---
 
+## Translation
+
+If you want to help translate Drop, we would love to have your help! You can do so on our weblate instance. Please make sure to read the [message format syntax](https://vue-i18n.intlify.dev/guide/essentials/syntax.html) page before starting. Failure to do so may result in your translations causing errors in Drop.
+
 ## Commit Guidelines
 
 Drop uses the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)

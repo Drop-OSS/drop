@@ -6,13 +6,13 @@
           as="h3"
           class="text-lg font-bold font-display text-zinc-100"
         >
-          Delete Collection
+          {{ $t("library.collection.delete") }}
         </DialogTitle>
         <p class="mt-1 text-sm text-zinc-400">
-          Are you sure you want to delete "{{ collection?.name }}"?
+          {{ $t("common.deleteConfirm", [collection?.name]) }}
         </p>
         <p class="mt-2 text-sm font-bold text-red-500">
-          This action cannot be undone.
+          {{ $t("common.cannotUndo") }}
         </p>
       </div>
     </template>
@@ -22,13 +22,13 @@
         class="bg-red-600 text-white hover:bg-red-500"
         @click="() => deleteCollection()"
       >
-        Delete
+        {{ $t("delete") }}
       </LoadingButton>
       <button
         class="inline-flex items-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold font-display text-white hover:bg-zinc-700"
         @click="() => (collection = undefined)"
       >
-        Cancel
+        {{ $t("cancel") }}
       </button>
     </template>
   </ModalTemplate>
@@ -42,6 +42,7 @@ const collection = defineModel<Collection | undefined>();
 const deleteLoading = ref(false);
 
 const collections = await useCollections();
+const { t } = useI18n();
 
 async function deleteCollection() {
   try {
@@ -62,9 +63,11 @@ async function deleteCollection() {
     createModal(
       ModalType.Notification,
       {
-        title: "Failed to add game to library",
-        // @ts-expect-error attempt to display statusMessage on error
-        description: `Drop couldn't add this game to your library: ${e?.statusMessage}`,
+        title: t("errors.library.add.title"),
+        description: t("errors.library.add.desc", [
+          // @ts-expect-error attempt to display statusMessage on error
+          e?.statusMessage ?? t("errors.unknown"),
+        ]),
       },
       (_, c) => c(),
     );

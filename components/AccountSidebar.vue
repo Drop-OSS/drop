@@ -1,7 +1,7 @@
 <template>
   <div class="flex grow flex-col gap-y-5 overflow-y-auto px-6 py-4">
     <span class="inline-flex items-center gap-x-2 font-semibold text-zinc-100">
-      <UserIcon class="size-5" /> Account Settings
+      <UserIcon class="size-5" /> {{ $t("account.settings") }}
     </span>
     <nav class="flex flex-1 flex-col">
       <ul role="list" class="flex flex-1 flex-col gap-y-7">
@@ -50,30 +50,31 @@ import { UserIcon } from "@heroicons/vue/24/solid";
 import type { Component } from "vue";
 
 const notifications = useNotifications();
+const { t } = useI18n();
 
 const navigation: (NavigationItem & { icon: Component; count?: number })[] = [
-  { label: "Home", route: "/account", icon: HomeIcon, prefix: "/account" },
+  { label: t("home"), route: "/account", icon: HomeIcon, prefix: "/account" },
   {
-    label: "Security",
+    label: t("security"),
     route: "/account/security",
     prefix: "/account/security",
     icon: LockClosedIcon,
   },
   {
-    label: "Devices",
+    label: t("account.devices.title"),
     route: "/account/devices",
     prefix: "/account/devices",
     icon: DevicePhoneMobileIcon,
   },
   {
-    label: "Notifications",
+    label: t("account.notifications.notifications"),
     route: "/account/notifications",
     prefix: "/account/notifications",
     icon: BellIcon,
     count: notifications.value.length,
   },
   {
-    label: "Settings",
+    label: t("settings"),
     route: "/account/settings",
     prefix: "/account/settings",
     icon: WrenchScrewdriverIcon,

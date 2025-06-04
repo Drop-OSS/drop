@@ -5,9 +5,9 @@
       :model="currentlySelectedGame"
       @update:model-value="(value) => updateSelectedGame_wrapper(value)"
     >
-      <ListboxLabel class="block text-sm font-medium leading-6 text-zinc-100"
-        >Select game to import</ListboxLabel
-      >
+      <ListboxLabel class="block text-sm font-medium leading-6 text-zinc-100">
+        {{ $t("library.admin.import.selectGame") }}
+      </ListboxLabel>
       <div class="relative mt-2">
         <ListboxButton
           class="relative w-full cursor-default rounded-md bg-zinc-950 py-1.5 pl-3 pr-10 text-left text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6"
@@ -15,9 +15,9 @@
           <span v-if="currentlySelectedGame != -1" class="block truncate">{{
             games.unimportedGames[currentlySelectedGame].game
           }}</span>
-          <span v-else class="block truncate text-zinc-400"
-            >Please select a directory...</span
-          >
+          <span v-else class="block truncate text-zinc-400">{{
+            $t("library.admin.import.selectDir")
+          }}</span>
           <span
             class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
           >
@@ -80,7 +80,8 @@
           class="w-fit"
           :loading="importLoading"
           @click="() => importGame_wrapper(false)"
-          >Import without metadata
+        >
+          {{ $t("library.admin.import.withoutMetadata") }}
         </LoadingButton>
       </div>
 
@@ -89,7 +90,7 @@
         class="inline-flex items-center gap-x-4 text-zinc-600 font-display font-bold"
       >
         <div class="h-[1px] grow bg-zinc-800" />
-        OR
+        {{ $t("auth.signin.or") }}
         <div class="h-[1px] grow bg-zinc-800" />
       </div>
 
@@ -100,7 +101,7 @@
           <label
             for="searchTerm"
             class="block text-sm/6 font-medium text-zinc-100"
-            >Search</label
+            >{{ $t("library.admin.import.search") }}</label
           >
           <div class="mt-2 flex">
             <div class="-mr-px grid grow grid-cols-1 focus-within:relative">
@@ -110,7 +111,7 @@
                 type="text"
                 name="searchTerm"
                 class="col-start-1 row-start-1 block w-full rounded-l-md bg-zinc-950 py-1.5 px-3 text-base text-zinc-100 outline-1 -outline-offset-1 outline-zinc-800 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6"
-                placeholder="John Smith"
+                :placeholder="$t('library.admin.import.searchPlaceholder')"
               />
             </div>
             <LoadingButton
@@ -123,7 +124,7 @@
                 class="-ml-0.5 size-4 text-gray-400"
                 aria-hidden="true"
               />
-              Search
+              {{ $t("library.admin.import.search") }}
             </LoadingButton>
           </div>
         </form>
@@ -135,7 +136,7 @@
         >
           <ListboxLabel
             class="block text-sm font-medium leading-6 text-zinc-100"
-            >Select game</ListboxLabel
+            >{{ $t("library.admin.import.selectGameSearch") }}</ListboxLabel
           >
           <div class="relative mt-2">
             <ListboxButton
@@ -145,9 +146,9 @@
                 v-if="currentlySelectedMetadata != -1"
                 :game="metadataResults[currentlySelectedMetadata]"
               />
-              <span v-else class="block truncate text-zinc-600"
-                >Please select a game...</span
-              >
+              <span v-else class="block truncate text-zinc-600">
+                {{ $t("library.admin.import.selectGamePlaceholder") }}
+              </span>
               <span
                 class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
               >
@@ -191,7 +192,7 @@
           role="status"
           class="inline-flex text-zinc-100 font-display font-semibold items-center gap-x-4"
         >
-          Loading game results...
+          {{ $t("library.admin.import.loading") }}
           <svg
             aria-hidden="true"
             class="w-6 h-6 text-transparent animate-spin fill-white"
@@ -208,7 +209,6 @@
               fill="currentFill"
             />
           </svg>
-          <span class="sr-only">Loading...</span>
         </div>
 
         <div
@@ -233,7 +233,8 @@
             :loading="importLoading"
             :disabled="currentlySelectedMetadata === -1"
             @click="() => importGame_wrapper()"
-            >Import
+          >
+            {{ $t("library.admin.import.import") }}
           </LoadingButton>
 
           <div
@@ -274,6 +275,8 @@ definePageMeta({
   layout: "admin",
 });
 
+const { t } = useI18n();
+
 const games = await $dropFetch("/api/v1/admin/import/game");
 const currentlySelectedGame = ref(-1);
 const gameSearchResultsLoading = ref(false);
@@ -308,8 +311,7 @@ function updateSelectedGame_wrapper(value: number) {
   gameSearchResultsLoading.value = true;
   updateSelectedGame(value)
     .catch((error) => {
-      gameSearchResultsError.value =
-        error.statusMessage || "An unknown error occurred";
+      gameSearchResultsError.value = error.statusMessage || t("errors.unknown");
     })
     .finally(() => {
       gameSearchResultsLoading.value = false;
@@ -348,7 +350,7 @@ function importGame_wrapper(metadata = true) {
   importError.value = undefined;
   importGame(metadata)
     .catch((error) => {
-      importError.value = error?.statusMessage || "An unknown error occurred.";
+      importError.value = error?.statusMessage || t("errors.unknown");
     })
     .finally(() => {
       importLoading.value = false;

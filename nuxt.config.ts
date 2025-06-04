@@ -23,6 +23,7 @@ export default defineNuxtConfig({
     // "@nuxt/image",
     "@nuxt/fonts",
     "@nuxt/eslint",
+    "@nuxtjs/i18n",
   ],
 
   // Nuxt-only config
@@ -42,6 +43,7 @@ export default defineNuxtConfig({
   experimental: {
     buildCache: true,
     viewTransition: true,
+    componentIslands: true,
   },
 
   // future: {
@@ -89,7 +91,7 @@ export default defineNuxtConfig({
     },
 
     scheduledTasks: {
-      "0 * * * *": ["cleanup:invitations", "cleanup:sessions"],
+      "0 * * * *": ["dailyTasks"],
     },
 
     storage: {
@@ -121,6 +123,27 @@ export default defineNuxtConfig({
 
   carousel: {
     prefix: "Vue",
+  },
+
+  i18n: {
+    defaultLocale: "en-us",
+    strategy: "no_prefix",
+    experimental: {
+      localeDetector: "localeDetector.ts",
+    },
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: "drop_i18n_redirected",
+      fallbackLocale: "en-us",
+    },
+    locales: [
+      { code: "en-us", name: "English", file: "en_us.json" },
+      {
+        code: "en-pirate",
+        name: "English (Pirate)",
+        file: "en_pirate.json",
+      },
+    ],
   },
 
   security: {

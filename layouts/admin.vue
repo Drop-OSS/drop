@@ -42,7 +42,9 @@
                     class="-m-2.5 p-2.5"
                     @click="sidebarOpen = false"
                   >
-                    <span class="sr-only">Close sidebar</span>
+                    <span class="sr-only">{{
+                      $t("userHeader.closeSidebar")
+                    }}</span>
                     <XMarkIcon class="size-6 text-white" aria-hidden="true" />
                   </button>
                 </div>
@@ -96,7 +98,7 @@
         <DropLogo class="h-8 w-auto" />
         <span
           class="mt-1 bg-blue-400 px-1 py-0.5 rounded-md text-xs font-bold font-display"
-          >Admin</span
+          >{{ $t("header.admin.admin") }}</span
         >
       </div>
       <nav class="mt-8">
@@ -131,7 +133,7 @@
         class="-m-2.5 p-2.5 text-zinc-400 lg:hidden"
         @click="sidebarOpen = true"
       >
-        <span class="sr-only">Open sidebar</span>
+        <span class="sr-only">{{ $t("header.openSidebar") }}</span>
         <Bars3Icon class="h-6 w-6" aria-hidden="true" />
       </button>
     </div>
@@ -162,40 +164,49 @@ import {
   Cog6ToothIcon,
   DocumentIcon,
   UserGroupIcon,
+  RectangleStackIcon,
 } from "@heroicons/vue/24/outline";
 import type { NavigationItem } from "~/composables/types";
 import { useCurrentNavigationIndex } from "~/composables/current-page-engine";
 import { ArrowLeftIcon } from "@heroicons/vue/16/solid";
 import { XMarkIcon } from "@heroicons/vue/24/solid";
 
+const { t } = useI18n();
+
 const navigation: Array<NavigationItem & { icon: Component }> = [
-  { label: "Home", route: "/admin", prefix: "/admin", icon: HomeIcon },
+  { label: t("home"), route: "/admin", prefix: "/admin", icon: HomeIcon },
   {
-    label: "Library",
+    label: t("userHeader.links.library"),
     route: "/admin/library",
     prefix: "/admin/library",
     icon: ServerStackIcon,
   },
   {
-    label: "Meta",
+    label: t("header.admin.meta"),
     route: "/admin/metadata",
     prefix: "/admin/metadata",
     icon: DocumentIcon,
   },
   {
-    label: "Users",
+    label: t("header.admin.users"),
     route: "/admin/users",
     prefix: "/admin/users",
     icon: UserGroupIcon,
   },
   {
-    label: "Settings",
+    label: t("header.admin.tasks"),
+    route: "/admin/task",
+    prefix: "/admin/task",
+    icon: RectangleStackIcon,
+  },
+  {
+    label: t("settings"),
     route: "/admin/settings",
     prefix: "/admin/settings",
     icon: Cog6ToothIcon,
   },
   {
-    label: "Back",
+    label: t("header.back"),
     route: "/store",
     prefix: ".",
     icon: ArrowLeftIcon,
@@ -221,7 +232,7 @@ useHead({
   },
   link: [],
   titleTemplate(title) {
-    return title ? `${title} | Admin | Drop` : `Admin Dashboard | Drop`;
+    return title ? t("adminTitleTemplate", [title]) : t("adminTitle");
   },
 });
 </script>

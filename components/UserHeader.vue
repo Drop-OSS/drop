@@ -54,6 +54,7 @@
             </transition>
           </Menu>
         </li>
+        <UserHeaderSelectLang />
         <UserHeaderUserWidget />
       </ol>
     </div>
@@ -76,7 +77,7 @@
           class="-m-2.5 p-2.5 text-zinc-400 lg:hidden"
           @click="sidebarOpen = true"
         >
-          <span class="sr-only">Open sidebar</span>
+          <span class="sr-only">{{ $t("header.openSidebar") }}</span>
           <Bars3Icon class="h-6 w-6" aria-hidden="true" />
         </button>
       </div>
@@ -125,7 +126,9 @@
                   class="-m-2.5 p-2.5"
                   @click="sidebarOpen = false"
                 >
-                  <span class="sr-only">Close sidebar</span>
+                  <span class="sr-only">{{
+                    $t("userHeader.closeSidebar")
+                  }}</span>
                   <XMarkIcon class="h-6 w-6 text-zinc-400" aria-hidden="true" />
                 </button>
               </div>
@@ -172,6 +175,11 @@
                       <BellIcon class="h-5" />
                     </UserHeaderWidget>
                   </li>
+                  <li class="w-full">
+                    <UserHeaderWidget class="w-full">
+                      <UserHeaderSelectLang />
+                    </UserHeaderWidget>
+                  </li>
                 </div>
               </nav>
             </div>
@@ -198,28 +206,29 @@ import { Bars3Icon } from "@heroicons/vue/24/outline";
 import { XMarkIcon } from "@heroicons/vue/24/solid";
 
 const router = useRouter();
+const { t } = useI18n();
 
 const homepageURL = "/store";
 const navigation: Array<NavigationItem> = [
   {
     prefix: "/store",
     route: "/store",
-    label: "Store",
+    label: t("store.title"),
   },
   {
     prefix: "/library",
     route: "/library",
-    label: "Library",
+    label: t("userHeader.links.library"),
   },
   {
     prefix: "/community",
     route: "/community",
-    label: "Community",
+    label: t("userHeader.links.community"),
   },
   {
     prefix: "/news",
     route: "/news",
-    label: "News",
+    label: t("userHeader.links.news"),
   },
 ];
 

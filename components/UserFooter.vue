@@ -1,13 +1,12 @@
 <template>
   <footer class="bg-zinc-950" aria-labelledby="footer-heading">
-    <h2 id="footer-heading" class="sr-only">Footer</h2>
+    <h2 id="footer-heading" class="sr-only">{{ $t("footer.footer") }}</h2>
     <div class="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8">
       <div class="xl:grid xl:grid-cols-3 xl:gap-8">
         <div class="space-y-8">
           <DropWordmark class="h-10" />
           <p class="text-sm leading-6 text-zinc-300">
-            An open-source game distribution platform built for speed,
-            flexibility and beauty.
+            {{ $t("drop.desc") }}
           </p>
           <div class="flex space-x-6">
             <NuxtLink
@@ -25,7 +24,9 @@
         <div class="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
           <div class="md:grid md:grid-cols-2 md:gap-8">
             <div>
-              <h3 class="text-sm font-semibold leading-6 text-white">Games</h3>
+              <h3 class="text-sm font-semibold leading-6 text-white">
+                {{ $t("footer.games") }}
+              </h3>
               <ul role="list" class="mt-6 space-y-4">
                 <li v-for="item in navigation.games" :key="item.name">
                   <NuxtLink
@@ -38,7 +39,7 @@
             </div>
             <div class="mt-10 md:mt-0">
               <h3 class="text-sm font-semibold leading-6 text-white">
-                Community
+                {{ $t("userHeader.links.community") }}
               </h3>
               <ul role="list" class="mt-6 space-y-4">
                 <li v-for="item in navigation.community" :key="item.name">
@@ -54,7 +55,7 @@
           <div class="md:grid md:grid-cols-2 md:gap-8">
             <div>
               <h3 class="text-sm font-semibold leading-6 text-white">
-                Documentation
+                {{ $t("footer.documentation") }}
               </h3>
               <ul role="list" class="mt-6 space-y-4">
                 <li v-for="item in navigation.documentation" :key="item.name">
@@ -67,7 +68,9 @@
               </ul>
             </div>
             <div class="mt-10 md:mt-0">
-              <h3 class="text-sm font-semibold leading-6 text-white">About</h3>
+              <h3 class="text-sm font-semibold leading-6 text-white">
+                {{ $t("footer.about") }}
+              </h3>
               <ul role="list" class="mt-6 space-y-4">
                 <li v-for="item in navigation.about" :key="item.name">
                   <NuxtLink
@@ -87,43 +90,44 @@
 
 <script setup lang="ts">
 import { IconsDiscordLogo, IconsGithubLogo } from "#components";
+const { t } = useI18n();
 
 const navigation = {
   games: [
-    { name: "Newly Added", href: "#" },
-    { name: "New Releases", href: "#" },
-    { name: "Top Sellers", href: "#" },
-    { name: "Find a Game", href: "#" },
+    { name: t("store.recentlyAdded"), href: "#" },
+    { name: t("store.recentlyReleased"), href: "#" },
+    { name: t("footer.topSellers"), href: "#" },
+    { name: t("footer.findGame"), href: "#" },
   ],
   community: [
-    { name: "Friends", href: "#" },
-    { name: "Groups", href: "#" },
-    { name: "Servers", href: "#" },
+    { name: t("common.friends"), href: "#" },
+    { name: t("common.groups"), href: "#" },
+    { name: t("common.servers"), href: "#" },
   ],
   documentation: [
-    { name: "API", href: "https://api.droposs.org/" },
+    { name: t("footer.api"), href: "https://api.droposs.org/" },
     {
-      name: "Server Docs",
+      name: t("footer.docs.server"),
       href: "https://wiki.droposs.org/guides/quickstart.html",
     },
     {
-      name: "Client Docs",
+      name: t("footer.docs.client"),
       href: "https://wiki.droposs.org/guides/client.html",
     },
   ],
   about: [
-    { name: "About Drop", href: "https://droposs.org/" },
-    { name: "Features", href: "https://droposs.org/features" },
-    { name: "FAQ", href: "https://droposs.org/faq" },
+    { name: t("footer.aboutDrop"), href: "https://droposs.org/" },
+    { name: t("footer.features"), href: "https://droposs.org/features" },
+    { name: t("footer.faq"), href: "https://droposs.org/faq" },
   ],
   social: [
     {
-      name: "GitHub",
+      name: t("footer.social.github"),
       href: "https://github.com/Drop-OSS",
       icon: IconsGithubLogo,
     },
     {
-      name: "Discord",
+      name: t("footer.social.discord"),
       href: "https://discord.gg/NHx46XKJWA",
       icon: IconsDiscordLogo,
     },

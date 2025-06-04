@@ -32,7 +32,7 @@
       </p>
     </div>
   </NuxtLink>
-  <SkeletonCard v-else message="no game" />>
+  <SkeletonCard v-else :message="$t('store.noGame')" />
 </template>
 
 <script setup lang="ts">

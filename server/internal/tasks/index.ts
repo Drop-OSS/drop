@@ -2,33 +2,85 @@ import droplet from "@drop-oss/droplet";
 import type { MinimumRequestObject } from "~/server/h3";
 import aclManager from "../acls";
 
+import cleanupInvites from "./registry/invitations";
+import cleanupSessions from "./registry/sessions";
+import checkUpdate from "./registry/update";
+import cleanupObjects from "./registry/objects";
+import { taskGroups, type TaskGroup } from "./group";
+
+// a task that has been run
+type FinishedTask = {
+  success: boolean;
+  progress: number;
+  log: string[];
+  error: { title: string; description: string } | undefined;
+  name: string;
+  taskGroup: TaskGroup;
+  acls: string[];
+
+  // ISO timestamp of when the task started
+  startTime: string;
+  // ISO timestamp of when the task ended
+  endTime: string | undefined;
+};
+
+// a currently running task in the pool
+type TaskPoolEntry = FinishedTask & {
+  clients: Map<string, boolean>;
+};
+
 /**
  * The TaskHandler setups up two-way connections to web clients and manages the state for them
  * This allows long-running tasks (like game imports and such) to report progress, success and error states
  * easily without re-inventing the wheel every time.
  */
-
-type TaskRegistryEntry = {
-  success: boolean;
-  progress: number;
-  log: string[];
-  error: { title: string; description: string } | undefined;
-  clients: Map<string, boolean>;
-  name: string;
-  acls: string[];
-};
-
 class TaskHandler {
-  // TODO: make these maps, using objects like this has performance impacts
-  // https://typescript-eslint.io/rules/no-dynamic-delete/
-  private taskRegistry = new Map<string, TaskRegistryEntry>();
+  // registry of schedualed tasks to be created
+  private scheduledTasks: Map<TaskGroup, () => Task> = new Map();
+  // list of all finished tasks
+  private finishedTasks: Map<string, FinishedTask> = new Map();
+
+  // list of all currently running tasks
+  private taskPool = new Map<string, TaskPoolEntry>();
+  // list of all clients currently connected to tasks
   private clientRegistry = new Map<string, PeerImpl>();
-  startTasks: (() => void)[] = [];
+
+  constructor() {
+    // register the cleanup invitations task
+    this.saveScheduledTask(cleanupInvites);
+    this.saveScheduledTask(cleanupSessions);
+    this.saveScheduledTask(checkUpdate);
+    this.saveScheduledTask(cleanupObjects);
+  }
+
+  /**
+   * Saves scheduled task to the registry
+   * @param createTask
+   */
+  private saveScheduledTask(task: DropTask) {
+    this.scheduledTasks.set(task.taskGroup, task.build);
+  }
 
   create(task: Task) {
     let updateCollectTimeout: NodeJS.Timeout | undefined;
     let updateCollectResolves: Array<(value: unknown) => void> = [];
     let logOffset: number = 0;
+
+    // if taskgroup disallows concurrency
+    if (!taskGroups[task.taskGroup].concurrency) {
+      for (const existingTask of this.taskPool.values()) {
+        // if a task is already running, we don't want to start another
+        if (existingTask.taskGroup === task.taskGroup) {
+          // TODO: handle this more gracefully, maybe with a queue? should be configurable
+          console.warn(
+            `Task group ${task.taskGroup} does not allow concurrent tasks. Task ${task.id} will not be started.`,
+          );
+          throw new Error(
+            `Task group ${task.taskGroup} does not allow concurrent tasks.`,
+          );
+        }
+      }
+    }
 
     const updateAllClients = (reset = false) =>
       new Promise((r) => {
@@ -37,7 +89,7 @@ class TaskHandler {
           return;
         }
         updateCollectTimeout = setTimeout(() => {
-          const taskEntry = this.taskRegistry.get(task.id);
+          const taskEntry = this.taskPool.get(task.id);
           if (!taskEntry) return;
 
           const taskMessage: TaskMessage = {
@@ -67,33 +119,37 @@ class TaskHandler {
       });
 
     const progress = (progress: number) => {
-      const taskEntry = this.taskRegistry.get(task.id);
+      const taskEntry = this.taskPool.get(task.id);
       if (!taskEntry) return;
       taskEntry.progress = progress;
       updateAllClients();
     };
 
     const log = (entry: string) => {
-      const taskEntry = this.taskRegistry.get(task.id);
+      const taskEntry = this.taskPool.get(task.id);
       if (!taskEntry) return;
       taskEntry.log.push(entry);
+      console.log(`[Task ${task.taskGroup}]: ${entry}`);
       updateAllClients();
     };
 
-    this.taskRegistry.set(task.id, {
+    this.taskPool.set(task.id, {
       name: task.name,
+      taskGroup: task.taskGroup,
       success: false,
       progress: 0,
       error: undefined,
       log: [],
       clients: new Map(),
       acls: task.acls,
+      startTime: new Date().toISOString(),
+      endTime: undefined,
     });
 
     updateAllClients(true);
 
     droplet.callAltThreadFunc(async () => {
-      const taskEntry = this.taskRegistry.get(task.id);
+      const taskEntry = this.taskPool.get(task.id);
       if (!taskEntry) throw new Error("No task entry");
 
       try {
@@ -106,13 +162,22 @@ class TaskHandler {
           description: (error as string).toString(),
         };
       }
+
+      taskEntry.endTime = new Date().toISOString();
       await updateAllClients();
 
       for (const clientId of taskEntry.clients.keys()) {
         if (!this.clientRegistry.get(clientId)) continue;
         this.disconnect(clientId, task.id);
       }
-      this.taskRegistry.delete(task.id);
+
+      // so we can drop the clients from the task entry
+      const { clients, ...copied } = taskEntry;
+      this.finishedTasks.set(task.id, {
+        ...copied,
+      });
+
+      this.taskPool.delete(task.id);
     });
   }
 
@@ -122,7 +187,7 @@ class TaskHandler {
     peer: PeerImpl,
     request: MinimumRequestObject,
   ) {
-    const task = this.taskRegistry.get(taskId);
+    const task = this.taskPool.get(taskId);
     if (!task) {
       peer.send(
         `error/${taskId}/Unknown task/Drop couldn't find the task you're looking for.`,
@@ -160,8 +225,8 @@ class TaskHandler {
   }
 
   disconnectAll(id: string) {
-    for (const taskId of this.taskRegistry.keys()) {
-      this.taskRegistry.get(taskId)?.clients.delete(id);
+    for (const taskId of this.taskPool.keys()) {
+      this.taskPool.get(taskId)?.clients.delete(id);
       this.sendDisconnectEvent(id, taskId);
     }
 
@@ -169,13 +234,13 @@ class TaskHandler {
   }
 
   disconnect(id: string, taskId: string) {
-    const task = this.taskRegistry.get(taskId);
+    const task = this.taskPool.get(taskId);
     if (!task) return false;
 
     task.clients.delete(id);
     this.sendDisconnectEvent(id, taskId);
 
-    const allClientIds = this.taskRegistry
+    const allClientIds = this.taskPool
       .values()
       .toArray()
       .map((e) => e.clients.keys().toArray())
@@ -187,6 +252,24 @@ class TaskHandler {
 
     return true;
   }
+
+  runTaskGroupByName(name: TaskGroup) {
+    const task = this.scheduledTasks.get(name);
+    if (!task) {
+      console.warn(`No task found for group ${name}`);
+      return;
+    }
+    this.create(task());
+  }
+
+  /**]
+   * Runs all daily tasks that are scheduled to run once a day.
+   */
+  triggerDailyTasks() {
+    this.runTaskGroupByName("cleanup:invitations");
+    this.runTaskGroupByName("cleanup:sessions");
+    this.runTaskGroupByName("check:update");
+  }
 }
 
 export type TaskRunContext = {
@@ -196,6 +279,7 @@ export type TaskRunContext = {
 
 export interface Task {
   id: string;
+  taskGroup: TaskGroup;
   name: string;
   run: (context: TaskRunContext) => Promise<void>;
   acls: string[];
@@ -214,6 +298,34 @@ export type TaskMessage = {
 export type PeerImpl = {
   send: (message: string) => void;
 };
+
+export interface BuildTask {
+  buildId: () => string;
+  taskGroup: TaskGroup;
+  name: string;
+  run: (context: TaskRunContext) => Promise<void>;
+  acls: string[];
+}
+
+interface DropTask {
+  taskGroup: TaskGroup;
+  build: () => Task;
+}
+
+export function defineDropTask(buildTask: BuildTask): DropTask {
+  // TODO: only let one task with the same taskGroup run at the same time if specified
+
+  return {
+    taskGroup: buildTask.taskGroup,
+    build: () => ({
+      id: buildTask.buildId(),
+      taskGroup: buildTask.taskGroup,
+      name: buildTask.name,
+      run: buildTask.run,
+      acls: buildTask.acls,
+    }),
+  };
+}
 
 export const taskHandler = new TaskHandler();
 export default taskHandler;

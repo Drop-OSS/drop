@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "lokalise.i18n-ally",
+    "esbenp.prettier-vscode",
+    "Prisma.prisma",
+    "bradlc.vscode-tailwindcss",
+    "Vue.volar",
+    "arktypeio.arkdark",
+    "EditorConfig.EditorConfig",
+    "dbaeumer.vscode-eslint"
+  ]
+}

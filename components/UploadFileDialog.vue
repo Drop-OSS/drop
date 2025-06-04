@@ -49,7 +49,7 @@
                       />
                       <span
                         class="transition mt-2 block text-sm font-semibold text-zinc-400 group-hover:text-zinc-500"
-                        >Upload file</span
+                        >{{ $t("uploadFile") }}</span
                       >
                       <div v-if="currentFileList">
                         <p
@@ -80,7 +80,7 @@
                   :class="['inline-flex w-full shadow-sm sm:ml-3 sm:w-auto']"
                   @click="() => uploadFile_wrapper()"
                 >
-                  Upload
+                  {{ $t("upload") }}
                 </LoadingButton>
                 <button
                   ref="cancelButtonRef"
@@ -88,7 +88,7 @@
                   class="mt-3 inline-flex w-full justify-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-800 hover:bg-zinc-900 sm:mt-0 sm:w-auto"
                   @click="open = false"
                 >
-                  Cancel
+                  {{ $t("cancel") }}
                 </button>
               </div>
               <div v-if="uploadError" class="mt-3 rounded-md bg-red-600/10 p-4">
@@ -129,6 +129,7 @@ const open = defineModel<boolean>({
   required: true,
 });
 
+const { t } = useI18n();
 const file = ref<FileList | undefined>();
 const currentFiles = computed(() => file.value);
 const currentFileList = computed(() => {
@@ -176,7 +177,7 @@ function uploadFile_wrapper() {
   uploadLoading.value = true;
   uploadFile()
     .catch((error) => {
-      uploadError.value = error.statusMessage ?? "An unknown error occurred.";
+      uploadError.value = error.statusMessage ?? t("errors.unknown");
     })
     .finally(() => {
       uploadLoading.value = false;

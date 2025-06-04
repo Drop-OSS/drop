@@ -5,11 +5,7 @@ class SystemConfig {
   private dropVersion;
   private gitRef;
 
-  private checkForUpdates =
-    process.env.CHECK_FOR_UPDATES !== undefined &&
-    process.env.CHECK_FOR_UPDATES.toLocaleLowerCase() === "true"
-      ? true
-      : false;
+  private checkForUpdates = getUpdateCheckConfig();
 
   constructor() {
     // get drop version and git ref from nuxt config
@@ -40,3 +36,26 @@ class SystemConfig {
 }
 
 export const systemConfig = new SystemConfig();
+
+/**
+ * Gets the configuration for checking updates based on various conditions
+ * @returns true if updates should be checked, false otherwise.
+ */
+function getUpdateCheckConfig(): boolean {
+  const envCheckUpdates = process.env.CHECK_FOR_UPDATES;
+
+  // Check environment variable
+  if (envCheckUpdates !== undefined) {
+    // if explicitly set to true or false, return that value
+    if (envCheckUpdates.toLocaleLowerCase() === "true") {
+      return true;
+    } else if (envCheckUpdates.toLocaleLowerCase() === "false") {
+      return false;
+    }
+  } else if (process.env.NODE_ENV === "production") {
+    // default to true in production
+    return true;
+  }
+
+  return false;
+}

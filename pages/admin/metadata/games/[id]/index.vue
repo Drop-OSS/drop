@@ -26,7 +26,7 @@
             class="relative inline-flex gap-x-3 items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
             @click="() => (showEditCoreMetadata = true)"
           >
-            Edit <PencilIcon class="size-4" />
+            {{ $t("edit") }} <PencilIcon class="size-4" />
           </button>
         </div>
 
@@ -597,7 +597,7 @@ watch(descriptionHTML, (_v) => {
           title: "Failed to update game description",
           description: `Drop failed to update the game description: ${
             // @ts-expect-error attempt to get statusMessage on error
-            e?.statusMessage ?? "An unknown error occurred."
+            e?.statusMessage ?? t("errors.unknown")
           }`,
           buttonText: "Close",
         },
@@ -642,7 +642,7 @@ async function updateBannerImage(id: string) {
         title: "There an error while updating the banner image",
         description: `Drop encountered an error while updating the banner image: ${
           // @ts-expect-error attempt to get statusMessage on error
-          e?.statusMessage ?? "An unknown error occurred"
+          e?.statusMessage ?? t("errors.unknown")
         }`,
         buttonText: "Close",
       },
@@ -670,7 +670,7 @@ async function updateCoverImage(id: string) {
         title: "There an error while updating the cover image",
         description: `Drop encountered an error while updating the cover image: ${
           // @ts-expect-error attempt to get statusMessage on error
-          e?.statusMessage ?? "An unknown error occurred"
+          e?.statusMessage ?? t("errors.unknown")
         }`,
         buttonText: "Close",
       },
@@ -700,7 +700,7 @@ async function deleteImage(id: string) {
         title: "There an error while deleting the image",
         description: `Drop encountered an error while deleting the image: ${
           // @ts-expect-error attempt to get statusMessage on error
-          e?.statusMessage ?? "An unknown error occurred"
+          e?.statusMessage ?? t("errors.unknown")
         }`,
         buttonText: "Close",
       },
@@ -743,7 +743,7 @@ async function updateImageCarousel() {
         title: "There an error while updating the image carousel",
         description: `Drop encountered an error while updating image carousel: ${
           // @ts-expect-error attempt to get statusMessage on error
-          e?.statusMessage ?? "An unknown error occurred"
+          e?.statusMessage ?? t("errors.unknown")
         }`,
         buttonText: "Close",
       },

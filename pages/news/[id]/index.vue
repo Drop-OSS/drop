@@ -28,7 +28,7 @@
               class="px-2 py-1 rounded bg-zinc-900/80 backdrop-blur-sm transition text-sm/6 font-semibold text-zinc-400 hover:text-zinc-100 inline-flex gap-x-2 items-center duration-200 hover:scale-105"
             >
               <ArrowLeftIcon class="h-4 w-4" aria-hidden="true" />
-              Back to News
+              {{ $t("news.back") }}
             </NuxtLink>
 
             <button
@@ -37,7 +37,7 @@
               @click="() => (currentlyDeleting = article)"
             >
               <TrashIcon class="h-4 w-4" aria-hidden="true" />
-              Delete Article
+              {{ $t("news.delete") }}
             </button>
           </div>
 
@@ -91,6 +91,7 @@ const route = useRoute();
 const currentlyDeleting = ref();
 const user = useUser();
 const news = useNews();
+const { t } = useI18n();
 if (!news.value) {
   news.value = await fetchNews();
 }
@@ -100,7 +101,7 @@ const article = computed(() =>
 if (!article.value)
   throw createError({
     statusCode: 404,
-    statusMessage: "Article not found",
+    statusMessage: t("news.notFound"),
     fatal: true,
   });
 
