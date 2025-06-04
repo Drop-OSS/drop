@@ -1,11 +1,13 @@
 <template>
-  <div class="pt-8 lg:pt-0 lg:pl-20 fixed inset-0 flex flex-col overflow-auto">
+  <div
+    class="pt-8 lg:pt-0 lg:pl-20 fixed inset-0 flex flex-col overflow-auto bg-zinc-900"
+  >
     <div
-      class="w-full flex flex-col sm:flex-row gap-2 justify-between border-b border-zinc-800 py-4 px-5"
+      class="bg-zinc-950 w-full flex flex-col sm:flex-row items-center gap-2 justify-between pr-2"
     >
       <!--start-->
       <div>
-        <Listbox v-model="currentMode" as="div">
+        <Listbox v-if="false" v-model="currentMode" as="div">
           <div class="relative mt-2">
             <ListboxButton
               class="min-w-[10vw] w-full cursor-default inline-flex items-center gap-x-2 rounded-md bg-zinc-900 py-1.5 pr-2 pl-3 text-left text-zinc-200 outline-1 -outline-offset-1 outline-zinc-700 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6"
@@ -65,6 +67,22 @@
             </transition>
           </div>
         </Listbox>
+
+        <div class="pt-4 inline-flex gap-x-2">
+          <div v-for="[value] in Object.entries(components)" :key="value">
+            <button
+              :class="[
+                'py-2 px-3 rounded-t-md font-semibold text-sm',
+                value == currentMode
+                  ? 'bg-zinc-900 text-zinc-100'
+                  : 'bg-transparent text-zinc-500',
+              ]"
+              @click="() => (currentMode = value as GameEditorMode)"
+            >
+              {{ value }}
+            </button>
+          </div>
+        </div>
       </div>
       <div>
         <!-- open in store button -->
@@ -116,7 +134,8 @@ definePageMeta({
 });
 
 useHead({
-  title: `Editing ${game.value.mName}`,
+  // To do a title with the game name in it, we need some sort of watch
+  title: "Game Editor",
 });
 
 enum GameEditorMode {
