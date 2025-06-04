@@ -98,10 +98,7 @@
 
 <script setup lang="ts">
 import type { Game, GameVersion } from "~/prisma/client";
-import {
-  Bars3Icon,
-  TrashIcon,
-} from "@heroicons/vue/24/solid";
+import { Bars3Icon, TrashIcon } from "@heroicons/vue/24/solid";
 import type { SerializeObject } from "nitropack";
 
 definePageMeta({
