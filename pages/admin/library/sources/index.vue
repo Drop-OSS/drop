@@ -86,9 +86,7 @@
                   >
                     {{ $t("edit") }}
                     <span class="sr-only">
-                      {{
-                        $t("account.devices.revokeClientName", [source.name])
-                      }}
+                      {{ $t("chars.srComma", [source.name]) }}
                     </span>
                   </button>
 
@@ -98,9 +96,7 @@
                   >
                     {{ $t("library.admin.delete") }}
                     <span class="sr-only">
-                      {{
-                        $t("account.devices.revokeClientName", [source.name])
-                      }}
+                      {{ $t("chars.srComma", [source.name]) }}
                     </span>
                   </button>
                 </td>
@@ -380,9 +376,11 @@ async function deleteSource(index: number) {
     createModal(
       ModalType.Notification,
       {
-        title: "Failed to delete library source",
-        // @ts-expect-error attempt to display statusMessage on error
-        description: `Drop couldn't add delete this source: ${e?.statusMessage}`,
+        title: t("errors.library.source.delete.title"),
+        description: t("errors.library.source.delete.desc", [
+          // @ts-expect-error attempt to display statusMessage on error
+          e?.statusMessage ?? "",
+        ]),
       },
       (_, c) => c(),
     );

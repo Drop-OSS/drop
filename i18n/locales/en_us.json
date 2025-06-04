@@ -1,29 +1,27 @@
 {
   "account": {
     "devices": {
-      "access": "Can Access",
+      "capabilities": "Capabilities",
       "lastConnected": "Last Connected",
       "platform": "Platform",
       "revoke": "Revoke",
-      "revokeClientName": "chars.srComma",
-      "subheader": "All the devices authorized to access your Drop account.",
+      "subheader": "Manage the devices authorized to access your Drop account.",
       "title": "Devices"
     },
     "title": "Account"
   },
+  "actions": "Actions",
   "auth": {
     "confirmPassword": "Confirm @:auth.password",
     "displayName": "Display Name",
     "email": "Email",
     "password": "Password",
     "register": {
-      "checkOut": "Check us out here {arrow}",
       "confirmPasswordFormat": "Must be the same as above",
       "emailFormat": "Must be in the format user{'@'}example.com",
       "passwordFormat": "Must be 14 or more characters",
       "title": "Create your Drop account",
-      "usernameFormat": "Must be 5 or more characters, and lowercase",
-      "whatIs": "What's Drop? {0}"
+      "usernameFormat": "Must be 5 or more characters, and lowercase"
     },
     "signin": {
       "externalProvider": "Sign in with external provider {arrow}",
@@ -41,13 +39,22 @@
   "cancel": "Cancel",
   "chars": {
     "arrow": "→",
-    "quoted": "\"\""
+    "quoted": "\"\"",
+    "srComma": ", {0}"
   },
   "close": "Close",
   "create": "Create",
   "edit": "Edit",
   "errors": {
     "inviteRequired": "Invitation required to sign up.",
+    "library": {
+      "source": {
+        "delete": {
+          "desc": "Drop couldn't add delete this source: {0}",
+          "title": "Failed to delete library source"
+        }
+      }
+    },
     "revokeClient": "Failed to revoke client",
     "revokeClientFull": "Failed to revoke client {0}",
     "unknown": "An unknown error occurred",
