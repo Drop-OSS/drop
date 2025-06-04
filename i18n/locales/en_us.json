@@ -75,6 +75,20 @@
     "drop": "Drop"
   },
   "edit": "Edit",
+  "editor": {
+    "bold": "Bold",
+    "boldPlaceholder": "bold text",
+    "code": "Code",
+    "codePlaceholder": "code",
+    "heading": "Heading",
+    "headingPlaceholder": "heading",
+    "italic": "Italic",
+    "italicPlaceholder": "italic text",
+    "link": "Link",
+    "linkPlaceholder": "link text",
+    "listItem": "List Item",
+    "listItemPlaceholder": "list item"
+  },
   "errors": {
     "invalidBody": "Invalid request body: {0}",
     "inviteRequired": "Invitation required to sign up.",
@@ -207,6 +221,9 @@
         "createDesc": "Drop will use this source to access your game library, and make them available.",
         "desc": "Configure your library sources, where Drop will look for new games and versions to import.",
         "fsDesc": "Imports games from a path on disk. Requires version-based folder structure, and supports archived games.",
+        "fsPath": "Path",
+        "fsPathDesc": "An absolute path to your game library.",
+        "fsPathPlaceholder": "/mnt/games",
         "link": "Sources {arrow}",
         "nameDesc": "The name of your source, for reference.",
         "namePlaceholder": "My New Source",
@@ -242,6 +259,20 @@
   "lowest": "lowest",
   "name": "Name",
   "news": {
+    "article": {
+      "add": "Add",
+      "content": "Content (Markdown)",
+      "create": "Create New Article",
+      "editor": "Editor",
+      "editorGuide": "Use the shortcuts above or write Markdown directly. Supports **bold**, *italic*, [links](url), and more.",
+      "new": "New article",
+      "preview": "Preview",
+      "shortDesc": "Short description",
+      "submit": "Submit",
+      "tagPlaceholder": "Add a tag...",
+      "titles": "Title",
+      "uploadCover": "Upload cover image"
+    },
     "back": "Back to News",
     "checkLater": "Check back later for updates.",
     "delete": "Delete Article",
@@ -283,6 +314,8 @@
     "view": "View in Store"
   },
   "type": "Type",
+  "upload": "Upload",
+  "uploadFile": "Upload file",
   "userHeader": {
     "closeSidebar": "Close sidebar",
     "links": {

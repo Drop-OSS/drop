@@ -12,10 +12,6 @@ const { locales, locale: currLocale, setLocale } = useI18n();
     <MenuButton>
       <UserHeaderWidget>
         <div class="inline-flex items-center text-zinc-300 hover:text-white">
-          <!-- <TwemojiText
-            class="w-5 h-5 rounded-sm"
-            :text="localToEmoji(currLocale)"
-          /> -->
           {{ localToEmoji(currLocale) }}
           <!-- <span class="ml-2 text-sm font-bold">{{ locale }}</span> -->
           <ChevronDownIcon class="ml-3 h-4" />
@@ -52,13 +48,4 @@ const { locales, locale: currLocale, setLocale } = useI18n();
       </MenuItems>
     </transition>
   </Menu>
-  <!-- <div>
-    <button
-      v-for="locale in locales"
-      :key="locale.code"
-      @click="setLocale(locale.code)"
-    >
-      {{ locale.name }}
-    </button>
-  </div> -->
 </template>
