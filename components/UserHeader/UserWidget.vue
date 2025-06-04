@@ -46,29 +46,28 @@
               hydrate-on-visible
               as="div"
             >
-              <!-- TODO: think this would work better as a NuxtLink instead of a button -->
-              <button
-                :href="nav.route"
+              <NuxtLink
+                :to="nav.route"
                 :class="[
                   active ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400',
                   'w-full text-left transition block px-4 py-2 text-sm',
                 ]"
-                @click="() => navigateTo(nav.route, close)"
+                @click="close"
               >
                 {{ nav.label }}
-              </button>
+              </NuxtLink>
             </MenuItem>
-            <MenuItem v-slot="{ active }" hydrate-on-visible as="div">
-              <!-- TODO: think this would work better as a NuxtLink instead of a button -->
-              <a
+            <MenuItem v-slot="{ active, close }" hydrate-on-visible as="div">
+              <NuxtLink
+                to="/auth/signout"
                 :class="[
                   active ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400',
                   'w-full text-left transition block px-4 py-2 text-sm',
                 ]"
-                href="/auth/signout"
+                @click="close"
               >
                 {{ $t("auth.signout") }}
-              </a>
+              </NuxtLink>
             </MenuItem>
           </div>
         </PanelWidget>
