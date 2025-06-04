@@ -102,7 +102,7 @@ export class MetadataHandler {
       {
         id: "",
         name: libraryPath,
-        sourceId: "manual",
+        sourceId: MetadataSource.Manual,
       },
       libraryId,
       libraryPath,

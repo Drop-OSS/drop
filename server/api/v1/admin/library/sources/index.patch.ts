@@ -1,5 +1,5 @@
 import { type } from "arktype";
-import { throwingArktype } from "~/server/arktype";
+import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import libraryManager from "~/server/internal/library";
@@ -19,7 +19,7 @@ export default defineEventHandler<{ body: typeof UpdateLibrarySource.infer }>(
     ]);
     if (!allowed) throw createError({ statusCode: 403 });
 
-    const body = await readValidatedBody(h3, UpdateLibrarySource);
+    const body = await readDropValidatedBody(h3, UpdateLibrarySource);
 
     const source = await prisma.library.findUnique({ where: { id: body.id } });
     if (!source)
