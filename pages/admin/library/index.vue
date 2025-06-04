@@ -98,23 +98,9 @@
             <div class="mt-4 flex flex-col gap-y-1">
               <NuxtLink
                 :href="`/admin/library/${game.id}`"
-                class="w-fit rounded-md bg-blue-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-500 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                class="w-fit rounded-md bg-zinc-800 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               >
-                <i18n-t keypath="library.admin.openLibrary" tag="span">
-                  <template #arrow>
-                    <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
-                  </template>
-                </i18n-t>
-              </NuxtLink>
-              <NuxtLink
-                :href="`/admin/metadata/games/${game.id}`"
-                class="w-fit rounded-md bg-zinc-800 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-zinc-700 hover:scale-105 hover:shadow-lg active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600"
-              >
-                <i18n-t keypath="library.admin.openMetadata" tag="span">
-                  <template #arrow>
-                    <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
-                  </template>
-                </i18n-t>
+                Open in Editor &rarr;
               </NuxtLink>
               <button
                 class="w-fit rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-red-500 hover:scale-105 hover:shadow-lg hover:shadow-red-500/25 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"

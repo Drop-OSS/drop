@@ -1,11 +1,8 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <div>
-    <div
-      v-if="game && unimportedVersions !== undefined"
-      class="grow flex flex-col gap-y-8"
-    >
-      <div class="grow w-full h-full lg:pr-[30vw] px-6 py-4 flex flex-col">
+  <div v-if="game!">
+    <div class="grow flex flex-row gap-y-8">
+      <div class="grow w-full h-full px-6 py-4 flex flex-col">
         <div
           class="flex flex-col lg:flex-row lg:justify-between items-start lg:items-center gap-2"
         >
@@ -98,13 +95,18 @@
           >
             <div>
               <CheckIcon
-                v-if="descriptionSaving == 0"
+                v-if="descriptionSaving == DescriptionSavingState.NotLoading"
                 class="size-5 text-zinc-100"
               />
-              <div v-else-if="descriptionSaving == 1">
+              <div
+                v-else-if="descriptionSaving == DescriptionSavingState.Waiting"
+              >
                 <PencilIcon class="animate-pulse size-5 text-zinc-100" />
               </div>
-              <div v-else-if="descriptionSaving == 2" role="status">
+              <div
+                v-else-if="descriptionSaving == DescriptionSavingState.Loading"
+                role="status"
+              >
                 <svg
                   aria-hidden="true"
                   class="w-5 h-5 text-transparent animate-spin fill-white"
@@ -174,36 +176,8 @@
         </div>
       </div>
       <div
-        class="lg:overflow-y-auto lg:border-l lg:border-zinc-800 lg:fixed lg:inset-y-0 lg:z-50 lg:w-[30vw] flex flex-col lg:right-0 gap-y-8 px-6 py-4"
+        class="lg:overflow-y-auto lg:border-l lg:border-zinc-800 lg:block lg:inset-y-0 lg:z-50 lg:w-[30vw] flex flex-col gap-y-8 px-6 py-4"
       >
-        <!-- toolbar -->
-        <div class="inline-flex justify-end items-stretch gap-x-4">
-          <!-- open in library button -->
-          <NuxtLink
-            :href="`/admin/library/${game.id}`"
-            type="button"
-            class="inline-flex w-fit items-center gap-x-2 rounded-md bg-zinc-800 px-3 py-1 text-sm font-semibold font-display text-white shadow-sm transition-all duration-200 hover:bg-zinc-700 hover:scale-105 hover:shadow-lg active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600"
-          >
-            Open in Library
-            <ArrowTopRightOnSquareIcon
-              class="-mr-0.5 h-7 w-7 p-1"
-              aria-hidden="true"
-            />
-          </NuxtLink>
-          <!-- open in store button -->
-          <NuxtLink
-            :href="`/store/${game.id}`"
-            type="button"
-            class="inline-flex w-fit items-center gap-x-2 rounded-md bg-zinc-800 px-3 py-1 text-sm font-semibold font-display text-white shadow-sm transition-all duration-200 hover:bg-zinc-700 hover:scale-105 hover:shadow-lg active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600"
-          >
-            Open in Store
-            <ArrowTopRightOnSquareIcon
-              class="-mr-0.5 h-7 w-7 p-1"
-              aria-hidden="true"
-            />
-          </NuxtLink>
-        </div>
-
         <!-- image library -->
         <div>
           <div class="border-b border-zinc-800 pb-3">
@@ -463,12 +437,12 @@
 import type { Game } from "~/prisma/client";
 import { micromark } from "micromark";
 import {
-  ArrowTopRightOnSquareIcon,
   CheckIcon,
   DocumentIcon,
   PencilIcon,
   PhotoIcon,
 } from "@heroicons/vue/24/solid";
+import type { SerializeObject } from "nitropack";
 
 definePageMeta({
   layout: "admin",
@@ -480,13 +454,14 @@ const showAddImageDescriptionModal = ref(false);
 const showEditCoreMetadata = ref(false);
 const mobileShowFinalDescription = ref(true);
 
-const route = useRoute();
-const gameId = route.params.id.toString();
-const { game: rawGame, unimportedVersions } = await $dropFetch(
-  `/api/v1/admin/game?id=${encodeURIComponent(gameId)}`,
-);
-const game = ref(rawGame);
+const game = defineModel<SerializeObject<Game>>() as Ref<SerializeObject<Game>>;
+if (!game.value)
+  throw createError({
+    statusCode: 500,
+    statusMessage: "Game not provided to editor component",
+  });
 
+// I don't know why I split these fields off.
 const coreMetadataName = ref(game.value.mName);
 const coreMetadataDescription = ref(game.value.mShortDescription);
 const coreMetadataIconUrl = ref(useObject(game.value.mIconObjectId));
@@ -569,27 +544,33 @@ const descriptionEditor = ref<HTMLTextAreaElement | undefined>();
 // 0 is not loading
 // 1 is waiting for stop
 // 2 is loading
-const descriptionSaving = ref<number>(0);
+enum DescriptionSavingState {
+  NotLoading,
+  Waiting,
+  Loading,
+}
+const descriptionSaving = ref<DescriptionSavingState>(
+  DescriptionSavingState.NotLoading,
+);
 
 let savingTimeout: undefined | NodeJS.Timeout;
 
 type PatchGameBody = Partial<Game>;
 
 watch(descriptionHTML, (_v) => {
-  console.log(game.value.mDescription);
-  descriptionSaving.value = 1;
+  descriptionSaving.value = DescriptionSavingState.Waiting;
   if (savingTimeout) clearTimeout(savingTimeout);
   savingTimeout = setTimeout(async () => {
     try {
-      descriptionSaving.value = 2;
+      descriptionSaving.value = DescriptionSavingState.Loading;
       await $dropFetch("/api/v1/admin/game", {
         method: "PATCH",
         body: {
-          id: gameId,
+          id: game.value.id,
           mDescription: game.value.mDescription,
         } satisfies PatchGameBody,
       });
-      descriptionSaving.value = 0;
+      descriptionSaving.value = DescriptionSavingState.NotLoading;
     } catch (e) {
       createModal(
         ModalType.Notification,
@@ -630,7 +611,7 @@ async function updateBannerImage(id: string) {
     const { mBannerObjectId } = await $dropFetch("/api/v1/admin/game", {
       method: "PATCH",
       body: {
-        id: gameId,
+        id: game.value.id,
         mBannerObjectId: id,
       } satisfies PatchGameBody,
     });
@@ -657,7 +638,7 @@ async function updateCoverImage(id: string) {
     const { mCoverObjectId } = await $dropFetch("/api/v1/admin/game", {
       method: "PATCH",
       body: {
-        id: gameId,
+        id: game.value.id,
         mCoverObjectId: id,
       } satisfies PatchGameBody,
     });
@@ -732,7 +713,7 @@ async function updateImageCarousel() {
     await $dropFetch("/api/v1/admin/game", {
       method: "PATCH",
       body: {
-        id: gameId,
+        id: game.value.id,
         mImageCarouselObjectIds: game.value.mImageCarouselObjectIds,
       } satisfies PatchGameBody,
     });
