@@ -100,7 +100,15 @@
                 :href="`/admin/library/${game.id}`"
                 class="w-fit rounded-md bg-zinc-800 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               >
-                Open in Editor &rarr;
+                <i18n-t
+                  keypath="library.admin.openEditor"
+                  tag="span"
+                  scope="global"
+                >
+                  <template #arrow>
+                    <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
+                  </template>
+                </i18n-t>
               </NuxtLink>
               <button
                 class="w-fit rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-red-500 hover:scale-105 hover:shadow-lg hover:shadow-red-500/25 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
@@ -155,7 +163,7 @@
               </div>
               <div class="ml-3">
                 <h3 class="text-sm font-medium text-yellow-600">
-                  {{ $t("library.admin.noVersions") }}
+                  {{ $t("library.admin.version.noVersions") }}
                 </h3>
               </div>
             </div>

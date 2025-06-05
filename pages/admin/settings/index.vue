@@ -1,5 +1,5 @@
 <template>
-  <div class="text-gray-100">Todo page</div>
+  <div class="text-gray-100">{{ $t("todo") }}</div>
 </template>
 <script lang="ts" setup>
 useHead({

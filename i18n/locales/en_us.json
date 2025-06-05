@@ -25,6 +25,8 @@
   "actions": "Actions",
   "adminTitle": "Admin Dashboard | Drop",
   "adminTitleTemplate": "{0} | Admin | Drop",
+  "title": "Drop",
+  "titleTemplate": "{0} | Drop",
   "auth": {
     "callback": {
       "authClient": "Authorize client?",
@@ -79,7 +81,9 @@
     "noResults": "No results",
     "servers": "Servers",
     "tags": "Tags",
-    "today": "Today"
+    "today": "Today",
+    "divider": "{'|'}",
+    "srLoading": "Loading..."
   },
   "create": "Create",
   "delete": "Delete",
@@ -149,6 +153,36 @@
         "desc": "Drop encountered an error while updating the version: {error}",
         "title": "There an error while updating the version order"
       }
+    },
+    "upload": {
+      "title": "Failed to upload file",
+      "description": "Drop couldn't upload the file: {0}"
+    },
+    "game": {
+      "metadata": {
+        "title": "Failed to update metadata",
+        "description": "Drop failed to update the game's metadata: {0}"
+      },
+      "description": {
+        "title": "Failed to update game description",
+        "description": "Drop failed to update the game description: {0}"
+      },
+      "banner": {
+        "title": "Failed to update the banner image",
+        "description": "Drop failed to update the banner image: {0}"
+      },
+      "cover": {
+        "title": "Failed to update the cover image",
+        "description": "Drop failed to update the cover image: {0}"
+      },
+      "deleteImage": {
+        "title": "Failed to delete the image",
+        "description": "Drop failed to delete the image: {0}"
+      },
+      "carousel": {
+        "title": "Failed to update image carousel",
+        "description": "Drop failed to update the image carousel: {0}"
+      }
     }
   },
   "footer": {
@@ -174,7 +208,6 @@
   "header": {
     "admin": {
       "admin": "Admin",
-      "meta": "Meta",
       "tasks": "Tasks",
       "users": "Users"
     },
@@ -183,6 +216,79 @@
   },
   "highest": "highest",
   "home": "Home",
+  "users": {
+    "admin": {
+      "description": "Manage the users on your Drop instance, and configure your authentication methods.",
+      "authLink": "Authentication {arrow}",
+
+      "displayNameHeader": "Display Name",
+      "usernameHeader": "Username",
+      "emailHeader": "Email",
+      "adminHeader": "Admin?",
+      "authoptionsHeader": "Auth Options",
+      "srEditLabel": "Edit",
+
+      "adminUserLabel": "Admin user",
+      "normalUserLabel": "Normal user",
+
+      "authentication": {
+        "title": "Authentication",
+        "description": "Drop supports a variety of \"authentication mechanisms\". As you enable or disable them, they are shown on the sign in screen for users to select from. Click the dot menu to configure the authentication mechanism.",
+        "enabledKey": "Enabled?",
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "srOpenOptions": "Open options",
+        "configure": "Configure",
+
+        "simple": "Simple (username/password)",
+        "oidc": "OpenID Connect"
+      },
+
+      "simple": {
+        "title": "Simple authentication",
+        "description": "Simple authentication uses a system of 'invitations' to create users. You can create an invitation, and optionally specify a username or email for the user, and then it will generate a magic URL that can be used to create an account.",
+
+        "invitationTitle": "invitations",
+        "createInvitation": "Create invitation",
+
+        "noUsernameEnforced": "No username enforced.",
+        "noEmailEnforced": "No email enforced.",
+
+        "adminInvitation": "Admin invitation",
+        "userInvitation": "User invitation",
+
+        "expires": "Expires: {expiry}",
+        "neverExpires": "Never expires.",
+
+        "noInvitations": "No invitations.",
+
+        "inviteTitle": "Invite user to Drop",
+        "inviteDescription": "Drop will generate a URL that you can send to the person you want to invite. You can optionally specify a username or email for them to use.",
+
+        "inviteUsernameLabel": "Username (optional)",
+        "inviteUsernameFormat": "Must be 5 or more characters",
+        "inviteUsernamePlaceholder": "myUsername",
+
+        "inviteEmailLabel": "Email address (optional)",
+        "inviteEmailDescription": "Must be in the format user{'@'}example.com",
+        "inviteEmailPlaceholder": "me{'@'}example.com",
+
+        "inviteAdminSwitchLabel": "Admin invitation",
+        "inviteAdminSwitchDescription": "Create this user as an administrator",
+
+        "inviteExpiryLabel": "Expires",
+
+        "inviteButton": "Invite",
+
+        "invite3Days": "3 days",
+        "inviteWeek": "1 week",
+        "inviteMonth": "1 month",
+        "invite6Months": "6 months",
+        "inviteYear": "1 year",
+        "inviteNever": "Never"
+      }
+    }
+  },
   "library": {
     "addGames": "All Games",
     "addToLib": "Add to Library",
@@ -228,13 +334,36 @@
       },
       "metadataProvider": "Metadata provider",
       "noGames": "No games imported",
-      "noVersions": "You have no versions of this game available.",
-      "noVersionsAdded": "no versions added",
-      "openInMetadata": "Open in Metadata",
-      "openLibrary": "Open with Library {arrow}",
-      "openMetadata": "Open with Metadata {arrow}",
+      "openEditor": "Open in Editor {arrow}",
       "openStore": "Open in Store",
       "shortDesc": "Short Description",
+      "version": {
+        "noVersions": "You have no versions of this game available.",
+        "noVersionsAdded": "no versions added",
+        "delta": "Upgrade mode"
+      },
+      "game": {
+        "imageCarousel": "Image Carousel",
+        "imageCarouselDescription": "Customise what images and what order are shown on the store page.",
+        "addImageCarousel": "Add from image library",
+        "imageCarouselEmpty": "No images added to the carousel yet.",
+        "removeImageCarousel": "Remove image",
+        "addCarouselNoImages": "No images to add.",
+
+        "imageLibrary": "Image library",
+        "imageLibraryDescription": "Please note all images uploaded are accessible to all users through browser dev-tools.",
+        "setBanner": "Set as banner",
+        "setCover": "Set as cover",
+        "deleteImage": "Delete image",
+
+        "currentBanner": "banner",
+        "currentCover": "cover",
+
+        "addDescriptionNoImages": "No images to add.",
+
+        "editGameName": "Game Name",
+        "editGameDescription": "Game Description"
+      },
       "sources": {
         "create": "Create source",
         "createDesc": "Drop will use this source to access your game library, and make them available.",
@@ -310,6 +439,8 @@
   },
   "options": "Options",
   "save": "Save",
+  "add": "Add",
+  "insert": "Insert",
   "security": "Security",
   "settings": "Settings",
   "store": {
@@ -347,5 +478,10 @@
       "settings": "Account settings"
     }
   },
+  "task": {
+    "successful": "Successful!",
+    "successfulDescription": "\"{0}\" completed successfully"
+  },
+  "todo": "Todo",
   "welcome": "American, Welcome!"
 }

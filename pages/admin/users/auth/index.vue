@@ -4,14 +4,12 @@
       <h2
         class="mt-2 text-xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
       >
-        Authentication
+        {{ $t("users.admin.authentication.title") }}
       </h2>
       <p
         class="mt-2 text-pretty text-sm font-medium text-zinc-400 sm:text-md/8"
       >
-        Drop supports a variety of "authentication mechanisms". As you enable or
-        disable them, they are shown on the sign in screen for users to select
-        from. Click the dot menu to configure the authentication mechanism.
+        {{ $t("users.admin.authentication.description") }}
       </p>
     </div>
     <ul
@@ -40,7 +38,9 @@
             <MenuButton
               class="-m-2.5 block p-2.5 text-zinc-400 hover:text-zinc-300 transition-colors duration-200"
             >
-              <span class="sr-only">Open options</span>
+              <span class="sr-only">{{
+                $t("users.admin.authentication.srOpenOptions")
+              }}</span>
               <EllipsisHorizontalIcon class="h-5 w-5" aria-hidden="true" />
             </MenuButton>
             <transition
@@ -61,9 +61,8 @@
                       active ? 'bg-zinc-800 outline-none' : '',
                       'block px-3 py-1 text-sm/6 text-zinc-100 transition-colors duration-200',
                     ]"
-                    >Configure<span class="sr-only"
-                      >, {{ authMech.name }}</span
-                    ></NuxtLink
+                    >{{ $t("users.admin.authentication.configure")
+                    }}<span class="sr-only">{{ authMech.name }}</span></NuxtLink
                   >
                 </MenuItem>
               </MenuItems>
@@ -72,7 +71,9 @@
         </div>
         <dl class="-my-3 divide-y divide-zinc-700 px-6 py-4 text-sm/6">
           <div class="flex justify-between gap-x-4 py-3">
-            <dt class="text-zinc-400">Enabled</dt>
+            <dt class="text-zinc-400">
+              {{ $t("users.admin.authentication.enabledKey") }}
+            </dt>
             <dd class="flex items-center">
               <span
                 :class="[
@@ -84,7 +85,11 @@
               >
                 <CheckIcon v-if="authMech.enabled" class="w-4 h-4 mr-1" />
                 <XMarkIcon v-else class="w-4 h-4 mr-1" />
-                {{ authMech.enabled ? "Enabled" : "Disabled" }}
+                {{
+                  authMech.enabled
+                    ? $t("users.admin.authentication.enabled")
+                    : $t("users.admin.authentication.disabled")
+                }}
               </span>
             </dd>
           </div>
@@ -122,6 +127,8 @@ definePageMeta({
   layout: "admin",
 });
 
+const { t } = useI18n();
+
 const enabledMechanisms = await $dropFetch("/api/v1/admin/auth");
 
 const authenticationMechanisms: Array<{
@@ -133,13 +140,13 @@ const authenticationMechanisms: Array<{
   settings?: { [key: string]: string | undefined } | undefined | boolean;
 }> = [
   {
-    name: "Simple (username/password)",
+    name: t("users.admin.authentication.simple"),
     mec: "Simple" as AuthMec,
     icon: IconsSimpleAuthenticationLogo,
     route: "/admin/users/auth/simple",
   },
   {
-    name: "OpenID Connect",
+    name: t("users.admin.authentication.oidc"),
     mec: "OpenID" as AuthMec,
     icon: IconsSSOLogo,
   },

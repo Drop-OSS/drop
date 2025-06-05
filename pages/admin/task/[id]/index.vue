@@ -7,11 +7,11 @@
       <CheckCircleIcon class="h-12 w-12 text-green-600" aria-hidden="true" />
       <div class="mt-3 text-center sm:mt-5">
         <h1 class="text-3xl font-semibold font-display leading-6 text-zinc-100">
-          Successful!
+          {{ $t("task.successful") }}
         </h1>
         <div class="mt-4">
           <p class="text-sm text-zinc-400 max-w-md">
-            "{{ task.name }}" completed successfully.
+            {{ $t("task.successfulDescription", [task.name]) }}
           </p>
         </div>
       </div>
@@ -74,7 +74,7 @@
         fill="currentFill"
       />
     </svg>
-    <span class="sr-only">Loading...</span>
+    <span class="sr-only">{{ $t("common.srLoading") }}</span>
   </div>
 </template>
 

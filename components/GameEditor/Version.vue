@@ -17,7 +17,7 @@
                 <h3
                   class="text-base font-semibold font-display leading-6 text-zinc-100"
                 >
-                  Version priority
+                  {{ $t("library.admin.versionPriority") }}
 
                   <!-- import games button -->
 
@@ -38,8 +38,8 @@
                   >
                     {{
                       unimportedVersions.length > 0
-                        ? "Import version"
-                        : "No versions to import"
+                        ? $t("library.admin.import.version.import")
+                        : $t("library.admin.import.version.noVersions")
                     }}
                   </NuxtLink>
                 </h3>
@@ -47,7 +47,7 @@
             </div>
 
             <div class="mt-4 text-center w-full text-sm text-zinc-600">
-              lowest
+              {{ $t("lowest") }}
             </div>
             <draggable
               :list="game.versions"
@@ -63,7 +63,7 @@
                     {{ item.versionName }}
                   </div>
                   <div class="text-zinc-400">
-                    {{ item.delta ? "Upgrade mode" : "" }}
+                    {{ item.delta ? $t("library.admin.version.delta") : "" }}
                   </div>
                   <div class="inline-flex items-center gap-x-2">
                     <component
@@ -84,10 +84,10 @@
               v-if="game.versions.length == 0"
               class="text-center font-bold text-zinc-400 my-3"
             >
-              no versions added
+              {{ $t("library.admin.version.noVersionsAdded") }}
             </div>
             <div class="mt-2 text-center w-full text-sm text-zinc-600">
-              highest
+              {{ $t("highest") }}
             </div>
           </div>
         </div>
@@ -100,14 +100,17 @@
 import type { Game, GameVersion } from "~/prisma/client";
 import { Bars3Icon, TrashIcon } from "@heroicons/vue/24/solid";
 import type { SerializeObject } from "nitropack";
+import type { H3Error } from "h3";
 
 definePageMeta({
   layout: "admin",
 });
 
-// TODO implement UI for this
+// TODO implement UI for this page
 
 defineProps<{ unimportedVersions: string[] }>();
+
+const { t } = useI18n();
 
 type GameAndVersions = Game & { versions: GameVersion[] };
 const game = defineModel<SerializeObject<GameAndVersions>>() as Ref<
@@ -133,12 +136,11 @@ async function updateVersionOrder() {
     createModal(
       ModalType.Notification,
       {
-        title: "There an error while updating the version order",
-        description: `Drop encountered an error while updating the version: ${
-          // @ts-expect-error attempt to get statusMessage on error
-          e?.statusMessage ?? "An unknown error occurred"
-        }`,
-        buttonText: "Close",
+        title: t("errors.version.order.title"),
+        description: t("errors.version.order.desc", {
+          error: (e as H3Error)?.statusMessage ?? t("errors.unknown"),
+        }),
+        buttonText: t("close"),
       },
       (e, c) => c(),
     );
@@ -162,12 +164,11 @@ async function deleteVersion(versionName: string) {
     createModal(
       ModalType.Notification,
       {
-        title: "There an error while deleting the version",
-        description: `Drop encountered an error while deleting the version: ${
-          // @ts-expect-error attempt to get statusMessage on error
-          e?.statusMessage ?? "An unknown error occurred"
-        }`,
-        buttonText: "Close",
+        title: t("errors.version.delete.title"),
+        description: t("errors.version.delete.desc", {
+          error: (e as H3Error)?.statusMessage ?? t("errors.unknown"),
+        }),
+        buttonText: t("close"),
       },
       (e, c) => c(),
     );

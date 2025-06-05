@@ -15,14 +15,15 @@
 const route = useRoute();
 const noWrapper = !!route.query.noWrapper;
 
+const { t } = useI18n();
+
 useHead({
   htmlAttrs: {
     lang: "en",
   },
   link: [],
   titleTemplate(title) {
-    if (title) return `${title} | Drop`;
-    return `Drop`;
+    return title ? t("titleTemplate", [title]) : t("title");
   },
 });
 </script>
