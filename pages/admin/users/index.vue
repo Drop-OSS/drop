@@ -6,8 +6,7 @@
           {{ $t("header.admin.users") }}
         </h1>
         <p class="mt-2 text-sm text-zinc-400">
-          Manage the users on your Drop instance, and configure your
-          authentication methods.
+          {{ $t("users.admin.description") }}
         </p>
       </div>
       <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
@@ -15,7 +14,11 @@
           to="/admin/users/auth"
           class="block rounded-md bg-blue-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-500 hover:scale-105 hover:shadow-lg active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
         >
-          Authentication &rarr;
+          <i18n-t keypath="users.admin.authLink" tag="span" scope="global">
+            <template #arrow>
+              <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
+            </template>
+          </i18n-t>
         </NuxtLink>
       </div>
     </div>
@@ -32,34 +35,36 @@
                     scope="col"
                     class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-zinc-100 sm:pl-6"
                   >
-                    Display Name
+                    {{ $t("users.admin.displayNameHeader") }}
                   </th>
                   <th
                     scope="col"
                     class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
                   >
-                    Username
+                    {{ $t("users.admin.usernameHeader") }}
                   </th>
                   <th
                     scope="col"
                     class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
                   >
-                    Email
+                    {{ $t("users.admin.emailHeader") }}
                   </th>
                   <th
                     scope="col"
                     class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
                   >
-                    Admin?
+                    {{ $t("users.admin.adminHeader") }}
                   </th>
                   <th
                     scope="col"
                     class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
                   >
-                    Auth Options
+                    {{ $t("users.admin.authoptionsHeader") }}
                   </th>
                   <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                    <span class="sr-only">Edit</span>
+                    <span class="sr-only">
+                      {{ $t("users.admin.srEditLabel") }}
+                    </span>
                   </th>
                 </tr>
               </thead>
@@ -89,7 +94,11 @@
                           : 'bg-zinc-400/10 text-zinc-400 ring-zinc-400/20',
                       ]"
                     >
-                      {{ user.admin ? "Admin User" : "Normal user" }}
+                      {{
+                        user.admin
+                          ? $t("users.admin.adminUserLabel")
+                          : $t("users.admin.normalUserLabel")
+                      }}
                     </span>
                   </td>
                   <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
