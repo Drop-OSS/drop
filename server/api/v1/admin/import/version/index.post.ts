@@ -1,5 +1,5 @@
 import { type } from "arktype";
-import { readDropValidatedBody } from "~/server/arktype";
+import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import libraryManager from "~/server/internal/library";
@@ -17,7 +17,7 @@ const ImportVersion = type({
   onlySetup: "boolean = false",
   delta: "boolean = false",
   umuId: "string = ''",
-});
+}).configure(throwingArktype);
 
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["import:version:new"]);
@@ -62,7 +62,7 @@ export default defineEventHandler(async (h3) => {
     if (!delta && !launch)
       throw createError({
         statusCode: 400,
-        statusMessage: "Startup executable is required for non-update versions",
+        statusMessage: "Launch executable is required for non-update versions",
       });
   }
 
