@@ -130,6 +130,7 @@ export default defineNuxtConfig({
     strategy: "no_prefix",
     experimental: {
       localeDetector: "localeDetector.ts",
+      autoImportTranslationFunctions: true,
     },
     detectBrowserLanguage: {
       useCookie: true,
@@ -137,9 +138,10 @@ export default defineNuxtConfig({
       fallbackLocale: "en-us",
     },
     locales: [
-      { code: "en-us", name: "English", file: "en_us.json" },
+      { code: "en-us", language: "en-us", name: "English", file: "en_us.json" },
       {
         code: "en-pirate",
+        language: "en-pirate",
         name: "English (Pirate)",
         file: "en_pirate.json",
       },
