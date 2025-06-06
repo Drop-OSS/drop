@@ -12,6 +12,7 @@ import prisma from "../db/database";
 import { type } from "arktype";
 import ludusavi from "./registry/ludusavi";
 import prisma from "../db/database";
+import ludusavi from "./registry/ludusavi";
 
 // a task that has been run
 type FinishedTask = {
