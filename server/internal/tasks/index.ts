@@ -51,6 +51,7 @@ class TaskHandler {
     "cleanup:invitations",
     "cleanup:sessions",
     "check:update",
+    "ludusavi:import"
   ];
   private weeklyScheduledTasks: TaskGroup[] = ["cleanup:objects"];
 
