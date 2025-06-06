@@ -1,7 +1,8 @@
+import { defineDropTask } from "..";
 import yaml from "js-yaml";
-import prisma from "../internal/db/database";
 import { Platform } from "~/prisma/client";
 import type { LudusaviPlatformEntryCreateOrConnectWithoutLudusaviEntryInput } from "~/prisma/client/models";
+import prisma from "../../db/database";
 
 type ConnectOrCreateShorthand =
   LudusaviPlatformEntryCreateOrConnectWithoutLudusaviEntryInput;
@@ -19,17 +20,25 @@ type LudusaviModel = {
   };
 };
 
-export default defineTask({
-  async run(_event) {
+export default defineDropTask({
+  buildId: () => `ludusavi:import:${new Date().toISOString()}`,
+  name: "Import Ludusavi",
+  acls: [],
+  taskGroup: "ludusavi:import",
+  async run({ log, progress }) {
     const manifest = yaml.load(
       await $fetch<string>(
         "https://raw.githubusercontent.com/mtkennerly/ludusavi-manifest/refs/heads/master/data/manifest.yaml",
       ),
     ) as LudusaviModel;
+    let currentProgress = 10;
 
-    for (const [name, data] of Object.entries(manifest)) {
+    progress(currentProgress);
+
+    const entries = Object.entries(manifest);
+    const increment = (1 / entries.length) * 0.9;
+    for (const [name, data] of entries) {
       if (!data.files && !data.registry) continue;
-      console.log(name);
 
       const iterableFiles = data.files ? Object.entries(data.files) : undefined;
 
@@ -126,8 +135,9 @@ export default defineTask({
           entries: { connectOrCreate },
         },
       });
-    }
 
-    return { result: true };
+      currentProgress += increment;
+      log(`Imported game "${name}"`);
+    }
   },
 });

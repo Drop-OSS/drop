@@ -14,6 +14,9 @@ export const taskGroups = {
   "import:game": {
     concurrency: true,
   },
+  "ludusavi:import": {
+    concurrency: false,
+  },
 } as const;
 
 export type TaskGroup = keyof typeof taskGroups;

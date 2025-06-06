@@ -10,6 +10,7 @@ import cleanupObjects from "./registry/objects";
 import { taskGroups, type TaskGroup } from "./group";
 import prisma from "../db/database";
 import { type } from "arktype";
+import ludusavi from "./registry/ludusavi";
 
 // a task that has been run
 type FinishedTask = {
@@ -59,6 +60,7 @@ class TaskHandler {
     this.saveScheduledTask(cleanupSessions);
     this.saveScheduledTask(checkUpdate);
     this.saveScheduledTask(cleanupObjects);
+    this.saveScheduledTask(ludusavi)
   }
 
   /**
