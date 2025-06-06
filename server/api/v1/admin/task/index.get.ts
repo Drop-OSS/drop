@@ -15,13 +15,21 @@ export default defineEventHandler(async (h3) => {
   const runningTasks = (await taskHandler.runningTasks()).map((e) => e.id);
   const historicalTasks = await prisma.task.findMany({
     where: {
-      acls: { hasSome: allAcls },
+      OR: [
+        {
+          acls: { hasSome: allAcls },
+        },
+        {
+          acls: { isEmpty: true },
+        },
+      ],
     },
     orderBy: {
       ended: "desc",
     },
     take: 10,
   });
+  const dailyTasks = await taskHandler.dailyTasks();
 
-  return { runningTasks, historicalTasks };
+  return { runningTasks, historicalTasks, dailyTasks };
 });

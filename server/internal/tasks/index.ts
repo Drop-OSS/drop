@@ -46,6 +46,13 @@ class TaskHandler {
   // list of all clients currently connected to tasks
   private clientRegistry = new Map<string, PeerImpl>();
 
+  private scheduledTasks: TaskGroup[] = [
+    "cleanup:invitations",
+    "cleanup:sessions",
+    "check:update",
+    "debug",
+  ];
+
   constructor() {
     // register the cleanup invitations task
     this.saveScheduledTask(cleanupInvites);
@@ -283,6 +290,10 @@ class TaskHandler {
       .toArray();
   }
 
+  dailyTasks() {
+    return this.scheduledTasks;
+  }
+
   runTaskGroupByName(name: TaskGroup) {
     const task = this.taskCreators.get(name);
     if (!task) {
@@ -292,18 +303,11 @@ class TaskHandler {
     this.create(task());
   }
 
-  /**]
+  /**
    * Runs all daily tasks that are scheduled to run once a day.
    */
   async triggerDailyTasks() {
-    const dailyTasks: TaskGroup[] = [
-      "cleanup:invitations",
-      "cleanup:sessions",
-      "check:update",
-      "debug",
-    ];
-
-    for (const taskGroup of dailyTasks) {
+    for (const taskGroup of this.scheduledTasks) {
       const mostRecent = await prisma.task.findFirst({
         where: {
           taskGroup,

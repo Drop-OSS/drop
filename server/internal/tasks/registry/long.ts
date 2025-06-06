@@ -9,7 +9,7 @@ export default defineDropTask({
     const minutes = 15;
     const seconds = minutes * 60;
     let currentProgress = 0;
-    const increment = 1 / seconds;
+    const increment = (1 / seconds) * 100;
 
     for (let i = 0; i < seconds; i++) {
       progress(currentProgress);
