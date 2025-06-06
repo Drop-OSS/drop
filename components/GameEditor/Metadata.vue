@@ -352,7 +352,7 @@
           ref="cancelButtonRef"
           type="button"
           class="mt-3 inline-flex w-full justify-center rounded-md bg-zinc-900 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-700 hover:bg-zinc-950 transition-all duration-200 hover:scale-105 hover:shadow-lg active:scale-95 sm:mt-0 sm:w-auto"
-          @click="showAddCarouselModal = false"
+          @click="showAddImageDescriptionModal = false"
         >
           {{ $t("cancel") }}
         </button>
