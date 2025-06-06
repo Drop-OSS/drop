@@ -4,7 +4,7 @@ import { defineDropTask } from "..";
 export default defineDropTask({
   buildId: () => `cleanup:invitations:${new Date().toISOString()}`,
   name: "Cleanup Invitations",
-  acls: [],
+  acls: ["system:maintenance:read"],
   taskGroup: "cleanup:invitations",
   async run({ log }) {
     log("Cleaning invitations");

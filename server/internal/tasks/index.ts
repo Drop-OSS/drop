@@ -1,5 +1,6 @@
 import droplet from "@drop-oss/droplet";
 import type { MinimumRequestObject } from "~/server/h3";
+import type { GlobalACL } from "../acls";
 import aclManager from "../acls";
 
 import cleanupInvites from "./registry/invitations";
@@ -7,6 +8,8 @@ import cleanupSessions from "./registry/sessions";
 import checkUpdate from "./registry/update";
 import cleanupObjects from "./registry/objects";
 import { taskGroups, type TaskGroup } from "./group";
+import prisma from "../db/database";
+import long from "./registry/long";
 
 // a task that has been run
 type FinishedTask = {
@@ -36,9 +39,7 @@ type TaskPoolEntry = FinishedTask & {
  */
 class TaskHandler {
   // registry of schedualed tasks to be created
-  private scheduledTasks: Map<TaskGroup, () => Task> = new Map();
-  // list of all finished tasks
-  private finishedTasks: Map<string, FinishedTask> = new Map();
+  private taskCreators: Map<TaskGroup, () => Task> = new Map();
 
   // list of all currently running tasks
   private taskPool = new Map<string, TaskPoolEntry>();
@@ -51,6 +52,7 @@ class TaskHandler {
     this.saveScheduledTask(cleanupSessions);
     this.saveScheduledTask(checkUpdate);
     this.saveScheduledTask(cleanupObjects);
+    this.saveScheduledTask(long);
   }
 
   /**
@@ -58,7 +60,7 @@ class TaskHandler {
    * @param createTask
    */
   private saveScheduledTask(task: DropTask) {
-    this.scheduledTasks.set(task.taskGroup, task.build);
+    this.taskCreators.set(task.taskGroup, task.build);
   }
 
   create(task: Task) {
@@ -129,7 +131,7 @@ class TaskHandler {
       const taskEntry = this.taskPool.get(task.id);
       if (!taskEntry) return;
       taskEntry.log.push(entry);
-      console.log(`[Task ${task.taskGroup}]: ${entry}`);
+      // console.log(`[Task ${task.taskGroup}]: ${entry}`);
       updateAllClients();
     };
 
@@ -171,10 +173,25 @@ class TaskHandler {
         this.disconnect(clientId, task.id);
       }
 
-      // so we can drop the clients from the task entry
-      const { clients, ...copied } = taskEntry;
-      this.finishedTasks.set(task.id, {
-        ...copied,
+      await prisma.task.create({
+        data: {
+          id: task.id,
+          taskGroup: taskEntry.taskGroup,
+          name: taskEntry.name,
+
+          started: taskEntry.startTime,
+          ended: taskEntry.endTime,
+
+          success: taskEntry.success,
+          progress: taskEntry.progress,
+          log: taskEntry.log,
+
+          acls: taskEntry.acls,
+
+          ...(taskEntry.error
+            ? { error: JSON.stringify(taskEntry.error) }
+            : undefined),
+        },
       });
 
       this.taskPool.delete(task.id);
@@ -187,7 +204,9 @@ class TaskHandler {
     peer: PeerImpl,
     request: MinimumRequestObject,
   ) {
-    const task = this.taskPool.get(taskId);
+    const task =
+      this.taskPool.get(taskId) ??
+      (await prisma.task.findUnique({ where: { id: taskId } }));
     if (!task) {
       peer.send(
         `error/${taskId}/Unknown task/Drop couldn't find the task you're looking for.`,
@@ -205,13 +224,17 @@ class TaskHandler {
     }
 
     this.clientRegistry.set(clientId, peer);
-    task.clients.set(clientId, true); // Uniquely insert client to avoid sending duplicate traffic
+    if ("clients" in task) {
+      task.clients.set(clientId, true); // Uniquely insert client to avoid sending duplicate traffic
+    }
 
     const catchupMessage: TaskMessage = {
       id: taskId,
       name: task.name,
       success: task.success,
-      error: task.error,
+      error: task.error as unknown as
+        | { title: string; description: string }
+        | undefined,
       log: task.log,
       progress: task.progress,
     };
@@ -253,8 +276,15 @@ class TaskHandler {
     return true;
   }
 
+  runningTasks() {
+    return this.taskPool
+      .entries()
+      .map(([id, value]) => ({ ...value, id, log: undefined }))
+      .toArray();
+  }
+
   runTaskGroupByName(name: TaskGroup) {
-    const task = this.scheduledTasks.get(name);
+    const task = this.taskCreators.get(name);
     if (!task) {
       console.warn(`No task found for group ${name}`);
       return;
@@ -265,10 +295,34 @@ class TaskHandler {
   /**]
    * Runs all daily tasks that are scheduled to run once a day.
    */
-  triggerDailyTasks() {
-    this.runTaskGroupByName("cleanup:invitations");
-    this.runTaskGroupByName("cleanup:sessions");
-    this.runTaskGroupByName("check:update");
+  async triggerDailyTasks() {
+    const dailyTasks: TaskGroup[] = [
+      "cleanup:invitations",
+      "cleanup:sessions",
+      "check:update",
+      "debug",
+    ];
+
+    for (const taskGroup of dailyTasks) {
+      const mostRecent = await prisma.task.findFirst({
+        where: {
+          taskGroup,
+        },
+        orderBy: {
+          ended: "desc",
+        },
+      });
+      if (mostRecent) {
+        const currentTime = Date.now();
+        const lastRun = mostRecent.ended.getTime();
+        const difference = currentTime - lastRun;
+        if (difference < 1000 * 60 * 60 * 24) {
+          // If it's been less than one day
+          continue; // skip
+        }
+      }
+      await this.runTaskGroupByName(taskGroup);
+    }
   }
 }
 
@@ -282,7 +336,7 @@ export interface Task {
   taskGroup: TaskGroup;
   name: string;
   run: (context: TaskRunContext) => Promise<void>;
-  acls: string[];
+  acls: GlobalACL[];
 }
 
 export type TaskMessage = {
@@ -304,7 +358,7 @@ export interface BuildTask {
   taskGroup: TaskGroup;
   name: string;
   run: (context: TaskRunContext) => Promise<void>;
-  acls: string[];
+  acls: GlobalACL[];
 }
 
 interface DropTask {

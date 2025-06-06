@@ -80,4 +80,10 @@ export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
   "news:read": "Read news articles.",
   "news:create": "Create a new news article.",
   "news:delete": "Delete a news article.",
+
+  "task:read": "Read all tasks currently running on server.",
+  "task:start": "Manually execute scheduled tasks.",
+
+  "maintenance:read":
+    "Read tasks and maintenance information, like updates available and cleanup.",
 };

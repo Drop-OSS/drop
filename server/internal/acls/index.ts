@@ -74,6 +74,11 @@ export const systemACLs = [
   "news:read",
   "news:create",
   "news:delete",
+
+  "task:read",
+  "task:start",
+
+  "maintenance:read"
 ] as const;
 const systemACLPrefix = "system:";
 

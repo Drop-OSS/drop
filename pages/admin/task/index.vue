@@ -1,5 +1,5 @@
 <template>
-  <div class="text-gray-100">{{ $t("todo") }}</div>
+  <div class="text-gray-100">{{ liveRunningTasks }} {{ historicalTasks }}</div>
 </template>
 <script lang="ts" setup>
 useHead({
@@ -9,4 +9,9 @@ useHead({
 definePageMeta({
   layout: "admin",
 });
+
+const { runningTasks, historicalTasks } =
+  await $dropFetch("/api/v1/admin/task");
+
+const liveRunningTasks = await Promise.all(runningTasks.map((e) => useTask(e)));
 </script>
