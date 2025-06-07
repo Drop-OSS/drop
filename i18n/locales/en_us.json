@@ -404,6 +404,31 @@
     "search": "Search library...",
     "subheader": "Organize your games into collections for easy access, and access all your games."
   },
+  "tasks": {
+    "admin": {
+      "scheduled": {
+        "cleanupInvitationsName": "Clean up invitations",
+        "cleanupInvitationsDescription": "Cleans up expired invitations from the database to save space.",
+
+        "cleanupObjectsName": "Clean up objects",
+        "cleanupObjectsDescription": "Detects and deletes unreferenced and unused objects to save space.",
+
+        "cleanupSessionsName": "Clean up sessions.",
+        "cleanupSessionsDescription": "Cleans up expired sessions to save space and ensure security.",
+
+        "checkUpdateName": "Check update.",
+        "checkUpdateDescription": "Check if Drop has an update."
+      },
+
+      "runningTasksTitle": "Running tasks",
+      "noTasksRunning": "No tasks currently running",
+      "completedTasksTitle": "Completed tasks",
+      "dailyScheduledTitle": "Daily scheduled tasks",
+      "viewTask": "View {arrow}",
+
+      "back": "{arrow} Back to Tasks"
+    }
+  },
   "lowest": "lowest",
   "name": "Name",
   "news": {
@@ -477,10 +502,6 @@
       "admin": "Admin Dashboard",
       "settings": "Account settings"
     }
-  },
-  "task": {
-    "successful": "Successful!",
-    "successfulDescription": "\"{0}\" completed successfully"
   },
   "todo": "Todo",
   "welcome": "American, Welcome!"

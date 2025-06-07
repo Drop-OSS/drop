@@ -1,10 +1,12 @@
 <template>
   <div>
     <div>
-      <h2 class="text-sm font-medium text-zinc-400">Running tasks</h2>
+      <h2 class="text-sm font-medium text-zinc-400">
+        {{ $t("tasks.admin.runningTasksTitle") }}
+      </h2>
       <ul
         role="list"
-        class="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        class="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-3 lg:grid-cols-4"
       >
         <li
           v-for="task in liveRunningTasks"
@@ -35,6 +37,9 @@
                   {{ task.value.name }}
                 </h3>
               </div>
+              <p class="text-xs text-zinc-600 mt-0.5 font-mono">
+                {{ task.value.id }}
+              </p>
               <div class="mt-1 w-full rounded-full overflow-hidden bg-zinc-900">
                 <div
                   :style="{ width: `${task.value.progress}%` }"
@@ -49,7 +54,15 @@
                 :href="`/admin/task/${task.value.id}`"
                 class="mt-3 rounded-md text-xs font-medium text-zinc-100 hover:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-100 focus:ring-offset-2"
               >
-                View &rarr;
+                <i18n-t
+                  keypath="tasks.admin.viewTask"
+                  tag="span"
+                  scope="global"
+                >
+                  <template #arrow>
+                    <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
+                  </template>
+                </i18n-t>
               </NuxtLink>
             </div>
           </div>
@@ -62,13 +75,15 @@
         v-if="liveRunningTasks.length == 0"
         class="text-zinc-500 text-sm font-semibold"
       >
-        No tasks currently running
+        {{ $t("tasks.admin.noTasksRunning") }}
       </div>
     </div>
     <div class="mt-6 w-full grid lg:grid-cols-2 gap-8">
       <div>
-        <h2 class="text-sm font-medium text-zinc-400">Completed tasks</h2>
-        <ul role="list" class="mt-4 grid grid-cols-1 gap-6">
+        <h2 class="text-sm font-medium text-zinc-400">
+          {{ $t("tasks.admin.completedTasksTitle") }}
+        </h2>
+        <ul role="list" class="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-2">
           <li
             v-for="task in historicalTasks"
             :key="task.id"
@@ -94,11 +109,11 @@
                   <h3 class="truncate text-sm font-medium text-zinc-100">
                     {{ task.name }}
                   </h3>
-                  <RelativeTime
-                    class="text-zinc-500"
-                    :date="task.ended"
-                  />
+                  <RelativeTime class="text-zinc-500" :date="task.ended" />
                 </div>
+                <p class="text-xs text-zinc-600 mt-0.5 font-mono">
+                  {{ task.id }}
+                </p>
                 <p class="mt-1 truncate text-sm text-zinc-400">
                   {{ task.log.at(-1) }}
                 </p>
@@ -107,7 +122,15 @@
                   :href="`/admin/task/${task.id}`"
                   class="mt-3 rounded-md text-xs font-medium text-zinc-100 hover:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-100 focus:ring-offset-2"
                 >
-                  View &rarr;
+                  <i18n-t
+                    keypath="tasks.admin.viewTask"
+                    tag="span"
+                    scope="global"
+                  >
+                    <template #arrow>
+                      <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
+                    </template>
+                  </i18n-t>
                 </NuxtLink>
               </div>
             </div>
@@ -115,30 +138,25 @@
         </ul>
       </div>
       <div>
-        <h2 class="text-sm font-medium text-zinc-400">Daily scheduled tasks</h2>
-        <ul role="list" class="mt-4 grid grid-cols-1 gap-6">
+        <h2 class="text-sm font-medium text-zinc-400">
+          {{ $t("tasks.admin.dailyScheduledTitle") }}
+        </h2>
+        <ul role="list" class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
           <li
             v-for="task in dailyTasks"
             :key="task"
             class="col-span-1 divide-y divide-gray-200 rounded-lg bg-zinc-800 border border-zinc-700 shadow-sm"
           >
             <div class="flex w-full items-center justify-between space-x-6 p-6">
-              <div class="flex-1 truncate">
+              <div class="flex-1">
                 <div class="flex items-center space-x-2">
-                  <h3 class="truncate text-sm font-medium text-zinc-100">
+                  <h3 class="text-sm font-medium text-zinc-100">
                     {{ dailyScheduledTasks[task].name }}
                   </h3>
                 </div>
-                <p class="mt-1 truncate text-sm text-zinc-400">
+                <p class="mt-1 text-sm text-zinc-400">
                   {{ dailyScheduledTasks[task].description }}
                 </p>
-                <button
-                  type="button"
-                  class="mt-3 inline-flex items-center gap-x-1 rounded-md px-1 py-0.5 text-xs font-medium text-zinc-100 hover:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-100 focus:ring-offset-2"
-                >
-                  <PlayIcon class="size-3" />
-                  Trigger
-                </button>
               </div>
             </div>
           </li>
@@ -149,7 +167,6 @@
 </template>
 <script lang="ts" setup>
 import { CheckIcon, XMarkIcon } from "@heroicons/vue/24/outline";
-import { PlayIcon } from "@heroicons/vue/24/solid";
 import type { TaskGroup } from "~/server/internal/tasks/group";
 
 useHead({
@@ -160,6 +177,8 @@ definePageMeta({
   layout: "admin",
 });
 
+const { t } = useI18n();
+
 const { runningTasks, historicalTasks, dailyTasks } =
   await $dropFetch("/api/v1/admin/task");
 
@@ -169,31 +188,24 @@ const dailyScheduledTasks: {
   [key in TaskGroup]: { name: string; description: string };
 } = {
   "cleanup:invitations": {
-    name: "Clean up invitations",
-    description:
-      "Cleans up expired invitations from the database to save space.",
+    name: t("tasks.admin.scheduled.cleanupInvitationsName"),
+    description: t("tasks.admin.scheduled.cleanupInvitationsDescription"),
   },
   "cleanup:objects": {
-    name: "Clean up objects",
-    description:
-      "Detects and deletes unreferenced and unused objects to save space.",
+    name: t("tasks.admin.scheduled.cleanupObjectsName"),
+    description: t("tasks.admin.scheduled.cleanupObjectsDescription"),
   },
   "cleanup:sessions": {
-    name: "Clean up sessions.",
-    description:
-      "Cleans up expired sessions to save space and ensure security.",
+    name: t("tasks.admin.scheduled.cleanupSessionsName"),
+    description: t("tasks.admin.scheduled.cleanupSessionsDescription"),
   },
   "check:update": {
-    name: "Check update",
-    description: "Check if Drop has an update.",
+    name: t("tasks.admin.scheduled.checkUpdateName"),
+    description: t("tasks.admin.scheduled.checkUpdateDescription"),
   },
   "import:game": {
     name: "",
     description: "",
-  },
-  debug: {
-    name: "Debug",
-    description: "DA BUG is gone I swear",
   },
 };
 </script>

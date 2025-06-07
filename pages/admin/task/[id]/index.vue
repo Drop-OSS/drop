@@ -4,7 +4,11 @@
       to="/admin/task"
       class="mb-2 transition text-sm/6 font-semibold text-zinc-400 hover:text-zinc-100 inline-flex gap-x-2 items-center duration-200 hover:scale-105"
     >
-      &larr; Back to Tasks
+      <i18n-t keypath="tasks.admin.back" tag="span" scope="global">
+        <template #arrow>
+          <span aria-hidden="true">{{ $t("chars.arrowBack") }}</span>
+        </template>
+      </i18n-t>
     </NuxtLink>
 
     <div

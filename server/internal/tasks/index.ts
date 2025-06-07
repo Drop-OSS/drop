@@ -9,7 +9,6 @@ import checkUpdate from "./registry/update";
 import cleanupObjects from "./registry/objects";
 import { taskGroups, type TaskGroup } from "./group";
 import prisma from "../db/database";
-import long from "./registry/long";
 
 // a task that has been run
 type FinishedTask = {
@@ -50,7 +49,6 @@ class TaskHandler {
     "cleanup:invitations",
     "cleanup:sessions",
     "check:update",
-    "debug",
   ];
 
   constructor() {
@@ -59,7 +57,6 @@ class TaskHandler {
     this.saveScheduledTask(cleanupSessions);
     this.saveScheduledTask(checkUpdate);
     this.saveScheduledTask(cleanupObjects);
-    this.saveScheduledTask(long);
   }
 
   /**
