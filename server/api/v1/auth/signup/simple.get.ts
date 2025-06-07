@@ -3,10 +3,12 @@ import taskHandler from "~/server/internal/tasks";
 import authManager from "~/server/internal/auth";
 
 export default defineEventHandler(async (h3) => {
+  const t = await useTranslation(h3);
+
   if (!authManager.getAuthProviders().Simple)
     throw createError({
       statusCode: 403,
-      statusMessage: "Sign in method not enabled",
+      statusMessage: t("errors.auth.method.signinDisabled"),
     });
 
   const query = getQuery(h3);
@@ -14,7 +16,7 @@ export default defineEventHandler(async (h3) => {
   if (!id)
     throw createError({
       statusCode: 400,
-      statusMessage: "id required in fetching invitation",
+      statusMessage: t("errors.auth.inviteIdRequired"),
     });
   taskHandler.runTaskGroupByName("cleanup:invitations");
 
@@ -22,7 +24,7 @@ export default defineEventHandler(async (h3) => {
   if (!invitation)
     throw createError({
       statusCode: 404,
-      statusMessage: "Invalid or expired invitation",
+      statusMessage: t("errors.auth.invalidInvite"),
     });
 
   return invitation;

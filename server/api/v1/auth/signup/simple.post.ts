@@ -17,10 +17,12 @@ const userValidator = type({
 export default defineEventHandler<{
   body: typeof userValidator.infer;
 }>(async (h3) => {
+  const t = await useTranslation(h3);
+
   if (!authManager.getAuthProviders().Simple)
     throw createError({
       statusCode: 403,
-      statusMessage: "Sign in method not enabled",
+      statusMessage: t("errors.auth.method.signinDisabled"),
     });
 
   const body = await readBody(h3);
@@ -29,7 +31,7 @@ export default defineEventHandler<{
   if (!invitationId)
     throw createError({
       statusCode: 401,
-      statusMessage: "Invalid or expired invitation.",
+      statusMessage: t("errors.auth.invalidInvite"),
     });
 
   const invitation = await prisma.invitation.findUnique({
@@ -38,7 +40,7 @@ export default defineEventHandler<{
   if (!invitation)
     throw createError({
       statusCode: 401,
-      statusMessage: "Invalid or expired invitation.",
+      statusMessage: t("errors.auth.invalidInvite"),
     });
 
   const user = userValidator(body);
@@ -62,7 +64,7 @@ export default defineEventHandler<{
   if (existing > 0)
     throw createError({
       statusCode: 400,
-      statusMessage: "Username already taken.",
+      statusMessage: t("errors.auth.usernameTaken"),
     });
 
   const userId = randomUUID();

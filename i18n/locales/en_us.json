@@ -107,6 +107,17 @@
     "listItemPlaceholder": "list item"
   },
   "errors": {
+    "auth": {
+      "method": {
+        "signinDisabled": "Sign in method not enabled"
+      },
+      "invalidUserOrPass": "Invalid username or password.",
+      "disabled": "Invalid or disabled account. Please contact the server administrator.",
+      "invalidPassState": "Invalid password state. Please contact the server administrator.",
+      "inviteIdRequired": "id required in fetching invitation",
+      "invalidInvite": "Invalid or expired invitation",
+      "usernameTaken": "Username already taken."
+    },
     "backHome": "{arrow} Back to home",
     "invalidBody": "Invalid request body: {0}",
     "inviteRequired": "Invitation required to sign up.",
