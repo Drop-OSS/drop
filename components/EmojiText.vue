@@ -9,9 +9,7 @@ const props = defineProps<{
   emoji: string;
 }>();
 
-const emojiEl = ref<HTMLElement | null>(null);
-
 const url = computed(() => {
-  return `/api/v1/emojis/${twemoji.convert.toCodePoint(props.emoji)}.svg`;
+  return `/twemoji/${twemoji.convert.toCodePoint(props.emoji)}.svg`;
 });
 </script>
