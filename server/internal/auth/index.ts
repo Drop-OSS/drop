@@ -1,5 +1,5 @@
 import { AuthMec } from "~/prisma/client";
-import { OIDCManager } from "../oidc";
+import { OIDCManager } from "./oidc";
 
 class AuthManager {
   private authProviders: {
