@@ -19,9 +19,20 @@ export async function readDropValidatedBody<T>(
   event: H3Event,
   validate: (data: object) => T,
 ): Promise<T> {
-  const _body = await readBody(event);
+  const body = await readBody(event);
   try {
-    return validate(_body);
+    // Delete all values that are 'null'
+    if (typeof body === "object" && !Array.isArray(body) && body !== null) {
+      for (const [key, value] of Object.entries(body) as Array<
+        [string, unknown]
+      >) {
+        if (value === null) {
+          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+          delete body[key];
+        }
+      }
+    }
+    return validate(body);
   } catch (e) {
     const t = await useTranslation(event);
 

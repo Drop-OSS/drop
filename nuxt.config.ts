@@ -27,8 +27,8 @@ if (!twemojiJson) {
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   extends: ["./drop-base"],
-
   // Module config from here down
+
   modules: [
     "vue3-carousel-nuxt",
     "nuxt-security",

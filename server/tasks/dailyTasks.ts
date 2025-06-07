@@ -5,7 +5,7 @@ export default defineTask({
     name: "dailyTasks",
   },
   async run() {
-    taskHandler.triggerDailyTasks();
+    await taskHandler.triggerDailyTasks();
 
     return {};
   },

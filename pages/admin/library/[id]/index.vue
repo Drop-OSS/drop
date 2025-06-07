@@ -1,163 +1,132 @@
-<!-- eslint-disable vue/no-v-html -->
 <template>
-  <div>
+  <div
+    class="pt-8 lg:pt-0 lg:pl-20 fixed inset-0 flex flex-col overflow-auto bg-zinc-900"
+  >
     <div
-      v-if="game && unimportedVersions !== undefined"
-      class="grow flex flex-col gap-y-8"
+      class="bg-zinc-950 w-full flex flex-col sm:flex-row items-center gap-2 justify-between pr-2"
     >
-      <div class="grow w-full h-full lg:pr-[30vw] px-6 py-4 flex flex-col">
-        <div
-          v-if="game.versions.length === 0"
-          class="flex flex-col items-center justify-center h-full text-zinc-400"
-        >
-          <InformationCircleIcon class="w-12 h-12 mb-2 text-zinc-400" />
-          <div class="font-semibold text-lg">No versions yet</div>
-          <div class="text-sm mt-1">
-            Import your first version to get started!
-          </div>
-        </div>
-      </div>
-      <div
-        class="lg:overflow-y-auto lg:border-l lg:border-zinc-800 lg:fixed lg:inset-y-0 lg:z-50 lg:w-[30vw] flex flex-col lg:right-0 gap-y-8 px-6 py-4"
-      >
-        <!-- toolbar -->
-        <div class="inline-flex justify-end items-stretch gap-x-4">
-          <!-- open in library button -->
-          <NuxtLink
-            :href="`/admin/metadata/games/${game.id}`"
-            type="button"
-            class="inline-flex w-fit items-center gap-x-2 rounded-md bg-zinc-800 px-3 py-1 text-sm font-semibold font-display text-white shadow-sm transition-all duration-200 hover:bg-zinc-700 hover:scale-105 hover:shadow-lg active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-          >
-            {{ $t("library.admin.openInMetadata") }}
-            <ArrowTopRightOnSquareIcon
-              class="-mr-0.5 h-7 w-7 p-1"
-              aria-hidden="true"
-            />
-          </NuxtLink>
-          <!-- open in store button -->
-          <NuxtLink
-            :href="`/store/${game.id}`"
-            type="button"
-            class="inline-flex w-fit items-center gap-x-2 rounded-md bg-zinc-800 px-3 py-1 text-sm font-semibold font-display text-white shadow-sm transition-all duration-200 hover:bg-zinc-700 hover:scale-105 hover:shadow-lg active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-          >
-            {{ $t("library.admin.openStore") }}
-            <ArrowTopRightOnSquareIcon
-              class="-mr-0.5 h-7 w-7 p-1"
-              aria-hidden="true"
-            />
-          </NuxtLink>
-        </div>
+      <!--start-->
+      <div>
+        <Listbox v-if="false" v-model="currentMode" as="div">
+          <div class="relative mt-2">
+            <ListboxButton
+              class="min-w-[10vw] w-full cursor-default inline-flex items-center gap-x-2 rounded-md bg-zinc-900 py-1.5 pr-2 pl-3 text-left text-zinc-200 outline-1 -outline-offset-1 outline-zinc-700 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6"
+            >
+              <span class="col-start-1 row-start-1 truncate">{{
+                currentMode
+              }}</span>
 
-        <!-- version manager -->
-        <div>
-          <!-- version priority -->
-          <div>
-            <div class="border-b border-zinc-800 pb-3">
-              <div
-                class="flex flex-wrap items-center justify-between sm:flex-nowrap"
+              <PencilIcon class="ml-auto size-5" />
+
+              <ChevronUpDownIcon
+                class="text-gray-500 size-5"
+                aria-hidden="true"
+              />
+            </ListboxButton>
+
+            <transition
+              leave-active-class="transition ease-in duration-100"
+              leave-from-class="opacity-100"
+              leave-to-class="opacity-0"
+            >
+              <ListboxOptions
+                class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-white/5 focus:outline-hidden sm:text-sm"
               >
-                <h3
-                  class="text-base font-semibold font-display leading-6 text-zinc-100"
+                <ListboxOption
+                  v-for="[value] in Object.entries(components)"
+                  v-slot="{ active, selected }"
+                  :key="value"
+                  as="template"
+                  :value="value"
                 >
-                  {{ $t("library.admin.versionPriority") }}
-
-                  <!-- import games button -->
-
-                  <NuxtLink
-                    v-if="unimportedVersions !== undefined"
-                    :href="
-                      unimportedVersions.length > 0
-                        ? `/admin/library/${game.id}/import`
-                        : ''
-                    "
-                    type="button"
+                  <li
                     :class="[
-                      unimportedVersions.length > 0
-                        ? 'bg-blue-600 hover:bg-blue-700'
-                        : 'bg-blue-800/50',
-                      'inline-flex w-fit items-center gap-x-2 rounded-md  px-3 py-1 text-sm font-semibold font-display text-white shadow-sm  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600',
+                      active
+                        ? 'bg-blue-600 text-white outline-hidden'
+                        : 'text-zinc-100',
+                      'relative cursor-default py-2 pr-9 pl-3 select-none',
                     ]"
                   >
-                    {{
-                      unimportedVersions.length > 0
-                        ? $t("library.admin.import.version.import")
-                        : $t("library.admin.import.version.noVersions")
-                    }}
-                  </NuxtLink>
-                </h3>
-              </div>
-            </div>
+                    <span
+                      :class="[
+                        selected ? 'font-semibold' : 'font-normal',
+                        'block truncate',
+                      ]"
+                      >{{ value }}</span
+                    >
 
-            <div class="mt-4 text-center w-full text-sm text-zinc-600">
-              {{ $t("lowest") }}
-            </div>
-            <draggable
-              :list="game.versions"
-              handle=".handle"
-              class="mt-2 space-y-4"
-              @update="() => updateVersionOrder()"
+                    <span
+                      v-if="selected"
+                      class="text-white absolute inset-y-0 right-0 flex items-center pr-4"
+                    >
+                      <PencilIcon class="size-5" aria-hidden="true" />
+                    </span>
+                  </li>
+                </ListboxOption>
+              </ListboxOptions>
+            </transition>
+          </div>
+        </Listbox>
+
+        <div class="pt-4 inline-flex gap-x-2">
+          <div
+            v-for="[value, { icon }] in Object.entries(components)"
+            :key="value"
+          >
+            <button
+              :class="[
+                'inline-flex items-center gap-x-1 py-2 px-3 rounded-t-md font-semibold text-sm',
+                value == currentMode
+                  ? 'bg-zinc-900 text-zinc-100'
+                  : 'bg-transparent text-zinc-500',
+              ]"
+              @click="() => (currentMode = value as GameEditorMode)"
             >
-              <template #item="{ element: item }: { element: GameVersion }">
-                <div
-                  class="w-full inline-flex items-center px-4 py-2 bg-zinc-800 rounded justify-between"
-                >
-                  <div class="text-zinc-100 font-semibold">
-                    {{ item.versionName }}
-                  </div>
-                  <div class="text-zinc-400">
-                    {{
-                      item.delta
-                        ? $t("library.admin.import.version.updateMode")
-                        : ""
-                    }}
-                  </div>
-                  <div class="inline-flex items-center gap-x-2">
-                    <component
-                      :is="PLATFORM_ICONS[item.platform]"
-                      class="size-6 text-blue-600"
-                    />
-                    <Bars3Icon
-                      class="cursor-move w-6 h-6 text-zinc-400 handle"
-                    />
-                    <button @click="() => deleteVersion(item.versionName)">
-                      <TrashIcon class="w-5 h-5 text-red-600" />
-                    </button>
-                  </div>
-                </div>
-              </template>
-            </draggable>
-            <div
-              v-if="game.versions.length == 0"
-              class="text-center font-bold text-zinc-400 my-3"
-            >
-              {{ $t("library.admin.noVersionsAdded") }}
-            </div>
-            <div class="mt-2 text-center w-full text-sm text-zinc-600">
-              {{ $t("highest") }}
-            </div>
+              <component :is="icon" class="size-4" />
+              {{ value }}
+            </button>
           </div>
         </div>
       </div>
+      <div>
+        <!-- open in store button -->
+        <NuxtLink
+          :href="`/store/${game.id}`"
+          type="button"
+          class="inline-flex w-fit items-center gap-x-2 rounded-md bg-zinc-800 px-3 py-1 text-sm font-semibold font-display text-white shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+        >
+          {{ $t("library.admin.openStore") }}
+          <ArrowTopRightOnSquareIcon
+            class="-mr-0.5 h-7 w-7 p-1"
+            aria-hidden="true"
+          />
+        </NuxtLink>
+      </div>
     </div>
+    <component
+      :is="components[currentMode].editor"
+      v-model="game"
+      :unimported-versions="unimportedVersions"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import type { GameVersion } from "~/prisma/client";
+import {
+  Listbox,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions,
+} from "@headlessui/vue";
+import { ChevronUpDownIcon } from "@heroicons/vue/16/solid";
+import { GameEditorMetadata, GameEditorVersion } from "#components";
 import {
   ArrowTopRightOnSquareIcon,
-  Bars3Icon,
-  TrashIcon,
-  InformationCircleIcon,
-} from "@heroicons/vue/24/solid";
-
-definePageMeta({
-  layout: "admin",
-});
-
-const { t } = useI18n();
-
-// TODO implement UI for this
+  DocumentIcon,
+  PencilIcon,
+  ServerStackIcon,
+} from "@heroicons/vue/24/outline";
+import type { Component } from "vue";
 
 const route = useRoute();
 const gameId = route.params.id.toString();
@@ -166,58 +135,29 @@ const { game: rawGame, unimportedVersions } = await $dropFetch(
 );
 const game = ref(rawGame);
 
-async function updateVersionOrder() {
-  try {
-    const newVersions = await $dropFetch("/api/v1/admin/game/version", {
-      method: "PATCH",
-      body: {
-        id: gameId,
-        versions: game.value.versions.map((e) => e.versionName),
-      },
-    });
-    game.value.versions = newVersions;
-  } catch (e) {
-    createModal(
-      ModalType.Notification,
-      {
-        title: t("errors.version.order.title"),
-        description: t("errors.version.order.desc", {
-          // @ts-expect-error attempt to get statusMessage on error
-          error: e?.statusMessage ?? t("errors.unknown"),
-        }),
-        buttonText: t("close"),
-      },
-      (e, c) => c(),
-    );
-  }
+definePageMeta({
+  layout: "admin",
+});
+
+useHead({
+  // To do a title with the game name in it, we need some sort of watch
+  title: "Game Editor",
+});
+
+enum GameEditorMode {
+  Metadata = "Metadata",
+  Versions = "Versions",
 }
 
-async function deleteVersion(versionName: string) {
-  try {
-    await $dropFetch("/api/v1/admin/game/version", {
-      method: "DELETE",
-      body: {
-        id: gameId,
-        versionName: versionName,
-      },
-    });
-    game.value.versions.splice(
-      game.value.versions.findIndex((e) => e.versionName === versionName),
-      1,
-    );
-  } catch (e) {
-    createModal(
-      ModalType.Notification,
-      {
-        title: t("errors.version.delete.title"),
-        description: t("errors.version.delete.desc", {
-          // @ts-expect-error attempt to get statusMessage on error
-          error: e?.statusMessage ?? t("errors.unknown"),
-        }),
-        buttonText: t("close"),
-      },
-      (e, c) => c(),
-    );
-  }
-}
+const components: {
+  [key in GameEditorMode]: { editor: Component; icon: Component };
+} = {
+  [GameEditorMode.Metadata]: { editor: GameEditorMetadata, icon: DocumentIcon },
+  [GameEditorMode.Versions]: {
+    editor: GameEditorVersion,
+    icon: ServerStackIcon,
+  },
+};
+
+const currentMode = ref<GameEditorMode>(GameEditorMode.Metadata);
 </script>

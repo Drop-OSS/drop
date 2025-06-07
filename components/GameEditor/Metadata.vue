@@ -1,11 +1,8 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <div>
-    <div
-      v-if="game && unimportedVersions !== undefined"
-      class="grow flex flex-col gap-y-8"
-    >
-      <div class="grow w-full h-full lg:pr-[30vw] px-6 py-4 flex flex-col">
+  <div v-if="game!">
+    <div class="grow flex flex-row gap-y-8">
+      <div class="grow w-full h-full px-6 py-4 flex flex-col">
         <div
           class="flex flex-col lg:flex-row lg:justify-between items-start lg:items-center gap-2"
         >
@@ -38,11 +35,10 @@
             >
               <div class="ml-4 mt-4">
                 <h3 class="text-base font-semibold text-zinc-100">
-                  Image Carousel
+                  {{ $t("library.admin.game.imageCarousel") }}
                 </h3>
                 <p class="mt-1 text-sm text-zinc-400 max-w-lg">
-                  Customise what images and what order are shown on the store
-                  page.
+                  {{ $t("library.admin.game.imageCarouselDescription") }}
                 </p>
               </div>
               <div class="ml-4 mt-4 shrink-0">
@@ -51,7 +47,7 @@
                   class="relative inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                   @click="() => (showAddCarouselModal = true)"
                 >
-                  Add from image library
+                  {{ $t("library.admin.game.addImageCarousel") }}
                 </button>
               </div>
             </div>
@@ -60,7 +56,7 @@
             v-if="game.mImageCarouselObjectIds.length == 0"
             class="text-zinc-400 text-center py-8"
           >
-            No images added to the carousel yet.
+            {{ $t("library.admin.game.imageCarouselEmpty") }}
           </div>
 
           <draggable
@@ -80,7 +76,7 @@
                     class="inline-flex items-center gap-x-1.5 rounded-md bg-blue-600 px-1.5 py-0.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                     @click="() => removeImageFromCarousel(element)"
                   >
-                    Remove image
+                    {{ $t("library.admin.game.removeImageCarousel") }}
                   </button>
                 </div>
               </div>
@@ -98,13 +94,18 @@
           >
             <div>
               <CheckIcon
-                v-if="descriptionSaving == 0"
+                v-if="descriptionSaving == DescriptionSavingState.NotLoading"
                 class="size-5 text-zinc-100"
               />
-              <div v-else-if="descriptionSaving == 1">
+              <div
+                v-else-if="descriptionSaving == DescriptionSavingState.Waiting"
+              >
                 <PencilIcon class="animate-pulse size-5 text-zinc-100" />
               </div>
-              <div v-else-if="descriptionSaving == 2" role="status">
+              <div
+                v-else-if="descriptionSaving == DescriptionSavingState.Loading"
+                role="status"
+              >
                 <svg
                   aria-hidden="true"
                   class="w-5 h-5 text-transparent animate-spin fill-white"
@@ -121,7 +122,7 @@
                     fill="currentFill"
                   />
                 </svg>
-                <span class="sr-only">Loading...</span>
+                <span class="sr-only">{{ $t("common.srLoading") }}</span>
               </div>
             </div>
 
@@ -174,36 +175,8 @@
         </div>
       </div>
       <div
-        class="lg:overflow-y-auto lg:border-l lg:border-zinc-800 lg:fixed lg:inset-y-0 lg:z-50 lg:w-[30vw] flex flex-col lg:right-0 gap-y-8 px-6 py-4"
+        class="lg:overflow-y-auto lg:border-l lg:border-zinc-800 lg:block lg:inset-y-0 lg:z-50 lg:w-[30vw] flex flex-col gap-y-8 px-6 py-4"
       >
-        <!-- toolbar -->
-        <div class="inline-flex justify-end items-stretch gap-x-4">
-          <!-- open in library button -->
-          <NuxtLink
-            :href="`/admin/library/${game.id}`"
-            type="button"
-            class="inline-flex w-fit items-center gap-x-2 rounded-md bg-zinc-800 px-3 py-1 text-sm font-semibold font-display text-white shadow-sm transition-all duration-200 hover:bg-zinc-700 hover:scale-105 hover:shadow-lg active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600"
-          >
-            Open in Library
-            <ArrowTopRightOnSquareIcon
-              class="-mr-0.5 h-7 w-7 p-1"
-              aria-hidden="true"
-            />
-          </NuxtLink>
-          <!-- open in store button -->
-          <NuxtLink
-            :href="`/store/${game.id}`"
-            type="button"
-            class="inline-flex w-fit items-center gap-x-2 rounded-md bg-zinc-800 px-3 py-1 text-sm font-semibold font-display text-white shadow-sm transition-all duration-200 hover:bg-zinc-700 hover:scale-105 hover:shadow-lg active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600"
-          >
-            Open in Store
-            <ArrowTopRightOnSquareIcon
-              class="-mr-0.5 h-7 w-7 p-1"
-              aria-hidden="true"
-            />
-          </NuxtLink>
-        </div>
-
         <!-- image library -->
         <div>
           <div class="border-b border-zinc-800 pb-3">
@@ -214,11 +187,10 @@
                 <h3
                   class="text-base font-semibold font-display leading-6 text-zinc-100"
                 >
-                  Image library
+                  {{ $t("library.admin.game.imageLibrary") }}
                 </h3>
                 <p class="mt-1 text-sm text-zinc-400 max-w-lg">
-                  Please note all images uploaded are accessible to all users
-                  through browser dev-tools.
+                  {{ $t("library.admin.game.imageLibraryDescription") }}
                 </p>
               </div>
               <div class="flex-shrink-0">
@@ -227,7 +199,7 @@
                   class="relative inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                   @click="() => (showUploadModal = true)"
                 >
-                  Upload
+                  {{ $t("upload") }}
                 </button>
               </div>
             </div>
@@ -248,7 +220,7 @@
                   class="inline-flex items-center gap-x-1.5 rounded-md bg-blue-600 px-1.5 py-0.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                   @click="() => updateBannerImage(image)"
                 >
-                  Set as banner
+                  {{ $t("library.admin.game.setBanner") }}
                 </button>
                 <button
                   v-if="image !== game.mCoverObjectId"
@@ -256,14 +228,14 @@
                   class="inline-flex items-center gap-x-1.5 rounded-md bg-blue-600 px-1.5 py-0.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                   @click="() => updateCoverImage(image)"
                 >
-                  Set as cover
+                  {{ $t("library.admin.game.setCover") }}
                 </button>
                 <button
                   type="button"
                   class="inline-flex items-center gap-x-1.5 rounded-md bg-red-600 px-1.5 py-0.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-red-500/25 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
                   @click="() => deleteImage(image)"
                 >
-                  Delete image
+                  {{ $t("library.admin.game.deleteImage") }}
                 </button>
               </div>
               <div
@@ -271,17 +243,25 @@
                   image === game.mBannerObjectId ||
                   image === game.mCoverObjectId
                 "
-                class="absolute bottom-0 left-0 bg-zinc-950/75 text-zinc-100 text-sm font-semibold px-2 py-1 rounded-tr"
+                class="absolute bottom-0 left-0 flex flex-row gap-x-1 p-1"
               >
-                current
-                {{
-                  [
-                    image === game.mBannerObjectId ? "banner" : undefined,
-                    image === game.mCoverObjectId ? "cover" : undefined,
-                  ]
-                    .filter((e) => e)
-                    .join(" & ")
-                }}
+                <span
+                  v-for="[key] of (
+                    [
+                      [
+                        $t('library.admin.game.currentBanner'),
+                        image === game.mBannerObjectId,
+                      ],
+                      [
+                        $t('library.admin.game.currentCover'),
+                        image === game.mCoverObjectId,
+                      ],
+                    ] as const
+                  ).filter((e) => e[1])"
+                  :key="key"
+                  class="inline-flex items-center rounded-full bg-blue-900 px-2 py-1 text-xs font-medium text-blue-100"
+                  >{{ key }}</span
+                >
               </div>
             </div>
           </div>
@@ -315,7 +295,7 @@
                 class="inline-flex items-center gap-x-1.5 rounded-md bg-blue-600 px-1.5 py-0.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                 @click="() => addImageToCarousel(image)"
               >
-                Add
+                {{ $t("add") }}
               </button>
             </div>
           </div>
@@ -323,7 +303,7 @@
             v-if="validAddCarouselImages.length == 0"
             class="text-zinc-400 col-span-2"
           >
-            No images to add.
+            {{ $t("library.admin.game.addCarouselNoImages") }}
           </div>
         </div>
       </template>
@@ -334,7 +314,7 @@
           class="mt-3 inline-flex w-full justify-center rounded-md bg-zinc-900 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-700 hover:bg-zinc-950 transition-all duration-200 hover:scale-105 hover:shadow-lg active:scale-95 sm:mt-0 sm:w-auto"
           @click="showAddCarouselModal = false"
         >
-          Close
+          {{ $t("close") }}
         </button>
       </template>
     </ModalTemplate>
@@ -355,7 +335,7 @@
                 class="inline-flex items-center gap-x-1.5 rounded-md bg-blue-600 px-1.5 py-0.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                 @click="() => insertImageAtCursor(image)"
               >
-                Insert
+                {{ $t("insert") }}
               </button>
             </div>
           </div>
@@ -363,7 +343,7 @@
             v-if="game.mImageLibraryObjectIds.length == 0"
             class="text-zinc-400 col-span-2"
           >
-            No images to add.
+            {{ $t("library.admin.game.addDescriptionNoImages") }}
           </div>
         </div>
       </template>
@@ -372,9 +352,9 @@
           ref="cancelButtonRef"
           type="button"
           class="mt-3 inline-flex w-full justify-center rounded-md bg-zinc-900 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-700 hover:bg-zinc-950 transition-all duration-200 hover:scale-105 hover:shadow-lg active:scale-95 sm:mt-0 sm:w-auto"
-          @click="showAddCarouselModal = false"
+          @click="showAddImageDescriptionModal = false"
         >
-          Cancel
+          {{ $t("cancel") }}
         </button>
       </template>
     </ModalTemplate>
@@ -389,7 +369,7 @@
                 type="button"
                 class="cursor-pointer relative inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               >
-                Upload
+                {{ $t("upload") }}
               </span>
               <input
                 id="file-upload"
@@ -406,7 +386,7 @@
               <label
                 for="name"
                 class="block text-sm/6 font-medium text-zinc-100"
-                >Game Name</label
+                >{{ $t("library.admin.game.editGameName") }}</label
               >
               <div class="mt-2">
                 <input
@@ -422,7 +402,7 @@
               <label
                 for="description"
                 class="block text-sm/6 font-medium text-zinc-100"
-                >Game Description</label
+                >{{ $t("library.admin.game.editGameDescription") }}</label
               >
               <div class="mt-2">
                 <input
@@ -444,7 +424,7 @@
           :class="['inline-flex w-full shadow-sm sm:ml-3 sm:w-auto']"
           @click="() => coreMetadataUpdate_wrapper()"
         >
-          Save
+          {{ $t("save") }}
         </LoadingButton>
         <button
           ref="cancelButtonRef"
@@ -452,7 +432,7 @@
           class="mt-3 inline-flex w-full justify-center rounded-md bg-zinc-900 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-700 hover:bg-zinc-950 transition-all duration-200 hover:scale-105 hover:shadow-lg active:scale-95 sm:mt-0 sm:w-auto"
           @click="showEditCoreMetadata = false"
         >
-          Cancel
+          {{ $t("cancel") }}
         </button>
       </template>
     </ModalTemplate>
@@ -463,12 +443,13 @@
 import type { Game } from "~/prisma/client";
 import { micromark } from "micromark";
 import {
-  ArrowTopRightOnSquareIcon,
   CheckIcon,
   DocumentIcon,
   PencilIcon,
   PhotoIcon,
 } from "@heroicons/vue/24/solid";
+import type { SerializeObject } from "nitropack";
+import type { H3Error } from "h3";
 
 definePageMeta({
   layout: "admin",
@@ -480,13 +461,16 @@ const showAddImageDescriptionModal = ref(false);
 const showEditCoreMetadata = ref(false);
 const mobileShowFinalDescription = ref(true);
 
-const route = useRoute();
-const gameId = route.params.id.toString();
-const { game: rawGame, unimportedVersions } = await $dropFetch(
-  `/api/v1/admin/game?id=${encodeURIComponent(gameId)}`,
-);
-const game = ref(rawGame);
+const game = defineModel<SerializeObject<Game>>() as Ref<SerializeObject<Game>>;
+if (!game.value)
+  throw createError({
+    statusCode: 500,
+    statusMessage: "Game not provided to editor component",
+  });
 
+const { t } = useI18n();
+
+// I don't know why I split these fields off.
 const coreMetadataName = ref(game.value.mName);
 const coreMetadataDescription = ref(game.value.mShortDescription);
 const coreMetadataIconUrl = ref(useObject(game.value.mIconObjectId));
@@ -495,7 +479,6 @@ const coreMetadataLoading = ref(false);
 
 function coreMetadataUploadFiles(e: InputEvent) {
   if (coreMetadataIconUrl.value.startsWith("blob")) {
-    console.log("freed object URL");
     URL.revokeObjectURL(coreMetadataIconUrl.value);
   }
 
@@ -506,9 +489,9 @@ function coreMetadataUploadFiles(e: InputEvent) {
     createModal(
       ModalType.Notification,
       {
-        title: "Failed to upload file",
-        description: "Drop couldn't upload this file.",
-        buttonText: "Close",
+        title: t("errors.upload.title"),
+        description: t("errors.upload.description", [t("errors.unknown")]),
+        buttonText: t("close"),
       },
       (e, c) => c(),
     );
@@ -543,11 +526,11 @@ function coreMetadataUpdate_wrapper() {
       createModal(
         ModalType.Notification,
         {
-          title: "Failed to update metadata",
-          description: `Drop failed to update the game's metadata: ${
-            e?.statusMessage || "An unknown error occurred. "
-          }`,
-          buttonText: "Close",
+          title: t("errors.game.metadata.title"),
+          description: t("errors.game.metadata.description", [
+            (e as H3Error)?.statusMessage ?? t("errors.unknown"),
+          ]),
+          buttonText: t("close"),
         },
         (e, c) => c(),
       );
@@ -569,37 +552,42 @@ const descriptionEditor = ref<HTMLTextAreaElement | undefined>();
 // 0 is not loading
 // 1 is waiting for stop
 // 2 is loading
-const descriptionSaving = ref<number>(0);
+enum DescriptionSavingState {
+  NotLoading,
+  Waiting,
+  Loading,
+}
+const descriptionSaving = ref<DescriptionSavingState>(
+  DescriptionSavingState.NotLoading,
+);
 
 let savingTimeout: undefined | NodeJS.Timeout;
 
 type PatchGameBody = Partial<Game>;
 
 watch(descriptionHTML, (_v) => {
-  console.log(game.value.mDescription);
-  descriptionSaving.value = 1;
+  descriptionSaving.value = DescriptionSavingState.Waiting;
   if (savingTimeout) clearTimeout(savingTimeout);
   savingTimeout = setTimeout(async () => {
     try {
-      descriptionSaving.value = 2;
+      descriptionSaving.value = DescriptionSavingState.Loading;
       await $dropFetch("/api/v1/admin/game", {
         method: "PATCH",
         body: {
-          id: gameId,
+          id: game.value.id,
           mDescription: game.value.mDescription,
         } satisfies PatchGameBody,
       });
-      descriptionSaving.value = 0;
+      descriptionSaving.value = DescriptionSavingState.NotLoading;
     } catch (e) {
       createModal(
         ModalType.Notification,
         {
-          title: "Failed to update game description",
-          description: `Drop failed to update the game description: ${
-            // @ts-expect-error attempt to get statusMessage on error
-            e?.statusMessage ?? t("errors.unknown")
-          }`,
-          buttonText: "Close",
+          title: t("errors.game.description.title"),
+          description: t("errors.game.description.description", [
+            (e as H3Error)?.statusMessage ?? t("errors.unknown"),
+          ]),
+          buttonText: t("close"),
         },
         (e, c) => c(),
       );
@@ -630,7 +618,7 @@ async function updateBannerImage(id: string) {
     const { mBannerObjectId } = await $dropFetch("/api/v1/admin/game", {
       method: "PATCH",
       body: {
-        id: gameId,
+        id: game.value.id,
         mBannerObjectId: id,
       } satisfies PatchGameBody,
     });
@@ -639,12 +627,11 @@ async function updateBannerImage(id: string) {
     createModal(
       ModalType.Notification,
       {
-        title: "There an error while updating the banner image",
-        description: `Drop encountered an error while updating the banner image: ${
-          // @ts-expect-error attempt to get statusMessage on error
-          e?.statusMessage ?? t("errors.unknown")
-        }`,
-        buttonText: "Close",
+        title: t("errors.game.banner.title"),
+        description: t("errors.game.banner.description", [
+          (e as H3Error)?.statusMessage ?? t("errors.unknown"),
+        ]),
+        buttonText: t("close"),
       },
       (e, c) => c(),
     );
@@ -657,22 +644,20 @@ async function updateCoverImage(id: string) {
     const { mCoverObjectId } = await $dropFetch("/api/v1/admin/game", {
       method: "PATCH",
       body: {
-        id: gameId,
+        id: game.value.id,
         mCoverObjectId: id,
       } satisfies PatchGameBody,
     });
     game.value.mCoverObjectId = mCoverObjectId;
-    coreMetadataIconUrl.value = useObject(mCoverObjectId);
   } catch (e) {
     createModal(
       ModalType.Notification,
       {
-        title: "There an error while updating the cover image",
-        description: `Drop encountered an error while updating the cover image: ${
-          // @ts-expect-error attempt to get statusMessage on error
-          e?.statusMessage ?? t("errors.unknown")
-        }`,
-        buttonText: "Close",
+        title: t("errors.game.cover.title"),
+        description: t("errors.game.cover.description", [
+          (e as H3Error)?.statusMessage ?? t("errors.unknown"),
+        ]),
+        buttonText: t("close"),
       },
       (e, c) => c(),
     );
@@ -697,12 +682,11 @@ async function deleteImage(id: string) {
     createModal(
       ModalType.Notification,
       {
-        title: "There an error while deleting the image",
-        description: `Drop encountered an error while deleting the image: ${
-          // @ts-expect-error attempt to get statusMessage on error
-          e?.statusMessage ?? t("errors.unknown")
-        }`,
-        buttonText: "Close",
+        title: t("errors.game.deleteImage.title"),
+        description: t("errors.game.deleteImage.description", [
+          (e as H3Error)?.statusMessage ?? t("errors.unknown"),
+        ]),
+        buttonText: t("close"),
       },
       (e, c) => c(),
     );
@@ -732,7 +716,7 @@ async function updateImageCarousel() {
     await $dropFetch("/api/v1/admin/game", {
       method: "PATCH",
       body: {
-        id: gameId,
+        id: game.value.id,
         mImageCarouselObjectIds: game.value.mImageCarouselObjectIds,
       } satisfies PatchGameBody,
     });
@@ -740,12 +724,11 @@ async function updateImageCarousel() {
     createModal(
       ModalType.Notification,
       {
-        title: "There an error while updating the image carousel",
-        description: `Drop encountered an error while updating image carousel: ${
-          // @ts-expect-error attempt to get statusMessage on error
-          e?.statusMessage ?? t("errors.unknown")
-        }`,
-        buttonText: "Close",
+        title: t("errors.game.carousel.title"),
+        description: t("errors.game.carousel.description", [
+          (e as H3Error)?.statusMessage ?? t("errors.unknown"),
+        ]),
+        buttonText: t("close"),
       },
       (e, c) => c(),
     );

@@ -1,5 +1,6 @@
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
+import taskHandler from "~/server/internal/tasks";
 
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, [
@@ -7,7 +8,7 @@ export default defineEventHandler(async (h3) => {
   ]);
   if (!allowed) throw createError({ statusCode: 403 });
 
-  await runTask("cleanup:invitations");
+  await taskHandler.runTaskGroupByName("cleanup:invitations");
 
   const invitations = await prisma.invitation.findMany({});
   return invitations;

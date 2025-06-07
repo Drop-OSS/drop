@@ -16,6 +16,8 @@ const route = useRoute();
 const i18nHead = useLocaleHead();
 const noWrapper = !!route.query.noWrapper;
 
+const { t } = useI18n();
+
 useHead({
   htmlAttrs: {
     lang: i18nHead.value.htmlAttrs.lang,
@@ -26,8 +28,7 @@ useHead({
   // link: [...i18nHead.value.link],
   // meta: [...i18nHead.value.meta],
   titleTemplate(title) {
-    if (title) return `${title} | Drop`;
-    return `Drop`;
+    return title ? t("titleTemplate", [title]) : t("title");
   },
 });
 </script>

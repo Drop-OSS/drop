@@ -13,7 +13,7 @@ type FieldReferenceMap = {
 export default defineDropTask({
   buildId: () => `cleanup:objects:${new Date().toISOString()}`,
   name: "Cleanup Objects",
-  acls: [],
+  acls: ["system:maintenance:read"],
   taskGroup: "cleanup:objects",
   async run({ progress, log }) {
     log("Cleaning unreferenced objects");

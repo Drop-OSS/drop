@@ -162,7 +162,6 @@ import {
   ServerStackIcon,
   HomeIcon,
   Cog6ToothIcon,
-  DocumentIcon,
   UserGroupIcon,
   RectangleStackIcon,
 } from "@heroicons/vue/24/outline";
@@ -180,12 +179,6 @@ const navigation: Array<NavigationItem & { icon: Component }> = [
     route: "/admin/library",
     prefix: "/admin/library",
     icon: ServerStackIcon,
-  },
-  {
-    label: $t("header.admin.meta"),
-    route: "/admin/metadata",
-    prefix: "/admin/metadata",
-    icon: DocumentIcon,
   },
   {
     label: $t("header.admin.users"),

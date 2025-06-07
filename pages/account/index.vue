@@ -1,4 +1,8 @@
 <template>
+  <!-- go away eslint -->
+  <div />
+  <!-- I don't want to localize this -->
+  <!--
   <div>
     <div v-if="user" class="mx-auto max-w-2xl lg:mx-0">
       <h2
@@ -15,7 +19,6 @@
     </div>
 
     <div v-if="user" class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
-      <!-- Account Information Card -->
       <div
         class="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 shadow-sm transition-all duration-200 hover:shadow-lg hover:shadow-zinc-900/50"
       >
@@ -51,7 +54,6 @@
         </div>
       </div>
 
-      <!-- Account Actions Card -->
       <div
         class="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 shadow-sm transition-all duration-200 hover:shadow-lg hover:shadow-zinc-900/50"
       >
@@ -78,6 +80,7 @@
       <div class="text-zinc-400">Loading account information...</div>
     </div>
   </div>
+  -->
 </template>
 
 <script setup lang="ts">
@@ -88,7 +91,4 @@ definePageMeta({
 useHead({
   title: "Account",
 });
-
-// Fetch user data
-const user = await $dropFetch("/api/v1/user");
 </script>

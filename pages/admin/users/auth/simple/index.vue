@@ -4,15 +4,12 @@
       <h2
         class="mt-2 text-xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
       >
-        Simple authentication
+        {{ $t("users.admin.simple.title") }}
       </h2>
       <p
         class="mt-2 text-pretty text-sm font-medium text-zinc-400 sm:text-md/8"
       >
-        Simple authentication uses a system of 'invitations' to create users.
-        You can create an invitation, and optionally specify a username or email
-        for the user, and then it will generate a magic URL that can be used to
-        create an account.
+        {{ $t("users.admin.simple.description") }}
       </p>
     </div>
 
@@ -22,7 +19,9 @@
           class="-mt-2 flex flex-wrap items-center justify-between sm:flex-nowrap"
         >
           <div class="mt-2">
-            <h3 class="text-base font-semibold text-zinc-100">Invitations</h3>
+            <h3 class="text-base font-semibold text-zinc-100">
+              {{ $t("users.admin.simple.invitationTitle") }}
+            </h3>
           </div>
           <div class="ml-4 mt-2 shrink-0">
             <button
@@ -30,7 +29,7 @@
               class="relative inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-500 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               @click="() => (createModalOpen = true)"
             >
-              Create invitation
+              {{ $t("users.admin.simple.createInvitation") }}
             </button>
           </div>
         </div>
@@ -54,9 +53,14 @@
               </div>
 
               <p class="mt-1 flex text-xs/5 text-gray-500">
-                {{ invitation.username ?? "No username enforced." }}
-                |
-                {{ invitation.email ?? "No email enforced." }}
+                {{
+                  invitation.username ??
+                  $t("users.admin.simple.noUsernameEnforced")
+                }}
+                {{ $t("common.divider") }}
+                {{
+                  invitation.email ?? $t("users.admin.simple.noEmailEnforced")
+                }}
               </p>
             </div>
           </div>
@@ -64,14 +68,29 @@
             <div class="hidden sm:flex sm:flex-col sm:items-end">
               <p class="text-sm/6 text-zinc-100">
                 {{
-                  invitation.isAdmin ? "Admin invitation" : "User invitation"
+                  invitation.isAdmin
+                    ? $t("users.admin.simple.adminInvitation")
+                    : $t("users.admin.simple.userInvitation")
                 }}
               </p>
-              <p class="mt-1 text-xs/5 text-gray-500">
-                Expires:
-                <time :datetime="invitation.expires">{{
-                  new Date(invitation.expires).toLocaleString()
-                }}</time>
+              <p class="mt-1 text-sm text-gray-500">
+                <!-- forever is relative, right? -->
+                <i18n-t
+                  v-if="
+                    new Date(invitation.expires).getTime() - Date.now() <
+                    3.156e12 // 100 years
+                  "
+                  keypath="users.admin.simple.expires"
+                  tag="span"
+                  scope="global"
+                >
+                  <template #expiry>
+                    <RelativeTime :date="invitation.expires" />
+                  </template>
+                </i18n-t>
+                <span v-else>
+                  {{ $t("users.admin.simple.neverExpires") }}
+                </span>
               </p>
             </div>
             <button @click="() => deleteInvitation(invitation.id)">
@@ -85,7 +104,7 @@
       </ul>
 
       <div v-if="invitations.length == 0" class="py-4 text-zinc-400 text-sm">
-        No invitations.
+        {{ $t("users.admin.simple.noInvitations") }}
       </div>
     </div>
 
@@ -128,13 +147,11 @@
                       <DialogTitle
                         as="h3"
                         class="text-base font-semibold text-zinc-100"
-                        >Invite user to Drop
+                        >{{ $t("users.admin.simple.inviteTitle") }}
                       </DialogTitle>
                       <div class="mt-2">
                         <p class="text-sm text-zinc-400">
-                          Drop will generate a URL that you can send to the
-                          person you want to invite. You can optionally specify
-                          a username or email for them to use.
+                          {{ $t("users.admin.simple.inviteDescription") }}
                         </p>
                       </div>
                     </div>
@@ -145,7 +162,9 @@
                       <label
                         for="username"
                         class="block text-sm font-medium leading-6 text-zinc-100"
-                        >Username (optional)</label
+                        >{{
+                          $t("users.admin.simple.inviteUsernameLabel")
+                        }}</label
                       >
                       <p
                         :class="[
@@ -153,7 +172,7 @@
                           'block text-xs font-medium leading-6',
                         ]"
                       >
-                        Must be 5 or more characters
+                        {{ $t("users.admin.simple.inviteUsernameFormat") }}
                       </p>
                       <div class="mt-2">
                         <input
@@ -162,7 +181,9 @@
                           name="invite-username"
                           type="text"
                           autocomplete="username"
-                          placeholder="myUsername"
+                          :placeholder="
+                            $t('users.admin.simple.inviteUsernamePlaceholder')
+                          "
                           class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
                         />
                       </div>
@@ -172,7 +193,7 @@
                       <label
                         for="email"
                         class="block text-sm font-medium leading-6 text-zinc-100"
-                        >Email address (optional)</label
+                        >{{ $t("users.admin.simple.inviteEmailLabel") }}</label
                       >
                       <p
                         :class="[
@@ -180,7 +201,7 @@
                           'block text-xs font-medium leading-6',
                         ]"
                       >
-                        Must be in the format user@example.com
+                        {{ $t("users.admin.simple.inviteEmailDescription") }}
                       </p>
                       <div class="mt-2">
                         <input
@@ -189,7 +210,9 @@
                           name="invite-email"
                           type="email"
                           autocomplete="email"
-                          placeholder="me@example.com"
+                          :placeholder="
+                            $t('users.admin.simple.inviteEmailPlaceholder')
+                          "
                           class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
                         />
                       </div>
@@ -205,13 +228,18 @@
                             as="span"
                             class="text-sm/6 font-medium text-zinc-100"
                             passive
-                            >Admin invitation
+                            >{{
+                              $t("users.admin.simple.inviteAdminSwitchLabel")
+                            }}
                           </SwitchLabel>
                           <SwitchDescription
                             as="span"
                             class="text-sm text-zinc-400"
-                            >Create this user as an
-                            administrator</SwitchDescription
+                            >{{
+                              $t(
+                                "users.admin.simple.inviteAdminSwitchDescription",
+                              )
+                            }}</SwitchDescription
                           >
                         </span>
                         <Switch
@@ -236,7 +264,9 @@
                       <Listbox v-model="expiryKey" as="div">
                         <ListboxLabel
                           class="block text-sm/6 font-medium text-zinc-100"
-                          >Expires in</ListboxLabel
+                          >{{
+                            $t("users.admin.simple.inviteExpiryLabel")
+                          }}</ListboxLabel
                         >
                         <div class="relative mt-2">
                           <ListboxButton
@@ -331,7 +361,7 @@
                     type="submit"
                     class="w-full sm:w-fit"
                   >
-                    Invite
+                    {{ $t("users.admin.simple.inviteButton") }}
                   </LoadingButton>
                   <button
                     ref="cancelButtonRef"
@@ -339,7 +369,7 @@
                     class="mt-3 inline-flex w-full justify-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-700 hover:bg-zinc-900 sm:mt-0 sm:w-auto"
                     @click="createModalOpen = false"
                   >
-                    Cancel
+                    {{ $t("cancel") }}
                   </button>
                 </div>
               </form>
@@ -373,6 +403,8 @@ import type { Invitation } from "~/prisma/client";
 import type { SerializeObject } from "nitropack";
 import type { DurationLike } from "luxon";
 import { DateTime } from "luxon";
+
+const { t } = useI18n();
 
 definePageMeta({
   layout: "admin",
@@ -431,23 +463,23 @@ const isAdmin = ref(false);
 
 // Label to parameters to moment.js .add()
 const expiry: Record<string, DurationLike> = {
-  "3 days": {
+  [t("users.admin.simple.invite3Days")]: {
     days: 3,
   },
-  "7 days": {
+  [t("users.admin.simple.inviteWeek")]: {
     days: 7,
   },
-  "1 month": {
+  [t("users.admin.simple.inviteMonth")]: {
     month: 1,
   },
-  "6 months": {
+  [t("users.admin.simple.invite6Months")]: {
     months: 6,
   },
-  "1 year": {
+  [t("users.admin.simple.inviteYear")]: {
     year: 1,
   },
-  Never: {
-    year: 3000,
+  [t("users.admin.simple.inviteNever")]: {
+    year: 5000,
   }, // Never is relative, right?
 };
 const expiryKey = ref<keyof typeof expiry>(Object.keys(expiry)[0]); // Cast to any because we just know it's okay
@@ -485,7 +517,7 @@ function invite_wrapper() {
       invitationUrls.value?.push(generateInvitationUrl(invitation.id));
     })
     .catch((response) => {
-      const message = response.statusMessage || "An unknown error occurred";
+      const message = response.statusMessage || t("errors.unknown");
       error.value = message;
     })
     .finally(() => {
