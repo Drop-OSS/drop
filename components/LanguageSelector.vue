@@ -75,7 +75,7 @@
     </Listbox>
     <NuxtLink
       class="mt-1 transition text-blue-500 hover:text-blue-600 text-sm"
-      to="https://translate.droposs.org"
+      to="https://translate.droposs.org/projects/drop/"
       target="_blank"
     >
       <i18n-t
