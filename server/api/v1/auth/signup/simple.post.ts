@@ -1,6 +1,6 @@
 import { AuthMec } from "~/prisma/client";
 import prisma from "~/server/internal/db/database";
-import { createHashArgon2 } from "~/server/internal/security/simple";
+import { createHashArgon2 } from "~/server/internal/auth";
 import * as jdenticon from "jdenticon";
 import objectHandler from "~/server/internal/objects";
 import { type } from "arktype";

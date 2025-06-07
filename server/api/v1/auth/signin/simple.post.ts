@@ -2,12 +2,11 @@ import { AuthMec } from "~/prisma/client";
 import type { JsonArray } from "@prisma/client/runtime/library";
 import { type } from "arktype";
 import prisma from "~/server/internal/db/database";
-import {
+import sessionHandler from "~/server/internal/session";
+import authManager, {
   checkHashArgon2,
   checkHashBcrypt,
-} from "~/server/internal/security/simple";
-import sessionHandler from "~/server/internal/session";
-import { enabledAuthManagers } from "~/server/plugins/04.auth-init";
+} from "~/server/internal/auth";
 
 const signinValidator = type({
   username: "string",
@@ -18,7 +17,7 @@ const signinValidator = type({
 export default defineEventHandler<{
   body: typeof signinValidator.infer;
 }>(async (h3) => {
-  if (!enabledAuthManagers.Simple)
+  if (!authManager.getAuthProviders().Simple)
     throw createError({
       statusCode: 403,
       statusMessage: "Sign in method not enabled",
