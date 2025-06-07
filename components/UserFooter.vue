@@ -105,20 +105,20 @@ const navigation = {
     { name: t("common.servers"), href: "#" },
   ],
   documentation: [
-    { name: t("footer.api"), href: "https://api.droposs.org/" },
+    // TODO: public API docs
+    // { name: t("footer.api"), href: "https://api.droposs.org/" },
     {
       name: t("footer.docs.server"),
-      href: "https://wiki.droposs.org/guides/quickstart.html",
+      href: "https://docs.droposs.org/docs/guides/quickstart",
     },
     {
       name: t("footer.docs.client"),
-      href: "https://wiki.droposs.org/guides/client.html",
+      href: "https://docs.droposs.org/docs/guides/client",
     },
   ],
   about: [
     { name: t("footer.aboutDrop"), href: "https://droposs.org/" },
-    { name: t("footer.features"), href: "https://droposs.org/features" },
-    { name: t("footer.faq"), href: "https://droposs.org/faq" },
+    { name: t("footer.comparison"), href: "https://droposs.org/comparison" },
   ],
   social: [
     {
