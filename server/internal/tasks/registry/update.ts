@@ -19,7 +19,7 @@ const latestRelease = type({
 export default defineDropTask({
   buildId: () => `check:update:${new Date().toISOString()}`,
   name: "Check for Update",
-  acls: [],
+  acls: ["system:maintenance:read"],
   taskGroup: "check:update",
   async run({ log }) {
     // TODO: maybe implement some sort of rate limit thing to prevent this from calling github api a bunch in the event of crashloop or whatever?
