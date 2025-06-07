@@ -1,6 +1,6 @@
 import { AuthMec } from "~/prisma/client";
 import prisma from "~/server/internal/db/database";
-import { createHashArgon2 } from "~/server/internal/auth";
+import authManager, { createHashArgon2 } from "~/server/internal/auth";
 import * as jdenticon from "jdenticon";
 import objectHandler from "~/server/internal/objects";
 import { type } from "arktype";
@@ -17,6 +17,12 @@ const userValidator = type({
 export default defineEventHandler<{
   body: typeof userValidator.infer;
 }>(async (h3) => {
+  if (!authManager.getAuthProviders().Simple)
+    throw createError({
+      statusCode: 403,
+      statusMessage: "Sign in method not enabled",
+    });
+
   const body = await readBody(h3);
 
   const invitationId = body.invitation;

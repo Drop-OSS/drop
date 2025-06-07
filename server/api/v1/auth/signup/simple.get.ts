@@ -1,7 +1,14 @@
 import prisma from "~/server/internal/db/database";
 import taskHandler from "~/server/internal/tasks";
+import authManager from "~/server/internal/auth";
 
 export default defineEventHandler(async (h3) => {
+  if (!authManager.getAuthProviders().Simple)
+    throw createError({
+      statusCode: 403,
+      statusMessage: "Sign in method not enabled",
+    });
+
   const query = getQuery(h3);
   const id = query.id?.toString();
   if (!id)
