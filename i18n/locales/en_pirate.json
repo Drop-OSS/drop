@@ -1,482 +1,482 @@
 {
-  "account": {
-    "devices": {
-      "capabilities": "Aye, yer Capabilities",
-      "lastConnected": "Last Linked",
-      "noDevices": "No contraptions tied to yer coffers, eh?",
-      "platform": "Ship",
-      "revoke": "Scuttle 'em",
-      "subheader": "Manage the contraptions allowed access to yer Drop booty.",
-      "title": "Contraptions"
-    },
-    "notifications": {
-      "all": "Gaze upon all {arrow}",
-      "desc": "View and manage yer messages from the crows' nest.",
-      "markAllAsRead": "Mark all as read, aye!",
-      "markAsRead": "Mark as read, matey!",
-      "none": "No messages, savvy?",
-      "notifications": "Crows' Nest",
-      "title": "Messages from the Crows' Nest",
-      "unread": "Unread Messages"
-    },
-    "settings": "Account Settings, savvy?",
-    "title": "Yer Own Coffer"
-  },
-  "actions": "Deeds",
-  "adminTitle": "Cap'n's Quarters | Drop",
-  "adminTitleTemplate": "{0} | Cap'n | Drop",
-  "title": "Drop",
-  "titleTemplate": "{0} | Drop",
-  "auth": {
-    "callback": {
-      "authClient": "Grant passage to this scallywag?",
-      "authorize": "Grant Passage",
-      "authorizedClient": "Drop has granted passage to the scallywag. Ye may now shut this porthole.",
-      "issues": "Troubles be brewin', matey?",
-      "learn": "Learn more {arrow}",
-      "paste": "Scribble this code into the scallywag to carry on:",
-      "permWarning": "Grantin' this request allows \"{name}\" on \"{platform}\" to:",
-      "requestedAccess": "\"{name}\" has requested passage to yer Drop coffer.",
-      "success": "Shiver me timbers, it worked!"
-    },
-    "confirmPassword": "Confirm @:auth.password",
-    "displayName": "Yer Scallywag Name",
-    "email": "Salty Mail",
-    "password": "Secret Word",
-    "register": {
-      "confirmPasswordFormat": "Must be the same as above, savvy?",
-      "emailFormat": "Must be in the fashion of a true scallywag {'@'} example.com",
-      "passwordFormat": "Must be 14 or more marks, ye landlubber!",
-      "subheader": "Fill in yer details below to make yer mark.",
-      "title": "Forge yer Drop Mark",
-      "usernameFormat": "Must be 5 or more marks, and all lowercase, argh!"
-    },
-    "signin": {
-      "externalProvider": "Sign in with another ship's captain {arrow}",
-      "forgot": "Forgot yer secret word, eh?",
-      "noAccount": "No mark in the logbook? Beg a cap'n to make ye one, argh!",
-      "or": "OR",
-      "pageTitle": "Sign in to Drop, ye dog!",
-      "rememberMe": "Remember me, savvy?",
-      "signin": "Sign in, ye scurvy dog!",
-      "title": "Sign in to yer mark"
-    },
-    "signout": "Cast off!",
-    "username": "Scallywag Name"
-  },
-  "cancel": "Belay that!",
-  "chars": {
-    "arrow": "→",
-    "arrowBack": "←",
-    "quoted": "\"\"",
-    "srComma": ", {0}"
-  },
-  "close": "Shut yer trap!",
-  "common": {
-    "cannotUndo": "This deed cannot be undone, ye hear!",
-    "date": "Date",
-    "deleteConfirm": "Are ye sure ye want to scuttle \"{0}\", ye rogue?",
-    "friends": "Shipmates",
-    "groups": "Crews",
-    "noResults": "No plunder found!",
-    "servers": "Ships",
-    "tags": "Marks",
-    "today": "Today",
-    "divider": "{'|'}",
-    "srLoading": "Loading, loading, argh..."
-  },
-  "create": "Forge!",
-  "delete": "Scuttle!",
-  "drop": {
-    "desc": "An open-source game distribution platform built for speed, flexibility and beauty, like a swift brigantine!",
-    "drop": "Drop"
-  },
-  "edit": "Amend",
-  "editor": {
-    "bold": "Bold, like a cannonball!",
-    "boldPlaceholder": "bold text, matey",
-    "code": "Code, ye scallywag!",
-    "codePlaceholder": "code, argh!",
-    "heading": "Heading, to the horizon!",
-    "headingPlaceholder": "heading, savvy?",
-    "italic": "Italic, like a wobbly deck!",
-    "italicPlaceholder": "italic text, arrr!",
-    "link": "Link, a chain to adventure!",
-    "linkPlaceholder": "link text, ye dog!",
-    "listItem": "List Item, for yer plunder!",
-    "listItemPlaceholder": "list item, eh?"
-  },
-  "errors": {
-    "backHome": "{arrow} Back to yer safe harbor",
-    "invalidBody": "Invalid request, ye barnacle-encrusted body: {0}",
-    "inviteRequired": "Invitation demanded to sign up, ye landlubber.",
-    "library": {
-      "add": {
-        "desc": "Drop couldn't add this game to yer treasure hoard: {0}",
-        "title": "Failed to add game to yer treasure hoard"
-      },
-      "collection": {
-        "create": {
-          "desc": "Drop couldn't forge yer collection, argh: {0}",
-          "title": "Failed to forge collection"
-        }
-      },
-      "source": {
-        "delete": {
-          "desc": "Drop couldn't scuttle this source: {0}",
-          "title": "Failed to scuttle treasure hoard source"
-        }
-      }
-    },
-    "news": {
-      "article": {
-        "delete": {
-          "desc": "Drop couldn't scuttle this article: {0}",
-          "title": "Failed to scuttle article"
-        }
-      }
-    },
-    "occurred": "An error occurred whilst answerin' yer plea. If ye believe this be a bug, report it, ye dog! Try signin' in and see if it clears the decks.",
-    "ohNo": "Blimey!",
-    "pageTitle": "{0} | Drop",
-    "revokeClient": "Failed to scuttle scallywag",
-    "revokeClientFull": "Failed to scuttle scallywag {0}",
-    "signIn": "Sign in {arrow}, ye scurvy dog!",
-    "support": "Support Discord, arrr!",
-    "unknown": "An unknown blunder occurred, savvy?",
-    "version": {
-      "delete": {
-        "desc": "Drop met a squall whilst scuttlin' the version: {error}",
-        "title": "There was a squall whilst scuttlin' the version"
-      },
-      "order": {
-        "desc": "Drop met a squall whilst updatin' the version: {error}",
-        "title": "There was a squall whilst updatin' the version order"
-      }
-    },
-    "upload": {
-      "title": "Failed to hoist the file",
-      "description": "Drop couldn't hoist the file: {0}"
-    },
-    "game": {
-      "metadata": {
-        "title": "Failed to update yer charts",
-        "description": "Drop failed to update the game's charts: {0}"
-      },
-      "description": {
-        "title": "Failed to update game description",
-        "description": "Drop failed to update the game description: {0}"
-      },
-      "banner": {
-        "title": "Failed to hoist the banner image",
-        "description": "Drop failed to hoist the banner image: {0}"
-      },
-      "cover": {
-        "title": "Failed to hoist the cover image",
-        "description": "Drop failed to hoist the cover image: {0}"
-      },
-      "deleteImage": {
-        "title": "Failed to scuttle the image",
-        "description": "Drop failed to scuttle the image: {0}"
-      },
-      "carousel": {
-        "title": "Failed to update image carousel",
-        "description": "Drop failed to update the image carousel: {0}"
-      }
-    }
-  },
-  "footer": {
-    "about": "About, savvy?",
-    "aboutDrop": "About Drop, argh!",
-    "docs": {
-      "client": "Scallywag's Docs",
-      "server": "Cap'n's Docs"
-    },
-    "documentation": "Charts and Scrolls",
-    "comparison": "Comparison, matey!",
-    "findGame": "Find a Game, ye dog!",
-    "footer": "Keel",
-    "games": "Games",
-    "social": {
-      "discord": "Discord, argh!",
-      "github": "GitHub, savvy?"
-    },
-    "topSellers": "Top Plunderers"
-  },
-  "header": {
-    "admin": {
-      "admin": "Cap'n",
-      "tasks": "Duties",
-      "users": "Crew"
-    },
-    "back": "Aft!",
-    "openSidebar": "Open the side-hatch!"
-  },
-  "highest": "highest",
-  "home": "Home Port",
-  "users": {
-    "admin": {
-      "description": "Manage the crew on yer Drop vessel, and set yer passage methods, savvy?",
-      "authLink": "Passage {arrow}",
-      "displayNameHeader": "Scallywag Name",
-      "usernameHeader": "Crew Name",
-      "emailHeader": "Salty Mail",
-      "adminHeader": "Cap'n, eh?",
-      "authoptionsHeader": "Passage Options",
-      "srEditLabel": "Amend",
-      "adminUserLabel": "Cap'n of the crew",
-      "normalUserLabel": "Common crewman",
-      "authentication": {
-        "title": "Passage",
-        "description": "Drop backs many 'passage ways'. As ye enable or disable 'em, they show on the sign-in screen for the crew to pick. Click the dot menu to rig the passage way.",
-        "enabledKey": "Enabled, argh?",
-        "enabled": "Enabled",
-        "disabled": "Disabled",
-        "srOpenOptions": "Open options",
-        "configure": "Rig",
-        "simple": "Simple (crew name/secret word)",
-        "oidc": "OpenID Connect, savvy?"
-      },
-      "simple": {
-        "title": "Simple passage",
-        "description": "Simple passage uses a system of 'invitations' to create crew. Ye can forge an invitation, and optionally name a crew name or salty mail for the crew, then it'll make a magic scroll that can be used to make a mark.",
-        "invitationTitle": "Invitations",
-        "createInvitation": "Forge Invitation",
-        "noUsernameEnforced": "No crew name forced, argh.",
-        "noEmailEnforced": "No salty mail forced, matey.",
-        "adminInvitation": "Cap'n's Invitation",
-        "userInvitation": "Crewman's Invitation",
-        "expires": "Expires: {expiry}",
-        "neverExpires": "Never expires, savvy.",
-        "noInvitations": "No invitations, argh.",
-        "inviteTitle": "Invite crew to Drop",
-        "inviteDescription": "Drop will make a scroll ye can send to the scallywag ye want to invite. Ye can optionally name a crew name or salty mail for them to use.",
-        "inviteUsernameLabel": "Crew Name (optional)",
-        "inviteUsernameFormat": "Must be 5 or more marks",
-        "inviteUsernamePlaceholder": "myScallywagName",
-        "inviteEmailLabel": "Salty mail address (optional)",
-        "inviteEmailDescription": "Must be in the fashion of a scallywag {'@'} example.com",
-        "inviteEmailPlaceholder": "me{'@'}example.com",
-        "inviteAdminSwitchLabel": "Cap'n's invitation",
-        "inviteAdminSwitchDescription": "Make this crewman a cap'n, argh!",
-        "inviteExpiryLabel": "Expires",
-        "inviteButton": "Invite, ye dog!",
-        "invite3Days": "3 suns",
-        "inviteWeek": "1 week",
-        "inviteMonth": "1 moon",
-        "invite6Months": "6 moons",
-        "inviteYear": "1 year",
-        "inviteNever": "Never"
-      }
-    }
-  },
-  "library": {
-    "addGames": "All Plunder",
-    "addToLib": "Add to Yer Treasure Hoard",
-    "admin": {
-      "detectedGame": "Drop has found new plunder to import, argh!",
-      "detectedVersion": "Drop has found new versions of this plunder to import, savvy!",
-      "gameLibrary": "Game Treasure Hoard",
-      "import": {
-        "import": "Import, ye dog!",
-        "link": "Import {arrow}",
-        "loading": "Loadin' plunder results, arrr...",
-        "search": "Search",
-        "searchPlaceholder": "Fallout 4, savvy?",
-        "selectDir": "Pick a directory, ye landlubber...",
-        "selectGame": "Pick plunder to import",
-        "selectGamePlaceholder": "Pick a game, ye dog...",
-        "selectGameSearch": "Pick game",
-        "selectPlatform": "Pick a ship, ye scallywag...",
-        "version": {
-          "advancedOptions": "Advanced options, savvy?",
-          "import": "Import version",
-          "installDir": "(install_dir)/",
-          "launchCmd": "Launch executable/command, argh!",
-          "launchDesc": "Executable to launch the game, matey!",
-          "launchPlaceholder": "game.exe, aye!",
-          "loadingVersion": "Loading version charts...",
-          "noAdv": "No advanced options for this rig, argh.",
-          "noVersions": "No versions to import, savvy!",
-          "platform": "Ship type",
-          "setupCmd": "Setup executable/command",
-          "setupDesc": "Ran once when the game is installed, ye hear!",
-          "setupMode": "Setup mode, savvy?",
-          "setupModeDesc": "When enabled, this version has no launch command, and merely runs the executable on the crew's computer. Useful for games that only give installers and not portable files, argh!",
-          "setupPlaceholder": "setup.exe, aye!",
-          "umuLauncherId": "UMU Launcher ID",
-          "umuOverride": "Override UMU Launcher Game ID",
-          "umuOverrideDesc": "By default, Drop uses a non-ID when launchin' with UMU Launcher. To get the right patches for some games, ye might have to set this field by hand, savvy.",
-          "updateMode": "Update mode, argh!",
-          "updateModeDesc": "When enabled, these files will be installed atop (overwritin') the previous version's. If many 'update modes' be chained together, they be applied in order, ye hear!",
-          "version": "Pick version to import"
+    "account": {
+        "devices": {
+            "capabilities": "Aye, yer Capabilities",
+            "lastConnected": "Last Linked",
+            "noDevices": "No contraptions tied to yer coffers, eh?",
+            "platform": "Ship",
+            "revoke": "Scuttle 'em",
+            "subheader": "Manage the contraptions allowed access to yer Drop booty.",
+            "title": "Contraptions"
         },
-        "withoutMetadata": "Import without charts"
-      },
-      "metadataProvider": "Charts Provider",
-      "noGames": "No plunder imported, savvy!",
-      "openEditor": "Open in Editor {arrow}",
-      "openStore": "Open in Store, argh!",
-      "shortDesc": "Short Description",
-      "version": {
-        "noVersions": "Ye have no versions of this plunder available, ye dog!",
-        "noVersionsAdded": "no versions added, argh!",
-        "delta": "Upgrade mode"
-      },
-      "game": {
-        "imageCarousel": "Image Carousel",
-        "imageCarouselDescription": "Customize what images and what order be shown on the store page, savvy.",
-        "addImageCarousel": "Add from image treasure hoard",
-        "imageCarouselEmpty": "No images added to the carousel yet, argh.",
-        "removeImageCarousel": "Remove image",
-        "addCarouselNoImages": "No images to add, ye dog.",
-        "imageLibrary": "Image treasure hoard",
-        "imageLibraryDescription": "Please note all images hoisted be accessible to all crew through browser dev-tools, savvy.",
-        "setBanner": "Set as banner",
-        "setCover": "Set as cover",
-        "deleteImage": "Scuttle image",
-        "currentBanner": "banner",
-        "currentCover": "cover",
-        "addDescriptionNoImages": "No images to add, argh.",
-        "editGameName": "Plunder Name",
-        "editGameDescription": "Plunder Description"
-      },
-      "sources": {
-        "create": "Forge source",
-        "createDesc": "Drop will use this source to get to yer game treasure hoard, and make 'em available, argh.",
-        "desc": "Rig yer treasure hoard sources, where Drop will look for new plunder and versions to import, savvy.",
-        "fsDesc": "Imports games from a path on disk. Needs version-based folder structure, and backs archived games, ye hear!",
-        "fsPath": "Path",
-        "fsPathDesc": "An absolute path to yer game treasure hoard.",
-        "fsPathPlaceholder": "/mnt/games, aye!",
-        "link": "Sources {arrow}",
-        "nameDesc": "The name of yer source, for yer own reckonin', argh.",
-        "namePlaceholder": "My New Source, savvy?",
-        "sources": "Treasure Hoard Sources",
-        "typeDesc": "The type of yer source. Changes the demanded options, ye dog!",
-        "working": "Workin', eh?"
-      },
-      "subheader": "As ye add folders to yer treasure hoard sources, Drop will find 'em and ask ye to import 'em. Each game needs to be imported before ye can import a version, savvy.",
-      "title": "Treasure Hoards",
-      "versionPriority": "Version priority"
+        "notifications": {
+            "all": "Gaze upon all {arrow}",
+            "desc": "View and manage yer messages from the crows' nest.",
+            "markAllAsRead": "Mark all as read, aye!",
+            "markAsRead": "Mark as read, matey!",
+            "none": "No messages, savvy?",
+            "notifications": "Crows' Nest",
+            "title": "Messages from the Crows' Nest",
+            "unread": "Unread Messages"
+        },
+        "settings": "Account Settings, savvy?",
+        "title": "Yer Own Coffer"
     },
-    "back": "Aft to Treasure Hoard",
-    "collection": {
-      "addToNew": "Add to new collection",
-      "collections": "Collections",
-      "create": "Forge Collection",
-      "createDesc": "Collections can be used to sort yer plunder and find 'em easier, especially if ye have a grand treasure hoard, argh!",
-      "delete": "Scuttle Collection",
-      "namePlaceholder": "Collection name, matey!",
-      "noCollections": "No collections, savvy!",
-      "notFound": "Collection not found, argh!",
-      "subheader": "Add a new collection to sort yer plunder",
-      "title": "Collection"
+    "actions": "Deeds",
+    "adminTitle": "Cap'n's Quarters | Drop",
+    "adminTitleTemplate": "{0} | Cap'n | Drop",
+    "title": "Drop",
+    "titleTemplate": "{0} | Drop",
+    "auth": {
+        "callback": {
+            "authClient": "Grant passage to this scallywag?",
+            "authorize": "Grant Passage",
+            "authorizedClient": "Drop has granted passage to the scallywag. Ye may now shut this porthole.",
+            "issues": "Troubles be brewin', matey?",
+            "learn": "Learn more {arrow}",
+            "paste": "Scribble this code into the scallywag to carry on:",
+            "permWarning": "Grantin' this request allows \"{name}\" on \"{platform}\" to:",
+            "requestedAccess": "\"{name}\" has requested passage to yer Drop coffer.",
+            "success": "Shiver me timbers, it worked!"
+        },
+        "confirmPassword": "Confirm @:auth.password",
+        "displayName": "Yer Scallywag Name",
+        "email": "Salty Mail",
+        "password": "Secret Word",
+        "register": {
+            "confirmPasswordFormat": "Must be the same as above, savvy?",
+            "emailFormat": "Must be in the fashion of a true scallywag {'@'} example.com",
+            "passwordFormat": "Must be 14 or more marks, ye landlubber!",
+            "subheader": "Fill in yer details below to make yer mark.",
+            "title": "Forge yer Drop Mark",
+            "usernameFormat": "Must be 5 or more marks, and all lowercase, argh!"
+        },
+        "signin": {
+            "externalProvider": "Sign in with another ship's captain {arrow}",
+            "forgot": "Forgot yer secret word, eh?",
+            "noAccount": "No mark in the logbook? Beg a cap'n to make ye one, argh!",
+            "or": "OR",
+            "pageTitle": "Sign in to Drop, ye dog!",
+            "rememberMe": "Remember me, savvy?",
+            "signin": "Sign in, ye scurvy dog!",
+            "title": "Sign in to yer mark"
+        },
+        "signout": "Cast off!",
+        "username": "Scallywag Name"
     },
-    "gameCount": "{0} plunder | {0} plunder | {0} plunder",
-    "inLib": "In Treasure Hoard",
-    "launcherOpen": "Open in Launcher, argh!",
-    "noGames": "No plunder in treasure hoard, savvy!",
-    "notFound": "Plunder not found, matey!",
-    "search": "Search treasure hoard, ye dog...",
-    "subheader": "Sort yer plunder into collections for easy access, and get to all yer plunder, savvy!"
-  },
-  "tasks": {
-    "admin": {
-      "scheduled": {
-        "cleanupInvitationsName": "Clean up invitations",
-        "cleanupInvitationsDescription": "Cleans up expired invitations from the logbook to save space, savvy.",
-        "cleanupObjectsName": "Clean up objects",
-        "cleanupObjectsDescription": "Finds and scuttles unreferenced and unused objects to save space, argh.",
-        "cleanupSessionsName": "Clean up sessions.",
-        "cleanupSessionsDescription": "Cleans up expired sessions to save space and keep ye safe, ye dog!",
-        "checkUpdateName": "Check for new charts.",
-        "checkUpdateDescription": "Check if Drop has new charts."
-      },
-      "runningTasksTitle": "Duties underway",
-      "noTasksRunning": "No duties currently underway",
-      "completedTasksTitle": "Duties completed",
-      "dailyScheduledTitle": "Daily scheduled duties",
-      "viewTask": "View {arrow}",
-      "back": "{arrow} Aft to Duties"
-    }
-  },
-  "lowest": "lowest",
-  "name": "Name, argh!",
-  "news": {
-    "article": {
-      "add": "Add, ye dog!",
-      "content": "Content (Markdown), savvy!",
-      "create": "Forge New Article",
-      "editor": "Editor",
-      "editorGuide": "Use the quick ways above or scribble Markdown directly. Backs **bold**, *italic*, [links](url), and more, argh!",
-      "new": "New article, savvy!",
-      "preview": "Preview, matey!",
-      "shortDesc": "Short description",
-      "submit": "Submit, ye scurvy dog!",
-      "tagPlaceholder": "Add a mark, ye dog...",
-      "titles": "Title, argh!",
-      "uploadCover": "Hoist cover image"
+    "cancel": "Belay that!",
+    "chars": {
+        "arrow": "→",
+        "arrowBack": "←",
+        "quoted": "\"\"",
+        "srComma": ", {0}"
     },
-    "back": "Aft to News",
-    "checkLater": "Check back later for new charts, matey!",
-    "delete": "Scuttle Article",
-    "filter": {
-      "all": "All time, savvy!",
-      "month": "This moon",
-      "week": "This week",
-      "year": "This year, argh!"
+    "close": "Shut yer trap!",
+    "common": {
+        "cannotUndo": "This deed cannot be undone, ye hear!",
+        "date": "Date",
+        "deleteConfirm": "Are ye sure ye want to scuttle \"{0}\", ye rogue?",
+        "friends": "Shipmates",
+        "groups": "Crews",
+        "noResults": "No plunder found!",
+        "servers": "Ships",
+        "tags": "Marks",
+        "today": "Today",
+        "divider": "{'|'}",
+        "srLoading": "Loading, loading, argh..."
     },
-    "none": "No articles, savvy!",
-    "notFound": "Article not found, matey!",
-    "search": "Search articles, ye dog!",
-    "searchPlaceholder": "Search articles, argh...",
-    "subheader": "Stay up to date with the latest charts and announcements, savvy!",
-    "title": "Latest News from the High Seas"
-  },
-  "options": "Options, matey!",
-  "save": "Stow it!",
-  "add": "Add",
-  "insert": "Insert",
-  "security": "Safety",
-  "settings": "Settings",
-  "store": {
-    "commingSoon": "comin' soon, argh!",
-    "exploreMore": "Explore more {arrow}, ye dog!",
-    "images": "Plunder Images",
-    "lookAt": "Look at it, ye scurvy dog!",
-    "noGame": "no plunder",
-    "noImages": "No images, savvy!",
-    "openAdminDashboard": "Open in Cap'n's Quarters",
-    "platform": "Ship | Ship | Ships",
-    "rating": "Rating, argh!",
-    "readLess": "Click to read less, matey!",
-    "readMore": "Click to read more, ye dog!",
-    "recentlyAdded": "Recently Added Plunder",
-    "recentlyReleased": "Recently set sail",
-    "recentlyUpdated": "Recently Updated",
-    "released": "Released, argh!",
-    "reviews": "({0} Sea Tales)",
-    "title": "Store",
-    "view": "View in Store"
-  },
-  "type": "Type",
-  "upload": "Hoist!",
-  "uploadFile": "Hoist file",
-  "userHeader": {
-    "closeSidebar": "Close side-hatch!",
-    "links": {
-      "community": "Shipmates",
-      "library": "Treasure Hoard",
-      "news": "News from the High Seas"
+    "create": "Forge!",
+    "delete": "Scuttle!",
+    "drop": {
+        "desc": "An open-source game distribution platform built for speed, flexibility and beauty, like a swift brigantine!",
+        "drop": "Drop"
     },
-    "profile": {
-      "admin": "Cap'n's Quarters",
-      "settings": "Account settings, savvy!"
-    }
-  },
-  "todo": "Todo, argh!",
-  "selectLanguage": "Pick yer tongue",
-  "helpUsTranslate": "Help us translate Drop {arrow}, argh!",
-  "welcome": "Ahoy, Welcome!"
+    "edit": "Amend",
+    "editor": {
+        "bold": "Bold, like a cannonball!",
+        "boldPlaceholder": "bold text, matey",
+        "code": "Code, ye scallywag!",
+        "codePlaceholder": "code, argh!",
+        "heading": "Heading, to the horizon!",
+        "headingPlaceholder": "heading, savvy?",
+        "italic": "Italic, like a wobbly deck!",
+        "italicPlaceholder": "italic text, arrr!",
+        "link": "Link, a chain to adventure!",
+        "linkPlaceholder": "link text, ye dog!",
+        "listItem": "List Item, for yer plunder!",
+        "listItemPlaceholder": "list item, eh?"
+    },
+    "errors": {
+        "backHome": "{arrow} Back to yer safe harbor",
+        "invalidBody": "Invalid request, ye barnacle-encrusted body: {0}",
+        "inviteRequired": "Invitation demanded to sign up, ye landlubber.",
+        "library": {
+            "add": {
+                "desc": "Drop couldn't add this game to yer treasure hoard: {0}",
+                "title": "Failed to add game to yer treasure hoard"
+            },
+            "collection": {
+                "create": {
+                    "desc": "Drop couldn't forge yer collection, argh: {0}",
+                    "title": "Failed to forge collection"
+                }
+            },
+            "source": {
+                "delete": {
+                    "desc": "Drop couldn't scuttle this source: {0}",
+                    "title": "Failed to scuttle treasure hoard source"
+                }
+            }
+        },
+        "news": {
+            "article": {
+                "delete": {
+                    "desc": "Drop couldn't scuttle this article: {0}",
+                    "title": "Failed to scuttle article"
+                }
+            }
+        },
+        "occurred": "An error occurred whilst answerin' yer plea. If ye believe this be a bug, report it, ye dog! Try signin' in and see if it clears the decks.",
+        "ohNo": "Blimey!",
+        "pageTitle": "{0} | Drop",
+        "revokeClient": "Failed to scuttle scallywag",
+        "revokeClientFull": "Failed to scuttle scallywag {0}",
+        "signIn": "Sign in {arrow}, ye scurvy dog!",
+        "support": "Support Discord, arrr!",
+        "unknown": "An unknown blunder occurred, savvy?",
+        "version": {
+            "delete": {
+                "desc": "Drop met a squall whilst scuttlin' the version: {error}",
+                "title": "There was a squall whilst scuttlin' the version"
+            },
+            "order": {
+                "desc": "Drop met a squall whilst updatin' the version: {error}",
+                "title": "There was a squall whilst updatin' the version order"
+            }
+        },
+        "upload": {
+            "title": "Failed to hoist the file",
+            "description": "Drop couldn't hoist the file: {0}"
+        },
+        "game": {
+            "metadata": {
+                "title": "Failed to update yer charts",
+                "description": "Drop failed to update the game's charts: {0}"
+            },
+            "description": {
+                "title": "Failed to update game description",
+                "description": "Drop failed to update the game description: {0}"
+            },
+            "banner": {
+                "title": "Failed to hoist the banner image",
+                "description": "Drop failed to hoist the banner image: {0}"
+            },
+            "cover": {
+                "title": "Failed to hoist the cover image",
+                "description": "Drop failed to hoist the cover image: {0}"
+            },
+            "deleteImage": {
+                "title": "Failed to scuttle the image",
+                "description": "Drop failed to scuttle the image: {0}"
+            },
+            "carousel": {
+                "title": "Failed to update image carousel",
+                "description": "Drop failed to update the image carousel: {0}"
+            }
+        }
+    },
+    "footer": {
+        "about": "About, savvy?",
+        "aboutDrop": "About Drop, argh!",
+        "docs": {
+            "client": "Scallywag's Docs",
+            "server": "Cap'n's Docs"
+        },
+        "documentation": "Charts and Scrolls",
+        "comparison": "Comparison, matey!",
+        "findGame": "Find a Game, ye dog!",
+        "footer": "Keel",
+        "games": "Games",
+        "social": {
+            "discord": "Discord, argh!",
+            "github": "GitHub, savvy?"
+        },
+        "topSellers": "Top Plunderers"
+    },
+    "header": {
+        "admin": {
+            "admin": "Cap'n",
+            "tasks": "Duties",
+            "users": "Crew"
+        },
+        "back": "Aft!",
+        "openSidebar": "Open the side-hatch!"
+    },
+    "highest": "highest",
+    "home": "Home Port",
+    "users": {
+        "admin": {
+            "description": "Manage the crew on yer Drop vessel, and set yer passage methods, savvy?",
+            "authLink": "Passage {arrow}",
+            "displayNameHeader": "Scallywag Name",
+            "usernameHeader": "Crew Name",
+            "emailHeader": "Salty Mail",
+            "adminHeader": "Cap'n, eh?",
+            "authoptionsHeader": "Passage Options",
+            "srEditLabel": "Amend",
+            "adminUserLabel": "Cap'n of the crew",
+            "normalUserLabel": "Common crewman",
+            "authentication": {
+                "title": "Passage",
+                "description": "Drop backs many 'passage ways'. As ye enable or disable 'em, they show on the sign-in screen for the crew to pick. Click the dot menu to rig the passage way.",
+                "enabledKey": "Enabled, argh?",
+                "enabled": "Enabled",
+                "disabled": "Disabled",
+                "srOpenOptions": "Open options",
+                "configure": "Rig",
+                "simple": "Simple (crew name/secret word)",
+                "oidc": "OpenID Connect, savvy?"
+            },
+            "simple": {
+                "title": "Simple passage",
+                "description": "Simple passage uses a system of 'invitations' to create crew. Ye can forge an invitation, and optionally name a crew name or salty mail for the crew, then it'll make a magic scroll that can be used to make a mark.",
+                "invitationTitle": "Invitations",
+                "createInvitation": "Forge Invitation",
+                "noUsernameEnforced": "No crew name forced, argh.",
+                "noEmailEnforced": "No salty mail forced, matey.",
+                "adminInvitation": "Cap'n's Invitation",
+                "userInvitation": "Crewman's Invitation",
+                "expires": "Expires: {expiry}",
+                "neverExpires": "Never expires, savvy.",
+                "noInvitations": "No invitations, argh.",
+                "inviteTitle": "Invite crew to Drop",
+                "inviteDescription": "Drop will make a scroll ye can send to the scallywag ye want to invite. Ye can optionally name a crew name or salty mail for them to use.",
+                "inviteUsernameLabel": "Crew Name (optional)",
+                "inviteUsernameFormat": "Must be 5 or more marks",
+                "inviteUsernamePlaceholder": "myScallywagName",
+                "inviteEmailLabel": "Salty mail address (optional)",
+                "inviteEmailDescription": "Must be in the fashion of a scallywag {'@'} example.com",
+                "inviteEmailPlaceholder": "me{'@'}example.com",
+                "inviteAdminSwitchLabel": "Cap'n's invitation",
+                "inviteAdminSwitchDescription": "Make this crewman a cap'n, argh!",
+                "inviteExpiryLabel": "Expires",
+                "inviteButton": "Invite, ye dog!",
+                "invite3Days": "3 suns",
+                "inviteWeek": "1 week",
+                "inviteMonth": "1 moon",
+                "invite6Months": "6 moons",
+                "inviteYear": "1 year",
+                "inviteNever": "Never"
+            }
+        }
+    },
+    "library": {
+        "addGames": "All Plunder",
+        "addToLib": "Add to Yer Treasure Hoard",
+        "admin": {
+            "detectedGame": "Drop has found new plunder to import, argh!",
+            "detectedVersion": "Drop has found new versions of this plunder to import, savvy!",
+            "gameLibrary": "Game Treasure Hoard",
+            "import": {
+                "import": "Import, ye dog!",
+                "link": "Import {arrow}",
+                "loading": "Loadin' plunder results, arrr...",
+                "search": "Search",
+                "searchPlaceholder": "Fallout 4, savvy?",
+                "selectDir": "Pick a directory, ye landlubber...",
+                "selectGame": "Pick plunder to import",
+                "selectGamePlaceholder": "Pick a game, ye dog...",
+                "selectGameSearch": "Pick game",
+                "selectPlatform": "Pick a ship, ye scallywag...",
+                "version": {
+                    "advancedOptions": "Advanced options, savvy?",
+                    "import": "Import version",
+                    "installDir": "(install_dir)/",
+                    "launchCmd": "Launch executable/command, argh!",
+                    "launchDesc": "Executable to launch the game, matey!",
+                    "launchPlaceholder": "game.exe, aye!",
+                    "loadingVersion": "Loading version charts...",
+                    "noAdv": "No advanced options for this rig, argh.",
+                    "noVersions": "No versions to import, savvy!",
+                    "platform": "Ship type",
+                    "setupCmd": "Setup executable/command",
+                    "setupDesc": "Ran once when the game is installed, ye hear!",
+                    "setupMode": "Setup mode, savvy?",
+                    "setupModeDesc": "When enabled, this version has no launch command, and merely runs the executable on the crew's computer. Useful for games that only give installers and not portable files, argh!",
+                    "setupPlaceholder": "setup.exe, aye!",
+                    "umuLauncherId": "UMU Launcher ID",
+                    "umuOverride": "Override UMU Launcher Game ID",
+                    "umuOverrideDesc": "By default, Drop uses a non-ID when launchin' with UMU Launcher. To get the right patches for some games, ye might have to set this field by hand, savvy.",
+                    "updateMode": "Update mode, argh!",
+                    "updateModeDesc": "When enabled, these files will be installed atop (overwritin') the previous version's. If many 'update modes' be chained together, they be applied in order, ye hear!",
+                    "version": "Pick version to import"
+                },
+                "withoutMetadata": "Import without charts"
+            },
+            "metadataProvider": "Charts Provider",
+            "noGames": "No plunder imported, savvy!",
+            "openEditor": "Open in Editor {arrow}",
+            "openStore": "Open in Store, argh!",
+            "shortDesc": "Short Description",
+            "version": {
+                "noVersions": "Ye have no versions of this plunder available, ye dog!",
+                "noVersionsAdded": "no versions added, argh!",
+                "delta": "Upgrade mode"
+            },
+            "game": {
+                "imageCarousel": "Image Carousel",
+                "imageCarouselDescription": "Customize what images and what order be shown on the store page, savvy.",
+                "addImageCarousel": "Add from image treasure hoard",
+                "imageCarouselEmpty": "No images added to the carousel yet, argh.",
+                "removeImageCarousel": "Remove image",
+                "addCarouselNoImages": "No images to add, ye dog.",
+                "imageLibrary": "Image treasure hoard",
+                "imageLibraryDescription": "Please note all images hoisted be accessible to all crew through browser dev-tools, savvy.",
+                "setBanner": "Set as banner",
+                "setCover": "Set as cover",
+                "deleteImage": "Scuttle image",
+                "currentBanner": "banner",
+                "currentCover": "cover",
+                "addDescriptionNoImages": "No images to add, argh.",
+                "editGameName": "Plunder Name",
+                "editGameDescription": "Plunder Description"
+            },
+            "sources": {
+                "create": "Forge source",
+                "createDesc": "Drop will use this source to get to yer game treasure hoard, and make 'em available, argh.",
+                "desc": "Rig yer treasure hoard sources, where Drop will look for new plunder and versions to import, savvy.",
+                "fsDesc": "Imports games from a path on disk. Needs version-based folder structure, and backs archived games, ye hear!",
+                "fsPath": "Path",
+                "fsPathDesc": "An absolute path to yer game treasure hoard.",
+                "fsPathPlaceholder": "/mnt/games, aye!",
+                "link": "Sources {arrow}",
+                "nameDesc": "The name of yer source, for yer own reckonin', argh.",
+                "namePlaceholder": "My New Source, savvy?",
+                "sources": "Treasure Hoard Sources",
+                "typeDesc": "The type of yer source. Changes the demanded options, ye dog!",
+                "working": "Workin', eh?"
+            },
+            "subheader": "As ye add folders to yer treasure hoard sources, Drop will find 'em and ask ye to import 'em. Each game needs to be imported before ye can import a version, savvy.",
+            "title": "Treasure Hoards",
+            "versionPriority": "Version priority"
+        },
+        "back": "Aft to Treasure Hoard",
+        "collection": {
+            "addToNew": "Add to new collection",
+            "collections": "Collections",
+            "create": "Forge Collection",
+            "createDesc": "Collections can be used to sort yer plunder and find 'em easier, especially if ye have a grand treasure hoard, argh!",
+            "delete": "Scuttle Collection",
+            "namePlaceholder": "Collection name, matey!",
+            "noCollections": "No collections, savvy!",
+            "notFound": "Collection not found, argh!",
+            "subheader": "Add a new collection to sort yer plunder",
+            "title": "Collection"
+        },
+        "gameCount": "{0} plunder | {0} plunder | {0} plunder",
+        "inLib": "In Treasure Hoard",
+        "launcherOpen": "Open in Launcher, argh!",
+        "noGames": "No plunder in treasure hoard, savvy!",
+        "notFound": "Plunder not found, matey!",
+        "search": "Search treasure hoard, ye dog...",
+        "subheader": "Sort yer plunder into collections for easy access, and get to all yer plunder, savvy!"
+    },
+    "tasks": {
+        "admin": {
+            "scheduled": {
+                "cleanupInvitationsName": "Clean up invitations",
+                "cleanupInvitationsDescription": "Cleans up expired invitations from the logbook to save space, savvy.",
+                "cleanupObjectsName": "Clean up objects",
+                "cleanupObjectsDescription": "Finds and scuttles unreferenced and unused objects to save space, argh.",
+                "cleanupSessionsName": "Clean up sessions.",
+                "cleanupSessionsDescription": "Cleans up expired sessions to save space and keep ye safe, ye dog!",
+                "checkUpdateName": "Check for new charts.",
+                "checkUpdateDescription": "Check if Drop has new charts."
+            },
+            "runningTasksTitle": "Duties underway",
+            "noTasksRunning": "No duties currently underway",
+            "completedTasksTitle": "Duties completed",
+            "dailyScheduledTitle": "Daily scheduled duties",
+            "viewTask": "View {arrow}",
+            "back": "{arrow} Aft to Duties"
+        }
+    },
+    "lowest": "lowest",
+    "name": "Name, argh!",
+    "news": {
+        "article": {
+            "add": "Add, ye dog!",
+            "content": "Content (Markdown), savvy!",
+            "create": "Forge New Article",
+            "editor": "Editor",
+            "editorGuide": "Use the quick ways above or scribble Markdown directly. Backs **bold**, *italic*, [links](url), and more, argh!",
+            "new": "New article, savvy!",
+            "preview": "Preview, matey!",
+            "shortDesc": "Short description",
+            "submit": "Submit, ye scurvy dog!",
+            "tagPlaceholder": "Add a mark, ye dog...",
+            "titles": "Title, argh!",
+            "uploadCover": "Hoist cover image"
+        },
+        "back": "Aft to News",
+        "checkLater": "Check back later for new charts, matey!",
+        "delete": "Scuttle Article",
+        "filter": {
+            "all": "All time, savvy!",
+            "month": "This moon",
+            "week": "This week",
+            "year": "This year, argh!"
+        },
+        "none": "No articles, savvy!",
+        "notFound": "Article not found, matey!",
+        "search": "Search articles, ye dog!",
+        "searchPlaceholder": "Search articles, argh...",
+        "subheader": "Stay up to date with the latest charts and announcements, savvy!",
+        "title": "Latest News from the High Seas"
+    },
+    "options": "Options, matey!",
+    "save": "Stow it!",
+    "add": "Add",
+    "insert": "Insert",
+    "security": "Safety",
+    "settings": "Settings",
+    "store": {
+        "commingSoon": "comin' soon, argh!",
+        "exploreMore": "Explore more {arrow}, ye dog!",
+        "images": "Plunder Images",
+        "lookAt": "Look at it, ye scurvy dog!",
+        "noGame": "no plunder",
+        "noImages": "No images, savvy!",
+        "openAdminDashboard": "Open in Cap'n's Quarters",
+        "platform": "Ship | Ship | Ships",
+        "rating": "Rating, argh!",
+        "readLess": "Click to read less, matey!",
+        "readMore": "Click to read more, ye dog!",
+        "recentlyAdded": "Recently Added Plunder",
+        "recentlyReleased": "Recently set sail",
+        "recentlyUpdated": "Recently Updated",
+        "released": "Released, argh!",
+        "reviews": "({0} Sea Tales)",
+        "title": "Store",
+        "view": "View in Store"
+    },
+    "type": "Type",
+    "upload": "Hoist!",
+    "uploadFile": "Hoist file",
+    "userHeader": {
+        "closeSidebar": "Close side-hatch!",
+        "links": {
+            "community": "Shipmates",
+            "library": "Treasure Hoard",
+            "news": "News from the High Seas"
+        },
+        "profile": {
+            "admin": "Cap'n's Quarters",
+            "settings": "Account settings, savvy!"
+        }
+    },
+    "todo": "Todo, argh!",
+    "selectLanguage": "Pick yer tongue",
+    "helpUsTranslate": "Help us translate Drop {arrow}, argh!",
+    "welcome": "Ahoy, Welcome!"
 }
