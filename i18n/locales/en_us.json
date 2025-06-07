@@ -409,6 +409,7 @@
       "noTasksRunning": "No tasks currently running",
       "completedTasksTitle": "Completed tasks",
       "dailyScheduledTitle": "Daily scheduled tasks",
+      "weeklyScheduledTitle": "Weekly scheduled tasks",
       "viewTask": "View {arrow}",
       "back": "{arrow} Back to Tasks"
     }

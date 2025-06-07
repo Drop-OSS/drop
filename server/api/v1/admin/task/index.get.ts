@@ -30,6 +30,7 @@ export default defineEventHandler(async (h3) => {
     take: 10,
   });
   const dailyTasks = await taskHandler.dailyTasks();
+  const weeklyTasks = await taskHandler.weeklyTasks();
 
-  return { runningTasks, historicalTasks, dailyTasks };
+  return { runningTasks, historicalTasks, dailyTasks, weeklyTasks };
 });
