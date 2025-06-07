@@ -125,17 +125,22 @@ class TaskHandler {
         }, 100);
       });
 
-    const progress = (progress: number) => {
-      const taskEntry = this.taskPool.get(task.id);
-      if (!taskEntry) return;
-      taskEntry.progress = progress;
-      updateAllClients();
-    };
-
     const log = (entry: string) => {
       const taskEntry = this.taskPool.get(task.id);
       if (!taskEntry) return;
       taskEntry.log.push(msgWithTimestamp(entry));
+      updateAllClients();
+    };
+
+    const progress = (progress: number) => {
+      if (progress < 0 || progress > 100) {
+        console.error("Progress must be between 0 and 100", { progress });
+        return;
+      }
+      const taskEntry = this.taskPool.get(task.id);
+      if (!taskEntry) return;
+      taskEntry.progress = progress;
+      // log(`Progress: ${progress}%`);
       updateAllClients();
     };
 
