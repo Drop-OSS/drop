@@ -64,6 +64,7 @@
                   active ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400',
                   'w-full text-left transition block px-4 py-2 text-sm',
                 ]"
+                :data-comment="'external=true is required because we implemented the signout as a route on the server for performance'"
                 :external="true"
                 @click="close"
               >
