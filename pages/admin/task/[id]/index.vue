@@ -60,7 +60,7 @@
     <div
       v-else
       role="status"
-      class="w-full h-screen flex items-center justify-center"
+      class="w-full flex items-center justify-center"
     >
       <svg
         aria-hidden="true"
