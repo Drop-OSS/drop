@@ -2,6 +2,7 @@
   <footer class="bg-zinc-950" aria-labelledby="footer-heading">
     <h2 id="footer-heading" class="sr-only">{{ $t("footer.footer") }}</h2>
     <div class="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8">
+      <!-- Drop Info -->
       <div class="xl:grid xl:grid-cols-3 xl:gap-8">
         <div class="space-y-8">
           <DropWordmark class="h-10" />
@@ -21,6 +22,8 @@
             </NuxtLink>
           </div>
         </div>
+
+        <!-- Foot links -->
         <div class="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
           <div class="md:grid md:grid-cols-2 md:gap-8">
             <div>
@@ -83,6 +86,21 @@
             </div>
           </div>
         </div>
+
+        <div class="flex items-center justify-center xl:col-span-3 mt-8">
+          <p
+            class="text-xs text-zinc-700 hover:text-zinc-400 transition-colors duration-200 cursor-default select-none"
+          >
+            <i18n-t keypath="footer.version" tag="p" scope="global">
+              <template #version>
+                <span>{{ versionInfo.version }}</span>
+              </template>
+              <template #gitRef>
+                <span>{{ versionInfo.gitRef }}</span>
+              </template>
+            </i18n-t>
+          </p>
+        </div>
       </div>
     </div>
   </footer>
@@ -91,6 +109,8 @@
 <script setup lang="ts">
 import { IconsDiscordLogo, IconsGithubLogo } from "#components";
 const { t } = useI18n();
+
+const versionInfo = await $dropFetch("/api/v1");
 
 const navigation = {
   games: [
