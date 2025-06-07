@@ -57,11 +57,7 @@
         <pre v-for="(line, idx) in task.log" :key="idx">{{ line }}</pre>
       </div>
     </div>
-    <div
-      v-else
-      role="status"
-      class="w-full flex items-center justify-center"
-    >
+    <div v-else role="status" class="w-full flex items-center justify-center">
       <svg
         aria-hidden="true"
         class="size-8 text-transparent animate-spin fill-white"
