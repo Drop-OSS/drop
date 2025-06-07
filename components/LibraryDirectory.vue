@@ -13,7 +13,7 @@
         name="search"
         autocomplete="off"
         class="block w-full rounded-md bg-zinc-900 py-2 pl-9 pr-2 text-sm text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600"
-        placeholder="$t('library.search')"
+        :placeholder="$t('library.search')"
       />
       <MagnifyingGlassIcon
         class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400"

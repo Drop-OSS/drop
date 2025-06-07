@@ -54,7 +54,6 @@
             </transition>
           </Menu>
         </li>
-        <UserHeaderSelectLang />
         <UserHeaderUserWidget />
       </ol>
     </div>
@@ -176,9 +175,7 @@
                     </UserHeaderWidget>
                   </li>
                   <li class="w-full">
-                    <UserHeaderWidget class="w-full">
-                      <UserHeaderSelectLang />
-                    </UserHeaderWidget>
+                    <UserHeaderWidget class="w-full" />
                   </li>
                 </div>
               </nav>
