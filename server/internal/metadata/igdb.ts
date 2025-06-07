@@ -13,6 +13,7 @@ import type { AxiosRequestConfig } from "axios";
 import axios from "axios";
 import { DateTime } from "luxon";
 import * as jdenticon from "jdenticon";
+import type { TaskRunContext } from "../tasks";
 
 type IGDBID = number;
 
@@ -345,107 +346,125 @@ export class IGDBProvider implements MetadataProvider {
 
     return results;
   }
-  async fetchGame({
-    id,
-    publisher,
-    developer,
-    createObject,
-  }: _FetchGameMetadataParams): Promise<GameMetadata> {
+  async fetchGame(
+    { id, publisher, developer, createObject }: _FetchGameMetadataParams,
+    context?: TaskRunContext,
+  ): Promise<GameMetadata> {
     const body = `where id = ${id}; fields *;`;
-    const response = await this.request<IGDBGameFull>("games", body);
+    const currentGame = (await this.request<IGDBGameFull>("games", body)).at(0);
+    if (!currentGame) throw new Error("No game found on IGDB with that id");
 
-    for (let i = 0; i < response.length; i++) {
-      const currentGame = response[i];
-      if (!currentGame) continue;
+    context?.log("Using IDGB provider.");
 
-      let iconRaw;
-      const cover = currentGame.cover;
-      if (cover !== undefined) {
-        iconRaw = await this.getCoverURL(cover);
-      } else {
-        iconRaw = jdenticon.toPng(id, 512);
+    let iconRaw;
+    const cover = currentGame.cover;
+
+    if (cover !== undefined) {
+      context?.log("Found cover URL, using...");
+      iconRaw = await this.getCoverURL(cover);
+    } else {
+      context?.log("Missing cover URL, using fallback...");
+      iconRaw = jdenticon.toPng(id, 512);
+    }
+
+    const icon = createObject(iconRaw);
+    let banner;
+
+    const images = [icon];
+    for (const art of currentGame.artworks ?? []) {
+      const objectId = createObject(await this.getArtworkURL(art));
+      if (!banner) {
+        banner = objectId;
       }
-      const icon = createObject(iconRaw);
-      let banner = "";
+      images.push(objectId);
+    }
 
-      const images = [icon];
-      for (const art of currentGame.artworks ?? []) {
-        // if banner not set
-        if (banner.length <= 0) {
-          banner = createObject(await this.getArtworkURL(art));
-          images.push(banner);
-        } else {
-          images.push(createObject(await this.getArtworkURL(art)));
-        }
-      }
+    if (!banner) {
+      banner = createObject(jdenticon.toPng(id, 512));
+    }
 
-      const publishers: Company[] = [];
-      const developers: Company[] = [];
-      for (const involvedCompany of currentGame.involved_companies ?? []) {
-        // get details about the involved company
-        const involved_company_response =
-          await this.request<IGDBInvolvedCompany>(
-            "involved_companies",
-            `where id = ${involvedCompany}; fields *;`,
+    context?.progress(20);
+
+    const publishers: Company[] = [];
+    const developers: Company[] = [];
+    for (const involvedCompany of currentGame.involved_companies ?? []) {
+      // get details about the involved company
+      const involved_company_response = await this.request<IGDBInvolvedCompany>(
+        "involved_companies",
+        `where id = ${involvedCompany}; fields *;`,
+      );
+      for (const foundInvolved of involved_company_response) {
+        // now we need to get the actual company so we can get the name
+        const findCompanyResponse = await this.request<
+          { name: string } & IGDBItem
+        >("companies", `where id = ${foundInvolved.company}; fields name;`);
+
+        for (const company of findCompanyResponse) {
+          context?.log(
+            `Found involved company "${company.name}" as: ${foundInvolved.developer ? "developer, " : ""}${foundInvolved.publisher ? "publisher" : ""}`,
           );
-        for (const foundInvolved of involved_company_response) {
-          // now we need to get the actual company so we can get the name
-          const findCompanyResponse = await this.request<
-            { name: string } & IGDBItem
-          >("companies", `where id = ${foundInvolved.company}; fields name;`);
 
-          for (const company of findCompanyResponse) {
-            // if company was a dev or publisher
-            // CANNOT use else since a company can be both
-            if (foundInvolved.developer) {
-              const res = await developer(company.name);
-              if (res === undefined) continue;
-              developers.push(res);
-            }
-            if (foundInvolved.publisher) {
-              const res = await publisher(company.name);
-              if (res === undefined) continue;
-              publishers.push(res);
-            }
+          // if company was a dev or publisher
+          // CANNOT use else since a company can be both
+          if (foundInvolved.developer) {
+            const res = await developer(company.name);
+            if (res === undefined) continue;
+            developers.push(res);
+          }
+
+          if (foundInvolved.publisher) {
+            const res = await publisher(company.name);
+            if (res === undefined) continue;
+            publishers.push(res);
           }
         }
       }
-
-      const firstReleaseDate = currentGame.first_release_date;
-
-      return {
-        id: "" + response[i].id,
-        name: response[i].name,
-        shortDescription: this.trimMessage(currentGame.summary, 280),
-        description: currentGame.summary,
-        released:
-          firstReleaseDate === undefined
-            ? new Date()
-            : DateTime.fromSeconds(firstReleaseDate).toJSDate(),
-
-        reviews: [
-          {
-            metadataId: "" + currentGame.id,
-            metadataSource: MetadataSource.IGDB,
-            mReviewCount: currentGame.total_rating_count ?? 0,
-            mReviewRating: (currentGame.total_rating ?? 0) / 100,
-            mReviewHref: currentGame.url,
-          },
-        ],
-
-        publishers: [],
-        developers: [],
-
-        tags: await this.getGenres(currentGame.genres),
-
-        icon,
-        bannerId: banner,
-        coverId: icon,
-        images,
-      };
     }
 
-    throw new Error("No game found on igdb with that id");
+    context?.progress(80);
+
+    const firstReleaseDate = currentGame.first_release_date;
+    const released =
+      firstReleaseDate === undefined
+        ? new Date()
+        : DateTime.fromSeconds(firstReleaseDate).toJSDate();
+
+    const review = {
+      metadataId: currentGame.id.toString(),
+      metadataSource: MetadataSource.IGDB,
+      mReviewCount: currentGame.total_rating_count ?? 0,
+      mReviewRating: (currentGame.total_rating ?? 0) / 100,
+      mReviewHref: currentGame.url,
+    };
+
+    const tags = await this.getGenres(currentGame.genres);
+
+    const deck = this.trimMessage(currentGame.summary, 280);
+
+    const metadata = {
+      id: currentGame.id.toString(),
+      name: currentGame.name,
+      shortDescription: deck,
+      description: currentGame.summary,
+      released,
+
+      reviews: [review],
+
+      publishers,
+      developers,
+
+      tags,
+
+      icon,
+      bannerId: banner,
+      coverId: icon,
+      images,
+    };
+
+    context?.log("IGDB provider finished.");
+    context?.progress(100);
+
+    return metadata;
   }
   async fetchCompany({
     query,
