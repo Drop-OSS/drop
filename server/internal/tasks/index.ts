@@ -135,8 +135,7 @@ class TaskHandler {
     const log = (entry: string) => {
       const taskEntry = this.taskPool.get(task.id);
       if (!taskEntry) return;
-      taskEntry.log.push(entry);
-      // console.log(`[Task ${task.taskGroup}]: ${entry}`);
+      taskEntry.log.push(msgWithTimestamp(entry));
       updateAllClients();
     };
 
@@ -396,6 +395,30 @@ export interface BuildTask {
 interface DropTask {
   taskGroup: TaskGroup;
   build: () => Task;
+}
+
+/**
+ * Create a log message with a timestamp in the format YYYY-MM-DD HH:mm:ss.SSS UTC
+ * @param message
+ * @returns
+ */
+function msgWithTimestamp(message: string): string {
+  const now = new Date();
+
+  const pad = (n: number, width = 2) => n.toString().padStart(width, "0");
+
+  const year = now.getUTCFullYear();
+  const month = pad(now.getUTCMonth() + 1);
+  const day = pad(now.getUTCDate());
+
+  const hours = pad(now.getUTCHours());
+  const minutes = pad(now.getUTCMinutes());
+  const seconds = pad(now.getUTCSeconds());
+  const milliseconds = pad(now.getUTCMilliseconds(), 3);
+
+  const timestamp = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds} UTC`;
+
+  return `[${timestamp}] ${message}`;
 }
 
 export function defineDropTask(buildTask: BuildTask): DropTask {
