@@ -1,4 +1,5 @@
 import cacheHandler from "~/server/internal/cache";
+import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import prisma from "~/server/internal/db/database";
 import libraryManager from "~/server/internal/library";
 
@@ -9,7 +10,7 @@ const gameLookupCache = cacheHandler.createCache<{
   libraryPath: string;
 }>("downloadGameLookupCache");
 
-export default defineEventHandler(async (h3) => {
+export default defineClientEventHandler(async (h3) => {
   const query = getQuery(h3);
   const gameId = query.id?.toString();
   const versionName = query.version?.toString();
