@@ -11,6 +11,7 @@ import { taskGroups, type TaskGroup } from "./group";
 import prisma from "../db/database";
 import { type } from "arktype";
 import ludusavi from "./registry/ludusavi";
+import prisma from "../db/database";
 
 // a task that has been run
 type FinishedTask = {
