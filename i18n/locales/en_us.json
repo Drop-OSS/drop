@@ -188,14 +188,12 @@
   "footer": {
     "about": "About",
     "aboutDrop": "About Drop",
-    "api": "API",
     "docs": {
       "client": "Client Docs",
       "server": "Server Docs"
     },
     "documentation": "Documentation",
-    "faq": "FAQ",
-    "features": "Features",
+    "comparison": "Comparison",
     "findGame": "Find a Game",
     "footer": "Footer",
     "games": "Games",
