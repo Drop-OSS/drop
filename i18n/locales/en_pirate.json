@@ -23,10 +23,9 @@
     "title": "Yer Own Coffer"
   },
   "actions": "Deeds",
+  "add": "Add",
   "adminTitle": "Cap'n's Quarters | Drop",
   "adminTitleTemplate": "{0} | Cap'n | Drop",
-  "title": "Drop",
-  "titleTemplate": "{0} | Drop",
   "auth": {
     "callback": {
       "authClient": "Grant passage to this scallywag?",
@@ -76,14 +75,14 @@
     "cannotUndo": "This deed cannot be undone, ye hear!",
     "date": "Date",
     "deleteConfirm": "Are ye sure ye want to scuttle \"{0}\", ye rogue?",
+    "divider": "{'|'}",
     "friends": "Shipmates",
     "groups": "Crews",
     "noResults": "No plunder found!",
     "servers": "Ships",
+    "srLoading": "Loading, loading, argh...",
     "tags": "Marks",
-    "today": "Today",
-    "divider": "{'|'}",
-    "srLoading": "Loading, loading, argh..."
+    "today": "Today"
   },
   "create": "Forge!",
   "delete": "Scuttle!",
@@ -108,6 +107,32 @@
   },
   "errors": {
     "backHome": "{arrow} Back to yer safe harbor",
+    "game": {
+      "banner": {
+        "description": "Drop failed to hoist the banner image: {0}",
+        "title": "Failed to hoist the banner image"
+      },
+      "carousel": {
+        "description": "Drop failed to update the image carousel: {0}",
+        "title": "Failed to update image carousel"
+      },
+      "cover": {
+        "description": "Drop failed to hoist the cover image: {0}",
+        "title": "Failed to hoist the cover image"
+      },
+      "deleteImage": {
+        "description": "Drop failed to scuttle the image: {0}",
+        "title": "Failed to scuttle the image"
+      },
+      "description": {
+        "description": "Drop failed to update the game description: {0}",
+        "title": "Failed to update game description"
+      },
+      "metadata": {
+        "description": "Drop failed to update the game's charts: {0}",
+        "title": "Failed to update yer charts"
+      }
+    },
     "invalidBody": "Invalid request, ye barnacle-encrusted body: {0}",
     "inviteRequired": "Invitation demanded to sign up, ye landlubber.",
     "library": {
@@ -144,6 +169,10 @@
     "signIn": "Sign in {arrow}, ye scurvy dog!",
     "support": "Support Discord, arrr!",
     "unknown": "An unknown blunder occurred, savvy?",
+    "upload": {
+      "description": "Drop couldn't hoist the file: {0}",
+      "title": "Failed to hoist the file"
+    },
     "version": {
       "delete": {
         "desc": "Drop met a squall whilst scuttlin' the version: {error}",
@@ -153,47 +182,17 @@
         "desc": "Drop met a squall whilst updatin' the version: {error}",
         "title": "There was a squall whilst updatin' the version order"
       }
-    },
-    "upload": {
-      "title": "Failed to hoist the file",
-      "description": "Drop couldn't hoist the file: {0}"
-    },
-    "game": {
-      "metadata": {
-        "title": "Failed to update yer charts",
-        "description": "Drop failed to update the game's charts: {0}"
-      },
-      "description": {
-        "title": "Failed to update game description",
-        "description": "Drop failed to update the game description: {0}"
-      },
-      "banner": {
-        "title": "Failed to hoist the banner image",
-        "description": "Drop failed to hoist the banner image: {0}"
-      },
-      "cover": {
-        "title": "Failed to hoist the cover image",
-        "description": "Drop failed to hoist the cover image: {0}"
-      },
-      "deleteImage": {
-        "title": "Failed to scuttle the image",
-        "description": "Drop failed to scuttle the image: {0}"
-      },
-      "carousel": {
-        "title": "Failed to update image carousel",
-        "description": "Drop failed to update the image carousel: {0}"
-      }
     }
   },
   "footer": {
     "about": "About, savvy?",
     "aboutDrop": "About Drop, argh!",
+    "comparison": "Comparison, matey!",
     "docs": {
       "client": "Scallywag's Docs",
       "server": "Cap'n's Docs"
     },
     "documentation": "Charts and Scrolls",
-    "comparison": "Comparison, matey!",
     "findGame": "Find a Game, ye dog!",
     "footer": "Keel",
     "games": "Games",
@@ -212,70 +211,34 @@
     "back": "Aft!",
     "openSidebar": "Open the side-hatch!"
   },
+  "helpUsTranslate": "Help us translate Drop {arrow}, argh!",
   "highest": "highest",
   "home": "Home Port",
-  "users": {
-    "admin": {
-      "description": "Manage the crew on yer Drop vessel, and set yer passage methods, savvy?",
-      "authLink": "Passage {arrow}",
-      "displayNameHeader": "Scallywag Name",
-      "usernameHeader": "Crew Name",
-      "emailHeader": "Salty Mail",
-      "adminHeader": "Cap'n, eh?",
-      "authoptionsHeader": "Passage Options",
-      "srEditLabel": "Amend",
-      "adminUserLabel": "Cap'n of the crew",
-      "normalUserLabel": "Common crewman",
-      "authentication": {
-        "title": "Passage",
-        "description": "Drop backs many 'passage ways'. As ye enable or disable 'em, they show on the sign-in screen for the crew to pick. Click the dot menu to rig the passage way.",
-        "enabledKey": "Enabled, argh?",
-        "enabled": "Enabled",
-        "disabled": "Disabled",
-        "srOpenOptions": "Open options",
-        "configure": "Rig",
-        "simple": "Simple (crew name/secret word)",
-        "oidc": "OpenID Connect, savvy?"
-      },
-      "simple": {
-        "title": "Simple passage",
-        "description": "Simple passage uses a system of 'invitations' to create crew. Ye can forge an invitation, and optionally name a crew name or salty mail for the crew, then it'll make a magic scroll that can be used to make a mark.",
-        "invitationTitle": "Invitations",
-        "createInvitation": "Forge Invitation",
-        "noUsernameEnforced": "No crew name forced, argh.",
-        "noEmailEnforced": "No salty mail forced, matey.",
-        "adminInvitation": "Cap'n's Invitation",
-        "userInvitation": "Crewman's Invitation",
-        "expires": "Expires: {expiry}",
-        "neverExpires": "Never expires, savvy.",
-        "noInvitations": "No invitations, argh.",
-        "inviteTitle": "Invite crew to Drop",
-        "inviteDescription": "Drop will make a scroll ye can send to the scallywag ye want to invite. Ye can optionally name a crew name or salty mail for them to use.",
-        "inviteUsernameLabel": "Crew Name (optional)",
-        "inviteUsernameFormat": "Must be 5 or more marks",
-        "inviteUsernamePlaceholder": "myScallywagName",
-        "inviteEmailLabel": "Salty mail address (optional)",
-        "inviteEmailDescription": "Must be in the fashion of a scallywag {'@'} example.com",
-        "inviteEmailPlaceholder": "me{'@'}example.com",
-        "inviteAdminSwitchLabel": "Cap'n's invitation",
-        "inviteAdminSwitchDescription": "Make this crewman a cap'n, argh!",
-        "inviteExpiryLabel": "Expires",
-        "inviteButton": "Invite, ye dog!",
-        "invite3Days": "3 suns",
-        "inviteWeek": "1 week",
-        "inviteMonth": "1 moon",
-        "invite6Months": "6 moons",
-        "inviteYear": "1 year",
-        "inviteNever": "Never"
-      }
-    }
-  },
+  "insert": "Insert",
   "library": {
     "addGames": "All Plunder",
     "addToLib": "Add to Yer Treasure Hoard",
     "admin": {
       "detectedGame": "Drop has found new plunder to import, argh!",
       "detectedVersion": "Drop has found new versions of this plunder to import, savvy!",
+      "game": {
+        "addCarouselNoImages": "No images to add, ye dog.",
+        "addDescriptionNoImages": "No images to add, argh.",
+        "addImageCarousel": "Add from image treasure hoard",
+        "currentBanner": "banner",
+        "currentCover": "cover",
+        "deleteImage": "Scuttle image",
+        "editGameDescription": "Plunder Description",
+        "editGameName": "Plunder Name",
+        "imageCarousel": "Image Carousel",
+        "imageCarouselDescription": "Customize what images and what order be shown on the store page, savvy.",
+        "imageCarouselEmpty": "No images added to the carousel yet, argh.",
+        "imageLibrary": "Image treasure hoard",
+        "imageLibraryDescription": "Please note all images hoisted be accessible to all crew through browser dev-tools, savvy.",
+        "removeImageCarousel": "Remove image",
+        "setBanner": "Set as banner",
+        "setCover": "Set as cover"
+      },
       "gameLibrary": "Game Treasure Hoard",
       "import": {
         "import": "Import, ye dog!",
@@ -318,29 +281,6 @@
       "openEditor": "Open in Editor {arrow}",
       "openStore": "Open in Store, argh!",
       "shortDesc": "Short Description",
-      "version": {
-        "noVersions": "Ye have no versions of this plunder available, ye dog!",
-        "noVersionsAdded": "no versions added, argh!",
-        "delta": "Upgrade mode"
-      },
-      "game": {
-        "imageCarousel": "Image Carousel",
-        "imageCarouselDescription": "Customize what images and what order be shown on the store page, savvy.",
-        "addImageCarousel": "Add from image treasure hoard",
-        "imageCarouselEmpty": "No images added to the carousel yet, argh.",
-        "removeImageCarousel": "Remove image",
-        "addCarouselNoImages": "No images to add, ye dog.",
-        "imageLibrary": "Image treasure hoard",
-        "imageLibraryDescription": "Please note all images hoisted be accessible to all crew through browser dev-tools, savvy.",
-        "setBanner": "Set as banner",
-        "setCover": "Set as cover",
-        "deleteImage": "Scuttle image",
-        "currentBanner": "banner",
-        "currentCover": "cover",
-        "addDescriptionNoImages": "No images to add, argh.",
-        "editGameName": "Plunder Name",
-        "editGameDescription": "Plunder Description"
-      },
       "sources": {
         "create": "Forge source",
         "createDesc": "Drop will use this source to get to yer game treasure hoard, and make 'em available, argh.",
@@ -358,6 +298,11 @@
       },
       "subheader": "As ye add folders to yer treasure hoard sources, Drop will find 'em and ask ye to import 'em. Each game needs to be imported before ye can import a version, savvy.",
       "title": "Treasure Hoards",
+      "version": {
+        "delta": "Upgrade mode",
+        "noVersions": "Ye have no versions of this plunder available, ye dog!",
+        "noVersionsAdded": "no versions added, argh!"
+      },
       "versionPriority": "Version priority"
     },
     "back": "Aft to Treasure Hoard",
@@ -380,26 +325,6 @@
     "notFound": "Plunder not found, matey!",
     "search": "Search treasure hoard, ye dog...",
     "subheader": "Sort yer plunder into collections for easy access, and get to all yer plunder, savvy!"
-  },
-  "tasks": {
-    "admin": {
-      "scheduled": {
-        "cleanupInvitationsName": "Clean up invitations",
-        "cleanupInvitationsDescription": "Cleans up expired invitations from the logbook to save space, savvy.",
-        "cleanupObjectsName": "Clean up objects",
-        "cleanupObjectsDescription": "Finds and scuttles unreferenced and unused objects to save space, argh.",
-        "cleanupSessionsName": "Clean up sessions.",
-        "cleanupSessionsDescription": "Cleans up expired sessions to save space and keep ye safe, ye dog!",
-        "checkUpdateName": "Check for new charts.",
-        "checkUpdateDescription": "Check if Drop has new charts."
-      },
-      "runningTasksTitle": "Duties underway",
-      "noTasksRunning": "No duties currently underway",
-      "completedTasksTitle": "Duties completed",
-      "dailyScheduledTitle": "Daily scheduled duties",
-      "viewTask": "View {arrow}",
-      "back": "{arrow} Aft to Duties"
-    }
   },
   "lowest": "lowest",
   "name": "Name, argh!",
@@ -436,9 +361,8 @@
   },
   "options": "Options, matey!",
   "save": "Stow it!",
-  "add": "Add",
-  "insert": "Insert",
   "security": "Safety",
+  "selectLanguage": "Pick yer tongue",
   "settings": "Settings",
   "store": {
     "commingSoon": "comin' soon, argh!",
@@ -460,6 +384,29 @@
     "title": "Store",
     "view": "View in Store"
   },
+  "tasks": {
+    "admin": {
+      "back": "{arrow} Aft to Duties",
+      "completedTasksTitle": "Duties completed",
+      "dailyScheduledTitle": "Daily scheduled duties",
+      "noTasksRunning": "No duties currently underway",
+      "runningTasksTitle": "Duties underway",
+      "scheduled": {
+        "checkUpdateDescription": "Check if Drop has new charts.",
+        "checkUpdateName": "Check for new charts.",
+        "cleanupInvitationsDescription": "Cleans up expired invitations from the logbook to save space, savvy.",
+        "cleanupInvitationsName": "Clean up invitations",
+        "cleanupObjectsDescription": "Finds and scuttles unreferenced and unused objects to save space, argh.",
+        "cleanupObjectsName": "Clean up objects",
+        "cleanupSessionsDescription": "Cleans up expired sessions to save space and keep ye safe, ye dog!",
+        "cleanupSessionsName": "Clean up sessions."
+      },
+      "viewTask": "View {arrow}"
+    }
+  },
+  "title": "Drop",
+  "titleTemplate": "{0} | Drop",
+  "todo": "Todo, argh!",
   "type": "Type",
   "upload": "Hoist!",
   "uploadFile": "Hoist file",
@@ -475,8 +422,61 @@
       "settings": "Account settings, savvy!"
     }
   },
-  "todo": "Todo, argh!",
-  "selectLanguage": "Pick yer tongue",
-  "helpUsTranslate": "Help us translate Drop {arrow}, argh!",
+  "users": {
+    "admin": {
+      "adminHeader": "Cap'n, eh?",
+      "adminUserLabel": "Cap'n of the crew",
+      "authLink": "Passage {arrow}",
+      "authentication": {
+        "configure": "Rig",
+        "description": "Drop backs many 'passage ways'. As ye enable or disable 'em, they show on the sign-in screen for the crew to pick. Click the dot menu to rig the passage way.",
+        "disabled": "Disabled",
+        "enabled": "Enabled",
+        "enabledKey": "Enabled, argh?",
+        "oidc": "OpenID Connect, savvy?",
+        "simple": "Simple (crew name/secret word)",
+        "srOpenOptions": "Open options",
+        "title": "Passage"
+      },
+      "authoptionsHeader": "Passage Options",
+      "description": "Manage the crew on yer Drop vessel, and set yer passage methods, savvy?",
+      "displayNameHeader": "Scallywag Name",
+      "emailHeader": "Salty Mail",
+      "normalUserLabel": "Common crewman",
+      "simple": {
+        "adminInvitation": "Cap'n's Invitation",
+        "createInvitation": "Forge Invitation",
+        "description": "Simple passage uses a system of 'invitations' to create crew. Ye can forge an invitation, and optionally name a crew name or salty mail for the crew, then it'll make a magic scroll that can be used to make a mark.",
+        "expires": "Expires: {expiry}",
+        "invitationTitle": "Invitations",
+        "invite3Days": "3 suns",
+        "invite6Months": "6 moons",
+        "inviteAdminSwitchDescription": "Make this crewman a cap'n, argh!",
+        "inviteAdminSwitchLabel": "Cap'n's invitation",
+        "inviteButton": "Invite, ye dog!",
+        "inviteDescription": "Drop will make a scroll ye can send to the scallywag ye want to invite. Ye can optionally name a crew name or salty mail for them to use.",
+        "inviteEmailDescription": "Must be in the fashion of a scallywag {'@'} example.com",
+        "inviteEmailLabel": "Salty mail address (optional)",
+        "inviteEmailPlaceholder": "me{'@'}example.com",
+        "inviteExpiryLabel": "Expires",
+        "inviteMonth": "1 moon",
+        "inviteNever": "Never",
+        "inviteTitle": "Invite crew to Drop",
+        "inviteUsernameFormat": "Must be 5 or more marks",
+        "inviteUsernameLabel": "Crew Name (optional)",
+        "inviteUsernamePlaceholder": "myScallywagName",
+        "inviteWeek": "1 week",
+        "inviteYear": "1 year",
+        "neverExpires": "Never expires, savvy.",
+        "noEmailEnforced": "No salty mail forced, matey.",
+        "noInvitations": "No invitations, argh.",
+        "noUsernameEnforced": "No crew name forced, argh.",
+        "title": "Simple passage",
+        "userInvitation": "Crewman's Invitation"
+      },
+      "srEditLabel": "Amend",
+      "usernameHeader": "Crew Name"
+    }
+  },
   "welcome": "Ahoy, Welcome!"
 }

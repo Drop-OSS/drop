@@ -334,7 +334,7 @@ async function importGame(useMetadata: boolean) {
       : undefined;
   const option = games.unimportedGames[currentlySelectedGame.value];
 
-  const game = await $dropFetch("/api/v1/admin/import/game", {
+  const { taskId } = await $dropFetch("/api/v1/admin/import/game", {
     method: "POST",
     body: {
       path: option.game,
@@ -343,7 +343,7 @@ async function importGame(useMetadata: boolean) {
     },
   });
 
-  router.push(`/admin/library/${game.id}`);
+  router.push(`/admin/task/${taskId}`);
 }
 function importGame_wrapper(metadata = true) {
   importLoading.value = true;

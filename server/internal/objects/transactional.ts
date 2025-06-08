@@ -5,6 +5,7 @@ This is used as a utility in metadata handling, so we only fetch the objects if 
 import type { Readable } from "stream";
 import { randomUUID } from "node:crypto";
 import objectHandler from ".";
+import type { TaskRunContext } from "../tasks";
 
 export type TransactionDataType = string | Readable | Buffer;
 type TransactionTable = Map<string, TransactionDataType>; // ID to data
@@ -20,6 +21,7 @@ export class ObjectTransactionalHandler {
   new(
     metadata: { [key: string]: string },
     permissions: Array<string>,
+    context?: TaskRunContext,
   ): [Register, Pull, Dump] {
     const transactionId = randomUUID();
 
@@ -35,7 +37,16 @@ export class ObjectTransactionalHandler {
     const pull = async () => {
       const transaction = this.record.get(transactionId);
       if (!transaction) return;
+
+      let progress = 0;
+      const increment = (1 / transaction.size) * 100;
+
       for (const [id, data] of transaction) {
+        if (typeof data === "string") {
+          context?.log(`Importing object from "${data}"`);
+        } else {
+          context?.log(`Importing raw object...`);
+        }
         await objectHandler.createFromSource(
           id,
           () => {
@@ -47,6 +58,8 @@ export class ObjectTransactionalHandler {
           metadata,
           permissions,
         );
+        progress += increment;
+        context?.progress(progress);
       }
     };
 

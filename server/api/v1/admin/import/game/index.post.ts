@@ -37,10 +37,17 @@ export default defineEventHandler<{ body: typeof ImportGameBody.infer }>(
         statusMessage: "Invalid library or game.",
       });
 
-    if (!metadata) {
-      return await metadataHandler.createGameWithoutMetadata(library, path);
-    } else {
-      return await metadataHandler.createGame(metadata, library, path);
-    }
+    const taskId = metadata
+      ? await metadataHandler.createGame(metadata, library, path)
+      : await metadataHandler.createGameWithoutMetadata(library, path);
+
+    if (!taskId)
+      throw createError({
+        statusCode: 400,
+        statusMessage:
+          "Duplicate metadata import. Please chose a different game or metadata provider.",
+      });
+
+    return { taskId };
   },
 );

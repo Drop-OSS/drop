@@ -5,17 +5,18 @@ import * as jdenticon from "jdenticon";
 import objectHandler from "~/server/internal/objects";
 import { type } from "arktype";
 import { randomUUID } from "node:crypto";
+import { throwingArktype } from "~/server/arktype";
 
-const userValidator = type({
-  invitation: "string",
+export const CreateUserValidator = type({
+  invitation: "string?", // Optional because we re-use this validator
   username: "string >= 5",
   email: "string.email",
   password: "string >= 14",
   "displayName?": "string | undefined",
-});
+}).configure(throwingArktype);
 
 export default defineEventHandler<{
-  body: typeof userValidator.infer;
+  body: typeof CreateUserValidator.infer;
 }>(async (h3) => {
   const t = await useTranslation(h3);
 
@@ -25,9 +26,9 @@ export default defineEventHandler<{
       statusMessage: t("errors.auth.method.signinDisabled"),
     });
 
-  const body = await readBody(h3);
+  const user = await readValidatedBody(h3, CreateUserValidator);
 
-  const invitationId = body.invitation;
+  const invitationId = user.invitation;
   if (!invitationId)
     throw createError({
       statusCode: 401,
@@ -42,17 +43,6 @@ export default defineEventHandler<{
       statusCode: 401,
       statusMessage: t("errors.auth.invalidInvite"),
     });
-
-  const user = userValidator(body);
-  if (user instanceof type.errors) {
-    // hover out.summary to see validation errors
-    console.error(user.summary);
-
-    throw createError({
-      statusCode: 400,
-      statusMessage: user.summary,
-    });
-  }
 
   // reuse items from invite
   if (invitation.username !== null) user.username = invitation.username;
