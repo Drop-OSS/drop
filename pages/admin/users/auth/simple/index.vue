@@ -360,9 +360,7 @@
                     :loading="loading"
                     type="submit"
                     class="w-full sm:w-fit"
-                    :disabled="
-                      !(validUsername && validEmail)
-                    "
+                    :disabled="!(validUsername && validEmail)"
                   >
                     {{ $t("users.admin.simple.inviteButton") }}
                   </LoadingButton>
