@@ -186,6 +186,42 @@ export default defineNuxtConfig({
         name: "English (Pirate)",
         file: "en_pirate.json",
       },
+      {
+        code: "fr",
+        language: "fr",
+        name: "French",
+        file: "fr.json",
+      },
+      {
+        code: "de",
+        language: "de",
+        name: "German",
+        file: "de.json",
+      },
+      {
+        code: "it",
+        language: "it",
+        name: "Italian",
+        file: "it.json",
+      },
+      {
+        code: "es",
+        language: "es",
+        name: "Spanish",
+        file: "es.json",
+      },
+      {
+        code: "zh",
+        language: "zh",
+        name: "Chinese",
+        file: "zh.json",
+      },
+      {
+        code: "zh-tw",
+        language: "zh-tw",
+        name: "Chinese (Taiwan)",
+        file: "zh_tw.json",
+      },
     ],
   },
 

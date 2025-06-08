@@ -131,12 +131,22 @@ function localeToEmoji(local: string): string {
     case "en-gb":
     case "en-ca":
     case "en-au":
-    case "en-us": {
+    case "en-us":
       return "🇺🇸";
-    }
-    case "en-pirate": {
+    case "en-pirate":
       return "🏴‍☠️";
-    }
+    case "fr":
+      return "🇫🇷";
+    case "de":
+      return "🇩🇪";
+    case "es":
+      return "🇪🇸";
+    case "it":
+      return "🇮🇹";
+    case "zh":
+      return "🇨🇳";
+    case "zh-tw":
+      return "🇹🇼";
 
     default: {
       return "❓";

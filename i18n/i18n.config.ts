@@ -22,6 +22,12 @@ export default defineI18nConfig(() => {
     datetimeFormats: {
       "en-us": defaultDateTimeFormat,
       "en-pirate": defaultDateTimeFormat,
+      fr: defaultDateTimeFormat,
+      de: defaultDateTimeFormat,
+      it: defaultDateTimeFormat,
+      es: defaultDateTimeFormat,
+      zh: defaultDateTimeFormat,
+      "zh-tw": defaultDateTimeFormat,
     },
   };
 });
