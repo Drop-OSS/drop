@@ -28,7 +28,7 @@ model Notification {
     nonce String?
 
     userId String
-    user   User     @relation(fields: [userId], references: [id])
+    user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
     acls   String[]
 
     created     DateTime @default(now())
