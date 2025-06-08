@@ -502,5 +502,7 @@
     }
   },
   "todo": "Todo",
+  "selectLanguage": "Select language",
+  "helpUsTranslate": "Help us translate Drop {arrow}",
   "welcome": "American, Welcome!"
 }

@@ -1,9 +1,5 @@
 <template>
   <div class="w-full flex flex-col overflow-x-hidden">
-    <DevOnly
-      ><h1 class="text-gray-100">{{ $t("welcome") }}</h1>
-    </DevOnly>
-
     <!-- Hero section -->
     <VueCarousel
       v-if="recent.length > 0"

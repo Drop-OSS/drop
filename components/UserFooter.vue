@@ -8,6 +8,9 @@
           <p class="text-sm leading-6 text-zinc-300">
             {{ $t("drop.desc") }}
           </p>
+
+          <LanguageSelector />
+
           <div class="flex space-x-6">
             <NuxtLink
               v-for="item in navigation.social"
@@ -90,6 +93,7 @@
 
 <script setup lang="ts">
 import { IconsDiscordLogo, IconsGithubLogo } from "#components";
+
 const { t } = useI18n();
 
 const navigation = {
