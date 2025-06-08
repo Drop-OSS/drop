@@ -115,6 +115,15 @@
                   <td
                     class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6"
                   >
+                    <NuxtLink to="#" class="text-blue-600 hover:text-blue-500">
+                      <button
+                        class="px-2 py-1 rounded bg-red-900/50 backdrop-blur-sm transition text-sm/6 font-semibold text-red-400 hover:text-red-100 inline-flex gap-x-2 items-center duration-200 hover:scale-105"
+                        @click="() => setUserToDelete(user)"
+                      >
+                        {{ $t("users.admin.delete") }}
+                      </button>
+                    </NuxtLink>
+
                     <!--
                     <NuxtLink to="#" class="text-blue-600 hover:text-blue-500"
                       >Edit<span class="sr-only"
@@ -130,10 +139,14 @@
         </div>
       </div>
     </div>
+    <DeleteUserModal v-model="userToDelete" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { useUsers } from "~/composables/users";
+import type { User } from "~/prisma/client";
+
 useHead({
   title: "Users",
 });
@@ -142,5 +155,13 @@ definePageMeta({
   layout: "admin",
 });
 
-const users = await $dropFetch("/api/v1/admin/users");
+const users = useUsers();
+
+if (!users.value) {
+  await fetchUsers();
+}
+
+const userToDelete = ref();
+
+const setUserToDelete = (user: User) => (userToDelete.value = user);
 </script>

@@ -118,6 +118,14 @@
       "invalidInvite": "Invalid or expired invitation",
       "usernameTaken": "Username already taken."
     },
+    "admin": {
+      "user": {
+        "delete": {
+          "desc": "Drop couldn't delete this user: {0}",
+          "title": "Failed to delete user"
+        }
+      }
+    },
     "backHome": "{arrow} Back to home",
     "invalidBody": "Invalid request body: {0}",
     "inviteRequired": "Invitation required to sign up.",
@@ -238,6 +246,10 @@
       "srEditLabel": "Edit",
       "adminUserLabel": "Admin user",
       "normalUserLabel": "Normal user",
+
+      "delete": "Delete",
+      "deleteUser": "Delete user {0}",
+
       "authentication": {
         "title": "Authentication",
         "description": "Drop supports a variety of \"authentication mechanisms\". As you enable or disable them, they are shown on the sign in screen for users to select from. Click the dot menu to configure the authentication mechanism.",

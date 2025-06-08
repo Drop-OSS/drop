@@ -76,6 +76,7 @@ export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
   "import:game:new": "Import a game.",
 
   "user:read": "Fetch any user's information.",
+  "user:delete": "Delete a user.",
 
   "news:read": "Read news articles.",
   "news:create": "Create a new news article.",

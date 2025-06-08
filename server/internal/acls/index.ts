@@ -70,6 +70,7 @@ export const systemACLs = [
   "import:game:new",
 
   "user:read",
+  "user:delete",
 
   "news:read",
   "news:create",

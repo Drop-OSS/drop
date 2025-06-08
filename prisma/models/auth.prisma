@@ -11,7 +11,7 @@ model LinkedAuthMec {
     version     Int  @default(1)
     credentials Json
 
-    user User @relation(fields: [userId], references: [id])
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@id([userId, mec])
 }
@@ -38,7 +38,7 @@ model APIToken {
     name  String
 
     userId String?
-    user   User?   @relation(fields: [userId], references: [id])
+    user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     clientId String?
     client   Client? @relation(fields: [clientId], references: [id], onDelete: Cascade)
@@ -62,7 +62,7 @@ model Session {
     expiresAt DateTime
 
     userId String
-    user   User?  @relation(fields: [userId], references: [id])
+    user   User?  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     data Json // misc extra data
 }
