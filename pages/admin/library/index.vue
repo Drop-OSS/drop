@@ -14,7 +14,11 @@
           to="/admin/library/sources"
           class="block rounded-md bg-blue-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-500 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
         >
-          <i18n-t keypath="library.admin.sources.link" tag="span">
+          <i18n-t
+            keypath="library.admin.sources.link"
+            tag="span"
+            scope="global"
+          >
             <template #arrow>
               <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
             </template>
@@ -39,7 +43,11 @@
               href="/admin/library/import"
               class="whitespace-nowrap font-medium text-blue-400 hover:text-blue-500"
             >
-              <i18n-t keypath="library.admin.import.link" tag="span">
+              <i18n-t
+                keypath="library.admin.import.link"
+                tag="span"
+                scope="global"
+              >
                 <template #arrow>
                   <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
                 </template>
@@ -140,7 +148,11 @@
                     :href="`/admin/library/${game.id}/import`"
                     class="whitespace-nowrap font-medium text-blue-400 hover:text-blue-500"
                   >
-                    <i18n-t keypath="library.admin.import.link" tag="span">
+                    <i18n-t
+                      keypath="library.admin.import.link"
+                      tag="span"
+                      scope="global"
+                    >
                       <template #arrow>
                         <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
                       </template>

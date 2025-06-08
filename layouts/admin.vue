@@ -170,36 +170,36 @@ import { useCurrentNavigationIndex } from "~/composables/current-page-engine";
 import { ArrowLeftIcon } from "@heroicons/vue/16/solid";
 import { XMarkIcon } from "@heroicons/vue/24/solid";
 
-const { t } = useI18n();
+const i18nHead = useLocaleHead();
 
 const navigation: Array<NavigationItem & { icon: Component }> = [
-  { label: t("home"), route: "/admin", prefix: "/admin", icon: HomeIcon },
+  { label: $t("home"), route: "/admin", prefix: "/admin", icon: HomeIcon },
   {
-    label: t("userHeader.links.library"),
+    label: $t("userHeader.links.library"),
     route: "/admin/library",
     prefix: "/admin/library",
     icon: ServerStackIcon,
   },
   {
-    label: t("header.admin.users"),
+    label: $t("header.admin.users"),
     route: "/admin/users",
     prefix: "/admin/users",
     icon: UserGroupIcon,
   },
   {
-    label: t("header.admin.tasks"),
+    label: $t("header.admin.tasks"),
     route: "/admin/task",
     prefix: "/admin/task",
     icon: RectangleStackIcon,
   },
   {
-    label: t("settings"),
+    label: $t("settings"),
     route: "/admin/settings",
     prefix: "/admin/settings",
     icon: Cog6ToothIcon,
   },
   {
-    label: t("header.back"),
+    label: $t("header.back"),
     route: "/store",
     prefix: ".",
     icon: ArrowLeftIcon,
@@ -221,11 +221,12 @@ router.afterEach(() => {
 
 useHead({
   htmlAttrs: {
-    lang: "en",
+    lang: i18nHead.value.htmlAttrs.lang,
+    // @ts-expect-error head.value.htmlAttrs.dir is not typed as strictly as it should be
+    dir: i18nHead.value.htmlAttrs.dir,
   },
-  link: [],
   titleTemplate(title) {
-    return title ? t("adminTitleTemplate", [title]) : t("adminTitle");
+    return title ? $t("adminTitleTemplate", [title]) : $t("adminTitle");
   },
 });
 </script>

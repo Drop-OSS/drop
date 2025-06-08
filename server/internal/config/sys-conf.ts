@@ -2,6 +2,7 @@ class SystemConfig {
   private libraryFolder = process.env.LIBRARY ?? "./.data/library";
   private dataFolder = process.env.DATA ?? "./.data/data";
 
+  private externalUrl = process.env.EXTERNAL_URL ?? "http://localhost:3000";
   private dropVersion;
   private gitRef;
 
@@ -32,6 +33,10 @@ class SystemConfig {
 
   shouldCheckForUpdates() {
     return this.checkForUpdates;
+  }
+
+  getExternalUrl() {
+    return this.externalUrl;
   }
 }
 

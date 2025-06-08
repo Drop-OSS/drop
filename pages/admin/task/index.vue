@@ -115,7 +115,7 @@
                   {{ task.id }}
                 </p>
                 <p class="mt-1 truncate text-sm text-zinc-400">
-                  {{ task.log.at(-1) }}
+                  {{ parseTaskLog(task.log.at(-1) ?? "").message }}
                 </p>
                 <NuxtLink
                   type="button"
@@ -151,11 +151,34 @@
               <div class="flex-1">
                 <div class="flex items-center space-x-2">
                   <h3 class="text-sm font-medium text-zinc-100">
-                    {{ dailyScheduledTasks[task].name }}
+                    {{ scheduledTasks[task].name }}
                   </h3>
                 </div>
                 <p class="mt-1 text-sm text-zinc-400">
-                  {{ dailyScheduledTasks[task].description }}
+                  {{ scheduledTasks[task].description }}
+                </p>
+              </div>
+            </div>
+          </li>
+        </ul>
+        <h2 class="text-sm font-medium text-zinc-400 mt-8">
+          {{ $t("tasks.admin.weeklyScheduledTitle") }}
+        </h2>
+        <ul role="list" class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <li
+            v-for="task in weeklyTasks"
+            :key="task"
+            class="col-span-1 divide-y divide-gray-200 rounded-lg bg-zinc-800 border border-zinc-700 shadow-sm"
+          >
+            <div class="flex w-full items-center justify-between space-x-6 p-6">
+              <div class="flex-1">
+                <div class="flex items-center space-x-2">
+                  <h3 class="text-sm font-medium text-zinc-100">
+                    {{ scheduledTasks[task].name }}
+                  </h3>
+                </div>
+                <p class="mt-1 text-sm text-zinc-400">
+                  {{ scheduledTasks[task].description }}
                 </p>
               </div>
             </div>
@@ -179,12 +202,12 @@ definePageMeta({
 
 const { t } = useI18n();
 
-const { runningTasks, historicalTasks, dailyTasks } =
+const { runningTasks, historicalTasks, dailyTasks, weeklyTasks } =
   await $dropFetch("/api/v1/admin/task");
 
 const liveRunningTasks = await Promise.all(runningTasks.map((e) => useTask(e)));
 
-const dailyScheduledTasks: {
+const scheduledTasks: {
   [key in TaskGroup]: { name: string; description: string };
 } = {
   "cleanup:invitations": {

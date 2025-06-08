@@ -1,10 +1,11 @@
 import { randomUUID } from "crypto";
-import prisma from "../db/database";
+import prisma from "../../db/database";
 import type { User } from "~/prisma/client";
 import { AuthMec } from "~/prisma/client";
-import objectHandler from "../objects";
+import objectHandler from "../../objects";
 import type { Readable } from "stream";
 import * as jdenticon from "jdenticon";
+import { systemConfig } from "../../config/sys-conf";
 
 interface OIDCWellKnown {
   authorization_endpoint: string;
@@ -118,7 +119,7 @@ export class OIDCManager {
 
     const clientId = process.env.OIDC_CLIENT_ID as string | undefined;
     const clientSecret = process.env.OIDC_CLIENT_SECRET as string | undefined;
-    const externalUrl = process.env.EXTERNAL_URL as string | undefined;
+    const externalUrl = systemConfig.getExternalUrl();
 
     if (!clientId || !clientSecret)
       throw new Error("Missing client ID or secret for OIDC");

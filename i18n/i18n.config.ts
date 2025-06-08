@@ -21,7 +21,15 @@ export default defineI18nConfig(() => {
     // https://vue-i18n.intlify.dev/guide/essentials/datetime.html
     datetimeFormats: {
       "en-us": defaultDateTimeFormat,
+      "en-gb": defaultDateTimeFormat,
+      "en-au": defaultDateTimeFormat,
       "en-pirate": defaultDateTimeFormat,
+      fr: defaultDateTimeFormat,
+      de: defaultDateTimeFormat,
+      it: defaultDateTimeFormat,
+      es: defaultDateTimeFormat,
+      zh: defaultDateTimeFormat,
+      "zh-tw": defaultDateTimeFormat,
     },
   };
 });

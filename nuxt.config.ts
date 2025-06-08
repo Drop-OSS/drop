@@ -1,5 +1,9 @@
 import tailwindcss from "@tailwindcss/vite";
 import { execSync } from "node:child_process";
+import { cpSync } from "node:fs";
+import path from "node:path";
+import module from "module";
+import { viteStaticCopy } from "vite-plugin-static-copy";
 
 // get drop version
 const dropVersion = process.env.BUILD_DROP_VERSION ?? "v0.3.0-alpha.1";
@@ -11,6 +15,14 @@ const commitHash =
   execSync("git rev-parse --short HEAD").toString().trim();
 
 console.log(`Building Drop ${dropVersion} #${commitHash}`);
+
+const twemojiJson = module.findPackageJSON(
+  "@discordapp/twemoji",
+  import.meta.url,
+);
+if (!twemojiJson) {
+  throw new Error("Could not find @discordapp/twemoji package.");
+}
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -40,6 +52,11 @@ export default defineNuxtConfig({
   },
   css: ["~/assets/tailwindcss.css", "~/assets/core.scss"],
 
+  sourcemap: {
+    server: true,
+    client: true,
+  },
+
   experimental: {
     buildCache: true,
     viewTransition: true,
@@ -51,7 +68,31 @@ export default defineNuxtConfig({
   // },
 
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [
+      tailwindcss(),
+      // only used in dev server, not build because nitro sucks
+      // see build hook below
+      viteStaticCopy({
+        targets: [
+          {
+            src: "node_modules/@discordapp/twemoji/dist/svg/*",
+            dest: "twemoji",
+          },
+        ],
+      }),
+    ],
+  },
+
+  hooks: {
+    "nitro:build:public-assets": (nitro) => {
+      // this is only run during build, not dev server
+      // https://github.com/nuxt/nuxt/issues/18918#issuecomment-1925774964
+      // copy emojis to .output/public/twemoji
+      const targetDir = path.join(nitro.options.output.publicDir, "twemoji");
+      cpSync(path.join(path.dirname(twemojiJson), "dist", "svg"), targetDir, {
+        recursive: true,
+      });
+    },
   },
 
   runtimeConfig: {
@@ -130,6 +171,7 @@ export default defineNuxtConfig({
     strategy: "no_prefix",
     experimental: {
       localeDetector: "localeDetector.ts",
+      autoImportTranslationFunctions: true,
     },
     detectBrowserLanguage: {
       useCookie: true,
@@ -137,11 +179,60 @@ export default defineNuxtConfig({
       fallbackLocale: "en-us",
     },
     locales: [
-      { code: "en-us", name: "English", file: "en_us.json" },
+      { code: "en-us", language: "en-us", name: "English", file: "en_us.json" },
+      {
+        code: "en-gb",
+        language: "en-gb",
+        name: "English (UK)",
+        file: "en_gb.json",
+      },
+      {
+        code: "en-au",
+        language: "en-au",
+        name: "English (Australia)",
+        file: "en_au.json",
+      },
       {
         code: "en-pirate",
+        language: "en-pirate",
         name: "English (Pirate)",
         file: "en_pirate.json",
+      },
+      {
+        code: "fr",
+        language: "fr",
+        name: "French",
+        file: "fr.json",
+      },
+      {
+        code: "de",
+        language: "de",
+        name: "German",
+        file: "de.json",
+      },
+      {
+        code: "it",
+        language: "it",
+        name: "Italian",
+        file: "it.json",
+      },
+      {
+        code: "es",
+        language: "es",
+        name: "Spanish",
+        file: "es.json",
+      },
+      {
+        code: "zh",
+        language: "zh",
+        name: "Chinese",
+        file: "zh.json",
+      },
+      {
+        code: "zh-tw",
+        language: "zh-tw",
+        name: "Chinese (Taiwan)",
+        file: "zh_tw.json",
       },
     ],
   },

@@ -1,9 +1,5 @@
-import { enabledAuthManagers } from "~/server/plugins/04.auth-init";
+import authManager from "~/server/internal/auth";
 
 export default defineEventHandler(() => {
-  const authManagers = Object.entries(enabledAuthManagers)
-    .filter((e) => !!e[1])
-    .map((e) => e[0]);
-
-  return authManagers;
+  return authManager.getEnabledAuthProviders();
 });

@@ -1,5 +1,5 @@
 import sessionHandler from "~/server/internal/session";
-import { enabledAuthManagers } from "~/server/plugins/04.auth-init";
+import authManager from "~/server/internal/auth";
 
 defineRouteMeta({
   openAPI: {
@@ -10,6 +10,7 @@ defineRouteMeta({
 });
 
 export default defineEventHandler(async (h3) => {
+  const enabledAuthManagers = authManager.getAuthProviders();
   if (!enabledAuthManagers.OpenID) return sendRedirect(h3, "/auth/signin");
 
   const manager = enabledAuthManagers.OpenID;

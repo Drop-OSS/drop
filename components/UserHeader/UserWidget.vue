@@ -85,20 +85,21 @@ import { useObject } from "~/composables/objects";
 import type { NavigationItem } from "~/composables/types";
 
 const user = useUser();
-const { t } = useI18n();
 
-const navigation: NavigationItem[] = [
-  user.value?.admin
-    ? {
-        label: t("userHeader.profile.admin"),
-        route: "/admin",
-        prefix: "",
-      }
-    : undefined,
-  {
-    label: t("userHeader.profile.settings"),
-    route: "/account",
-    prefix: "",
-  },
-].filter((e) => e !== undefined);
+const navigation = computed<NavigationItem[]>(() =>
+  [
+    user.value?.admin
+      ? {
+          label: $t("userHeader.profile.admin"),
+          route: "/admin",
+          prefix: "",
+        }
+      : undefined,
+    {
+      label: $t("userHeader.profile.settings"),
+      route: "/account",
+      prefix: "",
+    },
+  ].filter((e) => e !== undefined),
+);
 </script>

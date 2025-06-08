@@ -9,6 +9,7 @@ import checkUpdate from "./registry/update";
 import cleanupObjects from "./registry/objects";
 import { taskGroups, type TaskGroup } from "./group";
 import prisma from "../db/database";
+import { type } from "arktype";
 
 // a task that has been run
 type FinishedTask = {
@@ -45,11 +46,12 @@ class TaskHandler {
   // list of all clients currently connected to tasks
   private clientRegistry = new Map<string, PeerImpl>();
 
-  private scheduledTasks: TaskGroup[] = [
+  private dailyScheduledTasks: TaskGroup[] = [
     "cleanup:invitations",
     "cleanup:sessions",
     "check:update",
   ];
+  private weeklyScheduledTasks: TaskGroup[] = ["cleanup:objects"];
 
   constructor() {
     // register the cleanup invitations task
@@ -124,18 +126,22 @@ class TaskHandler {
         }, 100);
       });
 
-    const progress = (progress: number) => {
-      const taskEntry = this.taskPool.get(task.id);
-      if (!taskEntry) return;
-      taskEntry.progress = progress;
-      updateAllClients();
-    };
-
     const log = (entry: string) => {
       const taskEntry = this.taskPool.get(task.id);
       if (!taskEntry) return;
-      taskEntry.log.push(entry);
-      // console.log(`[Task ${task.taskGroup}]: ${entry}`);
+      taskEntry.log.push(msgWithTimestamp(entry));
+      updateAllClients();
+    };
+
+    const progress = (progress: number) => {
+      if (progress < 0 || progress > 100) {
+        console.error("Progress must be between 0 and 100", { progress });
+        return;
+      }
+      const taskEntry = this.taskPool.get(task.id);
+      if (!taskEntry) return;
+      taskEntry.progress = progress;
+      // log(`Progress: ${progress}%`);
       updateAllClients();
     };
 
@@ -288,7 +294,11 @@ class TaskHandler {
   }
 
   dailyTasks() {
-    return this.scheduledTasks;
+    return this.dailyScheduledTasks;
+  }
+
+  weeklyTasks() {
+    return this.weeklyScheduledTasks;
   }
 
   runTaskGroupByName(name: TaskGroup) {
@@ -304,7 +314,7 @@ class TaskHandler {
    * Runs all daily tasks that are scheduled to run once a day.
    */
   async triggerDailyTasks() {
-    for (const taskGroup of this.scheduledTasks) {
+    for (const taskGroup of this.dailyScheduledTasks) {
       const mostRecent = await prisma.task.findFirst({
         where: {
           taskGroup,
@@ -319,6 +329,32 @@ class TaskHandler {
         const difference = currentTime - lastRun;
         if (difference < 1000 * 60 * 60 * 24) {
           // If it's been less than one day
+          continue; // skip
+        }
+      }
+      await this.runTaskGroupByName(taskGroup);
+    }
+
+    // After running daily tasks, trigger weekly tasks as well
+    await this.triggerWeeklyTasks();
+  }
+
+  private async triggerWeeklyTasks() {
+    for (const taskGroup of this.weeklyScheduledTasks) {
+      const mostRecent = await prisma.task.findFirst({
+        where: {
+          taskGroup,
+        },
+        orderBy: {
+          ended: "desc",
+        },
+      });
+      if (mostRecent) {
+        const currentTime = Date.now();
+        const lastRun = mostRecent.ended.getTime();
+        const difference = currentTime - lastRun;
+        if (difference < 1000 * 60 * 60 * 24 * 7) {
+          // If it's been less than one week
           continue; // skip
         }
       }
@@ -381,6 +417,37 @@ export interface BuildTask {
 interface DropTask {
   taskGroup: TaskGroup;
   build: () => Task;
+}
+
+export const TaskLog = type({
+  timestamp: "string",
+  message: "string",
+});
+
+/**
+ * Create a log message with a timestamp in the format YYYY-MM-DD HH:mm:ss.SSS UTC
+ * @param message
+ * @returns
+ */
+function msgWithTimestamp(message: string): string {
+  const now = new Date();
+
+  const pad = (n: number, width = 2) => n.toString().padStart(width, "0");
+
+  const year = now.getUTCFullYear();
+  const month = pad(now.getUTCMonth() + 1);
+  const day = pad(now.getUTCDate());
+
+  const hours = pad(now.getUTCHours());
+  const minutes = pad(now.getUTCMinutes());
+  const seconds = pad(now.getUTCSeconds());
+  const milliseconds = pad(now.getUTCMilliseconds(), 3);
+
+  const log: typeof TaskLog.infer = {
+    timestamp: `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds} UTC`,
+    message,
+  };
+  return JSON.stringify(log);
 }
 
 export function defineDropTask(buildTask: BuildTask): DropTask {

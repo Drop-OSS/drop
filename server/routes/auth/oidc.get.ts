@@ -1,4 +1,4 @@
-import { enabledAuthManagers } from "~/server/plugins/04.auth-init";
+import authManager from "~/server/internal/auth";
 
 defineRouteMeta({
   openAPI: {
@@ -11,6 +11,7 @@ defineRouteMeta({
 export default defineEventHandler((h3) => {
   const redirect = getQuery(h3).redirect?.toString();
 
+  const enabledAuthManagers = authManager.getAuthProviders();
   if (!enabledAuthManagers.OpenID)
     return sendRedirect(
       h3,

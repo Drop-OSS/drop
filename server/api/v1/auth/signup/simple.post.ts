@@ -1,6 +1,6 @@
 import { AuthMec } from "~/prisma/client";
 import prisma from "~/server/internal/db/database";
-import { createHashArgon2 } from "~/server/internal/security/simple";
+import authManager, { createHashArgon2 } from "~/server/internal/auth";
 import * as jdenticon from "jdenticon";
 import objectHandler from "~/server/internal/objects";
 import { type } from "arktype";
@@ -18,13 +18,21 @@ export const CreateUserValidator = type({
 export default defineEventHandler<{
   body: typeof CreateUserValidator.infer;
 }>(async (h3) => {
+  const t = await useTranslation(h3);
+
+  if (!authManager.getAuthProviders().Simple)
+    throw createError({
+      statusCode: 403,
+      statusMessage: t("errors.auth.method.signinDisabled"),
+    });
+
   const user = await readValidatedBody(h3, CreateUserValidator);
 
   const invitationId = user.invitation;
   if (!invitationId)
     throw createError({
       statusCode: 401,
-      statusMessage: "Invalid or expired invitation.",
+      statusMessage: t("errors.auth.invalidInvite"),
     });
 
   const invitation = await prisma.invitation.findUnique({
@@ -33,7 +41,7 @@ export default defineEventHandler<{
   if (!invitation)
     throw createError({
       statusCode: 401,
-      statusMessage: "Invalid or expired invitation.",
+      statusMessage: t("errors.auth.invalidInvite"),
     });
 
   // reuse items from invite
@@ -46,7 +54,7 @@ export default defineEventHandler<{
   if (existing > 0)
     throw createError({
       statusCode: 400,
-      statusMessage: "Username already taken.",
+      statusMessage: t("errors.auth.usernameTaken"),
     });
 
   const userId = randomUUID();

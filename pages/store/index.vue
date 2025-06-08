@@ -72,7 +72,7 @@
         {{ $t("store.recentlyReleased") }}
       </h1>
       <NuxtLink class="text-blue-600 font-semibold">
-        <i18n-t keypath="store.exploreMore" tag="span">
+        <i18n-t keypath="store.exploreMore" tag="span" scope="global">
           <template #arrow>
             <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
           </template>
@@ -89,7 +89,7 @@
         {{ $t("store.recentlyUpdated") }}
       </h1>
       <NuxtLink class="text-blue-600 font-semibold">
-        <i18n-t keypath="store.exploreMore" tag="span">
+        <i18n-t keypath="store.exploreMore" tag="span" scope="global">
           <template #arrow>
             <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
           </template>

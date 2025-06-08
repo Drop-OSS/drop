@@ -2,12 +2,11 @@ import { AuthMec } from "~/prisma/client";
 import type { JsonArray } from "@prisma/client/runtime/library";
 import { type } from "arktype";
 import prisma from "~/server/internal/db/database";
-import {
+import sessionHandler from "~/server/internal/session";
+import authManager, {
   checkHashArgon2,
   checkHashBcrypt,
-} from "~/server/internal/security/simple";
-import sessionHandler from "~/server/internal/session";
-import { enabledAuthManagers } from "~/server/plugins/04.auth-init";
+} from "~/server/internal/auth";
 
 const signinValidator = type({
   username: "string",
@@ -18,10 +17,12 @@ const signinValidator = type({
 export default defineEventHandler<{
   body: typeof signinValidator.infer;
 }>(async (h3) => {
-  if (!enabledAuthManagers.Simple)
+  const t = await useTranslation(h3);
+
+  if (!authManager.getAuthProviders().Simple)
     throw createError({
       statusCode: 403,
-      statusMessage: "Sign in method not enabled",
+      statusMessage: t("errors.auth.method.signinDisabled"),
     });
 
   const body = signinValidator(await readBody(h3));
@@ -55,14 +56,13 @@ export default defineEventHandler<{
   if (!authMek)
     throw createError({
       statusCode: 401,
-      statusMessage: "Invalid username or password.",
+      statusMessage: t("errors.auth.invalidUserOrPass"),
     });
 
   if (!authMek.user.enabled)
     throw createError({
       statusCode: 403,
-      statusMessage:
-        "Invalid or disabled account. Please contact the server administrator.",
+      statusMessage: t("errors.auth.disabled"),
     });
 
   // LEGACY bcrypt
@@ -72,15 +72,14 @@ export default defineEventHandler<{
 
     if (!hash)
       throw createError({
-        statusCode: 403,
-        statusMessage:
-          "Invalid password state. Please contact the server administrator.",
+        statusCode: 500,
+        statusMessage: t("errors.auth.invalidPassState"),
       });
 
     if (!(await checkHashBcrypt(body.password, hash)))
       throw createError({
         statusCode: 401,
-        statusMessage: "Invalid username or password.",
+        statusMessage: t("errors.auth.invalidUserOrPass"),
       });
 
     // TODO: send user to forgot password screen or something to force them to change their password to new system
@@ -93,14 +92,13 @@ export default defineEventHandler<{
   if (!hash || typeof hash !== "string")
     throw createError({
       statusCode: 500,
-      statusMessage:
-        "Invalid password state. Please contact the server administrator.",
+      statusMessage: t("errors.auth.invalidPassState"),
     });
 
   if (!(await checkHashArgon2(body.password, hash)))
     throw createError({
       statusCode: 401,
-      statusMessage: "Invalid username or password.",
+      statusMessage: t("errors.auth.invalidUserOrPass"),
     });
 
   await sessionHandler.signin(h3, authMek.userId, body.rememberMe);
