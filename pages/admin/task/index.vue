@@ -230,5 +230,9 @@ const scheduledTasks: {
     name: "",
     description: "",
   },
+  "ludusavi:import": {
+    name: t("tasks.admin.scheduled.ludusaviImportName"),
+    description: t("tasks.admin.scheduled.ludusaviImportDescription"),
+  },
 };
 </script>

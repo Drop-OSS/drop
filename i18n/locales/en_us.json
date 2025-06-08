@@ -415,7 +415,10 @@
         "cleanupSessionsName": "Clean up sessions.",
         "cleanupSessionsDescription": "Cleans up expired sessions to save space and ensure security.",
         "checkUpdateName": "Check update.",
-        "checkUpdateDescription": "Check if Drop has an update."
+        "checkUpdateDescription": "Check if Drop has an update.",
+
+        "ludusaviImportName": "Imports the latest Ludusavi manifest.",
+        "ludusaviImportDescription": "Downloads and imports the latest Ludusavi manifest, to improve cloud save compatibility with new games and updates."
       },
       "runningTasksTitle": "Running tasks",
       "noTasksRunning": "No tasks currently running",
