@@ -7,10 +7,13 @@ import { type } from "arktype";
 import { randomUUID } from "node:crypto";
 import { throwingArktype } from "~/server/arktype";
 
-export const CreateUserValidator = type({
-  invitation: "string?", // Optional because we re-use this validator
+export const SharedRegisterValidator = type({
   username: "string >= 5",
   email: "string.email",
+});
+
+const CreateUserValidator = SharedRegisterValidator.and({
+  invitation: "string",
   password: "string >= 14",
   "displayName?": "string | undefined",
 }).configure(throwingArktype);
@@ -28,15 +31,8 @@ export default defineEventHandler<{
 
   const user = await readValidatedBody(h3, CreateUserValidator);
 
-  const invitationId = user.invitation;
-  if (!invitationId)
-    throw createError({
-      statusCode: 401,
-      statusMessage: t("errors.auth.invalidInvite"),
-    });
-
   const invitation = await prisma.invitation.findUnique({
-    where: { id: invitationId },
+    where: { id: user.invitation },
   });
   if (!invitation)
     throw createError({
@@ -87,7 +83,7 @@ export default defineEventHandler<{
         user: true,
       },
     }),
-    prisma.invitation.delete({ where: { id: invitationId } }),
+    prisma.invitation.delete({ where: { id: user.invitation } }),
   ]);
 
   return linkMec.user;

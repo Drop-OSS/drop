@@ -361,7 +361,7 @@
                     type="submit"
                     class="w-full sm:w-fit"
                     :disabled="
-                      !(validUsername && validEmail && username && email)
+                      !(validUsername && validEmail)
                     "
                   >
                     {{ $t("users.admin.simple.inviteButton") }}
