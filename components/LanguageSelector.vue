@@ -127,12 +127,17 @@ function changeLocale(locale: Locale) {
 
 function localeToEmoji(local: string): string {
   switch (local) {
+    // Default locale
     case "en":
-    case "en-gb":
-    case "en-ca":
-    case "en-au":
     case "en-us":
       return "🇺🇸";
+
+    case "en-gb":
+      return "🇬🇧";
+    case "en-ca":
+      return "🇨🇦";
+    case "en-au":
+      return "🇦🇺";
     case "en-pirate":
       return "🏴‍☠️";
     case "fr":
