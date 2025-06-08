@@ -36,7 +36,7 @@ export default defineDropTask({
     progress(currentProgress);
 
     const entries = Object.entries(manifest);
-    const increment = (1 / entries.length) * 0.9;
+    const increment = 90 / entries.length;
     for (const [name, data] of entries) {
       if (!data.files && !data.registry) continue;
 
@@ -137,6 +137,7 @@ export default defineDropTask({
       });
 
       currentProgress += increment;
+      progress(currentProgress);
       log(`Imported game "${name}"`);
     }
   },
