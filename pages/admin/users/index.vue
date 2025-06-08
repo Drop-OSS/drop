@@ -115,14 +115,12 @@
                   <td
                     class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6"
                   >
-                    <NuxtLink to="#" class="text-blue-600 hover:text-blue-500">
-                      <button
-                        class="px-2 py-1 rounded bg-red-900/50 backdrop-blur-sm transition text-sm/6 font-semibold text-red-400 hover:text-red-100 inline-flex gap-x-2 items-center duration-200 hover:scale-105"
-                        @click="() => setUserToDelete(user)"
-                      >
-                        {{ $t("users.admin.delete") }}
-                      </button>
-                    </NuxtLink>
+                    <button
+                      class="px-2 py-1 rounded bg-red-900/50 backdrop-blur-sm transition text-sm/6 font-semibold text-red-400 hover:text-red-100 inline-flex gap-x-2 items-center duration-200 hover:scale-105"
+                      @click="() => setUserToDelete(user)"
+                    >
+                      {{ $t("users.admin.delete") }}
+                    </button>
 
                     <!--
                     <NuxtLink to="#" class="text-blue-600 hover:text-blue-500"
