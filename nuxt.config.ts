@@ -24,8 +24,6 @@ if (!twemojiJson) {
   throw new Error("Could not find @discordapp/twemoji package.");
 }
 
-const externalUrl = process.env.EXTERNAL_URL ?? "http://localhost:3000";
-
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   extends: ["./drop-base"],
@@ -100,13 +98,6 @@ export default defineNuxtConfig({
   runtimeConfig: {
     gitRef: commitHash,
     dropVersion: dropVersion,
-    externalUrl: externalUrl,
-
-    public: {
-      i18n: {
-        baseUrl: externalUrl,
-      },
-    },
   },
 
   app: {

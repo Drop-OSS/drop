@@ -2,7 +2,7 @@ class SystemConfig {
   private libraryFolder = process.env.LIBRARY ?? "./.data/library";
   private dataFolder = process.env.DATA ?? "./.data/data";
 
-  private externalUrl;
+  private externalUrl = process.env.EXTERNAL_URL ?? "http://localhost:3000";
   private dropVersion;
   private gitRef;
 
@@ -13,7 +13,6 @@ class SystemConfig {
     const config = useRuntimeConfig();
     this.dropVersion = config.dropVersion;
     this.gitRef = config.gitRef;
-    this.externalUrl = config.externalUrl;
   }
 
   getLibraryFolder() {
