@@ -54,7 +54,6 @@
             </transition>
           </Menu>
         </li>
-        <UserHeaderSelectLang />
         <UserHeaderUserWidget />
       </ol>
     </div>
@@ -176,9 +175,7 @@
                     </UserHeaderWidget>
                   </li>
                   <li class="w-full">
-                    <UserHeaderWidget class="w-full">
-                      <UserHeaderSelectLang />
-                    </UserHeaderWidget>
+                    <UserHeaderWidget class="w-full" />
                   </li>
                 </div>
               </nav>
@@ -209,7 +206,7 @@ const router = useRouter();
 const { t } = useI18n();
 
 const homepageURL = "/store";
-const navigation: Array<NavigationItem> = [
+const navigation: Ref<Array<NavigationItem>> = computed(() => [
   {
     prefix: "/store",
     route: "/store",
@@ -230,9 +227,9 @@ const navigation: Array<NavigationItem> = [
     route: "/news",
     label: t("userHeader.links.news"),
   },
-];
+]);
 
-const currentPageIndex = useCurrentNavigationIndex(navigation);
+const currentPageIndex = useCurrentNavigationIndex(navigation.value);
 
 const notifications = useNotifications();
 const unreadNotifications = computed(() =>
