@@ -54,7 +54,9 @@
       <div
         class="relative bg-zinc-950/50 rounded-md p-2 text-zinc-100 h-[80vh] overflow-y-scroll"
       >
-        <pre v-for="(line, idx) in task.log" :key="idx">{{ line }}</pre>
+        <pre v-for="(line, idx) in task.log" :key="idx">{{
+          formatLine(line)
+        }}</pre>
       </div>
     </div>
     <div
@@ -91,6 +93,11 @@ const route = useRoute();
 const taskId = route.params.id.toString();
 
 const task = useTask(taskId);
+
+function formatLine(line: string): string {
+  const res = parseTaskLog(line);
+  return `[${res.timestamp}] ${res.message}`;
+}
 
 definePageMeta({
   layout: "admin",

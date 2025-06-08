@@ -9,6 +9,7 @@ import checkUpdate from "./registry/update";
 import cleanupObjects from "./registry/objects";
 import { taskGroups, type TaskGroup } from "./group";
 import prisma from "../db/database";
+import { type } from "arktype";
 
 // a task that has been run
 type FinishedTask = {
@@ -402,6 +403,11 @@ interface DropTask {
   build: () => Task;
 }
 
+export const TaskLog = type({
+  timestamp: "string",
+  message: "string",
+});
+
 /**
  * Create a log message with a timestamp in the format YYYY-MM-DD HH:mm:ss.SSS UTC
  * @param message
@@ -421,9 +427,11 @@ function msgWithTimestamp(message: string): string {
   const seconds = pad(now.getUTCSeconds());
   const milliseconds = pad(now.getUTCMilliseconds(), 3);
 
-  const timestamp = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds} UTC`;
-
-  return `[${timestamp}] ${message}`;
+  const log: typeof TaskLog.infer = {
+    timestamp: `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds} UTC`,
+    message,
+  };
+  return JSON.stringify(log);
 }
 
 export function defineDropTask(buildTask: BuildTask): DropTask {
