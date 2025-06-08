@@ -332,6 +332,22 @@ export type TaskRunContext = {
   log: (message: string) => void;
 };
 
+export function wrapTaskContext(
+  context: TaskRunContext,
+  options: { min: number; max: number; prefix: string },
+): TaskRunContext {
+  return {
+    progress(progress) {
+      const scalar = 100 / (options.max - options.min);
+      const adjustedProgress = progress * scalar + options.min;
+      return context.progress(adjustedProgress);
+    },
+    log(message) {
+      return context.log(options.prefix + message);
+    },
+  };
+}
+
 export interface Task {
   id: string;
   taskGroup: TaskGroup;

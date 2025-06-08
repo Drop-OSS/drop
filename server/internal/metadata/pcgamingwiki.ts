@@ -15,6 +15,7 @@ import * as jdenticon from "jdenticon";
 import { DateTime } from "luxon";
 import * as cheerio from "cheerio";
 import { type } from "arktype";
+import type { TaskRunContext } from "../tasks";
 
 interface PCGamingWikiParseRawPage {
   parse: {
@@ -369,13 +370,13 @@ export class PCGamingWikiProvider implements MetadataProvider {
     return results;
   }
 
-  async fetchGame({
-    id,
-    name,
-    publisher,
-    developer,
-    createObject,
-  }: _FetchGameMetadataParams): Promise<GameMetadata> {
+  async fetchGame(
+    { id, name, publisher, developer, createObject }: _FetchGameMetadataParams,
+    context?: TaskRunContext,
+  ): Promise<GameMetadata> {
+    context?.log("Using PCGamingWiki provider");
+    context?.progress(0);
+
     const searchParams = new URLSearchParams({
       action: "cargoquery",
       tables: "Infobox_game",
@@ -396,37 +397,49 @@ export class PCGamingWikiProvider implements MetadataProvider {
 
     const publishers: Company[] = [];
     if (game.Publishers !== null) {
+      context?.log("Found publishers, importing...");
       const pubListClean = this.parseWikiStringArray(game.Publishers);
       for (const pub of pubListClean) {
+        context?.log(`Importing "${pub}"...`);
+
         const res = await publisher(pub);
         if (res === undefined) continue;
         publishers.push(res);
       }
     }
 
+    context?.progress(40);
+
     const developers: Company[] = [];
     if (game.Developers !== null) {
+      context?.log("Found developers, importing...");
       const devListClean = this.parseWikiStringArray(game.Developers);
       for (const dev of devListClean) {
+        context?.log(`Importing "${dev}"...`);
         const res = await developer(dev);
         if (res === undefined) continue;
         developers.push(res);
       }
     }
 
-    const icon =
+    context?.progress(80);
+
+    const icon = createObject(
       game["Cover URL"] !== null
-        ? createObject(game["Cover URL"])
-        : createObject(jdenticon.toPng(name, 512));
+        ? game["Cover URL"]
+        : jdenticon.toPng(name, 512),
+    );
+
+    const released = game.Released
+      ? DateTime.fromISO(game.Released.split(";")[0]).toJSDate()
+      : new Date();
 
     const metadata: GameMetadata = {
       id: game.PageID,
       name: game.PageName,
       shortDescription: pageContent.shortIntro,
       description: pageContent.introduction,
-      released: game.Released
-        ? DateTime.fromISO(game.Released.split(";")[0]).toJSDate()
-        : new Date(),
+      released,
 
       tags: this.compileTags(game),
 
@@ -439,6 +452,9 @@ export class PCGamingWikiProvider implements MetadataProvider {
       coverId: icon,
       images: [icon],
     };
+
+    context?.log("PCGamingWiki provider finished.");
+    context?.progress(100);
 
     return metadata;
   }
