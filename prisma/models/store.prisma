@@ -1,0 +1,21 @@
+model StorePage {
+    url        String           @id
+    components StoreComponent[]
+
+    acls String[] @default([]) // Empty ACL means just "store:read"
+}
+
+enum StoreComponentType {
+    BigCarousel
+    SmallCarousel
+}
+
+model StoreComponent {
+    id String @id
+
+    type          StoreComponentType
+    configuration Json
+
+    pageUrl String?
+    page    StorePage? @relation(fields: [pageUrl], references: [url])
+}

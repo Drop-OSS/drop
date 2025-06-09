@@ -58,6 +58,7 @@ export interface CompanyMetadata {
 
   logo: ObjectReference;
   banner: ObjectReference;
+  cover: ObjectReference;
   website: string;
 }
 

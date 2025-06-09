@@ -38,7 +38,7 @@
     "jdenticon": "^3.3.0",
     "luxon": "^3.6.1",
     "micromark": "^4.0.1",
-    "nuxt": "^3.17.4",
+    "nuxt": "^3.17.5",
     "nuxt-security": "2.2.0",
     "prisma": "^6.7.0",
     "sanitize-filename": "^1.6.3",

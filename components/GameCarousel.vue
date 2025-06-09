@@ -31,11 +31,8 @@
 </template>
 
 <script setup lang="ts">
-import type { Game } from "~/prisma/client";
-import type { SerializeObject } from "nitropack";
-
 const props = defineProps<{
-  items: Array<SerializeObject<Game>>;
+  items: Array<StoreRenderableItem>;
   min?: number;
   width?: number;
 }>();
@@ -43,7 +40,7 @@ const props = defineProps<{
 const currentComponent = ref<HTMLDivElement>();
 
 const min = computed(() => Math.max(props.min ?? 8, props.items.length));
-const games: Ref<Array<SerializeObject<Game> | undefined>> = computed(() =>
+const games: Ref<Array<StoreRenderableItem | undefined>> = computed(() =>
   Array(min.value)
     .fill(0)
     .map((_, i) => props.items[i]),

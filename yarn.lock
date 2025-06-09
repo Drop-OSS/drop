@@ -6567,7 +6567,7 @@ nuxt-security@2.2.0:
     unplugin-remove "^1.0.3"
     xss "^1.0.14"
 
-nuxt@^3.17.4:
+nuxt@^3.17.5:
   version "3.17.5"
   resolved "https://registry.yarnpkg.com/nuxt/-/nuxt-3.17.5.tgz#9d16ebed84e467f54cb78896ba97dbcf3afe657d"
   integrity sha512-HWTWpM1/RDcCt9DlnzrPcNvUmGqc62IhlZJvr7COSfnJq2lKYiBKIIesEaOF+57Qjw7TfLPc1DQVBNtxfKBxEw==

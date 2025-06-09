@@ -107,7 +107,10 @@ import {
   ListboxOptions,
 } from "@headlessui/vue";
 import { ChevronUpDownIcon } from "@heroicons/vue/16/solid";
-import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
+import {
+  ArrowTopRightOnSquareIcon,
+  CheckIcon,
+} from "@heroicons/vue/24/outline";
 import type { Locale } from "vue-i18n";
 
 const { locales, locale: currLocale, setLocale } = useI18n();

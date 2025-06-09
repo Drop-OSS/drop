@@ -294,6 +294,7 @@ export class GiantBombProvider implements MetadataProvider {
 
       logo: createObject(company.image.icon_url),
       banner: createObject(company.image.screen_large_url),
+      cover: createObject(company.image.screen_large_url),
     };
 
     return metadata;

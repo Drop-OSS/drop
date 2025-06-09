@@ -498,6 +498,7 @@ export class IGDBProvider implements MetadataProvider {
 
         logo: logo,
         banner: logo,
+        cover: logo,
       };
 
       return metadata;

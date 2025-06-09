@@ -157,6 +157,7 @@ model Company {
     mShortDescription String
     mDescription      String
     mLogoObjectId     String
+    mCoverObjectId    String
     mBannerObjectId   String
     mWebsite          String
 

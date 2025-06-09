@@ -2,11 +2,11 @@
   <NuxtLink
     v-if="game"
     :href="props.href ?? `/store/${game.id}`"
-    class="group relative w-48 h-64 rounded-lg overflow-hidden transition-all duration-300 text-left hover:scale-[1.02] hover:shadow-lg hover:-translate-y-0.5"
+    class="group relative w-48 h-64 rounded-lg overflow-hidden transition-all duration-300 text-left hover:shadow-lg"
     @click="active = game.id"
   >
     <div
-      class="absolute inset-0 transition-all duration-300 group-hover:scale-110"
+      class="absolute inset-0 transition-all duration-300 group-hover:scale-105"
     >
       <img
         :src="useObject(game.mCoverObjectId)"
@@ -36,17 +36,8 @@
 </template>
 
 <script setup lang="ts">
-import type { SerializeObject } from "nitropack";
-
 const props = defineProps<{
-  game:
-    | SerializeObject<{
-        id: string;
-        mCoverObjectId: string;
-        mName: string;
-        mShortDescription: string;
-      }>
-    | undefined;
+  game: StoreRenderableItem | undefined;
   href?: string;
 }>();
 

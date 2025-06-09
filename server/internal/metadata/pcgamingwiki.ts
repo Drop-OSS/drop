@@ -492,6 +492,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
 
         logo: icon,
         banner: icon,
+        cover: icon,
       };
       return metadata;
     }

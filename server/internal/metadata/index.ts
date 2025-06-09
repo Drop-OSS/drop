@@ -321,6 +321,7 @@ export class MetadataHandler {
           mName: result.name,
           mShortDescription: result.shortDescription,
           mDescription: result.description,
+          mCoverObjectId: result.cover,
           mLogoObjectId: result.logo,
           mBannerObjectId: result.banner,
           mWebsite: result.website,

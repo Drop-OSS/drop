@@ -467,6 +467,7 @@
   "settings": "Settings",
   "store": {
     "commingSoon": "coming soon",
+    "explore": "Explore {arrow}",
     "exploreMore": "Explore more {arrow}",
     "images": "Game Images",
     "lookAt": "Check it out",
