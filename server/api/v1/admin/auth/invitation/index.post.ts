@@ -2,6 +2,7 @@ import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import { SharedRegisterValidator } from "../../../auth/signup/simple.post";
+import { systemConfig } from "~/server/internal/config/sys-conf";
 
 const CreateInvite = SharedRegisterValidator.partial()
   .and({
@@ -22,5 +23,8 @@ export default defineEventHandler(async (h3) => {
     data: body,
   });
 
-  return invitation;
+  return {
+    ...invitation,
+    inviteUrl: `${systemConfig.getExternalUrl()}/auth/register?id=${invitation.id}`,
+  };
 });

@@ -1,4 +1,5 @@
 import aclManager from "~/server/internal/acls";
+import { systemConfig } from "~/server/internal/config/sys-conf";
 import prisma from "~/server/internal/db/database";
 import taskHandler from "~/server/internal/tasks";
 
@@ -10,6 +11,13 @@ export default defineEventHandler(async (h3) => {
 
   await taskHandler.runTaskGroupByName("cleanup:invitations");
 
+  const externalUrl = systemConfig.getExternalUrl();
   const invitations = await prisma.invitation.findMany({});
-  return invitations;
+
+  return invitations.map((invitation) => {
+    return {
+      ...invitation,
+      inviteUrl: `${externalUrl}/auth/register?id=${invitation.id}`,
+    };
+  });
 });
