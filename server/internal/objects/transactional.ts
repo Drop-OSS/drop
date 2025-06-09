@@ -39,7 +39,7 @@ export class ObjectTransactionalHandler {
       if (!transaction) return;
 
       let progress = 0;
-      const increment = (100 / transaction.size);
+      const increment = 100 / transaction.size;
 
       for (const [id, data] of transaction) {
         if (typeof data === "string") {
