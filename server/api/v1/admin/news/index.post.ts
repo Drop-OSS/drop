@@ -1,7 +1,15 @@
+import { ArkErrors, type } from "arktype";
 import { defineEventHandler, createError } from "h3";
 import aclManager from "~/server/internal/acls";
 import newsManager from "~/server/internal/news";
 import { handleFileUpload } from "~/server/internal/utils/handlefileupload";
+
+const CreateNews = type({
+  title: "string",
+  description: "string",
+  content: "string",
+  tags: "string = '[]'",
+});
 
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["news:create"]);
@@ -23,24 +31,25 @@ export default defineEventHandler(async (h3) => {
 
   const [imageIds, options, pull, _dump] = uploadResult;
 
-  const title = options.title;
-  const description = options.description;
-  const content = options.content;
-  const tags = options.tags ? (JSON.parse(options.tags) as string[]) : [];
-  const imageId = imageIds.at(0);
+  const body = await CreateNews(options);
+  if (body instanceof ArkErrors)
+    throw createError({ statusCode: 400, statusMessage: body.summary });
 
-  if (!title || !description || !content)
+  const parsedTags = JSON.parse(body.tags);
+  if (typeof parsedTags !== "object" || !Array.isArray(parsedTags))
     throw createError({
       statusCode: 400,
-      statusMessage: "Missing or invalid title, description or content.",
+      statusMessage: "Tags must be an array",
     });
 
-  const article = await newsManager.create({
-    title: title,
-    description: description,
-    content: content,
+  const imageId = imageIds.at(0);
 
-    tags: tags,
+  const article = await newsManager.create({
+    title: body.title,
+    description: body.description,
+    content: body.content,
+
+    tags: parsedTags,
 
     ...(imageId && { image: imageId }),
     authorId: "system",

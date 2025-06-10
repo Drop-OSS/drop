@@ -374,8 +374,15 @@ export function wrapTaskContext(
 ): TaskRunContext {
   return {
     progress(progress) {
-      const scalar = 100 / (options.max - options.min);
-      const adjustedProgress = progress * scalar + options.min;
+      if (progress > 100 || progress < 0) {
+        console.warn("[wrapTaskContext] progress must be between 0 and 100");
+      }
+
+      // I was too tired to figure this out
+      // https://stackoverflow.com/a/929107
+      const oldRange = 100;
+      const newRange = options.max - options.min;
+      const adjustedProgress = (progress * newRange) / oldRange + options.min;
       return context.progress(adjustedProgress);
     },
     log(message) {
