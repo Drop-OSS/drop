@@ -193,6 +193,7 @@
         <LoadingButton
           :loading="loading"
           class="bg-blue-600 text-white hover:bg-blue-500"
+          :disabled="!isValidArticle"
           @click="() => createArticle()"
         >
           {{ $t("news.article.submit") }}
@@ -234,6 +235,13 @@ const newArticle = ref({
   content: "",
   tags: [] as string[],
 });
+
+const isValidArticle = computed(
+  () =>
+    newArticle.value.title &&
+    newArticle.value.description &&
+    newArticle.value.content,
+);
 
 const markdownPreview = computed(() => {
   // TODO: maybe?? add https://github.com/cure53/DOMPurify
