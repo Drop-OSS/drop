@@ -254,5 +254,6 @@ export default defineNuxtConfig({
     },
     rateLimiter: false,
     xssValidator: false,
+    requestSizeLimiter: false,
   },
 });
