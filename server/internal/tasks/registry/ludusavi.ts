@@ -35,11 +35,11 @@ export default defineDropTask({
 
     progress(currentProgress);
 
-    const entries = Object.entries(manifest);
+    const entries = Object.entries(manifest).filter(
+      ([, data]) => data.files || data.registry,
+    );
     const increment = 90 / entries.length;
     for (const [name, data] of entries) {
-      if (!data.files && !data.registry) continue;
-
       const iterableFiles = data.files ? Object.entries(data.files) : undefined;
 
       function findFilesForOperatingSystem(os: string) {
