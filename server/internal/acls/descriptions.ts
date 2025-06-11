@@ -68,6 +68,10 @@ export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
   "game:image:new": "Upload an image for a game.",
   "game:image:delete": "Delete an image for a game.",
 
+  "game:cloudsaves:read":
+    "Read cloud save data and search through Ludusavi database.",
+  "game:cloudsaves:update": "Update the Ludusavi manifest entry for a game.",
+
   "import:version:read":
     "Fetch versions to be imported, and information about versions to be imported.",
   "import:version:new": "Import a game version.",

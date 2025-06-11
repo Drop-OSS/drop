@@ -201,6 +201,10 @@
       "carousel": {
         "title": "Failed to update image carousel",
         "description": "Drop failed to update the image carousel: {0}"
+      },
+      "ludusavi": {
+        "title": "Failed to update Ludusavi entry",
+        "description": "Drop failed to update the Ludusavi entry: {0}"
       }
     }
   },
@@ -382,7 +386,15 @@
       },
       "subheader": "As you add folders to your library sources, Drop will detect it and prompt you to import it. Each game needs to be imported before you can import a version.",
       "title": "Libraries",
-      "versionPriority": "Version priority"
+      "versionPriority": {
+        "title": "Version priority",
+        "description": "Version priority is used to order games for upgrade mode versions."
+      },
+      "cloudSaves": {
+        "title": "Cloud Saves",
+        "description": "Specify the Ludusavi manifest used to back up this game to the cloud.",
+        "search": "Search"
+      }
     },
     "back": "Back to Library",
     "collection": {

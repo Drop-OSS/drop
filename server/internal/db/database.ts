@@ -1,7 +1,8 @@
 import { PrismaClient } from "~/prisma/client";
+import { withPgTrgm } from "prisma-extension-pg-trgm";
 
 const prismaClientSingleton = () => {
-  return new PrismaClient({});
+  return new PrismaClient({}).$extends(withPgTrgm({ logQueries: true }));
 };
 
 declare const globalThis: {

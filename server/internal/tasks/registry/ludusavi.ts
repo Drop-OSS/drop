@@ -35,9 +35,7 @@ export default defineDropTask({
 
     progress(currentProgress);
 
-    const entries = Object.entries(manifest).filter(
-      ([, data]) => data.files || data.registry,
-    );
+    const entries = Object.entries(manifest);
     const increment = 90 / entries.length;
     for (const [name, data] of entries) {
       const iterableFiles = data.files ? Object.entries(data.files) : undefined;
@@ -55,7 +53,10 @@ export default defineDropTask({
         files: findFilesForOperatingSystem("windows"),
       };
 
-      if (windowsData.registry || windowsData.files) {
+      if (
+        windowsData.registry ||
+        (windowsData.files && windowsData.files.length > 0)
+      ) {
         const create: ConnectOrCreateShorthand = {
           where: {
             ludusaviEntryName_platform: {
@@ -79,7 +80,7 @@ export default defineDropTask({
         files: findFilesForOperatingSystem("linux"),
       };
 
-      if (linuxData.files) {
+      if (linuxData.files && linuxData.files.length > 0) {
         const create: ConnectOrCreateShorthand = {
           where: {
             ludusaviEntryName_platform: {
@@ -101,7 +102,7 @@ export default defineDropTask({
         files: findFilesForOperatingSystem("mac"),
       };
 
-      if (macData.files) {
+      if (macData.files && macData.files.length > 0) {
         const create: ConnectOrCreateShorthand = {
           where: {
             ludusaviEntryName_platform: {

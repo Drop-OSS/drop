@@ -6987,11 +6987,6 @@ perfect-debounce@^1.0.0:
   resolved "https://registry.yarnpkg.com/perfect-debounce/-/perfect-debounce-1.0.0.tgz#9c2e8bc30b169cc984a58b7d5b28049839591d2a"
   integrity sha512-xCy9V055GLEqoFaHoC1SoLIaLmWctgCUaBaWxDZ7/Zx4CTyX7cJQLJOok/orfjZAh9kEYpjJa4d0KcJmCbctZA==
 
-pg-tsquery@^8.4.2:
-  version "8.4.2"
-  resolved "https://registry.yarnpkg.com/pg-tsquery/-/pg-tsquery-8.4.2.tgz#f28e6242f15f4d8535ac08a0f9083ce04e42e1e4"
-  integrity sha512-waJSlBIKE+shDhuDpuQglTH6dG5zakDhnrnxu8XB8V5c7yoDSuy4pOxY6t2dyoxTjaKMcMmlByJN7n9jx9eqMA==
-
 picocolors@^1.0.0, picocolors@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/picocolors/-/picocolors-1.1.1.tgz#3d321af3eab939b083c8f929a1d12cda81c26b6b"
@@ -7329,6 +7324,11 @@ pretty-bytes@^6.1.1:
   version "6.1.1"
   resolved "https://registry.yarnpkg.com/pretty-bytes/-/pretty-bytes-6.1.1.tgz#38cd6bb46f47afbf667c202cfc754bffd2016a3b"
   integrity sha512-mQUvGU6aUFQ+rNvTIAcZuWGRT9a6f6Yrg9bHs4ImKF+HZCEK+plBvnAZYSIQztknZF2qnzNtr6F8s0+IuptdlQ==
+
+prisma-extension-pg-trgm@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/prisma-extension-pg-trgm/-/prisma-extension-pg-trgm-1.1.0.tgz#79929264bbb4ceaf6d9ad186543f3b2f52b138bc"
+  integrity sha512-EXRsW0OMoQU/5aQax67FLkU0jonfiF++R3pylj5lYvXicfVD1GvkEDB5hDnGzPwfIMwryT2RLbRplndNFpZ49w==
 
 prisma@^6.7.0:
   version "6.9.0"

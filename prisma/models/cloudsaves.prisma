@@ -1,0 +1,36 @@
+enum CloudSaveType {
+    Ludusavi
+    LuaScript
+}
+
+model CloudSaveConfiguration {
+    gameId String @id
+    game   Game   @relation(fields: [gameId], references: [id])
+
+    type CloudSaveType
+
+    ludusaviEntryName String?
+    ludusaviEntry     LudusaviEntry? @relation(fields: [ludusaviEntryName], references: [name])
+
+    scriptContent String?
+}
+
+model LudusaviEntry {
+    name    String  @id
+    steamId String?
+
+    entries        LudusaviPlatformEntry[]
+    configurations CloudSaveConfiguration[]
+}
+
+model LudusaviPlatformEntry {
+    ludusaviEntryName String
+    ludusaviEntry     LudusaviEntry @relation(fields: [ludusaviEntryName], references: [name])
+
+    platform Platform
+
+    files    String[]
+    registry String[]
+
+    @@id([ludusaviEntryName, platform])
+}
