@@ -33,7 +33,6 @@ export default defineNitroPlugin(async () => {
 
     // Add file to transaction handler so we can void it later if we error out
     const id = add(fileBuffer);
-    console.log(`File ID: ${id}`);
     pull();
 
     const dummyGameParams = {
