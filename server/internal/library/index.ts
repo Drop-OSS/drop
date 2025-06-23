@@ -42,6 +42,7 @@ class LibraryManager {
         where: {
           libraryId: id,
           libraryPath: { in: games },
+          isHidden: false,
         },
         select: {
           libraryPath: true,
@@ -65,6 +66,7 @@ class LibraryManager {
           libraryId,
           libraryPath,
         },
+        isHidden: false,
       },
       select: {
         versions: true,
@@ -82,6 +84,9 @@ class LibraryManager {
 
   async fetchGamesWithStatus() {
     const games = await prisma.game.findMany({
+      where: {
+        isHidden: false,
+      },
       select: {
         id: true,
         versions: true,
@@ -113,7 +118,7 @@ class LibraryManager {
 
   async fetchUnimportedVersionInformation(gameId: string, versionName: string) {
     const game = await prisma.game.findUnique({
-      where: { id: gameId },
+      where: { id: gameId, isHidden: false },
       select: { libraryPath: true, libraryId: true, mName: true },
     });
     if (!game || !game.libraryId) return undefined;
@@ -172,7 +177,9 @@ class LibraryManager {
   // Checks are done in least to most expensive order
   async checkUnimportedGamePath(libraryId: string, libraryPath: string) {
     const hasGame =
-      (await prisma.game.count({ where: { libraryId, libraryPath } })) > 0;
+      (await prisma.game.count({
+        where: { libraryId, libraryPath, isHidden: false },
+      })) > 0;
     if (hasGame) return false;
 
     return true;
@@ -208,7 +215,7 @@ class LibraryManager {
     if (!platform) return undefined;
 
     const game = await prisma.game.findUnique({
-      where: { id: gameId },
+      where: { id: gameId, isHidden: false },
       select: { mName: true, libraryId: true, libraryPath: true },
     });
     if (!game || !game.libraryId) return undefined;

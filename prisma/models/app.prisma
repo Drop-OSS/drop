@@ -6,6 +6,8 @@ model ApplicationSettings {
     saveSlotCountLimit   Int   @default(5)
     saveSlotSizeLimit    Float @default(10) // MB
     saveSlotHistoryLimit Int   @default(3)
+
+    showTitleDescriptionOnGamePanel Boolean @default(true)
 }
 
 enum Platform {

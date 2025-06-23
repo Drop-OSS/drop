@@ -16,6 +16,7 @@ export default defineEventHandler(async (h3) => {
   const newObj = await prisma.game.update({
     where: {
       id: id,
+      isHidden: false,
     },
     data: restOfTheBody,
     // I would put a select here, but it would be based on the body, and muck up the types

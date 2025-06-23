@@ -7,7 +7,11 @@
           :key="gameIdx"
           class="justify-start"
         >
-          <GamePanel :game="game" />
+          <GamePanel
+            :game="game"
+            :href="game ? `/store/${game.id}` : undefined"
+            :show-title-description="showTitleDescriptionOnGamePanel"
+          />
         </VueSlide>
 
         <template #addons>
@@ -39,6 +43,10 @@ const props = defineProps<{
   min?: number;
   width?: number;
 }>();
+
+const { showTitleDescriptionOnGamePanel } = await $dropFetch(
+  `/api/v1/admin/settings`,
+);
 
 const currentComponent = ref<HTMLDivElement>();
 

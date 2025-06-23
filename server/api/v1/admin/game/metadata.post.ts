@@ -54,6 +54,7 @@ export default defineEventHandler(async (h3) => {
   const newObject = await prisma.game.update({
     where: {
       id: gameId,
+      isHidden: false,
     },
     data: updateModel,
   });
