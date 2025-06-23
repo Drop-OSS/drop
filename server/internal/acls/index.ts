@@ -33,6 +33,8 @@ export const userACLs = [
   "clients:revoke",
 
   "news:read",
+
+  "settings:read",
 ] as const;
 const userACLPrefix = "user:";
 
@@ -80,6 +82,8 @@ export const systemACLs = [
   "task:start",
 
   "maintenance:read",
+
+  "settings:update",
 ] as const;
 const systemACLPrefix = "system:";
 

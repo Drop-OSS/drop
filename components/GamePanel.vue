@@ -1,12 +1,19 @@
 <template>
   <NuxtLink
     v-if="game"
-    :href="props.href ?? `/store/${game.id}`"
-    class="group relative w-48 h-64 rounded-lg overflow-hidden transition-all duration-300 text-left hover:scale-[1.02] hover:shadow-lg hover:-translate-y-0.5"
+    :href="href"
+    v-bind:class="{
+      'transition-all duration-300 text-left hover:scale-[1.02] hover:shadow-lg hover:-translate-y-0.5':
+        animate,
+    }"
+    class="group relative w-48 h-64 rounded-lg overflow-hidden"
     @click="active = game.id"
   >
     <div
-      class="absolute inset-0 transition-all duration-300 group-hover:scale-110"
+      v-bind:class="{
+        'transition-all duration-300 group-hover:scale-110': animate,
+      }"
+      class="absolute inset-0"
     >
       <img
         :src="useObject(game.mCoverObjectId)"
@@ -19,14 +26,21 @@
       />
     </div>
 
-    <div class="absolute bottom-0 left-0 w-full p-3">
+    <div
+      v-if="showTitleDescription"
+      class="absolute bottom-0 left-0 w-full p-3"
+    >
       <h1
-        class="text-zinc-100 text-sm font-bold font-display group-hover:text-white transition-colors"
+        v-bind:class="{ 'group-hover:text-white transition-colors': animate }"
+        class="text-zinc-100 text-sm font-bold font-display"
       >
         {{ game.mName }}
       </h1>
       <p
-        class="text-zinc-400 text-xs line-clamp-2 group-hover:text-zinc-300 transition-colors"
+        v-bind:class="{
+          'group-hover:text-zinc-300 transition-colors': animate,
+        }"
+        class="text-zinc-400 text-xs line-clamp-2"
       >
         {{ game.mShortDescription }}
       </p>
@@ -38,7 +52,12 @@
 <script setup lang="ts">
 import type { SerializeObject } from "nitropack";
 
-const props = defineProps<{
+const {
+  game,
+  href = undefined,
+  showTitleDescription = true,
+  animate = true,
+} = defineProps<{
   game:
     | SerializeObject<{
         id: string;
@@ -48,6 +67,8 @@ const props = defineProps<{
       }>
     | undefined;
   href?: string;
+  showTitleDescription?: boolean;
+  animate?: boolean;
 }>();
 
 const active = useState();

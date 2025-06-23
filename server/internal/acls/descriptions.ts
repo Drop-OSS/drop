@@ -39,6 +39,8 @@ export const userACLDescriptions: ObjectFromList<typeof userACLs> = {
   "clients:revoke": "",
 
   "news:read": "Read the server's news articles.",
+
+  "settings:read": "Read system settings.",
 };
 
 export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
@@ -87,4 +89,6 @@ export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
 
   "maintenance:read":
     "Read tasks and maintenance information, like updates available and cleanup.",
+
+  "settings:update": "Update system settings.",
 };
