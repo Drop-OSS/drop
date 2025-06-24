@@ -17,7 +17,7 @@ export default defineEventHandler(async (h3) => {
   const game = await prisma.game.findUnique({
     where: {
       id: gameId,
-      isHidden: false,
+      system: false,
     },
     include: {
       versions: {

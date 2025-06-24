@@ -7,7 +7,7 @@ export default defineEventHandler(async (h3) => {
 
   const games = await prisma.game.findMany({
     where: {
-      isHidden: false,
+      system: false,
     },
     orderBy: {
       mReleased: "desc",
