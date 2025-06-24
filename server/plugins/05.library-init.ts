@@ -46,7 +46,7 @@ export default defineNitroPlugin(async () => {
     await prisma.game.updateMany({
       where: {
         libraryId: null,
-        isHidden: false,
+        system: false,
       },
       data: {
         libraryId: library.id,

@@ -1,172 +1,174 @@
 enum MetadataSource {
-    Manual
-    GiantBomb
-    PCGamingWiki
-    IGDB
-    Metacritic
-    OpenCritic
+  Manual
+  GiantBomb
+  PCGamingWiki
+  IGDB
+  Metacritic
+  OpenCritic
 }
 
 model Game {
-    id String @id @default(uuid())
+  id String @id @default(uuid())
 
-    metadataSource MetadataSource
-    metadataId     String
-    created        DateTime       @default(now())
+  system Boolean @default(false)
 
-    // Any field prefixed with m is filled in from metadata
-    // Acts as a cache so we can search and filter it
-    mName             String // Name of game
-    mShortDescription String // Short description
-    mDescription      String // Supports markdown
-    mReleased         DateTime // When the game was released
+  metadataSource MetadataSource
+  metadataId     String
+  created        DateTime       @default(now())
 
-    ratings GameRating[]
+  // Any field prefixed with m is filled in from metadata
+  // Acts as a cache so we can search and filter it
+  mName             String // Name of game
+  mShortDescription String // Short description
+  mDescription      String // Supports markdown
+  mReleased         DateTime // When the game was released
 
-    mIconObjectId           String // linked to objects in s3
-    mBannerObjectId         String // linked to objects in s3
-    mCoverObjectId          String
-    mImageCarouselObjectIds String[] // linked to below array
-    mImageLibraryObjectIds  String[] // linked to objects in s3
+  ratings GameRating[]
 
-    versions GameVersion[]
+  mIconObjectId           String // linked to objects in s3
+  mBannerObjectId         String // linked to objects in s3
+  mCoverObjectId          String
+  mImageCarouselObjectIds String[] // linked to below array
+  mImageLibraryObjectIds  String[] // linked to objects in s3
 
-    // These fields will not be optional in the next version
-    // Any game without a library ID will be assigned one at startup, based on the defaults
-    libraryId   String?
-    library     Library? @relation(fields: [libraryId], references: [id])
-    libraryPath String
+  versions GameVersion[]
 
-    collections CollectionEntry[]
-    saves       SaveSlot[]
-    screenshots Screenshot[]
-    tags        Tag[]
-    playtime    Playtime[]
+  // These fields will not be optional in the next version
+  // Any game without a library ID will be assigned one at startup, based on the defaults
+  libraryId   String?
+  library     Library? @relation(fields: [libraryId], references: [id])
+  libraryPath String
 
-    developers Company[] @relation(name: "developers")
-    publishers Company[] @relation(name: "publishers")
+  collections CollectionEntry[]
+  saves       SaveSlot[]
+  screenshots Screenshot[]
+  tags        Tag[]
+  playtime    Playtime[]
 
-    @@unique([metadataSource, metadataId], name: "metadataKey")
-    @@unique([libraryId, libraryPath], name: "libraryKey")
+  developers Company[] @relation(name: "developers")
+  publishers Company[] @relation(name: "publishers")
+
+  @@unique([metadataSource, metadataId], name: "metadataKey")
+  @@unique([libraryId, libraryPath], name: "libraryKey")
 }
 
 model GameRating {
-    id String @id @default(uuid())
+  id String @id @default(uuid())
 
-    metadataSource MetadataSource
-    metadataId     String
-    created        DateTime       @default(now())
+  metadataSource MetadataSource
+  metadataId     String
+  created        DateTime       @default(now())
 
-    mReviewCount  Int
-    mReviewRating Float // 0 to 1
+  mReviewCount  Int
+  mReviewRating Float // 0 to 1
 
-    mReviewHref String?
+  mReviewHref String?
 
-    game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
-    gameId String
+  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  gameId String
 
-    @@unique([metadataSource, metadataId], name: "metadataKey")
+  @@unique([metadataSource, metadataId], name: "metadataKey")
 }
 
 // A particular set of files that relate to the version
 model GameVersion {
-    gameId      String
-    game        Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
-    versionName String // Sub directory for the game files
+  gameId      String
+  game        Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  versionName String // Sub directory for the game files
 
-    created DateTime @default(now())
+  created DateTime @default(now())
 
-    platform Platform
+  platform Platform
 
-    launchCommand String   @default("") // Command to run to start. Platform-specific. Windows games on Linux will wrap this command in Proton/Wine
-    launchArgs    String[]
-    setupCommand  String   @default("") // Command to setup game (dependencies and such)
-    setupArgs     String[]
-    onlySetup     Boolean  @default(false)
+  launchCommand String   @default("") // Command to run to start. Platform-specific. Windows games on Linux will wrap this command in Proton/Wine
+  launchArgs    String[]
+  setupCommand  String   @default("") // Command to setup game (dependencies and such)
+  setupArgs     String[]
+  onlySetup     Boolean  @default(false)
 
-    umuIdOverride String?
+  umuIdOverride String?
 
-    dropletManifest Json // Results from droplet
+  dropletManifest Json // Results from droplet
 
-    versionIndex Int
-    delta        Boolean @default(false)
+  versionIndex Int
+  delta        Boolean @default(false)
 
-    @@id([gameId, versionName])
+  @@id([gameId, versionName])
 }
 
 // A save slot for a game
 model SaveSlot {
-    gameId String
-    game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
-    userId String
-    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-    index  Int
+  gameId String
+  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  index  Int
 
-    createdAt DateTime @default(now())
-    playtime  Float    @default(0) // hours
+  createdAt DateTime @default(now())
+  playtime  Float    @default(0) // hours
 
-    lastUsedClientId String?
-    lastUsedClient   Client? @relation(fields: [lastUsedClientId], references: [id])
+  lastUsedClientId String?
+  lastUsedClient   Client? @relation(fields: [lastUsedClientId], references: [id])
 
-    historyObjectIds String[] // list of objects
-    historyChecksums String[] // list of hashes
+  historyObjectIds String[] // list of objects
+  historyChecksums String[] // list of hashes
 
-    @@id([gameId, userId, index], name: "id")
+  @@id([gameId, userId, index], name: "id")
 }
 
 model Screenshot {
-    id String @id @default(uuid())
+  id String @id @default(uuid())
 
-    gameId String
-    game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
-    userId String
-    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gameId String
+  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    objectId String
-    private  Boolean // if other users can see
+  objectId String
+  private  Boolean // if other users can see
 
-    createdAt DateTime @default(now()) @db.Timestamptz(0)
+  createdAt DateTime @default(now()) @db.Timestamptz(0)
 
-    @@index([gameId, userId])
-    @@index([userId])
+  @@index([gameId, userId])
+  @@index([userId])
 }
 
 model Playtime {
-    gameId String
-    game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
-    userId String
-    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gameId String
+  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    seconds Int // seconds user has spent playing the game
+  seconds Int // seconds user has spent playing the game
 
-    updatedAt DateTime @updatedAt @db.Timestamptz(6)
-    createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
 
-    @@id([gameId, userId])
-    @@index([userId])
+  @@id([gameId, userId])
+  @@index([userId])
 }
 
 model Company {
-    id String @id @default(uuid())
+  id String @id @default(uuid())
 
-    metadataSource        MetadataSource
-    metadataId            String
-    metadataOriginalQuery String
+  metadataSource        MetadataSource
+  metadataId            String
+  metadataOriginalQuery String
 
-    mName             String
-    mShortDescription String
-    mDescription      String
-    mLogoObjectId     String
-    mBannerObjectId   String
-    mWebsite          String
+  mName             String
+  mShortDescription String
+  mDescription      String
+  mLogoObjectId     String
+  mBannerObjectId   String
+  mWebsite          String
 
-    developed Game[] @relation(name: "developers")
-    published Game[] @relation(name: "publishers")
+  developed Game[] @relation(name: "developers")
+  published Game[] @relation(name: "publishers")
 
-    @@unique([metadataSource, metadataId], name: "metadataKey")
+  @@unique([metadataSource, metadataId], name: "metadataKey")
 }
 
 model ObjectHash {
-    id   String @id
-    hash String
+  id   String @id
+  hash String
 }

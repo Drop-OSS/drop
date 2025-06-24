@@ -5,11 +5,6 @@ import { DateTime } from "luxon";
 import { MetadataSource } from "~/prisma/client";
 
 export default defineNitroPlugin(async () => {
-  const user = await prisma.user.findUnique({ where: { id: "system" } });
-  if (!user) {
-    console.error("System user not found. Dummy data was not imported.");
-    return;
-  }
   const path = `${process.cwd()}/server/plugins/dummy-data/game-panel-placeholder.png`;
   fs.readFile(path, async (error, fileBuffer) => {
     if (error) {
@@ -20,8 +15,7 @@ export default defineNitroPlugin(async () => {
     }
 
     const isDummyGameAlreadyImported =
-      (await prisma.game.count({ where: { isHidden: true, id: "system" } })) >
-      0;
+      (await prisma.game.count({ where: { system: true } })) > 0;
 
     if (isDummyGameAlreadyImported) {
       console.info("Dummy data already imported. Skipping import.");
@@ -37,7 +31,7 @@ export default defineNitroPlugin(async () => {
 
     const dummyGameParams = {
       id: "system",
-      isHidden: true,
+      system: true,
       mCoverObjectId: id,
       mShortDescription: "This is a sample short description",
       mDescription: "This is a sample long description",
