@@ -151,11 +151,8 @@ const toggleTag = (tag: string) => {
 };
 
 const formatExcerpt = (excerpt: string) => {
-  // TODO: same as one in NewsArticleCreateButton
-  // Convert markdown to HTML
-  const html = micromark(excerpt);
-  // Strip HTML tags using regex
-  return html.replace(/<[^>]*>/g, "");
+  // Convert markdown to HTML, micromark is safe
+  return micromark(excerpt);
 };
 
 const filteredArticles = computed(() => {
