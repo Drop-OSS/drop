@@ -13,6 +13,16 @@ class SystemConfig {
     const config = useRuntimeConfig();
     this.dropVersion = config.dropVersion;
     this.gitRef = config.gitRef;
+
+    if (
+      !this.externalUrl.startsWith("https://") &&
+      !this.externalUrl.startsWith("http://")
+    ) {
+      console.error(
+        "EXTERNAL_URL doesn't start with a http protocl, attempting fix",
+      );
+      this.externalUrl = "http://" + this.externalUrl;
+    }
   }
 
   getLibraryFolder() {
