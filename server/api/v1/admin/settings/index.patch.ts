@@ -5,7 +5,7 @@ import { defineEventHandler, createError } from "h3";
 import aclManager from "~/server/internal/acls";
 
 const UpdateSettings = type({
-  showTitleDescriptionOnGamePanel: "boolean",
+  showGamePanelTextDecoration: "boolean",
 });
 
 export default defineEventHandler<{ body: typeof UpdateSettings.infer }>(
@@ -16,8 +16,8 @@ export default defineEventHandler<{ body: typeof UpdateSettings.infer }>(
     const body = await readDropValidatedBody(h3, UpdateSettings);
 
     await applicationSettings.set(
-      "showTitleDescriptionOnGamePanel",
-      body.showTitleDescriptionOnGamePanel,
+      "showGamePanelTextDecoration",
+      body.showGamePanelTextDecoration,
     );
   },
 );
