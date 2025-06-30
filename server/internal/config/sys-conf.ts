@@ -1,8 +1,13 @@
+import normalizeUrl from "normalize-url";
+
 class SystemConfig {
   private libraryFolder = process.env.LIBRARY ?? "./.data/library";
   private dataFolder = process.env.DATA ?? "./.data/data";
 
-  private externalUrl = process.env.EXTERNAL_URL ?? "http://localhost:3000";
+  private externalUrl = normalizeUrl(
+    process.env.EXTERNAL_URL ?? "http://localhost:3000",
+    { stripWWW: false },
+  );
   private dropVersion;
   private gitRef;
 
@@ -13,16 +18,6 @@ class SystemConfig {
     const config = useRuntimeConfig();
     this.dropVersion = config.dropVersion;
     this.gitRef = config.gitRef;
-
-    if (
-      !this.externalUrl.startsWith("https://") &&
-      !this.externalUrl.startsWith("http://")
-    ) {
-      console.error(
-        "EXTERNAL_URL doesn't start with a http protocl, attempting fix",
-      );
-      this.externalUrl = "http://" + this.externalUrl;
-    }
   }
 
   getLibraryFolder() {
