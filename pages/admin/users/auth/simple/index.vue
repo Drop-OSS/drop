@@ -36,20 +36,14 @@
       </div>
       <ul role="list" class="divide-y divide-zinc-800">
         <li
-          v-for="(invitation, invitationIdx) in invitations"
+          v-for="invitation in invitations"
           :key="invitation.id"
           class="relative flex justify-between gap-x-6 py-5"
         >
           <div class="flex min-w-0 gap-x-4">
             <div class="min-w-0 flex-auto">
               <div class="text-sm/6 font-semibold text-zinc-100">
-                <p v-if="invitationUrls">
-                  {{ invitationUrls[invitationIdx] }}
-                </p>
-                <div
-                  v-else
-                  class="h-4 w-full bg-zinc-800 animate-pulse rounded"
-                />
+                <p>{{ invitation.inviteUrl }}</p>
               </div>
 
               <p class="mt-1 flex text-xs/5 text-gray-500">
@@ -415,19 +409,10 @@ useHead({
   title: "Simple authentication",
 });
 
-const data = await $dropFetch<Array<SerializeObject<Invitation>>>(
-  "/api/v1/admin/auth/invitation",
-);
+const data = await $dropFetch<
+  Array<SerializeObject<Invitation & { inviteUrl: string }>>
+>("/api/v1/admin/auth/invitation");
 const invitations = ref(data ?? []);
-
-const generateInvitationUrl = (id: string) =>
-  `${window.location.protocol}//${window.location.host}/auth/register?id=${id}`;
-const invitationUrls = ref<undefined | Array<string>>();
-onMounted(() => {
-  invitationUrls.value = invitations.value.map((invitation) =>
-    generateInvitationUrl(invitation.id),
-  );
-});
 
 // Makes username undefined if it's empty
 const _username = ref<undefined | string>(undefined);
@@ -515,7 +500,6 @@ function invite_wrapper() {
   invite()
     .then((invitation) => {
       invitations.value.push(invitation);
-      invitationUrls.value?.push(generateInvitationUrl(invitation.id));
     })
     .catch((response) => {
       const message = response.statusMessage || t("errors.unknown");
@@ -536,7 +520,6 @@ async function deleteInvitation(id: string) {
 
   const index = invitations.value.findIndex((e) => e.id === id);
   invitations.value.splice(index, 1);
-  invitationUrls.value?.splice(index, 1);
 }
 
 const createModalOpen = ref(false);

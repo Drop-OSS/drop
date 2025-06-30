@@ -1,8 +1,13 @@
+import normalizeUrl from "normalize-url";
+
 class SystemConfig {
   private libraryFolder = process.env.LIBRARY ?? "./.data/library";
   private dataFolder = process.env.DATA ?? "./.data/data";
 
-  private externalUrl = process.env.EXTERNAL_URL ?? "http://localhost:3000";
+  private externalUrl = normalizeUrl(
+    process.env.EXTERNAL_URL ?? "http://localhost:3000",
+    { stripWWW: false },
+  );
   private dropVersion;
   private gitRef;
 
