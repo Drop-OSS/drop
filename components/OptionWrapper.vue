@@ -1,6 +1,6 @@
 <template>
   <div
-    v-bind:class="{ 'border-blue-400': active, 'border-gray-400': !active }"
+    :class="{ 'border-blue-400': active, 'border-gray-400': !active }"
     class="border border-3 rounded-xl relative cursor-pointer"
   >
     <div v-if="active" class="absolute top-1 right-1 z-1">

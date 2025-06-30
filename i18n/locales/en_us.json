@@ -124,9 +124,6 @@
           "desc": "Drop couldn't delete this user: {0}",
           "title": "Failed to delete user"
         }
-      },
-      "settings": {
-        "missingDummyData": "No games were found. Dummy data is missing."
       }
     },
     "backHome": "{arrow} Back to home",
@@ -471,7 +468,10 @@
     "title": "Settings",
     "subheader": "Configure Drop settings",
     "admin": {
-      "showTitleDescriptionOnGamePanel": "Show title and description on game tiles (default: on)"
+      "showGamePanelTextDecoration": "Show title and description on game tiles (default: on)",
+      "dropGameNamePlaceholder": "Drop Game",
+      "dropGameDescriptionPlaceholder": "Drop Game",
+      "dropGameAltPlaceholder": "Drop Game"
     },
     "store": {
       "title": "Store",

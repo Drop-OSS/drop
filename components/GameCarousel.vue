@@ -10,7 +10,7 @@
           <GamePanel
             :game="game"
             :href="game ? `/store/${game.id}` : undefined"
-            :show-title-description="showTitleDescriptionOnGamePanel"
+            :show-title-description="showGamePanelTextDecoration"
           />
         </VueSlide>
 
@@ -44,7 +44,7 @@ const props = defineProps<{
   width?: number;
 }>();
 
-const { showTitleDescriptionOnGamePanel } = await $dropFetch(
+const { showGamePanelTextDecoration } = await $dropFetch(
   `/api/v1/admin/settings`,
 );
 

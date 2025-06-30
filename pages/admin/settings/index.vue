@@ -18,29 +18,34 @@
       <h3
         class="text-base font-medium text-gray-900 dark:text-gray-300 mb-3 m-x-0"
       >
-        {{ t("settings.admin.showTitleDescriptionOnGamePanel") }}
+        {{ t("settings.admin.showGamePanelTextDecoration") }}
       </h3>
       <ul class="flex gap-3">
-        <li v-if="!!dummyData.gamePanel" class="inline-block">
+        <li class="inline-block">
           <OptionWrapper
-            :active="showTitleDescriptionOnGamePanel"
+            :active="showGamePanelTextDecoration"
             @click="setShowTitleDescription(true)"
           >
             <div class="flex">
-              <GamePanel :game="dummyData.gamePanel" :animate="false" />
+              <GamePanel
+                :animate="false"
+                :game="game"
+                :no-games-defaults-to-placeholder="true"
+              />
             </div>
           </OptionWrapper>
         </li>
-        <li v-if="!!dummyData.gamePanel" class="inline-block">
+        <li class="inline-block">
           <OptionWrapper
-            :active="!showTitleDescriptionOnGamePanel"
+            :active="!showGamePanelTextDecoration"
             @click="setShowTitleDescription(false)"
           >
             <div class="flex">
               <GamePanel
-                :game="dummyData.gamePanel"
+                :game="game"
                 :show-title-description="false"
                 :animate="false"
+                :no-games-defaults-to-placeholder="true"
               />
             </div>
           </OptionWrapper>
@@ -69,19 +74,19 @@ useHead({
 });
 
 const settings = await $dropFetch("/api/v1/admin/settings");
-const dummyData = await $dropFetch("/api/v1/admin/settings/dummy-data");
+const { game } = await $dropFetch("/api/v1/admin/settings/dummy-data");
 
-const showTitleDescriptionOnGamePanel = ref<boolean>(
-  settings.showTitleDescriptionOnGamePanel,
+const showGamePanelTextDecoration = ref<boolean>(
+  settings.showGamePanelTextDecoration,
 );
 const setShowTitleDescription = (value: boolean) =>
-  (showTitleDescriptionOnGamePanel.value = value);
+  (showGamePanelTextDecoration.value = value);
 
 const isSaving = ref<boolean>(false);
 const saveSettings = async () => {
   isSaving.value = true;
   const payload = {
-    showTitleDescriptionOnGamePanel: showTitleDescriptionOnGamePanel.value,
+    showGamePanelTextDecoration: showGamePanelTextDecoration.value,
   };
   await $dropFetch("/api/v1/admin/settings", {
     method: "PATCH",

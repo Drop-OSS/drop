@@ -5,9 +5,9 @@ export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.getUserACL(h3, ["settings:read"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
-  const showTitleDescriptionOnGamePanel = await applicationSettings.get(
-    "showTitleDescriptionOnGamePanel",
+  const showGamePanelTextDecoration = await applicationSettings.get(
+    "showGamePanelTextDecoration",
   );
 
-  return { showTitleDescriptionOnGamePanel };
+  return { showGamePanelTextDecoration };
 });
