@@ -23,7 +23,6 @@ export default defineEventHandler<{
   const game = await prisma.game.findUnique({
     where: {
       id: gameId,
-      system: false,
     },
     select: {
       mBannerObjectId: true,
@@ -52,7 +51,6 @@ export default defineEventHandler<{
   const result = await prisma.game.update({
     where: {
       id: gameId,
-      system: false,
     },
     data: {
       mBannerObjectId: game.mBannerObjectId,

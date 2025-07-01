@@ -33,7 +33,7 @@ export default defineClientEventHandler(
       });
 
     const game = await prisma.game.findUnique({
-      where: { id: gameId, system: false },
+      where: { id: gameId },
       select: { id: true },
     });
     if (!game)

@@ -9,7 +9,6 @@ export default defineClientEventHandler(async (h3) => {
   const game = await prisma.game.findUnique({
     where: {
       id,
-      system: false,
     },
   });
   if (!game)

@@ -174,7 +174,6 @@ export class MetadataHandler {
           metadataSource: provider.source(),
           metadataId: result.id,
         },
-        system: false,
       },
     });
     if (existing) return undefined;

@@ -36,8 +36,7 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "No game ID attached",
     });
 
-  const hasGame =
-    (await prisma.game.count({ where: { id: gameId, system: false } })) != 0;
+  const hasGame = (await prisma.game.count({ where: { id: gameId } })) != 0;
   if (!hasGame) {
     dump();
     throw createError({ statusCode: 400, statusMessage: "Invalid game ID" });
@@ -46,7 +45,6 @@ export default defineEventHandler(async (h3) => {
   const result = await prisma.game.update({
     where: {
       id: gameId,
-      system: false,
     },
     data: {
       mImageLibraryObjectIds: {
