@@ -16,7 +16,6 @@ export default defineEventHandler<{ query: { id: string } }>(async (h3) => {
   await prisma.game.delete({
     where: {
       id: gameId,
-      system: false,
     },
   });
 

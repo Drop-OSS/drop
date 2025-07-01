@@ -10,8 +10,6 @@ enum MetadataSource {
 model Game {
   id String @id @default(uuid())
 
-  system Boolean @default(false)
-
   metadataSource MetadataSource
   metadataId     String
   created        DateTime       @default(now())
