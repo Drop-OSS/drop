@@ -34,7 +34,7 @@
         :class="{ 'group-hover:text-white transition-colors': animate }"
         class="text-zinc-100 text-sm font-bold font-display"
       >
-        {{ game ? game.mName : $t("settings.admin.dropGameNamePlaceholder") }}
+        {{ game ? game.mName : $t("settings.store.dropGameNamePlaceholder") }}
       </h1>
       <p
         :class="{
@@ -45,7 +45,7 @@
         {{
           game
             ? game.mShortDescription
-            : $t("settings.admin.dropGameDescriptionPlaceholder")
+            : $t("settings.store.dropGameDescriptionPlaceholder")
         }}
       </p>
     </div>
@@ -92,7 +92,7 @@ const setActiveGame = (gameId?: string) => {
 const imageProps = {
   src: "",
   class: { active: false },
-  alt: t("settings.admin.dropGameAltPlaceholder"),
+  alt: t("settings.store.dropGameAltPlaceholder"),
 };
 if (game) {
   imageProps.src = useObject(game.mCoverObjectId);

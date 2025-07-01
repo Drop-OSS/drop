@@ -467,17 +467,15 @@
   "settings": {
     "title": "Settings",
     "subheader": "Configure Drop settings",
-    "admin": {
-      "showGamePanelTextDecoration": "Show title and description on game tiles (default: on)",
-      "dropGameNamePlaceholder": "Drop Game",
-      "dropGameDescriptionPlaceholder": "Drop Game",
-      "dropGameAltPlaceholder": "Drop Game"
-    },
     "store": {
       "title": "Store",
       "showDescriptionTitle": "Show the description and title on thumbnails",
       "showTitleDescriptionSettingOn": "Show game title and description (default)",
-      "showTitleDescriptionSettingOff": "Hide game title and description"
+      "showTitleDescriptionSettingOff": "Hide game title and description",
+      "showGamePanelTextDecoration": "Show title and description on game tiles (default: on)",
+      "dropGameNamePlaceholder": "Drop Game",
+      "dropGameDescriptionPlaceholder": "Drop Game",
+      "dropGameAltPlaceholder": "Drop Game"
     }
   },
   "store": {
