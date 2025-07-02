@@ -536,8 +536,10 @@ function coreMetadataUpdate_wrapper() {
       );
     })
     .then((newGame) => {
+      console.log(newGame);
       if (!newGame) return;
       Object.assign(game.value, newGame);
+      coreMetadataIconUrl.value = useObject(newGame.mIconObjectId);
     })
     .finally(() => {
       coreMetadataLoading.value = false;

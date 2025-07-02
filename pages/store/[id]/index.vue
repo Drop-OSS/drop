@@ -108,6 +108,40 @@
                   }}</span>
                 </td>
               </tr>
+              <tr>
+                <td
+                  class="whitespace-nowrap align-top py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
+                >
+                  Developer(s)
+                </td>
+                <td class="flex flex-col px-3 py-4 text-sm text-zinc-400">
+                  <NuxtLink
+                    v-for="developer in game.developers"
+                    :key="developer.id"
+                    :href="`/store/c/${developer.id}`"
+                    class="w-min hover:underline hover:text-zinc-100 whitespace-nowrap"
+                  >
+                    {{ developer.mName }}
+                  </NuxtLink>
+                </td>
+              </tr>
+              <tr>
+                <td
+                  class="whitespace-nowrap align-top py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
+                >
+                  Publishers(s)
+                </td>
+                <td class="flex flex-col px-3 py-4 text-sm text-zinc-400">
+                  <NuxtLink
+                    v-for="publisher in game.publishers"
+                    :key="publisher.id"
+                    :href="`/store/c/${publisher.id}`"
+                    class="w-min hover:underline hover:text-zinc-100 whitespace-nowrap"
+                  >
+                    {{ publisher.mName }}
+                  </NuxtLink>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -225,6 +259,7 @@ const ratingArray = Array(5)
 
 useHead({
   title: game.mName,
+  link: [{ rel: "icon", href: useObject(game.mIconObjectId) }],
 });
 </script>
 

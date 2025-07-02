@@ -35,11 +35,17 @@
 </template>
 
 <script setup lang="ts">
-import type { Game } from "~/prisma/client";
 import type { SerializeObject } from "nitropack";
 
 const props = defineProps<{
-  items: Array<SerializeObject<Game>>;
+  items: Array<
+    SerializeObject<{
+      id: string;
+      mName: string;
+      mShortDescription: string;
+      mCoverObjectId: string;
+    }>
+  >;
   min?: number;
   width?: number;
 }>();
@@ -51,7 +57,7 @@ const { showGamePanelTextDecoration } = await $dropFetch(
 const currentComponent = ref<HTMLDivElement>();
 
 const min = computed(() => Math.max(props.min ?? 8, props.items.length));
-const games: Ref<Array<SerializeObject<Game> | undefined>> = computed(() =>
+const games = computed(() =>
   Array(min.value)
     .fill(0)
     .map((_, i) => props.items[i]),

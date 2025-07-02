@@ -82,7 +82,7 @@
       >
         <div class="flex flex-1 flex-row p-4 gap-x-4">
           <img
-            class="h-20 w-20 flex-shrink-0 rounded-xl shadow group-hover:shadow-lg transition-all duration-200 bg-zinc-900 object-cover border border-zinc-800"
+            class="h-20 w-20 p-3 flex-shrink-0 rounded-xl shadow group-hover:shadow-lg transition-all duration-200 bg-zinc-900 object-cover border border-zinc-800"
             :src="useObject(game.mIconObjectId)"
             alt=""
           />
