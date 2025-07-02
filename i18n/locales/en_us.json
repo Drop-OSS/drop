@@ -373,6 +373,7 @@
         "fsPath": "Path",
         "fsPathDesc": "An absolute path to your game library.",
         "fsPathPlaceholder": "/mnt/games",
+        "fsFlatDesc": "Imports games from a path on disk, but without a separate version subfolder. Useful when migrating an existing library to Drop.",
         "link": "Sources {arrow}",
         "nameDesc": "The name of your source, for reference.",
         "namePlaceholder": "My New Source",

@@ -3,12 +3,11 @@ import {
   GameNotFoundError,
   VersionNotFoundError,
   type LibraryProvider,
-} from "./provider";
+} from "../provider";
 import { LibraryBackend } from "~/prisma/client";
 import fs from "fs";
 import path from "path";
 import droplet from "@drop-oss/droplet";
-import type { Readable } from "stream";
 
 export const FilesystemProviderConfig = type({
   baseDir: "string",
@@ -86,24 +85,29 @@ export class FilesystemProvider
     return manifest;
   }
 
-  // TODO: move this over to the droplet.readfile function it works
+  async peekFile(game: string, version: string, filename: string) {
+    const filepath = path.join(this.config.baseDir, game, version);
+    if (!fs.existsSync(filepath)) return undefined;
+    const stat = droplet.peekFile(filepath, filename);
+    return { size: stat };
+  }
+
   async readFile(
     game: string,
     version: string,
     filename: string,
     options?: { start?: number; end?: number },
-  ): Promise<Readable | undefined> {
-    const filepath = path.join(this.config.baseDir, game, version, filename);
+  ) {
+    const filepath = path.join(this.config.baseDir, game, version);
     if (!fs.existsSync(filepath)) return undefined;
-    const stream = fs.createReadStream(filepath, options);
+    const stream = droplet.readFile(
+      filepath,
+      filename,
+      options?.start,
+      options?.end,
+    );
+    if (!stream) return undefined;
 
     return stream;
-  }
-
-  async peekFile(game: string, version: string, filename: string) {
-    const filepath = path.join(this.config.baseDir, game, version, filename);
-    if (!fs.existsSync(filepath)) return undefined;
-    const stat = fs.statSync(filepath);
-    return { size: stat.size };
   }
 }
