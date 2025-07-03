@@ -46,6 +46,8 @@ model Game {
     developers Company[] @relation(name: "developers")
     publishers Company[] @relation(name: "publishers")
 
+    cloudSaveConfiguration CloudSaveConfiguration?
+
     @@unique([metadataSource, metadataId], name: "metadataKey")
     @@unique([libraryId, libraryPath], name: "libraryKey")
 }

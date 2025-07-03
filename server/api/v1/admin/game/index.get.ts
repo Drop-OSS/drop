@@ -30,6 +30,15 @@ export default defineEventHandler(async (h3) => {
           delta: true,
         },
       },
+      cloudSaveConfiguration: {
+        include: {
+          ludusaviEntry: {
+            include: {
+              entries: true,
+            },
+          },
+        },
+      },
     },
   });
 
