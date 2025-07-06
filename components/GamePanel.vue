@@ -1,13 +1,12 @@
 <template>
   <NuxtLink
-    v-if="game || noGamesDefaultsToPlaceholder"
+    v-if="game || defaultPlaceholder"
     :href="href"
     :class="{
       'transition-all duration-300 text-left hover:scale-[1.02] hover:shadow-lg hover:-translate-y-0.5':
         animate,
     }"
     class="group relative w-48 h-64 rounded-lg overflow-hidden"
-    @click="setActiveGame"
   >
     <div
       :class="{
@@ -18,7 +17,6 @@
       <img
         :src="imageProps.src"
         class="w-full h-full object-cover brightness-[90%]"
-        :class="imageProps.class"
         :alt="imageProps.alt"
       />
       <div
@@ -34,7 +32,7 @@
         :class="{ 'group-hover:text-white transition-colors': animate }"
         class="text-zinc-100 text-sm font-bold font-display"
       >
-        {{ game ? game.mName : $t("settings.store.dropGameNamePlaceholder") }}
+        {{ game ? game.mName : $t("settings.admin.store.dropGameNamePlaceholder") }}
       </h1>
       <p
         :class="{
@@ -45,13 +43,13 @@
         {{
           game
             ? game.mShortDescription
-            : $t("settings.store.dropGameDescriptionPlaceholder")
+            : $t("settings.admin.store.dropGameDescriptionPlaceholder")
         }}
       </p>
     </div>
   </NuxtLink>
   <SkeletonCard
-    v-else-if="noGamesDefaultsToPlaceholder === false"
+    v-else-if="defaultPlaceholder === false"
     :message="$t('store.noGame')"
   />
 </template>
@@ -65,7 +63,7 @@ const {
   href = undefined,
   showTitleDescription = true,
   animate = true,
-  noGamesDefaultsToPlaceholder = false,
+  defaultPlaceholder = false,
 } = defineProps<{
   game:
     | SerializeObject<{
@@ -79,26 +77,18 @@ const {
   href?: string;
   showTitleDescription?: boolean;
   animate?: boolean;
-  noGamesDefaultsToPlaceholder?: boolean;
+  defaultPlaceholder?: boolean;
 }>();
-
-const active = useState<string | undefined>();
-const setActiveGame = (gameId?: string) => {
-  if (game) {
-    active.value = gameId;
-  }
-};
 
 const imageProps = {
   src: "",
-  class: { active: false },
   alt: t("settings.store.dropGameAltPlaceholder"),
 };
+
 if (game) {
   imageProps.src = useObject(game.mCoverObjectId);
   imageProps.alt = game.mName;
-  imageProps.class = { active: active.value === game.id };
-} else if (noGamesDefaultsToPlaceholder) {
+} else if (defaultPlaceholder) {
   imageProps.src = "/game-panel-placeholder.png";
 }
 </script>

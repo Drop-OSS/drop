@@ -227,7 +227,8 @@
     "admin": {
       "admin": "Admin",
       "tasks": "Tasks",
-      "users": "Users"
+      "users": "Users",
+      "settings": "Settings"
     },
     "back": "Back",
     "openSidebar": "Open sidebar"
@@ -462,18 +463,22 @@
   },
   "options": "Options",
   "save": "Save",
+  "saved": "Saved",
   "add": "Add",
   "insert": "Insert",
   "security": "Security",
   "settings": {
-    "title": "Settings",
-    "subheader": "Configure Drop settings",
-    "store": {
-      "title": "Store",
-      "showGamePanelTextDecoration": "Show title and description on game tiles (default: on)",
-      "dropGameNamePlaceholder": "Drop Game",
-      "dropGameDescriptionPlaceholder": "Drop Game",
-      "dropGameAltPlaceholder": "Drop Game"
+    "admin": {
+      "title": "Settings",
+      "description": "Configure Drop settings",
+
+      "store": {
+        "title": "Store",
+        "showGamePanelTextDecoration": "Show title and description on game tiles (default: on)",
+        "dropGameNamePlaceholder": "Example Game",
+        "dropGameDescriptionPlaceholder": "This is an example game. It will be replaced if you import a game.",
+        "dropGameAltPlaceholder": "Example Game icon"
+      }
     }
   },
   "store": {
