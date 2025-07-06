@@ -401,10 +401,15 @@ export class PCGamingWikiProvider implements MetadataProvider {
       context?.logger.info("Found publishers, importing...");
       const pubListClean = this.parseWikiStringArray(game.Publishers);
       for (const pub of pubListClean) {
-        context?.logger.info(`Importing "${pub}"...`);
+        context?.logger.info(`Importing publisher "${pub}"...`);
 
         const res = await publisher(pub);
-        if (res === undefined) continue;
+        if (res === undefined) {
+          context?.logger.warn(`Failed to import publisher "${pub}"`);
+          continue;
+        }
+        context?.logger.info(`Imported publisher "${pub}"`);
+        // add to publishers
         publishers.push(res);
       }
     }
@@ -416,9 +421,13 @@ export class PCGamingWikiProvider implements MetadataProvider {
       context?.logger.info("Found developers, importing...");
       const devListClean = this.parseWikiStringArray(game.Developers);
       for (const dev of devListClean) {
-        context?.logger.info(`Importing "${dev}"...`);
+        context?.logger.info(`Importing developer "${dev}"...`);
         const res = await developer(dev);
-        if (res === undefined) continue;
+        if (res === undefined) {
+          context?.logger.warn(`Failed to import developer "${dev}"`);
+          continue;
+        }
+        context?.logger.info(`Imported developer "${dev}"`);
         developers.push(res);
       }
     }
@@ -463,7 +472,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
   async fetchCompany({
     query,
     createObject,
-  }: _FetchCompanyMetadataParams): Promise<CompanyMetadata> {
+  }: _FetchCompanyMetadataParams): Promise<CompanyMetadata | undefined> {
     const searchParams = new URLSearchParams({
       action: "cargoquery",
       tables: "Company",
@@ -497,6 +506,6 @@ export class PCGamingWikiProvider implements MetadataProvider {
       return metadata;
     }
 
-    throw new Error(`pcgamingwiki failed to find publisher/developer ${query}`);
+    return undefined;
   }
 }

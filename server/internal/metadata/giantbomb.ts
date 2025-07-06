@@ -184,7 +184,11 @@ export class GiantBombProvider implements MetadataProvider {
         context?.logger.info(`Importing publisher "${pub.name}"`);
 
         const res = await publisher(pub.name);
-        if (res === undefined) continue;
+        if (res === undefined) {
+          context?.logger.warn(`Failed to import publisher "${pub}"`);
+          continue;
+        }
+        context?.logger.info(`Imported publisher "${pub}"`);
         publishers.push(res);
       }
     }
@@ -197,7 +201,11 @@ export class GiantBombProvider implements MetadataProvider {
         context?.logger.info(`Importing developer "${dev.name}"`);
 
         const res = await developer(dev.name);
-        if (res === undefined) continue;
+        if (res === undefined) {
+          context?.logger.warn(`Failed to import developer "${dev}"`);
+          continue;
+        }
+        context?.logger.info(`Imported developer "${dev}"`);
         developers.push(res);
       }
     }
@@ -268,7 +276,7 @@ export class GiantBombProvider implements MetadataProvider {
   async fetchCompany({
     query,
     createObject,
-  }: _FetchCompanyMetadataParams): Promise<CompanyMetadata> {
+  }: _FetchCompanyMetadataParams): Promise<CompanyMetadata | undefined> {
     const results = await this.request<Array<CompanySearchResult>>(
       "search",
       "",
@@ -279,7 +287,7 @@ export class GiantBombProvider implements MetadataProvider {
     const company =
       results.data.results.find((e) => e.name == query) ??
       results.data.results.at(0);
-    if (!company) throw new Error(`No results for "${query}"`);
+    if (!company) return undefined;
 
     const longDescription = company.description
       ? this.turndown.turndown(company.description)

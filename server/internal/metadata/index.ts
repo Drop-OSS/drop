@@ -338,9 +338,6 @@ export class MetadataHandler {
       return object;
     }
 
-    // throw new Error(
-    //   `No metadata provider found a ${databaseName} for "${query}"`,
-    // );
     return undefined;
   }
 }

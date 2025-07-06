@@ -44,7 +44,7 @@ export class ManualMetadataProvider implements MetadataProvider {
   }
   async fetchCompany(
     _params: _FetchCompanyMetadataParams,
-  ): Promise<CompanyMetadata> {
-    throw new Error("Method not implemented.");
+  ): Promise<CompanyMetadata | undefined> {
+    return undefined;
   }
 }

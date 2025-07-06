@@ -409,13 +409,25 @@ export class IGDBProvider implements MetadataProvider {
           // CANNOT use else since a company can be both
           if (foundInvolved.developer) {
             const res = await developer(company.name);
-            if (res === undefined) continue;
+            if (res === undefined) {
+              context?.logger.warn(
+                `Failed to import developer "${company.name}"`,
+              );
+              continue;
+            }
+            context?.logger.info(`Imported developer "${company.name}"`);
             developers.push(res);
           }
 
           if (foundInvolved.publisher) {
             const res = await publisher(company.name);
-            if (res === undefined) continue;
+            if (res === undefined) {
+              context?.logger.warn(
+                `Failed to import publisher "${company.name}"`,
+              );
+              continue;
+            }
+            context?.logger.info(`Imported publisher "${company.name}"`);
             publishers.push(res);
           }
         }
@@ -470,7 +482,7 @@ export class IGDBProvider implements MetadataProvider {
   async fetchCompany({
     query,
     createObject,
-  }: _FetchCompanyMetadataParams): Promise<CompanyMetadata> {
+  }: _FetchCompanyMetadataParams): Promise<CompanyMetadata | undefined> {
     const response = await this.request<IGDBCompany>(
       "companies",
       `where name = "${query}"; fields *; limit 1;`,
@@ -504,6 +516,6 @@ export class IGDBProvider implements MetadataProvider {
       return metadata;
     }
 
-    throw new Error(`igdb failed to find publisher/developer ${query}`);
+    return undefined;
   }
 }
