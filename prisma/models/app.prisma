@@ -16,6 +16,7 @@ enum Platform {
 
 enum LibraryBackend {
     Filesystem
+    FlatFilesystem
 }
 
 model Library {
@@ -25,5 +26,5 @@ model Library {
     backend LibraryBackend
     options Json
 
-    games    Game[]
+    games Game[]
 }

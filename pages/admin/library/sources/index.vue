@@ -167,7 +167,7 @@
                       'relative block cursor-pointer bg-zinc-800 rounded-lg border border-zinc-900 px-2 py-2 shadow-sm focus:outline-none sm:flex sm:justify-between',
                     ]"
                   >
-                    <span class="flex items-center gap-x-2">
+                    <span class="flex items-center gap-x-4">
                       <div>
                         <component
                           :is="metadata.icon"
@@ -257,7 +257,10 @@
  * between 'create' and 'edit'
  */
 
-import { SourceOptionsFilesystem } from "#components";
+import {
+  SourceOptionsFilesystem,
+  SourceOptionsFlatFilesystem,
+} from "#components";
 import {
   DialogTitle,
   RadioGroup,
@@ -295,6 +298,7 @@ const modalLoading = ref(false);
 
 const optionUIs: { [key in LibraryBackend]: Component } = {
   Filesystem: SourceOptionsFilesystem,
+  FlatFilesystem: SourceOptionsFlatFilesystem,
 };
 const optionsMetadata: {
   [key in LibraryBackend]: {
@@ -304,6 +308,10 @@ const optionsMetadata: {
 } = {
   Filesystem: {
     description: t("library.admin.sources.fsDesc"),
+    icon: DocumentIcon,
+  },
+  FlatFilesystem: {
+    description: t("library.admin.sources.fsFlatDesc"),
     icon: DocumentIcon,
   },
 };

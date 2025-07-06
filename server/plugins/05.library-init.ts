@@ -2,10 +2,11 @@ import { LibraryBackend } from "~/prisma/client";
 import prisma from "../internal/db/database";
 import type { JsonValue } from "@prisma/client/runtime/library";
 import type { LibraryProvider } from "../internal/library/provider";
-import type { FilesystemProviderConfig } from "../internal/library/filesystem";
-import { FilesystemProvider } from "../internal/library/filesystem";
+import type { FilesystemProviderConfig } from "../internal/library/providers/filesystem";
+import { FilesystemProvider } from "../internal/library/providers/filesystem";
 import libraryManager from "../internal/library";
 import path from "path";
+import { FlatFilesystemProvider } from "../internal/library/providers/flat";
 
 export const libraryConstructors: {
   [key in LibraryBackend]: (
@@ -18,6 +19,12 @@ export const libraryConstructors: {
     id: string,
   ): LibraryProvider<unknown> {
     return new FilesystemProvider(value, id);
+  },
+  FlatFilesystem: function (
+    value: JsonValue,
+    id: string,
+  ): LibraryProvider<unknown> {
+    return new FlatFilesystemProvider(value, id);
   },
 };
 
