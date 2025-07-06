@@ -376,7 +376,7 @@
                 accept="image/*"
                 class="hidden"
                 type="file"
-                @change="(e) => coreMetadataUploadFiles(e as any)"
+                @change="(e: Event) => coreMetadataUploadFiles(e as any)"
               />
             </label>
           </div>

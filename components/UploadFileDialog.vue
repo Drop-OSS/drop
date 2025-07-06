@@ -67,7 +67,7 @@
                       class="hidden"
                       type="file"
                       :multiple="props.multiple"
-                      @change="(e) => (file = (e.target as any)?.files)"
+                      @change="(e: Event) => (file = (e.target as any)?.files)"
                     />
                   </div>
                 </div>
