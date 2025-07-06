@@ -21,12 +21,13 @@ export default defineDropTask({
   name: "Check for Update",
   acls: ["system:maintenance:read"],
   taskGroup: "check:update",
-  async run({ logger }) {
+  async run({ progress, logger }) {
     // TODO: maybe implement some sort of rate limit thing to prevent this from calling github api a bunch in the event of crashloop or whatever?
     // probably will require custom task scheduler for object cleanup anyway, so something to thing about
 
     if (!systemConfig.shouldCheckForUpdates()) {
       logger.info("Update check is disabled by configuration");
+      progress(100);
       return;
     }
 
@@ -39,10 +40,12 @@ export default defineDropTask({
       logger.info(msg);
       throw new Error(msg);
     }
+    progress(30);
 
     const response = await fetch(
       "https://api.github.com/repos/Drop-OSS/drop/releases/latest",
     );
+    progress(50);
 
     // if response failed somehow
     if (!response.ok) {
@@ -74,6 +77,7 @@ export default defineDropTask({
       logger.info(msg);
       throw new Error(msg);
     }
+    progress(70);
 
     // TODO: handle prerelease identifiers https://github.com/npm/node-semver#prerelease-identifiers
     // check if is newer version
@@ -91,5 +95,6 @@ export default defineDropTask({
     }
 
     logger.info("Done");
+    progress(100);
   },
 });

@@ -7,6 +7,7 @@ import authManager, {
   checkHashArgon2,
   checkHashBcrypt,
 } from "~/server/internal/auth";
+import { logger } from "~/server/internal/logging";
 
 const signinValidator = type({
   username: "string",
@@ -28,7 +29,7 @@ export default defineEventHandler<{
   const body = signinValidator(await readBody(h3));
   if (body instanceof type.errors) {
     // hover out.summary to see validation errors
-    console.error(body.summary);
+    logger.error(body.summary);
 
     throw createError({
       statusCode: 400,

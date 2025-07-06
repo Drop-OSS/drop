@@ -32,7 +32,7 @@ export default defineDropTask({
     logger.info("Searching for unreferenced objects");
     const unrefedObjects = await findUnreferencedStrings(objects, refMap);
     logger.info(`found ${unrefedObjects.length} Unreferenced objects`);
-    // console.log(unrefedObjects);
+    // logger.info(unrefedObjects);
     progress(60);
 
     // remove objects
@@ -44,7 +44,7 @@ export default defineDropTask({
     await Promise.all(deletePromises);
 
     // Remove any possible leftover metadata
-    objectHandler.cleanupMetadata();
+    await objectHandler.cleanupMetadata(logger);
 
     logger.info("Done");
     progress(100);

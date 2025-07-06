@@ -9,6 +9,8 @@ import prisma from "../db/database";
 import cacheHandler from "../cache";
 import { systemConfig } from "../config/sys-conf";
 import { type } from "arktype";
+import { logger } from "~/server/internal/logging";
+import type pino from "pino";
 
 export class FsObjectBackend extends ObjectBackend {
   private baseObjectPath: string;
@@ -121,7 +123,7 @@ export class FsObjectBackend extends ObjectBackend {
     const metadataRaw = JSON.parse(fs.readFileSync(metadataPath, "utf-8"));
     const metadata = objectMetadata(metadataRaw);
     if (metadata instanceof type.errors) {
-      console.error("FsObjectBackend#fetchMetadata", metadata.summary);
+      logger.error("FsObjectBackend#fetchMetadata", metadata.summary);
       return undefined;
     }
     await this.metadataCache.set(id, metadata);
@@ -175,23 +177,27 @@ export class FsObjectBackend extends ObjectBackend {
     return fs.readdirSync(this.baseObjectPath);
   }
 
-  async cleanupMetadata() {
+  async cleanupMetadata(taskLogger: pino.Logger) {
+    const cleanupLogger = taskLogger ?? logger;
+
     const metadataFiles = fs.readdirSync(this.baseMetadataPath);
     const objects = await this.listAll();
 
     const extraFiles = metadataFiles.filter(
       (file) => !objects.includes(file.replace(/\.json$/, "")),
     );
-    console.log(
+    cleanupLogger.info(
       `[FsObjectBackend#cleanupMetadata]: Found ${extraFiles.length} metadata files without corresponding objects.`,
     );
     for (const file of extraFiles) {
       const filePath = path.join(this.baseMetadataPath, file);
       try {
         fs.rmSync(filePath);
-        console.log(`[FsObjectBackend#cleanupMetadata]: Removed ${file}`);
+        cleanupLogger.info(
+          `[FsObjectBackend#cleanupMetadata]: Removed ${file}`,
+        );
       } catch (error) {
-        console.error(
+        cleanupLogger.error(
           `[FsObjectBackend#cleanupMetadata]: Failed to remove ${file}`,
           error,
         );

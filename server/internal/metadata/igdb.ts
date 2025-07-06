@@ -14,6 +14,7 @@ import axios from "axios";
 import { DateTime } from "luxon";
 import * as jdenticon from "jdenticon";
 import type { TaskRunContext } from "../tasks";
+import { logger } from "~/server/internal/logging";
 
 type IGDBID = number;
 
@@ -163,7 +164,7 @@ export class IGDBProvider implements MetadataProvider {
   }
 
   private async authWithTwitch() {
-    console.log("IGDB authorizing with twitch");
+    logger.info("IGDB authorizing with twitch");
     const params = new URLSearchParams({
       client_id: this.clientId,
       client_secret: this.clientSecret,
@@ -186,7 +187,7 @@ export class IGDBProvider implements MetadataProvider {
       seconds: response.data.expires_in,
     });
 
-    console.log("IDGB done authorizing with twitch");
+    logger.info("IDGB done authorizing with twitch");
   }
 
   private async refreshCredentials() {

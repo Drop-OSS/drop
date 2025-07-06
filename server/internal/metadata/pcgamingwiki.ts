@@ -16,6 +16,7 @@ import { DateTime } from "luxon";
 import * as cheerio from "cheerio";
 import { type } from "arktype";
 import type { TaskRunContext } from "../tasks";
+import { logger } from "~/server/internal/logging";
 
 interface PCGamingWikiParseRawPage {
   parse: {
@@ -184,7 +185,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
             let matches;
             if ((matches = opencriticRegex.exec(url.pathname)) !== null) {
               matches.forEach((match, _groupIndex) => {
-                // console.log(`Found match, group ${_groupIndex}: ${match}`);
+                // logger.log(`Found match, group ${_groupIndex}: ${match}`);
                 id = match;
               });
             }
@@ -199,7 +200,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
             return url.pathname.replace("/games/", "").replace(/\/$/, "");
           }
           default: {
-            console.warn("Pcgamingwiki, unknown host", url.hostname);
+            logger.warn("Pcgamingwiki, unknown host", url.hostname);
             return undefined;
           }
         }
@@ -223,7 +224,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
 
           const href = reviewEle.attr("href");
           if (!href) {
-            console.log(
+            logger.info(
               `pcgamingwiki: failed to properly get review href for ${source}`,
             );
             return undefined;
@@ -232,7 +233,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
             rating: reviewEle.text().trim(),
           });
           if (ratingObj instanceof type.errors) {
-            console.log(
+            logger.info(
               "pcgamingwiki: failed to properly get review rating",
               ratingObj.summary,
             );

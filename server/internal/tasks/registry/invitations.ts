@@ -6,7 +6,7 @@ export default defineDropTask({
   name: "Cleanup Invitations",
   acls: ["system:maintenance:read"],
   taskGroup: "cleanup:invitations",
-  async run({ logger }) {
+  async run({ progress, logger }) {
     logger.info("Cleaning invitations");
 
     const now = new Date();
@@ -20,5 +20,6 @@ export default defineDropTask({
     });
 
     logger.info("Done");
+    progress(100);
   },
 });

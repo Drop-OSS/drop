@@ -16,6 +16,7 @@ import type { TaskRunContext } from "../tasks";
 import taskHandler, { wrapTaskContext } from "../tasks";
 import { randomUUID } from "crypto";
 import { fuzzy } from "fast-fuzzy";
+import { logger } from "~/server/internal/logging";
 
 export class MissingMetadataProviderConfig extends Error {
   private providerName: string;
@@ -89,7 +90,7 @@ export class MetadataHandler {
           );
           resolve(mappedResults);
         } catch (e) {
-          console.warn(e);
+          logger.warn(e);
           reject(e);
         }
       });
@@ -301,7 +302,7 @@ export class MetadataHandler {
           );
         }
       } catch (e) {
-        console.warn(e);
+        logger.warn(e);
         dumpObjects();
         continue;
       }

@@ -16,6 +16,7 @@
 
 import { type } from "arktype";
 import { parse as getMimeTypeBuffer } from "file-type-mime";
+import type pino from "pino";
 import type { Writable } from "stream";
 import { Readable } from "stream";
 import { getMimeType as getMimeTypeStream } from "stream-mime-type";
@@ -71,7 +72,7 @@ export abstract class ObjectBackend {
   ): Promise<boolean>;
   abstract fetchHash(id: ObjectReference): Promise<string | undefined>;
   abstract listAll(): Promise<string[]>;
-  abstract cleanupMetadata(): Promise<void>;
+  abstract cleanupMetadata(taskLogger: pino.Logger): Promise<void>;
 }
 
 export class ObjectHandler {
@@ -264,7 +265,7 @@ export class ObjectHandler {
    * This is useful for cleaning up metadata files that are left behinds
    * @returns
    */
-  async cleanupMetadata() {
-    return await this.backend.cleanupMetadata();
+  async cleanupMetadata(taskLogger: pino.Logger) {
+    return await this.backend.cleanupMetadata(taskLogger);
   }
 }
