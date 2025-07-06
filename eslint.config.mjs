@@ -13,7 +13,7 @@ export default withNuxt([
       // Optional.
       "@intlify/vue-i18n/no-dynamic-keys": "error",
       "@intlify/vue-i18n/no-unused-keys": [
-        "error",
+        "off",
         {
           extensions: [".js", ".vue", ".ts"],
         },

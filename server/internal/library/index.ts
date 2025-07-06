@@ -172,7 +172,9 @@ class LibraryManager {
   // Checks are done in least to most expensive order
   async checkUnimportedGamePath(libraryId: string, libraryPath: string) {
     const hasGame =
-      (await prisma.game.count({ where: { libraryId, libraryPath } })) > 0;
+      (await prisma.game.count({
+        where: { libraryId, libraryPath },
+      })) > 0;
     if (hasGame) return false;
 
     return true;

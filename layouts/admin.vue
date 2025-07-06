@@ -193,7 +193,7 @@ const navigation: Array<NavigationItem & { icon: Component }> = [
     icon: RectangleStackIcon,
   },
   {
-    label: $t("settings"),
+    label: $t("header.admin.settings"),
     route: "/admin/settings",
     prefix: "/admin/settings",
     icon: Cog6ToothIcon,
