@@ -374,7 +374,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
     { id, name, publisher, developer, createObject }: _FetchGameMetadataParams,
     context?: TaskRunContext,
   ): Promise<GameMetadata> {
-    context?.log("Using PCGamingWiki provider");
+    context?.logger.info("Using PCGamingWiki provider");
     context?.progress(0);
 
     const searchParams = new URLSearchParams({
@@ -397,10 +397,10 @@ export class PCGamingWikiProvider implements MetadataProvider {
 
     const publishers: Company[] = [];
     if (game.Publishers !== null) {
-      context?.log("Found publishers, importing...");
+      context?.logger.info("Found publishers, importing...");
       const pubListClean = this.parseWikiStringArray(game.Publishers);
       for (const pub of pubListClean) {
-        context?.log(`Importing "${pub}"...`);
+        context?.logger.info(`Importing "${pub}"...`);
 
         const res = await publisher(pub);
         if (res === undefined) continue;
@@ -412,10 +412,10 @@ export class PCGamingWikiProvider implements MetadataProvider {
 
     const developers: Company[] = [];
     if (game.Developers !== null) {
-      context?.log("Found developers, importing...");
+      context?.logger.info("Found developers, importing...");
       const devListClean = this.parseWikiStringArray(game.Developers);
       for (const dev of devListClean) {
-        context?.log(`Importing "${dev}"...`);
+        context?.logger.info(`Importing "${dev}"...`);
         const res = await developer(dev);
         if (res === undefined) continue;
         developers.push(res);
@@ -453,7 +453,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
       images: [icon],
     };
 
-    context?.log("PCGamingWiki provider finished.");
+    context?.logger.info("PCGamingWiki provider finished.");
     context?.progress(100);
 
     return metadata;

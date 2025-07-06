@@ -134,9 +134,6 @@ class ACLManager {
       if (tokenACLIndex != -1) return token.userId;
     }
 
-    console.log(token);
-    console.log(acls);
-
     return undefined;
   }
 

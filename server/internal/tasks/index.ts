@@ -10,6 +10,9 @@ import cleanupObjects from "./registry/objects";
 import { taskGroups, type TaskGroup } from "./group";
 import prisma from "../db/database";
 import { type } from "arktype";
+import pino from "pino";
+import { logger } from "~/server/internal/logging";
+import { Writable } from "node:stream";
 
 // a task that has been run
 type FinishedTask = {
@@ -80,7 +83,7 @@ class TaskHandler {
         // if a task is already running, we don't want to start another
         if (existingTask.taskGroup === task.taskGroup) {
           // TODO: handle this more gracefully, maybe with a queue? should be configurable
-          console.warn(
+          logger.warn(
             `Task group ${task.taskGroup} does not allow concurrent tasks. Task ${task.id} will not be started.`,
           );
           throw new Error(
@@ -126,16 +129,82 @@ class TaskHandler {
         }, 100);
       });
 
-    const log = (entry: string) => {
-      const taskEntry = this.taskPool.get(task.id);
-      if (!taskEntry) return;
-      taskEntry.log.push(msgWithTimestamp(entry));
-      updateAllClients();
-    };
+    const taskPool = this.taskPool;
+
+    // Create a pino transport that replicates the old log function behavior
+    // const taskLogger = pino({
+    //   hooks: {
+    //     logMethod(args, method) {
+    //       // Combine all arguments into a single string message
+    //       const message = args.map(String).join(" ");
+    //       const now = new Date();
+
+    //       const pad = (n: number, width = 2) =>
+    //         n.toString().padStart(width, "0");
+
+    //       const year = now.getUTCFullYear();
+    //       const month = pad(now.getUTCMonth() + 1);
+    //       const day = pad(now.getUTCDate());
+
+    //       const hours = pad(now.getUTCHours());
+    //       const minutes = pad(now.getUTCMinutes());
+    //       const seconds = pad(now.getUTCSeconds());
+    //       const milliseconds = pad(now.getUTCMilliseconds(), 3);
+
+    //       const logObj = {
+    //         timestamp: `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds} UTC`,
+    //         message,
+    //       };
+
+    //       // Push the formatted log string to the task's log array
+    //       const taskEntry = taskPool.get(task.id);
+    //       if (taskEntry) {
+    //         taskEntry.log.push(JSON.stringify(logObj));
+    //         updateAllClients();
+    //       }
+
+    //       // Optionally, still call the original method if you want logs elsewhere
+    //       method.apply(this, args);
+    //     },
+    //   },
+    // });
+
+    // Custom writable stream to capture logs
+    const logStream = new Writable({
+      objectMode: true,
+      write(chunk, encoding, callback) {
+        try {
+          // chunk is a stringified JSON log line
+          const logObj = JSON.parse(chunk.toString());
+          const taskEntry = taskPool.get(task.id);
+          if (taskEntry) {
+            taskEntry.log.push(JSON.stringify(logObj));
+            updateAllClients();
+          }
+        } catch (e) {
+          // fallback: ignore or log error
+          logger.error("Failed to parse log chunk", {
+            error: e,
+            chunk: chunk,
+          });
+        }
+        callback();
+      },
+    });
+
+    // Use pino with the custom stream
+    const taskLogger = pino(
+      {
+        // You can configure timestamp, level, etc. here
+        timestamp: pino.stdTimeFunctions.isoTime,
+        base: null, // Remove pid/hostname if not needed
+      },
+      logStream,
+    );
 
     const progress = (progress: number) => {
       if (progress < 0 || progress > 100) {
-        console.error("Progress must be between 0 and 100", { progress });
+        logger.error("Progress must be between 0 and 100", { progress });
         return;
       }
       const taskEntry = this.taskPool.get(task.id);
@@ -165,7 +234,7 @@ class TaskHandler {
       if (!taskEntry) throw new Error("No task entry");
 
       try {
-        await task.run({ progress, log });
+        await task.run({ progress, logger: taskLogger });
         taskEntry.success = true;
       } catch (error: unknown) {
         taskEntry.success = false;
@@ -226,7 +295,7 @@ class TaskHandler {
 
     const allowed = await aclManager.hasACL(request, task.acls);
     if (!allowed) {
-      console.warn("user does not have necessary ACLs");
+      // logger.warn("user does not have necessary ACLs");
       peer.send(
         `error/${taskId}/Unknown task/Drop couldn't find the task you're looking for.`,
       );
@@ -304,7 +373,7 @@ class TaskHandler {
   runTaskGroupByName(name: TaskGroup) {
     const task = this.taskCreators.get(name);
     if (!task) {
-      console.warn(`No task found for group ${name}`);
+      logger.warn(`No task found for group ${name}`);
       return;
     }
     this.create(task());
@@ -365,17 +434,21 @@ class TaskHandler {
 
 export type TaskRunContext = {
   progress: (progress: number) => void;
-  log: (message: string) => void;
+  logger: typeof logger;
 };
 
 export function wrapTaskContext(
   context: TaskRunContext,
   options: { min: number; max: number; prefix: string },
 ): TaskRunContext {
+  const child = context.logger.child({
+    prefix: options.prefix,
+  });
+
   return {
     progress(progress) {
       if (progress > 100 || progress < 0) {
-        console.warn("[wrapTaskContext] progress must be between 0 and 100");
+        logger.warn("[wrapTaskContext] progress must be between 0 and 100");
       }
 
       // I was too tired to figure this out
@@ -385,9 +458,7 @@ export function wrapTaskContext(
       const adjustedProgress = (progress * newRange) / oldRange + options.min;
       return context.progress(adjustedProgress);
     },
-    log(message) {
-      return context.log(options.prefix + message);
-    },
+    logger: child,
   };
 }
 
@@ -431,31 +502,31 @@ export const TaskLog = type({
   message: "string",
 });
 
-/**
- * Create a log message with a timestamp in the format YYYY-MM-DD HH:mm:ss.SSS UTC
- * @param message
- * @returns
- */
-function msgWithTimestamp(message: string): string {
-  const now = new Date();
+// /**
+//  * Create a log message with a timestamp in the format YYYY-MM-DD HH:mm:ss.SSS UTC
+//  * @param message
+//  * @returns
+//  */
+// function msgWithTimestamp(message: string): string {
+//   const now = new Date();
 
-  const pad = (n: number, width = 2) => n.toString().padStart(width, "0");
+//   const pad = (n: number, width = 2) => n.toString().padStart(width, "0");
 
-  const year = now.getUTCFullYear();
-  const month = pad(now.getUTCMonth() + 1);
-  const day = pad(now.getUTCDate());
+//   const year = now.getUTCFullYear();
+//   const month = pad(now.getUTCMonth() + 1);
+//   const day = pad(now.getUTCDate());
 
-  const hours = pad(now.getUTCHours());
-  const minutes = pad(now.getUTCMinutes());
-  const seconds = pad(now.getUTCSeconds());
-  const milliseconds = pad(now.getUTCMilliseconds(), 3);
+//   const hours = pad(now.getUTCHours());
+//   const minutes = pad(now.getUTCMinutes());
+//   const seconds = pad(now.getUTCSeconds());
+//   const milliseconds = pad(now.getUTCMilliseconds(), 3);
 
-  const log: typeof TaskLog.infer = {
-    timestamp: `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds} UTC`,
-    message,
-  };
-  return JSON.stringify(log);
-}
+//   const log: typeof TaskLog.infer = {
+//     timestamp: `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds} UTC`,
+//     message,
+//   };
+//   return JSON.stringify(log);
+// }
 
 export function defineDropTask(buildTask: BuildTask): DropTask {
   // TODO: only let one task with the same taskGroup run at the same time if specified

@@ -15,28 +15,30 @@ export default defineDropTask({
   name: "Cleanup Objects",
   acls: ["system:maintenance:read"],
   taskGroup: "cleanup:objects",
-  async run({ progress, log }) {
-    log("Cleaning unreferenced objects");
+  async run({ progress, logger }) {
+    logger.info("Cleaning unreferenced objects");
 
     // get all objects
     const objects = await objectHandler.listAll();
-    log(`searching for ${objects.length} objects`);
+    logger.info(`searching for ${objects.length} objects`);
     progress(30);
 
     // find unreferenced objects
     const refMap = buildRefMap();
-    log("Building reference map");
-    log(`Found ${Object.keys(refMap).length} models with reference fields`);
-    log("Searching for unreferenced objects");
+    logger.info("Building reference map");
+    logger.info(
+      `Found ${Object.keys(refMap).length} models with reference fields`,
+    );
+    logger.info("Searching for unreferenced objects");
     const unrefedObjects = await findUnreferencedStrings(objects, refMap);
-    log(`found ${unrefedObjects.length} Unreferenced objects`);
+    logger.info(`found ${unrefedObjects.length} Unreferenced objects`);
     // console.log(unrefedObjects);
     progress(60);
 
     // remove objects
     const deletePromises: Promise<boolean>[] = [];
     for (const obj of unrefedObjects) {
-      log(`Deleting object ${obj}`);
+      logger.info(`Deleting object ${obj}`);
       deletePromises.push(objectHandler.deleteAsSystem(obj));
     }
     await Promise.all(deletePromises);
@@ -44,7 +46,7 @@ export default defineDropTask({
     // Remove any possible leftover metadata
     objectHandler.cleanupMetadata();
 
-    log("Done");
+    logger.info("Done");
     progress(100);
   },
 });

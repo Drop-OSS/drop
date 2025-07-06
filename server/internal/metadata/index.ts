@@ -187,7 +187,7 @@ export class MetadataHandler {
       taskGroup: "import:game",
       acls: ["system:import:game:read"],
       async run(context) {
-        const { progress, log } = context;
+        const { progress, logger } = context;
 
         progress(0);
 
@@ -262,12 +262,12 @@ export class MetadataHandler {
         });
 
         progress(63);
-        log(`Successfully fetched all metadata.`);
-        log(`Importing objects...`);
+        logger.info(`Successfully fetched all metadata.`);
+        logger.info(`Importing objects...`);
 
         await pullObjects();
 
-        log(`Finished game import.`);
+        logger.info(`Finished game import.`);
       },
     });
 

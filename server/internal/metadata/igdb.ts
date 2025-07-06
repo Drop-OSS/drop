@@ -354,16 +354,16 @@ export class IGDBProvider implements MetadataProvider {
     const currentGame = (await this.request<IGDBGameFull>("games", body)).at(0);
     if (!currentGame) throw new Error("No game found on IGDB with that id");
 
-    context?.log("Using IDGB provider.");
+    context?.logger.info("Using IDGB provider.");
 
     let iconRaw;
     const cover = currentGame.cover;
 
     if (cover !== undefined) {
-      context?.log("Found cover URL, using...");
+      context?.logger.info("Found cover URL, using...");
       iconRaw = await this.getCoverURL(cover);
     } else {
-      context?.log("Missing cover URL, using fallback...");
+      context?.logger.info("Missing cover URL, using fallback...");
       iconRaw = jdenticon.toPng(id, 512);
     }
 
@@ -400,7 +400,7 @@ export class IGDBProvider implements MetadataProvider {
         >("companies", `where id = ${foundInvolved.company}; fields name;`);
 
         for (const company of findCompanyResponse) {
-          context?.log(
+          context?.logger.info(
             `Found involved company "${company.name}" as: ${foundInvolved.developer ? "developer, " : ""}${foundInvolved.publisher ? "publisher" : ""}`,
           );
 
@@ -461,7 +461,7 @@ export class IGDBProvider implements MetadataProvider {
       images,
     };
 
-    context?.log("IGDB provider finished.");
+    context?.logger.info("IGDB provider finished.");
     context?.progress(100);
 
     return metadata;
