@@ -1,5 +1,6 @@
 import { AuthMec } from "~/prisma/client";
 import { OIDCManager } from "./oidc";
+import { logger } from "~/server/internal/logging";
 
 class AuthManager {
   private authProviders: {
@@ -21,7 +22,7 @@ class AuthManager {
   };
 
   constructor() {
-    console.log("AuthManager initialized");
+    logger.info("AuthManager initialized");
   }
 
   async init() {
@@ -31,9 +32,9 @@ class AuthManager {
         if (!object) break;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (this.authProviders as any)[key] = object;
-        console.log(`enabled auth: ${key}`);
+        logger.info(`enabled auth: ${key}`);
       } catch (e) {
-        console.warn(e);
+        logger.warn(e);
       }
     }
 

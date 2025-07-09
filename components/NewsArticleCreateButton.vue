@@ -132,7 +132,7 @@
             accept="image/*"
             class="hidden"
             type="file"
-            @change="(e) => (file = (e.target as any)?.files)"
+            @change="(e: Event) => (file = (e.target as any)?.files)"
           />
         </div>
 

@@ -16,6 +16,7 @@ import { DateTime } from "luxon";
 import * as cheerio from "cheerio";
 import { type } from "arktype";
 import type { TaskRunContext } from "../tasks";
+import { logger } from "~/server/internal/logging";
 
 interface PCGamingWikiParseRawPage {
   parse: {
@@ -184,7 +185,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
             let matches;
             if ((matches = opencriticRegex.exec(url.pathname)) !== null) {
               matches.forEach((match, _groupIndex) => {
-                // console.log(`Found match, group ${_groupIndex}: ${match}`);
+                // logger.log(`Found match, group ${_groupIndex}: ${match}`);
                 id = match;
               });
             }
@@ -199,7 +200,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
             return url.pathname.replace("/games/", "").replace(/\/$/, "");
           }
           default: {
-            console.warn("Pcgamingwiki, unknown host", url.hostname);
+            logger.warn("Pcgamingwiki, unknown host", url.hostname);
             return undefined;
           }
         }
@@ -223,7 +224,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
 
           const href = reviewEle.attr("href");
           if (!href) {
-            console.log(
+            logger.info(
               `pcgamingwiki: failed to properly get review href for ${source}`,
             );
             return undefined;
@@ -232,7 +233,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
             rating: reviewEle.text().trim(),
           });
           if (ratingObj instanceof type.errors) {
-            console.log(
+            logger.info(
               "pcgamingwiki: failed to properly get review rating",
               ratingObj.summary,
             );
@@ -374,7 +375,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
     { id, name, publisher, developer, createObject }: _FetchGameMetadataParams,
     context?: TaskRunContext,
   ): Promise<GameMetadata> {
-    context?.log("Using PCGamingWiki provider");
+    context?.logger.info("Using PCGamingWiki provider");
     context?.progress(0);
 
     const searchParams = new URLSearchParams({
@@ -397,13 +398,18 @@ export class PCGamingWikiProvider implements MetadataProvider {
 
     const publishers: Company[] = [];
     if (game.Publishers !== null) {
-      context?.log("Found publishers, importing...");
+      context?.logger.info("Found publishers, importing...");
       const pubListClean = this.parseWikiStringArray(game.Publishers);
       for (const pub of pubListClean) {
-        context?.log(`Importing "${pub}"...`);
+        context?.logger.info(`Importing publisher "${pub}"...`);
 
         const res = await publisher(pub);
-        if (res === undefined) continue;
+        if (res === undefined) {
+          context?.logger.warn(`Failed to import publisher "${pub}"`);
+          continue;
+        }
+        context?.logger.info(`Imported publisher "${pub}"`);
+        // add to publishers
         publishers.push(res);
       }
     }
@@ -412,12 +418,16 @@ export class PCGamingWikiProvider implements MetadataProvider {
 
     const developers: Company[] = [];
     if (game.Developers !== null) {
-      context?.log("Found developers, importing...");
+      context?.logger.info("Found developers, importing...");
       const devListClean = this.parseWikiStringArray(game.Developers);
       for (const dev of devListClean) {
-        context?.log(`Importing "${dev}"...`);
+        context?.logger.info(`Importing developer "${dev}"...`);
         const res = await developer(dev);
-        if (res === undefined) continue;
+        if (res === undefined) {
+          context?.logger.warn(`Failed to import developer "${dev}"`);
+          continue;
+        }
+        context?.logger.info(`Imported developer "${dev}"`);
         developers.push(res);
       }
     }
@@ -453,7 +463,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
       images: [icon],
     };
 
-    context?.log("PCGamingWiki provider finished.");
+    context?.logger.info("PCGamingWiki provider finished.");
     context?.progress(100);
 
     return metadata;
@@ -462,7 +472,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
   async fetchCompany({
     query,
     createObject,
-  }: _FetchCompanyMetadataParams): Promise<CompanyMetadata> {
+  }: _FetchCompanyMetadataParams): Promise<CompanyMetadata | undefined> {
     const searchParams = new URLSearchParams({
       action: "cargoquery",
       tables: "Company",
@@ -496,6 +506,6 @@ export class PCGamingWikiProvider implements MetadataProvider {
       return metadata;
     }
 
-    throw new Error(`pcgamingwiki failed to find publisher/developer ${query}`);
+    return undefined;
   }
 }

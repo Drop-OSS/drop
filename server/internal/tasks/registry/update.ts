@@ -21,38 +21,38 @@ export default defineDropTask({
   name: "Check for Update",
   acls: ["system:maintenance:read"],
   taskGroup: "check:update",
-  async run({ log }) {
+  async run({ progress, logger }) {
     // TODO: maybe implement some sort of rate limit thing to prevent this from calling github api a bunch in the event of crashloop or whatever?
     // probably will require custom task scheduler for object cleanup anyway, so something to thing about
 
     if (!systemConfig.shouldCheckForUpdates()) {
-      log("Update check is disabled by configuration");
+      logger.info("Update check is disabled by configuration");
+      progress(100);
       return;
     }
 
-    log("Checking for update");
+    logger.info("Checking for update");
 
     const currVerStr = systemConfig.getDropVersion();
     const currVer = semver.coerce(currVerStr);
     if (currVer === null) {
       const msg = "Drop provided a invalid semver tag";
-      log(msg);
+      logger.info(msg);
       throw new Error(msg);
     }
+    progress(30);
 
     const response = await fetch(
       "https://api.github.com/repos/Drop-OSS/drop/releases/latest",
     );
+    progress(50);
 
     // if response failed somehow
     if (!response.ok) {
-      log(
-        "Failed to check for update " +
-          JSON.stringify({
-            status: response.status,
-            body: response.body,
-          }),
-      );
+      logger.info("Failed to check for update ", {
+        status: response.status,
+        body: response.body,
+      });
 
       throw new Error(
         `Failed to check for update: ${response.status} ${response.body}`,
@@ -63,8 +63,8 @@ export default defineDropTask({
     const resJson = await response.json();
     const body = latestRelease(resJson);
     if (body instanceof type.errors) {
-      log(body.summary);
-      log("GitHub Api response" + JSON.stringify(resJson));
+      logger.info(body.summary);
+      logger.info("GitHub Api response" + JSON.stringify(resJson));
       throw new Error(
         `GitHub Api response did not match expected schema: ${body.summary}`,
       );
@@ -74,14 +74,15 @@ export default defineDropTask({
     const latestVer = semver.coerce(body.tag_name);
     if (latestVer === null) {
       const msg = "Github Api returned invalid semver tag";
-      log(msg);
+      logger.info(msg);
       throw new Error(msg);
     }
+    progress(70);
 
     // TODO: handle prerelease identifiers https://github.com/npm/node-semver#prerelease-identifiers
     // check if is newer version
     if (semver.gt(latestVer, currVer)) {
-      log("Update available");
+      logger.info("Update available");
       notificationSystem.systemPush({
         nonce: `drop-update-available-${currVer}-to-${latestVer}`,
         title: `Update available to v${latestVer}`,
@@ -90,9 +91,10 @@ export default defineDropTask({
         acls: ["system:notifications:read"],
       });
     } else {
-      log("no update available");
+      logger.info("no update available");
     }
 
-    log("Done");
+    logger.info("Done");
+    progress(100);
   },
 });

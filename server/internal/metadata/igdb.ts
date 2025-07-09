@@ -14,6 +14,7 @@ import axios from "axios";
 import { DateTime } from "luxon";
 import * as jdenticon from "jdenticon";
 import type { TaskRunContext } from "../tasks";
+import { logger } from "~/server/internal/logging";
 
 type IGDBID = number;
 
@@ -163,7 +164,7 @@ export class IGDBProvider implements MetadataProvider {
   }
 
   private async authWithTwitch() {
-    console.log("IGDB authorizing with twitch");
+    logger.info("IGDB authorizing with twitch");
     const params = new URLSearchParams({
       client_id: this.clientId,
       client_secret: this.clientSecret,
@@ -186,7 +187,7 @@ export class IGDBProvider implements MetadataProvider {
       seconds: response.data.expires_in,
     });
 
-    console.log("IDGB done authorizing with twitch");
+    logger.info("IDGB done authorizing with twitch");
   }
 
   private async refreshCredentials() {
@@ -354,16 +355,16 @@ export class IGDBProvider implements MetadataProvider {
     const currentGame = (await this.request<IGDBGameFull>("games", body)).at(0);
     if (!currentGame) throw new Error("No game found on IGDB with that id");
 
-    context?.log("Using IDGB provider.");
+    context?.logger.info("Using IDGB provider.");
 
     let iconRaw;
     const cover = currentGame.cover;
 
     if (cover !== undefined) {
-      context?.log("Found cover URL, using...");
+      context?.logger.info("Found cover URL, using...");
       iconRaw = await this.getCoverURL(cover);
     } else {
-      context?.log("Missing cover URL, using fallback...");
+      context?.logger.info("Missing cover URL, using fallback...");
       iconRaw = jdenticon.toPng(id, 512);
     }
 
@@ -400,7 +401,7 @@ export class IGDBProvider implements MetadataProvider {
         >("companies", `where id = ${foundInvolved.company}; fields name;`);
 
         for (const company of findCompanyResponse) {
-          context?.log(
+          context?.logger.info(
             `Found involved company "${company.name}" as: ${foundInvolved.developer ? "developer, " : ""}${foundInvolved.publisher ? "publisher" : ""}`,
           );
 
@@ -408,13 +409,25 @@ export class IGDBProvider implements MetadataProvider {
           // CANNOT use else since a company can be both
           if (foundInvolved.developer) {
             const res = await developer(company.name);
-            if (res === undefined) continue;
+            if (res === undefined) {
+              context?.logger.warn(
+                `Failed to import developer "${company.name}"`,
+              );
+              continue;
+            }
+            context?.logger.info(`Imported developer "${company.name}"`);
             developers.push(res);
           }
 
           if (foundInvolved.publisher) {
             const res = await publisher(company.name);
-            if (res === undefined) continue;
+            if (res === undefined) {
+              context?.logger.warn(
+                `Failed to import publisher "${company.name}"`,
+              );
+              continue;
+            }
+            context?.logger.info(`Imported publisher "${company.name}"`);
             publishers.push(res);
           }
         }
@@ -461,7 +474,7 @@ export class IGDBProvider implements MetadataProvider {
       images,
     };
 
-    context?.log("IGDB provider finished.");
+    context?.logger.info("IGDB provider finished.");
     context?.progress(100);
 
     return metadata;
@@ -469,7 +482,7 @@ export class IGDBProvider implements MetadataProvider {
   async fetchCompany({
     query,
     createObject,
-  }: _FetchCompanyMetadataParams): Promise<CompanyMetadata> {
+  }: _FetchCompanyMetadataParams): Promise<CompanyMetadata | undefined> {
     const response = await this.request<IGDBCompany>(
       "companies",
       `where name = "${query}"; fields *; limit 1;`,
@@ -503,6 +516,6 @@ export class IGDBProvider implements MetadataProvider {
       return metadata;
     }
 
-    throw new Error(`igdb failed to find publisher/developer ${query}`);
+    return undefined;
   }
 }

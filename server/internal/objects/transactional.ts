@@ -43,9 +43,9 @@ export class ObjectTransactionalHandler {
 
       for (const [id, data] of transaction) {
         if (typeof data === "string") {
-          context?.log(`Importing object from "${data}"`);
+          context?.logger.info(`Importing object from "${data}"`);
         } else {
-          context?.log(`Importing raw object...`);
+          context?.logger.info(`Importing raw object...`);
         }
         await objectHandler.createFromSource(
           id,

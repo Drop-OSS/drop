@@ -6,6 +6,7 @@ import objectHandler from "../../objects";
 import type { Readable } from "stream";
 import * as jdenticon from "jdenticon";
 import { systemConfig } from "../../config/sys-conf";
+import { logger } from "~/server/internal/logging";
 
 interface OIDCWellKnown {
   authorization_endpoint: string;
@@ -206,7 +207,7 @@ export class OIDCManager {
 
       return { user, options: session.options };
     } catch (e) {
-      console.error(e);
+      logger.error(e);
       return `Request to identity provider failed: ${e}`;
     }
   }

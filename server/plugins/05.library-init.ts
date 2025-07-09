@@ -7,6 +7,7 @@ import { FilesystemProvider } from "../internal/library/providers/filesystem";
 import libraryManager from "../internal/library";
 import path from "path";
 import { FlatFilesystemProvider } from "../internal/library/providers/flat";
+import { logger } from "~/server/internal/logging";
 
 export const libraryConstructors: {
   [key in LibraryBackend]: (
@@ -67,14 +68,14 @@ export default defineNitroPlugin(async () => {
       libraryManager.addLibrary(provider);
       successes++;
     } catch (e) {
-      console.warn(
+      logger.warn(
         `Failed to create library (${library.id}) of type ${library.backend}:\n ${e}`,
       );
     }
   }
 
   if (successes == 0) {
-    console.warn(
+    logger.warn(
       "No library was successfully initialised. Please check for errors. If you have just set up an instance, this is normal.",
     );
   }

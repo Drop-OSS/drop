@@ -223,7 +223,7 @@ class LibraryManager {
       taskGroup: "import:game",
       name: `Importing version ${versionName} for ${game.mName}`,
       acls: ["system:import:version:read"],
-      async run({ progress, log }) {
+      async run({ progress, logger }) {
         // First, create the manifest via droplet.
         // This takes up 90% of our progress, so we wrap it in a *0.9
         const manifest = await library.generateDropletManifest(
@@ -235,11 +235,11 @@ class LibraryManager {
           },
           (err, value) => {
             if (err) throw err;
-            log(value);
+            logger.info(value);
           },
         );
 
-        log("Created manifest successfully!");
+        logger.info("Created manifest successfully!");
 
         const currentIndex = await prisma.gameVersion.count({
           where: { gameId: gameId },
@@ -282,7 +282,7 @@ class LibraryManager {
           });
         }
 
-        log("Successfully created version!");
+        logger.info("Successfully created version!");
 
         notificationSystem.systemPush({
           nonce: `version-create-${gameId}-${versionName}`,

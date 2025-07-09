@@ -32,7 +32,9 @@
         :class="{ 'group-hover:text-white transition-colors': animate }"
         class="text-zinc-100 text-sm font-bold font-display"
       >
-        {{ game ? game.mName : $t("settings.admin.store.dropGameNamePlaceholder") }}
+        {{
+          game ? game.mName : $t("settings.admin.store.dropGameNamePlaceholder")
+        }}
       </h1>
       <p
         :class="{

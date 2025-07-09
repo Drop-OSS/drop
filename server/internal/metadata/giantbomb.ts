@@ -169,7 +169,7 @@ export class GiantBombProvider implements MetadataProvider {
     { id, publisher, developer, createObject }: _FetchGameMetadataParams,
     context?: TaskRunContext,
   ): Promise<GameMetadata> {
-    context?.log("Using GiantBomb provider");
+    context?.logger.info("Using GiantBomb provider");
 
     const result = await this.request<GameResult>("game", id, {});
     const gameData = result.data.results;
@@ -181,10 +181,14 @@ export class GiantBombProvider implements MetadataProvider {
     const publishers: Company[] = [];
     if (gameData.publishers) {
       for (const pub of gameData.publishers) {
-        context?.log(`Importing publisher "${pub.name}"`);
+        context?.logger.info(`Importing publisher "${pub.name}"`);
 
         const res = await publisher(pub.name);
-        if (res === undefined) continue;
+        if (res === undefined) {
+          context?.logger.warn(`Failed to import publisher "${pub}"`);
+          continue;
+        }
+        context?.logger.info(`Imported publisher "${pub}"`);
         publishers.push(res);
       }
     }
@@ -194,10 +198,14 @@ export class GiantBombProvider implements MetadataProvider {
     const developers: Company[] = [];
     if (gameData.developers) {
       for (const dev of gameData.developers) {
-        context?.log(`Importing developer "${dev.name}"`);
+        context?.logger.info(`Importing developer "${dev.name}"`);
 
         const res = await developer(dev.name);
-        if (res === undefined) continue;
+        if (res === undefined) {
+          context?.logger.warn(`Failed to import developer "${dev}"`);
+          continue;
+        }
+        context?.logger.info(`Imported developer "${dev}"`);
         developers.push(res);
       }
     }
@@ -211,7 +219,7 @@ export class GiantBombProvider implements MetadataProvider {
 
     const images = [banner, ...imageURLs.map(createObject)];
 
-    context?.log(`Found all images. Total of ${images.length + 1}.`);
+    context?.logger.info(`Found all images. Total of ${images.length + 1}.`);
 
     const releaseDate = gameData.original_release_date
       ? DateTime.fromISO(gameData.original_release_date).toJSDate()
@@ -225,7 +233,7 @@ export class GiantBombProvider implements MetadataProvider {
 
     const reviews: GameMetadataRating[] = [];
     if (gameData.reviews) {
-      context?.log("Found reviews, importing...");
+      context?.logger.info("Found reviews, importing...");
       for (const { api_detail_url } of gameData.reviews) {
         const reviewId = api_detail_url.split("/").at(-2);
         if (!reviewId) continue;
@@ -260,7 +268,7 @@ export class GiantBombProvider implements MetadataProvider {
       images,
     };
 
-    context?.log("GiantBomb provider finished.");
+    context?.logger.info("GiantBomb provider finished.");
     context?.progress(100);
 
     return metadata;
@@ -268,7 +276,7 @@ export class GiantBombProvider implements MetadataProvider {
   async fetchCompany({
     query,
     createObject,
-  }: _FetchCompanyMetadataParams): Promise<CompanyMetadata> {
+  }: _FetchCompanyMetadataParams): Promise<CompanyMetadata | undefined> {
     const results = await this.request<Array<CompanySearchResult>>(
       "search",
       "",
@@ -279,7 +287,7 @@ export class GiantBombProvider implements MetadataProvider {
     const company =
       results.data.results.find((e) => e.name == query) ??
       results.data.results.at(0);
-    if (!company) throw new Error(`No results for "${query}"`);
+    if (!company) return undefined;
 
     const longDescription = company.description
       ? this.turndown.turndown(company.description)

@@ -5,6 +5,7 @@ import { GiantBombProvider } from "../internal/metadata/giantbomb";
 import { IGDBProvider } from "../internal/metadata/igdb";
 import { ManualMetadataProvider } from "../internal/metadata/manual";
 import { PCGamingWikiProvider } from "../internal/metadata/pcgamingwiki";
+import { logger } from "~/server/internal/logging";
 
 export default defineNitroPlugin(async (_nitro) => {
   const metadataProviders = [
@@ -21,9 +22,9 @@ export default defineNitroPlugin(async (_nitro) => {
       const id = prov.source();
       providers.set(id, prov);
 
-      console.log(`enabled metadata provider: ${prov.name()}`);
+      logger.info(`enabled metadata provider: ${prov.name()}`);
     } catch (e) {
-      console.warn(`skipping metadata provider setup: ${e}`);
+      logger.warn(`skipping metadata provider setup: ${e}`);
     }
   }
 
@@ -35,7 +36,7 @@ export default defineNitroPlugin(async (_nitro) => {
     const priority = max * 2 - index; // Offset by the length --- (max - index) + max
     const provider = providers.get(providerId);
     if (!provider) {
-      console.warn(`failed to add existing metadata provider: ${providerId}`);
+      logger.warn(`failed to add existing metadata provider: ${providerId}`);
       continue;
     }
     metadataHandler.addProvider(provider, priority);

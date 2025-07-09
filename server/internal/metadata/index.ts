@@ -16,6 +16,7 @@ import type { TaskRunContext } from "../tasks";
 import taskHandler, { wrapTaskContext } from "../tasks";
 import { randomUUID } from "crypto";
 import { fuzzy } from "fast-fuzzy";
+import { logger } from "~/server/internal/logging";
 
 export class MissingMetadataProviderConfig extends Error {
   private providerName: string;
@@ -89,7 +90,7 @@ export class MetadataHandler {
           );
           resolve(mappedResults);
         } catch (e) {
-          console.warn(e);
+          logger.warn(e);
           reject(e);
         }
       });
@@ -187,7 +188,7 @@ export class MetadataHandler {
       taskGroup: "import:game",
       acls: ["system:import:game:read"],
       async run(context) {
-        const { progress, log } = context;
+        const { progress, logger } = context;
 
         progress(0);
 
@@ -262,12 +263,12 @@ export class MetadataHandler {
         });
 
         progress(63);
-        log(`Successfully fetched all metadata.`);
-        log(`Importing objects...`);
+        logger.info(`Successfully fetched all metadata.`);
+        logger.info(`Importing objects...`);
 
         await pullObjects();
 
-        log(`Finished game import.`);
+        logger.info(`Finished game import.`);
       },
     });
 
@@ -301,7 +302,7 @@ export class MetadataHandler {
           );
         }
       } catch (e) {
-        console.warn(e);
+        logger.warn(e);
         dumpObjects();
         continue;
       }
@@ -337,9 +338,6 @@ export class MetadataHandler {
       return object;
     }
 
-    // throw new Error(
-    //   `No metadata provider found a ${databaseName} for "${query}"`,
-    // );
     return undefined;
   }
 }

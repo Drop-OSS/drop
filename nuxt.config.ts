@@ -1,20 +1,15 @@
 import tailwindcss from "@tailwindcss/vite";
 import { execSync } from "node:child_process";
-import { cpSync } from "node:fs";
+import { cpSync, readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import module from "module";
 import { viteStaticCopy } from "vite-plugin-static-copy";
+import { type } from "arktype";
 
-// get drop version
-const dropVersion = process.env.BUILD_DROP_VERSION ?? "v0.3.0-alpha.1";
-// example nightly: "v0.3.0-nightly.2025.05.28"
-
-// get git ref or supply during build
-const commitHash =
-  process.env.BUILD_GIT_REF ??
-  execSync("git rev-parse --short HEAD").toString().trim();
-
-console.log(`Building Drop ${dropVersion} #${commitHash}`);
+const packageJsonSchema = type({
+  name: "string",
+  version: "string",
+});
 
 const twemojiJson = module.findPackageJSON(
   "@discordapp/twemoji",
@@ -23,6 +18,16 @@ const twemojiJson = module.findPackageJSON(
 if (!twemojiJson) {
   throw new Error("Could not find @discordapp/twemoji package.");
 }
+
+// get drop version
+const dropVersion = getDropVersion();
+
+// get git ref or supply during build
+const commitHash =
+  process.env.BUILD_GIT_REF ??
+  execSync("git rev-parse --short HEAD").toString().trim();
+
+console.log(`Drop ${dropVersion} #${commitHash}`);
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -257,3 +262,41 @@ export default defineNuxtConfig({
     requestSizeLimiter: false,
   },
 });
+
+/**
+ * Gets the drop version from the environment variable or package.json
+ * @returns {string} The drop version
+ */
+function getDropVersion(): string {
+  // get drop version from environment variable
+  if (process.env.BUILD_DROP_VERSION) {
+    return process.env.BUILD_DROP_VERSION;
+  }
+  // example nightly: "v0.3.0-nightly.2025.05.28"
+  const defaultVersion = "v0.0.0-alpha.0";
+
+  // get path
+  const packageJsonPath = path.join(
+    path.dirname(import.meta.url.replace("file://", "")),
+    "package.json",
+  );
+  console.log(`Reading package.json from ${packageJsonPath}`);
+  if (!existsSync(packageJsonPath)) {
+    console.error("Could not find package.json, using default version.");
+    return defaultVersion;
+  }
+
+  // parse package.json
+  const raw = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
+  const packageJson = packageJsonSchema(raw);
+  if (packageJson instanceof type.errors) {
+    console.error("Failed to parse package.json", packageJson.summary);
+    return defaultVersion;
+  }
+
+  // ensure version starts with 'v'
+  if (packageJson.version.startsWith("v")) {
+    return packageJson.version;
+  }
+  return `v${packageJson.version}`;
+}

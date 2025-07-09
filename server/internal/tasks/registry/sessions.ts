@@ -6,9 +6,10 @@ export default defineDropTask({
   name: "Cleanup Sessions",
   acls: ["system:maintenance:read"],
   taskGroup: "cleanup:sessions",
-  async run({ log }) {
-    log("Cleaning up sessions");
+  async run({ progress, logger }) {
+    logger.info("Cleaning up sessions");
     await sessionHandler.cleanupSessions();
-    log("Done");
+    logger.info("Done");
+    progress(100);
   },
 });
