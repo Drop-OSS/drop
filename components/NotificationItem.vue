@@ -44,9 +44,9 @@
 
 <script setup lang="ts">
 import { XMarkIcon } from "@heroicons/vue/24/solid";
-import type { Notification } from "~/prisma/client";
+import type { NotificationModel } from "~/prisma/client/models";
 
-const props = defineProps<{ notification: Notification }>();
+const props = defineProps<{ notification: NotificationModel }>();
 
 async function deleteMe() {
   await $dropFetch(`/api/v1/notifications/${props.notification.id}`, {

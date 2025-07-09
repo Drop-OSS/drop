@@ -1,5 +1,5 @@
-import type { Company } from "~/prisma/client";
-import { MetadataSource } from "~/prisma/client";
+import type { CompanyModel } from "~/prisma/client/models";
+import { MetadataSource } from "~/prisma/client/enums";
 import type { MetadataProvider } from ".";
 import type {
   GameMetadataSearchResult,
@@ -396,7 +396,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
 
     const game = res.data.cargoquery[0].title;
 
-    const publishers: Company[] = [];
+    const publishers: CompanyModel[] = [];
     if (game.Publishers !== null) {
       context?.logger.info("Found publishers, importing...");
       const pubListClean = this.parseWikiStringArray(game.Publishers);
@@ -416,7 +416,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
 
     context?.progress(40);
 
-    const developers: Company[] = [];
+    const developers: CompanyModel[] = [];
     if (game.Developers !== null) {
       context?.logger.info("Found developers, importing...");
       const devListClean = this.parseWikiStringArray(game.Developers);

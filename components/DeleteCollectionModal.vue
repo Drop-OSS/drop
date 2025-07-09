@@ -35,10 +35,10 @@
 </template>
 
 <script setup lang="ts">
-import type { Collection } from "~/prisma/client";
+import type { CollectionModel } from "~/prisma/client/models";
 import { DialogTitle } from "@headlessui/vue";
 
-const collection = defineModel<Collection | undefined>();
+const collection = defineModel<CollectionModel | undefined>();
 const deleteLoading = ref(false);
 
 const collections = await useCollections();

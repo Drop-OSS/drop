@@ -1,5 +1,5 @@
-import type { Company } from "~/prisma/client";
-import { MetadataSource } from "~/prisma/client";
+import type { CompanyModel } from "~/prisma/client/models";
+import { MetadataSource } from "~/prisma/client/enums";
 import type { MetadataProvider } from ".";
 import { MissingMetadataProviderConfig } from ".";
 import type {
@@ -386,8 +386,8 @@ export class IGDBProvider implements MetadataProvider {
 
     context?.progress(20);
 
-    const publishers: Company[] = [];
-    const developers: Company[] = [];
+    const publishers: CompanyModel[] = [];
+    const developers: CompanyModel[] = [];
     for (const involvedCompany of currentGame.involved_companies ?? []) {
       // get details about the involved company
       const involved_company_response = await this.request<IGDBInvolvedCompany>(

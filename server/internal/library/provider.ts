@@ -1,4 +1,4 @@
-import type { LibraryBackend } from "~/prisma/client";
+import type { LibraryBackend } from "~/prisma/client/enums";
 
 export abstract class LibraryProvider<CFG> {
   constructor(_config: CFG, _id: string) {

@@ -83,14 +83,14 @@
 
 <script setup lang="ts">
 import { DocumentIcon } from "@heroicons/vue/24/outline";
-import type { Article } from "~/prisma/client";
+import type { ArticleModel } from "~/prisma/client/models";
 import type { SerializeObject } from "nitropack/types";
 
 const { t } = useI18n();
 
 const { articles } = defineProps<{
   articles: SerializeObject<
-    Article & {
+    ArticleModel & {
       tags: Array<{ name: string; id: string }>;
       author: { displayName: string };
     }

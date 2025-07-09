@@ -1,13 +1,13 @@
-import type { User } from "~/prisma/client";
+import type { UserModel } from "~/prisma/client/models";
 
 // undefined = haven't check
 // null = check, no user
 // {} = check, user
 
-export const useUser = () => useState<User | undefined | null>(undefined);
+export const useUser = () => useState<UserModel | undefined | null>(undefined);
 export const updateUser = async () => {
   const user = useUser();
   if (user.value === null) return;
 
-  user.value = await $dropFetch<User | null>("/api/v1/user");
+  user.value = await $dropFetch<UserModel | null>("/api/v1/user");
 };

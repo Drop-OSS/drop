@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 import prisma from "../../db/database";
-import type { User } from "~/prisma/client";
-import { AuthMec } from "~/prisma/client";
+import type { UserModel } from "~/prisma/client/models";
+import { AuthMec } from "~/prisma/client/enums";
 import objectHandler from "../../objects";
 import type { Readable } from "stream";
 import * as jdenticon from "jdenticon";
@@ -165,7 +165,7 @@ export class OIDCManager {
   async authorize(
     code: string,
     state: string,
-  ): Promise<{ user: User; options: OIDCAuthSessionOptions } | string> {
+  ): Promise<{ user: UserModel; options: OIDCAuthSessionOptions } | string> {
     const session = this.signinStateTable[state];
     if (!session) return "Invalid state parameter";
 

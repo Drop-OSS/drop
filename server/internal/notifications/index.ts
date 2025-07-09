@@ -6,7 +6,7 @@ Design goals:
 2. Real-time; use websocket listeners to keep clients up-to-date
 */
 
-import type { Notification } from "~/prisma/client";
+import type { NotificationModel } from "~/prisma/client/models";
 import prisma from "../db/database";
 import type { GlobalACL } from "../acls";
 
@@ -14,7 +14,7 @@ import type { GlobalACL } from "../acls";
 
 // TODO: document notification action format
 export type NotificationCreateArgs = Pick<
-  Notification,
+  NotificationModel,
   "title" | "description" | "actions" | "nonce"
 > & { acls: Array<GlobalACL> };
 
@@ -24,7 +24,7 @@ class NotificationSystem {
     string,
     Map<
       string,
-      { callback: (notification: Notification) => void; acls: GlobalACL[] }
+      { callback: (notification: NotificationModel) => void; acls: GlobalACL[] }
     >
   >();
 
@@ -32,7 +32,7 @@ class NotificationSystem {
     userId: string,
     acls: Array<GlobalACL>,
     id: string,
-    callback: (notification: Notification) => void,
+    callback: (notification: NotificationModel) => void,
   ) {
     if (!this.listeners.has(userId)) this.listeners.set(userId, new Map());
     // eslint-disable-next-line @typescript-eslint/no-extra-non-null-assertion
@@ -60,7 +60,10 @@ class NotificationSystem {
     }
   }
 
-  private async pushNotification(userId: string, notification: Notification) {
+  private async pushNotification(
+    userId: string,
+    notification: NotificationModel,
+  ) {
     for (const [_, listener] of this.listeners.get(userId) ?? []) {
       const hasSome =
         notification.acls.findIndex(

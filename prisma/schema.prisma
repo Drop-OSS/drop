@@ -4,9 +4,7 @@
 generator client {
   provider        = "prisma-client"
   output          = "client"
-  moduleFormat    = "esm"
-  previewFeatures = ["fullTextSearchPostgres"]
-  binaryTargets   = ["native", "debian-openssl-3.0.x"]
+  previewFeatures = ["fullTextSearchPostgres", "relationJoins", "queryCompiler", "driverAdapters"]
 }
 
 /**

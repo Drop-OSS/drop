@@ -46,7 +46,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { DialogTitle } from "@headlessui/vue";
-import type { CollectionEntry, Game } from "~/prisma/client";
+import type { CollectionEntryModel, GameModel } from "~/prisma/client/models";
 import type { SerializeObject } from "nitropack";
 
 const props = defineProps<{
@@ -79,7 +79,7 @@ async function createCollection() {
     // Add the game if provided
     if (props.gameId) {
       const entry = await $dropFetch<
-        CollectionEntry & { game: SerializeObject<Game> }
+        CollectionEntryModel & { game: SerializeObject<GameModel> }
       >(`/api/v1/collection/${response.id}/entry`, {
         method: "POST",
         body: { id: props.gameId },

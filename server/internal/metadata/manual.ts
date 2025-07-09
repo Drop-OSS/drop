@@ -1,4 +1,4 @@
-import { MetadataSource } from "~/prisma/client";
+import { MetadataSource } from "~/prisma/client/enums";
 import type { MetadataProvider } from ".";
 import type {
   _FetchGameMetadataParams,

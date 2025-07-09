@@ -1,6 +1,6 @@
 import { type } from "arktype";
 import { randomUUID } from "crypto";
-import { LibraryBackend } from "~/prisma/client";
+import { LibraryBackend } from "~/prisma/client/enums";
 import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";

@@ -36,9 +36,9 @@
 
 <script setup lang="ts">
 import { DialogTitle } from "@headlessui/vue";
-import type { User } from "~/prisma/client";
+import type { UserModel } from "~/prisma/client/models";
 
-const user = defineModel<User | undefined>();
+const user = defineModel<UserModel | undefined>();
 const deleteLoading = ref(false);
 const router = useRouter();
 const { t } = useI18n();

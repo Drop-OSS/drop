@@ -1,4 +1,4 @@
-import { LibraryBackend } from "~/prisma/client";
+import { LibraryBackend } from "~/prisma/client/enums";
 import prisma from "../internal/db/database";
 import type { JsonValue } from "@prisma/client/runtime/library";
 import type { LibraryProvider } from "../internal/library/provider";

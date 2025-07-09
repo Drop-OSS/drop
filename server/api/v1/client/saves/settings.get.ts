@@ -1,4 +1,4 @@
-import { ClientCapabilities } from "~/prisma/client";
+import { ClientCapabilities } from "~/prisma/client/enums";
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import { applicationSettings } from "~/server/internal/config/application-configuration";
 

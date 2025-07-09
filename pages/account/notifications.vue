@@ -90,7 +90,7 @@
 
 <script setup lang="ts">
 import { CheckIcon, TrashIcon } from "@heroicons/vue/24/outline";
-import type { Notification } from "~/prisma/client";
+import type { NotificationModel } from "~/prisma/client/models";
 import type { SerializeObject } from "nitropack";
 
 definePageMeta({
@@ -104,7 +104,7 @@ useHead({
 });
 
 // Fetch notifications
-const notifications = ref<SerializeObject<Notification>[]>([]);
+const notifications = ref<SerializeObject<NotificationModel>[]>([]);
 
 async function fetchNotifications() {
   const { data } = await useFetch("/api/v1/notifications");
@@ -118,7 +118,7 @@ await fetchNotifications();
 async function markAsRead(id: string) {
   await $dropFetch(`/api/v1/notifications/${id}/read`, { method: "POST" });
   const notification = notifications.value.find(
-    (n: SerializeObject<Notification>) => n.id === id,
+    (n: SerializeObject<NotificationModel>) => n.id === id,
   );
   if (notification) {
     notification.read = true;
@@ -128,16 +128,18 @@ async function markAsRead(id: string) {
 // Mark all notifications as read
 async function markAllAsRead() {
   await $dropFetch("/api/v1/notifications/readall", { method: "POST" });
-  notifications.value.forEach((notification: SerializeObject<Notification>) => {
-    notification.read = true;
-  });
+  notifications.value.forEach(
+    (notification: SerializeObject<NotificationModel>) => {
+      notification.read = true;
+    },
+  );
 }
 
 // Delete a notification
 async function deleteNotification(id: string) {
   await $dropFetch(`/api/v1/notifications/${id}`, { method: "DELETE" });
   const index = notifications.value.findIndex(
-    (n: SerializeObject<Notification>) => n.id === id,
+    (n: SerializeObject<NotificationModel>) => n.id === id,
   );
   if (index !== -1) {
     notifications.value.splice(index, 1);

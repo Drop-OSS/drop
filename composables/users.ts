@@ -1,11 +1,12 @@
 import type { SerializeObject } from "nitropack";
-import type { User, AuthMec } from "~/prisma/client";
+import type { UserModel } from "~/prisma/client/models";
+import type { AuthMec } from "~/prisma/client/enums";
 
 export const useUsers = () =>
   useState<
     | Array<
         SerializeObject<
-          User & {
+          UserModel & {
             authMecs?: Array<{ id: string; mec: AuthMec }>;
           }
         >

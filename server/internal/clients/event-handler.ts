@@ -1,4 +1,4 @@
-import type { Client, User } from "~/prisma/client";
+import type { ClientModel, UserModel } from "~/prisma/client/models";
 import type { EventHandlerRequest, H3Event } from "h3";
 import droplet from "@drop-oss/droplet";
 import prisma from "../db/database";
@@ -11,8 +11,8 @@ export type EventHandlerFunction<T> = (
 
 type ClientUtils = {
   clientId: string;
-  fetchClient: () => Promise<Client>;
-  fetchUser: () => Promise<User>;
+  fetchClient: () => Promise<ClientModel>;
+  fetchUser: () => Promise<UserModel>;
 };
 
 const NONCE_LENIENCE = 30_000;
