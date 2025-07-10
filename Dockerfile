@@ -21,12 +21,12 @@ RUN apk add --no-cache git
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-ARG BUILD_DROP_VERSION="v0.0.0-unknown.1"
+ARG BUILD_DROP_VERSION
 ARG BUILD_GIT_REF
 
 # build
-RUN yarn postinstall
-RUN yarn build
+RUN yarn postinstall && \
+    yarn build
 
 # create run environment for Drop
 FROM node:lts-alpine AS run-system
@@ -35,7 +35,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NUXT_TELEMETRY_DISABLED=1
 
-RUN yarn add --network-timeout 1000000 --no-lockfile prisma@6.7.0
+RUN yarn add --network-timeout 1000000 --no-lockfile prisma@6.11.1
 
 COPY --from=build-system /app/package.json ./
 COPY --from=build-system /app/.output ./app
