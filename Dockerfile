@@ -4,7 +4,7 @@
 FROM node:lts-alpine AS deps
 WORKDIR /app
 COPY package.json yarn.lock ./
-RUN yarn install --network-timeout 1000000 --ignore-scripts
+RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn yarn install --network-timeout 1000000 --ignore-scripts
 
 # Build for app
 FROM node:lts-alpine AS build-system
@@ -13,6 +13,7 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NUXT_TELEMETRY_DISABLED=1
+ENV YARN_CACHE_FOLDER=/root/.yarn
 
 # add git so drop can determine its git ref at build
 RUN apk add --no-cache git
@@ -25,7 +26,7 @@ ARG BUILD_DROP_VERSION
 ARG BUILD_GIT_REF
 
 # build
-RUN yarn postinstall && \
+RUN --mount=type=cache,target=/root/.yarn yarn postinstall && \
     yarn build
 
 # create run environment for Drop
@@ -35,7 +36,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NUXT_TELEMETRY_DISABLED=1
 
-RUN yarn add --network-timeout 1000000 --no-lockfile prisma@6.11.1
+RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn yarn add --network-timeout 1000000 --no-lockfile --ignore-scripts prisma@6.11.1
 
 COPY --from=build-system /app/package.json ./
 COPY --from=build-system /app/.output ./app
