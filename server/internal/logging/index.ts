@@ -1,4 +1,8 @@
 import pino from "pino";
+import pinoPretty from "pino-pretty";
+
+// call pino pretty so that it isn't excluded from the build
+pinoPretty();
 
 export const logger = pino({
   transport: {
@@ -8,5 +12,3 @@ export const logger = pino({
     },
   },
 });
-
-logger.child({});
