@@ -72,7 +72,7 @@ export default defineClientEventHandler(async (h3) => {
     versionName,
     filename,
     { start, end },
-  ); 
+  );
   if (!gameReadStream)
     throw createError({
       statusCode: 400,
