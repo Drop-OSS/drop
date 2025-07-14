@@ -1,6 +1,5 @@
 import type { TaskMessage } from "~/server/internal/tasks";
 import { WebSocketHandler } from "./ws";
-import { logger } from "~/server/internal/logging";
 
 const websocketHandler = new WebSocketHandler("/api/v1/task");
 // const taskStates: { [key: string]:  } = {};
@@ -39,7 +38,7 @@ websocketHandler.listen((message) => {
       case "disconnect": {
         const disconnectTaskId = data[0];
         taskStates.delete(disconnectTaskId);
-        logger.info(`disconnected from ${disconnectTaskId}`);
+        console.log(`disconnected from ${disconnectTaskId}`);
         break;
       }
       case "error": {
@@ -72,7 +71,7 @@ export const useTask = (taskId: string): Ref<TaskMessage | undefined> => {
   if (task && task.value && !task.value.error) return task;
 
   taskStates.set(taskId, ref(undefined));
-  logger.info("connecting to " + taskId);
+  console.log("connecting to " + taskId);
   websocketHandler.send(`connect/${taskId}`);
   // TODO: this may have changed behavior
   return taskStates.get(taskId) ?? ref(undefined);
