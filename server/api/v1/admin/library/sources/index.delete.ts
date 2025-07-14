@@ -2,6 +2,7 @@ import { type } from "arktype";
 import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
+import libraryManager from "~/server/internal/library";
 
 const DeleteLibrarySource = type({
   id: "string",
@@ -16,10 +17,12 @@ export default defineEventHandler<{ body: typeof DeleteLibrarySource.infer }>(
 
     const body = await readDropValidatedBody(h3, DeleteLibrarySource);
 
-    return await prisma.library.delete({
+    await prisma.library.delete({
       where: {
         id: body.id,
       },
     });
+
+    libraryManager.removeLibrary(body.id);
   },
 );
