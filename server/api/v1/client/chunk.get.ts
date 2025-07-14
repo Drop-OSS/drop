@@ -71,8 +71,8 @@ export default defineClientEventHandler(async (h3) => {
     game.libraryPath,
     versionName,
     filename,
-    { start, end: end - 1 },
-  ); // end needs to be offset by 1
+    { start, end },
+  );
   if (!gameReadStream)
     throw createError({
       statusCode: 400,
