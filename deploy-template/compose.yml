@@ -17,7 +17,7 @@ services:
       - POSTGRES_USER=drop
       - POSTGRES_DB=drop
   drop:
-    image: ghcr.io/drop-oss/drop:latest
+    image: ghcr.io/drop-oss/drop:nightly
     stdin_open: true
     tty: true
     init: true
