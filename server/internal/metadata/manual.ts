@@ -26,7 +26,7 @@ export class ManualMetadataProvider implements MetadataProvider {
     const iconId = createObject(icon);
 
     return {
-      id: "manual",
+      id: crypto.randomUUID(),
       name,
       shortDescription: "Default description.",
       description: "# Default description.",
