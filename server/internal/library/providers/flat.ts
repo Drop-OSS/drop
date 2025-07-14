@@ -86,7 +86,7 @@ export class FlatFilesystemProvider
     const filepath = path.join(this.config.baseDir, game);
     if (!fs.existsSync(filepath)) return undefined;
     const stat = droplet.peekFile(filepath, filename);
-    return { size: stat };
+    return { size: Number(stat) };
   }
   async readFile(
     game: string,
@@ -99,8 +99,8 @@ export class FlatFilesystemProvider
     const stream = droplet.readFile(
       filepath,
       filename,
-      options?.start,
-      options?.end,
+      options?.start ? BigInt(options.start) : undefined,
+      options?.end ? BigInt(options.end) : undefined,
     );
     if (!stream) return undefined;
 
