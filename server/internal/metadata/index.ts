@@ -227,7 +227,6 @@ export class MetadataHandler {
 
         context?.progress(60);
 
-
         logger.info(`Successfully fetched all metadata.`);
         logger.info(`Importing objects...`);
 

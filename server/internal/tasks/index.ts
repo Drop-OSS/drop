@@ -229,9 +229,7 @@ class TaskHandler {
 
           acls: taskEntry.acls,
 
-          ...(taskEntry.error
-            ? { error: taskEntry.error }
-            : undefined),
+          ...(taskEntry.error ? { error: taskEntry.error } : undefined),
         },
       });
 
