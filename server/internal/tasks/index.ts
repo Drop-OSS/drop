@@ -268,7 +268,7 @@ class TaskHandler {
           acls: taskEntry.acls,
 
           ...(taskEntry.error
-            ? { error: JSON.stringify(taskEntry.error) }
+            ? { error: taskEntry.error }
             : undefined),
         },
       });
