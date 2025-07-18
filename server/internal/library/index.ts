@@ -147,14 +147,14 @@ class LibraryManager {
     }> = [];
 
     const files = await library.versionReaddir(game.libraryPath, versionName);
-    for (const file of files) {
-      const filename = path.basename(file);
-      const dotLocation = file.lastIndexOf(".");
-      const ext = dotLocation == -1 ? "" : file.slice(dotLocation);
+    for (const filename of files) {
+      const basename = path.basename(filename);
+      const dotLocation = filename.lastIndexOf(".");
+      const ext = dotLocation == -1 ? "" : filename.slice(dotLocation);
       for (const [platform, checkExts] of Object.entries(fileExts)) {
         for (const checkExt of checkExts) {
           if (checkExt != ext) continue;
-          const fuzzyValue = fuzzy(filename, game.mName);
+          const fuzzyValue = fuzzy(basename, game.mName);
           options.push({
             filename,
             platform,
