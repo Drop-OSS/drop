@@ -4,9 +4,13 @@
     <div v-if="article" class="px-4 sm:px-6 lg:px-8">
       <!-- Banner header with blurred background -->
       <div class="relative w-full h-[300px] mb-8 rounded-lg overflow-hidden">
-        <div  class="absolute inset-0">
+        <div class="absolute inset-0">
           <img
-            :src="article.imageObjectId ? useObject(article.imageObjectId) : '/wallpapers/news-placeholder.jpg'"
+            :src="
+              article.imageObjectId
+                ? useObject(article.imageObjectId)
+                : '/wallpapers/news-placeholder.jpg'
+            "
             alt=""
             class="w-full h-full object-cover blur-sm scale-110"
           />

@@ -41,7 +41,9 @@
               </p>
               <div class="mt-4 flex flex-wrap gap-2">
                 <NuxtLink
-                  v-for="[name, href] in notification.actions.map((v) => v.split('|'))"
+                  v-for="[name, href] in notification.actions.map((v) =>
+                    v.split('|'),
+                  )"
                   :key="href"
                   :href="href"
                   class="inline-flex items-center rounded-md bg-blue-400/10 px-2 py-1 text-xs font-medium text-blue-400 ring-1 ring-inset ring-blue-400/20 transition-all duration-200 hover:bg-blue-400/20 hover:scale-105 active:scale-95"
