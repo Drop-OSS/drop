@@ -7,13 +7,7 @@ on:
   pull_request:
     branches:
       - develop
-<<<<<<< Updated upstream
-=======
-
-permissions:
-  contents: read
->>>>>>> Stashed changes
-
+      
 permissions:
   contents: read
 
