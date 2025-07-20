@@ -1,23 +1,21 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
   <div>
-    <div v-if="article" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div v-if="article" class="px-4 sm:px-6 lg:px-8">
       <!-- Banner header with blurred background -->
       <div class="relative w-full h-[300px] mb-8 rounded-lg overflow-hidden">
-        <div v-if="article.imageObjectId" class="absolute inset-0">
+        <div class="absolute inset-0">
           <img
-            :src="useObject(article.imageObjectId)"
+            :src="
+              article.imageObjectId
+                ? useObject(article.imageObjectId)
+                : '/wallpapers/news-placeholder.jpg'
+            "
             alt=""
             class="w-full h-full object-cover blur-sm scale-110"
           />
           <div
             class="absolute inset-0 bg-gradient-to-b from-transparent to-zinc-950"
-          />
-        </div>
-        <div v-else>
-          <!-- Fallback gradient background when no image -->
-          <div
-            class="absolute inset-0 bg-gradient-to-b from-zinc-800 to-zinc-900"
           />
         </div>
 
@@ -73,7 +71,7 @@
 
       <!-- Article content - markdown -->
       <div
-        class="mx-auto prose prose-invert prose-lg"
+        class="mx-auto prose prose-blue prose-invert prose-lg"
         v-html="renderedContent"
       />
     </div>

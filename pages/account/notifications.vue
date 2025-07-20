@@ -40,14 +40,16 @@
                 {{ notification.description }}
               </p>
               <div class="mt-4 flex flex-wrap gap-2">
-                <a
-                  v-for="action in notification.actions"
-                  :key="action"
-                  :href="action.split('|')[1]"
+                <NuxtLink
+                  v-for="[name, href] in notification.actions.map((v) =>
+                    v.split('|'),
+                  )"
+                  :key="href"
+                  :href="href"
                   class="inline-flex items-center rounded-md bg-blue-400/10 px-2 py-1 text-xs font-medium text-blue-400 ring-1 ring-inset ring-blue-400/20 transition-all duration-200 hover:bg-blue-400/20 hover:scale-105 active:scale-95"
                 >
-                  {{ action.split("|")[0] }}
-                </a>
+                  {{ name }}
+                </NuxtLink>
               </div>
             </div>
             <div class="ml-4 flex flex-shrink-0 items-center gap-x-2">
@@ -57,7 +59,7 @@
               <button
                 v-if="!notification.read"
                 type="button"
-                class="inline-flex items-center rounded-md bg-zinc-400/10 px-2 py-1 text-xs font-medium text-zinc-400 ring-1 ring-inset ring-zinc-400/20 transition-all duration-200 hover:bg-zinc-400/20 hover:scale-105 active:scale-95"
+                class="inline-flex gap-x-1 items-center rounded-md bg-zinc-400/10 px-2 py-1 text-xs font-medium text-zinc-400 ring-1 ring-inset ring-zinc-400/20 transition-all duration-200 hover:bg-zinc-400/20 hover:scale-105 active:scale-95"
                 @click="markAsRead(notification.id)"
               >
                 <CheckIcon class="size-3" />
@@ -65,7 +67,7 @@
               </button>
               <button
                 type="button"
-                class="inline-flex items-center rounded-md bg-red-400/10 px-2 py-1 text-xs font-medium text-red-400 ring-1 ring-inset ring-red-400/20 transition-all duration-200 hover:bg-red-400/20 hover:scale-105 active:scale-95"
+                class="inline-flex gap-x-1 items-center rounded-md bg-red-400/10 px-2 py-1 text-xs font-medium text-red-400 ring-1 ring-inset ring-red-400/20 transition-all duration-200 hover:bg-red-400/20 hover:scale-105 active:scale-95"
                 @click="deleteNotification(notification.id)"
               >
                 <TrashIcon class="size-3" />

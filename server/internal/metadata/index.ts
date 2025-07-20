@@ -198,8 +198,8 @@ export class MetadataHandler {
             {},
             ["internal:read"],
             wrapTaskContext(context, {
-              min: 63,
-              max: 100,
+              min: 60,
+              max: 95,
               prefix: "[object import] ",
             }),
           );
@@ -227,6 +227,13 @@ export class MetadataHandler {
         }
 
         context?.progress(60);
+
+        logger.info(`Successfully fetched all metadata.`);
+        logger.info(`Importing objects...`);
+
+        await pullObjects();
+
+        progress(95);
 
         await prisma.game.create({
           data: {
@@ -262,12 +269,6 @@ export class MetadataHandler {
             libraryPath,
           },
         });
-
-        progress(63);
-        logger.info(`Successfully fetched all metadata.`);
-        logger.info(`Importing objects...`);
-
-        await pullObjects();
 
         logger.info(`Finished game import.`);
       },

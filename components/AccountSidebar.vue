@@ -1,7 +1,7 @@
 <template>
   <div class="flex grow flex-col gap-y-5 overflow-y-auto px-6 py-4">
     <span class="inline-flex items-center gap-x-2 font-semibold text-zinc-100">
-      <UserIcon class="size-5" /> {{ $t("account.settings") }}
+      <UserIcon class="size-5" /> {{ $t("account.title") }}
     </span>
     <nav class="flex flex-1 flex-col">
       <ul role="list" class="flex flex-1 flex-col gap-y-7">
@@ -74,7 +74,7 @@ const navigation: (NavigationItem & { icon: Component; count?: number })[] = [
     count: notifications.value.length,
   },
   {
-    label: t("settings"),
+    label: t("account.settings"),
     route: "/account/settings",
     prefix: "/account/settings",
     icon: WrenchScrewdriverIcon,

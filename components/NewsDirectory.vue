@@ -91,9 +91,7 @@
               :src="useObject(article.imageObjectId)"
               class="absolute blur-sm inset-0 w-full h-full object-cover transition-all duration-200 group-hover:scale-110"
             />
-            <div
-              class="absolute inset-0 bg-gradient-to-b from-transparent to-zinc-800 transition-all duration-200"
-            />
+            <div class="absolute inset-0 bg-zinc-900/50" />
           </div>
 
           <h3 class="relative text-sm font-medium text-zinc-100">

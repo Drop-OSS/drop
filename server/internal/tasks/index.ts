@@ -72,7 +72,7 @@ class TaskHandler {
     this.taskCreators.set(task.taskGroup, task.build);
   }
 
-  create(task: Task) {
+  async create(task: Task) {
     let updateCollectTimeout: NodeJS.Timeout | undefined;
     let updateCollectResolves: Array<(value: unknown) => void> = [];
     let logOffset: number = 0;
@@ -130,44 +130,6 @@ class TaskHandler {
       });
 
     const taskPool = this.taskPool;
-
-    // Create a pino transport that replicates the old log function behavior
-    // const taskLogger = pino({
-    //   hooks: {
-    //     logMethod(args, method) {
-    //       // Combine all arguments into a single string message
-    //       const message = args.map(String).join(" ");
-    //       const now = new Date();
-
-    //       const pad = (n: number, width = 2) =>
-    //         n.toString().padStart(width, "0");
-
-    //       const year = now.getUTCFullYear();
-    //       const month = pad(now.getUTCMonth() + 1);
-    //       const day = pad(now.getUTCDate());
-
-    //       const hours = pad(now.getUTCHours());
-    //       const minutes = pad(now.getUTCMinutes());
-    //       const seconds = pad(now.getUTCSeconds());
-    //       const milliseconds = pad(now.getUTCMilliseconds(), 3);
-
-    //       const logObj = {
-    //         timestamp: `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds} UTC`,
-    //         message,
-    //       };
-
-    //       // Push the formatted log string to the task's log array
-    //       const taskEntry = taskPool.get(task.id);
-    //       if (taskEntry) {
-    //         taskEntry.log.push(JSON.stringify(logObj));
-    //         updateAllClients();
-    //       }
-
-    //       // Optionally, still call the original method if you want logs elsewhere
-    //       method.apply(this, args);
-    //     },
-    //   },
-    // });
 
     // Custom writable stream to capture logs
     const logStream = new Writable({
@@ -227,7 +189,7 @@ class TaskHandler {
       endTime: undefined,
     });
 
-    updateAllClients(true);
+    await updateAllClients(true);
 
     droplet.callAltThreadFunc(async () => {
       const taskEntry = this.taskPool.get(task.id);
@@ -267,9 +229,7 @@ class TaskHandler {
 
           acls: taskEntry.acls,
 
-          ...(taskEntry.error
-            ? { error: JSON.stringify(taskEntry.error) }
-            : undefined),
+          ...(taskEntry.error ? { error: taskEntry.error } : undefined),
         },
       });
 
