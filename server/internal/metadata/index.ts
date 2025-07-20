@@ -1,4 +1,4 @@
-import { type Prisma, MetadataSource } from "~/prisma/client";
+import { type Prisma, Genre, MetadataSource } from "~/prisma/client";
 import prisma from "../db/database";
 import type {
   _FetchGameMetadataParams,
@@ -160,6 +160,20 @@ export class MetadataHandler {
     return results;
   }
 
+  private parseGenres(genres: string[]) {
+    const results: Genre[] = [];
+    const rawGenres = Object.values(Genre);
+
+    genres.forEach((genre) => {
+      const foundGenre = rawGenres.find(
+        (checkGenre) => fuzzy(checkGenre, genre) > 0.9,
+      );
+      if (foundGenre) results.push(foundGenre);
+    });
+
+    return results;
+  }
+
   async createGame(
     result: { sourceId: string; id: string; name: string },
     libraryId: string,
@@ -263,6 +277,7 @@ export class MetadataHandler {
             tags: {
               connectOrCreate: metadataHandler.parseTags(metadata.tags),
             },
+            genres: metadataHandler.parseGenres(metadata.genres),
 
             libraryId,
             libraryPath,

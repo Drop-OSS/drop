@@ -138,12 +138,11 @@
         </div>
       </div>
     </div>
-    <DeleteUserModal v-model="userToDelete" />
+    <ModalDeleteUser v-model="userToDelete" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { useUsers } from "~/composables/users";
 import type { User } from "~/prisma/client";
 
 useHead({

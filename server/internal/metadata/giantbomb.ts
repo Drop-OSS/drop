@@ -64,6 +64,11 @@ interface GameResult {
   reviews?: Array<{
     api_detail_url: string;
   }>;
+
+  genres?: Array<{
+    name: string;
+    id: number;
+  }>;
 }
 
 interface ReviewResult {
@@ -188,7 +193,7 @@ export class GiantBombProvider implements MetadataProvider {
           context?.logger.warn(`Failed to import publisher "${pub}"`);
           continue;
         }
-        context?.logger.info(`Imported publisher "${pub}"`);
+        context?.logger.info(`Imported publisher "${pub.name}"`);
         publishers.push(res);
       }
     }
@@ -248,6 +253,8 @@ export class GiantBombProvider implements MetadataProvider {
       }
     }
 
+    const genres = (gameData.genres ?? []).map((e) => e.name);
+
     const metadata: GameMetadata = {
       id: gameData.guid,
       name: gameData.name,
@@ -255,6 +262,7 @@ export class GiantBombProvider implements MetadataProvider {
       description: longDescription,
       released: releaseDate,
 
+      genres,
       tags: [],
 
       reviews,

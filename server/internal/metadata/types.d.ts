@@ -39,6 +39,7 @@ export interface GameMetadata {
   publishers: Company[];
   developers: Company[];
 
+  genres: string[];
   tags: string[];
 
   reviews: GameMetadataRating[];

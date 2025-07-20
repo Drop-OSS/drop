@@ -91,7 +91,7 @@
               {{ game.mName }}
               <span
                 class="ml-2 inline-flex items-center rounded-full bg-blue-600/10 px-2 py-1 text-xs font-medium text-blue-600 ring-1 ring-inset ring-blue-600/20"
-                >{{ game.metadataSource }}</span
+                >{{ game.library!.name }}</span
               >
             </h3>
             <dl class="mt-1 flex flex-col justify-between">

@@ -76,7 +76,7 @@
       />
     </div>
 
-    <DeleteNewsModal v-model="currentlyDeleting" />
+    <ModalDeleteNews v-model="currentlyDeleting" />
   </div>
 </template>
 

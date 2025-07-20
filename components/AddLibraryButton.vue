@@ -84,7 +84,7 @@
     </Menu>
   </div>
 
-  <CreateCollectionModal
+  <ModalCreateCollection
     v-model="createCollectionModal"
     :game-id="props.gameId"
   />

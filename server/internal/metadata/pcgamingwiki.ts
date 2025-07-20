@@ -451,7 +451,8 @@ export class PCGamingWikiProvider implements MetadataProvider {
       description: pageContent.introduction,
       released,
 
-      tags: this.compileTags(game),
+      genres: this.compileTags(game),
+      tags: [],
 
       reviews: pageContent.reception.filter((v) => typeof v !== "undefined"),
       publishers,

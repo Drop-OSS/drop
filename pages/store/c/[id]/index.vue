@@ -28,7 +28,7 @@
     <div class="px-4 sm:px-12 py-4 sm:py-10">
       <h1 class="text-xl text-zinc-200 font-semibold">About</h1>
       <div
-        class="mt-4 mb-4 prose prose-invert prose-blue max-w-none"
+        class="mt-4 mb-4 prose prose-invert prose-blue max-w-none max-h-[40vh] overflow-y-auto"
         v-html="description"
       />
       <NuxtLink
@@ -39,34 +39,22 @@
         >Website</NuxtLink
       >
     </div>
-    <div class="space-y-4">
-      <div class="px-4 sm:px-12 py-4">
-        <h1 class="text-zinc-100 text-2xl font-bold font-display">Developed</h1>
-        <NuxtLink class="text-blue-600 font-semibold">
-          <i18n-t keypath="store.exploreMore" tag="span" scope="global">
-            <template #arrow>
-              <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
-            </template>
-          </i18n-t>
-        </NuxtLink>
-        <div class="mt-4">
-          <GameCarousel :items="company.developed" :min="12" />
-        </div>
-      </div>
-      <div class="px-4 sm:px-12 py-4">
-        <h1 class="text-zinc-100 text-2xl font-bold font-display">Published</h1>
-        <NuxtLink class="text-blue-600 font-semibold">
-          <i18n-t keypath="store.exploreMore" tag="span" scope="global">
-            <template #arrow>
-              <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
-            </template>
-          </i18n-t>
-        </NuxtLink>
-        <div class="mt-4">
-          <GameCarousel :items="company.published" :min="12" />
-        </div>
-      </div>
-    </div>
+    <StoreView
+      :extra-options="[
+        {
+          name: 'Company',
+          param: 'companyActions',
+          multiple: true,
+          options: [
+            { name: 'Published', value: 'published' },
+            { name: 'Developed', value: 'developed' },
+          ],
+        },
+      ]"
+      :params="{
+        company: company.id,
+      }"
+    />
   </div>
 </template>
 

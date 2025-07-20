@@ -91,6 +91,11 @@ class LibraryManager {
         mIconObjectId: true,
         libraryId: true,
         libraryPath: true,
+        library: {
+          select: {
+            name: true
+          }
+        }
       },
       orderBy: {
         mName: "asc",

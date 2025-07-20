@@ -7,6 +7,27 @@ enum MetadataSource {
   OpenCritic
 }
 
+enum Genre {
+  Action
+  Strategy
+  Sports
+  Adventure
+  Roleplay
+  Racing
+  Simulation
+  Educational
+  Fighting
+  Shooter
+  RealTimeStrategy
+  CardGame
+  BoardGame
+  Compilation
+  MMORPG
+  MinigameCollection
+  Puzzle
+  MusicRhythm
+}
+
 model Game {
   id String @id @default(uuid())
 
@@ -22,6 +43,7 @@ model Game {
   mReleased         DateTime // When the game was released
 
   ratings GameRating[]
+  genres  Genre[]
 
   mIconObjectId           String // linked to objects in s3
   mBannerObjectId         String // linked to objects in s3

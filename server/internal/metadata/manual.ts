@@ -7,7 +7,6 @@ import type {
   CompanyMetadata,
 } from "./types";
 import * as jdenticon from "jdenticon";
-import { randomUUID } from "crypto";
 
 export class ManualMetadataProvider implements MetadataProvider {
   name() {
@@ -34,6 +33,7 @@ export class ManualMetadataProvider implements MetadataProvider {
       released: new Date(),
       publishers: [],
       developers: [],
+      genres: [],
       tags: [],
       reviews: [],
 

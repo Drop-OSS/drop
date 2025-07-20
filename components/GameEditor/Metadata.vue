@@ -268,7 +268,7 @@
         </div>
       </div>
     </div>
-    <UploadFileDialog
+    <ModalUploadFile
       v-model="showUploadModal"
       :options="{ id: game.id }"
       accept="image/*"

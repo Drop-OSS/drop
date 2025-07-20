@@ -450,7 +450,7 @@ export class IGDBProvider implements MetadataProvider {
       mReviewHref: currentGame.url,
     };
 
-    const tags = await this.getGenres(currentGame.genres);
+    const genres = await this.getGenres(currentGame.genres);
 
     const deck = this.trimMessage(currentGame.summary, 280);
 
@@ -461,12 +461,13 @@ export class IGDBProvider implements MetadataProvider {
       description: currentGame.summary,
       released,
 
+      genres,
       reviews: [review],
 
       publishers,
       developers,
 
-      tags,
+      tags: [],
 
       icon,
       bannerId: banner,
