@@ -8,7 +8,7 @@ class NewsManager {
     description: string;
     tags: string[];
     authorId: string;
-    image?: string;
+    imageObjectId?: string;
   }) {
     return await prisma.article.create({
       data: {
@@ -23,7 +23,7 @@ class NewsManager {
           })),
         },
 
-        ...(data.image && { image: data.image }),
+        ...(data.imageObjectId && { imageObjectId: data.imageObjectId }),
         author: {
           connect: {
             id: data.authorId,
