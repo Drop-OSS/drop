@@ -51,8 +51,8 @@ export default defineEventHandler(async (h3) => {
 
     tags: parsedTags,
 
-    ...(imageId && { image: imageId }),
-    authorId: "system",
+    ...(imageId && { imageObjectId: imageId }),
+    authorId: "system", 
   });
 
   await pull();

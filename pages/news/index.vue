@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col max-w-4xl mx-auto">
+  <div class="flex flex-col px-8">
     <div class="mb-8">
       <div class="flex flex-col gap-y-4">
         <div>
@@ -14,7 +14,7 @@
     </div>
 
     <!-- Articles list -->
-    <TransitionGroup name="article-list" tag="div" class="space-y-6">
+    <TransitionGroup name="article-list" tag="div" class="gap-6 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       <NuxtLink
         v-for="article in articles"
         :key="article.id"
@@ -26,8 +26,7 @@
         >
           <div class="relative h-48 w-full overflow-hidden">
             <img
-              v-if="article.imageObjectId"
-              :src="useObject(article.imageObjectId)"
+              :src="article.imageObjectId ? useObject(article.imageObjectId) : '/wallpapers/news-placeholder.jpg'"
               alt=""
               class="h-full w-full object-cover object-center transition-all duration-500 group-hover:scale-110 scale-105"
             />
