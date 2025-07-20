@@ -28,7 +28,7 @@
     <div class="px-4 sm:px-12 py-4 sm:py-10">
       <h1 class="text-xl text-zinc-200 font-semibold">About</h1>
       <div
-        class="mt-4 mb-4 prose prose-invert prose-blue max-w-none max-h-[40vh] overflow-y-auto"
+        class="mt-4 mb-4 prose prose-invert prose-blue max-w-none max-h-[40vh] overflow-y-auto ring ring-zinc-700 p-4 rounded-lg"
         v-html="description"
       />
       <NuxtLink

@@ -71,7 +71,7 @@
                         </span>
                       </DisclosureButton>
                     </h3>
-                    <DisclosurePanel class="pt-6 ">
+                    <DisclosurePanel class="pt-6">
                       <div class="gap-3 grid grid-cols-2">
                         <div
                           v-for="(option, optionIdx) in section.options"
@@ -133,7 +133,7 @@
                 <MenuButton
                   class="group inline-flex justify-center text-sm font-medium text-zinc-400 hover:text-zinc-100"
                 >
-                  Sort
+                  Sort 
                   <ChevronDownIcon
                     class="-mr-1 ml-1 size-5 shrink-0 text-gray-400 group-hover:text-zinc-100"
                     aria-hidden="true"
@@ -166,6 +166,7 @@
                           active ? 'bg-zinc-900 outline-hidden' : '',
                           'w-full text-left block px-4 py-2 text-sm',
                         ]"
+                        @click="() => (currentSort = option.param)"
                       >
                         {{ option.name }}
                       </button>
@@ -184,8 +185,11 @@
             </button>
             <button
               type="button"
-              :class="['-m-2 ml-4 p-2 sm:ml-6 lg:hidden', filterQuery 
-                ? 'text-zinc-100 hover:text-zinc-200' : 'text-zinc-500 hover:text-zinc-400'
+              :class="[
+                '-m-2 ml-4 p-2 sm:ml-6 lg:hidden',
+                filterQuery
+                  ? 'text-zinc-100 hover:text-zinc-200'
+                  : 'text-zinc-500 hover:text-zinc-400',
               ]"
               @click="mobileFiltersOpen = true"
             >
@@ -268,7 +272,7 @@
 
             <!-- Product grid -->
             <div
-            v-if="games?.length ?? 0 > 0"
+              v-if="games?.length ?? 0 > 0"
               class="relative lg:col-span-4 flex flex-row flex-wrap content-start gap-4"
             >
               <!-- Your content -->
@@ -301,7 +305,9 @@
               </div>
             </div>
             <div v-else class="flex lg:col-span-4 items-start justify-center">
-              <span class="uppercase text-zinc-700 font-display font-bold">No results</span>
+              <span class="uppercase text-zinc-700 font-display font-bold"
+                >No results</span
+              >
             </div>
           </div>
         </section>

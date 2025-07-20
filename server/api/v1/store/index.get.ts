@@ -18,6 +18,8 @@ const StoreRead = type({
 
   company: "string?",
   companyActions: "string = 'published,developed'",
+
+  sort: "'newest' | 'recent' = 'newest'",
 });
 
 export default defineEventHandler(async (h3) => {
@@ -88,9 +90,9 @@ export default defineEventHandler(async (h3) => {
       }
     : undefined;
   const companyFilter = options.company
-    ? {
+    ? ({
         OR: [developedFilter, publishedFilter].filter((e) => e !== undefined),
-      } satisfies Prisma.GameWhereInput
+      } satisfies Prisma.GameWhereInput)
     : undefined;
 
   /**
@@ -104,10 +106,23 @@ export default defineEventHandler(async (h3) => {
     ...companyFilter,
   };
 
+  const sort: Prisma.GameOrderByWithRelationInput = {};
+  switch (options.sort) {
+    case "newest":
+      sort.mReleased = "desc";
+      break;
+    case "recent":
+      sort.created = "desc";
+      break;
+  }
+
   const results = await prisma.game.findMany({
     skip: options.skip,
     take: Math.min(options.take, 50),
     where: finalFilter,
+    orderBy: {
+      mReleased: "desc",
+    },
   });
 
   return results;
