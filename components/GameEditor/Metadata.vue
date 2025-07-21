@@ -314,7 +314,7 @@
           class="mt-3 inline-flex w-full justify-center rounded-md bg-zinc-900 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-700 hover:bg-zinc-950 transition-all duration-200 hover:scale-105 hover:shadow-lg active:scale-95 sm:mt-0 sm:w-auto"
           @click="showAddCarouselModal = false"
         >
-          {{ $t("close") }}
+          {{ $t("common.close") }}
         </button>
       </template>
     </ModalTemplate>
@@ -491,7 +491,7 @@ function coreMetadataUploadFiles(e: InputEvent) {
       {
         title: t("errors.upload.title"),
         description: t("errors.upload.description", [t("errors.unknown")]),
-        buttonText: t("close"),
+        buttonText: t("common.close"),
       },
       (e, c) => c(),
     );
@@ -530,7 +530,7 @@ function coreMetadataUpdate_wrapper() {
           description: t("errors.game.metadata.description", [
             (e as H3Error)?.statusMessage ?? t("errors.unknown"),
           ]),
-          buttonText: t("close"),
+          buttonText: t("common.close"),
         },
         (e, c) => c(),
       );
@@ -589,7 +589,7 @@ watch(descriptionHTML, (_v) => {
           description: t("errors.game.description.description", [
             (e as H3Error)?.statusMessage ?? t("errors.unknown"),
           ]),
-          buttonText: t("close"),
+          buttonText: t("common.close"),
         },
         (e, c) => c(),
       );
@@ -633,7 +633,7 @@ async function updateBannerImage(id: string) {
         description: t("errors.game.banner.description", [
           (e as H3Error)?.statusMessage ?? t("errors.unknown"),
         ]),
-        buttonText: t("close"),
+        buttonText: t("common.close"),
       },
       (e, c) => c(),
     );
@@ -659,7 +659,7 @@ async function updateCoverImage(id: string) {
         description: t("errors.game.cover.description", [
           (e as H3Error)?.statusMessage ?? t("errors.unknown"),
         ]),
-        buttonText: t("close"),
+        buttonText: t("common.close"),
       },
       (e, c) => c(),
     );
@@ -688,7 +688,7 @@ async function deleteImage(id: string) {
         description: t("errors.game.deleteImage.description", [
           (e as H3Error)?.statusMessage ?? t("errors.unknown"),
         ]),
-        buttonText: t("close"),
+        buttonText: t("common.close"),
       },
       (e, c) => c(),
     );
@@ -730,7 +730,7 @@ async function updateImageCarousel() {
         description: t("errors.game.carousel.description", [
           (e as H3Error)?.statusMessage ?? t("errors.unknown"),
         ]),
-        buttonText: t("close"),
+        buttonText: t("common.close"),
       },
       (e, c) => c(),
     );

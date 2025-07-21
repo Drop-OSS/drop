@@ -70,9 +70,9 @@
     "quoted": "\"\"",
     "srComma": ", {0}"
   },
-  "close": "Close",
   "common": {
     "cannotUndo": "This action cannot be undone.",
+    "close": "Close",
     "create": "Create",
     "date": "Date",
     "deleteConfirm": "Are you sure you want to delete \"{0}\"?",
@@ -83,12 +83,14 @@
     "insert": "Insert",
     "name": "Name",
     "noResults": "No results",
+    "noSelected": "No items selected.",
     "save": "Save",
     "saved": "Saved",
     "servers": "Servers",
     "srLoading": "Loading...",
     "tags": "Tags",
-    "today": "Today"
+    "today": "Today",
+    "remove": "Remove"
   },
   "delete": "Delete",
   "drop": {
@@ -417,7 +419,21 @@
     "released": "Released",
     "reviews": "({0} Reviews)",
     "title": "Store",
-    "view": "View in Store"
+    "tags": "Tags",
+    "noTags": "No tags",
+    "developers": "Developers | Developer | Developers",
+    "publishers": "Publishers | Publisher | Publishers",
+    "noDevelopers": "No developers",
+    "noPublishers": "No publishers.",
+    "view": {
+      "sort": "Sort",
+      "srFilters": "Filters",
+      "srGames": "Games",
+      "srViewGrid": "View grid"
+    },
+    "viewInStore": "View in Store",
+    "about": "About",
+    "website": "Website"
   },
   "tasks": {
     "admin": {

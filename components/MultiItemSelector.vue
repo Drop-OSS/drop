@@ -12,7 +12,7 @@
           class="group relative -mr-1 size-3.5 rounded-xs hover:bg-blue-600/20"
           @click="() => remove(item.param)"
         >
-          <span class="sr-only">Remove</span>
+          <span class="sr-only">{{ $t("common.remove") }}</span>
           <svg
             viewBox="0 0 14 14"
             class="size-3.5 stroke-blue-500 group-hover:stroke-blue-400"
@@ -23,7 +23,7 @@
         </button>
       </span>
       <span v-if="enabledItems.length == 0" class="font-display uppercase text-xs font-bold text-zinc-700">
-        No items selected.
+        {{ $t("common.noSelected") }}
       </span>
     </div>
     <Combobox as="div" @update:model-value="add">

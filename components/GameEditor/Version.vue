@@ -140,7 +140,7 @@ async function updateVersionOrder() {
         description: t("errors.version.order.desc", {
           error: (e as H3Error)?.statusMessage ?? t("errors.unknown"),
         }),
-        buttonText: t("close"),
+        buttonText: t("common.close"),
       },
       (e, c) => c(),
     );
@@ -168,7 +168,7 @@ async function deleteVersion(versionName: string) {
         description: t("errors.version.delete.desc", {
           error: (e as H3Error)?.statusMessage ?? t("errors.unknown"),
         }),
-        buttonText: t("close"),
+        buttonText: t("common.close"),
       },
       (e, c) => c(),
     );

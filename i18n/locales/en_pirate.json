@@ -70,9 +70,9 @@
     "quoted": "\"\"",
     "srComma": ", {0}"
   },
-  "close": "Shut yer trap!",
   "common": {
     "cannotUndo": "This deed cannot be undone, ye hear!",
+    "close": "Shut yer trap!",
     "create": "Forge!",
     "date": "Date",
     "deleteConfirm": "Are ye sure ye want to scuttle \"{0}\", ye rogue?",

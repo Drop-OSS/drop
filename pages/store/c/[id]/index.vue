@@ -26,17 +26,20 @@
       />
     </div>
     <div class="px-4 sm:px-12 py-4 sm:py-10">
-      <h1 class="text-xl text-zinc-200 font-semibold">About</h1>
+      <h1 class="text-xl text-zinc-200 font-semibold">
+        {{ $t("store.about") }}
+      </h1>
       <div
         class="mt-4 mb-4 prose prose-invert prose-blue max-w-none max-h-[40vh] overflow-y-auto ring ring-zinc-700 p-4 rounded-lg"
         v-html="description"
       />
       <NuxtLink
+      v-if="company.mWebsite"
         :href="company.mWebsite"
         :external="true"
         target="_blank"
         class="rounded-md bg-white/10 px-2.5 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-white/20"
-        >Website</NuxtLink
+        >{{ $t("store.website") }}</NuxtLink
       >
     </div>
     <StoreView

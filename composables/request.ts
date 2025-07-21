@@ -62,7 +62,7 @@ export const $dropFetch: DropFetch = async (request, opts) => {
           title: opts.failTitle,
           description:
             (e as FetchError)?.statusMessage ?? (e as string).toString(),
-          buttonText: $t("close"),
+          buttonText: $t("common.close"),
         },
         (_, c) => c(),
       );

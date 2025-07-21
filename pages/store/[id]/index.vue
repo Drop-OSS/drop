@@ -112,7 +112,7 @@
                 <td
                   class="whitespace-nowrap align-top py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
                 >
-                  Tags(s)
+                  {{ $t("store.tags") }}
                 </td>
                 <td class="flex flex-col gap-1 px-3 py-4 text-sm text-zinc-400">
                   <NuxtLink
@@ -123,13 +123,18 @@
                   >
                     {{ tag.name }}
                   </NuxtLink>
+                  <span
+                    v-if="game.tags.length == 0"
+                    class="text-zinc-700 font-bold uppercase font-display"
+                    >{{ $t("store.noTags") }}</span
+                  >
                 </td>
               </tr>
               <tr>
                 <td
                   class="whitespace-nowrap align-top py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
                 >
-                  Developer(s)
+                  {{ $t("store.developers", game.developers.length) }}
                 </td>
                 <td class="flex flex-col px-3 py-4 text-sm text-zinc-400">
                   <NuxtLink
@@ -140,13 +145,18 @@
                   >
                     {{ developer.mName }}
                   </NuxtLink>
+                  <span
+                    v-if="game.developers.length == 0"
+                    class="text-zinc-700 font-bold uppercase font-display"
+                    >{{ $t("store.noDevelopers") }}</span
+                  >
                 </td>
               </tr>
               <tr>
                 <td
                   class="whitespace-nowrap align-top py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
                 >
-                  Publishers(s)
+                  {{ $t("store.publishers", game.publishers.length) }}
                 </td>
                 <td class="flex flex-col px-3 py-4 text-sm text-zinc-400">
                   <NuxtLink
@@ -157,6 +167,11 @@
                   >
                     {{ publisher.mName }}
                   </NuxtLink>
+                  <span
+                    v-if="game.publishers.length == 0"
+                    class="text-zinc-700 font-bold uppercase font-display"
+                    >{{ $t("store.noPublishers") }}</span
+                  >
                 </td>
               </tr>
             </tbody>

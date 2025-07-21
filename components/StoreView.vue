@@ -33,14 +33,16 @@
                 class="relative ml-auto flex size-full max-w-sm flex-col overflow-y-auto bg-zinc-900 pt-4 pb-6 shadow-xl"
               >
                 <div class="flex items-center justify-between px-4">
-                  <h2 class="text-lg font-medium text-zinc-100">Filters</h2>
+                  <h2 class="text-lg font-medium text-zinc-100">
+                    {{ $t("store.view.srFilters") }}
+                  </h2>
                   <button
                     type="button"
                     class="relative -mr-2 flex size-10 items-center justify-center rounded-md bg-zinc-900 p-2 text-zinc-500 hover:bg-zinc-800 focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
                     @click="mobileFiltersOpen = false"
                   >
                     <span class="absolute -inset-0.5" />
-                    <span class="sr-only">Close menu</span>
+                    <span class="sr-only">{{ $t("common.close") }}</span>
                     <XMarkIcon class="size-6" aria-hidden="true" />
                   </button>
                 </div>
@@ -141,7 +143,7 @@
                 <MenuButton
                   class="group inline-flex justify-center text-sm font-medium text-zinc-400 hover:text-zinc-100"
                 >
-                  Sort
+                  {{ $t("store.view.sort") }}
                   <ChevronDownIcon
                     class="-mr-1 ml-1 size-5 shrink-0 text-gray-400 group-hover:text-zinc-100"
                     aria-hidden="true"
@@ -189,7 +191,7 @@
               type="button"
               class="-m-2 ml-5 p-2 text-zinc-500 hover:text-zinc-400 sm:ml-7"
             >
-              <span class="sr-only">View grid</span>
+              <span class="sr-only">{{ $t("store.view.srViewGrid") }}</span>
               <Squares2X2Icon class="size-5" aria-hidden="true" />
             </button>
             <button
@@ -202,14 +204,16 @@
               ]"
               @click="mobileFiltersOpen = true"
             >
-              <span class="sr-only">Filters</span>
+              <span class="sr-only"> {{ $t("store.view.srFilters") }} </span>
               <FunnelIcon class="size-5" aria-hidden="true" />
             </button>
           </div>
         </div>
 
         <section aria-labelledby="games-heading" class="pt-6 pb-24">
-          <h2 id="games-heading" class="sr-only">Games</h2>
+          <h2 id="games-heading" class="sr-only">
+            {{ $t("store.view.srGames") }}
+          </h2>
 
           <div class="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-5">
             <!-- Filters -->
@@ -319,9 +323,9 @@
               </div>
             </div>
             <div v-else class="flex lg:col-span-4 items-start justify-center">
-              <span class="uppercase text-zinc-700 font-display font-bold"
-                >No results</span
-              >
+              <span class="uppercase text-zinc-700 font-display font-bold">{{
+                $t("common.noResults")
+              }}</span>
             </div>
           </div>
         </section>
