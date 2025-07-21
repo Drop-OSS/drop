@@ -23,7 +23,7 @@
             class="relative inline-flex gap-x-3 items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
             @click="() => (showEditCoreMetadata = true)"
           >
-            {{ $t("edit") }} <PencilIcon class="size-4" />
+            {{ $t("common.edit") }} <PencilIcon class="size-4" />
           </button>
         </div>
 
@@ -335,7 +335,7 @@
                 class="inline-flex items-center gap-x-1.5 rounded-md bg-blue-600 px-1.5 py-0.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                 @click="() => insertImageAtCursor(image)"
               >
-                {{ $t("insert") }}
+                {{ $t("common.insert") }}
               </button>
             </div>
           </div>
@@ -424,7 +424,7 @@
           :class="['inline-flex w-full shadow-sm sm:ml-3 sm:w-auto']"
           @click="() => coreMetadataUpdate_wrapper()"
         >
-          {{ $t("save") }}
+          {{ $t("common.save") }}
         </LoadingButton>
         <button
           ref="cancelButtonRef"

@@ -59,7 +59,7 @@
         :loading="saving"
         :disabled="!allowSave"
       >
-        {{ allowSave ? $t("save") : $t("saved") }}
+        {{ allowSave ? $t("common.save") : $t("common.saved") }}
       </LoadingButton>
     </form>
   </div>

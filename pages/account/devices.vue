@@ -24,7 +24,7 @@
                 scope="col"
                 class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-zinc-100 sm:pl-6"
               >
-                {{ $t("name") }}
+                {{ $t("common.name") }}
               </th>
               <th
                 scope="col"
