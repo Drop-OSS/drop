@@ -17,6 +17,7 @@ import taskHandler, { wrapTaskContext } from "../tasks";
 import { randomUUID } from "crypto";
 import { fuzzy } from "fast-fuzzy";
 import { logger } from "~/server/internal/logging";
+import libraryManager from "../library";
 
 export class MissingMetadataProviderConfig extends Error {
   private providerName: string;
@@ -193,6 +194,8 @@ export class MetadataHandler {
     });
     if (existing) return undefined;
 
+    await libraryManager.lockGame(libraryId, libraryPath);
+
     const gameId = randomUUID();
 
     const taskId = `import:${gameId}`;
@@ -285,6 +288,8 @@ export class MetadataHandler {
         });
 
         logger.info(`Finished game import.`);
+
+        await libraryManager.unlockGame(libraryId, libraryPath);
       },
     });
 

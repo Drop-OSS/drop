@@ -177,6 +177,7 @@
             </Menu>
 
             <button
+            v-if="false"
               type="button"
               class="-m-2 ml-5 p-2 text-zinc-500 hover:text-zinc-400 sm:ml-7"
             >

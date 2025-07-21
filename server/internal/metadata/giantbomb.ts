@@ -228,11 +228,7 @@ export class GiantBombProvider implements MetadataProvider {
 
     const releaseDate = gameData.original_release_date
       ? DateTime.fromISO(gameData.original_release_date).toJSDate()
-      : DateTime.fromISO(
-          `${gameData.expected_release_year ?? new Date().getFullYear()}-${
-            gameData.expected_release_month ?? 1
-          }-${gameData.expected_release_day ?? 1}`,
-        ).toJSDate();
+      : new Date()
 
     context?.progress(85);
 
