@@ -31,7 +31,7 @@
               >
                 {{ game.mName }}
               </h2>
-              <p class="mt-3 text-lg text-zinc-300 line-clamp-2 max-w-xl">
+              <p class="mt-3 text-lg text-zinc-300 line-clamp-2 max-w-xl mx-auto">
                 {{ game.mShortDescription }}
               </p>
               <div>
@@ -71,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-const recent = await $dropFetch("/api/v1/store/recent");
+const recent = await $dropFetch("/api/v1/store/featured");
 
 const { t } = useI18n();
 

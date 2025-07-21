@@ -18,14 +18,14 @@ enum Genre {
   Educational
   Fighting
   Shooter
-  RealTimeStrategy
-  CardGame
-  BoardGame
+  RTS
+  Card
+  Board
   Compilation
   MMORPG
-  MinigameCollection
+  Minigames
   Puzzle
-  MusicRhythm
+  Rhythm
 }
 
 model Game {
@@ -44,6 +44,8 @@ model Game {
 
   ratings GameRating[]
   genres  Genre[]
+
+  featured Boolean @default(false)
 
   mIconObjectId           String // linked to objects in s3
   mBannerObjectId         String // linked to objects in s3

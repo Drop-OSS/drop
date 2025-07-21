@@ -90,20 +90,9 @@ class LibraryManager {
 
   async fetchGamesWithStatus() {
     const games = await prisma.game.findMany({
-      select: {
-        id: true,
+      include: {
         versions: true,
-        mName: true,
-        mShortDescription: true,
-        metadataSource: true,
-        mIconObjectId: true,
-        libraryId: true,
-        libraryPath: true,
-        library: {
-          select: {
-            name: true,
-          },
-        },
+        library: true,
       },
       orderBy: {
         mName: "asc",

@@ -87,10 +87,24 @@
             alt=""
           />
           <div class="flex flex-col">
-            <h3 class="text-sm font-medium text-zinc-100 font-display">
+            <h3
+              class="gap-x-2 text-sm inline-flex items-center font-medium text-zinc-100 font-display"
+            >
               {{ game.mName }}
+              <button
+                type="button"
+                :class="[
+                  'rounded-full p-1 shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2',
+                  game.featured
+                    ? 'bg-yellow-400 hover:bg-yellow-300 focus-visible:outline-yellow-400 text-zinc-900'
+                    : 'bg-zinc-800 hover:bg-zinc-700 focus-visible:outline-zinc-400 text-white',
+                ]"
+                @click="() => featureGame(game.id)"
+              >
+                <StarIcon class="size-3" aria-hidden="true" />
+              </button>
               <span
-                class="ml-2 inline-flex items-center rounded-full bg-blue-600/10 px-2 py-1 text-xs font-medium text-blue-600 ring-1 ring-inset ring-blue-600/20"
+                class="inline-flex items-center rounded-full bg-blue-600/10 px-2 py-1 text-xs font-medium text-blue-600 ring-1 ring-inset ring-blue-600/20"
                 >{{ game.library!.name }}</span
               >
             </h3>
@@ -200,7 +214,7 @@
 
 <script setup lang="ts">
 import { ExclamationTriangleIcon } from "@heroicons/vue/16/solid";
-import { InformationCircleIcon } from "@heroicons/vue/20/solid";
+import { InformationCircleIcon, StarIcon } from "@heroicons/vue/20/solid";
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
 
 const { t } = useI18n();
@@ -255,5 +269,17 @@ async function deleteGame(id: string) {
   const index = libraryGames.value.findIndex((e) => e.id === id);
   libraryGames.value.splice(index, 1);
   toImport.value = true;
+}
+
+async function featureGame(id: string) {
+  const gameIndex = libraryGames.value.findIndex((e) => e.id === id);
+  const game = libraryGames.value[gameIndex];
+
+  await $dropFetch("/api/v1/admin/game", {
+    method: "PATCH",
+    body: { id, featured: !game.featured },
+  });
+
+  libraryGames.value[gameIndex].featured = !game.featured;
 }
 </script>
