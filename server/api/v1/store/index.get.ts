@@ -120,9 +120,7 @@ export default defineEventHandler(async (h3) => {
     skip: options.skip,
     take: Math.min(options.take, 50),
     where: finalFilter,
-    orderBy: {
-      mReleased: "desc",
-    },
+    orderBy: sort,
   });
 
   return results;

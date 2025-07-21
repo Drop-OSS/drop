@@ -420,7 +420,7 @@ const filterQuery = computed(() => {
         .map(([k, v]) => `${k}=${v}`)
         .join("&")
     : props.params;
-  return `${query}${extraFilters ? (query ? "&" : "") + extraFilters : ""}`;
+  return `${query}${extraFilters ? (query ? "&" : "") + extraFilters : ""}${query || extraFilters ? '&' : ''}sort=${currentSort.value}`;
 });
 
 const games = ref<Array<SerializeObject<Game>>>();
