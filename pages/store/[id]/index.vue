@@ -112,16 +112,16 @@
                 <td
                   class="whitespace-nowrap align-top py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
                 >
-                  Genre(s)
+                  Tags(s)
                 </td>
-                <td class="flex flex-wrap gap-1 px-3 py-4 text-sm text-zinc-400">
+                <td class="flex flex-col gap-1 px-3 py-4 text-sm text-zinc-400">
                   <NuxtLink
-                    v-for="genre in game.genres"
-                    :key="genre"
-                    :href="`/store/g/${genre}`"
+                    v-for="tag in game.tags"
+                    :key="tag.id"
+                    :href="`/store/t/${tag.id}`"
                     class="w-min hover:underline hover:text-zinc-100 whitespace-nowrap"
                   >
-                    {{ genre }}
+                    {{ tag.name }}
                   </NuxtLink>
                 </td>
               </tr>

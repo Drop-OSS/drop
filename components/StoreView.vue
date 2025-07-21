@@ -72,10 +72,13 @@
                       </DisclosureButton>
                     </h3>
                     <DisclosurePanel class="pt-6">
-                      <div class="gap-3 grid grid-cols-2">
+                      <div
+                        v-if="section.options.length <= 10"
+                        class="gap-3 grid grid-cols-2"
+                      >
                         <div
                           v-for="(option, optionIdx) in section.options"
-                          :key="option.value"
+                          :key="option.param"
                           class="flex gap-3"
                         >
                           <div class="flex h-5 shrink-0 items-center">
@@ -85,7 +88,7 @@
                                 :id="`filter-${section.param}-${option}`"
                                 v-model="
                                   (optionValues[section.param] as any)[
-                                    option.value
+                                    option.param
                                   ]
                                 "
                                 :name="`${section.param}[]`"
@@ -101,7 +104,7 @@
                                 class="col-start-1 row-start-1 appearance-none rounded-sm border border-gray-300 bg-white checked:border-blue-600 checked:bg-blue-600 indeterminate:border-blue-600 indeterminate:bg-blue-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:checked:bg-gray-100 forced-colors:appearance-auto"
                                 @update:value="
                                   () =>
-                                    (optionValues[section.param] = option.value)
+                                    (optionValues[section.param] = option.param)
                                 "
                               />
                             </div>
@@ -113,6 +116,11 @@
                           >
                         </div>
                       </div>
+                      <MultiItemSelector
+                        v-else
+                        v-model="[optionValues[section.param] as any][0]"
+                        :items="section.options"
+                      />
                     </DisclosurePanel>
                   </Disclosure>
                 </form>
@@ -133,7 +141,7 @@
                 <MenuButton
                   class="group inline-flex justify-center text-sm font-medium text-zinc-400 hover:text-zinc-100"
                 >
-                  Sort 
+                  Sort
                   <ChevronDownIcon
                     class="-mr-1 ml-1 size-5 shrink-0 text-gray-400 group-hover:text-zinc-100"
                     aria-hidden="true"
@@ -177,7 +185,7 @@
             </Menu>
 
             <button
-            v-if="false"
+              v-if="false"
               type="button"
               class="-m-2 ml-5 p-2 text-zinc-500 hover:text-zinc-400 sm:ml-7"
             >
@@ -231,19 +239,19 @@
                   </DisclosureButton>
                 </h3>
                 <DisclosurePanel class="pt-6">
-                  <div class="space-y-4">
+                  <div v-if="section.options.length <= 10" class="space-y-4">
                     <div
                       v-for="(option, optionIdx) in section.options"
-                      :key="option.value"
+                      :key="option.param"
                       class="flex gap-3"
                     >
                       <div class="flex h-5 shrink-0 items-center">
                         <div class="group grid size-4 grid-cols-1">
                           <input
                             v-if="section.multiple"
-                            :id="`filter-${section.param}-${option}`"
+                            :id="`filter-${section.param}-${optionIdx}`"
                             v-model="
-                              (optionValues[section.param] as any)[option.value]
+                              (optionValues[section.param] as any)[option.param]
                             "
                             :name="`${section.param}[]`"
                             type="checkbox"
@@ -251,12 +259,12 @@
                           />
                           <input
                             v-else
-                            :id="`filter-${section.param}`"
+                            :id="`filter-${section.param}-${optionIdx}`"
                             :value="optionValues[section.param]"
                             :name="`${section.param}[]`"
                             type="radio"
                             class="col-start-1 row-start-1 appearance-none rounded-sm border border-zinc-700 bg-zinc-800 checked:border-blue-600 checked:bg-blue-600 indeterminate:border-blue-600 indeterminate:bg-blue-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:checked:bg-gray-100 forced-colors:appearance-auto"
-                            @input="optionValues[section.param] = option.value"
+                            @input="optionValues[section.param] = option.param"
                           />
                         </div>
                       </div>
@@ -267,6 +275,11 @@
                       >
                     </div>
                   </div>
+                  <MultiItemSelector
+                    v-else
+                    v-model="[optionValues[section.param] as any][0]"
+                    :items="section.options"
+                  />
                 </DisclosurePanel>
               </Disclosure>
             </form>
@@ -340,7 +353,8 @@ import {
   Squares2X2Icon,
 } from "@heroicons/vue/20/solid";
 import type { SerializeObject } from "nitropack";
-import type { Game, Tag } from "~/prisma/client";
+import type { Game, GameTag } from "~/prisma/client";
+import MultiItemSelector from "./MultiItemSelector.vue";
 
 const mobileFiltersOpen = ref(false);
 
@@ -353,9 +367,7 @@ const props = defineProps<{
 }>();
 
 const tags =
-  await $dropFetch<Array<SerializeObject<Tag>>>("/api/v1/store/tags");
-
-const genres = await $dropFetch<Array<string>>("/api/v1/store/genres");
+  await $dropFetch<Array<SerializeObject<GameTag>>>("/api/v1/store/tags");
 
 const sorts: Array<StoreSortOption> = [
   {
@@ -370,28 +382,22 @@ const sorts: Array<StoreSortOption> = [
 const currentSort = ref(sorts[0].param);
 
 const options: Array<StoreFilterOption> = [
-  {
-    name: "Genres",
-    param: "genres",
-    multiple: true,
-    options: genres.map((e) => ({ name: e, value: e })),
-  },
-  {
-    name: "Platform",
-    param: "platform",
-    multiple: true,
-    options: Object.values(PlatformClient).map((e) => ({ name: e, value: e })),
-  },
   ...(tags.length > 0
     ? [
         {
           name: "Tags",
           param: "tags",
           multiple: true,
-          options: tags.map((e) => ({ name: e.name, value: e.id })),
+          options: tags.map((e) => ({ name: e.name, param: e.id })),
         },
       ]
     : []),
+  {
+    name: "Platform",
+    param: "platform",
+    multiple: true,
+    options: Object.values(PlatformClient).map((e) => ({ name: e, param: e })),
+  },
   ...(props.extraOptions ?? []),
 ];
 const optionValues = ref<{
@@ -421,7 +427,7 @@ const filterQuery = computed(() => {
         .map(([k, v]) => `${k}=${v}`)
         .join("&")
     : props.params;
-  return `${query}${extraFilters ? (query ? "&" : "") + extraFilters : ""}${query || extraFilters ? '&' : ''}sort=${currentSort.value}`;
+  return `${query}${extraFilters ? (query ? "&" : "") + extraFilters : ""}`;
 });
 
 const games = ref<Array<SerializeObject<Game>>>();
@@ -431,7 +437,7 @@ async function updateGames(query: string, reset: boolean) {
   loading.value = true;
   games.value ??= [];
   const newValues = await $dropFetch<Array<SerializeObject<Game>>>(
-    `/api/v1/store?take=50&start=${reset ? games.value?.length || 0 : 0}${query ? "&" + query : ""}`,
+    `/api/v1/store?take=50&start=${reset ? games.value?.length || 0 : 0}&sort=${currentSort.value}${query ? "&" + query : ""}`,
   );
   if (reset) {
     games.value = newValues;

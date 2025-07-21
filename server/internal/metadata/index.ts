@@ -1,4 +1,5 @@
-import { type Prisma, Genre, MetadataSource } from "~/prisma/client";
+import type { Prisma, GameTag } from "~/prisma/client";
+import { MetadataSource } from "~/prisma/client";
 import prisma from "../db/database";
 import type {
   _FetchGameMetadataParams,
@@ -124,19 +125,22 @@ export class MetadataHandler {
     );
   }
 
-  private parseTags(tags: string[]) {
-    const results: Array<Prisma.TagCreateOrConnectWithoutGamesInput> = [];
+  private async parseTags(tags: string[]) {
+    const results: Array<GameTag> = [];
 
-    tags.forEach((t) =>
-      results.push({
-        where: {
-          name: t,
-        },
-        create: {
-          name: t,
-        },
-      }),
-    );
+    for (const tag of tags) {
+      const rawResults: GameTag[] =
+        await prisma.$queryRaw`SELECT * FROM "GameTag" WHERE SIMILARITY(name, ${tag}) > 0.45;`;
+      let resultTag = rawResults.at(0);
+      if (!resultTag) {
+        resultTag = await prisma.gameTag.create({
+          data: {
+            name: tag,
+          },
+        });
+      }
+      results.push(resultTag);
+    }
 
     return results;
   }
@@ -156,20 +160,6 @@ export class MetadataHandler {
           ...r,
         },
       });
-    });
-
-    return results;
-  }
-
-  private parseGenres(genres: string[]) {
-    const results: Genre[] = [];
-    const rawGenres = Object.values(Genre);
-
-    genres.forEach((genre) => {
-      const foundGenre = rawGenres.find(
-        (checkGenre) => fuzzy(checkGenre, genre) > 0.9,
-      );
-      if (foundGenre) results.push(foundGenre);
     });
 
     return results;
@@ -278,9 +268,8 @@ export class MetadataHandler {
               connectOrCreate: metadataHandler.parseRatings(metadata.reviews),
             },
             tags: {
-              connectOrCreate: metadataHandler.parseTags(metadata.tags),
+              connect: await metadataHandler.parseTags(metadata.tags),
             },
-            genres: metadataHandler.parseGenres(metadata.genres),
 
             libraryId,
             libraryPath,
@@ -288,7 +277,9 @@ export class MetadataHandler {
         });
 
         logger.info(`Finished game import.`);
-
+        progress(100);
+      },
+      async finally() {
         await libraryManager.unlockGame(libraryId, libraryPath);
       },
     });

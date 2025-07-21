@@ -33,7 +33,6 @@ export class ManualMetadataProvider implements MetadataProvider {
       released: new Date(),
       publishers: [],
       developers: [],
-      genres: [],
       tags: [],
       reviews: [],
 

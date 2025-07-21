@@ -32,6 +32,7 @@ export default defineEventHandler(async (h3) => {
           mLogoObjectId: true,
         },
       },
+      tags: true,
     },
   });
 

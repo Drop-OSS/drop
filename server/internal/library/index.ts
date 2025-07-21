@@ -364,7 +364,8 @@ class LibraryManager {
         });
 
         progress(100);
-
+      },
+      async finally() {
         await libraryManager.unlockVersion(gameId, versionName);
       },
     });

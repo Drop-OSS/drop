@@ -4,6 +4,7 @@ import type {
   NitroFetchRequest,
   TypedInternalResponse,
 } from "nitropack/types";
+import type { FetchError } from "ofetch";
 
 interface DropFetch<
   DefaultT = unknown,
@@ -15,7 +16,7 @@ interface DropFetch<
     O extends NitroFetchOptions<R> = NitroFetchOptions<R>,
   >(
     request: R,
-    opts?: O,
+    opts?: O & { failTitle?: string },
   ): Promise<
     // sometimes there is an error, other times there isn't
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -46,10 +47,26 @@ export const $dropFetch: DropFetch = async (request, opts) => {
   }
 
   const headers = useRequestHeaders(["cookie", "authorization"]);
-  const data = await $fetch(request, {
-    ...opts,
-    headers: { ...opts?.headers, ...headers },
-  });
-  if (import.meta.server) state.value = data;
-  return data;
+  try {
+    const data = await $fetch(request, {
+      ...opts,
+      headers: { ...opts?.headers, ...headers },
+    });
+    if (import.meta.server) state.value = data;
+    return data;
+  } catch (e) {
+    if (import.meta.client && opts?.failTitle) {
+      createModal(
+        ModalType.Notification,
+        {
+          title: opts.failTitle,
+          description:
+            (e as FetchError)?.statusMessage ?? (e as string).toString(),
+          buttonText: $t("close"),
+        },
+        (_, c) => c(),
+      );
+    }
+    throw e;
+  }
 };

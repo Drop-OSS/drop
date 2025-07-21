@@ -265,7 +265,10 @@ const filteredLibraryGames = computed(() =>
 );
 
 async function deleteGame(id: string) {
-  await $dropFetch(`/api/v1/admin/game?id=${id}`, { method: "DELETE" });
+  await $dropFetch(`/api/v1/admin/game?id=${id}`, {
+    method: "DELETE",
+    failTitle: "Failed to delete game",
+  });
   const index = libraryGames.value.findIndex((e) => e.id === id);
   libraryGames.value.splice(index, 1);
   toImport.value = true;
@@ -278,6 +281,7 @@ async function featureGame(id: string) {
   await $dropFetch("/api/v1/admin/game", {
     method: "PATCH",
     body: { id, featured: !game.featured },
+    failTitle: "Failed to feature/unfeature game",
   });
 
   libraryGames.value[gameIndex].featured = !game.featured;

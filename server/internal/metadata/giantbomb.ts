@@ -228,7 +228,7 @@ export class GiantBombProvider implements MetadataProvider {
 
     const releaseDate = gameData.original_release_date
       ? DateTime.fromISO(gameData.original_release_date).toJSDate()
-      : new Date()
+      : new Date();
 
     context?.progress(85);
 
@@ -249,7 +249,7 @@ export class GiantBombProvider implements MetadataProvider {
       }
     }
 
-    const genres = (gameData.genres ?? []).map((e) => e.name);
+    const tags = (gameData.genres ?? []).map((e) => e.name);
 
     const metadata: GameMetadata = {
       id: gameData.guid,
@@ -258,8 +258,7 @@ export class GiantBombProvider implements MetadataProvider {
       description: longDescription,
       released: releaseDate,
 
-      genres,
-      tags: [],
+      tags,
 
       reviews,
 

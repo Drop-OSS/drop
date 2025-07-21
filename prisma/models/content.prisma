@@ -7,27 +7,6 @@ enum MetadataSource {
   OpenCritic
 }
 
-enum Genre {
-  Action
-  Strategy
-  Sports
-  Adventure
-  Roleplay
-  Racing
-  Simulation
-  Educational
-  Fighting
-  Shooter
-  RTS
-  Card
-  Board
-  Compilation
-  MMORPG
-  Minigames
-  Puzzle
-  Rhythm
-}
-
 model Game {
   id String @id @default(uuid())
 
@@ -43,7 +22,6 @@ model Game {
   mReleased         DateTime // When the game was released
 
   ratings GameRating[]
-  genres  Genre[]
 
   featured Boolean @default(false)
 
@@ -64,7 +42,7 @@ model Game {
   collections CollectionEntry[]
   saves       SaveSlot[]
   screenshots Screenshot[]
-  tags        Tag[]
+  tags        GameTag[]
   playtime    Playtime[]
 
   developers Company[] @relation(name: "developers")
@@ -73,6 +51,16 @@ model Game {
   @@unique([metadataSource, metadataId], name: "metadataKey")
   @@unique([libraryId, libraryPath], name: "libraryKey")
 }
+
+model GameTag {
+  id   String @id @default(uuid())
+  name String @unique
+
+  games    Game[]
+
+  @@index([name(ops: raw("gist_trgm_ops(siglen=32)"))], type: Gist)
+}
+
 
 model GameRating {
   id String @id @default(uuid())

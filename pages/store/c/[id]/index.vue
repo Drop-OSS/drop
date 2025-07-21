@@ -46,8 +46,8 @@
           param: 'companyActions',
           multiple: true,
           options: [
-            { name: 'Published', value: 'published' },
-            { name: 'Developed', value: 'developed' },
+            { name: 'Published', param: 'published' },
+            { name: 'Developed', param: 'developed' },
           ],
         },
       ]"

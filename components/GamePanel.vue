@@ -6,7 +6,7 @@
       'transition-all duration-300 text-left hover:scale-[1.02] hover:shadow-lg hover:-translate-y-0.5':
         animate,
     }"
-    class="group relative w-48 h-64 rounded-lg overflow-hidden"
+    class="group relative flex-1 min-w-42 max-w-48 h-64 rounded-lg overflow-hidden"
   >
     <div
       :class="{

@@ -1,5 +1,5 @@
 import { ArkErrors, type } from "arktype";
-import type { Genre, Prisma } from "~/prisma/client";
+import type { Prisma } from "~/prisma/client";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import { parsePlatform } from "~/server/internal/utils/parseplatform";
@@ -13,7 +13,6 @@ const StoreRead = type({
     .default("10"),
 
   tags: "string?",
-  genres: "string?",
   platform: "string?",
 
   company: "string?",
@@ -42,13 +41,6 @@ export default defineEventHandler(async (h3) => {
               in: options.tags.split(","),
             },
           },
-        },
-      }
-    : undefined;
-  const genreFilter = options.genres
-    ? {
-        genres: {
-          hasSome: options.genres.split(",") as Array<Genre>,
         },
       }
     : undefined;
@@ -101,7 +93,6 @@ export default defineEventHandler(async (h3) => {
 
   const finalFilter: Prisma.GameWhereInput = {
     ...tagFilter,
-    ...genreFilter,
     ...platformFilter,
     ...companyFilter,
   };
