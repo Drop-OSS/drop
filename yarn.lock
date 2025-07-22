@@ -851,14 +851,6 @@
     source-map-js "^1.0.1"
     yaml-eslint-parser "^1.2.2"
 
-"@intlify/core-base@10.0.7":
-  version "10.0.7"
-  resolved "https://registry.yarnpkg.com/@intlify/core-base/-/core-base-10.0.7.tgz#58a8ec5b7e1d6d383563725cf88d23916cf88eaa"
-  integrity sha512-mE71aUH5baH0me8duB4FY5qevUJizypHsYw3eCvmOx07QvmKppgOONx3dYINxuA89Z2qkAGb/K6Nrpi7aAMwew==
-  dependencies:
-    "@intlify/message-compiler" "10.0.7"
-    "@intlify/shared" "10.0.7"
-
 "@intlify/core-base@10.0.8":
   version "10.0.8"
   resolved "https://registry.yarnpkg.com/@intlify/core-base/-/core-base-10.0.8.tgz#2fcf46bab72d4daa8575eb11e04a549ea4030ac3"
@@ -913,14 +905,6 @@
     "@intlify/core" "^10.0.3"
     "@intlify/utils" "^0.13.0"
 
-"@intlify/message-compiler@10.0.7":
-  version "10.0.7"
-  resolved "https://registry.yarnpkg.com/@intlify/message-compiler/-/message-compiler-10.0.7.tgz#84d9784fafba2a61e527f075ef85a09e598e01af"
-  integrity sha512-nrC4cDL/UHZSUqd8sRbVz+DPukzZ8NnG5OK+EB/nlxsH35deyzyVkXP/QuR8mFZrISJ+4hCd6VtCQCcT+RO+5g==
-  dependencies:
-    "@intlify/shared" "10.0.7"
-    source-map-js "^1.0.2"
-
 "@intlify/message-compiler@10.0.8":
   version "10.0.8"
   resolved "https://registry.yarnpkg.com/@intlify/message-compiler/-/message-compiler-10.0.8.tgz#48aee742916f8aaa43945682f32bec1c9e73e2f8"
@@ -937,11 +921,6 @@
     "@intlify/shared" "11.1.5"
     source-map-js "^1.0.2"
 
-"@intlify/shared@10.0.7", "@intlify/shared@^10.0.0", "@intlify/shared@^10.0.7":
-  version "10.0.7"
-  resolved "https://registry.yarnpkg.com/@intlify/shared/-/shared-10.0.7.tgz#970d865596222910dfaafe2f27aea83880646467"
-  integrity sha512-oeoq0L5+5P4ShXa6jBQcx+BT+USe3MjX0xJexZO1y7rfDJdwZ9+QP3jO4tcS1nxhBYYdjvFTqe4bmnLijV0GxQ==
-
 "@intlify/shared@10.0.8":
   version "10.0.8"
   resolved "https://registry.yarnpkg.com/@intlify/shared/-/shared-10.0.8.tgz#5f8019919dea8695b2e345257fc0cda7665d8ef9"
@@ -951,6 +930,11 @@
   version "11.1.5"
   resolved "https://registry.yarnpkg.com/@intlify/shared/-/shared-11.1.5.tgz#236eb0b2b01876f7b540ddb4079e2027cfc83d63"
   integrity sha512-+I4vRzHm38VjLr/CAciEPJhGYFzWWW4HMTm+6H3WqknXLh0ozNX9oC8ogMUwTSXYR/wGUb1/lTpNziiCH5MybQ==
+
+"@intlify/shared@^10.0.0", "@intlify/shared@^10.0.7":
+  version "10.0.7"
+  resolved "https://registry.yarnpkg.com/@intlify/shared/-/shared-10.0.7.tgz#970d865596222910dfaafe2f27aea83880646467"
+  integrity sha512-oeoq0L5+5P4ShXa6jBQcx+BT+USe3MjX0xJexZO1y7rfDJdwZ9+QP3jO4tcS1nxhBYYdjvFTqe4bmnLijV0GxQ==
 
 "@intlify/unplugin-vue-i18n@^6.0.8":
   version "6.0.8"
@@ -4833,13 +4817,14 @@ foreground-child@^3.1.0:
     signal-exit "^4.0.1"
 
 form-data@^4.0.0:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/form-data/-/form-data-4.0.2.tgz#35cabbdd30c3ce73deb2c42d3c8d3ed9ca51794c"
-  integrity sha512-hGfm/slu0ZabnNt4oaRZ6uREyfCj6P4fT/n6A1rGV+Z0VdGXjfOhVUpkn6qVQONHGIFwmveGXyDs75+nr6FM8w==
+  version "4.0.4"
+  resolved "https://registry.yarnpkg.com/form-data/-/form-data-4.0.4.tgz#784cdcce0669a9d68e94d11ac4eea98088edd2c4"
+  integrity sha512-KrGhL9Q4zjj0kiUt5OO4Mr/A/jlI2jDYs5eHBpYHPcBEVSiipAvn2Ko2HnPe20rmcuuvMHNdZFp+4IlGTMF0Ow==
   dependencies:
     asynckit "^0.4.0"
     combined-stream "^1.0.8"
     es-set-tostringtag "^2.1.0"
+    hasown "^2.0.2"
     mime-types "^2.1.12"
 
 formdata-polyfill@^4.0.10:
