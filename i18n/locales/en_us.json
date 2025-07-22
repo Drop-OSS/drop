@@ -84,13 +84,13 @@
     "name": "Name",
     "noResults": "No results",
     "noSelected": "No items selected.",
+    "remove": "Remove",
     "save": "Save",
     "saved": "Saved",
     "servers": "Servers",
     "srLoading": "Loading...",
     "tags": "Tags",
-    "today": "Today",
-    "remove": "Remove"
+    "today": "Today"
   },
   "delete": "Delete",
   "drop": {
@@ -402,14 +402,21 @@
     }
   },
   "store": {
+    "about": "About",
     "commingSoon": "coming soon",
+    "developers": "Developers | Developer | Developers",
     "exploreMore": "Explore more {arrow}",
+    "featured": "Featured",
     "images": "Game Images",
     "lookAt": "Check it out",
+    "noDevelopers": "No developers",
     "noGame": "no game",
     "noImages": "No images",
+    "noPublishers": "No publishers.",
+    "noTags": "No tags",
     "openAdminDashboard": "Open in Admin Dashboard",
     "platform": "Platform | Platform | Platforms",
+    "publishers": "Publishers | Publisher | Publishers",
     "rating": "Rating",
     "readLess": "Click to read less",
     "readMore": "Click to read more",
@@ -418,13 +425,8 @@
     "recentlyUpdated": "Recently Updated",
     "released": "Released",
     "reviews": "({0} Reviews)",
-    "title": "Store",
     "tags": "Tags",
-    "noTags": "No tags",
-    "developers": "Developers | Developer | Developers",
-    "publishers": "Publishers | Publisher | Publishers",
-    "noDevelopers": "No developers",
-    "noPublishers": "No publishers.",
+    "title": "Store",
     "view": {
       "sort": "Sort",
       "srFilters": "Filters",
@@ -432,7 +434,6 @@
       "srViewGrid": "View grid"
     },
     "viewInStore": "View in Store",
-    "about": "About",
     "website": "Website"
   },
   "tasks": {
@@ -478,7 +479,6 @@
     "admin": {
       "adminHeader": "Admin?",
       "adminUserLabel": "Admin user",
-      "authLink": "Authentication {arrow}",
       "authentication": {
         "configure": "Configure",
         "description": "Drop supports a variety of \"authentication mechanisms\". As you enable or disable them, they are shown on the sign in screen for users to select from. Click the dot menu to configure the authentication mechanism.",
@@ -490,6 +490,7 @@
         "srOpenOptions": "Open options",
         "title": "Authentication"
       },
+      "authLink": "Authentication {arrow}",
       "authoptionsHeader": "Auth Options",
       "delete": "Delete",
       "deleteUser": "Delete user {0}",

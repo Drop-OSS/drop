@@ -24,7 +24,7 @@
           >
             <div class="relative text-center">
               <h3 class="text-base/7 font-semibold text-blue-300">
-                {{ $t("store.recentlyAdded") }}
+                {{ $t("store.featured") }}
               </h3>
               <h2
                 class="text-3xl font-bold tracking-tight text-white sm:text-5xl"
