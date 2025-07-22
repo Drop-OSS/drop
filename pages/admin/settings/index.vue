@@ -78,7 +78,7 @@ useHead({
   title: t("settings.admin.title"),
 });
 
-const settings = await $dropFetch("/api/v1/admin/settings");
+const settings = await $dropFetch("/api/v1/settings");
 const { game } = await $dropFetch("/api/v1/admin/settings/dummy-data");
 
 const allowSave = ref(false);

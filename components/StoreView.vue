@@ -299,6 +299,7 @@
                 :key="game.id"
                 :game="game"
                 :href="`/store/${game.id}`"
+                :show-title-description="showGamePanelTextDecoration"
               />
               <div
                 v-if="loading"
@@ -359,6 +360,8 @@ import {
 import type { SerializeObject } from "nitropack";
 import type { Game, GameTag } from "~/prisma/client";
 import MultiItemSelector from "./MultiItemSelector.vue";
+
+const { showGamePanelTextDecoration } = await $dropFetch(`/api/v1/settings`);
 
 const mobileFiltersOpen = ref(false);
 

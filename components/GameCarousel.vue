@@ -51,7 +51,7 @@ const props = defineProps<{
 }>();
 
 const { showGamePanelTextDecoration } = await $dropFetch(
-  `/api/v1/admin/settings`,
+  `/api/v1/settings`,
 );
 
 const currentComponent = ref<HTMLDivElement>();

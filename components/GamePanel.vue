@@ -20,7 +20,8 @@
         :alt="imageProps.alt"
       />
       <div
-        class="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-zinc-950/20 to-transparent"
+        v-if="showTitleDescription"
+        class="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-zinc-950/0 to-transparent"
       />
     </div>
 
