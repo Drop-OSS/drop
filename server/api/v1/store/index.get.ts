@@ -18,7 +18,7 @@ const StoreRead = type({
   company: "string?",
   companyActions: "string = 'published,developed'",
 
-  sort: "'newest' | 'recent' = 'newest'",
+  sort: "'default' | 'newest' | 'recent' = 'default'",
 });
 
 export default defineEventHandler(async (h3) => {
@@ -99,6 +99,7 @@ export default defineEventHandler(async (h3) => {
 
   const sort: Prisma.GameOrderByWithRelationInput = {};
   switch (options.sort) {
+    case "default":
     case "newest":
       sort.mReleased = "desc";
       break;

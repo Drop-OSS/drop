@@ -5,19 +5,19 @@ export default defineEventHandler(async (h3) => {
   const userId = await aclManager.getUserIdACL(h3, ["store:read"]);
   if (!userId) throw createError({ statusCode: 403 });
 
-  const companyId = getRouterParam(h3, "id");
-  if (!companyId)
+  const tagId = getRouterParam(h3, "id");
+  if (!tagId)
     throw createError({
       statusCode: 400,
       statusMessage: "Missing gameId in route params (somehow...?)",
     });
 
-  const company = await prisma.company.findUnique({
-    where: { id: companyId },
+  const tag = await prisma.gameTag.findUnique({
+    where: { id: tagId },
   });
 
-  if (!company)
-    throw createError({ statusCode: 404, statusMessage: "Company not found" });
+  if (!tag)
+    throw createError({ statusCode: 404, statusMessage: "Tag not found" });
 
-  return { company };
+  return { tag };
 });

@@ -43,7 +43,7 @@
 
         <ComboboxOptions
           v-if="filteredItems.length > 0 || search.length > 0"
-          class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-white/5 focus:outline-hidden sm:text-sm"
+          class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-white/5 focus:outline-hidden sm:text-sm"
         >
           <ComboboxOption
             v-for="item in filteredItems"

@@ -5,16 +5,10 @@
       <!-- Decorative background image and gradient -->
       <div aria-hidden="true" class="absolute inset-0">
         <div class="absolute inset-0 overflow-hidden">
-          <img
-            :src="useObject(company.mBannerObjectId)"
-            alt=""
-            class="size-full object-cover"
-          />
+          <img alt="" class="size-full object-cover" />
         </div>
         <div class="absolute inset-0 bg-zinc-900/75" />
-        <div
-          class="absolute inset-0 bg-linear-to-t from-zinc-900"
-        />
+        <div class="absolute inset-0 bg-linear-to-t from-zinc-900" />
       </div>
 
       <!-- Callout -->
@@ -27,28 +21,16 @@
             id="sale-heading"
             class="text-4xl font-bold font-display tracking-tight text-zinc-100 sm:text-5xl lg:text-6xl"
           >
-            {{ company.mName }}
+            {{ tag.name }}
           </h2>
-          <p class="mx-auto line-clamp-3 mt-4 max-w-xl text-xl text-zinc-400">
-            {{ company.mDescription }}
-          </p>
         </div>
       </section>
     </div>
     <StoreView
-      :extra-options="[
-        {
-          name: 'Company',
-          param: 'companyActions',
-          multiple: true,
-          options: [
-            { name: 'Published', param: 'published' },
-            { name: 'Developed', param: 'developed' },
-          ],
-        },
-      ]"
-      :params="{
-        company: company.id,
+      :prefilled="{
+        tags: {
+          [tag.id]: true,
+        } as any,
       }"
     />
   </div>
@@ -56,12 +38,11 @@
 
 <script setup lang="ts">
 const route = useRoute();
-const companyId = route.params.id;
+const tagId = route.params.id;
 
-const { company } = await $dropFetch(`/api/v1/companies/${companyId}`);
+const { tag } = await $dropFetch(`/api/v1/tags/${tagId}`);
 
 useHead({
-  title: company.mName,
-  link: [{ rel: "icon", href: useObject(company.mLogoObjectId) }],
+  title: tag.name,
 });
 </script>

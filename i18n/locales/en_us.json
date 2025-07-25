@@ -231,6 +231,7 @@
   "header": {
     "admin": {
       "admin": "Admin",
+      "metadata": "Meta",
       "settings": "Settings",
       "tasks": "Tasks",
       "users": "Users"
@@ -458,7 +459,7 @@
     }
   },
   "title": "Drop",
-  "titleTemplate": "{0} | Drop",
+  "titleTemplate": "{0} - Drop",
   "todo": "Todo",
   "type": "Type",
   "upload": "Upload",

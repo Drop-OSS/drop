@@ -378,6 +378,10 @@ const tags =
 
 const sorts: Array<StoreSortOption> = [
   {
+    name: "Default",
+    param: "default",
+  },
+  {
     name: "Newest",
     param: "newest",
   },
@@ -414,6 +418,7 @@ const optionValues = ref<{
     options.map((v) => [v.param, v.multiple ? {} : undefined]),
   ),
 );
+Object.assign(optionValues.value, props.prefilled);
 
 const filterQuery = computed(() => {
   const query = Object.entries(optionValues.value)
@@ -455,6 +460,9 @@ async function updateGames(query: string, reset: boolean) {
 }
 watch(filterQuery, (newUrl) => {
   updateGames(newUrl, true);
+});
+watch(currentSort, (_) => {
+  updateGames(filterQuery.value, true);
 });
 
 await updateGames(filterQuery.value, true);
