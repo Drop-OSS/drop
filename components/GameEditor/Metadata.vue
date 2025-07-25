@@ -274,7 +274,7 @@
       accept="image/*"
       endpoint="/api/v1/admin/game/image"
       :multiple="true"
-      @upload="(result: Game) => uploadAfterImageUpload(result)"
+      @upload="(result: GameModel) => uploadAfterImageUpload(result)"
     />
     <ModalTemplate v-model="showAddCarouselModal">
       <template #default>
@@ -440,7 +440,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Game } from "~/prisma/client";
+import type { GameModel } from "~/prisma/client/models";
 import { micromark } from "micromark";
 import {
   CheckIcon,
@@ -461,7 +461,9 @@ const showAddImageDescriptionModal = ref(false);
 const showEditCoreMetadata = ref(false);
 const mobileShowFinalDescription = ref(true);
 
-const game = defineModel<SerializeObject<Game>>() as Ref<SerializeObject<Game>>;
+const game = defineModel<SerializeObject<GameModel>>() as Ref<
+  SerializeObject<GameModel>
+>;
 if (!game.value)
   throw createError({
     statusCode: 500,
@@ -563,7 +565,7 @@ const descriptionSaving = ref<DescriptionSavingState>(
 
 let savingTimeout: undefined | NodeJS.Timeout;
 
-type PatchGameBody = Partial<Game>;
+type PatchGameBody = Partial<GameModel>;
 
 watch(descriptionHTML, (_v) => {
   descriptionSaving.value = DescriptionSavingState.Waiting;
@@ -693,7 +695,7 @@ async function deleteImage(id: string) {
   }
 }
 
-async function uploadAfterImageUpload(result: Game) {
+async function uploadAfterImageUpload(result: GameModel) {
   if (!game.value) return;
   game.value.mImageLibraryObjectIds = result.mImageLibraryObjectIds;
 }

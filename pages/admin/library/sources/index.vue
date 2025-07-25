@@ -272,7 +272,7 @@ import { XCircleIcon } from "@heroicons/vue/20/solid";
 import { CheckIcon, DocumentIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 import { FetchError } from "ofetch";
 import type { Component } from "vue";
-import type { LibraryBackend } from "~/prisma/client";
+import type { LibraryBackend } from "~/prisma/client/enums";
 import type { WorkingLibrarySource } from "~/server/api/v1/admin/library/sources/index.get";
 
 definePageMeta({

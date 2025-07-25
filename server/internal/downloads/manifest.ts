@@ -1,4 +1,4 @@
-import type { GameVersion } from "~/prisma/client";
+import type { GameVersionModel } from "~/prisma/client/models";
 import prisma from "../db/database";
 
 export type DropChunk = {
@@ -54,7 +54,7 @@ class ManifestGenerator {
 
   // Local function because eventual caching
   async generateManifest(gameId: string, versionName: string) {
-    const versions: GameVersion[] = [];
+    const versions: GameVersionModel[] = [];
 
     const baseVersion = await prisma.gameVersion.findUnique({
       where: {

@@ -280,7 +280,7 @@ function getDropVersion(): string {
     path.dirname(import.meta.url.replace("file://", "")),
     "package.json",
   );
-  console.log(`Reading package.json from ${packageJsonPath}`);
+
   if (!existsSync(packageJsonPath)) {
     console.error("Could not find package.json, using default version.");
     return defaultVersion;

@@ -1,11 +1,11 @@
-import type { Article } from "~/prisma/client";
+import type { ArticleModel } from "~/prisma/client/models";
 import type { SerializeObject } from "nitropack";
 
 export const useNews = () =>
   useState<
     | Array<
         SerializeObject<
-          Article & {
+          ArticleModel & {
             tags: Array<{ id: string; name: string }>;
             author: { displayName: string; id: string } | null;
           }

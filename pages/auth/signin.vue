@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import type { AuthMec } from "~/prisma/client";
+import type { AuthMec } from "~/prisma/client/enums";
 import DropLogo from "~/components/DropLogo.vue";
 
 const { t } = useI18n();

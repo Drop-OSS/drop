@@ -55,7 +55,9 @@
               class="mt-2 space-y-4"
               @update="() => updateVersionOrder()"
             >
-              <template #item="{ element: item }: { element: GameVersion }">
+              <template
+                #item="{ element: item }: { element: GameVersionModel }"
+              >
                 <div
                   class="w-full inline-flex items-center px-4 py-2 bg-zinc-800 rounded justify-between"
                 >
@@ -97,7 +99,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Game, GameVersion } from "~/prisma/client";
+import type { GameModel, GameVersionModel } from "~/prisma/client/models";
 import { Bars3Icon, TrashIcon } from "@heroicons/vue/24/solid";
 import type { SerializeObject } from "nitropack";
 import type { H3Error } from "h3";
@@ -112,7 +114,7 @@ defineProps<{ unimportedVersions: string[] }>();
 
 const { t } = useI18n();
 
-type GameAndVersions = Game & { versions: GameVersion[] };
+type GameAndVersions = GameModel & { versions: GameVersionModel[] };
 const game = defineModel<SerializeObject<GameAndVersions>>() as Ref<
   SerializeObject<GameAndVersions>
 >;
