@@ -358,7 +358,7 @@ import {
   Squares2X2Icon,
 } from "@heroicons/vue/20/solid";
 import type { SerializeObject } from "nitropack";
-import type { Game, GameTag } from "~/prisma/client";
+import type { GameModel, GameTagModel } from "~/prisma/client/models";
 import MultiItemSelector from "./MultiItemSelector.vue";
 
 const { showGamePanelTextDecoration } = await $dropFetch(`/api/v1/settings`);
@@ -374,7 +374,7 @@ const props = defineProps<{
 }>();
 
 const tags =
-  await $dropFetch<Array<SerializeObject<GameTag>>>("/api/v1/store/tags");
+  await $dropFetch<Array<SerializeObject<GameTagModel>>>("/api/v1/store/tags");
 
 const sorts: Array<StoreSortOption> = [
   {
@@ -442,13 +442,13 @@ const filterQuery = computed(() => {
   return `${query}${extraFilters ? (query ? "&" : "") + extraFilters : ""}`;
 });
 
-const games = ref<Array<SerializeObject<Game>>>();
+const games = ref<Array<SerializeObject<GameModel>>>();
 const loading = ref(false);
 
 async function updateGames(query: string, reset: boolean) {
   loading.value = true;
   games.value ??= [];
-  const newValues = await $dropFetch<Array<SerializeObject<Game>>>(
+  const newValues = await $dropFetch<Array<SerializeObject<GameModel>>>(
     `/api/v1/store?take=50&start=${reset ? games.value?.length || 0 : 0}&sort=${currentSort.value}${query ? "&" + query : ""}`,
   );
   if (reset) {

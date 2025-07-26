@@ -19,6 +19,7 @@ import { randomUUID } from "crypto";
 import { fuzzy } from "fast-fuzzy";
 import { logger } from "~/server/internal/logging";
 import libraryManager from "../library";
+import type { GameTagModel } from "~/prisma/client/models";
 
 export class MissingMetadataProviderConfig extends Error {
   private providerName: string;
@@ -126,10 +127,10 @@ export class MetadataHandler {
   }
 
   private async parseTags(tags: string[]) {
-    const results: Array<GameTag> = [];
+    const results: Array<GameTagModel> = [];
 
     for (const tag of tags) {
-      const rawResults: GameTag[] =
+      const rawResults: GameTagModel[] =
         await prisma.$queryRaw`SELECT * FROM "GameTag" WHERE SIMILARITY(name, ${tag}) > 0.45;`;
       let resultTag = rawResults.at(0);
       if (!resultTag) {
