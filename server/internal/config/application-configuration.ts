@@ -1,15 +1,15 @@
-import type { ApplicationSettings } from "~/prisma/client";
+import type { ApplicationSettingsModel } from "~/prisma/client/models";
 import prisma from "../db/database";
 
 class ApplicationConfiguration {
   // Reference to the currently selected application configuration
-  private currentApplicationSettings: ApplicationSettings | undefined =
+  private currentApplicationSettings: ApplicationSettingsModel | undefined =
     undefined;
 
   private async save() {
     await this.init();
 
-    const deepAppConfigCopy: Omit<ApplicationSettings, "timestamp"> & {
+    const deepAppConfigCopy: Omit<ApplicationSettingsModel, "timestamp"> & {
       timestamp?: Date;
     } = JSON.parse(JSON.stringify(this.currentApplicationSettings));
 
@@ -56,9 +56,9 @@ class ApplicationConfiguration {
     this.currentApplicationSettings = latestState;
   }
 
-  async set<T extends keyof ApplicationSettings>(
+  async set<T extends keyof ApplicationSettingsModel>(
     key: T,
-    value: ApplicationSettings[T],
+    value: ApplicationSettingsModel[T],
   ) {
     await this.init();
     if (!this.currentApplicationSettings)
@@ -71,9 +71,9 @@ class ApplicationConfiguration {
     }
   }
 
-  async get<T extends keyof ApplicationSettings>(
+  async get<T extends keyof ApplicationSettingsModel>(
     key: T,
-  ): Promise<ApplicationSettings[T]> {
+  ): Promise<ApplicationSettingsModel[T]> {
     await this.init();
     if (!this.currentApplicationSettings)
       throw new Error("Somehow, failed to initialise application settings");

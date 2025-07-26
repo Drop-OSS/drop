@@ -143,7 +143,8 @@
 </template>
 
 <script setup lang="ts">
-import type { User } from "~/prisma/client";
+import { useUsers } from "~/composables/users";
+import type { UserModel } from "~/prisma/client/models";
 
 useHead({
   title: "Users",
@@ -162,5 +163,5 @@ if (!users.value) {
 
 const userToDelete = ref();
 
-const setUserToDelete = (user: User) => (userToDelete.value = user);
+const setUserToDelete = (user: UserModel) => (userToDelete.value = user);
 </script>

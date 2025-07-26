@@ -4,7 +4,7 @@ import {
   VersionNotFoundError,
   type LibraryProvider,
 } from "../provider";
-import { LibraryBackend } from "~/prisma/client";
+import { LibraryBackend } from "~/prisma/client/enums";
 import fs from "fs";
 import path from "path";
 import droplet from "@drop-oss/droplet";

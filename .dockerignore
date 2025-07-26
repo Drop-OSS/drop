@@ -1,3 +1,9 @@
+Dockerfile
+.github
+.vscode
+*.md
+
+#### gitignore below
 # Nuxt dev/build outputs
 .output
 .data
@@ -24,8 +30,14 @@ logs
 .env.*
 !.env.example
 
+.data
+
+
 # deploy template
-deploy-template/
+deploy-template/*
+
+!deploy-template/compose.yml
 
 # generated prisma client
 /prisma/client
+/prisma/validate

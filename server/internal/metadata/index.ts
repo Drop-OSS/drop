@@ -1,5 +1,5 @@
-import type { Prisma, GameTag } from "~/prisma/client";
-import { MetadataSource } from "~/prisma/client";
+import type { Prisma } from "~/prisma/client/client";
+import { MetadataSource } from "~/prisma/client/enums";
 import prisma from "../db/database";
 import type {
   _FetchGameMetadataParams,

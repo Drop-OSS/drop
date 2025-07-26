@@ -95,12 +95,12 @@
 
 <script setup lang="ts">
 import { TrashIcon, PlusIcon } from "@heroicons/vue/20/solid";
-import type { Collection } from "~/prisma/client";
+import type { CollectionModel } from "~/prisma/client/models";
 
 const collections = await useCollections();
 const collectionCreateOpen = ref(false);
 
-const currentlyDeleting = ref<Collection | undefined>();
+const currentlyDeleting = ref<CollectionModel | undefined>();
 
 const { t } = useI18n();
 const library = await useLibrary();

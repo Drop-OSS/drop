@@ -1,6 +1,6 @@
 import type { EnumDictionary } from "../utils/types";
 import prisma from "../db/database";
-import { ClientCapabilities } from "~/prisma/client";
+import { ClientCapabilities } from "~/prisma/client/enums";
 
 // These values are technically mapped to the database,
 // but Typescript/Prisma doesn't let me link them

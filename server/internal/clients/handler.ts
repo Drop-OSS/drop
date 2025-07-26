@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import prisma from "../db/database";
-import type { Platform } from "~/prisma/client";
+import type { Platform } from "~/prisma/client/enums";
 import { useCertificateAuthority } from "~/server/plugins/ca";
 import type {
   CapabilityConfiguration,

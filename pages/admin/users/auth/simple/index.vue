@@ -394,7 +394,7 @@ import {
 } from "@headlessui/vue";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 import { TrashIcon, XCircleIcon } from "@heroicons/vue/24/solid";
-import type { Invitation } from "~/prisma/client";
+import type { InvitationModel } from "~/prisma/client/models";
 import type { SerializeObject } from "nitropack";
 import type { DurationLike } from "luxon";
 import { DateTime } from "luxon";
@@ -410,7 +410,7 @@ useHead({
 });
 
 const data = await $dropFetch<
-  Array<SerializeObject<Invitation & { inviteUrl: string }>>
+  Array<SerializeObject<InvitationModel & { inviteUrl: string }>>
 >("/api/v1/admin/auth/invitation");
 const invitations = ref(data ?? []);
 

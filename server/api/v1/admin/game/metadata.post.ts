@@ -1,4 +1,4 @@
-import type { Prisma } from "~/prisma/client";
+import type { Prisma } from "~/prisma/client/client";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import { handleFileUpload } from "~/server/internal/utils/handlefileupload";

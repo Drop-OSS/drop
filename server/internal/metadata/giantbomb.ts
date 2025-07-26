@@ -1,4 +1,5 @@
-import { MetadataSource, type Company } from "~/prisma/client";
+import type { CompanyModel } from "~/prisma/client/models";
+import { MetadataSource } from "~/prisma/client/enums";
 import type { MetadataProvider } from ".";
 import { MissingMetadataProviderConfig } from ".";
 import type {
@@ -183,7 +184,7 @@ export class GiantBombProvider implements MetadataProvider {
       ? this.turndown.turndown(gameData.description)
       : gameData.deck;
 
-    const publishers: Company[] = [];
+    const publishers: CompanyModel[] = [];
     if (gameData.publishers) {
       for (const pub of gameData.publishers) {
         context?.logger.info(`Importing publisher "${pub.name}"`);
@@ -200,7 +201,7 @@ export class GiantBombProvider implements MetadataProvider {
 
     context?.progress(35);
 
-    const developers: Company[] = [];
+    const developers: CompanyModel[] = [];
     if (gameData.developers) {
       for (const dev of gameData.developers) {
         context?.logger.info(`Importing developer "${dev.name}"`);

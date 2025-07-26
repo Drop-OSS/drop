@@ -1,8 +1,12 @@
-import type { Collection, CollectionEntry, Game } from "~/prisma/client";
+import type {
+  CollectionModel,
+  CollectionEntryModel,
+  GameModel,
+} from "~/prisma/client/models";
 import type { SerializeObject } from "nitropack";
 
-type FullCollection = Collection & {
-  entries: Array<CollectionEntry & { game: SerializeObject<Game> }>;
+type FullCollection = CollectionModel & {
+  entries: Array<CollectionEntryModel & { game: SerializeObject<GameModel> }>;
 };
 
 export const useCollections = async () => {
