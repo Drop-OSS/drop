@@ -348,7 +348,7 @@ async function importGame(useMetadata: boolean) {
     method: "POST",
     body: {
       path: option.game,
-      library: option.library,
+      library: option.library.id,
       metadata,
     },
   });

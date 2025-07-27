@@ -90,7 +90,8 @@
     "servers": "Servers",
     "srLoading": "Loading...",
     "tags": "Tags",
-    "today": "Today"
+    "today": "Today",
+    "add": "Add"
   },
   "delete": "Delete",
   "drop": {
@@ -348,7 +349,25 @@
         "companies": {
           "title": "Companies",
           "description": "Companies organize games by who they were developed or published by.",
-          "action": "Manage {arrow}"
+          "action": "Manage {arrow}",
+          "search": "Search companies...",
+          "searchGames": "Search company games...",
+          "noCompanies": "No companies",
+          "noGames": "No games",
+          "editor": {
+            "libraryTitle": "Game Library",
+            "libraryDescription": "Add, remove, or customise what this company has developed and/or published.",
+            "action": "Add Game {plus}",
+            "published": "Published",
+            "developed": "Developed"
+          },
+          "addGame": {
+            "title": "Connect game to this company",
+            "description": "Pick a game to add to the company, and whether it should be listed as a developer, publisher, or both.",
+            "publisher": "Publisher?",
+            "developer": "Developer?",
+            "noGames": "No games to add"
+          }
         }
       }
     },
