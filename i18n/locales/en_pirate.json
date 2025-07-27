@@ -24,8 +24,8 @@
   },
   "actions": "Deeds",
   "add": "Add",
-  "adminTitle": "Cap'n's Quarters | Drop",
-  "adminTitleTemplate": "{0} | Cap'n | Drop",
+  "adminTitle": "Cap'n's Quarters - Drop",
+  "adminTitleTemplate": "{0} - Cap'n - Drop",
   "auth": {
     "callback": {
       "authClient": "Grant passage to this scallywag?",

@@ -24,8 +24,8 @@
   },
   "actions": "Actions",
   "add": "Add",
-  "adminTitle": "Admin Dashboard | Drop",
-  "adminTitleTemplate": "{0} | Admin | Drop",
+  "adminTitle": "Admin Dashboard - Drop",
+  "adminTitleTemplate": "{0} - Admin - Drop",
   "auth": {
     "callback": {
       "authClient": "Authorize client?",

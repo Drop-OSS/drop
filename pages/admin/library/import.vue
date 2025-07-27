@@ -12,9 +12,15 @@
         <ListboxButton
           class="relative w-full cursor-default rounded-md bg-zinc-950 py-1.5 pl-3 pr-10 text-left text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6"
         >
-          <span v-if="currentlySelectedGame != -1" class="block truncate">{{
-            games.unimportedGames[currentlySelectedGame].game
-          }}</span>
+          <span v-if="currentlySelectedGame != -1" class="block truncate"
+            >{{ games.unimportedGames[currentlySelectedGame].game }}
+            <span
+              class="px-1 py-0.5 text-xs bg-blue-600/10 rounded-sm ring-1 ring-blue-600 text-blue-400"
+              >{{
+                games.unimportedGames[currentlySelectedGame].library.name
+              }}</span
+            ></span
+          >
           <span v-else class="block truncate text-zinc-400">{{
             $t("library.admin.import.selectDir")
           }}</span>
@@ -37,7 +43,7 @@
             class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-zinc-800 focus:outline-none sm:text-sm"
           >
             <ListboxOption
-              v-for="({ game }, gameIdx) in games.unimportedGames"
+              v-for="({ game, library }, gameIdx) in games.unimportedGames"
               :key="game"
               v-slot="{ active, selected }"
               as="template"
@@ -52,9 +58,13 @@
                 <span
                   :class="[
                     selected ? 'font-semibold' : 'font-normal',
-                    'block truncate',
+                    'inline-flex items-center gap-x-2 block truncate py-1 w-full',
                   ]"
-                  >{{ game }}</span
+                  >{{ game }}
+                  <span
+                    class="px-1 py-0.5 text-xs bg-blue-600/10 rounded-sm ring-1 ring-blue-600 text-blue-400"
+                    >{{ library.name }}</span
+                  ></span
                 >
 
                 <span

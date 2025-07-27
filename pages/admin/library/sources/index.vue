@@ -279,6 +279,10 @@ definePageMeta({
   layout: "admin",
 });
 
+useHead({
+  title: "Library Sources",
+});
+
 const { t } = useI18n();
 
 const sources = ref(
