@@ -359,7 +359,10 @@
             "libraryDescription": "Add, remove, or customise what this company has developed and/or published.",
             "action": "Add Game {plus}",
             "published": "Published",
-            "developed": "Developed"
+            "developed": "Developed",
+            "uploadIcon": "Upload icon",
+            "uploadBanner": "Upload banner",
+            "noDescription": "(no description)"
           },
           "addGame": {
             "title": "Connect game to this company",
@@ -367,6 +370,14 @@
             "publisher": "Publisher?",
             "developer": "Developer?",
             "noGames": "No games to add"
+          },
+          "modals": {
+            "nameTitle": "Edit company name",
+            "nameDescription": "Edit the company's name. Used to match to new game imports.",
+            "shortDeckTitle": "Edit company description",
+            "shortDeckDescription": "Edit the company's description. Doesn't affect long (markdown) description.",
+            "websiteTitle": "Edit company website",
+            "websiteDescription": "Edit the company's website. Note: this will be a link, and won't have redirect protection."
           }
         }
       }

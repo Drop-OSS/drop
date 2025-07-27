@@ -7,20 +7,52 @@
         :src="useObject(company.mBannerObjectId)"
         class="absolute inset-0 w-full h-full object-cover object-center"
       />
-      <div class="absolute inset-0 bg-zinc-900/50" />
+      <div class="absolute inset-0 bg-zinc-900/80" />
 
       <div class="relative inline-flex items-center gap-4">
         <!-- icon image -->
-        <img :src="useObject(company.mLogoObjectId)" class="size-20 rounded" />
-        <div>
-          <h1 class="text-5xl font-bold font-display text-zinc-100">
+        <div class="relative group/iconupload rounded-xl overflow-hidden">
+          <img :src="useObject(company.mLogoObjectId)" class="size-20" />
+          <button
+            class="rounded-xl transition duration-200 absolute inset-0 opacity-0 group-hover/iconupload:opacity-100 focus-visible/iconupload:opacity-100 cursor-pointer bg-zinc-900/80 text-zinc-100 flex flex-col items-center justify-center text-center text-xs font-semibold ring-1 ring-inset ring-zinc-800 px-2"
+          >
+            <ArrowUpTrayIcon class="size-5" />
+            <span>{{
+              $t("library.admin.metadata.companies.editor.uploadIcon")
+            }}</span>
+          </button>
+        </div>
+        <div class="flex flex-col">
+          <h1
+            class="group/name inline-flex items-center gap-x-3 text-5xl font-bold font-display text-zinc-100"
+          >
             {{ company.mName }}
+            <button @click="() => editName()">
+              <PencilIcon
+                class="transition duration-200 opacity-0 group-hover/name:opacity-100 size-8"
+              />
+            </button>
           </h1>
-          <p class="mt-1 text-lg text-zinc-400">
-            {{ company.mShortDescription }}
+          <p
+            class="group/description mt-1 inline-flex items-center gap-x-3 text-lg text-zinc-400 max-w-xl"
+          >
+            {{
+              company.mShortDescription ||
+              $t("library.admin.metadata.companies.editor.noDescription")
+            }}
+            <button @click="() => editShortDescription()">
+              <PencilIcon
+                class="transition duration-200 opacity-0 group-hover/description:opacity-100 size-5"
+              />
+            </button>
           </p>
-          <p class="mt-1 text-zinc-600">
+          <p class="group/website mt-1 text-zinc-500 inline-flex items-center gap-x-3">
             {{ company.mWebsite }}
+            <button @click="() => editWebsite()">
+              <PencilIcon
+                class="transition duration-200 opacity-0 group-hover/website:opacity-100 size-4"
+              />
+            </button>
           </p>
         </div>
       </div>
@@ -28,7 +60,8 @@
         type="button"
         class="relative inline-flex gap-x-3 items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
       >
-        {{ $t("common.edit") }} <PencilIcon class="size-4" />
+        {{ $t("library.admin.metadata.companies.editor.uploadBanner") }}
+        <ArrowUpTrayIcon class="size-4" />
       </button>
     </div>
     <div class="sm:flex sm:items-center">
@@ -173,10 +206,6 @@
         {{ $t("library.admin.metadata.companies.noGames") }}
       </p>
     </ul>
-    <div class="text-zinc-100">
-      {{ company }}
-      {{ games.map((e) => e.id) }}
-    </div>
     <ModalAddCompanyGame
       v-model="addGameModelOpen"
       :exclude="games.map((e) => e.id)"
@@ -188,7 +217,7 @@
 
 <script setup lang="ts">
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
-import { PencilIcon, PlusIcon } from "@heroicons/vue/24/solid";
+import { ArrowUpTrayIcon, PencilIcon, PlusIcon } from "@heroicons/vue/24/solid";
 import type { SerializeObject } from "nitropack";
 import type { GameModel } from "~/prisma/client/models";
 
@@ -205,6 +234,8 @@ const company = ref(result.company);
 const games = ref(result.games);
 
 const addGameModelOpen = ref(false);
+
+const { t } = useI18n();
 
 useHead({
   title: `${company.value.mName} - Company`,
@@ -303,4 +334,58 @@ function appendGame(
     company.value.developed.push(game.id);
   }
 }
+
+function buildFieldEditModal(
+  field: "mName" | "mShortDescription" | "mWebsite",
+  title: string,
+  description: string,
+) {
+  function modal() {
+    createModal(
+      ModalType.TextInput,
+      {
+        title,
+        description,
+        dft: company.value[field],
+      },
+      async (e, c, s) => {
+        switch (e) {
+          case "cancel": {
+            c();
+          }
+          case "submit": {
+            const result = await $dropFetch("/api/v1/admin/company/:id", {
+              method: "PATCH",
+              params: { id: company.value.id },
+              body: { [field]: s! },
+              failTitle: "Failed to update company details",
+            });
+            company.value[field] = result[field];
+            c();
+          }
+        }
+      },
+    );
+  }
+
+  return modal;
+}
+
+const editName = buildFieldEditModal(
+  "mName",
+  t("library.admin.metadata.companies.modals.nameTitle"),
+  t("library.admin.metadata.companies.modals.nameDescription"),
+);
+
+const editShortDescription = buildFieldEditModal(
+  "mShortDescription",
+  t("library.admin.metadata.companies.modals.shortDeckTitle"),
+  t("library.admin.metadata.companies.modals.shortDeckDescription"),
+);
+
+const editWebsite = buildFieldEditModal(
+  "mWebsite",
+  t("library.admin.metadata.companies.modals.websiteTitle"),
+  t("library.admin.metadata.companies.modals.websiteDescription"),
+);
 </script>
