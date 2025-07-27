@@ -258,8 +258,6 @@ import {
 } from "@heroicons/vue/16/solid";
 import { InformationCircleIcon, StarIcon } from "@heroicons/vue/20/solid";
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
-import { SerializeObject } from "nitropack";
-import { GameModel } from "~/prisma/client/models";
 
 const { t } = useI18n();
 
@@ -334,7 +332,7 @@ const filteredLibraryGames = computed(() =>
 );
 
 async function deleteGame(id: string) {
-  await $dropFetch(`/api/v1/admin/game?id=${id}`, {
+  await $dropFetch(`/api/v1/admin/game/${id}`, {
     method: "DELETE",
     failTitle: "Failed to delete game",
   });
@@ -349,9 +347,12 @@ async function featureGame(id: string) {
   const game = libraryGames.value[gameIndex];
   gameFeatureLoading.value[game.id] = true;
 
-  await $dropFetch("/api/v1/admin/game", {
+  await $dropFetch(`/api/v1/admin/game/:id`, {
     method: "PATCH",
-    body: { id, featured: !game.featured },
+    params: {
+      id: game.id,
+    },
+    body: { featured: !game.featured },
     failTitle: "Failed to feature/unfeature game",
   });
 

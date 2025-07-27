@@ -29,12 +29,29 @@ interface DropFetch<
   >;
 }
 
-export const $dropFetch: DropFetch = async (request, opts) => {
+export const $dropFetch: DropFetch = async (rawRequest, opts) => {
+  const requestParts = rawRequest.toString().split("/");
+  requestParts.forEach((part, index) => {
+    if (!part.startsWith(":")) {
+      return;
+    }
+    const partName = part.slice(1);
+    const replacement = opts?.params?.[partName] as string | undefined;
+    if (!replacement) {
+      return;
+    }
+    requestParts[index] = replacement;
+     
+    delete opts?.params?.[partName];
+  });
+  const request = requestParts.join("/");
+
   if (!getCurrentInstance()?.proxy) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore Excessive stack depth comparing types
     return await $fetch(request, opts);
   }
+
   const id = request.toString();
 
   const state = useState(id);

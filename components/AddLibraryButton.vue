@@ -136,8 +136,9 @@ async function toggleCollection(id: string) {
     if (!collection) return;
     const index = collection.entries.findIndex((e) => e.gameId == props.gameId);
 
-    await $dropFetch(`/api/v1/collection/${id}/entry`, {
+    await $dropFetch(`/api/v1/collection/:id/entry`, {
       method: index == -1 ? "POST" : "DELETE",
+      params: { id },
       body: {
         id: props.gameId,
       },
@@ -145,6 +146,8 @@ async function toggleCollection(id: string) {
     });
 
     await refreshCollection(id);
-  } finally { /* empty */ }
+  } finally {
+    /* empty */
+  }
 }
 </script>

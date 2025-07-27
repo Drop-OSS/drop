@@ -29,7 +29,7 @@
         class="w-full sm:w-fit"
         @click="() => createCollection()"
       >
-        {{ $t("create") }}
+        {{ $t("common.create") }}
       </LoadingButton>
       <button
         ref="cancelButtonRef"

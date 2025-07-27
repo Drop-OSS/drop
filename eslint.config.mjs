@@ -18,6 +18,7 @@ export default withNuxt([
           extensions: [".js", ".vue", ".ts"],
         },
       ],
+      "@intlify/vue-i18n/no-missing-keys": "error",
     },
     settings: {
       "vue-i18n": {

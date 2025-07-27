@@ -27,6 +27,10 @@
           </button>
         </div>
 
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-8">
+          <MultiItemSelector v-model="currentTags" :items="tags" />
+        </div>
+
         <!-- image carousel pick -->
         <div class="border-b border-zinc-700">
           <div class="border-b border-zinc-700 py-4">
@@ -440,7 +444,7 @@
 </template>
 
 <script setup lang="ts">
-import type { GameModel } from "~/prisma/client/models";
+import type { GameModel, GameTagModel } from "~/prisma/client/models";
 import { micromark } from "micromark";
 import {
   CheckIcon,
@@ -451,24 +455,41 @@ import {
 import type { SerializeObject } from "nitropack";
 import type { H3Error } from "h3";
 
-definePageMeta({
-  layout: "admin",
-});
-
 const showUploadModal = ref(false);
 const showAddCarouselModal = ref(false);
 const showAddImageDescriptionModal = ref(false);
 const showEditCoreMetadata = ref(false);
 const mobileShowFinalDescription = ref(true);
 
-const game = defineModel<SerializeObject<GameModel>>() as Ref<
-  SerializeObject<GameModel>
->;
+type ModelType = SerializeObject<GameModel & { tags: Array<GameTagModel> }>;
+const game = defineModel<ModelType>() as Ref<ModelType>;
 if (!game.value)
   throw createError({
     statusCode: 500,
     statusMessage: "Game not provided to editor component",
   });
+
+const currentTags = ref<{ [key: string]: boolean }>(
+  Object.fromEntries(game.value.tags.map((e) => [e.id, true])),
+);
+const tags = (await $dropFetch("/api/v1/admin/tags")).map(
+  (e) => ({ name: e.name, param: e.id }) satisfies StoreSortOption,
+);
+
+watch(
+  currentTags,
+  async (v) => {
+    await $dropFetch(`/api/v1/admin/game/:id/tags`, {
+      method: "PATCH",
+      params: {
+        id: game.value.id,
+      },
+      body: { tags: Object.keys(v) },
+      failTitle: "Failed to update game tags",
+    });
+  },
+  { deep: true },
+);
 
 const { t } = useI18n();
 
@@ -510,14 +531,16 @@ async function coreMetadataUpdate() {
     formData.append("icon", newIcon);
   }
 
-  formData.append("id", game.value.id);
   formData.append("name", coreMetadataName.value);
   formData.append("description", coreMetadataDescription.value);
 
-  const result = await $dropFetch(`/api/v1/admin/game/metadata`, {
-    method: "POST",
-    body: formData,
-  });
+  const result = await $dropFetch(
+    `/api/v1/admin/game/${game.value.id}/metadata`,
+    {
+      method: "POST",
+      body: formData,
+    },
+  );
   return result;
 }
 
@@ -575,10 +598,12 @@ watch(descriptionHTML, (_v) => {
   savingTimeout = setTimeout(async () => {
     try {
       descriptionSaving.value = DescriptionSavingState.Loading;
-      await $dropFetch("/api/v1/admin/game", {
+      await $dropFetch(`/api/v1/admin/game/:id`, {
         method: "PATCH",
-        body: {
+        params: {
           id: game.value.id,
+        },
+        body: {
           mDescription: game.value.mDescription,
         } satisfies PatchGameBody,
       });
@@ -619,10 +644,12 @@ function insertImageAtCursor(id: string) {
 async function updateBannerImage(id: string) {
   try {
     if (game.value.mBannerObjectId == id) return;
-    const { mBannerObjectId } = await $dropFetch("/api/v1/admin/game", {
+    const { mBannerObjectId } = await $dropFetch(`/api/v1/admin/game/:id`, {
       method: "PATCH",
-      body: {
+      params: {
         id: game.value.id,
+      },
+      body: {
         mBannerObjectId: id,
       } satisfies PatchGameBody,
     });
@@ -645,10 +672,12 @@ async function updateBannerImage(id: string) {
 async function updateCoverImage(id: string) {
   try {
     if (game.value.mCoverObjectId == id) return;
-    const { mCoverObjectId } = await $dropFetch("/api/v1/admin/game", {
+    const { mCoverObjectId } = await $dropFetch(`/api/v1/admin/game/:id`, {
       method: "PATCH",
-      body: {
+      params: {
         id: game.value.id,
+      },
+      body: {
         mCoverObjectId: id,
       } satisfies PatchGameBody,
     });
@@ -717,10 +746,12 @@ function removeImageFromCarousel(id: string) {
 
 async function updateImageCarousel() {
   try {
-    await $dropFetch("/api/v1/admin/game", {
+    await $dropFetch(`/api/v1/admin/game/:id`, {
       method: "PATCH",
-      body: {
+      params: {
         id: game.value.id,
+      },
+      body: {
         mImageCarouselObjectIds: game.value.mImageCarouselObjectIds,
       } satisfies PatchGameBody,
     });

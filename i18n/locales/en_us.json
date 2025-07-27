@@ -333,7 +333,24 @@
         "noVersions": "You have no versions of this game available.",
         "noVersionsAdded": "no versions added"
       },
-      "versionPriority": "Version priority"
+      "versionPriority": "Version priority",
+      "metadata": {
+        "tags": {
+          "title": "Tags",
+          "description": "Tags are automatically created from imported genres. You can add custom tags to add categorisation to your game library.",
+          "action": "Manage {arrow}",
+          "create": "Create",
+          "modal": {
+            "title": "Create Tag",
+            "description": "Create a tag to organize your library."
+          }
+        },
+        "companies": {
+          "title": "Companies",
+          "description": "Companies organize games by who they were developed or published by.",
+          "action": "Manage {arrow}"
+        }
+      }
     },
     "back": "Back to Library",
     "collection": {

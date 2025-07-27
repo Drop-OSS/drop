@@ -122,10 +122,6 @@ import type { SerializeObject } from "nitropack";
 import type { H3Error } from "h3";
 import { ExclamationCircleIcon } from "@heroicons/vue/24/outline";
 
-definePageMeta({
-  layout: "admin",
-});
-
 // TODO implement UI for this page
 
 defineProps<{ unimportedVersions: string[] }>();

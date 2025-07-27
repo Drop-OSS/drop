@@ -77,6 +77,10 @@ export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
     "Fetch games to be imported, and search the metadata for games.",
   "import:game:new": "Import a game.",
 
+  "tags:read": "Fetch all tags",
+  "tags:create": "Create a tag",
+  "tags:delete": "Delete a tag",
+
   "user:read": "Fetch any user's information.",
   "user:delete": "Delete a user.",
 

@@ -78,6 +78,10 @@ export const systemACLs = [
   "news:create",
   "news:delete",
 
+  "tags:read",
+  "tags:create",
+  "tags:delete",
+
   "task:read",
   "task:start",
 
