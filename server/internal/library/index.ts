@@ -11,7 +11,8 @@ import { fuzzy } from "fast-fuzzy";
 import taskHandler from "../tasks";
 import { parsePlatform } from "../utils/parseplatform";
 import notificationSystem from "../notifications";
-import type { LibraryProvider } from "./provider";
+import { GameNotFoundError, type LibraryProvider } from "./provider";
+import { logger } from "../logging";
 
 class LibraryManager {
   private libraries: Map<string, LibraryProvider<unknown>> = new Map();
@@ -78,14 +79,21 @@ class LibraryManager {
     });
     if (!game) return undefined;
 
-    const versions = await provider.listVersions(libraryPath);
-    const unimportedVersions = versions.filter(
-      (e) =>
-        game.versions.findIndex((v) => v.versionName == e) == -1 &&
-        !(this.versionImportLocks.get(game.id) ?? []).includes(e),
-    );
-
-    return unimportedVersions;
+    try {
+      const versions = await provider.listVersions(libraryPath);
+      const unimportedVersions = versions.filter(
+        (e) =>
+          game.versions.findIndex((v) => v.versionName == e) == -1 &&
+          !(this.versionImportLocks.get(game.id) ?? []).includes(e),
+      );
+      return unimportedVersions;
+    } catch (e) {
+      if (e instanceof GameNotFoundError) {
+        logger.warn(e);
+        return undefined;
+      }
+      throw e;
+    }
   }
 
   async fetchGamesWithStatus() {
@@ -100,16 +108,21 @@ class LibraryManager {
     });
 
     return await Promise.all(
-      games.map(async (e) => ({
-        game: e,
-        status: {
-          noVersions: e.versions.length == 0,
-          unimportedVersions: (await this.fetchUnimportedGameVersions(
-            e.libraryId ?? "",
-            e.libraryPath,
-          ))!,
-        },
-      })),
+      games.map(async (e) => {
+        const versions = await this.fetchUnimportedGameVersions(
+          e.libraryId ?? "",
+          e.libraryPath,
+        );
+        return {
+          game: e,
+          status: versions
+            ? {
+                noVersions: e.versions.length == 0,
+                unimportedVersions: versions,
+              }
+            : ("offline" as const),
+        };
+      }),
     );
   }
 

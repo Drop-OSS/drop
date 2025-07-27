@@ -78,7 +78,7 @@
       <li
         v-for="game in filteredLibraryGames"
         :key="game.id"
-        class="col-span-1 flex flex-col justify-center divide-y divide-zinc-800 rounded-xl bg-zinc-950/30 text-left shadow-md border border-zinc-800 transition-all duration-200 hover:scale-102 hover:shadow-xl hover:bg-zinc-950/70 group"
+        class="relative overflow-hidden col-span-1 flex flex-col justify-center divide-y divide-zinc-800 rounded-xl bg-zinc-950/30 text-left shadow-md border hover:scale-102 hover:shadow-xl hover:bg-zinc-950/70 border-zinc-800 transition-all duration-200 group"
       >
         <div class="flex flex-1 flex-row p-4 gap-x-4">
           <img
@@ -215,6 +215,24 @@
               </div>
             </div>
           </div>
+          <div
+            v-if="game.notifications.offline"
+            class="rounded-md bg-red-600/10 p-4"
+          >
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <ExclamationCircleIcon
+                  class="h-5 w-5 text-red-600"
+                  aria-hidden="true"
+                />
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-600">
+                  {{ $t("library.admin.offline") }}
+                </h3>
+              </div>
+            </div>
+          </div>
         </div>
       </li>
       <p
@@ -234,9 +252,14 @@
 </template>
 
 <script setup lang="ts">
-import { ExclamationTriangleIcon } from "@heroicons/vue/16/solid";
+import {
+  ExclamationTriangleIcon,
+  ExclamationCircleIcon,
+} from "@heroicons/vue/16/solid";
 import { InformationCircleIcon, StarIcon } from "@heroicons/vue/20/solid";
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
+import { SerializeObject } from "nitropack";
+import { GameModel } from "~/prisma/client/models";
 
 const { t } = useI18n();
 
@@ -251,13 +274,37 @@ useHead({
 const searchQuery = ref("");
 
 const libraryState = await $dropFetch("/api/v1/admin/library");
+type LibraryStateGame = (typeof libraryState.games)[number]["game"];
 
 const toImport = ref(
   Object.values(libraryState.unimportedGames).flat().length > 0,
 );
 
-const libraryGames = ref(
+const libraryGames = ref<
+  Array<
+    LibraryStateGame & {
+      status: "online" | "offline";
+      hasNotifications?: boolean;
+      notifications: {
+        noVersions?: boolean;
+        toImport?: boolean;
+        offline?: boolean;
+      };
+    }
+  >
+>(
   libraryState.games.map((e) => {
+    if (e.status == "offline") {
+      return {
+        ...e.game,
+        status: "offline" as const,
+        hasNotifications: true,
+        notifications: {
+          offline: true,
+        },
+      };
+    }
+
     const noVersions = e.status.noVersions;
     const toImport = e.status.unimportedVersions.length > 0;
 
@@ -268,6 +315,7 @@ const libraryGames = ref(
         toImport,
       },
       hasNotifications: noVersions || toImport,
+      status: "online" as const,
     };
   }),
 );

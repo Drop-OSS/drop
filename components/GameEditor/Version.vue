@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <div v-if="game">
+  <div v-if="game && unimportedVersions">
     <div class="grow flex flex-row gap-y-8">
       <div class="grow w-full h-full px-6 py-4 flex flex-col"></div>
       <div
@@ -22,7 +22,6 @@
                   <!-- import games button -->
 
                   <NuxtLink
-                    v-if="unimportedVersions !== undefined"
                     :href="
                       unimportedVersions.length > 0
                         ? `/admin/library/${game.id}/import`
@@ -96,6 +95,24 @@
       </div>
     </div>
   </div>
+  <div v-else class="grow w-full flex items-center justify-center">
+    <div class="flex flex-col items-center">
+      <ExclamationCircleIcon
+        class="h-12 w-12 text-red-600"
+        aria-hidden="true"
+      />
+      <div class="mt-3 text-center sm:mt-5">
+        <h1 class="text-3xl font-semibold font-display leading-6 text-zinc-100">
+          {{ $t("library.admin.offlineTitle") }}
+        </h1>
+        <div class="mt-4">
+          <p class="text-sm text-zinc-400 max-w-md">
+            {{ $t("library.admin.offline") }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -103,6 +120,7 @@ import type { GameModel, GameVersionModel } from "~/prisma/client/models";
 import { Bars3Icon, TrashIcon } from "@heroicons/vue/24/solid";
 import type { SerializeObject } from "nitropack";
 import type { H3Error } from "h3";
+import { ExclamationCircleIcon } from "@heroicons/vue/24/outline";
 
 definePageMeta({
   layout: "admin",

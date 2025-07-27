@@ -248,6 +248,8 @@
     "admin": {
       "detectedGame": "Drop has detected you have new games to import.",
       "detectedVersion": "Drop has detected you have new verions of this game to import.",
+      "offlineTitle": "Game offline",
+      "offline": "Drop couldn't access this game.",
       "game": {
         "addCarouselNoImages": "No images to add.",
         "addDescriptionNoImages": "No images to add.",
