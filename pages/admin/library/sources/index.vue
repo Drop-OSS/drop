@@ -110,8 +110,19 @@
     <ModalTemplate v-model="actionSourceOpen">
       <template #default>
         <div>
-          <DialogTitle as="h3" class="text-lg font-medium leading-6 text-white">
+          <DialogTitle
+            v-if="createMode"
+            as="h3"
+            class="text-lg font-medium leading-6 text-white"
+          >
             {{ $t("library.admin.sources.create") }}
+          </DialogTitle>
+          <DialogTitle
+            v-else
+            as="h3"
+            class="text-lg font-medium leading-6 text-white"
+          >
+            {{ $t("library.admin.sources.edit") }}
           </DialogTitle>
           <p class="mt-1 text-zinc-400 text-sm">
             {{ $t("library.admin.sources.createDesc") }}

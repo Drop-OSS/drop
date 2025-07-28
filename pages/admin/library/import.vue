@@ -309,12 +309,19 @@ async function updateSelectedGame(value: number) {
 }
 
 async function searchGame() {
+  gameSearchResultsError.value = undefined;
   gameSearchLoading.value = true;
-  const results = await $dropFetch(
-    `/api/v1/admin/import/game/search?q=${encodeURIComponent(gameSearchTerm.value)}`,
-  );
-  metadataResults.value = results;
-  gameSearchLoading.value = false;
+  try {
+    const results = await $dropFetch(
+      `/api/v1/admin/import/game/search?q=${encodeURIComponent(gameSearchTerm.value)}`,
+    );
+    metadataResults.value = results;
+    gameSearchLoading.value = false;
+  } catch (e) {
+    gameSearchLoading.value = false;
+
+    throw e;
+  }
 }
 
 function updateSelectedGame_wrapper(value: number) {

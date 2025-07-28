@@ -313,6 +313,7 @@
       "shortDesc": "Short Description",
       "sources": {
         "create": "Create source",
+        "edit": "Edit source",
         "createDesc": "Drop will use this source to access your game library, and make them available.",
         "desc": "Configure your library sources, where Drop will look for new games and versions to import.",
         "fsDesc": "Imports games from a path on disk. Requires version-based folder structure, and supports archived games.",
