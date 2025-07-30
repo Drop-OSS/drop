@@ -291,7 +291,8 @@
             <!-- Product grid -->
             <div
               v-if="games?.length ?? 0 > 0"
-              class="relative lg:col-span-4 flex flex-row flex-wrap content-start gap-4"
+              ref="product-grid"
+              class="relative lg:col-span-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4"
             >
               <!-- Your content -->
               <GamePanel
@@ -360,7 +361,6 @@ import {
 import type { SerializeObject } from "nitropack";
 import type { GameModel, GameTagModel } from "~/prisma/client/models";
 import MultiItemSelector from "./MultiItemSelector.vue";
-
 const { showGamePanelTextDecoration } = await $dropFetch(`/api/v1/settings`);
 
 const mobileFiltersOpen = ref(false);
@@ -445,17 +445,36 @@ const filterQuery = computed(() => {
 const games = ref<Array<SerializeObject<GameModel>>>();
 const loading = ref(false);
 
-async function updateGames(query: string, reset: boolean) {
+const productGrid = useTemplateRef<HTMLElement>("product-grid");
+
+const { reset } = useInfiniteScroll(
+  productGrid,
+  async () => await updateGames(filterQuery.value, false),
+  {
+    distance: 10,
+    canLoadMore: () => {
+      return canLoadMore.value;
+    },
+  },
+);
+
+const canLoadMore = ref(true);
+async function updateGames(query: string, resetGames: boolean) {
   loading.value = true;
   games.value ??= [];
-  const newValues = await $dropFetch<Array<SerializeObject<GameModel>>>(
-    `/api/v1/store?take=50&start=${reset ? games.value?.length || 0 : 0}&sort=${currentSort.value}${query ? "&" + query : ""}`,
+  const newValues = await $dropFetch<{
+    results: Array<SerializeObject<GameModel>>;
+    count: number;
+  }>(
+    `/api/v1/store?take=50&skip=${resetGames ? 0 : games.value?.length || 0}&sort=${currentSort.value}${query ? "&" + query : ""}`,
   );
-  if (reset) {
-    games.value = newValues;
+  if (resetGames) {
+    games.value = newValues.results;
+    if (import.meta.client) await reset();
   } else {
-    games.value.push(...newValues);
+    games.value.push(...newValues.results);
   }
+  canLoadMore.value = games.value.length < newValues.count;
   loading.value = false;
 }
 watch(filterQuery, (newUrl) => {

@@ -34,14 +34,8 @@ export default defineNuxtConfig({
   extends: ["./drop-base"],
   // Module config from here down
 
-  modules: [
-    "vue3-carousel-nuxt",
-    "nuxt-security",
-    // "@nuxt/image",
-    "@nuxt/fonts",
-    "@nuxt/eslint",
-    "@nuxtjs/i18n",
-  ],
+  modules: ["vue3-carousel-nuxt", "nuxt-security", // "@nuxt/image",
+  "@nuxt/fonts", "@nuxt/eslint", "@nuxtjs/i18n", "@vueuse/nuxt"],
 
   // Nuxt-only config
   telemetry: false,

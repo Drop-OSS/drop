@@ -108,12 +108,15 @@ export default defineEventHandler(async (h3) => {
       break;
   }
 
-  const results = await prisma.game.findMany({
-    skip: options.skip,
-    take: Math.min(options.take, 50),
-    where: finalFilter,
-    orderBy: sort,
-  });
+  const [results, count] = await prisma.$transaction([
+    prisma.game.findMany({
+      skip: options.skip,
+      take: Math.min(options.take, 50),
+      where: finalFilter,
+      orderBy: sort,
+    }),
+    prisma.game.count({ where: finalFilter }),
+  ]);
 
-  return results;
+  return { results, count };
 });

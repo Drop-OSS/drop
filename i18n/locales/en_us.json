@@ -281,6 +281,8 @@
         "selectGamePlaceholder": "Please select a game...",
         "selectGameSearch": "Select game",
         "selectPlatform": "Please select a platform...",
+        "bulkImportTitle": "Bulk import mode",
+        "bulkImportDescription": "When on, this page won't redirect you to the import task, so you can import multiple games in succession.",
         "version": {
           "advancedOptions": "Advanced options",
           "import": "Import version",

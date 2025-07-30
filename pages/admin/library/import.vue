@@ -45,7 +45,7 @@
             <ListboxOption
               v-for="({ game, library }, gameIdx) in games.unimportedGames"
               :key="game"
-              v-slot="{ active, selected }"
+              v-slot="{ active }"
               as="template"
               :value="gameIdx"
             >
@@ -57,7 +57,9 @@
               >
                 <span
                   :class="[
-                    selected ? 'font-semibold' : 'font-normal',
+                    gameIdx === currentlySelectedGame
+                      ? 'font-semibold'
+                      : 'font-normal',
                     'inline-flex items-center gap-x-2 block truncate py-1 w-full',
                   ]"
                   >{{ game }}
@@ -68,7 +70,7 @@
                 >
 
                 <span
-                  v-if="selected"
+                  v-if="gameIdx === currentlySelectedGame"
                   :class="[
                     active ? 'text-white' : 'text-blue-600',
                     'absolute inset-y-0 right-0 flex items-center pr-4',
@@ -82,6 +84,34 @@
         </transition>
       </div>
     </Listbox>
+    <div class="flex items-center justify-between gap-x-8">
+      <span class="flex grow flex-col">
+        <label
+          id="bulkImport-label"
+          class="text-sm/6 font-medium text-zinc-100"
+          >{{ $t("library.admin.import.bulkImportTitle") }}</label
+        >
+        <span id="bulkImport-description" class="text-sm text-zinc-400">{{
+          $t("library.admin.import.bulkImportDescription")
+        }}</span>
+      </span>
+      <div
+        class="group relative inline-flex w-11 shrink-0 rounded-full bg-zinc-800 p-0.5 inset-ring inset-ring-zinc-100/5 outline-offset-2 outline-blue-600 transition-colors duration-200 ease-in-out has-checked:bg-blue-600 has-focus-visible:outline-2"
+      >
+        <span
+          class="size-5 rounded-full bg-white shadow-xs ring-1 ring-zinc-100/5 transition-transform duration-200 ease-in-out group-has-checked:translate-x-5"
+        />
+        <input
+          id="bulkImport"
+          v-model="bulkImportMode"
+          type="checkbox"
+          class="w-auto h-auto opacity-0 absolute inset-0 focus:outline-hidden"
+          name="bulkImport"
+          aria-labelledby="bulkImport-label"
+          aria-describedby="bulkImport-description"
+        />
+      </div>
+    </div>
 
     <div v-if="currentlySelectedGame !== -1" class="flex flex-col gap-y-4">
       <!-- without metadata option -->
@@ -287,18 +317,20 @@ definePageMeta({
 
 const { t } = useI18n();
 
-const games = await $dropFetch("/api/v1/admin/import/game");
+const rawGames = await $dropFetch("/api/v1/admin/import/game");
+const games = ref(rawGames);
 const currentlySelectedGame = ref(-1);
 const gameSearchResultsLoading = ref(false);
 const gameSearchResultsError = ref<string | undefined>();
 const gameSearchTerm = ref("");
 const gameSearchLoading = ref(false);
+const bulkImportMode = ref(false);
 
 async function updateSelectedGame(value: number) {
   if (currentlySelectedGame.value == value) return;
   currentlySelectedGame.value = value;
   if (currentlySelectedGame.value == -1) return;
-  const option = games.unimportedGames[currentlySelectedGame.value];
+  const option = games.value.unimportedGames[currentlySelectedGame.value];
   if (!option) return;
 
   metadataResults.value = undefined;
@@ -349,7 +381,7 @@ async function importGame(useMetadata: boolean) {
     useMetadata && metadataResults.value
       ? metadataResults.value[currentlySelectedMetadata.value]
       : undefined;
-  const option = games.unimportedGames[currentlySelectedGame.value];
+  const option = games.value.unimportedGames[currentlySelectedGame.value];
 
   const { taskId } = await $dropFetch("/api/v1/admin/import/game", {
     method: "POST",
@@ -360,7 +392,13 @@ async function importGame(useMetadata: boolean) {
     },
   });
 
-  router.push(`/admin/task/${taskId}`);
+  if (!bulkImportMode.value) {
+    router.push(`/admin/task/${taskId}`);
+  } else {
+    games.value.unimportedGames.splice(currentlySelectedGame.value, 1);
+    currentlySelectedGame.value = -1;
+    gameSearchResultsError.value = undefined;
+  }
 }
 function importGame_wrapper(metadata = true) {
   importLoading.value = true;
