@@ -15,6 +15,7 @@
           <img :src="useObject(company.mLogoObjectId)" class="size-20" />
           <button
             class="rounded-xl transition duration-200 absolute inset-0 opacity-0 group-hover/iconupload:opacity-100 focus-visible/iconupload:opacity-100 cursor-pointer bg-zinc-900/80 text-zinc-100 flex flex-col items-center justify-center text-center text-xs font-semibold ring-1 ring-inset ring-zinc-800 px-2"
+            @click="() => (uploadLogoOpen = true)"
           >
             <ArrowUpTrayIcon class="size-5" />
             <span>{{
@@ -46,7 +47,9 @@
               />
             </button>
           </p>
-          <p class="group/website mt-1 text-zinc-500 inline-flex items-center gap-x-3">
+          <p
+            class="group/website mt-1 text-zinc-500 inline-flex items-center gap-x-3"
+          >
             {{ company.mWebsite }}
             <button @click="() => editWebsite()">
               <PencilIcon
@@ -59,6 +62,7 @@
       <button
         type="button"
         class="relative inline-flex gap-x-3 items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+        @click="() => (uploadBannerOpen = true)"
       >
         {{ $t("library.admin.metadata.companies.editor.uploadBanner") }}
         <ArrowUpTrayIcon class="size-4" />
@@ -212,6 +216,18 @@
       :company-id="company.id"
       @created="appendGame"
     />
+    <ModalUploadFile
+      v-model="uploadLogoOpen"
+      :endpoint="`/api/v1/admin/company/${company.id}/icon`"
+      accept="image/*"
+      @upload="updateLogo"
+    />
+    <ModalUploadFile
+      v-model="uploadBannerOpen"
+      :endpoint="`/api/v1/admin/company/${company.id}/banner`"
+      accept="image/*"
+      @upload="updateBanner"
+    />
   </div>
 </template>
 
@@ -234,6 +250,8 @@ const company = ref(result.company);
 const games = ref(result.games);
 
 const addGameModelOpen = ref(false);
+const uploadLogoOpen = ref(false);
+const uploadBannerOpen = ref(false);
 
 const { t } = useI18n();
 
@@ -352,6 +370,7 @@ function buildFieldEditModal(
         switch (e) {
           case "cancel": {
             c();
+            break;
           }
           case "submit": {
             const result = await $dropFetch("/api/v1/admin/company/:id", {
@@ -362,6 +381,7 @@ function buildFieldEditModal(
             });
             company.value[field] = result[field];
             c();
+            break;
           }
         }
       },
@@ -388,4 +408,12 @@ const editWebsite = buildFieldEditModal(
   t("library.admin.metadata.companies.modals.websiteTitle"),
   t("library.admin.metadata.companies.modals.websiteDescription"),
 );
+
+function updateLogo(response: { id: string }) {
+  company.value.mLogoObjectId = response.id;
+}
+
+function updateBanner(response: { id: string }) {
+  company.value.mBannerObjectId = response.id;
+}
 </script>

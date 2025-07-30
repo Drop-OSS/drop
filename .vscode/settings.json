@@ -33,6 +33,5 @@
     "pages/admin/library/sources/index.vue": ["Filesystem"],
     "components/NewsArticleCreateButton.vue": ["[", "`", "Enter"],
     "server/api/v1/auth/signin/simple.post.ts": ["boolean | undefined"]
-  },
-  "typescript.experimental.useTsgo": true
+  }
 }
