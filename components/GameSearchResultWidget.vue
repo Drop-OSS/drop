@@ -19,6 +19,6 @@
 import type { GameMetadataSearchResult } from "~/server/internal/metadata/types";
 
 const { game } = defineProps<{
-  game: GameMetadataSearchResult & { sourceName?: string };
+  game: Omit<GameMetadataSearchResult, "year"> & { sourceName?: string };
 }>();
 </script>

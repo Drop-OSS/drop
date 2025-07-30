@@ -23,6 +23,8 @@ model Game {
 
   ratings GameRating[]
 
+  featured Boolean @default(false)
+
   mIconObjectId           String // linked to objects in s3
   mBannerObjectId         String // linked to objects in s3
   mCoverObjectId          String
@@ -40,7 +42,7 @@ model Game {
   collections CollectionEntry[]
   saves       SaveSlot[]
   screenshots Screenshot[]
-  tags        Tag[]
+  tags        GameTag[]
   playtime    Playtime[]
 
   developers Company[] @relation(name: "developers")
@@ -49,6 +51,16 @@ model Game {
   @@unique([metadataSource, metadataId], name: "metadataKey")
   @@unique([libraryId, libraryPath], name: "libraryKey")
 }
+
+model GameTag {
+  id   String @id @default(uuid())
+  name String @unique
+
+  games    Game[]
+
+  @@index([name(ops: raw("gist_trgm_ops(siglen=32)"))], type: Gist)
+}
+
 
 model GameRating {
   id String @id @default(uuid())

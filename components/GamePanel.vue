@@ -6,7 +6,7 @@
       'transition-all duration-300 text-left hover:scale-[1.02] hover:shadow-lg hover:-translate-y-0.5':
         animate,
     }"
-    class="group relative w-48 h-64 rounded-lg overflow-hidden"
+    class="group relative flex-1 min-w-42 max-w-48 h-64 rounded-lg overflow-hidden"
   >
     <div
       :class="{
@@ -20,7 +20,8 @@
         :alt="imageProps.alt"
       />
       <div
-        class="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-zinc-950/20 to-transparent"
+        v-if="showTitleDescription"
+        class="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-zinc-950/0 to-transparent"
       />
     </div>
 

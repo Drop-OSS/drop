@@ -23,8 +23,12 @@
             class="relative inline-flex gap-x-3 items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
             @click="() => (showEditCoreMetadata = true)"
           >
-            {{ $t("edit") }} <PencilIcon class="size-4" />
+            {{ $t("common.edit") }} <PencilIcon class="size-4" />
           </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-8">
+          <MultiItemSelector v-model="currentTags" :items="tags" />
         </div>
 
         <!-- image carousel pick -->
@@ -268,7 +272,7 @@
         </div>
       </div>
     </div>
-    <UploadFileDialog
+    <ModalUploadFile
       v-model="showUploadModal"
       :options="{ id: game.id }"
       accept="image/*"
@@ -314,7 +318,7 @@
           class="mt-3 inline-flex w-full justify-center rounded-md bg-zinc-900 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-700 hover:bg-zinc-950 transition-all duration-200 hover:scale-105 hover:shadow-lg active:scale-95 sm:mt-0 sm:w-auto"
           @click="showAddCarouselModal = false"
         >
-          {{ $t("close") }}
+          {{ $t("common.close") }}
         </button>
       </template>
     </ModalTemplate>
@@ -335,7 +339,7 @@
                 class="inline-flex items-center gap-x-1.5 rounded-md bg-blue-600 px-1.5 py-0.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                 @click="() => insertImageAtCursor(image)"
               >
-                {{ $t("insert") }}
+                {{ $t("common.insert") }}
               </button>
             </div>
           </div>
@@ -424,7 +428,7 @@
           :class="['inline-flex w-full shadow-sm sm:ml-3 sm:w-auto']"
           @click="() => coreMetadataUpdate_wrapper()"
         >
-          {{ $t("save") }}
+          {{ $t("common.save") }}
         </LoadingButton>
         <button
           ref="cancelButtonRef"
@@ -440,7 +444,7 @@
 </template>
 
 <script setup lang="ts">
-import type { GameModel } from "~/prisma/client/models";
+import type { GameModel, GameTagModel } from "~/prisma/client/models";
 import { micromark } from "micromark";
 import {
   CheckIcon,
@@ -451,24 +455,41 @@ import {
 import type { SerializeObject } from "nitropack";
 import type { H3Error } from "h3";
 
-definePageMeta({
-  layout: "admin",
-});
-
 const showUploadModal = ref(false);
 const showAddCarouselModal = ref(false);
 const showAddImageDescriptionModal = ref(false);
 const showEditCoreMetadata = ref(false);
 const mobileShowFinalDescription = ref(true);
 
-const game = defineModel<SerializeObject<GameModel>>() as Ref<
-  SerializeObject<GameModel>
->;
+type ModelType = SerializeObject<GameModel & { tags: Array<GameTagModel> }>;
+const game = defineModel<ModelType>() as Ref<ModelType>;
 if (!game.value)
   throw createError({
     statusCode: 500,
     statusMessage: "Game not provided to editor component",
   });
+
+const currentTags = ref<{ [key: string]: boolean }>(
+  Object.fromEntries(game.value.tags.map((e) => [e.id, true])),
+);
+const tags = (await $dropFetch("/api/v1/admin/tags")).map(
+  (e) => ({ name: e.name, param: e.id }) satisfies StoreSortOption,
+);
+
+watch(
+  currentTags,
+  async (v) => {
+    await $dropFetch(`/api/v1/admin/game/:id/tags`, {
+      method: "PATCH",
+      params: {
+        id: game.value.id,
+      },
+      body: { tags: Object.keys(v) },
+      failTitle: "Failed to update game tags",
+    });
+  },
+  { deep: true },
+);
 
 const { t } = useI18n();
 
@@ -493,7 +514,7 @@ function coreMetadataUploadFiles(e: InputEvent) {
       {
         title: t("errors.upload.title"),
         description: t("errors.upload.description", [t("errors.unknown")]),
-        buttonText: t("close"),
+        buttonText: t("common.close"),
       },
       (e, c) => c(),
     );
@@ -510,14 +531,16 @@ async function coreMetadataUpdate() {
     formData.append("icon", newIcon);
   }
 
-  formData.append("id", game.value.id);
   formData.append("name", coreMetadataName.value);
   formData.append("description", coreMetadataDescription.value);
 
-  const result = await $dropFetch(`/api/v1/admin/game/metadata`, {
-    method: "POST",
-    body: formData,
-  });
+  const result = await $dropFetch(
+    `/api/v1/admin/game/${game.value.id}/metadata`,
+    {
+      method: "POST",
+      body: formData,
+    },
+  );
   return result;
 }
 
@@ -532,14 +555,16 @@ function coreMetadataUpdate_wrapper() {
           description: t("errors.game.metadata.description", [
             (e as H3Error)?.statusMessage ?? t("errors.unknown"),
           ]),
-          buttonText: t("close"),
+          buttonText: t("common.close"),
         },
         (e, c) => c(),
       );
     })
     .then((newGame) => {
+      console.log(newGame);
       if (!newGame) return;
       Object.assign(game.value, newGame);
+      coreMetadataIconUrl.value = useObject(newGame.mIconObjectId);
     })
     .finally(() => {
       coreMetadataLoading.value = false;
@@ -573,10 +598,12 @@ watch(descriptionHTML, (_v) => {
   savingTimeout = setTimeout(async () => {
     try {
       descriptionSaving.value = DescriptionSavingState.Loading;
-      await $dropFetch("/api/v1/admin/game", {
+      await $dropFetch(`/api/v1/admin/game/:id`, {
         method: "PATCH",
-        body: {
+        params: {
           id: game.value.id,
+        },
+        body: {
           mDescription: game.value.mDescription,
         } satisfies PatchGameBody,
       });
@@ -589,7 +616,7 @@ watch(descriptionHTML, (_v) => {
           description: t("errors.game.description.description", [
             (e as H3Error)?.statusMessage ?? t("errors.unknown"),
           ]),
-          buttonText: t("close"),
+          buttonText: t("common.close"),
         },
         (e, c) => c(),
       );
@@ -617,10 +644,12 @@ function insertImageAtCursor(id: string) {
 async function updateBannerImage(id: string) {
   try {
     if (game.value.mBannerObjectId == id) return;
-    const { mBannerObjectId } = await $dropFetch("/api/v1/admin/game", {
+    const { mBannerObjectId } = await $dropFetch(`/api/v1/admin/game/:id`, {
       method: "PATCH",
-      body: {
+      params: {
         id: game.value.id,
+      },
+      body: {
         mBannerObjectId: id,
       } satisfies PatchGameBody,
     });
@@ -633,7 +662,7 @@ async function updateBannerImage(id: string) {
         description: t("errors.game.banner.description", [
           (e as H3Error)?.statusMessage ?? t("errors.unknown"),
         ]),
-        buttonText: t("close"),
+        buttonText: t("common.close"),
       },
       (e, c) => c(),
     );
@@ -643,10 +672,12 @@ async function updateBannerImage(id: string) {
 async function updateCoverImage(id: string) {
   try {
     if (game.value.mCoverObjectId == id) return;
-    const { mCoverObjectId } = await $dropFetch("/api/v1/admin/game", {
+    const { mCoverObjectId } = await $dropFetch(`/api/v1/admin/game/:id`, {
       method: "PATCH",
-      body: {
+      params: {
         id: game.value.id,
+      },
+      body: {
         mCoverObjectId: id,
       } satisfies PatchGameBody,
     });
@@ -659,7 +690,7 @@ async function updateCoverImage(id: string) {
         description: t("errors.game.cover.description", [
           (e as H3Error)?.statusMessage ?? t("errors.unknown"),
         ]),
-        buttonText: t("close"),
+        buttonText: t("common.close"),
       },
       (e, c) => c(),
     );
@@ -688,7 +719,7 @@ async function deleteImage(id: string) {
         description: t("errors.game.deleteImage.description", [
           (e as H3Error)?.statusMessage ?? t("errors.unknown"),
         ]),
-        buttonText: t("close"),
+        buttonText: t("common.close"),
       },
       (e, c) => c(),
     );
@@ -715,10 +746,12 @@ function removeImageFromCarousel(id: string) {
 
 async function updateImageCarousel() {
   try {
-    await $dropFetch("/api/v1/admin/game", {
+    await $dropFetch(`/api/v1/admin/game/:id`, {
       method: "PATCH",
-      body: {
+      params: {
         id: game.value.id,
+      },
+      body: {
         mImageCarouselObjectIds: game.value.mImageCarouselObjectIds,
       } satisfies PatchGameBody,
     });
@@ -730,7 +763,7 @@ async function updateImageCarousel() {
         description: t("errors.game.carousel.description", [
           (e as H3Error)?.statusMessage ?? t("errors.unknown"),
         ]),
-        buttonText: t("close"),
+        buttonText: t("common.close"),
       },
       (e, c) => c(),
     );

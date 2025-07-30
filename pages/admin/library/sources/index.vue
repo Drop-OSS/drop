@@ -14,7 +14,7 @@
           class="block rounded-md bg-blue-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
           @click="() => (actionSourceOpen = true)"
         >
-          {{ $t("create") }}
+          {{ $t("common.create") }}
         </button>
       </div>
     </div>
@@ -28,7 +28,7 @@
                   scope="col"
                   class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-zinc-100 sm:pl-3"
                 >
-                  {{ $t("name") }}
+                  {{ $t("common.name") }}
                 </th>
                 <th
                   scope="col"
@@ -49,7 +49,7 @@
                   {{ $t("options") }}
                 </th>
                 <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-3">
-                  <span class="sr-only">{{ $t("edit") }}</span>
+                  <span class="sr-only">{{ $t("common.edit") }}</span>
                 </th>
               </tr>
             </thead>
@@ -84,7 +84,7 @@
                     class="text-blue-500 hover:text-blue-400"
                     @click="() => edit(sourceIdx)"
                   >
-                    {{ $t("edit") }}
+                    {{ $t("common.edit") }}
                     <span class="sr-only">
                       {{ $t("chars.srComma", [source.name]) }}
                     </span>
@@ -110,8 +110,19 @@
     <ModalTemplate v-model="actionSourceOpen">
       <template #default>
         <div>
-          <DialogTitle as="h3" class="text-lg font-medium leading-6 text-white">
+          <DialogTitle
+            v-if="createMode"
+            as="h3"
+            class="text-lg font-medium leading-6 text-white"
+          >
             {{ $t("library.admin.sources.create") }}
+          </DialogTitle>
+          <DialogTitle
+            v-else
+            as="h3"
+            class="text-lg font-medium leading-6 text-white"
+          >
+            {{ $t("library.admin.sources.edit") }}
           </DialogTitle>
           <p class="mt-1 text-zinc-400 text-sm">
             {{ $t("library.admin.sources.createDesc") }}
@@ -125,7 +136,7 @@
             <label
               for="name"
               class="block text-sm font-medium leading-6 text-zinc-100"
-              >{{ $t("name") }}</label
+              >{{ $t("common.name") }}</label
             >
             <p class="text-zinc-400 block text-xs font-medium leading-6">
               {{ $t("library.admin.sources.nameDesc") }}
@@ -228,7 +239,7 @@
           class="w-full sm:w-fit"
           @click="() => performActionSource_wrapper()"
         >
-          {{ createMode ? $t("create") : $t("save") }}
+          {{ createMode ? $t("common.create") : $t("common.save") }}
         </LoadingButton>
         <button
           ref="cancelButtonRef"
@@ -277,6 +288,10 @@ import type { WorkingLibrarySource } from "~/server/api/v1/admin/library/sources
 
 definePageMeta({
   layout: "admin",
+});
+
+useHead({
+  title: "Library Sources",
 });
 
 const { t } = useI18n();

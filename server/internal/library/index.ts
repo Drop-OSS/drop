@@ -11,10 +11,14 @@ import { fuzzy } from "fast-fuzzy";
 import taskHandler from "../tasks";
 import { parsePlatform } from "../utils/parseplatform";
 import notificationSystem from "../notifications";
-import type { LibraryProvider } from "./provider";
+import { GameNotFoundError, type LibraryProvider } from "./provider";
+import { logger } from "../logging";
 
 class LibraryManager {
   private libraries: Map<string, LibraryProvider<unknown>> = new Map();
+
+  private gameImportLocks: Map<string, Array<string>> = new Map(); // Library ID to Library Path
+  private versionImportLocks: Map<string, Array<string>> = new Map(); // Game ID to Version Name
 
   addLibrary(library: LibraryProvider<unknown>) {
     this.libraries.set(library.id(), library);
@@ -33,7 +37,7 @@ class LibraryManager {
     return libraryWithMetadata;
   }
 
-  async fetchAllUnimportedGames() {
+  async fetchUnimportedGames() {
     const unimportedGames: { [key: string]: string[] } = {};
 
     for (const [id, library] of this.libraries.entries()) {
@@ -48,7 +52,9 @@ class LibraryManager {
         },
       });
       const providerUnimportedGames = games.filter(
-        (e) => validGames.findIndex((v) => v.libraryPath == e) == -1,
+        (e) =>
+          validGames.findIndex((v) => v.libraryPath == e) == -1 &&
+          !(this.gameImportLocks.get(id) ?? []).includes(e),
       );
       unimportedGames[id] = providerUnimportedGames;
     }
@@ -67,30 +73,34 @@ class LibraryManager {
         },
       },
       select: {
+        id: true,
         versions: true,
       },
     });
     if (!game) return undefined;
 
-    const versions = await provider.listVersions(libraryPath);
-    const unimportedVersions = versions.filter(
-      (e) => game.versions.findIndex((v) => v.versionName == e) == -1,
-    );
-
-    return unimportedVersions;
+    try {
+      const versions = await provider.listVersions(libraryPath);
+      const unimportedVersions = versions.filter(
+        (e) =>
+          game.versions.findIndex((v) => v.versionName == e) == -1 &&
+          !(this.versionImportLocks.get(game.id) ?? []).includes(e),
+      );
+      return unimportedVersions;
+    } catch (e) {
+      if (e instanceof GameNotFoundError) {
+        logger.warn(e);
+        return undefined;
+      }
+      throw e;
+    }
   }
 
   async fetchGamesWithStatus() {
     const games = await prisma.game.findMany({
-      select: {
-        id: true,
+      include: {
         versions: true,
-        mName: true,
-        mShortDescription: true,
-        metadataSource: true,
-        mIconObjectId: true,
-        libraryId: true,
-        libraryPath: true,
+        library: true,
       },
       orderBy: {
         mName: "asc",
@@ -98,19 +108,30 @@ class LibraryManager {
     });
 
     return await Promise.all(
-      games.map(async (e) => ({
-        game: e,
-        status: {
-          noVersions: e.versions.length == 0,
-          unimportedVersions: (await this.fetchUnimportedGameVersions(
-            e.libraryId ?? "",
-            e.libraryPath,
-          ))!,
-        },
-      })),
+      games.map(async (e) => {
+        const versions = await this.fetchUnimportedGameVersions(
+          e.libraryId ?? "",
+          e.libraryPath,
+        );
+        return {
+          game: e,
+          status: versions
+            ? {
+                noVersions: e.versions.length == 0,
+                unimportedVersions: versions,
+              }
+            : ("offline" as const),
+        };
+      }),
     );
   }
 
+  /**
+   * Fetches recommendations and extra data about the version. Doesn't actually check if it's been imported.
+   * @param gameId
+   * @param versionName
+   * @returns
+   */
   async fetchUnimportedVersionInformation(gameId: string, versionName: string) {
     const game = await prisma.game.findUnique({
       where: { id: gameId },
@@ -130,10 +151,7 @@ class LibraryManager {
         // No extension is common for Linux binaries
         "",
       ],
-      Windows: [
-        // Pretty much the only one
-        ".exe",
-      ],
+      Windows: [".exe", ".bat"],
       macOS: [
         // App files
         ".app",
@@ -188,6 +206,70 @@ class LibraryManager {
   }
   */
 
+  /**
+   * Locks the game so you can't be imported
+   * @param libraryId
+   * @param libraryPath
+   */
+  async lockGame(libraryId: string, libraryPath: string) {
+    let games = this.gameImportLocks.get(libraryId);
+    if (!games) this.gameImportLocks.set(libraryId, (games = []));
+
+    if (!games.includes(libraryPath)) games.push(libraryPath);
+
+    this.gameImportLocks.set(libraryId, games);
+  }
+
+  /**
+   * Unlocks the game, call once imported
+   * @param libraryId
+   * @param libraryPath
+   */
+  async unlockGame(libraryId: string, libraryPath: string) {
+    let games = this.gameImportLocks.get(libraryId);
+    if (!games) this.gameImportLocks.set(libraryId, (games = []));
+
+    if (games.includes(libraryPath))
+      games.splice(
+        games.findIndex((e) => e === libraryPath),
+        1,
+      );
+
+    this.gameImportLocks.set(libraryId, games);
+  }
+
+  /**
+   * Locks a version so it can't be imported
+   * @param gameId
+   * @param versionName
+   */
+  async lockVersion(gameId: string, versionName: string) {
+    let versions = this.versionImportLocks.get(gameId);
+    if (!versions) this.versionImportLocks.set(gameId, (versions = []));
+
+    if (!versions.includes(versionName)) versions.push(versionName);
+
+    this.versionImportLocks.set(gameId, versions);
+  }
+
+  /**
+   * Unlocks the version, call once imported
+   * @param libraryId
+   * @param libraryPath
+   */
+  async unlockVersion(gameId: string, versionName: string) {
+    let versions = this.versionImportLocks.get(gameId);
+    if (!versions) this.versionImportLocks.set(gameId, (versions = []));
+
+    if (versions.includes(gameId))
+      versions.splice(
+        versions.findIndex((e) => e === versionName),
+        1,
+      );
+
+    this.versionImportLocks.set(gameId, versions);
+  }
+
   async importVersion(
     gameId: string,
     versionName: string,
@@ -217,6 +299,8 @@ class LibraryManager {
 
     const library = this.libraries.get(game.libraryId);
     if (!library) return undefined;
+
+    await this.lockVersion(gameId, versionName);
 
     taskHandler.create({
       id: taskId,
@@ -293,6 +377,9 @@ class LibraryManager {
         });
 
         progress(100);
+      },
+      async finally() {
+        await libraryManager.unlockVersion(gameId, versionName);
       },
     });
 

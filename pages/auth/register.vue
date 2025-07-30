@@ -157,7 +157,7 @@
 
               <div>
                 <LoadingButton type="submit" :loading="loading" class="w-full">
-                  {{ $t("create") }}
+                  {{ $t("common.create") }}
                 </LoadingButton>
               </div>
 

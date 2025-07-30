@@ -88,8 +88,8 @@
       </div>
     </div>
 
-    <CreateCollectionModal v-model="collectionCreateOpen" />
-    <DeleteCollectionModal v-model="currentlyDeleting" />
+    <ModalCreateCollection v-model="collectionCreateOpen" />
+    <ModalDeleteCollection v-model="currentlyDeleting" />
   </div>
 </template>
 

@@ -47,7 +47,7 @@
                 />
               </div>
               <p class="mt-1 truncate text-sm text-zinc-400">
-                {{ task.value.log.at(-1) }}
+                {{ parseTaskLog(task.value.log.at(-1) ?? "").message }}
               </p>
               <NuxtLink
                 type="button"

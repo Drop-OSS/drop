@@ -108,6 +108,72 @@
                   }}</span>
                 </td>
               </tr>
+              <tr>
+                <td
+                  class="whitespace-nowrap align-top py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
+                >
+                  {{ $t("store.tags") }}
+                </td>
+                <td class="flex flex-col gap-1 px-3 py-4 text-sm text-zinc-400">
+                  <NuxtLink
+                    v-for="tag in game.tags"
+                    :key="tag.id"
+                    :href="`/store/t/${tag.id}`"
+                    class="w-min hover:underline hover:text-zinc-100 whitespace-nowrap"
+                  >
+                    {{ tag.name }}
+                  </NuxtLink>
+                  <span
+                    v-if="game.tags.length == 0"
+                    class="text-zinc-700 font-bold uppercase font-display"
+                    >{{ $t("store.noTags") }}</span
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td
+                  class="whitespace-nowrap align-top py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
+                >
+                  {{ $t("store.developers", game.developers.length) }}
+                </td>
+                <td class="flex flex-col px-3 py-4 text-sm text-zinc-400">
+                  <NuxtLink
+                    v-for="developer in game.developers"
+                    :key="developer.id"
+                    :href="`/store/c/${developer.id}`"
+                    class="w-min hover:underline hover:text-zinc-100 whitespace-nowrap"
+                  >
+                    {{ developer.mName }}
+                  </NuxtLink>
+                  <span
+                    v-if="game.developers.length == 0"
+                    class="text-zinc-700 font-bold uppercase font-display"
+                    >{{ $t("store.noDevelopers") }}</span
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td
+                  class="whitespace-nowrap align-top py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
+                >
+                  {{ $t("store.publishers", game.publishers.length) }}
+                </td>
+                <td class="flex flex-col px-3 py-4 text-sm text-zinc-400">
+                  <NuxtLink
+                    v-for="publisher in game.publishers"
+                    :key="publisher.id"
+                    :href="`/store/c/${publisher.id}`"
+                    class="w-min hover:underline hover:text-zinc-100 whitespace-nowrap"
+                  >
+                    {{ publisher.mName }}
+                  </NuxtLink>
+                  <span
+                    v-if="game.publishers.length == 0"
+                    class="text-zinc-700 font-bold uppercase font-display"
+                    >{{ $t("store.noPublishers") }}</span
+                  >
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -225,6 +291,7 @@ const ratingArray = Array(5)
 
 useHead({
   title: game.mName,
+  link: [{ rel: "icon", href: useObject(game.mIconObjectId) }],
 });
 </script>
 

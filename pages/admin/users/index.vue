@@ -138,7 +138,7 @@
         </div>
       </div>
     </div>
-    <DeleteUserModal v-model="userToDelete" />
+    <ModalDeleteUser v-model="userToDelete" />
   </div>
 </template>
 

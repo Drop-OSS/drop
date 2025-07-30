@@ -4,6 +4,7 @@ import type {
   NitroFetchRequest,
   TypedInternalResponse,
 } from "nitropack/types";
+import type { FetchError } from "ofetch";
 
 interface DropFetch<
   DefaultT = unknown,
@@ -15,7 +16,7 @@ interface DropFetch<
     O extends NitroFetchOptions<R> = NitroFetchOptions<R>,
   >(
     request: R,
-    opts?: O,
+    opts?: O & { failTitle?: string },
   ): Promise<
     // sometimes there is an error, other times there isn't
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -28,12 +29,29 @@ interface DropFetch<
   >;
 }
 
-export const $dropFetch: DropFetch = async (request, opts) => {
+export const $dropFetch: DropFetch = async (rawRequest, opts) => {
+  const requestParts = rawRequest.toString().split("/");
+  requestParts.forEach((part, index) => {
+    if (!part.startsWith(":")) {
+      return;
+    }
+    const partName = part.slice(1);
+    const replacement = opts?.params?.[partName] as string | undefined;
+    if (!replacement) {
+      return;
+    }
+    requestParts[index] = replacement;
+
+    delete opts?.params?.[partName];
+  });
+  const request = requestParts.join("/");
+
   if (!getCurrentInstance()?.proxy) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore Excessive stack depth comparing types
     return await $fetch(request, opts);
   }
+
   const id = request.toString();
 
   const state = useState(id);
@@ -41,15 +59,31 @@ export const $dropFetch: DropFetch = async (request, opts) => {
     // Deep copy
     const object = JSON.parse(JSON.stringify(state.value));
     // Never use again on client
-    state.value = undefined;
+    if (import.meta.client) state.value = undefined;
     return object;
   }
 
   const headers = useRequestHeaders(["cookie", "authorization"]);
-  const data = await $fetch(request, {
-    ...opts,
-    headers: { ...opts?.headers, ...headers },
-  });
-  if (import.meta.server) state.value = data;
-  return data;
+  try {
+    const data = await $fetch(request, {
+      ...opts,
+      headers: { ...opts?.headers, ...headers },
+    });
+    if (import.meta.server) state.value = data;
+    return data;
+  } catch (e) {
+    if (import.meta.client && opts?.failTitle) {
+      createModal(
+        ModalType.Notification,
+        {
+          title: opts.failTitle,
+          description:
+            (e as FetchError)?.statusMessage ?? (e as string).toString(),
+          buttonText: $t("common.close"),
+        },
+        (_, c) => c(),
+      );
+    }
+    throw e;
+  }
 };

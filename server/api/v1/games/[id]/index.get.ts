@@ -16,6 +16,23 @@ export default defineEventHandler(async (h3) => {
     where: { id: gameId },
     include: {
       versions: true,
+      publishers: {
+        select: {
+          id: true,
+          mName: true,
+          mShortDescription: true,
+          mLogoObjectId: true,
+        },
+      },
+      developers: {
+        select: {
+          id: true,
+          mName: true,
+          mShortDescription: true,
+          mLogoObjectId: true,
+        },
+      },
+      tags: true,
     },
   });
 

@@ -65,6 +65,11 @@ export const systemACLs = [
   "game:image:new",
   "game:image:delete",
 
+  "company:read",
+  "company:update",
+  "company:create",
+  "company:delete",
+
   "import:version:read",
   "import:version:new",
 
@@ -77,6 +82,10 @@ export const systemACLs = [
   "news:read",
   "news:create",
   "news:delete",
+
+  "tags:read",
+  "tags:create",
+  "tags:delete",
 
   "task:read",
   "task:start",

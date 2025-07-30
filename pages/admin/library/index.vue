@@ -78,20 +78,55 @@
       <li
         v-for="game in filteredLibraryGames"
         :key="game.id"
-        class="col-span-1 flex flex-col justify-center divide-y divide-zinc-800 rounded-xl bg-zinc-950/30 text-left shadow-md border border-zinc-800 transition-all duration-200 hover:scale-102 hover:shadow-xl hover:bg-zinc-950/70 group"
+        class="relative overflow-hidden col-span-1 flex flex-col justify-center divide-y divide-zinc-800 rounded-xl bg-zinc-950/30 text-left shadow-md border hover:scale-102 hover:shadow-xl hover:bg-zinc-950/70 border-zinc-800 transition-all duration-200 group"
       >
         <div class="flex flex-1 flex-row p-4 gap-x-4">
           <img
-            class="h-20 w-20 flex-shrink-0 rounded-xl shadow group-hover:shadow-lg transition-all duration-200 bg-zinc-900 object-cover border border-zinc-800"
+            class="h-20 w-20 p-3 flex-shrink-0 rounded-xl shadow group-hover:shadow-lg transition-all duration-200 bg-zinc-900 object-cover border border-zinc-800"
             :src="useObject(game.mIconObjectId)"
             alt=""
           />
           <div class="flex flex-col">
-            <h3 class="text-sm font-medium text-zinc-100 font-display">
+            <h3
+              class="gap-x-2 text-sm inline-flex items-center font-medium text-zinc-100 font-display"
+            >
               {{ game.mName }}
+              <button
+                type="button"
+                :class="[
+                  'rounded-full p-1 shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2',
+                  game.featured
+                    ? 'bg-yellow-400 hover:bg-yellow-300 focus-visible:outline-yellow-400 text-zinc-900'
+                    : 'bg-zinc-800 hover:bg-zinc-700 focus-visible:outline-zinc-400 text-white',
+                ]"
+                @click="() => featureGame(game.id)"
+              >
+                <svg
+                  v-if="gameFeatureLoading[game.id]"
+                  aria-hidden="true"
+                  :class="[
+                    game.featured ? ' fill-zinc-900' : 'fill-zinc-100',
+                    'size-3 text-transparent animate-spin',
+                  ]"
+                  viewBox="0 0 100 101"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                    fill="currentFill"
+                  />
+                </svg>
+
+                <StarIcon v-else class="size-3" aria-hidden="true" />
+              </button>
               <span
-                class="ml-2 inline-flex items-center rounded-full bg-blue-600/10 px-2 py-1 text-xs font-medium text-blue-600 ring-1 ring-inset ring-blue-600/20"
-                >{{ game.metadataSource }}</span
+                class="inline-flex items-center rounded-full bg-blue-600/10 px-2 py-1 text-xs font-medium text-blue-600 ring-1 ring-inset ring-blue-600/20"
+                >{{ game.library!.name }}</span
               >
             </h3>
             <dl class="mt-1 flex flex-col justify-between">
@@ -180,6 +215,24 @@
               </div>
             </div>
           </div>
+          <div
+            v-if="game.notifications.offline"
+            class="rounded-md bg-red-600/10 p-4"
+          >
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <ExclamationCircleIcon
+                  class="h-5 w-5 text-red-600"
+                  aria-hidden="true"
+                />
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-600">
+                  {{ $t("library.admin.offline") }}
+                </h3>
+              </div>
+            </div>
+          </div>
         </div>
       </li>
       <p
@@ -199,8 +252,11 @@
 </template>
 
 <script setup lang="ts">
-import { ExclamationTriangleIcon } from "@heroicons/vue/16/solid";
-import { InformationCircleIcon } from "@heroicons/vue/20/solid";
+import {
+  ExclamationTriangleIcon,
+  ExclamationCircleIcon,
+} from "@heroicons/vue/16/solid";
+import { InformationCircleIcon, StarIcon } from "@heroicons/vue/20/solid";
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
 
 const { t } = useI18n();
@@ -216,13 +272,37 @@ useHead({
 const searchQuery = ref("");
 
 const libraryState = await $dropFetch("/api/v1/admin/library");
+type LibraryStateGame = (typeof libraryState.games)[number]["game"];
 
 const toImport = ref(
   Object.values(libraryState.unimportedGames).flat().length > 0,
 );
 
-const libraryGames = ref(
+const libraryGames = ref<
+  Array<
+    LibraryStateGame & {
+      status: "online" | "offline";
+      hasNotifications?: boolean;
+      notifications: {
+        noVersions?: boolean;
+        toImport?: boolean;
+        offline?: boolean;
+      };
+    }
+  >
+>(
   libraryState.games.map((e) => {
+    if (e.status == "offline") {
+      return {
+        ...e.game,
+        status: "offline" as const,
+        hasNotifications: true,
+        notifications: {
+          offline: true,
+        },
+      };
+    }
+
     const noVersions = e.status.noVersions;
     const toImport = e.status.unimportedVersions.length > 0;
 
@@ -233,6 +313,7 @@ const libraryGames = ref(
         toImport,
       },
       hasNotifications: noVersions || toImport,
+      status: "online" as const,
     };
   }),
 );
@@ -251,9 +332,31 @@ const filteredLibraryGames = computed(() =>
 );
 
 async function deleteGame(id: string) {
-  await $dropFetch(`/api/v1/admin/game?id=${id}`, { method: "DELETE" });
+  await $dropFetch(`/api/v1/admin/game/${id}`, {
+    method: "DELETE",
+    failTitle: "Failed to delete game",
+  });
   const index = libraryGames.value.findIndex((e) => e.id === id);
   libraryGames.value.splice(index, 1);
   toImport.value = true;
+}
+
+const gameFeatureLoading = ref<{ [key: string]: boolean }>({});
+async function featureGame(id: string) {
+  const gameIndex = libraryGames.value.findIndex((e) => e.id === id);
+  const game = libraryGames.value[gameIndex];
+  gameFeatureLoading.value[game.id] = true;
+
+  await $dropFetch(`/api/v1/admin/game/:id`, {
+    method: "PATCH",
+    params: {
+      id: game.id,
+    },
+    body: { featured: !game.featured },
+    failTitle: "Failed to feature/unfeature game",
+  });
+
+  libraryGames.value[gameIndex].featured = !game.featured;
+  gameFeatureLoading.value[game.id] = false;
 }
 </script>

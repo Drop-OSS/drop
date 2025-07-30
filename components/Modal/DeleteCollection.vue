@@ -49,9 +49,11 @@ async function deleteCollection() {
     if (!collection.value) return;
 
     deleteLoading.value = true;
-    await $dropFetch(`/api/v1/collection/${collection.value.id}`, {
-      // @ts-expect-error not documented
+    await $dropFetch(`/api/v1/collection/:id`, {
       method: "DELETE",
+      params: {
+        id: collection.value.id,
+      },
     });
     const index = collections.value.findIndex(
       (e) => e.id == collection.value?.id,

@@ -24,14 +24,16 @@
           >
             <div class="relative text-center">
               <h3 class="text-base/7 font-semibold text-blue-300">
-                {{ $t("store.recentlyAdded") }}
+                {{ $t("store.featured") }}
               </h3>
               <h2
                 class="text-3xl font-bold tracking-tight text-white sm:text-5xl"
               >
                 {{ game.mName }}
               </h2>
-              <p class="mt-3 text-lg text-zinc-300 line-clamp-2 max-w-xl">
+              <p
+                class="mt-3 text-lg text-zinc-300 line-clamp-2 max-w-xl mx-auto"
+              >
                 {{ game.mShortDescription }}
               </p>
               <div>
@@ -66,49 +68,12 @@
       </h2>
     </div>
 
-    <!-- new releases -->
-    <div class="px-4 sm:px-12 py-4">
-      <h1 class="text-zinc-100 text-2xl font-bold font-display">
-        {{ $t("store.recentlyReleased") }}
-      </h1>
-      <NuxtLink class="text-blue-600 font-semibold">
-        <i18n-t keypath="store.exploreMore" tag="span" scope="global">
-          <template #arrow>
-            <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
-          </template>
-        </i18n-t>
-      </NuxtLink>
-      <div class="mt-4">
-        <GameCarousel :items="released" :min="12" />
-      </div>
-    </div>
-
-    <!-- recently updated -->
-    <div class="px-4 sm:px-12 py-4" hydrate-on-visible>
-      <h1 class="text-zinc-100 text-2xl font-bold font-display">
-        {{ $t("store.recentlyUpdated") }}
-      </h1>
-      <NuxtLink class="text-blue-600 font-semibold">
-        <i18n-t keypath="store.exploreMore" tag="span" scope="global">
-          <template #arrow>
-            <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
-          </template>
-        </i18n-t>
-      </NuxtLink>
-      <div class="mt-4">
-        <GameCarousel :items="updated" :min="12" />
-      </div>
-    </div>
+    <StoreView />
   </div>
 </template>
 
 <script setup lang="ts">
-const recent = await $dropFetch("/api/v1/store/recent");
-const updated = await $dropFetch("/api/v1/store/updated");
-const released = await $dropFetch("/api/v1/store/released");
-
-// const developers = await $dropFetch("/api/v1/store/developers");
-// const publishers = await $dropFetch("/api/v1/store/publishers");
+const recent = await $dropFetch("/api/v1/store/featured");
 
 const { t } = useI18n();
 

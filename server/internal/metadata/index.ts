@@ -18,6 +18,8 @@ import taskHandler, { wrapTaskContext } from "../tasks";
 import { randomUUID } from "crypto";
 import { fuzzy } from "fast-fuzzy";
 import { logger } from "~/server/internal/logging";
+import libraryManager from "../library";
+import type { GameTagModel } from "~/prisma/client/models";
 
 export class MissingMetadataProviderConfig extends Error {
   private providerName: string;
@@ -124,19 +126,22 @@ export class MetadataHandler {
     );
   }
 
-  private parseTags(tags: string[]) {
-    const results: Array<Prisma.TagCreateOrConnectWithoutGamesInput> = [];
+  private async parseTags(tags: string[]) {
+    const results: Array<GameTagModel> = [];
 
-    tags.forEach((t) =>
-      results.push({
-        where: {
-          name: t,
-        },
-        create: {
-          name: t,
-        },
-      }),
-    );
+    for (const tag of tags) {
+      const rawResults: GameTagModel[] =
+        await prisma.$queryRaw`SELECT * FROM "GameTag" WHERE SIMILARITY(name, ${tag}) > 0.45;`;
+      let resultTag = rawResults.at(0);
+      if (!resultTag) {
+        resultTag = await prisma.gameTag.create({
+          data: {
+            name: tag,
+          },
+        });
+      }
+      results.push(resultTag);
+    }
 
     return results;
   }
@@ -179,6 +184,8 @@ export class MetadataHandler {
       },
     });
     if (existing) return undefined;
+
+    await libraryManager.lockGame(libraryId, libraryPath);
 
     const gameId = randomUUID();
 
@@ -262,7 +269,7 @@ export class MetadataHandler {
               connectOrCreate: metadataHandler.parseRatings(metadata.reviews),
             },
             tags: {
-              connectOrCreate: metadataHandler.parseTags(metadata.tags),
+              connect: await metadataHandler.parseTags(metadata.tags),
             },
 
             libraryId,
@@ -271,6 +278,10 @@ export class MetadataHandler {
         });
 
         logger.info(`Finished game import.`);
+        progress(100);
+      },
+      async finally() {
+        await libraryManager.unlockGame(libraryId, libraryPath);
       },
     });
 

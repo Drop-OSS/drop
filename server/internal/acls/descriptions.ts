@@ -70,12 +70,21 @@ export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
   "game:image:new": "Upload an image for a game.",
   "game:image:delete": "Delete an image for a game.",
 
+  "company:read": "Fetch companies.",
+  "company:create": "Create a new company.",
+  "company:update": "Update existing companies.",
+  "company:delete": "Delete companies.",
+
   "import:version:read":
     "Fetch versions to be imported, and information about versions to be imported.",
   "import:version:new": "Import a game version.",
   "import:game:read":
     "Fetch games to be imported, and search the metadata for games.",
   "import:game:new": "Import a game.",
+
+  "tags:read": "Fetch all tags",
+  "tags:create": "Create a tag",
+  "tags:delete": "Delete a tag",
 
   "user:read": "Fetch any user's information.",
   "user:delete": "Delete a user.",

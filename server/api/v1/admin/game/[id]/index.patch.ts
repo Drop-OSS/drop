@@ -6,9 +6,7 @@ export default defineEventHandler(async (h3) => {
   if (!allowed) throw createError({ statusCode: 403 });
 
   const body = await readBody(h3);
-  const id = body.id;
-  if (!id)
-    throw createError({ statusCode: 400, statusMessage: "Missing id in body" });
+  const id = getRouterParam(h3, "id")!;
 
   const restOfTheBody = { ...body };
   delete restOfTheBody["id"];
