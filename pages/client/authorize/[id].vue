@@ -155,38 +155,58 @@ import {
   XCircleIcon,
 } from "@heroicons/vue/16/solid";
 import { LockClosedIcon } from "@heroicons/vue/20/solid";
-import { CheckCircleIcon } from "@heroicons/vue/24/outline";
+import { CheckCircleIcon, CloudIcon } from "@heroicons/vue/24/outline";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/vue/24/solid";
+import type { FetchError } from "ofetch";
+import { InternalClientCapability } from "~/server/internal/clients/capabilities";
 
 const route = useRoute();
 const clientId = route.params.id;
 
-const clientData = await $dropFetch(
-  `/api/v1/client/auth/callback?id=${clientId}`,
-);
+const clientData = await $dropFetch(`/api/v1/client/auth?id=${clientId}`);
 
 const completed = ref(false);
 const error = ref();
 const authToken = ref<string | undefined>();
 
 async function authorize() {
-  const { redirect, token } = await $dropFetch("/api/v1/client/auth/callback", {
-    method: "POST",
-    body: { id: clientId },
+  switch (clientData.mode) {
+    case "callback": {
+      const { redirect, token } = await $dropFetch(
+        `/api/v1/client/auth/callback`,
+        {
+          method: "POST",
+          body: { id: clientId },
+        },
+      );
+      authToken.value = token;
+      window.location.replace(redirect);
+      return;
+    }
+    case "code": {
+      await $dropFetch("/api/v1/client/auth/code", {
+        method: "POST",
+        body: { id: clientId },
+      });
+      return;
+    }
+  }
+  throw createError({
+    statusCode: 500,
+    statusMessage: "Unknown client auth mode: " + clientData.mode,
+    fatal: true,
   });
-  authToken.value = token;
-  window.location.replace(redirect);
 }
 
-function authorize_wrapper() {
-  authorize()
-    .catch((e) => {
-      const errorMessage = e.statusMessage || "An unknown error occurred.";
-      error.value = errorMessage;
-    })
-    .then(() => {
-      completed.value = true;
-    });
+async function authorize_wrapper() {
+  try {
+    await authorize();
+  } catch (e) {
+    const errorMessage = (e as FetchError)?.statusMessage || "An unknown error occurred.";
+    error.value = errorMessage;
+  } finally {
+    completed.value = true;
+  }
 }
 
 const scopes = [
@@ -198,20 +218,27 @@ const scopes = [
     icon: ArrowDownTrayIcon,
   },
   {
+    name: "Update your status",
+    description:
+      "The client will be able to update your status, and affect your playtime.",
+    href: "/docs/access/status",
+    icon: UserGroupIcon,
+  },
+  clientData.capabilities[InternalClientCapability.PeerAPI] && {
     name: "Access the Drop network",
     description:
       "The client will be able to establish P2P connections with other users to enable features like download aggregation, Remote LAN play and P2P multiplayer.",
     href: "/docs/access/network",
     icon: LockClosedIcon,
   },
-  {
-    name: "Manage your account",
+  clientData.capabilities[InternalClientCapability.CloudSaves] && {
+    name: "Upload and sync cloud saves",
     description:
-      "The client will be able to change your account details, and friend statuses on your behalf.",
-    href: "/docs/access/account",
-    icon: UserGroupIcon,
+      "The client will be able to upload new cloud saves, and edit your existing ones.",
+    href: "/docs/access/cloud",
+    icon: CloudIcon,
   },
-];
+].filter((e) => e !== undefined);
 
 useHead({
   title: "Authorize",

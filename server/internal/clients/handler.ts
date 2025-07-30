@@ -7,11 +7,19 @@ import type {
   InternalClientCapability,
 } from "./capabilities";
 import capabilityManager from "./capabilities";
+import type { PeerImpl } from "../tasks";
+
+export enum AuthMode {
+  Callback = "callback",
+  Code = "code",
+}
 
 export interface ClientMetadata {
   name: string;
   platform: Platform;
   capabilities: Partial<CapabilityConfiguration>;
+  mode: AuthMode;
+  peer?: PeerImpl;
 }
 
 export class ClientHandler {
@@ -24,6 +32,7 @@ export class ClientHandler {
       authToken?: string;
     }
   >();
+  private codeClientMap = new Map<string, string>();
 
   async initiate(metadata: ClientMetadata) {
     const clientId = randomUUID();
@@ -34,12 +43,47 @@ export class ClientHandler {
         () => {
           if (this.temporaryClientTable.has(clientId))
             this.temporaryClientTable.delete(clientId);
+          const code = this.codeClientMap
+            .entries()
+            .find(([_, v]) => v === clientId);
+          if (code) this.codeClientMap.delete(code[0]);
         },
         1000 * 60 * 10,
       ), // 10 minutes
     });
 
-    return clientId;
+    switch (metadata.mode) {
+      case AuthMode.Callback:
+        return `/client/authorize/${clientId}`;
+      case AuthMode.Code: {
+        const code = randomUUID().replaceAll(/-/, "").slice(0, 7).toUpperCase();
+        this.codeClientMap.set(code, clientId);
+        return code;
+      }
+    }
+  }
+
+  async connectCodeListener(code: string, peer: PeerImpl) {
+    const clientId = this.codeClientMap.get(code);
+    if (!clientId)
+      throw createError({
+        statusCode: 403,
+        statusMessage: "Invalid or unknown code.",
+      });
+    const metadata = this.temporaryClientTable.get(clientId);
+    if (!metadata)
+      throw createError({ statusCode: 500, statusMessage: "Broken code." });
+    if (metadata.data.peer)
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Pre-existing listener for this code.",
+      });
+    metadata.data.peer = peer;
+    this.temporaryClientTable.set(clientId, metadata);
+  }
+
+  async fetchClientIdByCode(code: string){
+    return this.codeClientMap.get(code);
   }
 
   async fetchClientMetadata(clientId: string) {
