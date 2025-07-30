@@ -45,9 +45,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { DialogTitle } from "@headlessui/vue";
-import type {
-  GameTagModel,
-} from "~/prisma/client/models";
+import type { GameTagModel } from "~/prisma/client/models";
 
 const emit = defineEmits<{
   created: [tag: GameTagModel];

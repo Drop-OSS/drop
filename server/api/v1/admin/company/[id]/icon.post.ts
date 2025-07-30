@@ -24,7 +24,7 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "File upload required (multipart form)",
     });
 
-  const [ids,, pull, dump] = result;
+  const [ids, , pull, dump] = result;
   const id = ids.at(0);
   if (!id)
     throw createError({

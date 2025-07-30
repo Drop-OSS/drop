@@ -31,7 +31,9 @@
               >
                 {{ game.mName }}
               </h2>
-              <p class="mt-3 text-lg text-zinc-300 line-clamp-2 max-w-xl mx-auto">
+              <p
+                class="mt-3 text-lg text-zinc-300 line-clamp-2 max-w-xl mx-auto"
+              >
                 {{ game.mShortDescription }}
               </p>
               <div>

@@ -147,5 +147,4 @@ async function deleteCompany(id: string) {
   const index = companies.value.findIndex((e) => e.id === id);
   companies.value.splice(index, 1);
 }
-
 </script>

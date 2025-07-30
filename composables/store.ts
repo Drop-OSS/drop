@@ -8,4 +8,4 @@ export type StoreFilterOption = {
 export type StoreSortOption = {
   name: string;
   param: string;
-}
+};

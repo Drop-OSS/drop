@@ -148,7 +148,6 @@ type(scope)!: subject
 ```
 
 - `type`: the type of the commit is one of the following:
-
   - `feat`: new features.
   - `fix`: bug fixes.
   - `docs`: documentation changes.
@@ -165,7 +164,6 @@ type(scope)!: subject
 - `scope`: section of the codebase that the commit makes changes to. If it makes changes to
   many sections, or if no section in particular is modified, leave blank without the parentheses.
   Examples:
-
   - Commit that changes the `git` plugin:
 
   ```
@@ -179,7 +177,6 @@ type(scope)!: subject
   ```
 
   For changes to plugins or themes, the scope should be the plugin or theme name:
-
   - ✅ `fix(agnoster): commit subject`
   - ❌ `fix(theme/agnoster): commit subject`
 
@@ -209,7 +206,6 @@ type(scope)!: subject
   to specify other details, you can use the commit body, but it won't be visible.
 
   Formatting tricks: the commit subject may contain:
-
   - Links to related issues or PRs by writing `#issue`. This will be highlighted by the changelog tool:
 
     ```

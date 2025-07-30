@@ -41,7 +41,7 @@ export const $dropFetch: DropFetch = async (rawRequest, opts) => {
       return;
     }
     requestParts[index] = replacement;
-     
+
     delete opts?.params?.[partName];
   });
   const request = requestParts.join("/");
@@ -59,7 +59,7 @@ export const $dropFetch: DropFetch = async (rawRequest, opts) => {
     // Deep copy
     const object = JSON.parse(JSON.stringify(state.value));
     // Never use again on client
-    if(import.meta.client) state.value = undefined;
+    if (import.meta.client) state.value = undefined;
     return object;
   }
 

@@ -12,9 +12,7 @@
           />
         </div>
         <div class="absolute inset-0 bg-zinc-900/75" />
-        <div
-          class="absolute inset-0 bg-linear-to-t from-zinc-900"
-        />
+        <div class="absolute inset-0 bg-linear-to-t from-zinc-900" />
       </div>
 
       <!-- Callout -->

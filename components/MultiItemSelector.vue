@@ -22,7 +22,10 @@
           <span class="absolute -inset-1" />
         </button>
       </span>
-      <span v-if="enabledItems.length == 0" class="font-display uppercase text-xs font-bold text-zinc-700">
+      <span
+        v-if="enabledItems.length == 0"
+        class="font-display uppercase text-xs font-bold text-zinc-700"
+      >
         {{ $t("common.noSelected") }}
       </span>
     </div>
@@ -105,8 +108,8 @@ function add(item: string) {
   model.value[item] = true;
 }
 
-function remove(item: string){
-    model.value ??= {};
-    model.value[item] = false;
+function remove(item: string) {
+  model.value ??= {};
+  model.value[item] = false;
 }
 </script>
