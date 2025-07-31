@@ -210,7 +210,7 @@ async function finish() {
     headers: { Authorization: bearerToken },
     method: "POST",
   });
-  router.push("/signin");
+  router.push("/auth/signin");
 }
 </script>
 
