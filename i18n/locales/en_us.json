@@ -66,6 +66,8 @@
   "setup": {
     "welcome": "Hey there.",
     "welcomeDescription": "Welcome to Drop setup wizard. It will walk you through configuring Drop for the first time, and how it works.",
+    "finish": "Let's go {arrow}",
+    "noPage": "no page",
     "auth": {
       "title": "Authentication",
       "description": "Authentication in Drop happens through multiple configured 'providers'. Each one can allow users to sign-in through their method. To get started, have at least one authentication provider enabled, and create an account through it.",

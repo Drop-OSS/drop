@@ -29,8 +29,8 @@
                 class="flex size-10 flex-none items-center justify-center rounded-lg shadow-xs outline-1 outline-zinc-100/10"
               >
                 <component
-                  v-if="!actionsComplete[actionIdx]"
                   :is="action.icon"
+                  v-if="!actionsComplete[actionIdx]"
                   class="size-6 text-blue-500"
                   aria-hidden="true"
                 />
@@ -63,17 +63,21 @@
             </li>
           </ul>
           <LoadingButton
-            @click="() => finish()"
             :disabled="!finished"
             :loading="finishLoading"
+            @click="() => finish()"
           >
-            Let's go &rarr;
+            <i18n-t keypath="setup.finish" tag="span" scope="global">
+              <template #arrow>
+                <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
+              </template>
+            </i18n-t>
           </LoadingButton>
         </main>
       </div>
       <component
-        v-if="actions[currentAction] && !useModal"
         :is="actions[currentAction].page"
+        v-if="actions[currentAction] && !useModal"
         v-model="actionsComplete[currentAction]"
         :token="bearerToken"
       />
@@ -82,7 +86,7 @@
         class="bg-zinc-950/30 flex items-center justify-center"
       >
         <p class="uppercase text-sm font-display text-zinc-700 font-bold">
-          no page
+          {{ $t("setup.noPage") }}
         </p>
       </div>
     </div>
@@ -123,18 +127,6 @@
   </div>
 </template>
 
-<style scoped>
-.v-enter-active,
-.v-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.v-enter-from,
-.v-leave-to {
-  opacity: 0;
-}
-</style>
-
 <script setup lang="ts">
 import { SetupAccount, SetupLibrary } from "#components";
 import {
@@ -143,7 +135,7 @@ import {
   ServerStackIcon,
   UserCircleIcon,
 } from "@heroicons/vue/24/outline";
-import { Transition, type Component } from "vue";
+import type { Component } from "vue";
 import { breakpointsTailwind, useBreakpoints } from "@vueuse/core";
 
 const breakpoints = useBreakpoints(breakpointsTailwind);
@@ -221,3 +213,15 @@ async function finish() {
   router.push("/signin");
 }
 </script>
+
+<style scoped>
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+</style>

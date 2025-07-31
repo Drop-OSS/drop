@@ -297,7 +297,7 @@ useHead({
 const { t } = useI18n();
 
 // Optional token for setup wizard
-const { token } = defineProps<{ token?: string }>();
+const { token = undefined } = defineProps<{ token?: string }>();
 
 const headers = token ? { Authorization: token } : undefined;
 

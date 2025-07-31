@@ -133,11 +133,9 @@ import { DateTime } from "luxon";
 
 const complete = defineModel<boolean>({ required: true });
 
-
 const { token } = defineProps<{ token: string }>();
 
 const invitationLoading = ref(false);
-
 
 const enabledAuth = await $dropFetch("/api/v1/admin/auth", {
   headers: { Authorization: token },

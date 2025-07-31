@@ -2,7 +2,6 @@ import { APITokenMode } from "~/prisma/client/enums";
 import prisma from "../db/database";
 import sessionHandler from "../session";
 import type { MinimumRequestObject } from "~/server/h3";
-import { logger } from "../logging";
 
 export const userACLs = [
   "read",
@@ -186,7 +185,7 @@ class ACLManager {
     if (token.mode != APITokenMode.System) return false;
 
     // If empty, we just want to check we are an admin *at all*, not specific ACLs
-    if(acls.length == 0) return true;
+    if (acls.length == 0) return true;
 
     for (const acl of acls) {
       const tokenACLIndex = token.acls.findIndex((e) => e == acl);
