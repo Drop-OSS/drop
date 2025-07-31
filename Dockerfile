@@ -20,7 +20,7 @@ ENV NUXT_TELEMETRY_DISABLED=1
 RUN apk add --no-cache git pnpm
 
 # copy deps and rest of project files
-COPY --from=deps /app/node_modules ./node_modules
+# COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 ARG BUILD_DROP_VERSION
