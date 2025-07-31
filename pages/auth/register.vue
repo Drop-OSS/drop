@@ -264,6 +264,10 @@ function register_wrapper() {
   loading.value = true;
   register()
     .then(() => {
+      if (route.query.after == "close") {
+        window.close();
+        return;
+      }
       router.push("/auth/signin");
     })
     .catch((response) => {

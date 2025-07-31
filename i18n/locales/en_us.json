@@ -63,6 +63,38 @@
     "signout": "Signout",
     "username": "Username"
   },
+  "setup": {
+    "welcome": "Hey there.",
+    "welcomeDescription": "Welcome to Drop setup wizard. It will walk you through configuring Drop for the first time, and how it works.",
+    "finish": "Let's go {arrow}",
+    "noPage": "no page",
+    "auth": {
+      "title": "Authentication",
+      "description": "Authentication in Drop happens through multiple configured 'providers'. Each one can allow users to sign-in through their method. To get started, have at least one authentication provider enabled, and create an account through it.",
+      "docs": "Documentation {arrow}",
+      "enabled": "Enabled?",
+      "simple": {
+        "title": "Simple authentication",
+        "description": "Simple authentication uses username/password to authentication users. It is enabled by default if no other authentication provider is enabled.",
+        "register": "Register as admin {arrow}"
+      },
+      "openid": {
+        "title": "OpenID Connect",
+        "description": "OpenID Connect (OIDC) is an OAuth2 extension commonly supported. Drop requires OIDC configuration to be done via environment variables.",
+        "skip": "I have a user with OIDC"
+      }
+    },
+    "stages": {
+      "account": {
+        "name": "Setup your admin account.",
+        "description": "You need at least one account to start using Drop."
+      },
+      "library": {
+        "name": "Create a library.",
+        "description": "Add at least one library source to use Drop."
+      }
+    }
+  },
   "cancel": "Cancel",
   "chars": {
     "arrow": "→",

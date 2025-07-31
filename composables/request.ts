@@ -67,7 +67,7 @@ export const $dropFetch: DropFetch = async (rawRequest, opts) => {
   try {
     const data = await $fetch(request, {
       ...opts,
-      headers: { ...opts?.headers, ...headers },
+      headers: { ...headers, ...opts?.headers },
     });
     if (import.meta.server) state.value = data;
     return data;
