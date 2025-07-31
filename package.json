@@ -1,6 +1,6 @@
 {
   "name": "drop",
-  "version": "0.3.0-alpha.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "license": "AGPL-3.0-or-later",
