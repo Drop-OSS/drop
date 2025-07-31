@@ -28,7 +28,7 @@
             {{ company.mName }}
           </h2>
           <p class="mx-auto line-clamp-3 mt-4 max-w-xl text-xl text-zinc-400">
-            {{ company.mDescription }}
+            {{ company.mShortDescription }}
           </p>
         </div>
       </section>
