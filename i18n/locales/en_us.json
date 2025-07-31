@@ -38,6 +38,10 @@
       "requestedAccess": "\"{name}\" has requested access to your Drop account.",
       "success": "Successful!"
     },
+    "code": {
+      "title": "Connect your Drop client",
+      "description": "Use a code to connect your Drop client if you are unable to open a web browser on your device."
+    },
     "confirmPassword": "Confirm @:auth.password",
     "displayName": "Display Name",
     "email": "Email",

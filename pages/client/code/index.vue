@@ -1,10 +1,11 @@
 <template>
   <div class="w-full h-max min-h-[30vw] flex items-center justify-center">
     <div class="text-center">
-      <h1 class="text-2xl font-bold text-zinc-100">Connect your Drop client</h1>
+      <h1 class="text-2xl font-bold text-zinc-100">
+        {{ $t("auth.code.title") }}
+      </h1>
       <p class="mt-1 max-w-sm text-zinc-400 mx-auto">
-        Use a code to connect your Drop client if you are unable to open a web
-        browser on your device. {{ code }}
+        {{ $t("auth.code.description") }}
       </p>
       <div v-if="!loading" class="mt-8 flex flex-row gap-4">
         <input
@@ -12,10 +13,10 @@
           ref="codeElements"
           :key="i"
           v-model="code[i - 1]"
-          class="w-16 h-16 appearance-none text-center bg-zinc-900 rounded-xl border-zinc-700 focus:border-blue-600 text-2xl text-bold font-display text-zinc-100"
-          type="number"
+          class="uppercase w-16 h-16 appearance-none text-center bg-zinc-900 rounded-xl border-zinc-700 focus:border-blue-600 text-2xl text-bold font-display text-zinc-100"
+          type="text"
           pattern="\d*"
-          :placeholder="i.toString()"
+          :placeholder="placeholder[i - 1]"
           @keydown="(v) => keydown(i - 1, v)"
           @input="() => input(i - 1)"
           @focusin="() => select(i - 1)"
@@ -40,19 +41,38 @@
           />
         </svg>
       </div>
+
+      <div
+        v-if="error"
+        class="mt-8 rounded-md bg-red-600/10 p-4 max-w-sm mx-auto"
+      >
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <XCircleIcon class="h-5 w-5 text-red-600" aria-hidden="true" />
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-600">
+              {{ error }}
+            </h3>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { XCircleIcon } from "@heroicons/vue/24/solid";
 import { FetchError } from "ofetch";
 
-const codeLength = 6;
+const codeLength = 7;
+const placeholder = "1A2B3C4";
 const codeElements = useTemplateRef("codeElements");
 const code = ref<string[]>([]);
 
 const router = useRouter();
 const loading = ref(false);
+const error = ref<string | undefined>(undefined);
 
 function keydown(index: number, event: KeyboardEvent) {
   if (event.key === "Backspace" && !code.value[index] && index > 0) {
@@ -91,8 +111,6 @@ function select(index: number) {
 function paste(index: number, event: ClipboardEvent) {
   const newCode = event.clipboardData!.getData("text/plain");
   for (let i = 0; i < newCode.length && i < codeLength; i++) {
-    const int = parseInt(newCode[i]);
-    if (Number.isNaN(int)) continue;
     code.value[i] = newCode[i];
     codeElements.value![i].focus();
   }
@@ -100,13 +118,18 @@ function paste(index: number, event: ClipboardEvent) {
 }
 
 async function complete(code: string) {
+  loading.value = true;
   try {
     const clientId = await $dropFetch(`/api/v1/client/auth/code?code=${code}`);
     router.push(`/client/authorize/${clientId}`);
   } catch (e) {
     if (e instanceof FetchError) {
-      throw e;
+      error.value =
+        e.statusMessage ?? e.message ?? "An unknown error occurred.";
+    } else {
+      error.value = (e as string)?.toString();
     }
   }
+  loading.value = false;
 }
 </script>

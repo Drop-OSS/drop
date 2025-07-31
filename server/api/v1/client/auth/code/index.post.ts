@@ -21,7 +21,7 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Not allowed to authorize this client.",
     });
 
-  if (!client.data.peer)
+  if (!client.peer)
     throw createError({
       statusCode: 500,
       statusMessage: "No client listening for authorization.",
@@ -29,7 +29,7 @@ export default defineEventHandler(async (h3) => {
 
   const token = await clientHandler.generateAuthToken(clientId);
 
-  await client.data.peer.send(token);
+  await client.peer.send(`${clientId}/${token}`);
 
   return;
 });

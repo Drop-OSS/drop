@@ -2,7 +2,7 @@ import clientHandler from "~/server/internal/clients/handler";
 
 export default defineEventHandler(async (h3) => {
   const query = getQuery(h3);
-  const code = query.code?.toString();
+  const code = query.code?.toString()?.toUpperCase();
   if (!code)
     throw createError({
       statusCode: 400,

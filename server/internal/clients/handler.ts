@@ -19,7 +19,6 @@ export interface ClientMetadata {
   platform: Platform;
   capabilities: Partial<CapabilityConfiguration>;
   mode: AuthMode;
-  peer?: PeerImpl;
 }
 
 export class ClientHandler {
@@ -30,6 +29,7 @@ export class ClientHandler {
       data: ClientMetadata;
       userId?: string;
       authToken?: string;
+      peer?: PeerImpl;
     }
   >();
   private codeClientMap = new Map<string, string>();
@@ -56,7 +56,10 @@ export class ClientHandler {
       case AuthMode.Callback:
         return `/client/authorize/${clientId}`;
       case AuthMode.Code: {
-        const code = randomUUID().replaceAll(/-/, "").slice(0, 7).toUpperCase();
+        const code = randomUUID()
+          .replaceAll(/-/g, "")
+          .slice(0, 7)
+          .toUpperCase();
         this.codeClientMap.set(code, clientId);
         return code;
       }
@@ -73,16 +76,16 @@ export class ClientHandler {
     const metadata = this.temporaryClientTable.get(clientId);
     if (!metadata)
       throw createError({ statusCode: 500, statusMessage: "Broken code." });
-    if (metadata.data.peer)
+    if (metadata.peer)
       throw createError({
         statusCode: 400,
         statusMessage: "Pre-existing listener for this code.",
       });
-    metadata.data.peer = peer;
+    metadata.peer = peer;
     this.temporaryClientTable.set(clientId, metadata);
   }
 
-  async fetchClientIdByCode(code: string){
+  async fetchClientIdByCode(code: string) {
     return this.codeClientMap.get(code);
   }
 
