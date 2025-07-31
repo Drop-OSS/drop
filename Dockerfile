@@ -1,10 +1,10 @@
 # syntax=docker/dockerfile:1
 
 ### Unified deps builder
-FROM node:lts-alpine AS deps
-WORKDIR /app
-COPY package.json yarn.lock ./
-RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn yarn install --network-timeout 1000000 --ignore-scripts
+# FROM node:lts-alpine AS deps
+# WORKDIR /app
+# COPY package.json yarn.lock ./
+# RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn yarn install --network-timeout 1000000 --ignore-scripts
 
 ### Build for app
 FROM node:lts-alpine AS build-system
