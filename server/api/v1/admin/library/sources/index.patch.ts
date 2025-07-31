@@ -16,6 +16,7 @@ export default defineEventHandler<{ body: typeof UpdateLibrarySource.infer }>(
   async (h3) => {
     const allowed = await aclManager.allowSystemACL(h3, [
       "library:sources:update",
+      "setup"
     ]);
     if (!allowed) throw createError({ statusCode: 403 });
 

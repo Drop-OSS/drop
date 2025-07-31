@@ -296,8 +296,15 @@ useHead({
 
 const { t } = useI18n();
 
+// Optional token for setup wizard
+const { token } = defineProps<{ token?: string }>();
+
+const headers = token ? { Authorization: token } : undefined;
+
 const sources = ref(
-  await $dropFetch<WorkingLibrarySource[]>("/api/v1/admin/library/sources"),
+  await $dropFetch<WorkingLibrarySource[]>("/api/v1/admin/library/sources", {
+    headers,
+  }),
 );
 
 const editIndex = ref<undefined | number>(undefined);
@@ -345,6 +352,7 @@ async function performActionSource() {
         options: sourceConfig.value,
       },
       method: createMode ? "POST" : "PATCH",
+      headers,
     },
   );
   if (createMode) {
@@ -394,6 +402,7 @@ async function deleteSource(index: number) {
     await $dropFetch("/api/v1/admin/library/sources", {
       method: "DELETE",
       body: { id: source.id },
+      headers,
     });
   } catch (e) {
     createModal(

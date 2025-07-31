@@ -5,7 +5,7 @@ import libraryManager from "~/server/internal/library";
 export type WorkingLibrarySource = LibraryModel & { working: boolean };
 
 export default defineEventHandler(async (h3) => {
-  const allowed = await aclManager.allowSystemACL(h3, ["library:sources:read"]);
+  const allowed = await aclManager.allowSystemACL(h3, ["library:sources:read", "setup"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
   const sources = await libraryManager.fetchLibraries();

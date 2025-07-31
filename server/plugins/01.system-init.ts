@@ -1,3 +1,4 @@
+import { APITokenMode } from "~/prisma/client/enums";
 import prisma from "~/server/internal/db/database";
 
 export default defineNitroPlugin(async (_nitro) => {
