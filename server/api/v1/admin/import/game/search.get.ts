@@ -1,19 +1,20 @@
-import libraryManager from "~/server/internal/library";
+import aclManager from "~/server/internal/acls";
+import metadataHandler from "~/server/internal/metadata";
 
 export default defineEventHandler(async (h3) => {
-  const user = await h3.context.session.getAdminUser(h3);
-  if (!user) throw createError({ statusCode: 403 });
+  const allowed = await aclManager.allowSystemACL(h3, ["import:game:read"]);
+  if (!allowed) throw createError({ statusCode: 403 });
 
   const query = getQuery(h3);
   const search = query.q?.toString();
   if (!search)
     throw createError({ statusCode: 400, statusMessage: "Invalid search" });
 
-  const results = await h3.context.metadataHandler.search(search);
+  const results = await metadataHandler.search(search);
 
   if (results.length == 0)
     throw createError({
-      statusCode: 500,
+      statusCode: 404,
       statusMessage: "No metadata provider returned search results.",
     });
 

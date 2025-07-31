@@ -1,13 +1,14 @@
 <template>
   <div class="hidden lg:flex bg-zinc-950 flex-row px-12 xl:px-48 py-5">
     <div class="grow inline-flex items-center gap-x-20">
-      <NuxtLink to="/">
-        <Wordmark class="h-8" />
+      <NuxtLink :to="homepageURL">
+        <DropWordmark class="h-8" />
       </NuxtLink>
       <nav class="inline-flex items-center">
         <ol class="inline-flex items-center gap-x-12">
           <NuxtLink
             v-for="(nav, navIdx) in navigation"
+            :key="navIdx"
             :href="nav.route"
             :class="[
               'transition hover:text-zinc-200 uppercase font-display font-semibold text-md',
@@ -61,7 +62,10 @@
   <div
     class="sticky lg:hidden top-0 z-40 flex h-16 justify-between items-center gap-x-4 border-b border-zinc-700 bg-zinc-950 px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8"
   >
-    <Wordmark class="mb-0.5" />
+    <NuxtLink :to="homepageURL">
+      <DropWordmark class="mb-0.5" />
+    </NuxtLink>
+
     <div class="flex gap-x-4 lg:gap-x-6">
       <div class="flex items-center gap-x-3">
         <!-- Profile dropdown -->
@@ -72,7 +76,7 @@
           class="-m-2.5 p-2.5 text-zinc-400 lg:hidden"
           @click="sidebarOpen = true"
         >
-          <span class="sr-only">Open sidebar</span>
+          <span class="sr-only">{{ $t("header.openSidebar") }}</span>
           <Bars3Icon class="h-6 w-6" aria-hidden="true" />
         </button>
       </div>
@@ -121,7 +125,9 @@
                   class="-m-2.5 p-2.5"
                   @click="sidebarOpen = false"
                 >
-                  <span class="sr-only">Close sidebar</span>
+                  <span class="sr-only">{{
+                    $t("userHeader.closeSidebar")
+                  }}</span>
                   <XMarkIcon class="h-6 w-6 text-zinc-400" aria-hidden="true" />
                 </button>
               </div>
@@ -131,8 +137,8 @@
               class="flex grow flex-col gap-y-5 overflow-y-auto bg-zinc-950 px-6 pb-4"
             >
               <div class="flex shrink-0 h-16 items-center justify-between">
-                <NuxtLink to="/">
-                  <Logo class="h-8 w-auto" />
+                <NuxtLink :to="homepageURL">
+                  <DropLogo class="h-8 w-auto" />
                 </NuxtLink>
 
                 <UserHeaderUserWidget />
@@ -141,6 +147,7 @@
                 <ol class="flex flex-col gap-y-3">
                   <NuxtLink
                     v-for="(nav, navIdx) in navigation"
+                    :key="navIdx"
                     :href="nav.route"
                     :class="[
                       'transition hover:text-zinc-200 uppercase font-display font-semibold text-md',
@@ -166,6 +173,9 @@
                     >
                       <BellIcon class="h-5" />
                     </UserHeaderWidget>
+                  </li>
+                  <li class="w-full">
+                    <UserHeaderWidget class="w-full" />
                   </li>
                 </div>
               </nav>
@@ -193,35 +203,37 @@ import { Bars3Icon } from "@heroicons/vue/24/outline";
 import { XMarkIcon } from "@heroicons/vue/24/solid";
 
 const router = useRouter();
+const { t } = useI18n();
 
-const navigation: Array<NavigationItem> = [
+const homepageURL = "/store";
+const navigation: Ref<Array<NavigationItem>> = computed(() => [
   {
     prefix: "/store",
     route: "/store",
-    label: "Store",
+    label: t("store.title"),
   },
   {
     prefix: "/library",
     route: "/library",
-    label: "Library",
+    label: t("userHeader.links.library"),
   },
   {
     prefix: "/community",
     route: "/community",
-    label: "Community",
+    label: t("userHeader.links.community"),
   },
   {
     prefix: "/news",
     route: "/news",
-    label: "News",
+    label: t("userHeader.links.news"),
   },
-];
+]);
 
-const currentPageIndex = useCurrentNavigationIndex(navigation);
+const currentPageIndex = useCurrentNavigationIndex(navigation.value);
 
 const notifications = useNotifications();
 const unreadNotifications = computed(() =>
-  notifications.value.filter((e) => !e.read)
+  notifications.value.filter((e) => !e.read),
 );
 
 const sidebarOpen = ref(false);

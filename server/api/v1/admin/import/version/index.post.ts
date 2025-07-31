@@ -1,32 +1,40 @@
+import { type } from "arktype";
+import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
+import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import libraryManager from "~/server/internal/library";
 import { parsePlatform } from "~/server/internal/utils/parseplatform";
 
+const ImportVersion = type({
+  id: "string",
+  version: "string",
+
+  platform: "string",
+  launch: "string = ''",
+  launchArgs: "string = ''",
+  setup: "string = ''",
+  setupArgs: "string = ''",
+  onlySetup: "boolean = false",
+  delta: "boolean = false",
+  umuId: "string = ''",
+}).configure(throwingArktype);
+
 export default defineEventHandler(async (h3) => {
-  const user = await h3.context.session.getAdminUser(h3);
-  if (!user) throw createError({ statusCode: 403 });
+  const allowed = await aclManager.allowSystemACL(h3, ["import:version:new"]);
+  if (!allowed) throw createError({ statusCode: 403 });
 
-  const body = await readBody(h3);
-  const gameId = body.id;
-  const versionName = body.version;
-
-  const platform = body.platform as string | undefined;
-  const launch = (body.launch ?? "") as string;
-  const launchArgs = (body.launchArgs ?? "") as string;
-  const setup = (body.setup ?? "") as string;
-  const setupArgs = (body.setupArgs ?? "") as string;
-  const onlySetup = body.onlySetup ?? (false as boolean);
-  const delta = (body.delta ?? false) as boolean;
-  const umuId = (body.umuId ?? "") as string;
-
-  if (!gameId || !versionName)
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Game ID and version are required.",
-    });
-
-  if (!platform)
-    throw createError({ statusCode: 400, statusMessage: "Missing platform." });
+  const {
+    id,
+    version,
+    platform,
+    launch,
+    launchArgs,
+    setup,
+    setupArgs,
+    onlySetup,
+    delta,
+    umuId,
+  } = await readDropValidatedBody(h3, ImportVersion);
 
   const platformParsed = parsePlatform(platform);
   if (!platformParsed)
@@ -34,7 +42,7 @@ export default defineEventHandler(async (h3) => {
 
   if (delta) {
     const validOverlayVersions = await prisma.gameVersion.count({
-      where: { gameId: gameId, platform: platformParsed, delta: false },
+      where: { gameId: id, platform: platformParsed, delta: false },
     });
     if (validOverlayVersions == 0)
       throw createError({
@@ -43,12 +51,6 @@ export default defineEventHandler(async (h3) => {
           "Update mode requires a pre-existing version for this platform.",
       });
   }
-
-  if (umuId && typeof umuId !== "string")
-    throw createError({
-      statusCode: 400,
-      statusMessage: "If specified, UMU ID must be a string.",
-    });
 
   if (onlySetup) {
     if (!setup)
@@ -60,12 +62,12 @@ export default defineEventHandler(async (h3) => {
     if (!delta && !launch)
       throw createError({
         statusCode: 400,
-        statusMessage: "Startup executable is required for non-update versions",
+        statusMessage: "Launch executable is required for non-update versions",
       });
   }
 
   // startup & delta require more complex checking logic
-  const taskId = await libraryManager.importVersion(gameId, versionName, {
+  const taskId = await libraryManager.importVersion(id, version, {
     platform,
     onlySetup,
 

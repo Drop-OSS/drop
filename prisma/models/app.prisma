@@ -1,0 +1,32 @@
+model ApplicationSettings {
+    timestamp DateTime @id @default(now())
+
+    metadataProviders String[]
+
+    saveSlotCountLimit   Int   @default(5)
+    saveSlotSizeLimit    Float @default(10) // MB
+    saveSlotHistoryLimit Int   @default(3)
+
+    showGamePanelTextDecoration Boolean @default(true)
+}
+
+enum Platform {
+    Windows @map("windows")
+    Linux   @map("linux")
+    macOS   @map("macos")
+}
+
+enum LibraryBackend {
+    Filesystem
+    FlatFilesystem
+}
+
+model Library {
+    id   String @id @default(uuid())
+    name String
+
+    backend LibraryBackend
+    options Json
+
+    games Game[]
+}

@@ -1,33 +1,43 @@
-import { v4 as uuidv4 } from "uuid";
-import { CertificateBundle } from "./ca";
+import { randomUUID } from "node:crypto";
 import prisma from "../db/database";
-import { Platform } from "@prisma/client";
+import type { Platform } from "~/prisma/client/enums";
+import { useCertificateAuthority } from "~/server/plugins/ca";
+import type {
+  CapabilityConfiguration,
+  InternalClientCapability,
+} from "./capabilities";
+import capabilityManager from "./capabilities";
 
 export interface ClientMetadata {
   name: string;
   platform: Platform;
+  capabilities: Partial<CapabilityConfiguration>;
 }
 
 export class ClientHandler {
-  private temporaryClientTable: {
-    [key: string]: {
+  private temporaryClientTable = new Map<
+    string,
+    {
       timeout: NodeJS.Timeout;
       data: ClientMetadata;
       userId?: string;
       authToken?: string;
-    };
-  } = {};
+    }
+  >();
 
   async initiate(metadata: ClientMetadata) {
-    const clientId = uuidv4();
+    const clientId = randomUUID();
 
-    this.temporaryClientTable[clientId] = {
+    this.temporaryClientTable.set(clientId, {
       data: metadata,
-      timeout: setTimeout(() => {
-        if (this.temporaryClientTable[clientId])
-          delete this.temporaryClientTable[clientId];
-      }, 1000 * 60 * 10), // 10 minutes
-    };
+      timeout: setTimeout(
+        () => {
+          if (this.temporaryClientTable.has(clientId))
+            this.temporaryClientTable.delete(clientId);
+        },
+        1000 * 60 * 10,
+      ), // 10 minutes
+    });
 
     return clientId;
   }
@@ -37,39 +47,41 @@ export class ClientHandler {
   }
 
   async fetchClient(clientId: string) {
-    const entry = this.temporaryClientTable[clientId];
+    const entry = this.temporaryClientTable.get(clientId);
     if (!entry) return undefined;
     return entry;
   }
 
   async attachUserId(clientId: string, userId: string) {
-    if (!this.temporaryClientTable[clientId])
-      throw new Error("Invalid clientId for attaching userId");
-    this.temporaryClientTable[clientId].userId = userId;
+    const clientTable = this.temporaryClientTable.get(clientId);
+    if (!clientTable) throw new Error("Invalid clientId for attaching userId");
+    clientTable.userId = userId;
   }
 
   async generateAuthToken(clientId: string) {
-    const entry = this.temporaryClientTable[clientId];
+    const entry = this.temporaryClientTable.get(clientId);
     if (!entry) throw new Error("Invalid clientId to generate token");
 
-    const token = uuidv4();
-    this.temporaryClientTable[clientId].authToken = token;
+    const token = randomUUID();
+    entry.authToken = token;
 
     return token;
   }
 
   async fetchClientMetadataByToken(token: string) {
-    return Object.entries(this.temporaryClientTable)
+    return this.temporaryClientTable
+      .entries()
+      .toArray()
       .map((e) => Object.assign(e[1], { id: e[0] }))
       .find((e) => e.authToken === token);
   }
 
   async finialiseClient(id: string) {
-    const metadata = this.temporaryClientTable[id];
+    const metadata = this.temporaryClientTable.get(id);
     if (!metadata) throw new Error("Invalid client ID");
     if (!metadata.userId) throw new Error("Un-authorized client ID");
 
-    return await prisma.client.create({
+    const client = await prisma.client.create({
       data: {
         id: id,
         userId: metadata.userId,
@@ -79,6 +91,31 @@ export class ClientHandler {
         name: metadata.data.name,
         platform: metadata.data.platform,
         lastConnected: new Date(),
+      },
+    });
+
+    for (const [capability, configuration] of Object.entries(
+      metadata.data.capabilities,
+    )) {
+      await capabilityManager.upsertClientCapability(
+        capability as InternalClientCapability,
+        configuration,
+        client.id,
+      );
+    }
+
+    this.temporaryClientTable.delete(id);
+
+    return client;
+  }
+
+  async removeClient(id: string) {
+    const ca = useCertificateAuthority();
+    await ca.blacklistClient(id);
+
+    await prisma.client.delete({
+      where: {
+        id,
       },
     });
   }

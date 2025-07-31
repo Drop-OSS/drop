@@ -4,7 +4,7 @@
       <UserHeaderWidget>
         <div class="inline-flex items-center text-zinc-300 hover:text-white">
           <img
-            :src="useObject(user.profilePicture)"
+            :src="useObject(user.profilePictureObjectId)"
             class="w-5 h-5 rounded-sm"
           />
           <span class="ml-2 text-sm font-bold">{{ user.displayName }}</span>
@@ -31,7 +31,7 @@
           >
             <div class="inline-flex items-center text-zinc-300">
               <img
-                :src="useObject(user.profilePicture)"
+                :src="useObject(user.profilePictureObjectId)"
                 class="w-5 h-5 rounded-sm"
               />
               <span class="ml-2 text-sm font-bold">{{ user.displayName }}</span>
@@ -39,16 +39,37 @@
           </NuxtLink>
           <div class="h-0.5 rounded-full w-full bg-zinc-800" />
           <div class="flex flex-col">
-            <MenuItem v-for="(nav, navIdx) in navigation" v-slot="{ active }">
+            <MenuItem
+              v-for="(nav, navIdx) in navigation"
+              :key="navIdx"
+              v-slot="{ active, close }"
+              hydrate-on-visible
+              as="div"
+            >
               <NuxtLink
-                :href="nav.route"
+                :to="nav.route"
                 :class="[
                   active ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400',
-                  'transition block px-4 py-2 text-sm',
+                  'w-full text-left transition block px-4 py-2 text-sm',
                 ]"
+                @click="close"
               >
-                {{ nav.label }}</NuxtLink
+                {{ nav.label }}
+              </NuxtLink>
+            </MenuItem>
+            <MenuItem v-slot="{ active, close }" hydrate-on-visible as="div">
+              <NuxtLink
+                to="/auth/signout"
+                :class="[
+                  active ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400',
+                  'w-full text-left transition block px-4 py-2 text-sm',
+                ]"
+                :data-comment="'external=true is required because we implemented the signout as a route on the server for performance'"
+                :external="true"
+                @click="close"
               >
+                {{ $t("auth.signout") }}
+              </NuxtLink>
             </MenuItem>
           </div>
         </PanelWidget>
@@ -65,23 +86,20 @@ import type { NavigationItem } from "~/composables/types";
 
 const user = useUser();
 
-const navigation: NavigationItem[] = [
-  user.value?.admin
-    ? {
-        label: "Admin Dashboard",
-        route: "/admin",
-        prefix: "",
-      }
-    : undefined,
-  {
-    label: "Account settings",
-    route: "/account",
-    prefix: "",
-  },
-  {
-    label: "Sign out",
-    route: "/signout",
-    prefix: "",
-  },
-].filter((e) => e !== undefined);
+const navigation = computed<NavigationItem[]>(() =>
+  [
+    user.value?.admin
+      ? {
+          label: $t("userHeader.profile.admin"),
+          route: "/admin",
+          prefix: "",
+        }
+      : undefined,
+    {
+      label: $t("userHeader.profile.settings"),
+      route: "/account",
+      prefix: "",
+    },
+  ].filter((e) => e !== undefined),
+);
 </script>

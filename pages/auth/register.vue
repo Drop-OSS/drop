@@ -1,0 +1,289 @@
+<template>
+  <div class="flex min-h-screen flex-1 bg-zinc-900">
+    <div
+      class="flex flex-1 flex-col justify-center px-4 py-8 sm:px-6 lg:flex-none lg:px-20 xl:px-24"
+    >
+      <div class="mx-auto w-full max-w-sm lg:w-96">
+        <div>
+          <DropLogo class="h-8 w-auto" />
+          <h2
+            class="mt-4 text-2xl font-bold font-display leading-9 tracking-tight text-zinc-100"
+          >
+            {{ $t("auth.register.title") }}
+          </h2>
+          <p class="mt-1 text-sm leading-6 text-zinc-400">
+            {{ $t("auth.register.subheader") }}
+          </p>
+        </div>
+
+        <div class="mt-6">
+          <div class="bg-zinc-900">
+            <form class="space-y-4" @submit.prevent="() => register_wrapper()">
+              <div>
+                <label
+                  for="display-name"
+                  class="block text-sm font-medium leading-6 text-zinc-100"
+                  >{{ $t("auth.displayName") }}</label
+                >
+                <div class="mt-1">
+                  <input
+                    id="display-name"
+                    v-model="displayName"
+                    name="display-name"
+                    type="text"
+                    autocomplete="display-name"
+                    required
+                    placeholder="AwesomeDropGamer771"
+                    class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label
+                  for="email"
+                  class="block text-sm font-medium leading-6 text-zinc-100"
+                  >{{ $t("auth.email") }}</label
+                >
+                <p
+                  :class="[
+                    validEmail ? 'text-blue-400' : 'text-red-500',
+                    'block text-xs font-medium leading-6',
+                  ]"
+                >
+                  {{ $t("auth.register.emailFormat") }}
+                </p>
+                <div class="mt-1">
+                  <input
+                    id="email"
+                    v-model="email"
+                    name="email"
+                    type="email"
+                    autocomplete="email"
+                    required
+                    :disabled="!!invitation?.email"
+                    placeholder="me@example.com"
+                    class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                  />
+                </div>
+              </div>
+
+              <div class="w-full h-px bg-zinc-700" />
+
+              <div>
+                <label
+                  for="username"
+                  class="block text-sm font-medium leading-6 text-zinc-100"
+                  >{{ $t("auth.username") }}</label
+                >
+                <p
+                  :class="[
+                    validUsername ? 'text-blue-400' : 'text-red-500',
+                    'block text-xs font-medium leading-6',
+                  ]"
+                >
+                  {{ $t("auth.register.usernameFormat") }}
+                </p>
+                <div class="mt-1">
+                  <input
+                    id="username"
+                    v-model="username"
+                    name="username"
+                    type="text"
+                    autocomplete="username"
+                    required
+                    :disabled="!!invitation?.username"
+                    placeholder="myUsername"
+                    class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                  />
+                </div>
+              </div>
+
+              <div class="w-full h-px bg-zinc-700" />
+
+              <div>
+                <label
+                  for="password"
+                  class="block text-sm font-medium leading-6 text-zinc-100"
+                  >{{ $t("auth.password") }}</label
+                >
+                <p
+                  :class="[
+                    validPassword ? 'text-blue-400' : 'text-red-500',
+                    'block text-xs font-medium leading-6',
+                  ]"
+                >
+                  {{ $t("auth.register.passwordFormat") }}
+                </p>
+                <div class="mt-1">
+                  <input
+                    id="password"
+                    v-model="password"
+                    name="password"
+                    type="password"
+                    autocomplete="password"
+                    required
+                    class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label
+                  for="confirm-password"
+                  class="block text-sm font-medium leading-6 text-zinc-100"
+                  >{{ $t("auth.confirmPassword") }}</label
+                >
+                <p
+                  :class="[
+                    validConfirmPassword ? 'text-blue-400' : 'text-red-500',
+                    'block text-xs font-medium leading-6',
+                  ]"
+                >
+                  {{ $t("auth.register.confirmPasswordFormat") }}
+                </p>
+                <div class="mt-1">
+                  <input
+                    id="confirm-password"
+                    v-model="confirmPassword"
+                    name="confirm-password"
+                    type="password"
+                    autocomplete="confirm-password"
+                    required
+                    class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-800 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <LoadingButton type="submit" :loading="loading" class="w-full">
+                  {{ $t("common.create") }}
+                </LoadingButton>
+              </div>
+
+              <div v-if="error" class="mt-1 rounded-md bg-red-600/10 p-3">
+                <div class="flex">
+                  <div class="flex-shrink-0">
+                    <XCircleIcon
+                      class="h-5 w-5 text-red-600"
+                      aria-hidden="true"
+                    />
+                  </div>
+                  <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-600">
+                      {{ error }}
+                    </h3>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="relative hidden w-0 flex-1 lg:block">
+      <img
+        src="/wallpapers/signin.jpg"
+        class="absolute inset-0 h-full w-full object-cover"
+        alt=""
+      />
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { XCircleIcon } from "@heroicons/vue/24/solid";
+import { type } from "arktype";
+
+const { t } = useI18n();
+
+const route = useRoute();
+const router = useRouter();
+const invitationId = route.query.id?.toString();
+if (!invitationId)
+  throw createError({
+    statusCode: 400,
+    statusMessage: t("errors.inviteRequired"),
+  });
+
+const invitation = await $dropFetch(
+  `/api/v1/auth/signup/simple?id=${encodeURIComponent(invitationId)}`,
+);
+
+const email = ref(invitation?.email);
+const displayName = ref("");
+const username = ref(invitation?.username);
+const password = ref("");
+const confirmPassword = ref(undefined);
+
+const emailValidator = type("string.email");
+const validEmail = computed(
+  () => !((emailValidator(email.value) as unknown) instanceof type.errors),
+);
+
+const usernameValidator = type("string.alphanumeric >= 5").to("string.lower");
+const validUsername = computed(
+  () =>
+    !((usernameValidator(username.value) as unknown) instanceof type.errors),
+);
+
+const passwordValidator = type("string >= 14");
+const validPassword = computed(
+  () =>
+    !((passwordValidator(password.value) as unknown) instanceof type.errors),
+);
+const validConfirmPassword = computed(
+  () => password.value == confirmPassword.value,
+);
+
+const loading = ref(false);
+const error = ref<string | undefined>(undefined);
+
+async function register() {
+  await $dropFetch("/api/v1/auth/signup/simple", {
+    method: "POST",
+    body: {
+      invitation: invitationId,
+      username: username.value,
+      password: password.value,
+      email: email.value,
+      displayName: displayName.value,
+    },
+  });
+}
+
+function register_wrapper() {
+  if (
+    !validEmail.value ||
+    !validUsername.value ||
+    !validPassword.value ||
+    !validConfirmPassword.value
+  )
+    return;
+
+  loading.value = true;
+  register()
+    .then(() => {
+      if (route.query.after == "close") {
+        window.close();
+        return;
+      }
+      router.push("/auth/signin");
+    })
+    .catch((response) => {
+      const message = response.statusMessage || t("errors.unknown");
+      error.value = message;
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
+
+definePageMeta({
+  layout: false,
+});
+
+useHead({
+  title: t("auth.register.title"),
+});
+</script>

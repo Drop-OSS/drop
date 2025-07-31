@@ -15,4 +15,5 @@ export type QuickActionNav = {
 export enum PlatformClient {
   Windows = "Windows",
   Linux = "Linux",
+  macOS = "macOS",
 }

@@ -1,59 +1,65 @@
 <template>
-  <div
-    class="grow w-full flex items-center justify-center"
-    v-if="task && task.success"
-  >
-    <div class="flex flex-col items-center">
-      <CheckCircleIcon class="h-12 w-12 text-green-600" aria-hidden="true" />
-      <div class="mt-3 text-center sm:mt-5">
-        <h1 class="text-3xl font-semibold font-display leading-6 text-zinc-100">
-          Successful!
-        </h1>
-        <div class="mt-4">
-          <p class="text-sm text-zinc-400 max-w-md">
-            "{{ task.name }}" completed successfully.
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div
-    class="grow w-full flex items-center justify-center"
-    v-else-if="task && task.error"
-  >
-    <div class="flex flex-col items-center">
-      <ExclamationCircleIcon
-        class="h-12 w-12 text-red-600"
-        aria-hidden="true"
-      />
-      <div class="mt-3 text-center sm:mt-5">
-        <h1 class="text-3xl font-semibold font-display leading-6 text-zinc-100">
-          {{ task.error.title }}
-        </h1>
-        <div class="mt-4">
-          <p class="text-sm text-zinc-400 max-w-md">
-            {{ task.error.description }}
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div v-else-if="task" class="flex flex-col w-full gap-y-4">
-    <h1 class="text-3xl text-zinc-100 font-bold font-display">
-      {{ task.name }}
-    </h1>
-    <div class="h-3 rounded-full bg-zinc-950 overflow-hidden">
-      <div
-        :style="{ width: `${task.progress}%` }"
-        class="transition-all bg-blue-600 h-full"
-      />
-    </div>
+  <div>
+    <NuxtLink
+      to="/admin/task"
+      class="mb-2 transition text-sm/6 font-semibold text-zinc-400 hover:text-zinc-100 inline-flex gap-x-2 items-center duration-200 hover:scale-105"
+    >
+      <i18n-t keypath="tasks.admin.back" tag="span" scope="global">
+        <template #arrow>
+          <span aria-hidden="true">{{ $t("chars.arrowBack") }}</span>
+        </template>
+      </i18n-t>
+    </NuxtLink>
 
-    <div class="bg-zinc-950/50 rounded-md p-2 text-zinc-100">
-      <pre v-for="line in task.log">{{ line }}</pre>
+    <div
+      v-if="task && task.error"
+      class="grow w-full flex items-center justify-center"
+    >
+      <div class="flex flex-col items-center">
+        <ExclamationCircleIcon
+          class="h-12 w-12 text-red-600"
+          aria-hidden="true"
+        />
+        <div class="mt-3 text-center sm:mt-5">
+          <h1
+            class="text-3xl font-semibold font-display leading-6 text-zinc-100"
+          >
+            {{ task.error.title }}
+          </h1>
+          <div class="mt-4">
+            <p class="text-sm text-zinc-400 max-w-md">
+              {{ task.error.description }}
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-  <div v-else role="status" class="w-full h-screen flex items-center justify-center">
+    <div v-else-if="task" class="flex flex-col w-full gap-y-4">
+      <h1
+        class="inline-flex items-center gap-x-3 text-3xl text-zinc-100 font-bold font-display"
+      >
+        <div>
+          <CheckCircleIcon v-if="task.success" class="size-5 text-green-600" />
+          <div v-else class="size-4 bg-blue-600 rounded-full animate-pulse" />
+        </div>
+        {{ task.name }}
+      </h1>
+      <div class="h-2 rounded-full bg-zinc-950 overflow-hidden">
+        <div
+          :style="{ width: `${task.progress}%` }"
+          class="transition-all bg-blue-600 h-full"
+        />
+      </div>
+
+      <div
+        class="relative bg-zinc-950/50 rounded-md p-2 text-zinc-100 h-[80vh] overflow-y-scroll"
+      >
+        <pre v-for="(line, idx) in task.log" :key="idx">{{
+          formatLine(line)
+        }}</pre>
+      </div>
+    </div>
+    <div v-else role="status" class="w-full flex items-center justify-center">
       <svg
         aria-hidden="true"
         class="size-8 text-transparent animate-spin fill-white"
@@ -70,19 +76,24 @@
           fill="currentFill"
         />
       </svg>
-      <span class="sr-only">Loading...</span>
+      <span class="sr-only">{{ $t("common.srLoading") }}</span>
     </div>
-
+  </div>
 </template>
 
 <script setup lang="ts">
 import { CheckCircleIcon } from "@heroicons/vue/16/solid";
-import { ExclamationCircleIcon, XMarkIcon } from "@heroicons/vue/24/solid";
+import { ExclamationCircleIcon } from "@heroicons/vue/24/solid";
 
 const route = useRoute();
 const taskId = route.params.id.toString();
 
 const task = useTask(taskId);
+
+function formatLine(line: string): string {
+  const res = parseTaskLog(line);
+  return `[${res.timestamp}] ${res.message}`;
+}
 
 definePageMeta({
   layout: "admin",

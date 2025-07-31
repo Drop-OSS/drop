@@ -1,9 +1,10 @@
+import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import { handleFileUpload } from "~/server/internal/utils/handlefileupload";
 
 export default defineEventHandler(async (h3) => {
-  const user = await h3.context.session.getAdminUser(h3);
-  if (!user) throw createError({ statusCode: 403 });
+  const allowed = await aclManager.allowSystemACL(h3, ["game:image:new"]);
+  if (!allowed) throw createError({ statusCode: 403 });
 
   const form = await readMultipartFormData(h3);
   if (!form)
@@ -19,8 +20,8 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Failed to upload file",
     });
 
-  const [id, options, pull, dump] = uploadResult;
-  if (!id) {
+  const [ids, options, pull, dump] = uploadResult;
+  if (ids.length == 0) {
     dump();
     throw createError({
       statusCode: 400,
@@ -46,8 +47,8 @@ export default defineEventHandler(async (h3) => {
       id: gameId,
     },
     data: {
-      mImageLibrary: {
-        push: id,
+      mImageLibraryObjectIds: {
+        push: ids,
       },
     },
   });

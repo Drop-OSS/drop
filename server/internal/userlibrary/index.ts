@@ -2,17 +2,17 @@
 Handles managing collections
 */
 
+import cacheHandler from "../cache";
 import prisma from "../db/database";
 
 class UserLibraryManager {
   // Caches the user's core library
-  private userCoreLibraryCache: { [key: string]: string } = {};
-
-  constructor() {}
+  private coreLibraryCache =
+    cacheHandler.createCache<string>("UserCoreLibrary");
 
   private async fetchUserLibrary(userId: string) {
-    if (this.userCoreLibraryCache[userId])
-      return this.userCoreLibraryCache[userId];
+    const cached = await this.coreLibraryCache.get(userId);
+    if (cached !== null) return cached;
 
     let collection = await prisma.collection.findFirst({
       where: {
@@ -30,19 +30,19 @@ class UserLibraryManager {
         },
       });
 
-    this.userCoreLibraryCache[userId] = collection.id;
+    await this.coreLibraryCache.set(userId, collection.id);
 
     return collection.id;
   }
 
   async libraryAdd(gameId: string, userId: string) {
     const userLibraryId = await this.fetchUserLibrary(userId);
-    await this.collectionAdd(gameId, userLibraryId);
+    await this.collectionAdd(gameId, userLibraryId, userId);
   }
 
   async libraryRemove(gameId: string, userId: string) {
     const userLibraryId = await this.fetchUserLibrary(userId);
-    await this.collectionRemove(gameId, userLibraryId);
+    await this.collectionRemove(gameId, userLibraryId, userId);
   }
 
   async fetchLibrary(userId: string) {
@@ -55,24 +55,37 @@ class UserLibraryManager {
     return userLibrary;
   }
 
+  // Will not return the default library
   async fetchCollection(collectionId: string) {
     return await prisma.collection.findUnique({
-      where: { id: collectionId },
+      where: { id: collectionId, isDefault: false },
       include: { entries: { include: { game: true } } },
     });
   }
 
   async fetchCollections(userId: string) {
     await this.fetchUserLibrary(userId); // Ensures user library exists, doesn't have much performance impact due to caching
-    return await prisma.collection.findMany({ where: { userId } });
+    return await prisma.collection.findMany({
+      where: { userId, isDefault: false },
+      include: {
+        entries: {
+          include: {
+            game: true,
+          },
+        },
+      },
+    });
   }
 
-  async collectionAdd(gameId: string, collectionId: string) {
-    await prisma.collectionEntry.upsert({
+  async collectionAdd(gameId: string, collectionId: string, userId: string) {
+    return await prisma.collectionEntry.upsert({
       where: {
         collectionId_gameId: {
           collectionId,
           gameId,
+        },
+        collection: {
+          userId,
         },
       },
       create: {
@@ -80,10 +93,13 @@ class UserLibraryManager {
         gameId,
       },
       update: {},
+      include: {
+        game: true,
+      },
     });
   }
 
-  async collectionRemove(gameId: string, collectionId: string) {
+  async collectionRemove(gameId: string, collectionId: string, userId: string) {
     // Delete if exists
     return (
       (
@@ -91,6 +107,9 @@ class UserLibraryManager {
           where: {
             collectionId,
             gameId,
+            collection: {
+              userId,
+            },
           },
         })
       ).count > 0
@@ -103,6 +122,13 @@ class UserLibraryManager {
         name,
         userId: userId,
       },
+      include: {
+        entries: {
+          include: {
+            game: true,
+          },
+        },
+      },
     });
   }
 
@@ -110,6 +136,7 @@ class UserLibraryManager {
     await prisma.collection.delete({
       where: {
         id: collectionId,
+        isDefault: false,
       },
     });
   }

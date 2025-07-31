@@ -1,10 +1,14 @@
+<!-- eslint-disable vue/no-v-html -->
 <template>
   <div
     class="mx-auto bg-zinc-950 w-full relative flex flex-col justify-center pt-32 xl:pt-24 z-10 overflow-hidden"
   >
     <!-- banner image -->
     <div class="absolute flex top-0 h-fit inset-x-0 h-12 -z-[20] pb-4">
-      <img :src="useObject(game.mBannerId)" class="blur-sm w-full h-auto" />
+      <img
+        :src="useObject(game.mBannerObjectId)"
+        class="blur-sm w-full h-auto"
+      />
       <div
         class="absolute inset-0 bg-gradient-to-b from-transparent to-80% to-zinc-950"
       />
@@ -27,23 +31,20 @@
           class="col-start-1 lg:col-start-4 flex flex-col gap-y-6 items-center"
         >
           <img
-            class="transition-all duration-300 hover:scale-105 hover:rotate-[-1deg] w-64 h-auto rounded"
-            :src="useObject(game.mCoverId)"
+            class="transition-all duration-300 hover:scale-105 hover:rotate-[-1deg] w-64 h-auto rounded gameCover"
+            :src="useObject(game.mCoverObjectId)"
+            :alt="game.mName"
           />
-          <button
-            type="button"
-            class="inline-flex items-center gap-x-2 rounded-md bg-blue-600 px-3.5 py-2.5 text-xl font-semibold font-display text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-          >
-            Add to Library
-            <PlusIcon class="-mr-0.5 h-7 w-7" aria-hidden="true" />
-          </button>
+          <div class="flex items-center gap-x-2">
+            <AddLibraryButton :game-id="game.id" />
+          </div>
           <NuxtLink
             v-if="user?.admin"
             :href="`/admin/library/${game.id}`"
             type="button"
-            class="inline-flex items-center gap-x-2 rounded-md bg-zinc-800 px-3 py-1 text-sm font-semibold font-display text-white shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+            class="inline-flex items-center gap-x-2 rounded-md bg-zinc-800 px-3 py-1 text-sm font-semibold font-display text-white shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 duration-200 hover:scale-105 active:scale-95"
           >
-            Open in Admin Dashboard
+            {{ $t("store.openAdminDashboard") }}
             <ArrowTopRightOnSquareIcon
               class="-mr-0.5 h-7 w-7 p-1"
               aria-hidden="true"
@@ -55,30 +56,33 @@
                 <td
                   class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
                 >
-                  Released
+                  {{ $t("store.released") }}
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
-                  {{ moment(game.mReleased).format("Do MMMM, YYYY") }}
+                  <time datetime="game.mReleased">
+                    {{ $d(new Date(game.mReleased), "short") }}
+                  </time>
                 </td>
               </tr>
               <tr>
                 <td
                   class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
                 >
-                  Platform(s)
+                  {{ $t("store.platform", platforms.length) }}
                 </td>
                 <td
                   class="whitespace-nowrap inline-flex gap-x-4 px-3 py-4 text-sm text-zinc-400"
                 >
                   <component
-                    v-for="platform in platforms"
                     :is="PLATFORM_ICONS[platform]"
+                    v-for="platform in platforms"
+                    :key="platform"
                     class="text-blue-600 w-6 h-6"
                   />
                   <span
                     v-if="platforms.length == 0"
                     class="font-semibold text-blue-600"
-                    >coming soon</span
+                    >{{ $t("store.commingSoon") }}</span
                   >
                 </td>
               </tr>
@@ -86,20 +90,87 @@
                 <td
                   class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
                 >
-                  Rating
+                  {{ $t("store.rating") }}
                 </td>
                 <td
                   class="whitespace-nowrap flex flex-row items-center gap-x-1 px-3 py-4 text-sm text-zinc-400"
                 >
                   <StarIcon
-                    v-for="value in ratingArray"
+                    v-for="(value, idx) in ratingArray"
+                    :key="idx"
                     :class="[
                       value ? 'text-yellow-600' : 'text-zinc-600',
                       'w-4 h-4',
                     ]"
                   />
-                  <span class="text-zinc-600"
-                    >({{ game.mReviewCount }} reviews)</span
+                  <span class="text-zinc-600">{{
+                    $t("store.reviews", [rating._sum.mReviewCount ?? 0])
+                  }}</span>
+                </td>
+              </tr>
+              <tr>
+                <td
+                  class="whitespace-nowrap align-top py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
+                >
+                  {{ $t("store.tags") }}
+                </td>
+                <td class="flex flex-col gap-1 px-3 py-4 text-sm text-zinc-400">
+                  <NuxtLink
+                    v-for="tag in game.tags"
+                    :key="tag.id"
+                    :href="`/store/t/${tag.id}`"
+                    class="w-min hover:underline hover:text-zinc-100 whitespace-nowrap"
+                  >
+                    {{ tag.name }}
+                  </NuxtLink>
+                  <span
+                    v-if="game.tags.length == 0"
+                    class="text-zinc-700 font-bold uppercase font-display"
+                    >{{ $t("store.noTags") }}</span
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td
+                  class="whitespace-nowrap align-top py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
+                >
+                  {{ $t("store.developers", game.developers.length) }}
+                </td>
+                <td class="flex flex-col px-3 py-4 text-sm text-zinc-400">
+                  <NuxtLink
+                    v-for="developer in game.developers"
+                    :key="developer.id"
+                    :href="`/store/c/${developer.id}`"
+                    class="w-min hover:underline hover:text-zinc-100 whitespace-nowrap"
+                  >
+                    {{ developer.mName }}
+                  </NuxtLink>
+                  <span
+                    v-if="game.developers.length == 0"
+                    class="text-zinc-700 font-bold uppercase font-display"
+                    >{{ $t("store.noDevelopers") }}</span
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td
+                  class="whitespace-nowrap align-top py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
+                >
+                  {{ $t("store.publishers", game.publishers.length) }}
+                </td>
+                <td class="flex flex-col px-3 py-4 text-sm text-zinc-400">
+                  <NuxtLink
+                    v-for="publisher in game.publishers"
+                    :key="publisher.id"
+                    :href="`/store/c/${publisher.id}`"
+                    class="w-min hover:underline hover:text-zinc-100 whitespace-nowrap"
+                  >
+                    {{ publisher.mName }}
+                  </NuxtLink>
+                  <span
+                    v-if="game.publishers.length == 0"
+                    class="text-zinc-700 font-bold uppercase font-display"
+                    >{{ $t("store.noPublishers") }}</span
                   >
                 </td>
               </tr>
@@ -113,15 +184,20 @@
           </p>
           <div class="mt-6 py-4 rounded">
             <VueCarousel :items-to-show="1">
-              <VueSlide v-for="image in game.mImageCarousel" :key="image">
+              <VueSlide
+                v-for="image in game.mImageCarouselObjectIds"
+                :key="image"
+              >
                 <img
                   class="w-fit h-48 lg:h-96 rounded"
                   :src="useObject(image)"
                 />
               </VueSlide>
-              <VueSlide v-if="game.mImageCarousel.length == 0">
-                <div class="h-48 lg:h-96 aspect-[1/2] flex items-center justify-center text-zinc-700 font-bold font-display">
-                  No images
+              <VueSlide v-if="game.mImageCarouselObjectIds.length == 0">
+                <div
+                  class="h-48 lg:h-96 aspect-[1/2] flex items-center justify-center text-zinc-700 font-bold font-display"
+                >
+                  {{ $t("store.noImages") }}
                 </div>
               </VueSlide>
 
@@ -135,13 +211,13 @@
           <div>
             <div
               v-if="showPreview"
-              v-html="previewHTML"
               class="mt-12 prose prose-invert prose-blue max-w-none"
+              v-html="previewHTML"
             />
             <div
               v-else
-              v-html="descriptionHTML"
               class="mt-12 prose prose-invert prose-blue max-w-none"
+              v-html="descriptionHTML"
             />
 
             <button
@@ -152,7 +228,9 @@
               <div class="grow h-[1px] bg-zinc-700 rounded-full" />
               <span
                 class="uppercase text-sm font-semibold font-display text-zinc-600"
-                >Click to read {{ showPreview ? "more" : "less" }}</span
+                >{{
+                  showPreview ? $t("store.readMore") : $t("store.readLess")
+                }}</span
               >
               <div class="grow h-[1px] bg-zinc-700 rounded-full" />
             </button>
@@ -164,25 +242,17 @@
 </template>
 
 <script setup lang="ts">
-import { IconsLinuxLogo, IconsWindowsLogo } from "#components";
-import { PlusIcon } from "@heroicons/vue/20/solid";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
 import { StarIcon } from "@heroicons/vue/24/solid";
-import { type Game, type GameVersion } from "@prisma/client";
 import { micromark } from "micromark";
-import moment from "moment";
-import { PlatformClient } from "~/composables/types";
+import type { PlatformClient } from "~/composables/types";
 
 const route = useRoute();
 const gameId = route.params.id.toString();
 
 const user = useUser();
 
-const headers = useRequestHeaders(["cookie"]);
-const game = await $fetch<Game & { versions: GameVersion[] }>(
-  `/api/v1/games/${gameId}`,
-  { headers }
-);
+const { game, rating } = await $dropFetch(`/api/v1/games/${gameId}`);
 
 // Preview description (first 30 lines)
 const showPreview = ref(true);
@@ -197,7 +267,7 @@ const descriptionSplitIndex = gameDescriptionCharacters.findIndex(
     if (i < 500) return false;
     if (v != "\n") return false;
     return true;
-  }
+  },
 );
 
 const previewDescription = gameDescriptionCharacters
@@ -213,13 +283,30 @@ const platforms = game.versions
   .flat()
   .filter((e, i, u) => u.indexOf(e) === i);
 
-const rating = Math.round(game.mReviewRating * 5);
+// const rating = Math.round(game.mReviewRating * 5);
+const averageRating = Math.round((rating._avg.mReviewRating ?? 0) * 5);
 const ratingArray = Array(5)
   .fill(null)
-  .map((_, i) => i + 1 <= rating);
-
+  .map((_, i) => i + 1 <= averageRating);
 
 useHead({
   title: game.mName,
+  link: [{ rel: "icon", href: useObject(game.mIconObjectId) }],
 });
 </script>
+
+<style scoped>
+h1 {
+  view-transition-name: header;
+}
+img.gameCover {
+  view-transition-name: selected-game;
+}
+</style>
+
+<style>
+::view-transition-old(header),
+::view-transition-new(header) {
+  width: auto;
+}
+</style>

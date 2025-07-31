@@ -2,12 +2,12 @@
   <div class="flex flex-col gap-y-4 max-w-lg">
     <Listbox
       as="div"
-      v-on:update:model-value="(value) => updateCurrentlySelectedVersion(value)"
       :model-value="currentlySelectedVersion"
+      @update:model-value="(value) => updateCurrentlySelectedVersion(value)"
     >
-      <ListboxLabel class="block text-sm font-medium leading-6 text-zinc-100"
-        >Select version to import</ListboxLabel
-      >
+      <ListboxLabel class="block text-sm font-medium leading-6 text-zinc-100">{{
+        $t("library.admin.import.version.version")
+      }}</ListboxLabel>
       <div class="relative mt-2">
         <ListboxButton
           class="relative w-full cursor-default rounded-md bg-zinc-950 py-1.5 pl-3 pr-10 text-left text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6"
@@ -15,9 +15,9 @@
           <span v-if="currentlySelectedVersion != -1" class="block truncate">{{
             versions[currentlySelectedVersion]
           }}</span>
-          <span v-else class="block truncate text-zinc-600"
-            >Please select a directory...</span
-          >
+          <span v-else class="block truncate text-zinc-600">{{
+            $t("library.admin.import.selectDir")
+          }}</span>
           <span
             class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
           >
@@ -37,11 +37,11 @@
             class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-zinc-800 focus:outline-none sm:text-sm"
           >
             <ListboxOption
-              as="template"
               v-for="(version, versionIdx) in versions"
               :key="version"
-              :value="versionIdx"
               v-slot="{ active, selected }"
+              as="template"
+              :value="versionIdx"
             >
               <li
                 :class="[
@@ -73,35 +73,40 @@
       </div>
     </Listbox>
 
-    <div class="flex flex-col gap-8" v-if="versionGuesses">
+    <div v-if="versionGuesses" class="flex flex-col gap-8">
       <!-- setup executable -->
       <div>
         <label
           for="startup"
           class="block text-sm font-medium leading-6 text-zinc-100"
-          >Setup executable/command</label
+          >{{ $t("library.admin.import.version.setupCmd") }}</label
         >
-        <p class="text-zinc-400 text-xs">Ran once when the game is installed</p>
+        <p class="text-zinc-400 text-xs">
+          {{ $t("library.admin.import.version.setupDesc") }}
+        </p>
         <div class="mt-2">
           <div
             class="flex w-fit rounded-md shadow-sm bg-zinc-950 ring-1 ring-inset ring-zinc-800 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600"
           >
             <span
               class="flex select-none items-center pl-3 text-zinc-500 sm:text-sm"
-              >(install_dir)/</span
             >
+              {{ $t("library.admin.import.version.installDir") }}
+            </span>
             <Combobox
               as="div"
               :value="versionSettings.setup"
-              @update:model-value="(v) => updateSetupCommand(v)"
               nullable
+              @update:model-value="(v) => updateSetupCommand(v)"
             >
               <div class="relative">
                 <ComboboxInput
                   class="block flex-1 border-0 py-1.5 pl-1 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
+                  :placeholder="
+                    $t('library.admin.import.version.setupPlaceholder')
+                  "
                   @change="setupProcessQuery = $event.target.value"
                   @blur="setupProcessQuery = ''"
-                  :placeholder="'setup.exe'"
                 />
                 <ComboboxButton
                   v-if="setupFilteredVersionGuesses?.length ?? 0 > 0"
@@ -119,9 +124,9 @@
                   <ComboboxOption
                     v-for="guess in setupFilteredVersionGuesses"
                     :key="guess.filename"
+                    v-slot="{ active, selected }"
                     :value="guess.filename"
                     as="template"
-                    v-slot="{ active, selected }"
                   >
                     <li
                       :class="[
@@ -156,22 +161,22 @@
                     </li>
                   </ComboboxOption>
                   <ComboboxOption
-                    :value="setupProcessQuery"
                     v-if="setupProcessQuery"
                     v-slot="{ active, selected }"
+                    :value="setupProcessQuery"
                   >
                     <li
                       :class="[
                         'relative cursor-default select-none py-2 pl-3 pr-9',
                         active
                           ? 'bg-blue-600 text-white outline-none'
-                          : 'text-gray-900',
+                          : 'text-zinc-100',
                       ]"
                     >
                       <span
                         :class="['block truncate', selected && 'font-semibold']"
                       >
-                        "{{ setupProcessQuery }}"
+                        {{ $t("chars.quoted", { text: setupProcessQuery }) }}
                       </span>
 
                       <span
@@ -189,10 +194,10 @@
               </div>
             </Combobox>
             <input
-              type="text"
-              name="startup"
               id="startup"
               v-model="versionSettings.setupArgs"
+              type="text"
+              name="startup"
               class="border-l border-zinc-700 block flex-1 border-0 py-1.5 pl-2 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
               placeholder="--setup"
             />
@@ -206,14 +211,11 @@
             as="span"
             class="text-sm font-medium leading-6 text-zinc-100"
             passive
-            >Setup mode</SwitchLabel
+            >{{ $t("library.admin.import.version.setupMode") }}</SwitchLabel
           >
-          <SwitchDescription as="span" class="text-sm text-zinc-400"
-            >When enabled, this version does not have a launch command, and
-            simply runs the executable on the user's computer. Useful for games
-            that only distribute installer and not portable
-            files.</SwitchDescription
-          >
+          <SwitchDescription as="span" class="text-sm text-zinc-400">{{
+            $t("library.admin.import.version.setupModeDesc")
+          }}</SwitchDescription>
         </span>
         <Switch
           v-model="versionSettings.onlySetup"
@@ -235,29 +237,33 @@
         <label
           for="startup"
           class="block text-sm font-medium leading-6 text-zinc-100"
-          >Launch executable/command</label
+          >{{ $t("library.admin.import.version.launchCmd") }}</label
         >
-        <p class="text-zinc-400 text-xs">Executable to launch the game</p>
+        <p class="text-zinc-400 text-xs">
+          {{ $t("library.admin.import.version.launchDesc") }}
+        </p>
         <div class="mt-2">
           <div
             class="flex w-fit rounded-md shadow-sm bg-zinc-950 ring-1 ring-inset ring-zinc-800 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600"
           >
             <span
               class="flex select-none items-center pl-3 text-zinc-500 sm:text-sm"
-              >(install_dir)/</span
+              >{{ $t("library.admin.import.version.installDir") }}</span
             >
             <Combobox
               as="div"
               :value="versionSettings.launch"
-              @update:model-value="(v) => updateLaunchCommand(v)"
               nullable
+              @update:model-value="(v) => updateLaunchCommand(v)"
             >
               <div class="relative">
                 <ComboboxInput
                   class="block flex-1 border-0 py-1.5 pl-1 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
+                  :placeholder="
+                    $t('library.admin.import.version.launchPlaceholder')
+                  "
                   @change="launchProcessQuery = $event.target.value"
                   @blur="launchProcessQuery = ''"
-                  :placeholder="'game.exe'"
                 />
                 <ComboboxButton
                   v-if="launchFilteredVersionGuesses?.length ?? 0 > 0"
@@ -275,9 +281,9 @@
                   <ComboboxOption
                     v-for="guess in launchFilteredVersionGuesses"
                     :key="guess.filename"
+                    v-slot="{ active, selected }"
                     :value="guess.filename"
                     as="template"
-                    v-slot="{ active, selected }"
                   >
                     <li
                       :class="[
@@ -312,22 +318,22 @@
                     </li>
                   </ComboboxOption>
                   <ComboboxOption
-                    :value="launchProcessQuery"
                     v-if="launchProcessQuery"
                     v-slot="{ active, selected }"
+                    :value="launchProcessQuery"
                   >
                     <li
                       :class="[
                         'relative cursor-default select-none py-2 pl-3 pr-9',
                         active
                           ? 'bg-blue-600 text-white outline-none'
-                          : 'text-gray-900',
+                          : 'text-zinc-100',
                       ]"
                     >
                       <span
                         :class="['block truncate', selected && 'font-semibold']"
                       >
-                        "{{ launchProcessQuery }}"
+                        {{ $t("chars.quoted", { text: launchProcessQuery }) }}
                       </span>
 
                       <span
@@ -345,23 +351,23 @@
               </div>
             </Combobox>
             <input
-              type="text"
-              name="startup"
               id="startup"
               v-model="versionSettings.launchArgs"
+              type="text"
+              name="startup"
               class="border-l border-zinc-700 block flex-1 border-0 py-1.5 pl-2 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
               placeholder="--launch"
             />
           </div>
         </div>
         <div
-          class="absolute inset-0 bg-zinc-900/50"
           v-if="versionSettings.onlySetup"
+          class="absolute inset-0 bg-zinc-900/50"
         />
       </div>
 
       <PlatformSelector v-model="versionSettings.platform">
-        Version platform
+        {{ $t("library.admin.import.version.platform") }}
       </PlatformSelector>
       <SwitchGroup as="div" class="flex items-center justify-between">
         <span class="flex flex-grow flex-col">
@@ -369,13 +375,12 @@
             as="span"
             class="text-sm font-medium leading-6 text-zinc-100"
             passive
-            >Update mode</SwitchLabel
           >
-          <SwitchDescription as="span" class="text-sm text-zinc-400"
-            >When enabled, these files will be installed on top of (overwriting)
-            the previous version's. If multiple "update modes" are chained
-            together, they are applied in order.</SwitchDescription
-          >
+            {{ $t("library.admin.import.version.updateMode") }}
+          </SwitchLabel>
+          <SwitchDescription as="span" class="text-sm text-zinc-400">
+            {{ $t("library.admin.import.version.updateModeDesc") }}
+          </SwitchDescription>
         </span>
         <Switch
           v-model="versionSettings.delta"
@@ -393,12 +398,14 @@
           />
         </Switch>
       </SwitchGroup>
-      <Disclosure as="div" class="py-2" v-slot="{ open }">
+      <Disclosure v-slot="{ open }" as="div" class="py-2">
         <dt>
           <DisclosureButton
             class="border-b border-zinc-600 pb-2 flex w-full items-start justify-between text-left text-zinc-100"
           >
-            <span class="text-base/7 font-semibold">Advanced options</span>
+            <span class="text-base/7 font-semibold">
+              {{ $t("library.admin.import.version.advancedOptions") }}
+            </span>
             <span class="ml-6 flex h-7 items-center">
               <ChevronUpIcon v-if="!open" class="size-6" aria-hidden="true" />
               <ChevronDownIcon v-else class="size-6" aria-hidden="true" />
@@ -420,13 +427,12 @@
                   as="span"
                   class="text-sm font-medium leading-6 text-zinc-100"
                   passive
-                  >Override UMU Launcher Game ID</SwitchLabel
                 >
-                <SwitchDescription as="span" class="text-sm text-zinc-400"
-                  >By default, Drop uses a non-ID when launching with UMU
-                  Launcher. In order to get the right patches for some games,
-                  you may have to manually set this field.</SwitchDescription
-                >
+                  {{ $t("library.admin.import.version.umuOverride") }}
+                </SwitchLabel>
+                <SwitchDescription as="span" class="text-sm text-zinc-400">
+                  {{ $t("library.admin.import.version.umuOverrideDesc") }}
+                </SwitchDescription>
               </span>
               <Switch
                 v-model="umuIdEnabled"
@@ -448,17 +454,18 @@
               <label
                 for="umu-id"
                 class="block text-sm font-medium leading-6 text-zinc-100"
-                >UMU Launcher ID</label
               >
+                {{ $t("library.admin.import.version.umuLauncherId") }}
+              </label>
               <div class="mt-2">
                 <input
                   id="umu-id"
+                  v-model="umuId"
                   name="umu-id"
                   type="text"
                   autocomplete="umu-id"
                   required
                   :disabled="!umuIdEnabled"
-                  v-model="umuId"
                   placeholder="umu-starcitizen"
                   class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-950 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
                 />
@@ -467,17 +474,17 @@
           </div>
 
           <div v-else class="text-zinc-400">
-            No advanced options for this configuration.
+            {{ $t("library.admin.import.version.noAdv") }}
           </div>
         </DisclosurePanel>
       </Disclosure>
 
       <LoadingButton
-        @click="startImport_wrapper"
         class="w-fit"
         :loading="importLoading"
+        @click="startImport_wrapper"
       >
-        Import
+        {{ $t("library.admin.import.import") }}
       </LoadingButton>
       <div v-if="importError" class="mt-4 w-fit rounded-md bg-red-600/10 p-4">
         <div class="flex">
@@ -497,7 +504,7 @@
       role="status"
       class="inline-flex text-zinc-100 font-display font-semibold items-center gap-x-4"
     >
-      Loading version metadata...
+      {{ $t("library.admin.import.version.loadingVersion") }}
       <svg
         aria-hidden="true"
         class="w-6 h-6 text-transparent animate-spin fill-white"
@@ -514,7 +521,6 @@
           fill="currentFill"
         />
       </svg>
-      <span class="sr-only">Loading...</span>
     </div>
   </div>
 </template>
@@ -536,7 +542,6 @@ import {
   Combobox,
   ComboboxButton,
   ComboboxInput,
-  ComboboxLabel,
   ComboboxOption,
   ComboboxOptions,
 } from "@headlessui/vue";
@@ -549,19 +554,15 @@ definePageMeta({
 });
 
 const router = useRouter();
-
+const { t } = useI18n();
 const route = useRoute();
-const headers = useRequestHeaders(["cookie"]);
 const gameId = route.params.id.toString();
-const versions = await $fetch(
+const versions = await $dropFetch(
   `/api/v1/admin/import/version?id=${encodeURIComponent(gameId)}`,
-  {
-    headers,
-  }
 );
 const currentlySelectedVersion = ref(-1);
 const versionSettings = ref<{
-  platform: string;
+  platform: PlatformClient | undefined;
 
   onlySetup: boolean;
   launch: string;
@@ -572,7 +573,7 @@ const versionSettings = ref<{
   delta: boolean;
   umuId: string;
 }>({
-  platform: "",
+  platform: undefined,
   launch: "",
   launchArgs: "",
   setup: "",
@@ -582,19 +583,20 @@ const versionSettings = ref<{
   umuId: "",
 });
 
-const versionGuesses = ref<Array<{ platform: string; filename: string }>>();
+const versionGuesses =
+  ref<Array<{ platform: PlatformClient; filename: string }>>();
 const launchProcessQuery = ref("");
 const setupProcessQuery = ref("");
 
 const launchFilteredVersionGuesses = computed(() =>
   versionGuesses.value?.filter((e) =>
-    e.filename.toLowerCase().includes(launchProcessQuery.value.toLowerCase())
-  )
+    e.filename.toLowerCase().includes(launchProcessQuery.value.toLowerCase()),
+  ),
 );
 const setupFilteredVersionGuesses = computed(() =>
   versionGuesses.value?.filter((e) =>
-    e.filename.toLowerCase().includes(setupProcessQuery.value.toLowerCase())
-  )
+    e.filename.toLowerCase().includes(setupProcessQuery.value.toLowerCase()),
+  ),
 );
 
 function updateLaunchCommand(value: string) {
@@ -611,7 +613,7 @@ function autosetPlatform(value: string) {
   if (!versionGuesses.value) return;
   if (versionSettings.value.platform) return;
   const guessIndex = versionGuesses.value.findIndex(
-    (e) => e.filename === value
+    (e) => e.filename === value,
   );
   if (guessIndex == -1) return;
   versionSettings.value.platform = versionGuesses.value[guessIndex].platform;
@@ -637,17 +639,20 @@ async function updateCurrentlySelectedVersion(value: number) {
   if (currentlySelectedVersion.value == value) return;
   currentlySelectedVersion.value = value;
   const version = versions[currentlySelectedVersion.value];
-  const results = await $fetch(
+  const results = await $dropFetch(
     `/api/v1/admin/import/version/preload?id=${encodeURIComponent(
-      gameId
-    )}&version=${encodeURIComponent(version)}`
+      gameId,
+    )}&version=${encodeURIComponent(version)}`,
   );
-  versionGuesses.value = results;
+  versionGuesses.value = results.map((e) => ({
+    ...e,
+    platform: e.platform as PlatformClient,
+  }));
 }
 
 async function startImport() {
   if (!versionSettings.value) return;
-  const taskId = await $fetch("/api/v1/admin/import/version", {
+  const taskId = await $dropFetch("/api/v1/admin/import/version", {
     method: "POST",
     body: {
       id: gameId,
@@ -662,7 +667,7 @@ function startImport_wrapper() {
   importLoading.value = true;
   startImport()
     .catch((error) => {
-      importError.value = error.statusMessage ?? "An unknown error occurred.";
+      importError.value = error.statusMessage ?? t("errors.unknown");
     })
     .finally(() => {
       importLoading.value = false;

@@ -1,0 +1,20 @@
+model Collection {
+    id   String @id @default(uuid())
+    name String
+
+    isDefault Boolean @default(false)
+    userId    String
+    user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    entries CollectionEntry[]
+}
+
+model CollectionEntry {
+    collectionId String
+    collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+    gameId String
+    game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+    @@id([collectionId, gameId])
+}

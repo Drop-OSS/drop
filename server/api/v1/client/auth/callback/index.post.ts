@@ -1,8 +1,9 @@
 import clientHandler from "~/server/internal/clients/handler";
+import sessionHandler from "~/server/internal/session";
 
 export default defineEventHandler(async (h3) => {
-  const userId = await h3.context.session.getUserId(h3);
-  if (!userId) throw createError({ statusCode: 403 });
+  const user = await sessionHandler.getSession(h3);
+  if (!user) throw createError({ statusCode: 403 });
 
   const body = await readBody(h3);
   const clientId = await body.id;

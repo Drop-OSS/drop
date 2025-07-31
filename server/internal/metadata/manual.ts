@@ -1,48 +1,40 @@
-import { MetadataSource } from "@prisma/client";
-import { MetadataProvider } from ".";
-import {
-  GameMetadataSearchResult,
+import { MetadataSource } from "~/prisma/client/enums";
+import type { MetadataProvider } from ".";
+import type {
   _FetchGameMetadataParams,
   GameMetadata,
-  _FetchPublisherMetadataParams,
-  PublisherMetadata,
-  _FetchDeveloperMetadataParams,
-  DeveloperMetadata,
+  _FetchCompanyMetadataParams,
+  CompanyMetadata,
 } from "./types";
 import * as jdenticon from "jdenticon";
 
 export class ManualMetadataProvider implements MetadataProvider {
-  id() {
-    return "manual";
-  }
   name() {
     return "Manual";
   }
   source() {
     return MetadataSource.Manual;
   }
-  async search(query: string) {
+  async search(_query: string) {
     return [];
   }
   async fetchGame({
     name,
-    publisher,
-    developer,
     createObject,
   }: _FetchGameMetadataParams): Promise<GameMetadata> {
     const icon = jdenticon.toPng(name, 512);
     const iconId = createObject(icon);
 
     return {
-      id: "manual",
+      id: crypto.randomUUID(),
       name,
       shortDescription: "Default description.",
       description: "# Default description.",
       released: new Date(),
       publishers: [],
       developers: [],
-      reviewCount: 0,
-      reviewRating: 0,
+      tags: [],
+      reviews: [],
 
       icon: iconId,
       coverId: iconId,
@@ -50,14 +42,9 @@ export class ManualMetadataProvider implements MetadataProvider {
       images: [iconId],
     };
   }
-  async fetchPublisher(
-    params: _FetchPublisherMetadataParams
-  ): Promise<PublisherMetadata> {
-    throw new Error("Method not implemented.");
-  }
-  async fetchDeveloper(
-    params: _FetchDeveloperMetadataParams
-  ): Promise<DeveloperMetadata> {
-    throw new Error("Method not implemented.");
+  async fetchCompany(
+    _params: _FetchCompanyMetadataParams,
+  ): Promise<CompanyMetadata | undefined> {
+    return undefined;
   }
 }

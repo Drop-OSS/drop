@@ -1,0 +1,622 @@
+{
+  "account": {
+    "devices": {
+      "capabilities": "Capabilities",
+      "lastConnected": "Last Connected",
+      "noDevices": "No devices connected to your account.",
+      "platform": "Platform",
+      "revoke": "Revoke",
+      "subheader": "Manage the devices authorized to access your Drop account.",
+      "title": "Devices"
+    },
+    "notifications": {
+      "all": "View all {arrow}",
+      "desc": "View and manage your notifications.",
+      "markAllAsRead": "Mark all as read",
+      "markAsRead": "Mark as read",
+      "none": "No notifications",
+      "notifications": "Notifications",
+      "title": "Notifications",
+      "unread": "Unread Notifications"
+    },
+    "settings": "Settings",
+    "title": "Account Settings"
+  },
+  "actions": "Actions",
+  "add": "Add",
+  "adminTitle": "Admin Dashboard - Drop",
+  "adminTitleTemplate": "{0} - Admin - Drop",
+  "auth": {
+    "callback": {
+      "authClient": "Authorize client?",
+      "authorize": "Authorize",
+      "authorizedClient": "Drop has successfully authorized the client. You may now close this window.",
+      "issues": "Having issues?",
+      "learn": "Learn more {arrow}",
+      "paste": "Paste this code into the client to continue:",
+      "permWarning": "Accepting this request will allow \"{name}\" on \"{platform}\" to:",
+      "requestedAccess": "\"{name}\" has requested access to your Drop account.",
+      "success": "Successful!"
+    },
+    "confirmPassword": "Confirm @:auth.password",
+    "displayName": "Display Name",
+    "email": "Email",
+    "password": "Password",
+    "register": {
+      "confirmPasswordFormat": "Must be the same as above",
+      "emailFormat": "Must be in the format user{'@'}example.com",
+      "passwordFormat": "Must be 14 or more characters",
+      "subheader": "Fill in your details below to create your account.",
+      "title": "Create your Drop account",
+      "usernameFormat": "Must be 5 or more characters, and lowercase"
+    },
+    "signin": {
+      "externalProvider": "Sign in with external provider {arrow}",
+      "forgot": "Forgot password?",
+      "noAccount": "Don't have an account? Ask an admin to create one for you.",
+      "or": "OR",
+      "pageTitle": "Sign in to Drop",
+      "rememberMe": "Remember me",
+      "signin": "Sign in",
+      "title": "Sign in to your account"
+    },
+    "signout": "Signout",
+    "username": "Username"
+  },
+  "setup": {
+    "welcome": "Hey there.",
+    "welcomeDescription": "Welcome to Drop setup wizard. It will walk you through configuring Drop for the first time, and how it works.",
+    "finish": "Let's go {arrow}",
+    "noPage": "no page",
+    "auth": {
+      "title": "Authentication",
+      "description": "Authentication in Drop happens through multiple configured 'providers'. Each one can allow users to sign-in through their method. To get started, have at least one authentication provider enabled, and create an account through it.",
+      "docs": "Documentation {arrow}",
+      "enabled": "Enabled?",
+      "simple": {
+        "title": "Simple authentication",
+        "description": "Simple authentication uses username/password to authentication users. It is enabled by default if no other authentication provider is enabled.",
+        "register": "Register as admin {arrow}"
+      },
+      "openid": {
+        "title": "OpenID Connect",
+        "description": "OpenID Connect (OIDC) is an OAuth2 extension commonly supported. Drop requires OIDC configuration to be done via environment variables.",
+        "skip": "I have a user with OIDC"
+      }
+    },
+    "stages": {
+      "account": {
+        "name": "Setup your admin account.",
+        "description": "You need at least one account to start using Drop."
+      },
+      "library": {
+        "name": "Create a library.",
+        "description": "Add at least one library source to use Drop."
+      }
+    }
+  },
+  "cancel": "Cancel",
+  "chars": {
+    "arrow": "→",
+    "arrowBack": "←",
+    "quoted": "\"\"",
+    "srComma": ", {0}"
+  },
+  "common": {
+    "cannotUndo": "This action cannot be undone.",
+    "close": "Close",
+    "create": "Create",
+    "date": "Date",
+    "deleteConfirm": "Are you sure you want to delete \"{0}\"?",
+    "divider": "{'|'}",
+    "edit": "Edit",
+    "friends": "Friends",
+    "groups": "Groups",
+    "insert": "Insert",
+    "name": "Name",
+    "noResults": "No results",
+    "noSelected": "No items selected.",
+    "remove": "Remove",
+    "save": "Save",
+    "saved": "Saved",
+    "servers": "Servers",
+    "srLoading": "Loading...",
+    "tags": "Tags",
+    "today": "Today",
+    "add": "Add"
+  },
+  "delete": "Delete",
+  "drop": {
+    "desc": "An open-source game distribution platform built for speed, flexibility and beauty.",
+    "drop": "Drop"
+  },
+  "editor": {
+    "bold": "Bold",
+    "boldPlaceholder": "bold text",
+    "code": "Code",
+    "codePlaceholder": "code",
+    "heading": "Heading",
+    "headingPlaceholder": "heading",
+    "italic": "Italic",
+    "italicPlaceholder": "italic text",
+    "link": "Link",
+    "linkPlaceholder": "link text",
+    "listItem": "List Item",
+    "listItemPlaceholder": "list item"
+  },
+  "errors": {
+    "admin": {
+      "user": {
+        "delete": {
+          "desc": "Drop couldn't delete this user: {0}",
+          "title": "Failed to delete user"
+        }
+      }
+    },
+    "auth": {
+      "disabled": "Invalid or disabled account. Please contact the server administrator.",
+      "invalidInvite": "Invalid or expired invitation",
+      "invalidPassState": "Invalid password state. Please contact the server administrator.",
+      "invalidUserOrPass": "Invalid username or password.",
+      "inviteIdRequired": "id required in fetching invitation",
+      "method": {
+        "signinDisabled": "Sign in method not enabled"
+      },
+      "usernameTaken": "Username already taken."
+    },
+    "backHome": "{arrow} Back to home",
+    "game": {
+      "banner": {
+        "description": "Drop failed to update the banner image: {0}",
+        "title": "Failed to update the banner image"
+      },
+      "carousel": {
+        "description": "Drop failed to update the image carousel: {0}",
+        "title": "Failed to update image carousel"
+      },
+      "cover": {
+        "description": "Drop failed to update the cover image: {0}",
+        "title": "Failed to update the cover image"
+      },
+      "deleteImage": {
+        "description": "Drop failed to delete the image: {0}",
+        "title": "Failed to delete the image"
+      },
+      "description": {
+        "description": "Drop failed to update the game description: {0}",
+        "title": "Failed to update game description"
+      },
+      "metadata": {
+        "description": "Drop failed to update the game's metadata: {0}",
+        "title": "Failed to update metadata"
+      }
+    },
+    "invalidBody": "Invalid request body: {0}",
+    "inviteRequired": "Invitation required to sign up.",
+    "library": {
+      "add": {
+        "desc": "Drop couldn't add this game to your library: {0}",
+        "title": "Failed to add game to library"
+      },
+      "collection": {
+        "create": {
+          "desc": "Drop couldn't create your collection: {0}",
+          "title": "Failed to create collection"
+        }
+      },
+      "source": {
+        "delete": {
+          "desc": "Drop couldn't add delete this source: {0}",
+          "title": "Failed to delete library source"
+        }
+      }
+    },
+    "news": {
+      "article": {
+        "delete": {
+          "desc": "Drop couldn't delete this article: {0}",
+          "title": "Failed to delete article"
+        }
+      }
+    },
+    "occurred": "An error occurred while responding to your request. If you believe this to be a bug, please report it. Try signing in and see if it resolves the issue.",
+    "ohNo": "Oh no!",
+    "pageTitle": "{0} | Drop",
+    "revokeClient": "Failed to revoke client",
+    "revokeClientFull": "Failed to revoke client {0}",
+    "signIn": "Sign in {arrow}",
+    "support": "Support Discord",
+    "unknown": "An unknown error occurred",
+    "upload": {
+      "description": "Drop couldn't upload the file: {0}",
+      "title": "Failed to upload file"
+    },
+    "version": {
+      "delete": {
+        "desc": "Drop encountered an error while deleting the version: {error}",
+        "title": "There an error while deleting the version"
+      },
+      "order": {
+        "desc": "Drop encountered an error while updating the version: {error}",
+        "title": "There an error while updating the version order"
+      }
+    }
+  },
+  "footer": {
+    "about": "About",
+    "aboutDrop": "About Drop",
+    "comparison": "Comparison",
+    "docs": {
+      "client": "Client Docs",
+      "server": "Server Docs"
+    },
+    "documentation": "Documentation",
+    "findGame": "Find a Game",
+    "footer": "Footer",
+    "games": "Games",
+    "social": {
+      "discord": "Discord",
+      "github": "GitHub"
+    },
+    "topSellers": "Top Sellers",
+    "version": "Drop {version} {gitRef}"
+  },
+  "header": {
+    "admin": {
+      "admin": "Admin",
+      "metadata": "Meta",
+      "settings": "Settings",
+      "tasks": "Tasks",
+      "users": "Users"
+    },
+    "back": "Back",
+    "openSidebar": "Open sidebar"
+  },
+  "helpUsTranslate": "Help us translate Drop {arrow}",
+  "highest": "highest",
+  "home": "Home",
+  "library": {
+    "addGames": "All Games",
+    "addToLib": "Add to Library",
+    "admin": {
+      "detectedGame": "Drop has detected you have new games to import.",
+      "detectedVersion": "Drop has detected you have new verions of this game to import.",
+      "offlineTitle": "Game offline",
+      "offline": "Drop couldn't access this game.",
+      "game": {
+        "addCarouselNoImages": "No images to add.",
+        "addDescriptionNoImages": "No images to add.",
+        "addImageCarousel": "Add from image library",
+        "currentBanner": "banner",
+        "currentCover": "cover",
+        "deleteImage": "Delete image",
+        "editGameDescription": "Game Description",
+        "editGameName": "Game Name",
+        "imageCarousel": "Image Carousel",
+        "imageCarouselDescription": "Customise what images and what order are shown on the store page.",
+        "imageCarouselEmpty": "No images added to the carousel yet.",
+        "imageLibrary": "Image library",
+        "imageLibraryDescription": "Please note all images uploaded are accessible to all users through browser dev-tools.",
+        "removeImageCarousel": "Remove image",
+        "setBanner": "Set as banner",
+        "setCover": "Set as cover"
+      },
+      "gameLibrary": "Game Library",
+      "import": {
+        "import": "Import",
+        "link": "Import {arrow}",
+        "loading": "Loading game results...",
+        "search": "Search",
+        "searchPlaceholder": "Fallout 4",
+        "selectDir": "Please select a directory...",
+        "selectGame": "Select game to import",
+        "selectGamePlaceholder": "Please select a game...",
+        "selectGameSearch": "Select game",
+        "selectPlatform": "Please select a platform...",
+        "bulkImportTitle": "Bulk import mode",
+        "bulkImportDescription": "When on, this page won't redirect you to the import task, so you can import multiple games in succession.",
+        "version": {
+          "advancedOptions": "Advanced options",
+          "import": "Import version",
+          "installDir": "(install_dir)/",
+          "launchCmd": "Launch executable/command",
+          "launchDesc": "Executable to launch the game",
+          "launchPlaceholder": "game.exe",
+          "loadingVersion": "Loading version metadata...",
+          "noAdv": "No advanced options for this configuration.",
+          "noVersions": "No versions to import",
+          "platform": "Version platform",
+          "setupCmd": "Setup executable/command",
+          "setupDesc": "Ran once when the game is installed",
+          "setupMode": "Setup mode",
+          "setupModeDesc": "When enabled, this version does not have a launch command, and simply runs the executable on the user's computer. Useful for games that only distribute installer and not portable files.",
+          "setupPlaceholder": "setup.exe",
+          "umuLauncherId": "UMU Launcher ID",
+          "umuOverride": "Override UMU Launcher Game ID",
+          "umuOverrideDesc": "By default, Drop uses a non-ID when launching with UMU Launcher. In order to get the right patches for some games, you may have to manually set this field.",
+          "updateMode": "Update mode",
+          "updateModeDesc": "When enabled, these files will be installed on top of (overwriting) the previous version's. If multiple \"update modes\" are chained together, they are applied in order.",
+          "version": "Select version to import"
+        },
+        "withoutMetadata": "Import without metadata"
+      },
+      "metadataProvider": "Metadata provider",
+      "noGames": "No games imported",
+      "openEditor": "Open in Editor {arrow}",
+      "openStore": "Open in Store",
+      "shortDesc": "Short Description",
+      "sources": {
+        "create": "Create source",
+        "edit": "Edit source",
+        "createDesc": "Drop will use this source to access your game library, and make them available.",
+        "desc": "Configure your library sources, where Drop will look for new games and versions to import.",
+        "fsDesc": "Imports games from a path on disk. Requires version-based folder structure, and supports archived games.",
+        "fsFlatDesc": "Imports games from a path on disk, but without a separate version subfolder. Useful when migrating an existing library to Drop.",
+        "fsPath": "Path",
+        "fsPathDesc": "An absolute path to your game library.",
+        "fsPathPlaceholder": "/mnt/games",
+        "link": "Sources {arrow}",
+        "nameDesc": "The name of your source, for reference.",
+        "namePlaceholder": "My New Source",
+        "sources": "Library Sources",
+        "typeDesc": "The type of your source. Changes the required options.",
+        "working": "Working?"
+      },
+      "subheader": "As you add folders to your library sources, Drop will detect it and prompt you to import it. Each game needs to be imported before you can import a version.",
+      "title": "Libraries",
+      "version": {
+        "delta": "Upgrade mode",
+        "noVersions": "You have no versions of this game available.",
+        "noVersionsAdded": "no versions added"
+      },
+      "versionPriority": "Version priority",
+      "metadata": {
+        "tags": {
+          "title": "Tags",
+          "description": "Tags are automatically created from imported genres. You can add custom tags to add categorisation to your game library.",
+          "action": "Manage {arrow}",
+          "create": "Create",
+          "modal": {
+            "title": "Create Tag",
+            "description": "Create a tag to organize your library."
+          }
+        },
+        "companies": {
+          "title": "Companies",
+          "description": "Companies organize games by who they were developed or published by.",
+          "action": "Manage {arrow}",
+          "search": "Search companies...",
+          "searchGames": "Search company games...",
+          "noCompanies": "No companies",
+          "noGames": "No games",
+          "editor": {
+            "libraryTitle": "Game Library",
+            "libraryDescription": "Add, remove, or customise what this company has developed and/or published.",
+            "action": "Add Game {plus}",
+            "published": "Published",
+            "developed": "Developed",
+            "uploadIcon": "Upload icon",
+            "uploadBanner": "Upload banner",
+            "noDescription": "(no description)"
+          },
+          "addGame": {
+            "title": "Connect game to this company",
+            "description": "Pick a game to add to the company, and whether it should be listed as a developer, publisher, or both.",
+            "publisher": "Publisher?",
+            "developer": "Developer?",
+            "noGames": "No games to add"
+          },
+          "modals": {
+            "nameTitle": "Edit company name",
+            "nameDescription": "Edit the company's name. Used to match to new game imports.",
+            "shortDeckTitle": "Edit company description",
+            "shortDeckDescription": "Edit the company's description. Doesn't affect long (markdown) description.",
+            "websiteTitle": "Edit company website",
+            "websiteDescription": "Edit the company's website. Note: this will be a link, and won't have redirect protection."
+          }
+        }
+      }
+    },
+    "back": "Back to Library",
+    "collection": {
+      "addToNew": "Add to new collection",
+      "collections": "Collections",
+      "create": "Create Collection",
+      "createDesc": "Collections can used to organise your games and find them more easily, especially if you have a large library.",
+      "delete": "Delete Collection",
+      "namePlaceholder": "Collection name",
+      "noCollections": "No collections",
+      "notFound": "Collection not found",
+      "subheader": "Add a new collection to organize your games",
+      "title": "Collection"
+    },
+    "gameCount": "{0} games | {0} game | {0} games",
+    "inLib": "In Library",
+    "launcherOpen": "Open in Launcher",
+    "noGames": "No games in library",
+    "notFound": "Game not found",
+    "search": "Search library...",
+    "subheader": "Organize your games into collections for easy access, and access all your games."
+  },
+  "lowest": "lowest",
+  "news": {
+    "article": {
+      "add": "Add",
+      "content": "Content (Markdown)",
+      "create": "Create New Article",
+      "editor": "Editor",
+      "editorGuide": "Use the shortcuts above or write Markdown directly. Supports **bold**, *italic*, [links](url), and more.",
+      "new": "New article",
+      "preview": "Preview",
+      "shortDesc": "Short description",
+      "submit": "Submit",
+      "tagPlaceholder": "Add a tag...",
+      "titles": "Title",
+      "uploadCover": "Upload cover image"
+    },
+    "back": "Back to News",
+    "checkLater": "Check back later for updates.",
+    "delete": "Delete Article",
+    "filter": {
+      "all": "All time",
+      "month": "This month",
+      "week": "This week",
+      "year": "This year"
+    },
+    "none": "No articles",
+    "notFound": "Article not found",
+    "search": "Search articles",
+    "searchPlaceholder": "Search articles...",
+    "subheader": "Stay up to date with the latest updates and announcements.",
+    "title": "Latest News"
+  },
+  "options": "Options",
+  "security": "Security",
+  "selectLanguage": "Select language",
+  "settings": {
+    "admin": {
+      "description": "Configure Drop settings",
+      "store": {
+        "dropGameAltPlaceholder": "Example Game icon",
+        "dropGameDescriptionPlaceholder": "This is an example game. It will be replaced if you import a game.",
+        "dropGameNamePlaceholder": "Example Game",
+        "showGamePanelTextDecoration": "Show title and description on game tiles (default: on)",
+        "title": "Store"
+      },
+      "title": "Settings"
+    }
+  },
+  "store": {
+    "about": "About",
+    "commingSoon": "coming soon",
+    "developers": "Developers | Developer | Developers",
+    "exploreMore": "Explore more {arrow}",
+    "featured": "Featured",
+    "images": "Game Images",
+    "lookAt": "Check it out",
+    "noDevelopers": "No developers",
+    "noGame": "no game",
+    "noImages": "No images",
+    "noPublishers": "No publishers.",
+    "noTags": "No tags",
+    "openAdminDashboard": "Open in Admin Dashboard",
+    "platform": "Platform | Platform | Platforms",
+    "publishers": "Publishers | Publisher | Publishers",
+    "rating": "Rating",
+    "readLess": "Click to read less",
+    "readMore": "Click to read more",
+    "recentlyAdded": "Recently Added",
+    "recentlyReleased": "Recently released",
+    "recentlyUpdated": "Recently Updated",
+    "released": "Released",
+    "reviews": "({0} Reviews)",
+    "tags": "Tags",
+    "title": "Store",
+    "view": {
+      "sort": "Sort",
+      "srFilters": "Filters",
+      "srGames": "Games",
+      "srViewGrid": "View grid"
+    },
+    "viewInStore": "View in Store",
+    "website": "Website"
+  },
+  "tasks": {
+    "admin": {
+      "back": "{arrow} Back to Tasks",
+      "completedTasksTitle": "Completed tasks",
+      "dailyScheduledTitle": "Daily scheduled tasks",
+      "noTasksRunning": "No tasks currently running",
+      "runningTasksTitle": "Running tasks",
+      "scheduled": {
+        "checkUpdateDescription": "Check if Drop has an update.",
+        "checkUpdateName": "Check update.",
+        "cleanupInvitationsDescription": "Cleans up expired invitations from the database to save space.",
+        "cleanupInvitationsName": "Clean up invitations",
+        "cleanupObjectsDescription": "Detects and deletes unreferenced and unused objects to save space.",
+        "cleanupObjectsName": "Clean up objects",
+        "cleanupSessionsDescription": "Cleans up expired sessions to save space and ensure security.",
+        "cleanupSessionsName": "Clean up sessions."
+      },
+      "viewTask": "View {arrow}",
+      "weeklyScheduledTitle": "Weekly scheduled tasks"
+    }
+  },
+  "title": "Drop",
+  "titleTemplate": "{0} - Drop",
+  "todo": "Todo",
+  "type": "Type",
+  "upload": "Upload",
+  "uploadFile": "Upload file",
+  "userHeader": {
+    "closeSidebar": "Close sidebar",
+    "links": {
+      "community": "Community",
+      "library": "Library",
+      "news": "News"
+    },
+    "profile": {
+      "admin": "Admin Dashboard",
+      "settings": "Account settings"
+    }
+  },
+  "users": {
+    "admin": {
+      "adminHeader": "Admin?",
+      "adminUserLabel": "Admin user",
+      "authentication": {
+        "configure": "Configure",
+        "description": "Drop supports a variety of \"authentication mechanisms\". As you enable or disable them, they are shown on the sign in screen for users to select from. Click the dot menu to configure the authentication mechanism.",
+        "disabled": "Disabled",
+        "enabled": "Enabled",
+        "enabledKey": "Enabled?",
+        "oidc": "OpenID Connect",
+        "simple": "Simple (username/password)",
+        "srOpenOptions": "Open options",
+        "title": "Authentication"
+      },
+      "authLink": "Authentication {arrow}",
+      "authoptionsHeader": "Auth Options",
+      "delete": "Delete",
+      "deleteUser": "Delete user {0}",
+      "description": "Manage the users on your Drop instance, and configure your authentication methods.",
+      "displayNameHeader": "Display Name",
+      "emailHeader": "Email",
+      "normalUserLabel": "Normal user",
+      "simple": {
+        "adminInvitation": "Admin invitation",
+        "createInvitation": "Create invitation",
+        "description": "Simple authentication uses a system of 'invitations' to create users. You can create an invitation, and optionally specify a username or email for the user, and then it will generate a magic URL that can be used to create an account.",
+        "expires": "Expires: {expiry}",
+        "invitationTitle": "invitations",
+        "invite3Days": "3 days",
+        "invite6Months": "6 months",
+        "inviteAdminSwitchDescription": "Create this user as an administrator",
+        "inviteAdminSwitchLabel": "Admin invitation",
+        "inviteButton": "Invite",
+        "inviteDescription": "Drop will generate a URL that you can send to the person you want to invite. You can optionally specify a username or email for them to use.",
+        "inviteEmailDescription": "Must be in the format user{'@'}example.com",
+        "inviteEmailLabel": "Email address (optional)",
+        "inviteEmailPlaceholder": "me{'@'}example.com",
+        "inviteExpiryLabel": "Expires",
+        "inviteMonth": "1 month",
+        "inviteNever": "Never",
+        "inviteTitle": "Invite user to Drop",
+        "inviteUsernameFormat": "Must be 5 or more characters",
+        "inviteUsernameLabel": "Username (optional)",
+        "inviteUsernamePlaceholder": "myUsername",
+        "inviteWeek": "1 week",
+        "inviteYear": "1 year",
+        "neverExpires": "Never expires.",
+        "noEmailEnforced": "No email enforced.",
+        "noInvitations": "No invitations.",
+        "noUsernameEnforced": "No username enforced.",
+        "title": "Simple authentication",
+        "userInvitation": "User invitation"
+      },
+      "srEditLabel": "Edit",
+      "usernameHeader": "Username"
+    }
+  },
+  "welcome": "American, Welcome!"
+}

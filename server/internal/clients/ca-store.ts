@@ -1,6 +1,8 @@
 import path from "path";
 import fs from "fs";
-import { CertificateBundle } from "./ca";
+import type { CertificateBundle } from "./ca";
+import prisma from "../db/database";
+import { systemConfig } from "../config/sys-conf";
 
 export type CertificateStore = {
   store(name: string, data: CertificateBundle): Promise<void>;
@@ -9,7 +11,8 @@ export type CertificateStore = {
   checkBlacklistCertificate(name: string): Promise<boolean>;
 };
 
-export const fsCertificateStore = (base: string) => {
+export const fsCertificateStore = () => {
+  const base = path.join(systemConfig.getDataFolder(), "certs");
   const blacklist = path.join(base, ".blacklist");
   fs.mkdirSync(blacklist, { recursive: true });
   const store: CertificateStore = {
@@ -29,6 +32,70 @@ export const fsCertificateStore = (base: string) => {
     async checkBlacklistCertificate(name: string): Promise<boolean> {
       const filepath = path.join(blacklist, name);
       return fs.existsSync(filepath);
+    },
+  };
+  return store;
+};
+
+export const dbCertificateStore = () => {
+  const store: CertificateStore = {
+    async store(name: string, data: CertificateBundle) {
+      await prisma.certificate.upsert({
+        where: {
+          id: name,
+        },
+        create: {
+          id: name,
+          privateKey: data.priv,
+          certificate: data.cert,
+        },
+        update: {
+          privateKey: data.priv,
+          certificate: data.cert,
+        },
+      });
+    },
+    async fetch(name: string) {
+      const result = await prisma.certificate.findUnique({
+        where: {
+          id: name,
+        },
+        select: {
+          privateKey: true,
+          certificate: true,
+        },
+      });
+      if (result === null) return undefined;
+      return {
+        priv: result.privateKey,
+        cert: result.certificate,
+      };
+    },
+    async blacklistCertificate(name: string) {
+      try {
+        await prisma.certificate.update({
+          where: {
+            id: name,
+          },
+          data: {
+            blacklisted: true,
+          },
+        });
+      } finally {
+        /* empty */
+      }
+    },
+    async checkBlacklistCertificate(name: string): Promise<boolean> {
+      const result = await prisma.certificate.findUnique({
+        where: {
+          id: name,
+        },
+        select: {
+          blacklisted: true,
+        },
+      });
+      if (result === null) return true;
+      return result.blacklisted;
     },
   };
   return store;

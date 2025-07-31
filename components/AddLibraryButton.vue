@@ -1,24 +1,26 @@
 <template>
-  <div class="inline-flex divide-x divide-zinc-900">
-    <button
-      type="button"
-      class="inline-flex justify-center items-center gap-x-2 rounded-l-md aspect-[7/2] px-3 py-2 bg-blue-600 grow text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+  <div
+    class="inline-flex w-full group hover:scale-105 transition-all duration-200"
+  >
+    <LoadingButton
+      :loading="isLibraryLoading"
+      :style="'none'"
+      class="transition w-full inline-flex items-center justify-center h-full gap-x-2 rounded-none rounded-l-md bg-white/10 hover:bg-white/20 text-zinc-100 backdrop-blur px-5 py-3 active:scale-95"
+      @click="() => toggleLibrary()"
     >
-      Add to Library
-      <PlusIcon class="-mr-0.5 size-6" aria-hidden="true" />
-    </button>
-    <Menu as="div" class="relative inline-block text-left grow">
-      <div class="h-full">
-        <MenuButton
-          class="inline-flex h-full w-full justify-center items-center rounded-r-md bg-blue-600 p-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-        >
-          <ChevronDownIcon
-            class="size-5"
-            aria-hidden="true"
-          />
-        </MenuButton>
-      </div>
+      {{ inLibrary ? $t("library.inLib") : $t("library.addToLib") }}
+      <CheckIcon v-if="inLibrary" class="-mr-0.5 h-5 w-5" aria-hidden="true" />
+      <PlusIcon v-else class="-mr-0.5 h-5 w-5" aria-hidden="true" />
+    </LoadingButton>
 
+    <!-- Collections dropdown -->
+    <Menu as="div" class="relative">
+      <MenuButton
+        as="div"
+        class="transition cursor-pointer inline-flex items-center rounded-r-md h-full ml-[2px] bg-white/10 hover:bg-white/20 backdrop-blur py-3.5 px-2 justify-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/20"
+      >
+        <ChevronDownIcon class="h-5 w-5 text-white" aria-hidden="true" />
+      </MenuButton>
       <transition
         enter-active-class="transition ease-out duration-100"
         enter-from-class="transform opacity-0 scale-95"
@@ -28,68 +30,124 @@
         leave-to-class="transform opacity-0 scale-95"
       >
         <MenuItems
-          class="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none"
+          class="absolute right-0 z-50 mt-2 w-72 origin-top-right rounded-md bg-zinc-800/90 backdrop-blur shadow-lg focus:outline-none"
         >
-          <div class="py-1">
-            <MenuItem v-slot="{ active }">
-              <a
-                href="#"
-                :class="[
-                  active
-                    ? 'bg-gray-100 text-gray-900 outline-none'
-                    : 'text-gray-700',
-                  'block px-4 py-2 text-sm',
-                ]"
-                >Account settings</a
+          <div class="p-2">
+            <div
+              class="font-display uppercase px-3 py-2 text-sm font-semibold text-zinc-500"
+            >
+              {{ $t("library.collection.collections") }}
+            </div>
+            <div
+              class="flex flex-col gap-y-2 py-1 max-h-[150px] overflow-y-auto"
+            >
+              <div
+                v-if="collections.length === 0"
+                class="px-3 py-2 text-sm text-zinc-500"
               >
-            </MenuItem>
-            <MenuItem v-slot="{ active }">
-              <a
-                href="#"
-                :class="[
-                  active
-                    ? 'bg-gray-100 text-gray-900 outline-none'
-                    : 'text-gray-700',
-                  'block px-4 py-2 text-sm',
-                ]"
-                >Support</a
+                {{ $t("library.collection.noCollections") }}
+              </div>
+              <MenuItem
+                v-for="(collection, collectionIdx) in collections"
+                :key="collection.id"
+                v-slot="{ active }"
               >
-            </MenuItem>
-            <MenuItem v-slot="{ active }">
-              <a
-                href="#"
-                :class="[
-                  active
-                    ? 'bg-gray-100 text-gray-900 outline-none'
-                    : 'text-gray-700',
-                  'block px-4 py-2 text-sm',
-                ]"
-                >License</a
-              >
-            </MenuItem>
-            <form method="POST" action="#">
-              <MenuItem v-slot="{ active }">
                 <button
-                  type="submit"
                   :class="[
-                    active
-                      ? 'bg-gray-100 text-gray-900 outline-none'
-                      : 'text-gray-700',
-                    'block w-full px-4 py-2 text-left text-sm',
+                    active ? 'bg-zinc-700/90' : '',
+                    'group flex w-full items-center justify-between rounded-md px-3 py-2 text-sm text-zinc-200',
                   ]"
+                  @click="() => toggleCollection(collection.id)"
                 >
-                  Sign out
+                  <span>{{ collection.name }}</span>
+                  <CheckIcon
+                    v-if="inCollections[collectionIdx]"
+                    class="h-5 w-5 text-blue-400"
+                    aria-hidden="true"
+                  />
                 </button>
               </MenuItem>
-            </form>
+            </div>
+            <div class="border-t border-zinc-700 pt-1">
+              <LoadingButton
+                :loading="false"
+                class="w-full"
+                @click="createCollectionModal = true"
+              >
+                <PlusIcon class="mr-2 h-4 w-4" />
+                {{ $t("library.collection.addToNew") }}
+              </LoadingButton>
+            </div>
           </div>
         </MenuItems>
       </transition>
     </Menu>
   </div>
+
+  <ModalCreateCollection
+    v-model="createCollectionModal"
+    :game-id="props.gameId"
+  />
 </template>
 
 <script setup lang="ts">
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
-import { ChevronDownIcon, PlusIcon } from "@heroicons/vue/20/solid";
+import { PlusIcon, ChevronDownIcon, CheckIcon } from "@heroicons/vue/24/solid";
+import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
+
+const props = defineProps<{
+  gameId: string;
+}>();
+
+const isLibraryLoading = ref(false);
+
+const { t } = useI18n();
+const createCollectionModal = ref(false);
+const collections = await useCollections();
+const library = await useLibrary();
+
+const inLibrary = computed(
+  () => library.value.entries.findIndex((e) => e.gameId == props.gameId) != -1,
+);
+const inCollections = computed(() =>
+  collections.value.map(
+    (e) => e.entries.findIndex((e) => e.gameId == props.gameId) != -1,
+  ),
+);
+
+async function toggleLibrary() {
+  isLibraryLoading.value = true;
+  try {
+    await $dropFetch("/api/v1/collection/default/entry", {
+      method: inLibrary.value ? "DELETE" : "POST",
+      body: {
+        id: props.gameId,
+      },
+      failTitle: t("errors.library.add.title"),
+    });
+    await refreshLibrary();
+  } finally {
+    isLibraryLoading.value = false;
+  }
+}
+
+async function toggleCollection(id: string) {
+  try {
+    const collection = collections.value.find((e) => e.id == id);
+    if (!collection) return;
+    const index = collection.entries.findIndex((e) => e.gameId == props.gameId);
+
+    await $dropFetch(`/api/v1/collection/:id/entry`, {
+      method: index == -1 ? "POST" : "DELETE",
+      params: { id },
+      body: {
+        id: props.gameId,
+      },
+      failTitle: t("errors.library.add.title"),
+    });
+
+    await refreshCollection(id);
+  } finally {
+    /* empty */
+  }
+}
 </script>

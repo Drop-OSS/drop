@@ -1,0 +1,25 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// see https://github.com/prisma/prisma/issues/27486 why driverAdapters can't be used
+// TLDR: vite removes it during bundling it or something like that
+generator client {
+  provider        = "prisma-client"
+  output          = "client"
+  previewFeatures = ["fullTextSearchPostgres", "relationJoins"]
+  binaryTargets   = ["native", "debian-openssl-3.0.x"]
+}
+
+/**
+ * generator arktype {
+ * provider    = "yarn prismark"
+ * output      = "./validate"
+ * fileName    = "schema.ts"
+ * nullish     = true
+ * }
+ */
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}

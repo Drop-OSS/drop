@@ -1,0 +1,115 @@
+<template>
+  <div class="flex flex-col lg:flex-row grow w-screen">
+    <TransitionRoot as="template" :show="sidebarOpen">
+      <Dialog class="relative z-50 lg:hidden" @close="sidebarOpen = false">
+        <TransitionChild
+          as="template"
+          enter="transition-opacity ease-linear duration-300"
+          enter-from="opacity-0"
+          enter-to="opacity-100"
+          leave="transition-opacity ease-linear duration-300"
+          leave-from="opacity-100"
+          leave-to="opacity-0"
+        >
+          <div class="fixed inset-0 bg-zinc-900/80" />
+        </TransitionChild>
+
+        <div class="fixed inset-0 flex">
+          <TransitionChild
+            as="template"
+            enter="transition ease-in-out duration-300 transform"
+            enter-from="-translate-x-full"
+            enter-to="translate-x-0"
+            leave="transition ease-in-out duration-300 transform"
+            leave-from="translate-x-0"
+            leave-to="-translate-x-full"
+          >
+            <DialogPanel class="relative mr-16 flex w-full max-w-xs flex-1">
+              <TransitionChild
+                as="template"
+                enter="ease-in-out duration-300"
+                enter-from="opacity-0"
+                enter-to="opacity-100"
+                leave="ease-in-out duration-300"
+                leave-from="opacity-100"
+                leave-to="opacity-0"
+              >
+                <div
+                  class="absolute top-0 left-full flex w-16 justify-center pt-5"
+                >
+                  <button
+                    type="button"
+                    class="-m-2.5 p-2.5"
+                    @click="sidebarOpen = false"
+                  >
+                    <span class="sr-only">{{
+                      $t("userHeader.closeSidebar")
+                    }}</span>
+                    <XMarkIcon class="size-6 text-white" aria-hidden="true" />
+                  </button>
+                </div>
+              </TransitionChild>
+              <!-- Sidebar component, swap this element with another sidebar if you like -->
+              <div class="bg-zinc-900 w-full">
+                <AccountSidebar />
+              </div>
+            </DialogPanel>
+          </TransitionChild>
+        </div>
+      </Dialog>
+    </TransitionRoot>
+
+    <!-- Static sidebar for desktop -->
+    <div
+      class="hidden lg:flex lg:inset-y-0 lg:z-50 lg:shrink-0 lg:basis-[18rem] lg:flex-col lg:border-r-2 lg:border-zinc-800"
+    >
+      <!-- Sidebar component, swap this element with another sidebar if you like -->
+      <AccountSidebar />
+    </div>
+
+    <div
+      class="block flex items-center gap-x-2 bg-zinc-950 px-2 py-1 shadow-xs sm:px-4 lg:hidden border-b border-zinc-700"
+    >
+      <button
+        type="button"
+        class="-m-2.5 p-2.5 text-zinc-400 lg:hidden"
+        @click="sidebarOpen = true"
+      >
+        <span class="sr-only">{{ $t("header.openSidebar") }}</span>
+        <Bars3Icon class="size-6" aria-hidden="true" />
+      </button>
+      <div
+        class="flex-1 text-sm/6 font-semibold uppercase font-display text-zinc-400"
+      >
+        {{ $t("account.title") }}
+      </div>
+    </div>
+
+    <div class="px-4 py-10 sm:px-6 lg:px-8 lg:py-6 w-full">
+      <NuxtPage />
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from "vue";
+import {
+  Dialog,
+  DialogPanel,
+  TransitionChild,
+  TransitionRoot,
+} from "@headlessui/vue";
+import { Bars3Icon, XMarkIcon } from "@heroicons/vue/24/outline";
+
+const router = useRouter();
+const { t } = useI18n();
+const sidebarOpen = ref(false);
+
+router.afterEach(() => {
+  sidebarOpen.value = false;
+});
+
+useHead({
+  title: t("account.title"),
+});
+</script>

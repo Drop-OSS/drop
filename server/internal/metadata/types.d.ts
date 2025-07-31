@@ -1,6 +1,6 @@
-import { Developer, Publisher } from "@prisma/client";
-import { ObjectReference } from "../objects";
-import { ObjectTransactionalHandler, TransactionDataType } from "../objects/transactional";
+import type { Company, GameRating } from "~/prisma/client";
+import type { TransactionDataType } from "../objects/transactional";
+import type { ObjectReference } from "../objects/objectHandler";
 
 export interface GameMetadataSearchResult {
   id: string;
@@ -18,6 +18,15 @@ export interface GameMetadataSource {
 export type InternalGameMetadataResult = GameMetadataSearchResult &
   GameMetadataSource;
 
+export type GameMetadataRating = Pick<
+  GameRating,
+  | "metadataSource"
+  | "metadataId"
+  | "mReviewCount"
+  | "mReviewHref"
+  | "mReviewRating"
+>;
+
 export interface GameMetadata {
   id: string;
   name: string;
@@ -27,11 +36,12 @@ export interface GameMetadata {
 
   // These are created using utility functions passed to the metadata loader
   // (that then call back into the metadata provider chain)
-  publishers: Publisher[];
-  developers: Developer[];
+  publishers: Company[];
+  developers: Company[];
 
-  reviewCount: number;
-  reviewRating: number;
+  tags: string[];
+
+  reviews: GameMetadataRating[];
 
   // Created with another utility function
   icon: ObjectReference;
@@ -40,7 +50,7 @@ export interface GameMetadata {
   images: ObjectReference[];
 }
 
-export interface PublisherMetadata {
+export interface CompanyMetadata {
   id: string;
   name: string;
   shortDescription: string;
@@ -48,24 +58,20 @@ export interface PublisherMetadata {
 
   logo: ObjectReference;
   banner: ObjectReference;
-  website: String;
+  website: string;
 }
-
-export type DeveloperMetadata = PublisherMetadata;
 
 export interface _FetchGameMetadataParams {
   id: string;
   name: string;
 
-  publisher: (query: string) => Promise<Publisher>;
-  developer: (query: string) => Promise<Developer>;
+  publisher: (query: string) => Promise<Company | undefined>;
+  developer: (query: string) => Promise<Company | undefined>;
 
   createObject: (data: TransactionDataType) => ObjectReference;
 }
 
-export interface _FetchPublisherMetadataParams {
+export interface _FetchCompanyMetadataParams {
   query: string;
   createObject: (data: TransactionDataType) => ObjectReference;
 }
-
-export type _FetchDeveloperMetadataParams = _FetchPublisherMetadataParams;

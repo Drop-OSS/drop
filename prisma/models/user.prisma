@@ -1,0 +1,42 @@
+model User {
+    id       String  @id @default(uuid())
+    username String  @unique
+    admin    Boolean @default(false)
+    enabled  Boolean @default(true)
+
+    email                  String
+    displayName            String
+    profilePictureObjectId String // Object
+
+    authMecs      LinkedAuthMec[]
+    clients       Client[]
+    notifications Notification[]
+    collections   Collection[]
+    articles      Article[]
+
+    tokens   APIToken[]
+    sessions Session[]
+
+    saves       SaveSlot[]
+    screenshots Screenshot[]
+    playtime    Playtime[]
+}
+
+model Notification {
+    id String @id @default(uuid())
+
+    nonce String?
+
+    userId String
+    user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    acls   String[]
+
+    created     DateTime @default(now())
+    title       String
+    description String
+    actions     String[]
+
+    read Boolean @default(false)
+
+    @@unique([userId, nonce])
+}

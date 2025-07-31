@@ -1,33 +1,20 @@
-<!--
-  This example requires some changes to your config:
-  
-  ```
-  // tailwind.config.js
-  module.exports = {
-    // ...
-    plugins: [
-      // ...
-      require('@tailwindcss/forms'),
-    ],
-  }
-  ```
--->
 <template>
-  <div class="w-full flex flex-col">
+  <div class="w-full flex flex-col overflow-x-hidden">
     <!-- Hero section -->
     <VueCarousel
       v-if="recent.length > 0"
-      :wrapAround="true"
+      :wrap-around="true"
       :items-to-show="1"
       :autoplay="15 * 1000"
       :transition="500"
-      :pauseAutoplayOnHover="true"
+      :pause-autoplay-on-hover="true"
+      class="store-carousel"
     >
       <VueSlide v-for="game in recent" :key="game.id">
-        <div class="w-full h-full relative overflow-hidden">
+        <div class="w-full h-full relative">
           <div class="absolute inset-0">
             <img
-              :src="useObject(game.mBannerId)"
+              :src="useObject(game.mBannerObjectId)"
               alt=""
               class="size-full object-cover object-center"
             />
@@ -37,29 +24,29 @@
           >
             <div class="relative text-center">
               <h3 class="text-base/7 font-semibold text-blue-300">
-                Recently added
+                {{ $t("store.featured") }}
               </h3>
               <h2
                 class="text-3xl font-bold tracking-tight text-white sm:text-5xl"
               >
                 {{ game.mName }}
               </h2>
-              <p class="mt-3 text-lg text-zinc-300 line-clamp-2">
+              <p
+                class="mt-3 text-lg text-zinc-300 line-clamp-2 max-w-xl mx-auto"
+              >
                 {{ game.mShortDescription }}
               </p>
-              <div class="mt-8 gap-x-4 inline-flex items-center">
-                <NuxtLink
-                  :href="`/store/${game.id}`"
-                  class="block w-full rounded-md border border-transparent bg-white px-8 py-3 text-base font-medium text-gray-900 hover:bg-gray-100 sm:w-auto"
-                  >Check it out</NuxtLink
+              <div>
+                <div
+                  class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-4 w-fit mx-auto"
                 >
-                <button
-                  type="button"
-                  class="inline-flex items-center gap-x-2 rounded-md px-3.5 py-2.5 text-base font-semibold font-display text-white shadow-sm hover:bg-zinc-900/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-100"
-                >
-                  Add to Library
-                  <PlusIcon class="-mr-0.5 h-7 w-7" aria-hidden="true" />
-                </button>
+                  <NuxtLink
+                    :href="`/store/${game.id}`"
+                    class="block w-full rounded-md border border-transparent bg-white px-8 py-3 text-base font-medium text-gray-900 hover:bg-gray-100 sm:w-auto duration-200 hover:scale-105"
+                    >{{ $t("store.lookAt") }}</NuxtLink
+                  >
+                  <AddLibraryButton :game-id="game.id" />
+                </div>
               </div>
             </div>
           </div>
@@ -77,51 +64,20 @@
       <h2
         class="uppercase text-xl font-bold tracking-tight text-zinc-700 sm:text-3xl"
       >
-        no game
+        {{ $t("store.noGame") }}
       </h2>
     </div>
 
-    <!-- new releases -->
-    <div class="px-4 sm:px-12 py-4">
-      <h1 class="text-zinc-100 text-2xl font-bold font-display">
-        Recently released
-      </h1>
-      <NuxtLink class="text-blue-600 font-semibold"
-        >Explore more &rarr;</NuxtLink
-      >
-      <div class="mt-4">
-        <GameCarousel :items="released" :min="12" />
-      </div>
-    </div>
-
-    <!-- recently updated -->
-    <div class="px-4 sm:px-12 py-4">
-      <h1 class="text-zinc-100 text-2xl font-bold font-display">
-        Recently updated
-      </h1>
-      <NuxtLink class="text-blue-600 font-semibold"
-        >Explore more &rarr;</NuxtLink
-      >
-      <div class="mt-4">
-        <GameCarousel :items="updated" :min="12" />
-      </div>
-    </div>
+    <StoreView />
   </div>
 </template>
 
 <script setup lang="ts">
-import { PlusIcon } from "@heroicons/vue/24/solid";
+const recent = await $dropFetch("/api/v1/store/featured");
 
-const headers = useRequestHeaders(["cookie"]);
-const recent = await $fetch("/api/v1/store/recent", { headers });
-const updated = await $fetch("/api/v1/store/updated", { headers });
-const released = await $fetch("/api/v1/store/released", {
-  headers,
-});
-const developers = await $fetch("/api/v1/store/developers", { headers });
-const publishers = await $fetch("/api/v1/store/publishers", { headers });
+const { t } = useI18n();
 
 useHead({
-  title: "Store",
+  title: t("store.title"),
 });
 </script>

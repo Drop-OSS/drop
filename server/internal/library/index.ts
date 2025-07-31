@@ -5,75 +5,102 @@
  * It also provides the endpoints with information about unmatched games
  */
 
-import fs from "fs";
 import path from "path";
 import prisma from "../db/database";
-import { GameVersion, Platform } from "@prisma/client";
 import { fuzzy } from "fast-fuzzy";
-import { recursivelyReaddir } from "../utils/recursivedirs";
 import taskHandler from "../tasks";
 import { parsePlatform } from "../utils/parseplatform";
-import droplet from "@drop/droplet";
+import notificationSystem from "../notifications";
+import { GameNotFoundError, type LibraryProvider } from "./provider";
+import { logger } from "../logging";
 
 class LibraryManager {
-  private basePath: string;
+  private libraries: Map<string, LibraryProvider<unknown>> = new Map();
 
-  constructor() {
-    this.basePath = process.env.LIBRARY ?? "./.data/library";
-    fs.mkdirSync(this.basePath, { recursive: true });
+  private gameImportLocks: Map<string, Array<string>> = new Map(); // Library ID to Library Path
+  private versionImportLocks: Map<string, Array<string>> = new Map(); // Game ID to Version Name
+
+  addLibrary(library: LibraryProvider<unknown>) {
+    this.libraries.set(library.id(), library);
   }
 
-  fetchLibraryPath() {
-    return this.basePath;
+  removeLibrary(id: string) {
+    this.libraries.delete(id);
   }
 
-  async fetchAllUnimportedGames() {
-    const dirs = fs.readdirSync(this.basePath).filter((e) => {
-      const fullDir = path.join(this.basePath, e);
-      return fs.lstatSync(fullDir).isDirectory();
-    });
+  async fetchLibraries() {
+    const libraries = await prisma.library.findMany({});
+    const libraryWithMetadata = libraries.map((e) => ({
+      ...e,
+      working: this.libraries.has(e.id),
+    }));
+    return libraryWithMetadata;
+  }
 
-    const validGames = await prisma.game.findMany({
+  async fetchUnimportedGames() {
+    const unimportedGames: { [key: string]: string[] } = {};
+
+    for (const [id, library] of this.libraries.entries()) {
+      const games = await library.listGames();
+      const validGames = await prisma.game.findMany({
+        where: {
+          libraryId: id,
+          libraryPath: { in: games },
+        },
+        select: {
+          libraryPath: true,
+        },
+      });
+      const providerUnimportedGames = games.filter(
+        (e) =>
+          validGames.findIndex((v) => v.libraryPath == e) == -1 &&
+          !(this.gameImportLocks.get(id) ?? []).includes(e),
+      );
+      unimportedGames[id] = providerUnimportedGames;
+    }
+
+    return unimportedGames;
+  }
+
+  async fetchUnimportedGameVersions(libraryId: string, libraryPath: string) {
+    const provider = this.libraries.get(libraryId);
+    if (!provider) return undefined;
+    const game = await prisma.game.findUnique({
       where: {
-        libraryBasePath: { in: dirs },
+        libraryKey: {
+          libraryId,
+          libraryPath,
+        },
       },
       select: {
-        libraryBasePath: true,
+        id: true,
+        versions: true,
       },
     });
-    const validGameDirs = validGames.map((e) => e.libraryBasePath);
+    if (!game) return undefined;
 
-    const unregisteredGames = dirs.filter((e) => !validGameDirs.includes(e));
-
-    return unregisteredGames;
-  }
-
-  async fetchUnimportedGameVersions(
-    libraryBasePath: string,
-    versions: Array<GameVersion>
-  ) {
-    const gameDir = path.join(this.basePath, libraryBasePath);
-    const versionsDirs = fs.readdirSync(gameDir);
-    const importedVersionDirs = versions.map((e) => e.versionName);
-    const unimportedVersions = versionsDirs.filter(
-      (e) => !importedVersionDirs.includes(e)
-    );
-
-    return unimportedVersions;
+    try {
+      const versions = await provider.listVersions(libraryPath);
+      const unimportedVersions = versions.filter(
+        (e) =>
+          game.versions.findIndex((v) => v.versionName == e) == -1 &&
+          !(this.versionImportLocks.get(game.id) ?? []).includes(e),
+      );
+      return unimportedVersions;
+    } catch (e) {
+      if (e instanceof GameNotFoundError) {
+        logger.warn(e);
+        return undefined;
+      }
+      throw e;
+    }
   }
 
   async fetchGamesWithStatus() {
     const games = await prisma.game.findMany({
-      select: {
-        id: true,
+      include: {
         versions: true,
-        mName: true,
-        mShortDescription: true,
-        metadataSource: true,
-        mDevelopers: true,
-        mPublishers: true,
-        mIconId: true,
-        libraryBasePath: true,
+        library: true,
       },
       orderBy: {
         mName: "asc",
@@ -81,64 +108,39 @@ class LibraryManager {
     });
 
     return await Promise.all(
-      games.map(async (e) => ({
-        game: e,
-        status: {
-          noVersions: e.versions.length == 0,
-          unimportedVersions: await this.fetchUnimportedGameVersions(
-            e.libraryBasePath,
-            e.versions
-          ),
-        },
-      }))
+      games.map(async (e) => {
+        const versions = await this.fetchUnimportedGameVersions(
+          e.libraryId ?? "",
+          e.libraryPath,
+        );
+        return {
+          game: e,
+          status: versions
+            ? {
+                noVersions: e.versions.length == 0,
+                unimportedVersions: versions,
+              }
+            : ("offline" as const),
+        };
+      }),
     );
   }
 
-  async fetchUnimportedVersions(gameId: string) {
-    const game = await prisma.game.findUnique({
-      where: { id: gameId },
-      select: {
-        versions: {
-          select: {
-            versionName: true,
-          },
-        },
-        libraryBasePath: true,
-      },
-    });
-
-    if (!game) return undefined;
-    const targetDir = path.join(this.basePath, game.libraryBasePath);
-    if (!fs.existsSync(targetDir))
-      throw new Error(
-        "Game in database, but no physical directory? Something is very very wrong..."
-      );
-    const versions = fs.readdirSync(targetDir);
-    const validVersions = versions.filter((versionDir) => {
-      const versionPath = path.join(targetDir, versionDir);
-      const stat = fs.statSync(versionPath);
-      return stat.isDirectory();
-    });
-    const currentVersions = game.versions.map((e) => e.versionName);
-
-    const unimportedVersions = validVersions.filter(
-      (e) => !currentVersions.includes(e)
-    );
-    return unimportedVersions;
-  }
-
+  /**
+   * Fetches recommendations and extra data about the version. Doesn't actually check if it's been imported.
+   * @param gameId
+   * @param versionName
+   * @returns
+   */
   async fetchUnimportedVersionInformation(gameId: string, versionName: string) {
     const game = await prisma.game.findUnique({
       where: { id: gameId },
-      select: { libraryBasePath: true, mName: true },
+      select: { libraryPath: true, libraryId: true, mName: true },
     });
-    if (!game) return undefined;
-    const targetDir = path.join(
-      this.basePath,
-      game.libraryBasePath,
-      versionName
-    );
-    if (!fs.existsSync(targetDir)) return undefined;
+    if (!game || !game.libraryId) return undefined;
+
+    const library = this.libraries.get(game.libraryId);
+    if (!library) return undefined;
 
     const fileExts: { [key: string]: string[] } = {
       Linux: [
@@ -149,9 +151,10 @@ class LibraryManager {
         // No extension is common for Linux binaries
         "",
       ],
-      Windows: [
-        // Pretty much the only one
-        ".exe",
+      Windows: [".exe", ".bat"],
+      macOS: [
+        // App files
+        ".app",
       ],
     };
 
@@ -161,19 +164,18 @@ class LibraryManager {
       match: number;
     }> = [];
 
-    const files = recursivelyReaddir(targetDir, 2);
-    for (const file of files) {
-      const filename = path.basename(file);
-      const dotLocation = file.lastIndexOf(".");
-      const ext = dotLocation == -1 ? "" : file.slice(dotLocation);
+    const files = await library.versionReaddir(game.libraryPath, versionName);
+    for (const filename of files) {
+      const basename = path.basename(filename);
+      const dotLocation = filename.lastIndexOf(".");
+      const ext = dotLocation == -1 ? "" : filename.slice(dotLocation);
       for (const [platform, checkExts] of Object.entries(fileExts)) {
         for (const checkExt of checkExts) {
           if (checkExt != ext) continue;
-          const fuzzyValue = fuzzy(filename, game.mName);
-          const relative = path.relative(targetDir, file);
+          const fuzzyValue = fuzzy(basename, game.mName);
           options.push({
-            filename: relative,
-            platform: platform,
+            filename,
+            platform,
             match: fuzzyValue,
           });
         }
@@ -186,15 +188,86 @@ class LibraryManager {
   }
 
   // Checks are done in least to most expensive order
-  async checkUnimportedGamePath(targetPath: string) {
-    const targetDir = path.join(this.basePath, targetPath);
-    if (!fs.existsSync(targetDir)) return false;
-
+  async checkUnimportedGamePath(libraryId: string, libraryPath: string) {
     const hasGame =
-      (await prisma.game.count({ where: { libraryBasePath: targetPath } })) > 0;
+      (await prisma.game.count({
+        where: { libraryId, libraryPath },
+      })) > 0;
     if (hasGame) return false;
 
     return true;
+  }
+
+  /*
+  Game creation happens in metadata, because it's primarily a metadata object
+
+  async createGame(libraryId: string, libraryPath: string, game: Omit<Game, "libraryId" | "libraryPath">) {
+
+  }
+  */
+
+  /**
+   * Locks the game so you can't be imported
+   * @param libraryId
+   * @param libraryPath
+   */
+  async lockGame(libraryId: string, libraryPath: string) {
+    let games = this.gameImportLocks.get(libraryId);
+    if (!games) this.gameImportLocks.set(libraryId, (games = []));
+
+    if (!games.includes(libraryPath)) games.push(libraryPath);
+
+    this.gameImportLocks.set(libraryId, games);
+  }
+
+  /**
+   * Unlocks the game, call once imported
+   * @param libraryId
+   * @param libraryPath
+   */
+  async unlockGame(libraryId: string, libraryPath: string) {
+    let games = this.gameImportLocks.get(libraryId);
+    if (!games) this.gameImportLocks.set(libraryId, (games = []));
+
+    if (games.includes(libraryPath))
+      games.splice(
+        games.findIndex((e) => e === libraryPath),
+        1,
+      );
+
+    this.gameImportLocks.set(libraryId, games);
+  }
+
+  /**
+   * Locks a version so it can't be imported
+   * @param gameId
+   * @param versionName
+   */
+  async lockVersion(gameId: string, versionName: string) {
+    let versions = this.versionImportLocks.get(gameId);
+    if (!versions) this.versionImportLocks.set(gameId, (versions = []));
+
+    if (!versions.includes(versionName)) versions.push(versionName);
+
+    this.versionImportLocks.set(gameId, versions);
+  }
+
+  /**
+   * Unlocks the version, call once imported
+   * @param libraryId
+   * @param libraryPath
+   */
+  async unlockVersion(gameId: string, versionName: string) {
+    let versions = this.versionImportLocks.get(gameId);
+    if (!versions) this.versionImportLocks.set(gameId, (versions = []));
+
+    if (versions.includes(gameId))
+      versions.splice(
+        versions.findIndex((e) => e === versionName),
+        1,
+      );
+
+    this.versionImportLocks.set(gameId, versions);
   }
 
   async importVersion(
@@ -211,7 +284,7 @@ class LibraryManager {
       delta: boolean;
 
       umuId: string;
-    }
+    },
   ) {
     const taskId = `import:${gameId}:${versionName}`;
 
@@ -220,39 +293,37 @@ class LibraryManager {
 
     const game = await prisma.game.findUnique({
       where: { id: gameId },
-      select: { mName: true, libraryBasePath: true },
+      select: { mName: true, libraryId: true, libraryPath: true },
     });
-    if (!game) return undefined;
+    if (!game || !game.libraryId) return undefined;
 
-    const baseDir = path.join(this.basePath, game.libraryBasePath, versionName);
-    if (!fs.existsSync(baseDir)) return undefined;
+    const library = this.libraries.get(game.libraryId);
+    if (!library) return undefined;
+
+    await this.lockVersion(gameId, versionName);
 
     taskHandler.create({
       id: taskId,
+      taskGroup: "import:game",
       name: `Importing version ${versionName} for ${game.mName}`,
-      requireAdmin: true,
-      async run({ progress, log }) {
+      acls: ["system:import:version:read"],
+      async run({ progress, logger }) {
         // First, create the manifest via droplet.
         // This takes up 90% of our progress, so we wrap it in a *0.9
-        const manifest = await new Promise<string>((resolve, reject) => {
-          droplet.generateManifest(
-            baseDir,
-            (err, value) => {
-              if (err) return reject(err);
-              progress(value * 0.9);
-            },
-            (err, line) => {
-              if (err) return reject(err);
-              log(line);
-            },
-            (err, manifest) => {
-              if (err) return reject(err);
-              resolve(manifest);
-            }
-          );
-        });
+        const manifest = await library.generateDropletManifest(
+          game.libraryPath,
+          versionName,
+          (err, value) => {
+            if (err) throw err;
+            progress(value * 0.9);
+          },
+          (err, value) => {
+            if (err) throw err;
+            logger.info(value);
+          },
+        );
 
-        log("Created manifest successfully!");
+        logger.info("Created manifest successfully!");
 
         const currentIndex = await prisma.gameVersion.count({
           where: { gameId: gameId },
@@ -295,13 +366,47 @@ class LibraryManager {
           });
         }
 
-        log("Successfully created version!");
+        logger.info("Successfully created version!");
+
+        notificationSystem.systemPush({
+          nonce: `version-create-${gameId}-${versionName}`,
+          title: `'${game.mName}' ('${versionName}') finished importing.`,
+          description: `Drop finished importing version ${versionName} for ${game.mName}.`,
+          actions: [`View|/admin/library/${gameId}`],
+          acls: ["system:import:version:read"],
+        });
 
         progress(100);
+      },
+      async finally() {
+        await libraryManager.unlockVersion(gameId, versionName);
       },
     });
 
     return taskId;
+  }
+
+  async peekFile(
+    libraryId: string,
+    game: string,
+    version: string,
+    filename: string,
+  ) {
+    const library = this.libraries.get(libraryId);
+    if (!library) return undefined;
+    return library.peekFile(game, version, filename);
+  }
+
+  async readFile(
+    libraryId: string,
+    game: string,
+    version: string,
+    filename: string,
+    options?: { start?: number; end?: number },
+  ) {
+    const library = this.libraries.get(libraryId);
+    if (!library) return undefined;
+    return library.readFile(game, version, filename, options);
   }
 }
 

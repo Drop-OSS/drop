@@ -1,9 +1,6 @@
-import { EnumDictionary } from "../utils/types";
-import https from "https";
-import { useCertificateAuthority } from "~/server/plugins/ca";
+import type { EnumDictionary } from "../utils/types";
 import prisma from "../db/database";
-import { ClientCapabilities } from "@prisma/client";
-
+import { ClientCapabilities } from "~/prisma/client/enums";
 
 // These values are technically mapped to the database,
 // but Typescript/Prisma doesn't let me link them
@@ -12,13 +9,16 @@ import { ClientCapabilities } from "@prisma/client";
 export enum InternalClientCapability {
   PeerAPI = "peerAPI",
   UserStatus = "userStatus",
+  CloudSaves = "cloudSaves",
+  TrackPlaytime = "trackPlaytime",
 }
 
 export const validCapabilities = Object.values(InternalClientCapability);
 
 export type CapabilityConfiguration = {
-  [InternalClientCapability.PeerAPI]: { endpoints: string[] };
-  [InternalClientCapability.UserStatus]: {};
+  [InternalClientCapability.PeerAPI]: object;
+  [InternalClientCapability.UserStatus]: object;
+  [InternalClientCapability.CloudSaves]: object;
 };
 
 class CapabilityManager {
@@ -26,6 +26,7 @@ class CapabilityManager {
     InternalClientCapability,
     (configuration: object) => Promise<boolean>
   > = {
+    /*
     [InternalClientCapability.PeerAPI]: async (rawConfiguration) => {
       const configuration =
         rawConfiguration as CapabilityConfiguration[InternalClientCapability.PeerAPI];
@@ -52,7 +53,7 @@ class CapabilityManager {
       const serverCertificate = await ca.fetchClientCertificate("server");
       if (!serverCertificate)
         throw new Error(
-          "CA not initialised properly - server mTLS certificate not present"
+          "CA not initialised properly - server mTLS certificate not present",
         );
       const httpsAgent = new https.Agent({
         key: serverCertificate.priv,
@@ -69,31 +70,39 @@ class CapabilityManager {
           });
           valid = true;
           break;
-        } catch {}
+        } catch {
+        }
       }
 
       return valid;
     },
+    */
+    [InternalClientCapability.PeerAPI]: async () => true,
     [InternalClientCapability.UserStatus]: async () => true, // No requirements for user status
+    [InternalClientCapability.CloudSaves]: async () => true, // No requirements for cloud saves
+    [InternalClientCapability.TrackPlaytime]: async () => true,
   };
 
   async validateCapabilityConfiguration(
     capability: InternalClientCapability,
-    configuration: object
+    configuration: object,
   ) {
     const validationFunction = this.validationFunctions[capability];
+    if (!validationFunction) return false;
     return validationFunction(configuration);
   }
 
   async upsertClientCapability(
     capability: InternalClientCapability,
-    rawCapability: object,
-    clientId: string
+    rawCapabilityConfiguration: object,
+    clientId: string,
   ) {
-    switch (capability) {
-      case InternalClientCapability.PeerAPI:
-        const configuration =
-          rawCapability as CapabilityConfiguration[InternalClientCapability.PeerAPI];
+    const upsertFunctions: EnumDictionary<
+      InternalClientCapability,
+      () => Promise<void> | void
+    > = {
+      [InternalClientCapability.PeerAPI]: async function () {
+        // const configuration =rawCapability as CapabilityConfiguration[InternalClientCapability.PeerAPI];
 
         const currentClient = await prisma.client.findUnique({
           where: { id: clientId },
@@ -102,6 +111,7 @@ class CapabilityManager {
           },
         });
         if (!currentClient) throw new Error("Invalid client ID");
+        /*
         if (currentClient.capabilities.includes(ClientCapabilities.PeerAPI)) {
           await prisma.clientPeerAPIConfiguration.update({
             where: { clientId },
@@ -118,6 +128,7 @@ class CapabilityManager {
             endpoints: configuration.endpoints,
           },
         });
+        */
 
         await prisma.client.update({
           where: { id: clientId },
@@ -127,9 +138,54 @@ class CapabilityManager {
             },
           },
         });
-        return;
-    }
-    throw new Error("Cannot upsert client capability for: " + capability);
+      },
+      [InternalClientCapability.UserStatus]: function (): Promise<void> | void {
+        throw new Error("Function not implemented.");
+      },
+      [InternalClientCapability.CloudSaves]: async function () {
+        const currentClient = await prisma.client.findUnique({
+          where: { id: clientId },
+          select: {
+            capabilities: true,
+          },
+        });
+        if (!currentClient) throw new Error("Invalid client ID");
+        if (currentClient.capabilities.includes(ClientCapabilities.CloudSaves))
+          return;
+
+        await prisma.client.update({
+          where: { id: clientId },
+          data: {
+            capabilities: {
+              push: ClientCapabilities.CloudSaves,
+            },
+          },
+        });
+      },
+      [InternalClientCapability.TrackPlaytime]: async function () {
+        const currentClient = await prisma.client.findUnique({
+          where: { id: clientId },
+          select: {
+            capabilities: true,
+          },
+        });
+        if (!currentClient) throw new Error("Invalid client ID");
+        if (
+          currentClient.capabilities.includes(ClientCapabilities.TrackPlaytime)
+        )
+          return;
+
+        await prisma.client.update({
+          where: { id: clientId },
+          data: {
+            capabilities: {
+              push: ClientCapabilities.TrackPlaytime,
+            },
+          },
+        });
+      },
+    };
+    await upsertFunctions[capability]();
   }
 }
 

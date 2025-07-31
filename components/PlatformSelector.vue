@@ -1,5 +1,5 @@
 <template>
-  <Listbox as="div" v-model="model">
+  <Listbox v-model="typedModel" as="div">
     <ListboxLabel class="block text-sm font-medium leading-6 text-zinc-100"
       ><slot
     /></ListboxLabel>
@@ -7,15 +7,15 @@
       <ListboxButton
         class="relative w-full cursor-default rounded-md bg-zinc-950 py-1.5 pl-3 pr-10 text-left text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm sm:leading-6"
       >
-        <span v-if="model && values[model]" class="flex items-center">
+        <span v-if="model" class="flex items-center">
           <component
-            :is="values[model].icon"
+            :is="PLATFORM_ICONS[model]"
             alt=""
             class="h-5 w-5 flex-shrink-0 text-blue-600"
           />
-          <span class="ml-3 block truncate">{{ values[model].name }}</span>
+          <span class="ml-3 block truncate">{{ model }}</span>
         </span>
-        <span v-else>Please select a platform...</span>
+        <span v-else>{{ $t("library.admin.import.selectPlatform") }}</span>
         <span
           class="pointer-events-none absolute inset-y-0 right-0 ml-3 flex items-center pr-2"
         >
@@ -32,11 +32,11 @@
           class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-zinc-950 ring-opacity-5 focus:outline-none sm:text-sm"
         >
           <ListboxOption
-            as="template"
-            v-for="[value, options] in Object.entries(values)"
+            v-for="[name, value] in Object.entries(values)"
             :key="value"
-            :value="value"
             v-slot="{ active, selected }"
+            as="template"
+            :value="value"
           >
             <li
               :class="[
@@ -46,14 +46,14 @@
             >
               <div class="flex items-center">
                 <component
-                  :is="options.icon"
+                  :is="PLATFORM_ICONS[value]"
                   alt=""
                   :class="[
                     active ? 'text-zinc-100' : 'text-blue-600',
                     'h-5 w-5 flex-shrink-0',
                   ]"
                 />
-                <span class="ml-3 block truncate">{{ options.name }}</span>
+                <span class="ml-3 block truncate">{{ name }}</span>
               </div>
 
               <span
@@ -74,7 +74,6 @@
 </template>
 
 <script setup lang="ts">
-import { IconsLinuxLogo, IconsWindowsLogo } from "#components";
 import {
   Listbox,
   ListboxButton,
@@ -83,18 +82,18 @@ import {
   ListboxOptions,
 } from "@headlessui/vue";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
-import type { Component } from "vue";
 
-const model = defineModel<string>();
+const model = defineModel<PlatformClient | undefined>();
 
-const values: { [key: string]: { name: string; icon: Component } } = {
-  Linux: {
-    name: "Linux",
-    icon: IconsLinuxLogo,
+const typedModel = computed<PlatformClient | null>({
+  get() {
+    return model.value || null;
   },
-  Windows: {
-    name: "Windows",
-    icon: IconsWindowsLogo,
+  set(v) {
+    if (v === null) return (model.value = undefined);
+    model.value = v;
   },
-};
+});
+
+const values = Object.fromEntries(Object.entries(PlatformClient));
 </script>

@@ -1,17 +1,22 @@
+import { type } from "arktype";
+import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
+import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 
-export default defineEventHandler(async (h3) => {
-  const user = await h3.context.session.getAdminUser(h3);
-  if (!user) throw createError({ statusCode: 403 });
+const DeleteInvite = type({
+  id: "string",
+}).configure(throwingArktype);
 
-  const body = await readBody(h3);
-  const id = body.id;
-  if (!id)
-    throw createError({
-      statusCode: 400,
-      statusMessage: "id required for deletion",
-    });
+export default defineEventHandler<{
+  body: typeof DeleteInvite.infer;
+}>(async (h3) => {
+  const allowed = await aclManager.allowSystemACL(h3, [
+    "auth:simple:invitation:delete",
+  ]);
+  if (!allowed) throw createError({ statusCode: 403 });
 
-  await prisma.invitation.delete({ where: { id: id } });
+  const body = await readDropValidatedBody(h3, DeleteInvite);
+
+  await prisma.invitation.delete({ where: { id: body.id } });
   return {};
 });

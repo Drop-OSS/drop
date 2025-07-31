@@ -1,34 +1,53 @@
+import { type } from "arktype";
+import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
+import aclManager from "~/server/internal/acls";
 import libraryManager from "~/server/internal/library";
-import {
-  GameMetadataSearchResult,
-  GameMetadataSource,
-} from "~/server/internal/metadata/types";
+import metadataHandler from "~/server/internal/metadata";
 
-export default defineEventHandler(async (h3) => {
-  const user = await h3.context.session.getAdminUser(h3);
-  if (!user) throw createError({ statusCode: 403 });
+const ImportGameBody = type({
+  library: "string",
+  path: "string",
+  ["metadata?"]: {
+    id: "string",
+    sourceId: "string",
+    name: "string",
+  },
+}).configure(throwingArktype);
 
-  const body = await readBody(h3);
+export default defineEventHandler<{ body: typeof ImportGameBody.infer }>(
+  async (h3) => {
+    const allowed = await aclManager.allowSystemACL(h3, ["import:game:new"]);
+    if (!allowed) throw createError({ statusCode: 403 });
 
-  const path = body.path;
-  const metadata = body.metadata as GameMetadataSearchResult &
-    GameMetadataSource;
-  if (!path)
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Path missing from body",
-    });
+    const { library, path, metadata } = await readDropValidatedBody(
+      h3,
+      ImportGameBody,
+    );
 
-  const validPath = await libraryManager.checkUnimportedGamePath(path);
-  if (!validPath)
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Invalid unimported game path",
-    });
+    if (!path)
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Path missing from body",
+      });
 
-  if (!metadata || !metadata.id || !metadata.sourceId) {
-    return await h3.context.metadataHandler.createGameWithoutMetadata(path);
-  } else {
-    return await h3.context.metadataHandler.createGame(metadata, path);
-  }
-});
+    const valid = await libraryManager.checkUnimportedGamePath(library, path);
+    if (!valid)
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Invalid library or game.",
+      });
+
+    const taskId = metadata
+      ? await metadataHandler.createGame(metadata, library, path)
+      : await metadataHandler.createGameWithoutMetadata(library, path);
+
+    if (!taskId)
+      throw createError({
+        statusCode: 400,
+        statusMessage:
+          "Duplicate metadata import. Please chose a different game or metadata provider.",
+      });
+
+    return { taskId };
+  },
+);

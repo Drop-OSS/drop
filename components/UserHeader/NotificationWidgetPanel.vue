@@ -6,7 +6,7 @@
       >
         <div class="ml-4 mt-2">
           <h3 class="text-base font-semibold text-zinc-100 text-sm">
-            Unread notifications
+            {{ $t("account.notifications.unread") }}
           </h3>
         </div>
         <div class="ml-4 mt-2 shrink-0">
@@ -15,15 +15,24 @@
             type="button"
             class="text-sm text-zinc-400"
           >
-            View all &rarr;
+            <i18n-t
+              keypath="account.notifications.all"
+              tag="span"
+              scope="global"
+            >
+              <template #arrow>
+                <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
+              </template>
+            </i18n-t>
           </NuxtLink>
         </div>
       </div>
     </div>
 
     <div class="flex flex-col gap-y-2 max-h-[300px] overflow-y-scroll">
-      <Notification
+      <NotificationItem
         v-for="notification in props.notifications"
+        :key="notification.id"
         :notification="notification"
       />
     </div>
@@ -31,13 +40,13 @@
       v-if="props.notifications.length == 0"
       class="text-sm text-zinc-400 p-3 text-center w-full"
     >
-      No notifications
+      {{ $t("account.notifications.none") }}
     </div>
   </PanelWidget>
 </template>
 
 <script setup lang="ts">
-import type { Notification } from "@prisma/client";
+import type { NotificationModel } from "~/prisma/client/models";
 
-const props = defineProps<{ notifications: Array<Notification> }>();
+const props = defineProps<{ notifications: Array<NotificationModel> }>();
 </script>

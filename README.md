@@ -1,19 +1,15 @@
 <div align="center">
-<img src="https://raw.githubusercontent.com/Drop-OSS/media-sources/refs/heads/main/drop.svg" width="400rem"/>
+<img src="https://raw.githubusercontent.com/Drop-OSS/media-sources/refs/heads/main/drop.svg" width="200rem"/>
 </div>
-<div align="center">
-	<a href="CONTRIBUTING.md">Contribution guide</a>&nbsp;&nbsp;&nbsp;
-	<a href="https://deepcore.dev">Our website</a>&nbsp;&nbsp;&nbsp;
-</div>
-<br>
-<br>
-
-[![GitHub License](https://img.shields.io/github/license/Drop-OSS/drop-app)](LICENSE)
-[![Gitlab Pipeline Status](https://img.shields.io/gitlab/pipeline-status/drop-oss%2Fdrop?gitlab_url=https%3A%2F%2Flab.deepcore.dev)](https://lab.deepcore.dev/drop-oss/drop/-/pipelines)
-[![Discord](https://img.shields.io/discord/1291622805124812871?label=discord)](https://discord.gg/ACq4qZp4a9)
-[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
+<br/>
 
 # Drop
+
+[![Website](https://img.shields.io/badge/website-000000?style=for-the-badge&logo=About.me&logoColor=white)](https://droposs.org)
+[![Static Badge](https://img.shields.io/badge/FORUM-blue?style=for-the-badge)](https://forum.droposs.org)
+[![GitHub License](https://img.shields.io/badge/AGPL--3.0-red?style=for-the-badge)](LICENSE)
+[![Discord](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/ACq4qZp4a9)
+[![Open Collective](https://img.shields.io/badge/OpenCollective-1F87FF?style=for-the-badge&logo=OpenCollective&logoColor=white)](https://opencollective.com/drop-oss)
 
 Drop is an open-source game distribution platform, like GameVault or Steam. It's designed to distribute and shared DRM-free game quickly, all while being incredibly flexible, beautiful and fast.
 
@@ -32,16 +28,18 @@ To just deploy Drop, we've set up a simple docker compose file in deploy-templat
 3. Edit the compose.yml file (`nano compose.yml`) and copy your GiamtBomb API Key into the GIANT_BOMB_API_KEY environment variable
 4. Run `docker compose up -d`
 
-Your drop server should now be running. To register the admin user, navigate to http://your.drop.server.ip:3000/register?id=admin 
+Your drop server should now be running. To register the admin user, navigate to http://your.drop.server.ip:3000/register?id=admin
 and fill in the required forms
 
 ### Adding a game
+
 To add a game to the drop library, do as follows:
+
 1. Ensure that the current user owns the library folder with `sudo chown -R $(id -u $(whoami)) library`
 2. `cd library`
 3. `mkdir <GAME_NAME>` with the name of the game which you would like to register
 4. `cd <GAME_NAME>`
-5. `mkdir <VERSION_NAME>` Upload files for the specific game version to this folder 
+5. `mkdir <VERSION_NAME>` Upload files for the specific game version to this folder
 6. Navigate to http://your.drop.server.ip:3000/
 7. Import game metadata (uses GiantBomb API Key) by selecting the game and specifying which entry to import
 8. Navigate to http://your.drop.server.ip:3000/admin/library
@@ -64,15 +62,16 @@ Drop uses a utility package called droplet that's written in Rust. It has builts
 
 Steps:
 
+1. Run `git submodule update --init --recursive` to setup submodules
 1. Copy the `.env.example` to `.env` and add your GiantBomb metadata key (more metadata providers coming)
-2. Create the `.data` directory with `mkdir .data`
-3. Ensure that your user owns the `.data` directory with `sudo chown -R $(id -u $(whoami))`
-4. Open up a terminal and navigate to `dev-tools`, and run `docker compose up`
-5. Open up another terminal in the root directory of the project and run `yarn` and then `yarn dev` to start the dev server
+1. Create the `.data` directory with `mkdir .data`
+1. Ensure that your user owns the `.data` directory with `sudo chown -R $(id -u $(whoami))`
+1. Open up a terminal and navigate to `dev-tools`, and run `docker compose up`
+1. Open up another terminal in the root directory of the project and run `yarn` and then `yarn dev` to start the dev server
 
 As part of the first-time bootstrap, Drop creates an invitation with the fixed id of 'admin'. So, to create an admin account, go to:
 
-http://localhost:3000/register?id=admin
+http://localhost:3000/auth/register?id=admin
 
 ## Contributing
 

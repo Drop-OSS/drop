@@ -1,5 +1,9 @@
-export default defineEventHandler((h3) => {
+import { systemConfig } from "~/server/internal/config/sys-conf";
+
+export default defineEventHandler((_h3) => {
   return {
     appName: "Drop",
+    version: systemConfig.getDropVersion(),
+    gitRef: `#${systemConfig.getGitRef()}`,
   };
 });

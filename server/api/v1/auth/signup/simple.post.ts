@@ -1,119 +1,90 @@
-import { AuthMec, Invitation } from "@prisma/client";
+import { AuthMec } from "~/prisma/client/enums";
 import prisma from "~/server/internal/db/database";
-import { createHash } from "~/server/internal/security/simple";
-import { v4 as uuidv4 } from "uuid";
+import authManager, { createHashArgon2 } from "~/server/internal/auth";
 import * as jdenticon from "jdenticon";
+import objectHandler from "~/server/internal/objects";
+import { type } from "arktype";
+import { randomUUID } from "node:crypto";
+import { throwingArktype } from "~/server/arktype";
 
-// Only really a simple test, in case people mistype their emails
-const mailRegex = /^\S+@\S+\.\S+$/;
+export const SharedRegisterValidator = type({
+  username: "string >= 5",
+  email: "string.email",
+});
 
-export default defineEventHandler(async (h3) => {
-  const body = await readBody(h3);
+const CreateUserValidator = SharedRegisterValidator.and({
+  invitation: "string",
+  password: "string >= 14",
+  "displayName?": "string | undefined",
+}).configure(throwingArktype);
 
-  const invitationId = body.invitation;
-  if (!invitationId)
+export default defineEventHandler<{
+  body: typeof CreateUserValidator.infer;
+}>(async (h3) => {
+  const t = await useTranslation(h3);
+
+  if (!authManager.getAuthProviders().Simple)
     throw createError({
-      statusCode: 401,
-      statusMessage: "Invalid or expired invitation.",
+      statusCode: 403,
+      statusMessage: t("errors.auth.method.signinDisabled"),
     });
 
+  const user = await readValidatedBody(h3, CreateUserValidator);
+
   const invitation = await prisma.invitation.findUnique({
-    where: { id: invitationId },
+    where: { id: user.invitation },
   });
   if (!invitation)
     throw createError({
       statusCode: 401,
-      statusMessage: "Invalid or expired invitation.",
+      statusMessage: t("errors.auth.invalidInvite"),
     });
 
-  const useInvitationOrBodyRequirement = (
-    field: keyof Invitation,
-    check: (v: string) => boolean
-  ) => {
-    if (invitation[field]) {
-      return invitation[field].toString();
-    }
+  // reuse items from invite
+  if (invitation.username !== null) user.username = invitation.username;
+  if (invitation.email !== null) user.email = invitation.email;
 
-    const v: string = body[field]?.toString();
-    const valid = check(v);
-    return valid ? v : undefined;
-  };
-
-  const username = useInvitationOrBodyRequirement(
-    "username",
-    (e) => e.length >= 5
-  );
-  const email = useInvitationOrBodyRequirement("email", (e) =>
-    mailRegex.test(e)
-  );
-  const password = body.password;
-  const displayName = body.displayName || username;
-
-  if (username === undefined)
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Username is invalid. Must be more than 5 characters.",
-    });
-  if (username.toLowerCase() != username)
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Username must be all lowercase",
-    });
-
-  if (email === undefined)
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Invalid email. Must follow the format you@example.com",
-    });
-
-  if (!password)
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Password empty or missing.",
-    });
-
-  if (password.length < 14)
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Password must be 14 or more characters.",
-    });
-
-  const existing = await prisma.user.count({ where: { username: username } });
+  const existing = await prisma.user.count({
+    where: { username: user.username },
+  });
   if (existing > 0)
     throw createError({
       statusCode: 400,
-      statusMessage: "Username already taken.",
+      statusMessage: t("errors.auth.usernameTaken"),
     });
 
-  const userId = uuidv4();
+  const userId = randomUUID();
 
-  const profilePictureId = uuidv4();
-  await h3.context.objects.createFromSource(
+  const profilePictureId = randomUUID();
+  await objectHandler.createFromSource(
     profilePictureId,
-    async () => jdenticon.toPng(username, 256),
+    async () => jdenticon.toPng(user.username, 256),
     {},
-    [`anonymous:read`, `${userId}:write`]
+    [`internal:read`, `${userId}:read`],
   );
-  const user = await prisma.user.create({
-    data: {
-      username,
-      displayName,
-      email,
-      profilePicture: profilePictureId,
-      admin: invitation.isAdmin,
-    },
-  });
+  const [linkMec] = await prisma.$transaction([
+    prisma.linkedAuthMec.create({
+      data: {
+        mec: AuthMec.Simple,
+        credentials: await createHashArgon2(user.password),
+        version: 2,
+        user: {
+          create: {
+            id: userId,
+            username: user.username,
+            displayName: user.displayName ?? user.username,
+            email: user.email,
+            profilePictureObjectId: profilePictureId,
+            admin: invitation.isAdmin,
+          },
+        },
+      },
+      select: {
+        user: true,
+      },
+    }),
+    prisma.invitation.delete({ where: { id: user.invitation } }),
+  ]);
 
-  const hash = await createHash(password);
-  await prisma.linkedAuthMec.create({
-    data: {
-      mec: AuthMec.Simple,
-      credentials: [username, hash],
-      userId: user.id,
-    },
-  });
-
-  await prisma.invitation.delete({ where: { id: invitationId } });
-
-  return user;
+  return linkMec.user;
 });

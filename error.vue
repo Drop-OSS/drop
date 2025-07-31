@@ -2,29 +2,38 @@
 import type { NuxtError } from "#app";
 
 const props = defineProps({
-  error: Object as () => NuxtError,
+  error: {
+    type: Object as () => NuxtError,
+    default: () => ({}),
+  },
 });
 
+const { t } = useI18n();
 const route = useRoute();
 const user = useUser();
 const statusCode = props.error?.statusCode;
 const message =
-  props.error?.statusMessage ||
-  props.error?.message ||
-  "An unknown error occurred.";
+  props.error?.message || props.error?.statusMessage || t("errors.unknown");
 const showSignIn = statusCode ? statusCode == 403 || statusCode == 401 : false;
 
 async function signIn() {
   clearError({
-    redirect: `/signin?redirect=${encodeURIComponent(route.fullPath)}`,
+    redirect: `/auth/signin?redirect=${encodeURIComponent(route.fullPath)}`,
   });
+}
+switch (statusCode) {
+  case 401:
+  case 403:
+    await signIn();
 }
 
 useHead({
-  title: `${statusCode ?? message} | Drop`,
+  title: t("errors.pageTitle", [statusCode ?? message]),
 });
 
-console.log(props.error);
+if (import.meta.client) {
+  console.warn(props.error);
+}
 </script>
 
 <template>
@@ -34,7 +43,7 @@ console.log(props.error);
     <header
       class="mx-auto w-full max-w-7xl px-6 pt-6 sm:pt-10 lg:col-span-2 lg:col-start-1 lg:row-start-1 lg:px-8"
     >
-      <Logo class="h-10 w-auto sm:h-12" />
+      <DropLogo class="h-10 w-auto sm:h-12" />
     </header>
     <main
       class="mx-auto w-full max-w-7xl px-6 py-24 sm:py-32 lg:col-span-2 lg:col-start-1 lg:row-start-2 lg:px-8"
@@ -46,30 +55,41 @@ console.log(props.error);
         <h1
           class="mt-4 text-3xl font-bold font-display tracking-tight text-zinc-100 sm:text-5xl"
         >
-          Oh no!
+          {{ $t("errors.ohNo") }}
         </h1>
-        <p v-if="message" class="mt-3 font-bold text-base leading-7 text-red-500">
+        <p
+          v-if="message"
+          class="mt-3 font-bold text-base leading-7 text-red-500"
+        >
           {{ message }}
         </p>
         <p class="mt-6 text-base leading-7 text-zinc-400">
-          An error occurred while responding to your request. If you believe
-          this to be a bug, please report it. Try signing in and see if it
-          resolves the issue.
+          {{ $t("errors.occurred") }}
         </p>
+        <!-- <p>{{ error. }}</p> -->
         <div class="mt-10">
           <!-- full app reload to fix errors -->
-          <a
+          <NuxtLink
             v-if="user && !showSignIn"
-            href="/"
+            to="/"
             class="text-sm font-semibold leading-7 text-blue-600"
-            ><span aria-hidden="true">&larr;</span> Back to home</a
           >
+            <i18n-t keypath="errors.backHome" tag="span" scope="global">
+              <template #arrow>
+                <span aria-hidden="true">{{ $t("chars.arrowBack") }}</span>
+              </template>
+            </i18n-t>
+          </NuxtLink>
           <button
             v-else
-            @click="signIn"
             class="text-sm font-semibold leading-7 text-blue-600"
+            @click="signIn"
           >
-            Sign in <span aria-hidden="true">&rarr;</span>
+            <i18n-t keypath="errors.signIn" tag="span" scope="global">
+              <template #arrow>
+                <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
+              </template>
+            </i18n-t>
           </button>
         </div>
       </div>
@@ -79,7 +99,7 @@ console.log(props.error);
         <nav
           class="mx-auto flex w-full max-w-7xl items-center gap-x-4 px-6 text-sm leading-7 text-zinc-400 lg:px-8"
         >
-          <NuxtLink href="/docs">Documentation</NuxtLink>
+          <NuxtLink href="/docs">{{ $t("footer.documentation") }}</NuxtLink>
           <svg
             viewBox="0 0 2 2"
             aria-hidden="true"
@@ -87,9 +107,9 @@ console.log(props.error);
           >
             <circle cx="1" cy="1" r="1" />
           </svg>
-          <a href="https://discord.gg/NHx46XKJWA" target="_blank"
-            >Support Discord</a
-          >
+          <NuxtLink to="https://discord.gg/NHx46XKJWA" target="_blank">
+            {{ $t("errors.support") }}
+          </NuxtLink>
         </nav>
       </div>
     </footer>
@@ -98,8 +118,8 @@ console.log(props.error);
     >
       <img
         src="/wallpapers/error-wallpaper.jpg"
-        alt=""
         class="absolute inset-0 h-full w-full object-cover"
+        alt=""
       />
     </div>
   </div>

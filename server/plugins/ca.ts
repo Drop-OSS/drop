@@ -1,6 +1,5 @@
 import { CertificateAuthority } from "../internal/clients/ca";
-import fs from "fs";
-import { fsCertificateStore } from "../internal/clients/ca-store";
+import { dbCertificateStore } from "../internal/clients/ca-store";
 
 let ca: CertificateAuthority | undefined;
 
@@ -9,19 +8,8 @@ export const useCertificateAuthority = () => {
   return ca;
 };
 
-export default defineNitroPlugin(async (nitro) => {
-  const basePath = process.env.CLIENT_CERTIFICATES ?? "./certs";
-  fs.mkdirSync(basePath, { recursive: true });
-  const store = fsCertificateStore(basePath);
+export default defineNitroPlugin(async () => {
+  // const store = fsCertificateStore();
 
-  ca = await CertificateAuthority.new(store);
-
-  nitro.hooks.hook("request", (h3) => {
-    if (!ca)
-      throw createError({
-        statusCode: 500,
-        statusMessage: "Certificate authority not initialised",
-      });
-    h3.context.ca = ca;
-  });
+  ca = await CertificateAuthority.new(dbCertificateStore());
 });
