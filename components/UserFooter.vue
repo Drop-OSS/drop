@@ -116,7 +116,7 @@ const { t } = useI18n();
 
 const versionInfo = await $dropFetch("/api/v1");
 
-const navigation = {
+const navigation = computed(() => ({
   games: [
     { name: t("store.recentlyAdded"), href: "#" },
     { name: t("store.recentlyReleased"), href: "#" },
@@ -156,5 +156,5 @@ const navigation = {
       icon: IconsDiscordLogo,
     },
   ],
-};
+}));
 </script>

@@ -6,6 +6,9 @@ export default defineEventHandler(async (h3) => {
   if (!userId) throw createError({ statusCode: 403 });
 
   const games = await prisma.game.findMany({
+    where: {
+      featured: true,
+    },
     select: {
       id: true,
       mName: true,
@@ -28,7 +31,6 @@ export default defineEventHandler(async (h3) => {
     orderBy: {
       created: "desc",
     },
-    take: 8,
   });
 
   return games;

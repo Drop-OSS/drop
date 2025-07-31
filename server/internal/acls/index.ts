@@ -41,6 +41,8 @@ const userACLPrefix = "user:";
 export type UserACL = Array<(typeof userACLs)[number]>;
 
 export const systemACLs = [
+  "setup",
+
   "auth:read",
   "auth:simple:invitation:read",
   "auth:simple:invitation:new",
@@ -65,6 +67,11 @@ export const systemACLs = [
   "game:image:new",
   "game:image:delete",
 
+  "company:read",
+  "company:update",
+  "company:create",
+  "company:delete",
+
   "import:version:read",
   "import:version:new",
 
@@ -77,6 +84,10 @@ export const systemACLs = [
   "news:read",
   "news:create",
   "news:delete",
+
+  "tags:read",
+  "tags:create",
+  "tags:delete",
 
   "task:read",
   "task:start",
@@ -158,9 +169,11 @@ class ACLManager {
       const user = await prisma.user.findUnique({
         where: { id: userSession.userId },
       });
-      if (!user) return false;
-      if (user.admin) return true;
-      return false;
+      if (user) {
+        if (!user) return false;
+        if (user.admin) return true;
+        return false;
+      }
     }
 
     const authorizationToken = this.getAuthorizationToken(request);
@@ -170,6 +183,10 @@ class ACLManager {
     });
     if (!token) return false;
     if (token.mode != APITokenMode.System) return false;
+
+    // If empty, we just want to check we are an admin *at all*, not specific ACLs
+    if (acls.length == 0) return true;
+
     for (const acl of acls) {
       const tokenACLIndex = token.acls.findIndex((e) => e == acl);
       if (tokenACLIndex != -1) return true;

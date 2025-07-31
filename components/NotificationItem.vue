@@ -33,7 +33,7 @@
             class="inline-flex rounded-md text-zinc-400 hover:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             @click="() => deleteMe()"
           >
-            <span class="sr-only">{{ $t("close") }}</span>
+            <span class="sr-only">{{ $t("common.close") }}</span>
             <XMarkIcon class="size-5" aria-hidden="true" />
           </button>
         </div>
@@ -49,8 +49,11 @@ import type { NotificationModel } from "~/prisma/client/models";
 const props = defineProps<{ notification: NotificationModel }>();
 
 async function deleteMe() {
-  await $dropFetch(`/api/v1/notifications/${props.notification.id}`, {
+  await $dropFetch(`/api/v1/notifications/:id`, {
     method: "DELETE",
+    params: {
+      id: props.notification.id,
+    },
   });
   const notifications = useNotifications();
   const indexOfMe = notifications.value.findIndex(

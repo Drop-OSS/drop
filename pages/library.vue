@@ -51,7 +51,7 @@
               </TransitionChild>
               <!-- Sidebar component, swap this element with another sidebar if you like -->
               <div class="bg-zinc-900">
-                <LibraryDirectory />
+                <DirectoryLibrary />
               </div>
             </DialogPanel>
           </TransitionChild>
@@ -64,7 +64,7 @@
       class="hidden lg:flex lg:inset-y-0 lg:z-50 lg:shrink-0 lg:basis-[18rem] lg:flex-col lg:border-r-2 lg:border-zinc-800"
     >
       <!-- Sidebar component, swap this element with another sidebar if you like -->
-      <LibraryDirectory />
+      <DirectoryLibrary />
     </div>
 
     <div

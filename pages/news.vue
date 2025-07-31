@@ -51,7 +51,7 @@
               </TransitionChild>
               <div class="bg-zinc-900">
                 <NewsArticleCreateButton />
-                <NewsDirectory :articles="news" />
+                <DirectoryNews />
               </div>
             </DialogPanel>
           </TransitionChild>
@@ -64,7 +64,7 @@
       class="hidden lg:block lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col lg:border-r-2 lg:border-zinc-800"
     >
       <NewsArticleCreateButton />
-      <NewsDirectory />
+      <DirectoryNews />
     </div>
 
     <div
@@ -105,7 +105,6 @@ const news = useNews();
 
 if (!news.value) {
   await fetchNews();
-  console.log("fetched news");
 }
 
 const { t } = useI18n();

@@ -24,8 +24,8 @@
   },
   "actions": "Deeds",
   "add": "Add",
-  "adminTitle": "Cap'n's Quarters | Drop",
-  "adminTitleTemplate": "{0} | Cap'n | Drop",
+  "adminTitle": "Cap'n's Quarters - Drop",
+  "adminTitleTemplate": "{0} - Cap'n - Drop",
   "auth": {
     "callback": {
       "authClient": "Grant passage to this scallywag?",
@@ -70,27 +70,30 @@
     "quoted": "\"\"",
     "srComma": ", {0}"
   },
-  "close": "Shut yer trap!",
   "common": {
     "cannotUndo": "This deed cannot be undone, ye hear!",
+    "close": "Shut yer trap!",
+    "create": "Forge!",
     "date": "Date",
     "deleteConfirm": "Are ye sure ye want to scuttle \"{0}\", ye rogue?",
     "divider": "{'|'}",
+    "edit": "Amend",
     "friends": "Shipmates",
     "groups": "Crews",
+    "insert": "Insert",
+    "name": "Name, argh!",
     "noResults": "No plunder found!",
+    "save": "Stow it!",
     "servers": "Ships",
     "srLoading": "Loading, loading, argh...",
     "tags": "Marks",
     "today": "Today"
   },
-  "create": "Forge!",
   "delete": "Scuttle!",
   "drop": {
     "desc": "An open-source game distribution platform built for speed, flexibility and beauty, like a swift brigantine!",
     "drop": "Drop"
   },
-  "edit": "Amend",
   "editor": {
     "bold": "Bold, like a cannonball!",
     "boldPlaceholder": "bold text, matey",
@@ -214,7 +217,6 @@
   "helpUsTranslate": "Help us translate Drop {arrow}, argh!",
   "highest": "highest",
   "home": "Home Port",
-  "insert": "Insert",
   "library": {
     "addGames": "All Plunder",
     "addToLib": "Add to Yer Treasure Hoard",
@@ -327,7 +329,6 @@
     "subheader": "Sort yer plunder into collections for easy access, and get to all yer plunder, savvy!"
   },
   "lowest": "lowest",
-  "name": "Name, argh!",
   "news": {
     "article": {
       "add": "Add, ye dog!",
@@ -360,7 +361,6 @@
     "title": "Latest News from the High Seas"
   },
   "options": "Options, matey!",
-  "save": "Stow it!",
   "security": "Safety",
   "selectLanguage": "Pick yer tongue",
   "settings": "Settings",

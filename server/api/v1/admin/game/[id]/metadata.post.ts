@@ -14,6 +14,8 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "This endpoint requires multipart form data.",
     });
 
+  const gameId = getRouterParam(h3, "id")!;
+
   const uploadResult = await handleFileUpload(h3, {}, ["internal:read"], 1);
   if (!uploadResult)
     throw createError({
@@ -28,7 +30,6 @@ export default defineEventHandler(async (h3) => {
   // handleFileUpload reads the rest of the options for us.
   const name = options.name;
   const description = options.description;
-  const gameId = options.id;
 
   const updateModel: Prisma.GameUpdateInput = {
     mName: name,

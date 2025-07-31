@@ -1,9 +1,8 @@
-model Tag {
+model NewsTag {
   id   String @id @default(uuid())
   name String @unique
 
   articles Article[]
-  games    Game[]
 }
 
 model Article {
@@ -12,7 +11,7 @@ model Article {
   description String
   content     String @db.Text
 
-  tags Tag[]
+  tags NewsTag[]
 
   imageObjectId String? // Object ID
   publishedAt   DateTime @default(now())

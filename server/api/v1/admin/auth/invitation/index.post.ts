@@ -14,6 +14,7 @@ const CreateInvite = SharedRegisterValidator.partial()
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, [
     "auth:simple:invitation:new",
+    "setup",
   ]);
   if (!allowed) throw createError({ statusCode: 403 });
 

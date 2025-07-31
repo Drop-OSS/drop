@@ -206,6 +206,8 @@ class TaskHandler {
         };
       }
 
+      if (task.finally) await task.finally();
+
       taskEntry.endTime = new Date().toISOString();
       await updateAllClients();
 
@@ -427,6 +429,7 @@ export interface Task {
   taskGroup: TaskGroup;
   name: string;
   run: (context: TaskRunContext) => Promise<void>;
+  finally?: () => Promise<void> | void;
   acls: GlobalACL[];
 }
 

@@ -84,7 +84,7 @@
     </Menu>
   </div>
 
-  <CreateCollectionModal
+  <ModalCreateCollection
     v-model="createCollectionModal"
     :game-id="props.gameId"
   />
@@ -122,20 +122,9 @@ async function toggleLibrary() {
       body: {
         id: props.gameId,
       },
+      failTitle: t("errors.library.add.title"),
     });
     await refreshLibrary();
-  } catch (e) {
-    createModal(
-      ModalType.Notification,
-      {
-        title: t("errors.library.add.title"),
-        description: t("errors.library.add.desc", [
-          // @ts-expect-error attempt to display statusMessage on error
-          e?.statusMessage ?? t("errors.unknown"),
-        ]),
-      },
-      (_, c) => c(),
-    );
   } finally {
     isLibraryLoading.value = false;
   }
@@ -147,26 +136,18 @@ async function toggleCollection(id: string) {
     if (!collection) return;
     const index = collection.entries.findIndex((e) => e.gameId == props.gameId);
 
-    await $dropFetch(`/api/v1/collection/${id}/entry`, {
+    await $dropFetch(`/api/v1/collection/:id/entry`, {
       method: index == -1 ? "POST" : "DELETE",
+      params: { id },
       body: {
         id: props.gameId,
       },
+      failTitle: t("errors.library.add.title"),
     });
 
     await refreshCollection(id);
-  } catch (e) {
-    createModal(
-      ModalType.Notification,
-      {
-        title: t("errors.library.add.title"),
-        description: t("errors.library.add.desc", [
-          // @ts-expect-error attempt to display statusMessage on error
-          e?.statusMessage ?? t("errors.unknown"),
-        ]),
-      },
-      (_, c) => c(),
-    );
+  } finally {
+    /* empty */
   }
 }
 </script>

@@ -3,7 +3,7 @@ import aclManager from "~/server/internal/acls";
 import authManager from "~/server/internal/auth";
 
 export default defineEventHandler(async (h3) => {
-  const allowed = await aclManager.allowSystemACL(h3, ["auth:read"]);
+  const allowed = await aclManager.allowSystemACL(h3, ["auth:read", "setup"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
   const enabledAuthManagers = authManager.getAuthProviders();

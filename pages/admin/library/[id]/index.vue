@@ -131,17 +131,13 @@ import type { Component } from "vue";
 const route = useRoute();
 const gameId = route.params.id.toString();
 const { game: rawGame, unimportedVersions } = await $dropFetch(
-  `/api/v1/admin/game?id=${encodeURIComponent(gameId)}`,
+  `/api/v1/admin/game/:id`,
+  { params: { id: gameId } },
 );
 const game = ref(rawGame);
 
 definePageMeta({
   layout: "admin",
-});
-
-useHead({
-  // To do a title with the game name in it, we need some sort of watch
-  title: "Game Editor",
 });
 
 enum GameEditorMode {
@@ -160,4 +156,15 @@ const components: {
 };
 
 const currentMode = ref<GameEditorMode>(GameEditorMode.Metadata);
+
+useHead({
+  // To do a title with the game name in it, we need some sort of watch
+  title: `${currentMode.value} - ${game.value.mName}`,
+});
+
+watch(currentMode, (v) => {
+  useHead({
+    title: `${v} - ${game.value.mName}`,
+  });
+});
 </script>

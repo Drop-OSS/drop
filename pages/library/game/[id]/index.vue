@@ -57,7 +57,7 @@
             :to="`/store/${game.id}`"
             class="inline-flex items-center justify-center gap-x-2 rounded-md bg-zinc-800 px-3.5 py-2.5 text-base font-semibold font-display text-white shadow-sm transition-all duration-200 hover:bg-zinc-700 hover:scale-105 hover:shadow-lg active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600"
           >
-            {{ $t("store.view") }}
+            {{ $t("store.viewInStore") }}
             <ArrowUpRightIcon class="-mr-0.5 h-5 w-5" aria-hidden="true" />
           </NuxtLink>
         </div>

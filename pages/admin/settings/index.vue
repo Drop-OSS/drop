@@ -59,7 +59,7 @@
         :loading="saving"
         :disabled="!allowSave"
       >
-        {{ allowSave ? $t("save") : $t("saved") }}
+        {{ allowSave ? $t("common.save") : $t("common.saved") }}
       </LoadingButton>
     </form>
   </div>
@@ -78,7 +78,7 @@ useHead({
   title: t("settings.admin.title"),
 });
 
-const settings = await $dropFetch("/api/v1/admin/settings");
+const settings = await $dropFetch("/api/v1/settings");
 const { game } = await $dropFetch("/api/v1/admin/settings/dummy-data");
 
 const allowSave = ref(false);
