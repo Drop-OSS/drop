@@ -28,7 +28,7 @@ ARG BUILD_GIT_REF
 
 # build
 RUN pnpm import
-RUN pnpm install
+RUN pnpm install --shamefully-hoist
 RUN pnpm run build
 # RUN --mount=type=cache,target=/root/.yarn yarn postinstall && yarn build
 
