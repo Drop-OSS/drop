@@ -149,6 +149,12 @@ import { breakpointsTailwind, useBreakpoints } from "@vueuse/core";
 const breakpoints = useBreakpoints(breakpointsTailwind);
 const useModal = computed(() => !breakpoints.lg.value);
 
+const { t } = useI18n();
+
+useHead({
+  title: t("setup.welcome"),
+});
+
 const route = useRoute();
 const router = useRouter();
 const token = route.query.token;
@@ -171,21 +177,23 @@ if (!allowed)
   });
 
 const currentAction = ref(-1);
-const actions = ref<Array<{
-  name: string;
-  description: string;
-  icon: Component;
-  page: Component;
-}>>([
+const actions = ref<
+  Array<{
+    name: string;
+    description: string;
+    icon: Component;
+    page: Component;
+  }>
+>([
   {
-    name: "Setup your admin account.",
-    description: "You need at least one account to start using Drop.",
+    name: t("setup.stages.account.name"),
+    description: t("setup.stages.account.description"),
     icon: UserCircleIcon,
     page: SetupAccount,
   },
   {
-    name: "Create a library",
-    description: "Add at least one library source to use Drop.",
+    name: t("setup.stages.library.name"),
+    description: t("setup.stages.library.description"),
     icon: ServerStackIcon,
     page: SetupLibrary,
   },

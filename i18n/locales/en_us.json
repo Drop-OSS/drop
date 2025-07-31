@@ -81,6 +81,16 @@
         "description": "OpenID Connect (OIDC) is an OAuth2 extension commonly supported. Drop requires OIDC configuration to be done via environment variables.",
         "skip": "I have a user with OIDC"
       }
+    },
+    "stages": {
+      "account": {
+        "name": "Setup your admin account.",
+        "description": "You need at least one account to start using Drop."
+      },
+      "library": {
+        "name": "Create a library.",
+        "description": "Add at least one library source to use Drop."
+      }
     }
   },
   "cancel": "Cancel",
