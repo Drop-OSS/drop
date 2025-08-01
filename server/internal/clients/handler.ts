@@ -41,8 +41,17 @@ export class ClientHandler {
       data: metadata,
       timeout: setTimeout(
         () => {
-          if (this.temporaryClientTable.has(clientId))
+          const client = this.temporaryClientTable.get(clientId);
+          if (client) {
+            if (client.peer) {
+              client.peer.send(
+                JSON.stringify({ type: "error", value: "Request timed out." }),
+              );
+              client.peer.close();
+            }
             this.temporaryClientTable.delete(clientId);
+          }
+
           const code = this.codeClientMap
             .entries()
             .find(([_, v]) => v === clientId);
