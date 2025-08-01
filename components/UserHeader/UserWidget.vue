@@ -100,6 +100,11 @@ const navigation = computed<NavigationItem[]>(() =>
       route: "/account",
       prefix: "",
     },
+    {
+      label: "Authorize client",
+      route: "/client/code",
+      prefix: "",
+    },
   ].filter((e) => e !== undefined),
 );
 </script>

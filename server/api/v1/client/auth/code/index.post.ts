@@ -21,10 +21,15 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Not allowed to authorize this client.",
     });
 
+  if (!client.peer)
+    throw createError({
+      statusCode: 500,
+      statusMessage: "No client listening for authorization.",
+    });
+
   const token = await clientHandler.generateAuthToken(clientId);
 
-  return {
-    redirect: `drop://handshake/${clientId}/${token}`,
-    token: `${clientId}/${token}`,
-  };
+  await clientHandler.sendAuthToken(clientId, token);
+
+  return;
 });

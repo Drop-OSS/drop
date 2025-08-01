@@ -1,3 +1,5 @@
+import { type } from "arktype";
+import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 import type {
   CapabilityConfiguration,
   InternalClientCapability,
@@ -5,34 +7,28 @@ import type {
 import capabilityManager, {
   validCapabilities,
 } from "~/server/internal/clients/capabilities";
-import clientHandler from "~/server/internal/clients/handler";
+import clientHandler, { AuthMode } from "~/server/internal/clients/handler";
 import { parsePlatform } from "~/server/internal/utils/parseplatform";
 
-export default defineEventHandler(async (h3) => {
-  const body = await readBody(h3);
+const ClientAuthInitiate = type({
+  name: "string",
+  platform: "string",
+  capabilities: "object",
+  mode: type.valueOf(AuthMode).default(AuthMode.Callback),
+}).configure(throwingArktype);
 
-  const name = body.name;
+export default defineEventHandler(async (h3) => {
+  const body = await readDropValidatedBody(h3, ClientAuthInitiate);
+
   const platformRaw = body.platform;
   const capabilities: Partial<CapabilityConfiguration> =
     body.capabilities ?? {};
-
-  if (!name || !platformRaw)
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Missing name or platform in body",
-    });
 
   const platform = parsePlatform(platformRaw);
   if (!platform)
     throw createError({
       statusCode: 400,
       statusMessage: "Invalid or unsupported platform",
-    });
-
-  if (!capabilities || typeof capabilities !== "object")
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Capabilities must be an array",
     });
 
   const capabilityIterable = Object.entries(capabilities) as Array<
@@ -64,11 +60,12 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Invalid capability configuration.",
     });
 
-  const clientId = await clientHandler.initiate({
-    name,
+  const result = await clientHandler.initiate({
+    name: body.name,
     platform,
     capabilities,
+    mode: body.mode,
   });
 
-  return `/client/${clientId}/callback`;
+  return result;
 });
