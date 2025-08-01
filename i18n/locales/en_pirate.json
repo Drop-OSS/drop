@@ -421,7 +421,8 @@
         "cleanupSessionsDescription": "Cleans up expired sessions to save space and keep ye safe, ye dog!",
         "cleanupSessionsName": "Clean up sessions."
       },
-      "viewTask": "View {arrow}"
+      "viewTask": "View {arrow}",
+      "weeklyScheduledTitle": "Weekly chores"
     }
   },
   "title": "Drop",
@@ -460,6 +461,7 @@
       },
       "authoptionsHeader": "Passage Options",
       "delete": "Scuttle!",
+      "deleteUser": "Make {0} walk the plank!",
       "description": "Manage the crew on yer Drop vessel, and set yer passage methods, savvy?",
       "displayNameHeader": "Scallywag Name",
       "emailHeader": "Salty Mail",
