@@ -66,7 +66,7 @@ export default defineNitroPlugin(async () => {
   await prisma.game.deleteMany({
     where: {
       libraryId: null,
-    }
+    },
   });
 
   for (const library of libraries) {
