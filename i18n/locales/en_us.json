@@ -67,38 +67,6 @@
     "signout": "Signout",
     "username": "Username"
   },
-  "setup": {
-    "welcome": "Hey there.",
-    "welcomeDescription": "Welcome to Drop setup wizard. It will walk you through configuring Drop for the first time, and how it works.",
-    "finish": "Let's go {arrow}",
-    "noPage": "no page",
-    "auth": {
-      "title": "Authentication",
-      "description": "Authentication in Drop happens through multiple configured 'providers'. Each one can allow users to sign-in through their method. To get started, have at least one authentication provider enabled, and create an account through it.",
-      "docs": "Documentation {arrow}",
-      "enabled": "Enabled?",
-      "simple": {
-        "title": "Simple authentication",
-        "description": "Simple authentication uses username/password to authentication users. It is enabled by default if no other authentication provider is enabled.",
-        "register": "Register as admin {arrow}"
-      },
-      "openid": {
-        "title": "OpenID Connect",
-        "description": "OpenID Connect (OIDC) is an OAuth2 extension commonly supported. Drop requires OIDC configuration to be done via environment variables.",
-        "skip": "I have a user with OIDC"
-      }
-    },
-    "stages": {
-      "account": {
-        "name": "Setup your admin account.",
-        "description": "You need at least one account to start using Drop."
-      },
-      "library": {
-        "name": "Create a library.",
-        "description": "Add at least one library source to use Drop."
-      }
-    }
-  },
   "cancel": "Cancel",
   "chars": {
     "arrow": "→",
@@ -107,6 +75,7 @@
     "srComma": ", {0}"
   },
   "common": {
+    "add": "Add",
     "cannotUndo": "This action cannot be undone.",
     "close": "Close",
     "create": "Create",
@@ -126,8 +95,7 @@
     "servers": "Servers",
     "srLoading": "Loading...",
     "tags": "Tags",
-    "today": "Today",
-    "add": "Add"
+    "today": "Today"
   },
   "delete": "Delete",
   "drop": {
@@ -284,9 +252,7 @@
     "addToLib": "Add to Library",
     "admin": {
       "detectedGame": "Drop has detected you have new games to import.",
-      "detectedVersion": "Drop has detected you have new verions of this game to import.",
-      "offlineTitle": "Game offline",
-      "offline": "Drop couldn't access this game.",
+      "detectedVersion": "Drop has detected you have new versions of this game to import.",
       "game": {
         "addCarouselNoImages": "No images to add.",
         "addDescriptionNoImages": "No images to add.",
@@ -307,6 +273,8 @@
       },
       "gameLibrary": "Game Library",
       "import": {
+        "bulkImportDescription": "When on, this page won't redirect you to the import task, so you can import multiple games in succession.",
+        "bulkImportTitle": "Bulk import mode",
         "import": "Import",
         "link": "Import {arrow}",
         "loading": "Loading game results...",
@@ -317,8 +285,6 @@
         "selectGamePlaceholder": "Please select a game...",
         "selectGameSearch": "Select game",
         "selectPlatform": "Please select a platform...",
-        "bulkImportTitle": "Bulk import mode",
-        "bulkImportDescription": "When on, this page won't redirect you to the import task, so you can import multiple games in succession.",
         "version": {
           "advancedOptions": "Advanced options",
           "import": "Import version",
@@ -344,16 +310,64 @@
         },
         "withoutMetadata": "Import without metadata"
       },
+      "metadata": {
+        "companies": {
+          "action": "Manage {arrow}",
+          "addGame": {
+            "description": "Pick a game to add to the company, and whether it should be listed as a developer, publisher, or both.",
+            "developer": "Developer?",
+            "noGames": "No games to add",
+            "publisher": "Publisher?",
+            "title": "Connect game to this company"
+          },
+          "description": "Companies organize games by who they were developed or published by.",
+          "editor": {
+            "action": "Add Game {plus}",
+            "developed": "Developed",
+            "libraryDescription": "Add, remove, or customise what this company has developed and/or published.",
+            "libraryTitle": "Game Library",
+            "noDescription": "(no description)",
+            "published": "Published",
+            "uploadBanner": "Upload banner",
+            "uploadIcon": "Upload icon"
+          },
+          "modals": {
+            "nameDescription": "Edit the company's name. Used to match to new game imports.",
+            "nameTitle": "Edit company name",
+            "shortDeckDescription": "Edit the company's description. Doesn't affect long (markdown) description.",
+            "shortDeckTitle": "Edit company description",
+            "websiteDescription": "Edit the company's website. Note: this will be a link, and won't have redirect protection.",
+            "websiteTitle": "Edit company website"
+          },
+          "noCompanies": "No companies",
+          "noGames": "No games",
+          "search": "Search companies...",
+          "searchGames": "Search company games...",
+          "title": "Companies"
+        },
+        "tags": {
+          "action": "Manage {arrow}",
+          "create": "Create",
+          "description": "Tags are automatically created from imported genres. You can add custom tags to add categorisation to your game library.",
+          "modal": {
+            "description": "Create a tag to organize your library.",
+            "title": "Create Tag"
+          },
+          "title": "Tags"
+        }
+      },
       "metadataProvider": "Metadata provider",
       "noGames": "No games imported",
+      "offline": "Drop couldn't access this game.",
+      "offlineTitle": "Game offline",
       "openEditor": "Open in Editor {arrow}",
       "openStore": "Open in Store",
       "shortDesc": "Short Description",
       "sources": {
         "create": "Create source",
-        "edit": "Edit source",
         "createDesc": "Drop will use this source to access your game library, and make them available.",
         "desc": "Configure your library sources, where Drop will look for new games and versions to import.",
+        "edit": "Edit source",
         "fsDesc": "Imports games from a path on disk. Requires version-based folder structure, and supports archived games.",
         "fsFlatDesc": "Imports games from a path on disk, but without a separate version subfolder. Useful when migrating an existing library to Drop.",
         "fsPath": "Path",
@@ -373,53 +387,7 @@
         "noVersions": "You have no versions of this game available.",
         "noVersionsAdded": "no versions added"
       },
-      "versionPriority": "Version priority",
-      "metadata": {
-        "tags": {
-          "title": "Tags",
-          "description": "Tags are automatically created from imported genres. You can add custom tags to add categorisation to your game library.",
-          "action": "Manage {arrow}",
-          "create": "Create",
-          "modal": {
-            "title": "Create Tag",
-            "description": "Create a tag to organize your library."
-          }
-        },
-        "companies": {
-          "title": "Companies",
-          "description": "Companies organize games by who they were developed or published by.",
-          "action": "Manage {arrow}",
-          "search": "Search companies...",
-          "searchGames": "Search company games...",
-          "noCompanies": "No companies",
-          "noGames": "No games",
-          "editor": {
-            "libraryTitle": "Game Library",
-            "libraryDescription": "Add, remove, or customise what this company has developed and/or published.",
-            "action": "Add Game {plus}",
-            "published": "Published",
-            "developed": "Developed",
-            "uploadIcon": "Upload icon",
-            "uploadBanner": "Upload banner",
-            "noDescription": "(no description)"
-          },
-          "addGame": {
-            "title": "Connect game to this company",
-            "description": "Pick a game to add to the company, and whether it should be listed as a developer, publisher, or both.",
-            "publisher": "Publisher?",
-            "developer": "Developer?",
-            "noGames": "No games to add"
-          },
-          "modals": {
-            "nameTitle": "Edit company name",
-            "nameDescription": "Edit the company's name. Used to match to new game imports.",
-            "shortDeckTitle": "Edit company description",
-            "shortDeckDescription": "Edit the company's description. Doesn't affect long (markdown) description.",
-            "websiteTitle": "Edit company website",
-            "websiteDescription": "Edit the company's website. Note: this will be a link, and won't have redirect protection."
-          }
-        }
-      }
+      "versionPriority": "Version priority"
     },
     "back": "Back to Library",
     "collection": {
@@ -489,6 +457,38 @@
       },
       "title": "Settings"
     }
+  },
+  "setup": {
+    "auth": {
+      "description": "Authentication in Drop happens through multiple configured 'providers'. Each one can allow users to sign-in through their method. To get started, have at least one authentication provider enabled, and create an account through it.",
+      "docs": "Documentation {arrow}",
+      "enabled": "Enabled?",
+      "openid": {
+        "description": "OpenID Connect (OIDC) is an OAuth2 extension commonly supported. Drop requires OIDC configuration to be done via environment variables.",
+        "skip": "I have a user with OIDC",
+        "title": "OpenID Connect"
+      },
+      "simple": {
+        "description": "Simple authentication uses username/password to authentication users. It is enabled by default if no other authentication provider is enabled.",
+        "register": "Register as admin {arrow}",
+        "title": "Simple authentication"
+      },
+      "title": "Authentication"
+    },
+    "finish": "Let's go {arrow}",
+    "noPage": "no page",
+    "stages": {
+      "account": {
+        "description": "You need at least one account to start using Drop.",
+        "name": "Setup your admin account."
+      },
+      "library": {
+        "description": "Add at least one library source to use Drop.",
+        "name": "Create a library."
+      }
+    },
+    "welcome": "Hey there.",
+    "welcomeDescription": "Welcome to Drop setup wizard. It will walk you through configuring Drop for the first time, and how it works."
   },
   "store": {
     "about": "About",
@@ -568,6 +568,7 @@
     "admin": {
       "adminHeader": "Admin?",
       "adminUserLabel": "Admin user",
+      "authLink": "Authentication {arrow}",
       "authentication": {
         "configure": "Configure",
         "description": "Drop supports a variety of \"authentication mechanisms\". As you enable or disable them, they are shown on the sign in screen for users to select from. Click the dot menu to configure the authentication mechanism.",
@@ -579,7 +580,6 @@
         "srOpenOptions": "Open options",
         "title": "Authentication"
       },
-      "authLink": "Authentication {arrow}",
       "authoptionsHeader": "Auth Options",
       "delete": "Delete",
       "deleteUser": "Delete user {0}",
