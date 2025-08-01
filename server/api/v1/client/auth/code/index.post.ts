@@ -29,7 +29,7 @@ export default defineEventHandler(async (h3) => {
 
   const token = await clientHandler.generateAuthToken(clientId);
 
-  await client.peer.send(JSON.stringify({ type: "token", value: `${clientId}/${token}` }));
+  await clientHandler.sendAuthToken(clientId, token);
 
   return;
 });
