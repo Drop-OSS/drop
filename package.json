@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "license": "AGPL-3.0-or-later",
+  "engines": {
+    "node": ">=22.16.0"
+  },
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
