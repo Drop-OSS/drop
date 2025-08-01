@@ -124,11 +124,21 @@ export class ClientHandler {
     return token;
   }
 
-  async sendAuthToken(clientId: string, token: string){
+  async sendAuthToken(clientId: string, token: string) {
     const client = this.temporaryClientTable.get(clientId);
-    if(!client) throw createError({statusCode: 500, statusMessage: "Corrupted code, please restart the process."});
-    if(!client.peer) throw createError({statusCode: 400, statusMessage: "Client has not connected yet. Please try again later."});
-  await client.peer.send(JSON.stringify({ type: "token", value: `${clientId}/${token}` }));
+    if (!client)
+      throw createError({
+        statusCode: 500,
+        statusMessage: "Corrupted code, please restart the process.",
+      });
+    if (!client.peer)
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Client has not connected yet. Please try again later.",
+      });
+    await client.peer.send(
+      JSON.stringify({ type: "token", value: `${clientId}/${token}` }),
+    );
   }
 
   async fetchClientMetadataByToken(token: string) {
