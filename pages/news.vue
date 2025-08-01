@@ -105,7 +105,6 @@ const news = useNews();
 
 if (!news.value) {
   await fetchNews();
-  console.log("fetched news");
 }
 
 const { t } = useI18n();

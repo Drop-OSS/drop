@@ -18,6 +18,7 @@ export default defineEventHandler<{ body: typeof CreateLibrarySource.infer }>(
   async (h3) => {
     const allowed = await aclManager.allowSystemACL(h3, [
       "library:sources:new",
+      "setup",
     ]);
     if (!allowed) throw createError({ statusCode: 403 });
 

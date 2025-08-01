@@ -1,1 +1,23 @@
-{}
+{
+  "setup": {
+    "welcome": "G'day."
+  },
+  "account": {
+    "devices": {
+      "subheader": "Manage the devices authorised to access your Drop account."
+    }
+  },
+  "auth": {
+    "callback": {
+      "authClient": "Authorise client?",
+      "authorize": "Authorise",
+      "authorizedClient": "Drop has successfully authorised the client. You may now close this window."
+    }
+  },
+  "library": {
+    "collection": {
+      "subheader": "Add a new collection to organise your games"
+    },
+    "subheader": "Organise your games into collections for easy access, and access all your games."
+  }
+}
