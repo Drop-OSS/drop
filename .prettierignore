@@ -1,1 +1,3 @@
 drop-base/
+# file is fully managed by pnpm, no reason to break it
+pnpm-lock.yaml
