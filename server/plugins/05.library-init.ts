@@ -61,6 +61,14 @@ export default defineNitroPlugin(async () => {
     });
   }
 
+  // Delete all games that don't have a library provider after the legacy handler
+  // (leftover from a bug)
+  await prisma.game.deleteMany({
+    where: {
+      libraryId: null,
+    }
+  });
+
   for (const library of libraries) {
     const constructor = libraryConstructors[library.backend];
     try {
