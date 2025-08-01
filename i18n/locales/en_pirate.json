@@ -109,6 +109,25 @@
     "listItemPlaceholder": "list item, eh?"
   },
   "errors": {
+    "admin": {
+      "user": {
+        "delete": {
+          "desc": "Couldn't make {0} walk the plank!",
+          "title": "Couldn't make 'em walk the plank"
+        }
+      }
+    },
+    "auth": {
+      "disabled": "Ya' angered the Cap'n, give him a holler!",
+      "invalidInvite": "Boarding pass no longer valid, ya scallywag!",
+      "invalidPassState": "Cap'n's rolled snake eyes, see how he's doin'.",
+      "invalidUserOrPass": "Are ya lying to me about your username and password, ya dog?",
+      "inviteIdRequired": "Ya need to include the ID for your boarding pass, matey!",
+      "method": {
+        "signinDisabled": "No entrance through these parts, arr!"
+      },
+      "usernameTaken": "We already have a scallywag with that 'ere name of yours."
+    },
     "backHome": "{arrow} Back to yer safe harbor",
     "game": {
       "banner": {
@@ -203,7 +222,8 @@
       "discord": "Discord, argh!",
       "github": "GitHub, savvy?"
     },
-    "topSellers": "Top Plunderers"
+    "topSellers": "Top Plunderers",
+    "version": "Drop {version} {gitRef}"
   },
   "header": {
     "admin": {
@@ -401,7 +421,8 @@
         "cleanupSessionsDescription": "Cleans up expired sessions to save space and keep ye safe, ye dog!",
         "cleanupSessionsName": "Clean up sessions."
       },
-      "viewTask": "View {arrow}"
+      "viewTask": "View {arrow}",
+      "weeklyScheduledTitle": "Weekly chores"
     }
   },
   "title": "Drop",
@@ -439,6 +460,8 @@
         "title": "Passage"
       },
       "authoptionsHeader": "Passage Options",
+      "delete": "Scuttle!",
+      "deleteUser": "Make {0} walk the plank!",
       "description": "Manage the crew on yer Drop vessel, and set yer passage methods, savvy?",
       "displayNameHeader": "Scallywag Name",
       "emailHeader": "Salty Mail",

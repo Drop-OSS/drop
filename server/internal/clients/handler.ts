@@ -7,11 +7,18 @@ import type {
   InternalClientCapability,
 } from "./capabilities";
 import capabilityManager from "./capabilities";
+import type { PeerImpl } from "../tasks";
+
+export enum AuthMode {
+  Callback = "callback",
+  Code = "code",
+}
 
 export interface ClientMetadata {
   name: string;
   platform: Platform;
   capabilities: Partial<CapabilityConfiguration>;
+  mode: AuthMode;
 }
 
 export class ClientHandler {
@@ -22,8 +29,10 @@ export class ClientHandler {
       data: ClientMetadata;
       userId?: string;
       authToken?: string;
+      peer?: PeerImpl;
     }
   >();
+  private codeClientMap = new Map<string, string>();
 
   async initiate(metadata: ClientMetadata) {
     const clientId = randomUUID();
@@ -32,14 +41,61 @@ export class ClientHandler {
       data: metadata,
       timeout: setTimeout(
         () => {
-          if (this.temporaryClientTable.has(clientId))
+          const client = this.temporaryClientTable.get(clientId);
+          if (client) {
+            if (client.peer) {
+              client.peer.send(
+                JSON.stringify({ type: "error", value: "Request timed out." }),
+              );
+              client.peer.close();
+            }
             this.temporaryClientTable.delete(clientId);
+          }
+
+          const code = this.codeClientMap
+            .entries()
+            .find(([_, v]) => v === clientId);
+          if (code) this.codeClientMap.delete(code[0]);
         },
         1000 * 60 * 10,
       ), // 10 minutes
     });
 
-    return clientId;
+    switch (metadata.mode) {
+      case AuthMode.Callback:
+        return `/client/authorize/${clientId}`;
+      case AuthMode.Code: {
+        const code = randomUUID()
+          .replaceAll(/-/g, "")
+          .slice(0, 7)
+          .toUpperCase();
+        this.codeClientMap.set(code, clientId);
+        return code;
+      }
+    }
+  }
+
+  async connectCodeListener(code: string, peer: PeerImpl) {
+    const clientId = this.codeClientMap.get(code);
+    if (!clientId)
+      throw createError({
+        statusCode: 403,
+        statusMessage: "Invalid or unknown code.",
+      });
+    const metadata = this.temporaryClientTable.get(clientId);
+    if (!metadata)
+      throw createError({ statusCode: 500, statusMessage: "Broken code." });
+    if (metadata.peer)
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Pre-existing listener for this code.",
+      });
+    metadata.peer = peer;
+    this.temporaryClientTable.set(clientId, metadata);
+  }
+
+  async fetchClientIdByCode(code: string) {
+    return this.codeClientMap.get(code);
   }
 
   async fetchClientMetadata(clientId: string) {
@@ -66,6 +122,23 @@ export class ClientHandler {
     entry.authToken = token;
 
     return token;
+  }
+
+  async sendAuthToken(clientId: string, token: string) {
+    const client = this.temporaryClientTable.get(clientId);
+    if (!client)
+      throw createError({
+        statusCode: 500,
+        statusMessage: "Corrupted code, please restart the process.",
+      });
+    if (!client.peer)
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Client has not connected yet. Please try again later.",
+      });
+    await client.peer.send(
+      JSON.stringify({ type: "token", value: `${clientId}/${token}` }),
+    );
   }
 
   async fetchClientMetadataByToken(token: string) {

@@ -445,6 +445,7 @@ export type TaskMessage = {
 
 export type PeerImpl = {
   send: (message: string) => void;
+  close: () => void;
 };
 
 export interface BuildTask {

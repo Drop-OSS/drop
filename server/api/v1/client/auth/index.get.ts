@@ -13,14 +13,20 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Provide client ID in request params as 'id'",
     });
 
-  const data = await clientHandler.fetchClientMetadata(providedClientId);
-  if (!data)
+  const client = await clientHandler.fetchClient(providedClientId);
+  if (!client)
     throw createError({
       statusCode: 404,
       statusMessage: "Request not found.",
     });
 
+  if (client.userId && user.userId !== client.userId)
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Client already claimed.",
+    });
+
   await clientHandler.attachUserId(providedClientId, user.userId);
 
-  return data;
+  return client.data;
 });
