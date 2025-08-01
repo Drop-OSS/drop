@@ -19,7 +19,7 @@
       "title": "Messages from the Crows' Nest",
       "unread": "Unread Messages"
     },
-    "settings": "Account Settings, savvy?",
+    "settings": "Settings, savvy?",
     "title": "Yer Own Coffer"
   },
   "actions": "Deeds",
@@ -37,6 +37,10 @@
       "permWarning": "Grantin' this request allows \"{name}\" on \"{platform}\" to:",
       "requestedAccess": "\"{name}\" has requested passage to yer Drop coffer.",
       "success": "Shiver me timbers, it worked!"
+    },
+    "code": {
+      "description": "Use the secret map to dock ye ship when lacking a web surfer.",
+      "title": "Dock ye ship"
     },
     "confirmPassword": "Confirm @:auth.password",
     "displayName": "Yer Scallywag Name",
@@ -71,6 +75,7 @@
     "srComma": ", {0}"
   },
   "common": {
+    "add": "Append",
     "cannotUndo": "This deed cannot be undone, ye hear!",
     "close": "Shut yer trap!",
     "create": "Forge!",
@@ -83,9 +88,12 @@
     "insert": "Insert",
     "name": "Name, argh!",
     "noResults": "No plunder found!",
+    "noSelected": "No cargo selected.",
+    "remove": "Walk the plank",
     "save": "Stow it!",
+    "saved": "Preserved",
     "servers": "Ships",
-    "srLoading": "Loading, loading, argh...",
+    "srLoading": "Loading, loading, argh…",
     "tags": "Marks",
     "today": "Today"
   },
@@ -228,6 +236,7 @@
   "header": {
     "admin": {
       "admin": "Cap'n",
+      "metadata": "Meta argh",
       "tasks": "Duties",
       "users": "Crew"
     },
