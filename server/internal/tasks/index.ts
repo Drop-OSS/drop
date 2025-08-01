@@ -41,7 +41,7 @@ type TaskPoolEntry = FinishedTask & {
  * easily without re-inventing the wheel every time.
  */
 class TaskHandler {
-  // registry of schedualed tasks to be created
+  // registry of scheduled tasks to be created
   private taskCreators: Map<TaskGroup, () => Task> = new Map();
 
   // list of all currently running tasks

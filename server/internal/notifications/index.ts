@@ -1,5 +1,5 @@
 /*
-The notification system handles the recieving, creation and sending of notifications in Drop
+The notification system handles the receiving, creation and sending of notifications in Drop
 
 Design goals:
 1. Nonce-based notifications; notifications should only be created once

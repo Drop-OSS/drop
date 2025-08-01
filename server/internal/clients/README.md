@@ -16,7 +16,7 @@ Server sends redirect to `drop://handshake/[id]/[token]`, where the token is an 
 
 ## 3. Client requests certificates
 
-Client makes request: `POST /api/v1/client/auth/handshake` with the token recieved in the previous step.
+Client makes request: `POST /api/v1/client/auth/handshake` with the token received in the previous step.
 
 The server uses it's CA to generate a public-private key pair, the CN of the client ID. It then sends that pair, plus the CA's public key, to the client, which stores it all.
 
