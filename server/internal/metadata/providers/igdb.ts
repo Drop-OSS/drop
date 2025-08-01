@@ -1,19 +1,19 @@
 import type { CompanyModel } from "~/prisma/client/models";
 import { MetadataSource } from "~/prisma/client/enums";
-import type { MetadataProvider } from ".";
-import { MissingMetadataProviderConfig } from ".";
+import type { MetadataProvider } from "../content";
+import { MissingMetadataProviderConfig } from "../content";
 import type {
   GameMetadataSearchResult,
   _FetchGameMetadataParams,
   GameMetadata,
   _FetchCompanyMetadataParams,
   CompanyMetadata,
-} from "./types";
+} from "../content/types";
 import type { AxiosRequestConfig } from "axios";
 import axios from "axios";
 import { DateTime } from "luxon";
 import * as jdenticon from "jdenticon";
-import type { TaskRunContext } from "../tasks";
+import type { TaskRunContext } from "../../tasks";
 import { logger } from "~/server/internal/logging";
 
 type IGDBID = number;
