@@ -309,7 +309,7 @@ import {
 import { XCircleIcon } from "@heroicons/vue/16/solid";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
-import type { GameMetadataSearchResult } from "~/server/internal/metadata/types";
+import type { GameMetadataSearchResult } from "~/server/internal/metadata/content/types";
 
 definePageMeta({
   layout: "admin",

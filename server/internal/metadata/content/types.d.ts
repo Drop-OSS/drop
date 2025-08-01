@@ -1,6 +1,6 @@
 import type { Company, GameRating } from "~/prisma/client";
-import type { TransactionDataType } from "../objects/transactional";
-import type { ObjectReference } from "../objects/objectHandler";
+import type { TransactionDataType } from "../../objects/transactional";
+import type { ObjectReference } from "../../objects/objectHandler";
 
 export interface GameMetadataSearchResult {
   id: string;

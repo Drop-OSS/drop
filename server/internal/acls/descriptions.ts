@@ -71,6 +71,7 @@ export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
   "game:version:update": "Update the version order on a game.",
   "game:version:delete": "Delete a version for a game.",
   "game:image:new": "Upload an image for a game.",
+  "game:image:import": "Import images from image providers for a game.",
   "game:image:delete": "Delete an image for a game.",
 
   "company:read": "Fetch companies.",

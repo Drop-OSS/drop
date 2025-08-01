@@ -1,5 +1,5 @@
 import aclManager from "~/server/internal/acls";
-import metadataHandler from "~/server/internal/metadata";
+import metadataHandler from "~/server/internal/metadata/content";
 
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["import:game:read"]);
