@@ -91,10 +91,11 @@
         </div>
 
         <div class="flex items-center justify-center xl:col-span-3 mt-8">
-          <p
+          <NuxtLink
+            :to="`https://github.com/Drop-OSS/drop/releases/tag/${versionInfo.version}`"
             class="text-xs text-zinc-700 hover:text-zinc-400 transition-colors duration-200 cursor-default select-none"
           >
-            <i18n-t keypath="footer.version" tag="p" scope="global">
+            <i18n-t keypath="footer.version" tag="span" scope="global">
               <template #version>
                 <span>{{ versionInfo.version }}</span>
               </template>
@@ -102,7 +103,7 @@
                 <span>{{ versionInfo.gitRef }}</span>
               </template>
             </i18n-t>
-          </p>
+          </NuxtLink>
         </div>
       </div>
     </div>
