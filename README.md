@@ -43,7 +43,7 @@ To add a game to the drop library, do as follows:
 6. Navigate to http://your.drop.server.ip:3000/
 7. Import game metadata (uses GiantBomb API Key) by selecting the game and specifying which entry to import
 8. Navigate to http://your.drop.server.ip:3000/admin/library
-9. You should see the game which you have just imported listed in this menu. There should be a notification that "Drop has detected you have new verions of this game to import". Select import here.
+9. You should see the game which you have just imported listed in this menu. There should be a notification that "Drop has detected you have new versions of this game to import". Select import here.
 10. Select the game version to import and thus fill in fields as required.
 
 ## Tech Stack

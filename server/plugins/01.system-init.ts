@@ -3,7 +3,7 @@ import prisma from "~/server/internal/db/database";
 export default defineNitroPlugin(async (_nitro) => {
   // Ensure system user exists
   // The system user owns any user-based code
-  // that we want to re-use for the app
+  // that we want to reuse for the app
   // e.g. notifications
   await prisma.user.upsert({
     where: {
