@@ -16,11 +16,15 @@ you would make is not already covered.
 - [Reporting Issues](#reporting-issues)
   - [You have a problem](#you-have-a-problem)
   - [You have a suggestion](#you-have-a-suggestion)
+- [Development](#development)
+  - [Note: `--optional` flag is **REQUIRED**](#note-optional-flag-is-required)
+  - [Tech Stack](#tech-stack)
 - [Submitting Pull Requests](#submitting-pull-requests)
   - [Getting started](#getting-started)
   - [You have a solution](#you-have-a-solution)
   - [You have an addition](#you-have-an-addition)
 - [Use the Search, Luke](#use-the-search-luke)
+- [Translation](#translation)
 - [Commit Guidelines](#commit-guidelines)
   - [Format](#format)
   - [Style](#style)
@@ -64,6 +68,31 @@ If you find one, comment on it, so we know more people are supporting it.
 
 If not, you can go ahead and create an issue. Please copy to anyone relevant (e.g. plugin
 maintainers) by mentioning their GitHub handle (starting with `@`) in your message.
+
+## Development
+
+To get started with development, you need `yarn` and `docker compose` installed (or know how to set up a PostgreSQL database).
+
+Steps:
+
+1. Run `git submodule update --init --recursive` to setup submodules
+1. Copy the `.env.example` to `.env` and add any api keys you need to use (e.g. for the Giant Bomb API)
+   - You can find other configuration options in the [documentation](https://docs.droposs.org/)
+1. Create the `.data` directory with `mkdir .data`
+1. Ensure that your user owns the `.data` directory with `sudo chown -R $(id -u $(whoami))`
+1. Open up a terminal and navigate to `dev-tools`, and run `docker compose up`
+1. Open up another terminal in the root directory of the project and run `yarn` and then `yarn prisma migrate dev` to setup the database
+1. Run `yarn dev` to start the development server
+
+As part of the first-time bootstrap, Drop creates an invitation with the fixed id of 'admin'. So, to create an admin account, go to:
+
+http://localhost:3000/auth/register?id=admin
+
+### Tech Stack
+
+This repo uses the Nuxt 3 + TailwindCSS stack, with the `yarn` package manager.
+
+For the database, Drop uses Prisma connected to PostgreSQL.
 
 ## Submitting Pull Requests
 
@@ -132,7 +161,7 @@ and [create an issue](#reporting-issues) or [submit a PR](#submitting-pull-reque
 
 ## Translation
 
-If you want to help translate Drop, we would love to have your help! You can do so on our weblate instance. Please make sure to read the [message format syntax](https://vue-i18n.intlify.dev/guide/essentials/syntax.html) page before starting. Failure to do so may result in your translations causing errors in Drop.
+If you want to help translate Drop, we would love to have your help! You can do so on our weblate instance. Please make sure to **read** the [message format syntax](https://vue-i18n.intlify.dev/guide/essentials/syntax.html) page before starting. We use this special syntax to enable high quality translations, and failure to do so may result in your translations **causing errors** in Drop.
 
 ## Commit Guidelines
 
