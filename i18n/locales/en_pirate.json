@@ -237,6 +237,7 @@
     "admin": {
       "admin": "Cap'n",
       "metadata": "Meta argh",
+      "settings": "Shape",
       "tasks": "Duties",
       "users": "Crew"
     },
@@ -272,16 +273,18 @@
       },
       "gameLibrary": "Game Treasure Hoard",
       "import": {
+        "bulkImportDescription": "When importing ye versions, ye won't be sent to the import duty.",
+        "bulkImportTitle": "Plunder the imports",
         "import": "Import, ye dog!",
         "link": "Import {arrow}",
-        "loading": "Loadin' plunder results, arrr...",
+        "loading": "Loadin' plunder results, arrr…",
         "search": "Search",
         "searchPlaceholder": "Fallout 4, savvy?",
-        "selectDir": "Pick a directory, ye landlubber...",
+        "selectDir": "Pick a directory, ye landlubber…",
         "selectGame": "Pick plunder to import",
-        "selectGamePlaceholder": "Pick a game, ye dog...",
+        "selectGamePlaceholder": "Pick a game, ye dog…",
         "selectGameSearch": "Pick game",
-        "selectPlatform": "Pick a ship, ye scallywag...",
+        "selectPlatform": "Pick a ship, ye scallywag…",
         "version": {
           "advancedOptions": "Advanced options, savvy?",
           "import": "Import version",
@@ -289,7 +292,7 @@
           "launchCmd": "Launch executable/command, argh!",
           "launchDesc": "Executable to launch the game, matey!",
           "launchPlaceholder": "game.exe, aye!",
-          "loadingVersion": "Loading version charts...",
+          "loadingVersion": "Loading version charts…",
           "noAdv": "No advanced options for this rig, argh.",
           "noVersions": "No versions to import, savvy!",
           "platform": "Ship type",
@@ -306,6 +309,16 @@
           "version": "Pick version to import"
         },
         "withoutMetadata": "Import without charts"
+      },
+      "metadata": {
+        "companies": {
+          "action": "Shape {arrow}",
+          "addGame": {
+            "developer": "Creator?",
+            "noGames": "No games to plunder",
+            "publisher": "Distributor?"
+          }
+        }
       },
       "metadataProvider": "Charts Provider",
       "noGames": "No plunder imported, savvy!",
