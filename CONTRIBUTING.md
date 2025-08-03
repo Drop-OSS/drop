@@ -161,7 +161,7 @@ and [create an issue](#reporting-issues) or [submit a PR](#submitting-pull-reque
 
 ## Translation
 
-If you want to help translate Drop, we would love to have your help! You can do so on our weblate instance. Please make sure to **read** the [message format syntax](https://vue-i18n.intlify.dev/guide/essentials/syntax.html) page before starting. We use this special syntax to enable high quality translations, and failure to do so may result in your translations **causing errors** in Drop.
+If you want to help translate Drop, we would love to have your help! You can do so on our [weblate instance](https://translate.droposs.org/engage/drop/). Please make sure to **read** the [message format syntax](https://vue-i18n.intlify.dev/guide/essentials/syntax.html) page before starting. We use this special syntax to enable high quality translations, and failure to do so may result in your translations **causing errors** in Drop.
 
 ## Commit Guidelines
 

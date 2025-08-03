@@ -12,7 +12,7 @@
 [![Discord](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/ACq4qZp4a9)
 [![Open Collective](https://img.shields.io/badge/OpenCollective-1F87FF?style=for-the-badge&logo=OpenCollective&logoColor=white)](https://opencollective.com/drop-oss)
 [![Weblate project translated](https://img.shields.io/weblate/progress/drop?server=https%3A%2F%2Ftranslate.droposs.org&style=for-the-badge&logo=weblate)
-](https://translate.droposs.org/projects/drop/)
+](https://translate.droposs.org/engage/drop/)
 
 Drop is an open-source game distribution platform, like GameVault or Steam. It's designed to distribute and shared DRM-free game quickly, all while being incredibly flexible, beautiful and fast.
 
@@ -32,4 +32,6 @@ See our documentation on how to [deploy Drop](https://docs.droposs.org/docs/guid
 
 ## Contributing
 
-Please see the [in-depth contributing guide](CONTRIBUTING.md)
+Please see the [in-depth contributing guide](CONTRIBUTING.md). The guide includes information on how to set up the project, how to contribute code, how to report issues, and even how to effectively translate Drop.
+
+[![Drop Translation Progress](https://translate.droposs.org/widget/drop/horizontal-auto.svg)](https://translate.droposs.org/engage/drop/)
