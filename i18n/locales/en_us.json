@@ -273,7 +273,7 @@
       },
       "gameLibrary": "Game Library",
       "import": {
-        "bulkImportDescription": "When on, this page won't redirect you to the import task, so you can import multiple games in succession.",
+        "bulkImportDescription": "When on this page, you won't be redirect to the import task, so you can import multiple games in succession.",
         "bulkImportTitle": "Bulk import mode",
         "import": "Import",
         "link": "Import {arrow}",
