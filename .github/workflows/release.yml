@@ -8,9 +8,6 @@ on:
   schedule:
     - cron: "0 2 * * *" # run at 2 AM UTC
 
-permissions:
-  contents: read
-
 jobs:
   web:
     name: Push website Docker image to registry
