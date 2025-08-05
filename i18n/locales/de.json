@@ -253,12 +253,15 @@
       },
       "import": {
         "version": {
+          "import": "Version Importieren",
           "launchDesc": "Ausführbare Datei zum starten des Spiels",
           "launchPlaceholder": "spiel.exe",
           "loadingVersion": "Lade Versionsmetadaten…",
           "noAdv": "Keine erweiterten Optionen für diese Konfiguration.",
           "noVersions": "Keine Version zum importieren",
           "setupMode": "Einrichtungsmodus",
+          "setupPlaceholder": "setup.exe",
+          "umuLauncherId": "UMU Launcher ID",
           "updateMode": "Aktualisierungsmodus",
           "version": "Wähle die Version für den Import aus"
         },
@@ -274,12 +277,17 @@
           },
           "editor": {
             "action": "Spiel hinzufügen {plus}",
+            "developed": "Entwickelt",
             "libraryDescription": "Hinzufügen, bearbeiten oder entfernen, was diese Firma entwickelt und/oder veröffentlicht hat.",
             "libraryTitle": "Spielebibliothek",
             "noDescription": "(Keine Beschreibung)",
             "published": "Veröffentlicht",
             "uploadBanner": "Banner hochladen",
             "uploadIcon": "Icon hochladen"
+          },
+          "modals": {
+            "shortDeckDescription": "Bearbeite die Firmenbeschreibung. Beeinträchtigt nicht die Lange (markdown) Beschreibung.",
+            "shortDeckTitle": "Bearbeite Firmenbeschreibung"
           }
         },
         "tags": {
