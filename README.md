@@ -14,7 +14,7 @@
 [![Weblate project translated](https://img.shields.io/weblate/progress/drop?server=https%3A%2F%2Ftranslate.droposs.org&style=for-the-badge&logo=weblate)
 ](https://translate.droposs.org/engage/drop/)
 
-Drop is an open-source game distribution platform, like GameVault or Steam. It's designed to distribute and shared DRM-free game quickly, all while being incredibly flexible, beautiful and fast.
+Drop is an open-source game distribution platform, similar to GameVault or Steam. It's designed to distribute and share DRM-free games quickly, all while being incredibly flexible, beautiful, and fast.
 
 <div align="center">
 <img src="https://droposs.org/_ipx/f_webp&q_80/images/carousel/store.png" alt="Drop Screenshot" width="900rem"/>
@@ -22,9 +22,9 @@ Drop is an open-source game distribution platform, like GameVault or Steam. It's
 
 ## Philosophy
 
-1. Drop is flexible. While abstractions and interfaces can make the codebase more complicated, the flexibility is worth it.
-2. Drop is secure. The nature of Drop means an instance can never be accessible without authentication. In line with #1, Drop also supports a huge variety of authentication mechanisms, from a username/password to SSO.
-3. Drop is user-friendly. The interface is designed to be clean and simple to use, with complexity available to the users who want it.
+1. Drop is flexible. While abstractions and interfaces can complicate the codebase, the flexibility is worth it.
+2. Drop is secure. The nature of Drop means an instance can never be accessible without authentication. In line with #1, Drop also supports a huge variety of authentication mechanisms, from username/password to SSO.
+3. Drop is user-friendly. The interface is designed to be clean and simple to use, with advanced features available to users who want them.
 
 ## Deployment
 
