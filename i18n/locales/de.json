@@ -141,13 +141,116 @@
         "title": "Das Aktualisieren des Banners ist fehlgeschlagen"
       },
       "carousel": {
-        "description": "Das Aktualisieren des Bildkarussell ist fehlgeschlagen: {0}",
-        "title": "Das Aktualisieren des Bildkarussell ist fehlgeschlagen"
+        "description": "Das Aktualisieren des Bildkarussells ist fehlgeschlagen: {0}",
+        "title": "Das Aktualisieren des Bildkarussells ist fehlgeschlagen"
+      },
+      "cover": {
+        "description": "Das Aktualisieren des Titelbildes ist fehlgeschlagen: {0}",
+        "title": "Das Aktualisieren des Titelbildes ist fehlgeschlagen"
+      },
+      "deleteImage": {
+        "description": "Das Löschen des Bildes ist fehlgeschlagen: {0}",
+        "title": "Das Löschen des Bildes ist fehlgeschlagen"
+      },
+      "description": {
+        "description": "Das Aktualisieren der Spielbeschreibung ist fehlgeschlagen: {0}",
+        "title": "Das Aktualisieren der Spielbeschreibung ist fehlgeschlagen"
+      },
+      "metadata": {
+        "description": "Das Aktualisieren der Spielmetadaten ist fehlgeschlagen: {0}",
+        "title": "Das Aktualisieren der Spielmetadaten ist fehlgeschlagen"
+      }
+    },
+    "invalidBody": "Ungültiger Anfragenkörper: {0}",
+    "inviteRequired": "Registrierung nur mit Einladung möglich.",
+    "library": {
+      "add": {
+        "desc": "Drop konnte dieses Spiel nicht zu deiner Bibliothek hinzufügen: {0}",
+        "title": "Das Spiel konnte nicht zur Bibliothek hinzugefügt werden"
+      },
+      "collection": {
+        "create": {
+          "desc": "Das Erstellen der Sammlung ist fehlgeschlagen: {0}",
+          "title": "Das Erstellen der Sammlung ist fehlgeschlagen"
+        }
+      },
+      "source": {
+        "delete": {
+          "desc": "Das Löschen der Quelle ist fehlgeschlagen: {0}",
+          "title": "Das Löschen der Quellbibliothek ist fehlgeschlagen"
+        }
+      }
+    },
+    "news": {
+      "article": {
+        "delete": {
+          "desc": "Das Löschen des Artikels ist fehlgeschlagen: {0}",
+          "title": "Das Löschen des Artikels ist fehlgeschlagen"
+        }
+      }
+    },
+    "occurred": "Bei der Bearbeitung deiner Anfrage ist ein Fehler aufgetreten. Wenn du glaubst, dass es sich um einen Bug handelt, melde diesen bitte. Versuche dich anzumelden, um zu sehen, ob dadurch das Problem behoben wird.",
+    "ohNo": "Oh nein!",
+    "pageTitle": "{0} | Drop",
+    "signIn": "Anmelden {arrow}",
+    "support": "Support Discord",
+    "unknown": "Ein unbekannter Fehler ist aufgetreten",
+    "upload": {
+      "description": "Drop konnte die Datei nicht hochladen: {0}",
+      "title": "Das hochladen der Datei ist Fehlgeschlagen"
+    },
+    "version": {
+      "delete": {
+        "desc": "Beim Löschen der Version ist ein Fehler aufgetreten: {error}",
+        "title": "Beim Löschen der Version ist ein Fehler aufgetreten"
+      },
+      "order": {
+        "desc": "Beim Aktualisieren der Version ist ein Fehler aufgetreten: {error}",
+        "title": "Beim Aktualisieren der Versionsreihenfolge ist ein Fehler aufgetreten"
       }
     }
   },
-  "library": {
+  "footer": {
+    "about": "Über",
+    "aboutDrop": "Über Drop",
+    "comparison": "Vergleich",
+    "docs": {
+      "client": "Client Dokumentation",
+      "server": "Server Dokumentation"
+    },
+    "documentation": "Dokumentation",
+    "findGame": "Finde ein Spiel",
+    "footer": "Fußzeile",
+    "games": "Spiels",
+    "social": {
+      "discord": "Discord",
+      "github": "GitHub"
+    },
+    "topSellers": "Bestseller",
+    "version": "Drop {version} {gitRef}"
+  },
+  "header": {
     "admin": {
+      "admin": "Administrator",
+      "settings": "Einstellungen",
+      "tasks": "Aufgaben",
+      "users": "Benutzer"
+    },
+    "back": "Zurück",
+    "openSidebar": "Öffne Seitenleiste"
+  },
+  "helpUsTranslate": "Hilf uns Drop zu übersetzen {arrow}",
+  "home": "Startseite",
+  "library": {
+    "addGames": "Alle Spiele",
+    "addToLib": "Zur Bibliothek hinzufügen",
+    "admin": {
+      "detectedGame": "Drop hat erkannt, dass du ein neues Spiel importieren kannst.",
+      "detectedVersion": "Drop hat erkannt, dass du eine neue Version dieses Spiels importieren kannst.",
+      "game": {
+        "addCarouselNoImages": "Keine Bilder zum hinzufügen.",
+        "addDescriptionNoImages": "Keine Bilder zum hinzufügen."
+      },
       "import": {
         "version": {
           "launchDesc": "Ausführbare Datei zum starten des Spiels",
@@ -171,10 +274,12 @@
           },
           "editor": {
             "action": "Spiel hinzufügen {plus}",
+            "libraryDescription": "Hinzufügen, bearbeiten oder entfernen, was diese Firma entwickelt und/oder veröffentlicht hat.",
             "libraryTitle": "Spielebibliothek",
             "noDescription": "(Keine Beschreibung)",
             "published": "Veröffentlicht",
-            "uploadBanner": "Banner hochladen"
+            "uploadBanner": "Banner hochladen",
+            "uploadIcon": "Icon hochladen"
           }
         },
         "tags": {
