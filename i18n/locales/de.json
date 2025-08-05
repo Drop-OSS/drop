@@ -9,6 +9,7 @@
       "title": "Geräte"
     },
     "notifications": {
+      "all": "Alle anzeigen {arrow}",
       "desc": "Benachrichtigungen anzeigen und verwalten.",
       "markAllAsRead": "Alles als gelesen markieren",
       "markAsRead": "Als gelesen Markieren",
@@ -22,6 +23,7 @@
   },
   "actions": "Aktionen",
   "add": "Hinzufügen",
+  "adminTitle": "Administrator Dashbord - Drop",
   "adminTitleTemplate": "{0} - Administrator - Drop",
   "auth": {
     "callback": {
