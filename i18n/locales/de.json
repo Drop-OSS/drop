@@ -1,1 +1,365 @@
-{}
+{
+  "account": {
+    "devices": {
+      "capabilities": "Möglichkeiten",
+      "lastConnected": "Zuletzt verbunden",
+      "noDevices": "Keine Geräte sind mit deinem Konto verbunden.",
+      "platform": "Plattform",
+      "revoke": "Wiederrufen",
+      "title": "Geräte"
+    },
+    "notifications": {
+      "desc": "Benachrichtigungen anzeigen und verwalten.",
+      "markAllAsRead": "Alles als gelesen markieren",
+      "markAsRead": "Als gelesen Markieren",
+      "none": "Keine Benachrichtigungen",
+      "notifications": "Benachrichtigungen",
+      "title": "Benachrichtigungen",
+      "unread": "Ungelesene Benachrichtigungen"
+    },
+    "settings": "Einstellungen",
+    "title": "Kontoeinstellungen"
+  },
+  "actions": "Aktionen",
+  "add": "Hinzufügen",
+  "adminTitleTemplate": "{0} - Administrator - Drop",
+  "auth": {
+    "callback": {
+      "authClient": "Client autorisieren?",
+      "authorize": "Autorisieren",
+      "authorizedClient": "Drop hat den Client erfolgreich autorisiert. Du darfst dieses Fenster nun schließen.",
+      "issues": "Probleme?",
+      "learn": "Mehr erfahren {arrow}",
+      "paste": "Füge diesen Code in den Client ein, um fortzufahren:",
+      "permWarning": "Das akzeptieren dieser Anfrage erlaubt \"{name}\" auf \"{plattform}\" folgende Berechtigungen:",
+      "requestedAccess": "\"{name}\" hat Zugriff auf dein Drop Konto angefordert.",
+      "success": "Erfolgreich!"
+    },
+    "code": {
+      "description": "Verwende ein Code, um dein Drop Client zu verbinden, wenn dein Gerät kein Webbrowser öffnen kann.",
+      "title": "Verbinde dein Drop Client"
+    },
+    "displayName": "Anzeigename",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "register": {
+      "confirmPasswordFormat": "Muss mit oben genanntem übereinstimmen",
+      "emailFormat": "Muss im Format nutzer{'@'}beispiel.de sein",
+      "passwordFormat": "Muss mindestens 14 Zeichen enthalten",
+      "subheader": "Gebe unten deine Daten ein, um dein Konto zu erstellen.",
+      "title": "Erstelle dein Drop Konto",
+      "usernameFormat": "Muss mindestens 5 Zeichen enthalten und aus Kleinbuchstaben bestehen"
+    },
+    "signin": {
+      "externalProvider": "Bei externem Anbieter anmelden {arrow}",
+      "forgot": "Passwort vergessen?",
+      "noAccount": "Noch kein Konto? Bitten den Administrator, eines für dich zu erstellt.",
+      "or": "ODER",
+      "pageTitle": "Bei Drop anmelden",
+      "rememberMe": "An mich erinnern",
+      "signin": "Anmelden",
+      "title": "Melde dich bei deinem Konto an"
+    },
+    "signout": "Ausloggen",
+    "username": "Nutzername"
+  },
+  "cancel": "Abbrechen",
+  "chars": {
+    "arrow": "→",
+    "arrowBack": "←",
+    "quoted": "\"\"",
+    "srComma": ", {0}"
+  },
+  "common": {
+    "add": "Hinzufügen",
+    "cannotUndo": "Diese Aktion kann nicht rückgängig gemacht werden.",
+    "close": "Schließen",
+    "create": "Erstellen",
+    "date": "Datum",
+    "deleteConfirm": "Möchtest du \"{0}\" wirklich löschen?",
+    "divider": "{'|'}",
+    "edit": "Bearbeiten",
+    "friends": "Freunde",
+    "groups": "Gruppen",
+    "insert": "Einfügen",
+    "name": "Name",
+    "noResults": "Keine Ergebnisse",
+    "noSelected": "Keine Elemente ausgewählt.",
+    "remove": "Entfernen",
+    "save": "Speichern",
+    "saved": "Gespeichert",
+    "servers": "Server",
+    "srLoading": "Lade…",
+    "tags": "Tags",
+    "today": "Heute"
+  },
+  "delete": "Löschen",
+  "drop": {
+    "desc": "Eine Open-Source-Plattform für die Verteilung von Spielen, die auf Geschwindigkeit, Flexibilität und Ästhetik ausgelegt ist.",
+    "drop": "Drop"
+  },
+  "editor": {
+    "bold": "Fett",
+    "boldPlaceholder": "fettgedruckter Text",
+    "code": "Code",
+    "codePlaceholder": "code",
+    "heading": "Überschrift",
+    "headingPlaceholder": "überschrift",
+    "italic": "Kursiv",
+    "italicPlaceholder": "kursiver Text",
+    "link": "Link",
+    "linkPlaceholder": "link Text",
+    "listItem": "Listenelement",
+    "listItemPlaceholder": "listenelement"
+  },
+  "errors": {
+    "admin": {
+      "user": {
+        "delete": {
+          "desc": "Drop konnte diesen Benutzer nicht löschen: {0}",
+          "title": "Benutzer konnte nicht gelöscht werden"
+        }
+      }
+    },
+    "auth": {
+      "disabled": "Ungültiges oder deaktiviertes Konto. Bitte kontaktiere einen Server Administrator.",
+      "invalidInvite": "Ungültige oder abgelaufene Einladung",
+      "invalidPassState": "Ungültiger Passwortzustand. Bitte kontaktiere einen Server Administrator.",
+      "invalidUserOrPass": "Ungültiger Nutzername oder Passwort.",
+      "inviteIdRequired": "id erforderlich beim Abrufen der Einladung",
+      "method": {
+        "signinDisabled": "Anmeldemethode nicht aktiviert"
+      },
+      "usernameTaken": "Nutzername bereits vergeben."
+    },
+    "backHome": "{arrow} Zurück zur Startseite",
+    "game": {
+      "banner": {
+        "description": "Das Aktualisieren des Banners ist fehlgeschlagen: {0}",
+        "title": "Das Aktualisieren des Banners ist fehlgeschlagen"
+      },
+      "carousel": {
+        "description": "Das Aktualisieren des Bildkarussell ist fehlgeschlagen: {0}",
+        "title": "Das Aktualisieren des Bildkarussell ist fehlgeschlagen"
+      }
+    }
+  },
+  "library": {
+    "admin": {
+      "import": {
+        "version": {
+          "launchDesc": "Ausführbare Datei zum starten des Spiels",
+          "launchPlaceholder": "spiel.exe",
+          "loadingVersion": "Lade Versionsmetadaten…",
+          "noAdv": "Keine erweiterten Optionen für diese Konfiguration.",
+          "noVersions": "Keine Version zum importieren",
+          "setupMode": "Einrichtungsmodus",
+          "updateMode": "Aktualisierungsmodus",
+          "version": "Wähle die Version für den Import aus"
+        },
+        "withoutMetadata": "Ohne Metadaten importieren"
+      },
+      "metadata": {
+        "companies": {
+          "action": "Verwalte {arrow}",
+          "addGame": {
+            "developer": "Entwickler?",
+            "noGames": "Keine Spiele zum hinzufügen",
+            "publisher": "Publisher?"
+          },
+          "editor": {
+            "action": "Spiel hinzufügen {plus}",
+            "libraryTitle": "Spielebibliothek",
+            "noDescription": "(Keine Beschreibung)",
+            "published": "Veröffentlicht",
+            "uploadBanner": "Banner hochladen"
+          }
+        },
+        "tags": {
+          "action": "Verwalte {arrow}",
+          "create": "Erstellen"
+        }
+      },
+      "metadataProvider": "Metadatenanbieter",
+      "noGames": "Keine Spiele importiert",
+      "offline": "Drop konnte auf dieses Spiel nicht zugreifen.",
+      "offlineTitle": "Spiel offline",
+      "openEditor": "Im Editor öffnen {arrow}",
+      "openStore": "Im Store öffnen",
+      "sources": {
+        "fsPath": "Pfad",
+        "fsPathDesc": "Absoluter Pfad zur Spielebibliothek.",
+        "fsPathPlaceholder": "/mnt/spiele"
+      },
+      "title": "Bibliotheken",
+      "version": {
+        "noVersions": "Du hast keine verfügbare Version dieses Spiels.",
+        "noVersionsAdded": "keine Versionen hinzugefügt"
+      },
+      "versionPriority": "Versions Priorität"
+    },
+    "back": "Zurück zur Bibliothek",
+    "collection": {
+      "addToNew": "Zur neuen Sammlung hinzufügen",
+      "collections": "Sammlungen",
+      "create": "Sammlung erstellen",
+      "createDesc": "Sammlungen können genutzt werden, um deine Spiele zu organisieren und sie einfacher zu finden. Besonders bei großen Bibliotheken.",
+      "delete": "Sammlung löschen",
+      "namePlaceholder": "Sammlungsname",
+      "noCollections": "Keine Sammlungen",
+      "notFound": "Sammlung nicht gefunden",
+      "subheader": "Füge eine neue Sammlung hinzu, um deine Spiele zu organisieren",
+      "title": "Sammlung"
+    },
+    "gameCount": "{0} Spiele | [0} Spiele | {0} Spiele",
+    "inLib": "In der Bibliothek",
+    "launcherOpen": "Im Launcher öffnen",
+    "noGames": "Keine Spiele in der Bibliothek",
+    "notFound": "Spiel nicht gefunden",
+    "search": "Durchsuche Bibliothek…"
+  },
+  "news": {
+    "article": {
+      "add": "Hinzufügen",
+      "create": "Neuen Artikel erstellen",
+      "editor": "Editor",
+      "new": "Neuer Artikel",
+      "preview": "Vorschau",
+      "titles": "Titel"
+    },
+    "delete": "Artikel löschen",
+    "filter": {
+      "month": "Diesen Monat",
+      "week": "Diese Woche",
+      "year": "Dieses Jahr"
+    },
+    "none": "Keine Artikel",
+    "notFound": "Artikel nicht gefunden",
+    "search": "Suche Artikel",
+    "searchPlaceholder": "Suche Artikel…"
+  },
+  "options": "Einstellungen",
+  "security": "Sicherheit",
+  "selectLanguage": "Sprache auswählen",
+  "settings": {
+    "admin": {
+      "description": "Konfiguriere Drop Einstellungen",
+      "title": "Einstellungen"
+    }
+  },
+  "setup": {
+    "auth": {
+      "docs": "Dokumentation {arrow}",
+      "enabled": "Aktiviert?",
+      "openid": {
+        "description": "OpenID Connect (OIDC) ist eine oft unterstützte OAuth2 Erweiterung. Drop erfordert die Konfiguration von OIDC über Umgebungsvariablen.",
+        "title": "OpenID Connect"
+      },
+      "simple": {
+        "description": "Die einfache Authentifizierung verwendet Nutzername und Password zur Authentifizierung von Benutzern. Sie ist standartmäßig aktiviert, wenn kein anderer Authentifizierungsanbieter aktiviert ist.",
+        "title": "Einfache Authentifizierung"
+      },
+      "title": "Authentifizierung"
+    },
+    "finish": "Los geht's {arrow}",
+    "stages": {
+      "account": {
+        "description": "Du benötigst mindestens ein Konto, um Drop zu benutzen.",
+        "name": "Richte dein Administratorkonto ein."
+      },
+      "library": {
+        "name": "Erstelle eine Bibliothek."
+      }
+    },
+    "welcome": "Hallo.",
+    "welcomeDescription": "Willkommen zum Drop Einrichtungsassistenten. Er führt dich durch die erstmalige Konfiguration von Drop und erklärt dir, wie es funktioniert."
+  },
+  "store": {
+    "about": "Über",
+    "developers": "Entwickler | Entwickler | Entwickler",
+    "exploreMore": "Mehr entdecken {arrow}",
+    "featured": "Empfohlen",
+    "noDevelopers": "Keine Entwickler",
+    "noGame": "Kein Spiel",
+    "noImages": "Keine Bilder",
+    "platform": "Plattform | Plattform | Plattform",
+    "rating": "Bewertung",
+    "recentlyAdded": "Kürzlich hinzugefügt",
+    "recentlyReleased": "Kürzlich veröffentlicht",
+    "recentlyUpdated": "Kürzlich aktualisiert",
+    "released": "Veröffentlicht",
+    "reviews": "({0} Bewertungen)",
+    "view": {
+      "sort": "Sortieren",
+      "srFilters": "Filter",
+      "srGames": "Spiele"
+    },
+    "website": "Webseite"
+  },
+  "tasks": {
+    "admin": {
+      "scheduled": {
+        "cleanupInvitationsName": "Einladungen bereinigen",
+        "cleanupSessionsName": "Sitzungen bereinigen."
+      }
+    }
+  },
+  "title": "Drop",
+  "titleTemplate": "{0} - Drop",
+  "upload": "Hochladen",
+  "uploadFile": "Datei hochladen",
+  "userHeader": {
+    "closeSidebar": "Seitenleiste schließen",
+    "links": {
+      "library": "Bibliothek"
+    },
+    "profile": {
+      "settings": "Kontoeinstellungen"
+    }
+  },
+  "users": {
+    "admin": {
+      "adminHeader": "Administrator?",
+      "authLink": "Authentifizierung {arrow}",
+      "authentication": {
+        "configure": "Konfigurieren",
+        "disabled": "Deaktiviert",
+        "enabled": "Aktiviert",
+        "enabledKey": "Aktiviert?",
+        "oidc": "OpenID Connect",
+        "srOpenOptions": "Einstellungen öffnen",
+        "title": "Authentifizierung"
+      },
+      "authoptionsHeader": "Authentifizierungseinstellungen",
+      "delete": "Löschen",
+      "deleteUser": "Benutzer löschen {0}",
+      "displayNameHeader": "Anzeigename",
+      "emailHeader": "E-Mail",
+      "normalUserLabel": "Normaler Benutzer",
+      "simple": {
+        "createInvitation": "Einladung erstellen",
+        "invitationTitle": "Einladungen",
+        "invite3Days": "3 Tage",
+        "invite6Months": "6 Monate",
+        "inviteAdminSwitchDescription": "Erstelle diesen Benutzer als Administrator",
+        "inviteButton": "Einladung",
+        "inviteEmailLabel": "E-Mail-Adresse (optional)",
+        "inviteMonth": "1 Monat",
+        "inviteNever": "Niemals",
+        "inviteTitle": "Ein Benutzer zu Drop einladen",
+        "inviteUsernameFormat": "Muss mindestens 5 Zeichen lang sein",
+        "inviteUsernameLabel": "Nutzername (optional)",
+        "inviteWeek": "1 Woche",
+        "inviteYear": "1 Jahr",
+        "neverExpires": "Läuft niemals ab.",
+        "noEmailEnforced": "Keine E-Mail erforderlich.",
+        "noInvitations": "Keine Einladungen.",
+        "noUsernameEnforced": "Kein Nutzername erforderlich.",
+        "title": "Einfache Authentifizierung",
+        "userInvitation": "Benutzereinladung"
+      },
+      "srEditLabel": "Bearbeiten",
+      "usernameHeader": "Nutzername"
+    }
+  }
+}
