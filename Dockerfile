@@ -1,40 +1,45 @@
 # syntax=docker/dockerfile:1
 
+FROM node:lts-alpine AS base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+WORKDIR /app
+
+# so corepack knows pnpm's version
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# prevent prompt to download
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+# setup for offline
+RUN corepack pack
+# don't call out to network anymore
+ENV COREPACK_ENABLE_NETWORK=0
+
 ### Unified deps builder
-# FROM node:lts-alpine AS deps
-# WORKDIR /app
-# COPY package.json yarn.lock ./
-# RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn yarn install --network-timeout 1000000 --ignore-scripts
+FROM base AS deps
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 ### Build for app
-FROM node:lts-alpine AS build-system
-# setup workdir - has to be the same filepath as app because fuckin' Prisma
-WORKDIR /app
+FROM base AS build-system
 
 ENV NODE_ENV=production
 ENV NUXT_TELEMETRY_DISABLED=1
-# ENV YARN_CACHE_FOLDER=/root/.yarn
 
 # add git so drop can determine its git ref at build
-# pnpm for build
-RUN apk add --no-cache git pnpm
+RUN apk add --no-cache git
 
 # copy deps and rest of project files
-# COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 ARG BUILD_DROP_VERSION
 ARG BUILD_GIT_REF
 
 # build
-RUN pnpm import
-RUN pnpm install --shamefully-hoist
-RUN pnpm run build
-# RUN --mount=type=cache,target=/root/.yarn yarn postinstall && yarn build
+RUN pnpm run postinstall && pnpm run build
 
 ### create run environment for Drop
-FROM node:lts-alpine AS run-system
-WORKDIR /app
+FROM base AS run-system
 
 ENV NODE_ENV=production
 ENV NUXT_TELEMETRY_DISABLED=1
