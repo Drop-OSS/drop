@@ -326,7 +326,7 @@
       "subheader": "Füge eine neue Sammlung hinzu, um deine Spiele zu organisieren",
       "title": "Sammlung"
     },
-    "gameCount": "{0} Spiele | [0} Spiele | {0} Spiele",
+    "gameCount": "{0} Spiele | {0} Spiele | {0} Spiele",
     "inLib": "In der Bibliothek",
     "launcherOpen": "Im Launcher öffnen",
     "noGames": "Keine Spiele in der Bibliothek",
