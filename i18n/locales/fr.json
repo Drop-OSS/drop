@@ -1,6 +1,8 @@
 {
   "account": {
     "devices": {
+      "capabilities": "Capacités",
+      "lastConnected": "Dernière Connexion",
       "noDevices": "Aucun appareil n'est connecté à vôtre compte.",
       "platform": "Plateforme",
       "revoke": "Révoquer",
@@ -12,13 +14,13 @@
       "desc": "Voir et gérer vos notifications.",
       "markAllAsRead": "Tout marqué comme lu",
       "markAsRead": "Marquer comme lu",
-      "none": "Pas de notifications",
+      "none": "Pas de notification",
       "notifications": "Notifications",
       "title": "Notifications",
-      "unread": "Notifications non lues"
+      "unread": "Notifications Non Lues"
     },
     "settings": "Paramètres",
-    "title": "Paramètres du compte"
+    "title": "Paramètres du Compte"
   },
   "actions": "Actions",
   "add": "Ajouter",
@@ -31,7 +33,7 @@
       "authorizedClient": "Drop a réussi a autoriser le client. Vous pouvez fermer cette fenêtre.",
       "issues": "Vous avez des problèmes ?",
       "learn": "En savoir plus {arrow}",
-      "paste": "Coller ce code dans le client pour continuer :",
+      "paste": "Collez ce code dans le client pour continuer :",
       "permWarning": "Accepter cette requête autorisera \"{name}\" sur \"{plateform} à :",
       "requestedAccess": "\"{name} a demandé accès à votre compte Drop.",
       "success": "Réussi !"
@@ -54,7 +56,7 @@
     "signin": {
       "externalProvider": "Connectez vous avec un fournisseur externe {arrow}",
       "forgot": "Mot de passe oublié ?",
-      "noAccount": "Pas de compte ? Demande à un administrateur d'en créer un pour toi.",
+      "noAccount": "Pas de compte ? Demandez à un administrateur d'en créer un pour vous.",
       "or": "OU",
       "pageTitle": "Se connecter à Drop",
       "rememberMe": "Se souvenir de moi",
@@ -109,6 +111,7 @@
     "italic": "Italique",
     "italicPlaceholder": "texte italique",
     "link": "Lien",
+    "linkPlaceholder": "texte du lien",
     "listItem": "Élement de liste",
     "listItemPlaceholder": "élément de liste"
   },
@@ -570,6 +573,7 @@
         "srOpenOptions": "Ouvrir les options",
         "title": "Authentification"
       },
+      "authoptionsHeader": "Options Auth",
       "delete": "Supprimer",
       "deleteUser": "Supprimer l'utilisateur {0}",
       "description": "Gérer les utilisateurs sur votre instance Drop, et configurer vos méthodes d'authentification.",
