@@ -39,8 +39,8 @@
       "success": "Successful!"
     },
     "code": {
-      "title": "Connect your Drop client",
-      "description": "Use a code to connect your Drop client if you are unable to open a web browser on your device."
+      "description": "Use a code to connect your Drop client if you are unable to open a web browser on your device.",
+      "title": "Connect your Drop client"
     },
     "confirmPassword": "Confirm @:auth.password",
     "displayName": "Display Name",
@@ -93,7 +93,7 @@
     "save": "Save",
     "saved": "Saved",
     "servers": "Servers",
-    "srLoading": "Loading...",
+    "srLoading": "Loading…",
     "tags": "Tags",
     "today": "Today"
   },
@@ -178,7 +178,7 @@
       },
       "source": {
         "delete": {
-          "desc": "Drop couldn't add delete this source: {0}",
+          "desc": "Drop couldn't delete this source: {0}",
           "title": "Failed to delete library source"
         }
       }
@@ -273,18 +273,18 @@
       },
       "gameLibrary": "Game Library",
       "import": {
-        "bulkImportDescription": "When on, this page won't redirect you to the import task, so you can import multiple games in succession.",
+        "bulkImportDescription": "When on this page, you won't be redirect to the import task, so you can import multiple games in succession.",
         "bulkImportTitle": "Bulk import mode",
         "import": "Import",
         "link": "Import {arrow}",
-        "loading": "Loading game results...",
+        "loading": "Loading game results…",
         "search": "Search",
         "searchPlaceholder": "Fallout 4",
-        "selectDir": "Please select a directory...",
+        "selectDir": "Please select a directory…",
         "selectGame": "Select game to import",
-        "selectGamePlaceholder": "Please select a game...",
+        "selectGamePlaceholder": "Please select a game…",
         "selectGameSearch": "Select game",
-        "selectPlatform": "Please select a platform...",
+        "selectPlatform": "Please select a platform…",
         "version": {
           "advancedOptions": "Advanced options",
           "import": "Import version",
@@ -292,7 +292,7 @@
           "launchCmd": "Launch executable/command",
           "launchDesc": "Executable to launch the game",
           "launchPlaceholder": "game.exe",
-          "loadingVersion": "Loading version metadata...",
+          "loadingVersion": "Loading version metadata…",
           "noAdv": "No advanced options for this configuration.",
           "noVersions": "No versions to import",
           "platform": "Version platform",
@@ -341,8 +341,8 @@
           },
           "noCompanies": "No companies",
           "noGames": "No games",
-          "search": "Search companies...",
-          "searchGames": "Search company games...",
+          "search": "Search companies…",
+          "searchGames": "Search company games…",
           "title": "Companies"
         },
         "tags": {
@@ -407,7 +407,7 @@
     "launcherOpen": "Open in Launcher",
     "noGames": "No games in library",
     "notFound": "Game not found",
-    "search": "Search library...",
+    "search": "Search library…",
     "subheader": "Organize your games into collections for easy access, and access all your games."
   },
   "lowest": "lowest",
@@ -422,7 +422,7 @@
       "preview": "Preview",
       "shortDesc": "Short description",
       "submit": "Submit",
-      "tagPlaceholder": "Add a tag...",
+      "tagPlaceholder": "Add a tag…",
       "titles": "Title",
       "uploadCover": "Upload cover image"
     },
@@ -438,7 +438,7 @@
     "none": "No articles",
     "notFound": "Article not found",
     "search": "Search articles",
-    "searchPlaceholder": "Search articles...",
+    "searchPlaceholder": "Search articles…",
     "subheader": "Stay up to date with the latest updates and announcements.",
     "title": "Latest News"
   },
