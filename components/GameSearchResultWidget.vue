@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import type { GameMetadataSearchResult } from "~/server/internal/metadata/types";
+import type { GameMetadataSearchResult } from "~/server/internal/metadata/content/types";
 
 const { game } = defineProps<{
   game: Omit<GameMetadataSearchResult, "year"> & { sourceName?: string };

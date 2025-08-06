@@ -1,6 +1,11 @@
+/**
+ * Metadata providers search and download game metadata
+ * Basically an overkill auto-fill
+ */
+
 import type { Prisma } from "~/prisma/client/client";
 import { MetadataSource } from "~/prisma/client/enums";
-import prisma from "../db/database";
+import prisma from "../../db/database";
 import type {
   _FetchGameMetadataParams,
   _FetchCompanyMetadataParams,
@@ -10,15 +15,15 @@ import type {
   CompanyMetadata,
   GameMetadataRating,
 } from "./types";
-import { ObjectTransactionalHandler } from "../objects/transactional";
-import { PriorityListIndexed } from "../utils/prioritylist";
-import { systemConfig } from "../config/sys-conf";
-import type { TaskRunContext } from "../tasks";
-import taskHandler, { wrapTaskContext } from "../tasks";
+import { ObjectTransactionalHandler } from "../../objects/transactional";
+import { PriorityListIndexed } from "../../utils/prioritylist";
+import { systemConfig } from "../../config/sys-conf";
+import type { TaskRunContext } from "../../tasks";
+import taskHandler, { wrapTaskContext } from "../../tasks";
 import { randomUUID } from "crypto";
 import { fuzzy } from "fast-fuzzy";
 import { logger } from "~/server/internal/logging";
-import libraryManager from "../library";
+import libraryManager from "../../library";
 import type { GameTagModel } from "~/prisma/client/models";
 
 export class MissingMetadataProviderConfig extends Error {

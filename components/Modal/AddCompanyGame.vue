@@ -171,7 +171,7 @@ import {
   ListboxOption,
   ListboxOptions,
 } from "@headlessui/vue";
-import type { GameMetadataSearchResult } from "~/server/internal/metadata/types";
+import type { GameMetadataSearchResult } from "~/server/internal/metadata/content/types";
 import { FetchError } from "ofetch";
 import type { SerializeObject } from "nitropack";
 import { XCircleIcon } from "@heroicons/vue/24/solid";

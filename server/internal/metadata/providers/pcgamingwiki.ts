@@ -1,6 +1,6 @@
 import type { CompanyModel } from "~/prisma/client/models";
 import { MetadataSource } from "~/prisma/client/enums";
-import type { MetadataProvider } from ".";
+import type { MetadataProvider } from "../content";
 import type {
   GameMetadataSearchResult,
   _FetchGameMetadataParams,
@@ -8,14 +8,14 @@ import type {
   _FetchCompanyMetadataParams,
   CompanyMetadata,
   GameMetadataRating,
-} from "./types";
+} from "../content/types";
 import type { AxiosRequestConfig } from "axios";
 import axios from "axios";
 import * as jdenticon from "jdenticon";
 import { DateTime } from "luxon";
 import * as cheerio from "cheerio";
 import { type } from "arktype";
-import type { TaskRunContext } from "../tasks";
+import type { TaskRunContext } from "../../tasks";
 import { logger } from "~/server/internal/logging";
 
 interface PCGamingWikiParseRawPage {

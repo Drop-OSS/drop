@@ -1,7 +1,7 @@
 import type { CompanyModel } from "~/prisma/client/models";
 import { MetadataSource } from "~/prisma/client/enums";
-import type { MetadataProvider } from ".";
-import { MissingMetadataProviderConfig } from ".";
+import type { MetadataProvider } from "../content";
+import { MissingMetadataProviderConfig } from "../content";
 import type {
   GameMetadataSearchResult,
   _FetchGameMetadataParams,
@@ -9,11 +9,11 @@ import type {
   _FetchCompanyMetadataParams,
   CompanyMetadata,
   GameMetadataRating,
-} from "./types";
+} from "../content/types";
 import axios, { type AxiosRequestConfig } from "axios";
 import TurndownService from "turndown";
 import { DateTime } from "luxon";
-import type { TaskRunContext } from "../tasks";
+import type { TaskRunContext } from "../../tasks";
 
 interface GiantBombResponseType<T> {
   error: "OK" | string;
@@ -277,6 +277,7 @@ export class GiantBombProvider implements MetadataProvider {
 
     return metadata;
   }
+
   async fetchCompany({
     query,
     createObject,
