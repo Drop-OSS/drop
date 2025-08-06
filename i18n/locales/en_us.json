@@ -178,7 +178,7 @@
       },
       "source": {
         "delete": {
-          "desc": "Drop couldn't add delete this source: {0}",
+          "desc": "Drop couldn't delete this source: {0}",
           "title": "Failed to delete library source"
         }
       }
