@@ -1,7 +1,7 @@
 {
   "account": {
     "devices": {
-      "capabilities": "Capacités",
+      "capabilities": "",
       "noDevices": "Aucun appareil n'est connecté à vôtre compte.",
       "platform": "Plateforme",
       "revoke": "Révoquer",
