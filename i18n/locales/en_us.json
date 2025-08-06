@@ -212,6 +212,10 @@
         "desc": "Drop encountered an error while updating the version: {error}",
         "title": "There an error while updating the version order"
       }
+    },
+    "externalUrl": {
+      "title": "Accessing over different EXTERNAL_URL. Please check the docs.",
+      "subtitle": "This message is only visible to admins."
     }
   },
   "footer": {
