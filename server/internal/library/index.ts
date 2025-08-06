@@ -13,6 +13,7 @@ import { parsePlatform } from "../utils/parseplatform";
 import notificationSystem from "../notifications";
 import { GameNotFoundError, type LibraryProvider } from "./provider";
 import { logger } from "../logging";
+import type { GameModel } from "~/prisma/client/models";
 
 class LibraryManager {
   private libraries: Map<string, LibraryProvider<unknown>> = new Map();
@@ -37,24 +38,32 @@ class LibraryManager {
     return libraryWithMetadata;
   }
 
+  async fetchGamesByLibrary() {
+    const results: { [key: string]: { [key: string]: GameModel } } = {};
+    const games = await prisma.game.findMany({});
+    for (const game of games) {
+      const libraryId = game.libraryId!;
+      const libraryPath = game.libraryPath!;
+
+      results[libraryId] ??= {};
+      results[libraryId][libraryPath] = game;
+    }
+
+    return results;
+  }
+
   async fetchUnimportedGames() {
     const unimportedGames: { [key: string]: string[] } = {};
+    const instanceGames = await this.fetchGamesByLibrary();
 
     for (const [id, library] of this.libraries.entries()) {
-      const games = await library.listGames();
-      const validGames = await prisma.game.findMany({
-        where: {
-          libraryId: id,
-          libraryPath: { in: games },
-        },
-        select: {
-          libraryPath: true,
-        },
-      });
-      const providerUnimportedGames = games.filter(
-        (e) =>
-          validGames.findIndex((v) => v.libraryPath == e) == -1 &&
-          !(this.gameImportLocks.get(id) ?? []).includes(e),
+      const providerGames = await library.listGames();
+      const locks = this.gameImportLocks.get(id) ?? [];
+      const providerUnimportedGames = providerGames.filter(
+        (libraryPath) =>
+          instanceGames[id] &&
+          !instanceGames[id][libraryPath] &&
+          !locks.includes(libraryPath),
       );
       unimportedGames[id] = providerUnimportedGames;
     }
