@@ -5,7 +5,7 @@ export type DropChunk = {
   permissions: number;
   ids: string[];
   checksums: string[];
-  lengths: string[];
+  lengths: number[];
 };
 
 export type DropManifest = {
