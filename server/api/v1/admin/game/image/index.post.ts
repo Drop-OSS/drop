@@ -2,6 +2,10 @@ import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import { handleFileUpload } from "~/server/internal/utils/handlefileupload";
 
+/**
+ * Upload a game to a game's image library
+ * @request `multipart/form-data`. All files will be uploaded as images. Set the game ID in the `id` field.
+ */
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["game:image:new"]);
   if (!allowed) throw createError({ statusCode: 403 });

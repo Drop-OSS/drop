@@ -3,6 +3,11 @@ import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import { handleFileUpload } from "~/server/internal/utils/handlefileupload";
 
+/**
+ * Update icon, name, and/or description
+ * @request `multipart/form-data`, any file will become the icon, and `name` and `description` will become their respective fields.
+ * @param id Game ID
+ */
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["game:update"]);
   if (!allowed) throw createError({ statusCode: 403 });

@@ -8,6 +8,9 @@ const UpdateVersionOrder = type({
   versions: "string[]",
 }).configure(throwingArktype);
 
+/**
+ * Update the version order of a game.
+ */
 export default defineEventHandler<{ body: typeof UpdateVersionOrder.infer }>(
   async (h3) => {
     const allowed = await aclManager.allowSystemACL(h3, [

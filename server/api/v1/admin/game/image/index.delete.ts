@@ -9,6 +9,9 @@ const DeleteGameImage = type({
   imageId: "string",
 }).configure(throwingArktype);
 
+/**
+ * Delete a game's image
+ */
 export default defineEventHandler<{
   body: typeof DeleteGameImage.infer;
 }>(async (h3) => {
