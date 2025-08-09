@@ -18,5 +18,5 @@ export default defineClientEventHandler(async (h3) => {
       statusMessage: "Invalid game or version",
     });
 
-  return {context};
+  return { context };
 });

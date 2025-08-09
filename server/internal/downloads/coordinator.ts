@@ -9,7 +9,7 @@ class DownloadContextManager {
     {
       timeout: Date;
       manifest: DropManifest;
-      versionName: string,
+      versionName: string;
       libraryId: string;
       libraryPath: string;
     }
