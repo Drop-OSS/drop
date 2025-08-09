@@ -7,31 +7,37 @@ const GameDelete = type({
   id: "string",
 }).configure(throwingArktype);
 
-export default defineEventHandler(async (h3) => {
-  const allowed = await aclManager.allowSystemACL(h3, ["company:update"]);
-  if (!allowed) throw createError({ statusCode: 403 });
+/**
+ * Delete a game's association with a company
+ * @param id Company ID
+ */
+export default defineEventHandler<{ body: typeof GameDelete.infer }>(
+  async (h3) => {
+    const allowed = await aclManager.allowSystemACL(h3, ["company:update"]);
+    if (!allowed) throw createError({ statusCode: 403 });
 
-  const companyId = getRouterParam(h3, "id")!;
+    const companyId = getRouterParam(h3, "id")!;
 
-  const body = await readDropValidatedBody(h3, GameDelete);
+    const body = await readDropValidatedBody(h3, GameDelete);
 
-  await prisma.game.update({
-    where: {
-      id: body.id,
-    },
-    data: {
-      publishers: {
-        disconnect: {
-          id: companyId,
+    await prisma.game.update({
+      where: {
+        id: body.id,
+      },
+      data: {
+        publishers: {
+          disconnect: {
+            id: companyId,
+          },
+        },
+        developers: {
+          disconnect: {
+            id: companyId,
+          },
         },
       },
-      developers: {
-        disconnect: {
-          id: companyId,
-        },
-      },
-    },
-  });
+    });
 
-  return;
-});
+    return;
+  },
+);

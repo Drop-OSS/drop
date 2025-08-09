@@ -1,6 +1,11 @@
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 
+/**
+ * Update a company. Pass any fields into the body to be updated on the model
+ * @request Partial of the data returned by GET, minus the `developed` and `published` fields.
+ * @param id Company ID
+ */
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["company:update"]);
   if (!allowed) throw createError({ statusCode: 403 });

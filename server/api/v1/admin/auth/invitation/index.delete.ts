@@ -8,7 +8,8 @@ const DeleteInvite = type({
 }).configure(throwingArktype);
 
 /**
- * Delete a simple auth invitation
+ * Deletes a "Simple" invitation
+ * @returns nothing
  */
 export default defineEventHandler<{
   body: typeof DeleteInvite.infer;

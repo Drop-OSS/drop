@@ -2,6 +2,9 @@ import { AuthMec } from "~/prisma/client/enums";
 import aclManager from "~/server/internal/acls";
 import authManager from "~/server/internal/auth";
 
+/**
+ * Fetches all the enabled authentication mechanisms on this instance, and their configuration, if enabled.
+ */
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["auth:read", "setup"]);
   if (!allowed) throw createError({ statusCode: 403 });
