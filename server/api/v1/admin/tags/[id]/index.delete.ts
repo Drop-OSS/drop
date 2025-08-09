@@ -2,9 +2,8 @@ import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 
 /**
- * This route allows you to delete game organization tags.
- * 
- * @param {string} id test
+ * Delete game tags.
+ * @param id Tag ID
  */
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["tags:delete"]);

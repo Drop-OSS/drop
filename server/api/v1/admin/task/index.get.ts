@@ -2,6 +2,9 @@ import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import taskHandler from "~/server/internal/tasks";
 
+/**
+ * Fetches all tasks that the current token has access to (ACL-based)
+ */
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["task:read"]);
   if (!allowed) throw createError({ statusCode: 403 });

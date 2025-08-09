@@ -2,6 +2,9 @@ import { defineEventHandler, getQuery } from "h3";
 import aclManager from "~/server/internal/acls";
 import newsManager from "~/server/internal/news";
 
+/**
+ * Fetch all news articles.
+ */
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["news:read"]);
   if (!allowed)

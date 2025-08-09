@@ -2,6 +2,10 @@ import { defineEventHandler, createError } from "h3";
 import aclManager from "~/server/internal/acls";
 import newsManager from "~/server/internal/news";
 
+/**
+ * Delete a news article
+ * @param id Article ID
+ */
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["news:delete"]);
   if (!allowed)
