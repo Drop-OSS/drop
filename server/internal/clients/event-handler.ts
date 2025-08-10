@@ -17,7 +17,9 @@ type ClientUtils = {
 
 const NONCE_LENIENCE = 30_000;
 
-export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
+export function defineClientEventHandler<R extends EventHandlerRequest = object, K = unknown>(
+  handler: (h3: H3Event<R>, utils: ClientUtils) => Promise<K> | K,
+) {
   return defineEventHandler(async (h3) => {
     const header = getHeader(h3, "Authorization");
     if (!header) throw createError({ statusCode: 403 });

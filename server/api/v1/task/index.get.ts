@@ -5,6 +5,15 @@ import type { MinimumRequestObject } from "~/server/h3";
 // ID to admin
 const socketHeaders = new Map<string, MinimumRequestObject>();
 
+/**
+ * WebSocket to listen to task updates.
+ *
+ * Sends "unauthenticated" if authentication failed.
+ *
+ * Use `connect/:taskId` to subscribe to a task.
+ *
+ * Sends JSON tasks for all tasks subscribed.
+ */
 export default defineWebSocketHandler({
   async open(peer) {
     const request = peer.request;

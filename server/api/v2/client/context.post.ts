@@ -8,15 +8,20 @@ const CreateContext = type({
   version: "string",
 }).configure(throwingArktype);
 
-export default defineClientEventHandler(async (h3) => {
-  const body = await readDropValidatedBody(h3, CreateContext);
+/**
+ * Part of v2 download API. Create a download context for use with `/api/v2/client/chunk`.
+ */
+export default defineClientEventHandler<{ body: typeof CreateContext.infer }>(
+  async (h3) => {
+    const body = await readDropValidatedBody(h3, CreateContext);
 
-  const context = await contextManager.createContext(body.game, body.version);
-  if (!context)
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Invalid game or version",
-    });
+    const context = await contextManager.createContext(body.game, body.version);
+    if (!context)
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Invalid game or version",
+      });
 
-  return { context };
-});
+    return { context };
+  },
+);

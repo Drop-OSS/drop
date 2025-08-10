@@ -6,6 +6,11 @@ import { logger } from "~/server/internal/logging";
 // Peer ID to user ID
 const socketSessions = new Map<string, string>();
 
+/**
+ * Connect to a WebSocket to listen for notification pushes.
+ *
+ * Sends "unauthenticated" if authentication fails, otherwise JSON notifications.
+ */
 export default defineWebSocketHandler({
   async open(peer) {
     const h3 = { headers: peer.request?.headers ?? new Headers() };

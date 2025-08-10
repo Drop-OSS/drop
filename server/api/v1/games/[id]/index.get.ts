@@ -1,16 +1,15 @@
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 
+/**
+ * Fetch game by ID
+ * @param id Game ID
+ */
 export default defineEventHandler(async (h3) => {
   const userId = await aclManager.getUserIdACL(h3, ["store:read"]);
   if (!userId) throw createError({ statusCode: 403 });
 
-  const gameId = getRouterParam(h3, "id");
-  if (!gameId)
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Missing gameId in route params (somehow...?)",
-    });
+  const gameId = getRouterParam(h3, "id")!;
 
   const game = await prisma.game.findUnique({
     where: { id: gameId },

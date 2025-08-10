@@ -15,6 +15,9 @@ const signinValidator = type({
   "rememberMe?": "boolean | undefined",
 });
 
+/**
+ * Sign in as a session using the "Simple" authentication mechanism. Not recommended for third-party applications.
+ */
 export default defineEventHandler<{
   body: typeof signinValidator.infer;
 }>(async (h3) => {

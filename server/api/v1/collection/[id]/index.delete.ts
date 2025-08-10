@@ -1,6 +1,10 @@
 import aclManager from "~/server/internal/acls";
 import userLibraryManager from "~/server/internal/userlibrary";
 
+/**
+ * Delete a collection
+ * @param id Collection ID
+ */
 export default defineEventHandler(async (h3) => {
   const userId = await aclManager.getUserIdACL(h3, ["collections:delete"]);
   if (!userId)

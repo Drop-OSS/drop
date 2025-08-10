@@ -18,6 +18,9 @@ const CreateUserValidator = SharedRegisterValidator.and({
   "displayName?": "string | undefined",
 }).configure(throwingArktype);
 
+/**
+ * Create user from invitation
+ */
 export default defineEventHandler<{
   body: typeof CreateUserValidator.infer;
 }>(async (h3) => {
