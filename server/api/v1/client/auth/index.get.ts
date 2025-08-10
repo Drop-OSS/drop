@@ -1,17 +1,22 @@
+import { ArkErrors, type } from "arktype";
+import aclManager from "~/server/internal/acls";
 import clientHandler from "~/server/internal/clients/handler";
-import sessionHandler from "~/server/internal/session";
 
-export default defineEventHandler(async (h3) => {
-  const user = await sessionHandler.getSession(h3);
-  if (!user) throw createError({ statusCode: 403 });
+const Query = type({
+  id: "string",
+});
 
-  const query = getQuery(h3);
-  const providedClientId = query.id?.toString();
-  if (!providedClientId)
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Provide client ID in request params as 'id'",
-    });
+/**
+ * Fetch details about an authorization request, and claim it for the current user
+ */
+export default defineEventHandler<{ query: typeof Query.infer }>(async (h3) => {
+  const userId = await aclManager.getUserIdACL(h3, []);
+  if (!userId) throw createError({ statusCode: 403 });
+
+  const query = Query(getQuery(h3));
+  if (query instanceof ArkErrors)
+    throw createError({ statusCode: 400, statusMessage: query.summary });
+  const providedClientId = query.id;
 
   const client = await clientHandler.fetchClient(providedClientId);
   if (!client)
@@ -20,13 +25,13 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Request not found.",
     });
 
-  if (client.userId && user.userId !== client.userId)
+  if (client.userId && userId !== client.userId)
     throw createError({
       statusCode: 400,
       statusMessage: "Client already claimed.",
     });
 
-  await clientHandler.attachUserId(providedClientId, user.userId);
+  await clientHandler.attachUserId(providedClientId, userId);
 
   return client.data;
 });

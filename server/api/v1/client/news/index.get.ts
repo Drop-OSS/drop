@@ -1,29 +1,45 @@
+import { ArkErrors, type } from "arktype";
+import { getQuery } from "h3";
+import aclManager from "~/server/internal/acls";
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import newsManager from "~/server/internal/news";
 
-export default defineClientEventHandler(async (h3) => {
-  const query = getQuery(h3);
-
-  const orderBy = query.order as "asc" | "desc";
-  if (orderBy) {
-    if (typeof orderBy !== "string" || !["asc", "desc"].includes(orderBy))
-      throw createError({ statusCode: 400, statusMessage: "Invalid order" });
-  }
-
-  const tags = query.tags as string[] | undefined;
-  if (tags) {
-    if (typeof tags !== "object" || !Array.isArray(tags))
-      throw createError({ statusCode: 400, statusMessage: "Invalid tags" });
-  }
-
-  const options = {
-    take: parseInt(query.limit as string),
-    skip: parseInt(query.skip as string),
-    orderBy: orderBy,
-    ...(tags && { tags: tags.map((e) => e.toString()) }),
-    search: query.search as string,
-  };
-
-  const news = await newsManager.fetch(options);
-  return news;
+const NewsFetch = type({
+  "order?": "'asc' | 'desc'",
+  "tags?": "string[]",
+  "limit?": "string.numeric.parse",
+  "skip?": "string.numeric.parse",
+  "search?": "string",
 });
+
+/**
+ * Fetch instance news articles
+ */
+export default defineClientEventHandler<ReturnType<typeof newsManager.fetch>, { query: typeof NewsFetch.infer }>(
+  async (h3) => {
+    const userId = await aclManager.getUserIdACL(h3, ["news:read"]);
+    if (!userId)
+      throw createError({
+        statusCode: 403,
+        statusMessage: "Requires authentication",
+      });
+
+    const query = NewsFetch(getQuery(h3));
+    if (query instanceof ArkErrors)
+      throw createError({ statusCode: 400, statusMessage: query.summary });
+
+    const orderBy = query.order;
+    const tags = query.tags;
+
+    const options = {
+      take: Math.min(query.limit ?? 10, 10),
+      skip: query.skip ?? 0,
+      orderBy: orderBy,
+      ...(tags && { tags: tags.map((e) => e.toString()) }),
+      search: query.search,
+    };
+
+    const news = await newsManager.fetch(options);
+    return news;
+  },
+);

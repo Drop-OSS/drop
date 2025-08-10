@@ -1,7 +1,17 @@
+import { type } from "arktype";
+import { throwingArktype } from "~/server/arktype";
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import userLibraryManager from "~/server/internal/userlibrary";
 
-export default defineClientEventHandler(async (h3, { fetchUser }) => {
+const EntryRemove = type({
+  id: "string",
+}).configure(throwingArktype);
+
+/**
+ * Remove entry from user's collection
+ * @param id Collection ID
+ */
+export default defineClientEventHandler(async (h3, { fetchUser, body }) => {
   const user = await fetchUser();
 
   const id = getRouterParam(h3, "id");
@@ -11,10 +21,7 @@ export default defineClientEventHandler(async (h3, { fetchUser }) => {
       statusMessage: "ID required in route params",
     });
 
-  const body = await readBody(h3);
   const gameId = body.id;
-  if (!gameId)
-    throw createError({ statusCode: 400, statusMessage: "Game ID required" });
 
   const successful = await userLibraryManager.collectionRemove(
     gameId,
@@ -27,4 +34,4 @@ export default defineClientEventHandler(async (h3, { fetchUser }) => {
       statusMessage: "Collection not found",
     });
   return {};
-});
+}, EntryRemove);

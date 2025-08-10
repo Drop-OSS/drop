@@ -1,6 +1,9 @@
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import userLibraryManager from "~/server/internal/userlibrary";
 
+/**
+ * Fetch library for user
+ */
 export default defineClientEventHandler(async (_h3, { fetchUser }) => {
   const user = await fetchUser();
   const library = await userLibraryManager.fetchLibrary(user.id);

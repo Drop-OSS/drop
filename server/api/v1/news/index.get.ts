@@ -14,7 +14,7 @@ const NewsFetch = type({
 /**
  * Fetch instance news articles
  */
-export default defineEventHandler<{ query: typeof NewsFetch.infer }>(
+export default defineEventHandler<{ query: typeof NewsFetch.infer }, ReturnType<typeof newsManager.fetch>>(
   async (h3) => {
     const userId = await aclManager.getUserIdACL(h3, ["news:read"]);
     if (!userId)

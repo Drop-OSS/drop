@@ -1,6 +1,10 @@
 import type { FetchError } from "ofetch";
 import clientHandler from "~/server/internal/clients/handler";
 
+/**
+ * Client route to listen for code authorization. 
+ * @request Pass the code in the `Authorization` header
+ */
 export default defineWebSocketHandler({
   async open(peer) {
     try {

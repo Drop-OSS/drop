@@ -16,9 +16,9 @@ type ClientUtils<R> = {
 
 const NONCE_LENIENCE = 30_000;
 
-type ClientEventHandlerRequest<T> = {
-  body: T;
-  query: { [key: string]: string | string[] };
+type ClientEventHandlerRequest<T, Q = {[key: string]: any }> = {
+  body?: T;
+  query?: Q;
 };
 
 interface ClientEventHandler<
