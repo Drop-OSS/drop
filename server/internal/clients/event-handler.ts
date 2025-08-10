@@ -1,15 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ClientModel, UserModel } from "~/prisma/client/models";
-import type { EventHandlerRequest, EventHandlerResponse, H3Event } from "h3";
+import type { EventHandlerResolver, EventHandlerResponse, H3Event } from "h3";
 import droplet from "@drop-oss/droplet";
 import prisma from "../db/database";
 import { useCertificateAuthority } from "~/server/plugins/ca";
+import type { Type } from "arktype";
+import { readDropValidatedBody } from "~/server/arktype";
 
-export type EventHandlerFunction<T> = (
-  h3: H3Event<EventHandlerRequest>,
-  utils: ClientUtils,
-) => Promise<T> | T;
-
-type ClientUtils = {
+type ClientUtils<R> = {
+  body: R;
   clientId: string;
   fetchClient: () => Promise<ClientModel>;
   fetchUser: () => Promise<UserModel>;
@@ -17,17 +16,26 @@ type ClientUtils = {
 
 const NONCE_LENIENCE = 30_000;
 
-interface ClientHandler<
-  R extends EventHandlerRequest = EventHandlerRequest,
-  K extends EventHandlerResponse = EventHandlerResponse,
+type ClientEventHandlerRequest<T> = {
+  body: T;
+  query: { [key: string]: string | string[] };
+};
+
+interface ClientEventHandler<
+  R = any,
+  Request extends ClientEventHandlerRequest<R> = ClientEventHandlerRequest<R>,
+  Response extends EventHandlerResponse = EventHandlerResponse,
 > {
-  (event: H3Event<R>, utils: ClientUtils): K;
+  __is_handler__?: true;
+  __resolve__?: EventHandlerResolver;
+  (event: H3Event<Request>, utils: ClientUtils<R>): Response;
 }
 
 export function defineClientEventHandler<
-  R extends EventHandlerRequest = EventHandlerRequest,
-  K = EventHandlerResponse,
->(handler: ClientHandler<R, K>) {
+  R = any,
+  T extends ClientEventHandlerRequest<R> = ClientEventHandlerRequest<R>,
+  K extends EventHandlerResponse = EventHandlerResponse,
+>(handler: ClientEventHandler<R, T, K>, validator?: Type<R>) {
   return defineEventHandler(async (h3) => {
     const header = getHeader(h3, "Authorization");
     if (!header) throw createError({ statusCode: 403 });
@@ -128,10 +136,11 @@ export function defineClientEventHandler<
       return client.user;
     }
 
-    const utils: ClientUtils = {
+    const utils: ClientUtils<unknown> = {
       clientId,
       fetchClient,
       fetchUser,
+      body: undefined,
     };
 
     await prisma.client.update({
@@ -139,6 +148,10 @@ export function defineClientEventHandler<
       data: { lastConnected: new Date() },
     });
 
-    return await handler(h3, utils);
+    const body = validator
+      ? await readDropValidatedBody(h3, validator)
+      : undefined;
+
+    return await handler(h3, { ...utils, body: body as R });
   });
 }
