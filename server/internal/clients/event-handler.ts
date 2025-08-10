@@ -1,5 +1,5 @@
 import type { ClientModel, UserModel } from "~/prisma/client/models";
-import type { EventHandlerRequest, H3Event } from "h3";
+import type { EventHandlerRequest, EventHandlerResponse, H3Event } from "h3";
 import droplet from "@drop-oss/droplet";
 import prisma from "../db/database";
 import { useCertificateAuthority } from "~/server/plugins/ca";
@@ -17,9 +17,17 @@ type ClientUtils = {
 
 const NONCE_LENIENCE = 30_000;
 
-export function defineClientEventHandler<R extends EventHandlerRequest = object, K = unknown>(
-  handler: (h3: H3Event<R>, utils: ClientUtils) => Promise<K> | K,
-) {
+interface ClientHandler<
+  R extends EventHandlerRequest = EventHandlerRequest,
+  K extends EventHandlerResponse = EventHandlerResponse,
+> {
+  (event: H3Event<R>, utils: ClientUtils): K;
+}
+
+export function defineClientEventHandler<
+  R extends EventHandlerRequest = EventHandlerRequest,
+  K = EventHandlerResponse,
+>(handler: ClientHandler<R, K>) {
   return defineEventHandler(async (h3) => {
     const header = getHeader(h3, "Authorization");
     if (!header) throw createError({ statusCode: 403 });
