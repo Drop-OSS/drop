@@ -7,10 +7,13 @@ const Query = type({
   id: "string",
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type APIQuery = typeof Query.inferIn;
+
 /**
  * Fetch invitation details for pre-filling
  */
-export default defineEventHandler<{ query: typeof Query.infer }>(async (h3) => {
+export default defineEventHandler(async (h3) => {
   const t = await useTranslation(h3);
 
   if (!authManager.getAuthProviders().Simple)

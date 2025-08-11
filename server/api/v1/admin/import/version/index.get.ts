@@ -7,10 +7,13 @@ const Query = type({
   id: "string",
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type APIQuery = typeof Query.inferIn;
+
 /**
  *  Fetch all versions available for import for a game (`id` in query params).
  */
-export default defineEventHandler<{ query: typeof Query.infer }>(async (h3) => {
+export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["import:version:read"]);
   if (!allowed) throw createError({ statusCode: 403 });
 

@@ -13,7 +13,7 @@ const GetChunk = type({
 
 /**
  * Part of v2 download API. Intended to be client-only.
- * 
+ *
  * Returns raw stream of all files requested, in order.
  * @response `application/octet-stream` stream of all files concatenated
  */

@@ -26,8 +26,8 @@
               <div class="flex-auto">
                 <h3 class="text-sm/6 font-semibold text-zinc-100">
                   <button :class="actionsComplete[actionIdx]
-                      ? 'line-through text-zinc-300'
-                      : ''
+                    ? 'line-through text-zinc-300'
+                    : ''
                     " @click="() => (currentAction = actionIdx)">
                     <span class="absolute inset-0" aria-hidden="true" />
                     {{ action.name }}

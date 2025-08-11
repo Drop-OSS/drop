@@ -15,7 +15,7 @@ export default defineClientEventHandler(async (h3) => {
   const query = Query(getQuery(h3));
   if (query instanceof ArkErrors)
     throw createError({ statusCode: 400, statusMessage: query.summary });
-  
+
   const id = query.id;
   const version = query.version;
 

@@ -18,7 +18,7 @@ const ClientAuthInitiate = type({
 }).configure(throwingArktype);
 
 /**
- * Client route to initiate authorization flow. 
+ * Client route to initiate authorization flow.
  * @response The requested callback or code.
  */
 export default defineEventHandler<{ body: typeof ClientAuthInitiate.infer }>(

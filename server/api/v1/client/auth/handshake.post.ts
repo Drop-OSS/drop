@@ -9,7 +9,7 @@ const HandshakeBody = type({
 }).configure(throwingArktype);
 
 /**
- * Client route to complete handshake, after the user has authorize it. 
+ * Client route to complete handshake, after the user has authorize it.
  */
 export default defineEventHandler<{ body: typeof HandshakeBody.infer }>(
   async (h3) => {

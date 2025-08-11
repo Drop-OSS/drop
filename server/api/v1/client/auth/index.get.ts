@@ -6,10 +6,13 @@ const Query = type({
   id: "string",
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type APIQuery = typeof Query.inferIn;
+
 /**
  * Fetch details about an authorization request, and claim it for the current user
  */
-export default defineEventHandler<{ query: typeof Query.infer }>(async (h3) => {
+export default defineEventHandler(async (h3) => {
   const userId = await aclManager.getUserIdACL(h3, []);
   if (!userId) throw createError({ statusCode: 403 });
 
