@@ -177,7 +177,7 @@ class LibraryManager {
     for (const filename of files) {
       const basename = path.basename(filename);
       const dotLocation = filename.lastIndexOf(".");
-      const ext = dotLocation == -1 ? "" : filename.slice(dotLocation);
+      const ext = dotLocation == -1 ? "" : filename.slice(dotLocation).toLowerCase();
       for (const [platform, checkExts] of Object.entries(fileExts)) {
         for (const checkExt of checkExts) {
           if (checkExt != ext) continue;
