@@ -14,6 +14,10 @@ const ImportGameBody = type({
   },
 }).configure(throwingArktype);
 
+/**
+ * Import a game as a background task.
+ * @response Task IDs can be used with the websocket endpoint /api/v1/task
+ */
 export default defineEventHandler<{ body: typeof ImportGameBody.infer }>(
   async (h3) => {
     const allowed = await aclManager.allowSystemACL(h3, ["import:game:new"]);

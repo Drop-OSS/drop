@@ -1,6 +1,9 @@
 import aclManager from "~/server/internal/acls";
 import libraryManager from "~/server/internal/library";
 
+/**
+ * Fetch library data for admin UI
+ */
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["library:read"]);
   if (!allowed) throw createError({ statusCode: 403 });

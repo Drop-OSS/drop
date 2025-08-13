@@ -1,6 +1,10 @@
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import prisma from "~/server/internal/db/database";
 
+/**
+ * Fetch all versions for game ID
+ * @request `id` required in query params
+ */
 export default defineClientEventHandler(async (h3) => {
   const query = getQuery(h3);
   const id = query.id?.toString();

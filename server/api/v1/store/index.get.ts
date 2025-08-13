@@ -21,6 +21,12 @@ const StoreRead = type({
   sort: "'default' | 'newest' | 'recent' = 'default'",
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type APIQuery = typeof StoreRead.inferIn;
+
+/**
+ * Store endpoint. Filter games with pagination. Used for all "store views".
+ */
 export default defineEventHandler(async (h3) => {
   const userId = await aclManager.getUserIdACL(h3, ["store:read"]);
   if (!userId) throw createError({ statusCode: 403 });

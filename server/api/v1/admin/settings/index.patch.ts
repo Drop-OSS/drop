@@ -8,6 +8,9 @@ const UpdateSettings = type({
   showGamePanelTextDecoration: "boolean",
 });
 
+/**
+ * Update global Drop settings.
+ */
 export default defineEventHandler<{ body: typeof UpdateSettings.infer }>(
   async (h3) => {
     const allowed = await aclManager.allowSystemACL(h3, ["settings:update"]);

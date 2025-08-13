@@ -7,6 +7,10 @@ const DeleteInvite = type({
   id: "string",
 }).configure(throwingArktype);
 
+/**
+ * Deletes a "Simple" invitation
+ * @returns nothing
+ */
 export default defineEventHandler<{
   body: typeof DeleteInvite.infer;
 }>(async (h3) => {

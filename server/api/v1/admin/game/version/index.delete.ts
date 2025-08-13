@@ -8,7 +8,10 @@ const DeleteVersion = type({
   versionName: "string",
 }).configure(throwingArktype);
 
-export default defineEventHandler<{ body: typeof DeleteVersion }>(
+/**
+ * Delete a game's version
+ */
+export default defineEventHandler<{ body: typeof DeleteVersion.infer }>(
   async (h3) => {
     const allowed = await aclManager.allowSystemACL(h3, [
       "game:version:delete",

@@ -46,9 +46,9 @@ class NewsManager {
     options: {
       take?: number;
       skip?: number;
-      orderBy?: "asc" | "desc";
+      orderBy?: "asc" | "desc" | undefined;
       tags?: string[];
-      search?: string;
+      search?: string | undefined;
     } = {},
   ) {
     return await prisma.article.findMany({

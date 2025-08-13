@@ -3,6 +3,11 @@ import prisma from "~/server/internal/db/database";
 import objectHandler from "~/server/internal/objects";
 import { handleFileUpload } from "~/server/internal/utils/handlefileupload";
 
+/**
+ * Multi-part form upload for the icon of this company
+ * @request `multipart/form-data` data. Only one file, can be named anything.
+ * @param id Company ID
+ */
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["company:update"]);
   if (!allowed) throw createError({ statusCode: 403 });

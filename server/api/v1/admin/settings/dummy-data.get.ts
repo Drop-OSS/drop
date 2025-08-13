@@ -1,6 +1,9 @@
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 
+/**
+ * Fetch dummy data for rendering the settings page.
+ */
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.getUserACL(h3, ["settings:read"]);
   if (!allowed) throw createError({ statusCode: 403 });

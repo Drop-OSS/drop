@@ -1,3 +1,4 @@
+import { ArkErrors, type } from "arktype";
 import cacheHandler from "~/server/internal/cache";
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import prisma from "~/server/internal/db/database";
@@ -10,12 +11,29 @@ const gameLookupCache = cacheHandler.createCache<{
   libraryPath: string;
 }>("downloadGameLookupCache");
 
+const Query = type({
+  id: "string",
+  version: "string",
+  name: "string",
+  chunk: "string.numeric.parse",
+});
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type APIQuery = typeof Query.inferIn;
+
+/**
+ * v1 download API
+ * @deprecated
+ * @response Raw binary data (`application/octet-stream`)
+ */
 export default defineClientEventHandler(async (h3) => {
-  const query = getQuery(h3);
-  const gameId = query.id?.toString();
-  const versionName = query.version?.toString();
-  const filename = query.name?.toString();
-  const chunkIndex = parseInt(query.chunk?.toString() ?? "?");
+  const query = Query(getQuery(h3));
+  if (query instanceof ArkErrors)
+    throw createError({ statusCode: 400, statusMessage: query.summary });
+  const gameId = query.id;
+  const versionName = query.version;
+  const filename = query.name;
+  const chunkIndex = query.chunk;
 
   if (!gameId || !versionName || !filename || Number.isNaN(chunkIndex))
     throw createError({
@@ -35,7 +53,10 @@ export default defineClientEventHandler(async (h3) => {
       },
     });
     if (!game || !game.libraryId)
-      throw createError({ statusCode: 400, statusMessage: "Invalid game ID" });
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Invalid game ID",
+      });
 
     await gameLookupCache.setItem(gameId, game);
   }
@@ -79,5 +100,7 @@ export default defineClientEventHandler(async (h3) => {
       statusMessage: "Failed to create stream",
     });
 
-  return sendStream(h3, gameReadStream);
+  await sendStream(h3, gameReadStream);
+
+  return;
 });

@@ -1,15 +1,14 @@
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import userLibraryManager from "~/server/internal/userlibrary";
 
+/**
+ * Fetch collection by ID
+ * @param id Collection ID
+ */
 export default defineClientEventHandler(async (h3, { fetchUser }) => {
   const user = await fetchUser();
 
-  const id = getRouterParam(h3, "id");
-  if (!id)
-    throw createError({
-      statusCode: 400,
-      statusMessage: "ID required in route params",
-    });
+  const id = getRouterParam(h3, "id")!;
 
   // Fetch specific collection
   // Will not return the default collection

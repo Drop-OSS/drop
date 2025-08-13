@@ -184,9 +184,6 @@ class ACLManager {
     if (!token) return false;
     if (token.mode != APITokenMode.System) return false;
 
-    // If empty, we just want to check we are an admin *at all*, not specific ACLs
-    if (acls.length == 0) return true;
-
     for (const acl of acls) {
       const tokenACLIndex = token.acls.findIndex((e) => e == acl);
       if (tokenACLIndex != -1) return true;

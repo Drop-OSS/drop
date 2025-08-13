@@ -9,29 +9,35 @@ const GamePatch = type({
   id: "string",
 }).configure(throwingArktype);
 
-export default defineEventHandler(async (h3) => {
-  const allowed = await aclManager.allowSystemACL(h3, ["company:update"]);
-  if (!allowed) throw createError({ statusCode: 403 });
+/**
+ * Update a company's association with a game.
+ * @param id Company ID
+ */
+export default defineEventHandler<{ body: typeof GamePatch.infer }>(
+  async (h3) => {
+    const allowed = await aclManager.allowSystemACL(h3, ["company:update"]);
+    if (!allowed) throw createError({ statusCode: 403 });
 
-  const companyId = getRouterParam(h3, "id")!;
+    const companyId = getRouterParam(h3, "id")!;
 
-  const body = await readDropValidatedBody(h3, GamePatch);
+    const body = await readDropValidatedBody(h3, GamePatch);
 
-  const action = body.action === "developed" ? "developers" : "publishers";
-  const actionType = body.enabled ? "connect" : "disconnect";
+    const action = body.action === "developed" ? "developers" : "publishers";
+    const actionType = body.enabled ? "connect" : "disconnect";
 
-  await prisma.game.update({
-    where: {
-      id: body.id,
-    },
-    data: {
-      [action]: {
-        [actionType]: {
-          id: companyId,
+    await prisma.game.update({
+      where: {
+        id: body.id,
+      },
+      data: {
+        [action]: {
+          [actionType]: {
+            id: companyId,
+          },
         },
       },
-    },
-  });
+    });
 
-  return;
-});
+    return;
+  },
+);

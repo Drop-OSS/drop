@@ -1,6 +1,9 @@
 import { systemConfig } from "~/server/internal/config/sys-conf";
 
-export default defineEventHandler((_h3) => {
+/**
+ * Fetch instance information
+ */
+export default defineEventHandler(async (_h3) => {
   return {
     appName: "Drop",
     version: systemConfig.getDropVersion(),

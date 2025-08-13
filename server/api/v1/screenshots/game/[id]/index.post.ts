@@ -3,8 +3,10 @@ import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import screenshotManager from "~/server/internal/screenshots";
 
-// TODO: make defineClientEventHandler instead?
-// only clients will be upload screenshots yea??
+/**
+ * Upload screenshot by game. Subject to change, will likely become a client route. Takes raw upload (`application/octet-stream`)
+ * @param id Game ID
+ */
 export default defineEventHandler(async (h3) => {
   const userId = await aclManager.getUserIdACL(h3, ["screenshots:new"]);
   if (!userId) throw createError({ statusCode: 403 });

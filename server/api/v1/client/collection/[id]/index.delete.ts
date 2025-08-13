@@ -1,15 +1,14 @@
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import userLibraryManager from "~/server/internal/userlibrary";
 
+/**
+ * Delete collection by ID
+ * @param id Collection ID
+ */
 export default defineClientEventHandler(async (h3, { fetchUser }) => {
   const user = await fetchUser();
 
-  const id = getRouterParam(h3, "id");
-  if (!id)
-    throw createError({
-      statusCode: 400,
-      statusMessage: "ID required in route params",
-    });
+  const id = getRouterParam(h3, "id")!;
 
   // Verify collection exists and user owns it
   // Will not return the default collection
@@ -27,5 +26,5 @@ export default defineClientEventHandler(async (h3, { fetchUser }) => {
     });
 
   await userLibraryManager.deleteCollection(id);
-  return { success: true };
+  return;
 });

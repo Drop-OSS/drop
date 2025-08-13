@@ -3,6 +3,9 @@ import { systemConfig } from "~/server/internal/config/sys-conf";
 import prisma from "~/server/internal/db/database";
 import taskHandler from "~/server/internal/tasks";
 
+/**
+ * Fetches a "Simple" invitation
+ */
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, [
     "auth:simple:invitation:read",

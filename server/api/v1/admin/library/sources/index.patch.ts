@@ -12,6 +12,9 @@ const UpdateLibrarySource = type({
   options: "object",
 }).configure(throwingArktype);
 
+/**
+ * Update a library source's options. Validates options and live-updates the source.
+ */
 export default defineEventHandler<{ body: typeof UpdateLibrarySource.infer }>(
   async (h3) => {
     const allowed = await aclManager.allowSystemACL(h3, [

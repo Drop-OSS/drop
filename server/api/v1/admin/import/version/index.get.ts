@@ -1,18 +1,30 @@
+import { ArkErrors, type } from "arktype";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import libraryManager from "~/server/internal/library";
 
+const Query = type({
+  id: "string",
+});
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type APIQuery = typeof Query.inferIn;
+
+/**
+ *  Fetch all versions available for import for a game (`id` in query params).
+ */
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["import:version:read"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
-  const query = await getQuery(h3);
-  const gameId = query.id?.toString();
-  if (!gameId)
+  const query = Query(await getQuery(h3));
+  if (query instanceof ArkErrors)
     throw createError({
       statusCode: 400,
-      statusMessage: "Missing id in request params",
+      statusMessage: "Invalid query params: " + query.summary,
     });
+
+  const gameId = query.id;
 
   const game = await prisma.game.findUnique({
     where: { id: gameId },

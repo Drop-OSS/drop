@@ -8,6 +8,9 @@ const DeleteLibrarySource = type({
   id: "string",
 }).configure(throwingArktype);
 
+/**
+ * Delete a given library source
+ */
 export default defineEventHandler<{ body: typeof DeleteLibrarySource.infer }>(
   async (h3) => {
     const allowed = await aclManager.allowSystemACL(h3, [

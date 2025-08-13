@@ -4,6 +4,9 @@ import type { UserACL } from "~/server/internal/acls";
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import prisma from "~/server/internal/db/database";
 
+/**
+ * Generate API token with limited API scopes to render store in client
+ */
 export default defineClientEventHandler(
   async (h3, { fetchUser, fetchClient, clientId }) => {
     const user = await fetchUser();

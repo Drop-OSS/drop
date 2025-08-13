@@ -1,5 +1,5 @@
 import { type } from "arktype";
-import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
+import { throwingArktype } from "~/server/arktype";
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import contextManager from "~/server/internal/downloads/coordinator";
 
@@ -8,9 +8,10 @@ const CreateContext = type({
   version: "string",
 }).configure(throwingArktype);
 
-export default defineClientEventHandler(async (h3) => {
-  const body = await readDropValidatedBody(h3, CreateContext);
-
+/**
+ * Part of v2 download API. Create a download context for use with `/api/v2/client/chunk`.
+ */
+export default defineClientEventHandler(async (h3, { body }) => {
   const context = await contextManager.createContext(body.game, body.version);
   if (!context)
     throw createError({
@@ -19,4 +20,4 @@ export default defineClientEventHandler(async (h3) => {
     });
 
   return { context };
-});
+}, CreateContext);

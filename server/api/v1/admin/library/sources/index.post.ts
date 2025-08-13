@@ -14,6 +14,9 @@ const CreateLibrarySource = type({
   options: "object",
 }).configure(throwingArktype);
 
+/**
+ * Create a new library source with options
+ */
 export default defineEventHandler<{ body: typeof CreateLibrarySource.infer }>(
   async (h3) => {
     const allowed = await aclManager.allowSystemACL(h3, [

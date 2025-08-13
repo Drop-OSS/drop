@@ -4,6 +4,9 @@ import libraryManager from "~/server/internal/library";
 
 export type WorkingLibrarySource = LibraryModel & { working: boolean };
 
+/**
+ * Fetch all library sources on this instance
+ */
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, [
     "library:sources:read",

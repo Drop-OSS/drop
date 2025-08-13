@@ -1,20 +1,29 @@
+import { type } from "arktype";
+import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 import aclManager from "~/server/internal/acls";
 import userLibraryManager from "~/server/internal/userlibrary";
 
-export default defineEventHandler(async (h3) => {
-  const userId = await aclManager.getUserIdACL(h3, ["library:remove"]);
-  if (!userId)
-    throw createError({
-      statusCode: 403,
-      statusMessage: "Requires authentication",
-    });
+const DeleteEntry = type({
+  id: "string",
+}).configure(throwingArktype);
 
-  const body = await readBody(h3);
+/**
+ * Remove game from user library
+ */
+export default defineEventHandler<{ body: typeof DeleteEntry.infer }>(
+  async (h3) => {
+    const userId = await aclManager.getUserIdACL(h3, ["library:remove"]);
+    if (!userId)
+      throw createError({
+        statusCode: 403,
+        statusMessage: "Requires authentication",
+      });
 
-  const gameId = body.id;
-  if (!gameId)
-    throw createError({ statusCode: 400, statusMessage: "Game ID required" });
+    const body = await readDropValidatedBody(h3, DeleteEntry);
 
-  await userLibraryManager.libraryRemove(gameId, userId);
-  return {};
-});
+    const gameId = body.id;
+
+    await userLibraryManager.libraryRemove(gameId, userId);
+    return {};
+  },
+);

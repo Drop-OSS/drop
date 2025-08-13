@@ -2,6 +2,10 @@ import { defineEventHandler, createError } from "h3";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 
+/**
+ * Delete a user
+ * @param id User ID
+ */
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["user:delete"]);
   if (!allowed)
