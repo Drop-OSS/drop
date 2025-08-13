@@ -1,11 +1,11 @@
 import { MetadataSource } from "~/prisma/client/enums";
-import type { MetadataProvider } from ".";
+import type { MetadataProvider } from "../content";
 import type {
   _FetchGameMetadataParams,
   GameMetadata,
   _FetchCompanyMetadataParams,
   CompanyMetadata,
-} from "./types";
+} from "../content/types";
 import * as jdenticon from "jdenticon";
 
 export class ManualMetadataProvider implements MetadataProvider {
