@@ -2,6 +2,7 @@ import { type } from "arktype";
 import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 import contextManager from "~/server/internal/downloads/coordinator";
 import libraryManager from "~/server/internal/library";
+import { logger } from "~/server/internal/logging";
 
 const GetChunk = type({
   context: "string",
@@ -58,13 +59,25 @@ export default defineEventHandler(async (h3) => {
         statusCode: 500,
         statusMessage: "Failed to create read stream",
       });
+    let length = 0;
     await gameReadStream.pipeTo(
       new WritableStream({
         write(chunk) {
           h3.node.res.write(chunk);
+          length += chunk.length;
         },
       }),
     );
+
+    if (length != file.end - file.start) {
+      logger.warn(
+        `failed to read enough from ${file.filename}. read ${length}, required: ${file.end - file.start}`,
+      );
+      throw createError({
+        statusCode: 500,
+        statusMessage: "Failed to read enough from stream.",
+      });
+    }
   }
 
   await h3.node.res.end();

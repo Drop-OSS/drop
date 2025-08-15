@@ -22,21 +22,17 @@
                   <!-- import games button -->
 
                   <NuxtLink
-                    :href="
-                      unimportedVersions.length > 0
-                        ? `/admin/library/${game.id}/import`
-                        : ''
-                    "
+                    :href="canImport ? `/admin/library/${game.id}/import` : ''"
                     type="button"
                     :class="[
-                      unimportedVersions.length > 0
+                      canImport
                         ? 'bg-blue-600 hover:bg-blue-700'
                         : 'bg-blue-800/50',
                       'inline-flex w-fit items-center gap-x-2 rounded-md  px-3 py-1 text-sm font-semibold font-display text-white shadow-sm  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600',
                     ]"
                   >
                     {{
-                      unimportedVersions.length > 0
+                      canImport
                         ? $t("library.admin.import.version.import")
                         : $t("library.admin.import.version.noVersions")
                     }}
@@ -124,9 +120,15 @@ import { ExclamationCircleIcon } from "@heroicons/vue/24/outline";
 
 // TODO implement UI for this page
 
-defineProps<{ unimportedVersions: string[] }>();
+const props = defineProps<{ unimportedVersions: string[] }>();
 
 const { t } = useI18n();
+
+const hasDeleted = ref(false);
+
+const canImport = computed(
+  () => hasDeleted.value || props.unimportedVersions.length > 0,
+);
 
 type GameAndVersions = GameModel & { versions: GameVersionModel[] };
 const game = defineModel<SerializeObject<GameAndVersions>>() as Ref<
@@ -176,6 +178,7 @@ async function deleteVersion(versionName: string) {
       game.value.versions.findIndex((e) => e.versionName === versionName),
       1,
     );
+    hasDeleted.value = true;
   } catch (e) {
     createModal(
       ModalType.Notification,
