@@ -5,6 +5,7 @@ import { LibraryBackend } from "~/prisma/client/enums";
 import fs from "fs";
 import path from "path";
 import droplet from "@drop-oss/droplet";
+import { DROPLET_HANDLER } from "./filesystem";
 
 export const FlatFilesystemProviderConfig = type({
   baseDir: "string",
@@ -46,7 +47,7 @@ export class FlatFilesystemProvider
     const versionDirs = fs.readdirSync(this.config.baseDir);
     const validVersionDirs = versionDirs.filter((e) => {
       const fullDir = path.join(this.config.baseDir, e);
-      return droplet.hasBackendForPath(fullDir);
+      return DROPLET_HANDLER.hasBackendForPath(fullDir);
     });
     return validVersionDirs;
   }
@@ -63,7 +64,7 @@ export class FlatFilesystemProvider
   async versionReaddir(game: string, _version: string) {
     const versionDir = path.join(this.config.baseDir, game);
     if (!fs.existsSync(versionDir)) throw new VersionNotFoundError();
-    return droplet.listFiles(versionDir);
+    return DROPLET_HANDLER.listFiles(versionDir);
   }
 
   async generateDropletManifest(
@@ -75,7 +76,7 @@ export class FlatFilesystemProvider
     const versionDir = path.join(this.config.baseDir, game);
     if (!fs.existsSync(versionDir)) throw new VersionNotFoundError();
     const manifest = await new Promise<string>((r, j) =>
-      droplet.generateManifest(versionDir, progress, log, (err, result) => {
+      droplet.generateManifest(DROPLET_HANDLER, versionDir, progress, log, (err, result) => {
         if (err) return j(err);
         r(result);
       }),
@@ -85,7 +86,7 @@ export class FlatFilesystemProvider
   async peekFile(game: string, _version: string, filename: string) {
     const filepath = path.join(this.config.baseDir, game);
     if (!fs.existsSync(filepath)) return undefined;
-    const stat = droplet.peekFile(filepath, filename);
+    const stat = DROPLET_HANDLER.peekFile(filepath, filename);
     return { size: Number(stat) };
   }
   async readFile(
@@ -96,7 +97,7 @@ export class FlatFilesystemProvider
   ) {
     const filepath = path.join(this.config.baseDir, game);
     if (!fs.existsSync(filepath)) return undefined;
-    const stream = droplet.readFile(
+    const stream = DROPLET_HANDLER.readFile(
       filepath,
       filename,
       options?.start ? BigInt(options.start) : undefined,
@@ -104,6 +105,6 @@ export class FlatFilesystemProvider
     );
     if (!stream) return undefined;
 
-    return stream;
+    return stream.getStream();
   }
 }

@@ -1,5 +1,5 @@
 model Task {
-    id        String @id
+    id        String
     taskGroup String
     name      String
 
@@ -12,4 +12,6 @@ model Task {
     log      String[]
 
     acls String[]
+
+    @@id([id, started])
 }

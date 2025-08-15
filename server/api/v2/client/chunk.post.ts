@@ -58,6 +58,7 @@ export default defineEventHandler(async (h3) => {
         statusCode: 500,
         statusMessage: "Failed to create read stream",
       });
+    console.log(`sending stream for ${file.filename} for ${body.context}`);
     await gameReadStream.pipeTo(
       new WritableStream({
         write(chunk) {
