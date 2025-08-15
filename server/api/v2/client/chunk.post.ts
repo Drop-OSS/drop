@@ -68,7 +68,7 @@ export default defineEventHandler(async (h3) => {
         },
       }),
     );
-    
+
     if (length != file.end - file.start) {
       logger.warn(
         `failed to read enough from ${file.filename}. read ${length}, required: ${file.end - file.start}`,

@@ -76,10 +76,16 @@ export class FlatFilesystemProvider
     const versionDir = path.join(this.config.baseDir, game);
     if (!fs.existsSync(versionDir)) throw new VersionNotFoundError();
     const manifest = await new Promise<string>((r, j) =>
-      droplet.generateManifest(DROPLET_HANDLER, versionDir, progress, log, (err, result) => {
-        if (err) return j(err);
-        r(result);
-      }),
+      droplet.generateManifest(
+        DROPLET_HANDLER,
+        versionDir,
+        progress,
+        log,
+        (err, result) => {
+          if (err) return j(err);
+          r(result);
+        },
+      ),
     );
     return manifest;
   }

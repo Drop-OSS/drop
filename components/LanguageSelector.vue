@@ -1,10 +1,17 @@
 <template>
   <div>
     <LanguageSelectorListbox />
-    <NuxtLink class="mt-1 transition text-blue-500 hover:text-blue-600 text-sm"
-      to="https://translate.droposs.org/engage/drop/" target="_blank">
-      <i18n-t keypath="helpUsTranslate" tag="span" scope="global"
-        class="inline-flex items-center gap-x-1 hover:underline">
+    <NuxtLink
+      class="mt-1 transition text-blue-500 hover:text-blue-600 text-sm"
+      to="https://translate.droposs.org/engage/drop/"
+      target="_blank"
+    >
+      <i18n-t
+        keypath="helpUsTranslate"
+        tag="span"
+        scope="global"
+        class="inline-flex items-center gap-x-1 hover:underline"
+      >
         <template #arrow>
           <ArrowTopRightOnSquareIcon class="size-4" />
         </template>
