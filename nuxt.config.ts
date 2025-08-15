@@ -138,6 +138,7 @@ export default defineNuxtConfig({
 
     scheduledTasks: {
       "0 * * * *": ["dailyTasks"],
+      "*/30 * * * *": ["downloadCleanup"],
     },
 
     storage: {

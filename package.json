@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "license": "AGPL-3.0-or-later",
+  "engines": {
+    "node": ">=22.16.0"
+  },
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
@@ -18,7 +21,7 @@
   },
   "dependencies": {
     "@discordapp/twemoji": "^16.0.1",
-    "@drop-oss/droplet": "1.6.0",
+    "@drop-oss/droplet": "2.3.0",
     "@headlessui/vue": "^1.7.23",
     "@heroicons/vue": "^2.1.5",
     "@lobomfz/prismark": "0.0.3",

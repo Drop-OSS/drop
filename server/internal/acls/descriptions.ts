@@ -19,7 +19,7 @@ export const userACLDescriptions: ObjectFromList<typeof userACLs> = {
 
   "notifications:read": "Fetch this account's notifications.",
   "notifications:mark": "Mark notifications as read for this account.",
-  "notifications:listen": "Connect to a websocket to recieve notifications.",
+  "notifications:listen": "Connect to a websocket to receive notifications.",
   "notifications:delete": "Delete this account's notifications.",
 
   "screenshots:new": "Create screenshots for this account",

@@ -10,20 +10,12 @@
         </p>
       </div>
       <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-        <NuxtLink
-          to="/admin/library/sources"
+        <button
           class="block rounded-md bg-blue-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-500 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+          @click="() => (createCompanyOpen = true)"
         >
-          <i18n-t
-            keypath="library.admin.sources.link"
-            tag="span"
-            scope="global"
-          >
-            <template #arrow>
-              <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
-            </template>
-          </i18n-t>
-        </NuxtLink>
+          {{ $t("common.create") }}
+        </button>
       </div>
     </div>
     <div class="mt-2 grid grid-cols-1">
@@ -105,6 +97,10 @@
         {{ $t("library.admin.metadata.companies.noCompanies") }}
       </p>
     </ul>
+    <ModalCreateCompany
+      v-model="createCompanyOpen"
+      @created="(company) => createCompany(company)"
+    />
   </div>
 </template>
 
@@ -122,9 +118,12 @@ useHead({
   title: t("library.admin.metadata.companies.title"),
 });
 
+const createCompanyOpen = ref(false);
+
 const searchQuery = ref("");
 
-const companies = ref(await $dropFetch("/api/v1/admin/company"));
+const rawCompanies = await $dropFetch("/api/v1/admin/company");
+const companies = ref(rawCompanies);
 
 const filteredCompanies = computed(() =>
   companies.value.filter((e: CompanyModel) => {
@@ -146,5 +145,9 @@ async function deleteCompany(id: string) {
 
   const index = companies.value.findIndex((e) => e.id === id);
   companies.value.splice(index, 1);
+}
+
+function createCompany(company: (typeof companies.value)[number]) {
+  companies.value.push(company);
 }
 </script>

@@ -19,7 +19,7 @@
       "title": "Messages from the Crows' Nest",
       "unread": "Unread Messages"
     },
-    "settings": "Account Settings, savvy?",
+    "settings": "Settings, savvy?",
     "title": "Yer Own Coffer"
   },
   "actions": "Deeds",
@@ -37,6 +37,10 @@
       "permWarning": "Grantin' this request allows \"{name}\" on \"{platform}\" to:",
       "requestedAccess": "\"{name}\" has requested passage to yer Drop coffer.",
       "success": "Shiver me timbers, it worked!"
+    },
+    "code": {
+      "description": "Use the secret map to dock ye ship when lacking a web surfer.",
+      "title": "Dock ye ship"
     },
     "confirmPassword": "Confirm @:auth.password",
     "displayName": "Yer Scallywag Name",
@@ -71,6 +75,7 @@
     "srComma": ", {0}"
   },
   "common": {
+    "add": "Append",
     "cannotUndo": "This deed cannot be undone, ye hear!",
     "close": "Shut yer trap!",
     "create": "Forge!",
@@ -83,9 +88,12 @@
     "insert": "Insert",
     "name": "Name, argh!",
     "noResults": "No plunder found!",
+    "noSelected": "No cargo selected.",
+    "remove": "Walk the plank",
     "save": "Stow it!",
+    "saved": "Preserved",
     "servers": "Ships",
-    "srLoading": "Loading, loading, argh...",
+    "srLoading": "Loading, loading, argh…",
     "tags": "Marks",
     "today": "Today"
   },
@@ -228,6 +236,8 @@
   "header": {
     "admin": {
       "admin": "Cap'n",
+      "metadata": "Meta argh",
+      "settings": "Shape",
       "tasks": "Duties",
       "users": "Crew"
     },
@@ -263,16 +273,18 @@
       },
       "gameLibrary": "Game Treasure Hoard",
       "import": {
+        "bulkImportDescription": "When importing ye versions, ye won't be sent to the import duty.",
+        "bulkImportTitle": "Plunder the imports",
         "import": "Import, ye dog!",
         "link": "Import {arrow}",
-        "loading": "Loadin' plunder results, arrr...",
+        "loading": "Loadin' plunder results, arrr…",
         "search": "Search",
         "searchPlaceholder": "Fallout 4, savvy?",
-        "selectDir": "Pick a directory, ye landlubber...",
+        "selectDir": "Pick a directory, ye landlubber…",
         "selectGame": "Pick plunder to import",
-        "selectGamePlaceholder": "Pick a game, ye dog...",
+        "selectGamePlaceholder": "Pick a game, ye dog…",
         "selectGameSearch": "Pick game",
-        "selectPlatform": "Pick a ship, ye scallywag...",
+        "selectPlatform": "Pick a ship, ye scallywag…",
         "version": {
           "advancedOptions": "Advanced options, savvy?",
           "import": "Import version",
@@ -280,7 +292,7 @@
           "launchCmd": "Launch executable/command, argh!",
           "launchDesc": "Executable to launch the game, matey!",
           "launchPlaceholder": "game.exe, aye!",
-          "loadingVersion": "Loading version charts...",
+          "loadingVersion": "Loading version charts…",
           "noAdv": "No advanced options for this rig, argh.",
           "noVersions": "No versions to import, savvy!",
           "platform": "Ship type",
@@ -297,6 +309,16 @@
           "version": "Pick version to import"
         },
         "withoutMetadata": "Import without charts"
+      },
+      "metadata": {
+        "companies": {
+          "action": "Shape {arrow}",
+          "addGame": {
+            "developer": "Creator?",
+            "noGames": "No games to plunder",
+            "publisher": "Distributor?"
+          }
+        }
       },
       "metadataProvider": "Charts Provider",
       "noGames": "No plunder imported, savvy!",
@@ -345,7 +367,7 @@
     "launcherOpen": "Open in Launcher, argh!",
     "noGames": "No plunder in treasure hoard, savvy!",
     "notFound": "Plunder not found, matey!",
-    "search": "Search treasure hoard, ye dog...",
+    "search": "Search treasure hoard, ye dog…",
     "subheader": "Sort yer plunder into collections for easy access, and get to all yer plunder, savvy!"
   },
   "lowest": "lowest",
@@ -360,7 +382,7 @@
       "preview": "Preview, matey!",
       "shortDesc": "Short description",
       "submit": "Submit, ye scurvy dog!",
-      "tagPlaceholder": "Add a mark, ye dog...",
+      "tagPlaceholder": "Add a mark, ye dog…",
       "titles": "Title, argh!",
       "uploadCover": "Hoist cover image"
     },
@@ -376,7 +398,7 @@
     "none": "No articles, savvy!",
     "notFound": "Article not found, matey!",
     "search": "Search articles, ye dog!",
-    "searchPlaceholder": "Search articles, argh...",
+    "searchPlaceholder": "Search articles, argh…",
     "subheader": "Stay up to date with the latest charts and announcements, savvy!",
     "title": "Latest News from the High Seas"
   },

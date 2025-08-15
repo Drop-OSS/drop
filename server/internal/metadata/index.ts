@@ -18,7 +18,7 @@ import taskHandler, { wrapTaskContext } from "../tasks";
 import { randomUUID } from "crypto";
 import { fuzzy } from "fast-fuzzy";
 import { logger } from "~/server/internal/logging";
-import libraryManager from "../library";
+import { createGameImportTaskId } from "../library";
 import type { GameTagModel } from "~/prisma/client/models";
 
 export class MissingMetadataProviderConfig extends Error {
@@ -185,11 +185,9 @@ export class MetadataHandler {
     });
     if (existing) return undefined;
 
-    await libraryManager.lockGame(libraryId, libraryPath);
-
     const gameId = randomUUID();
 
-    const taskId = `import:${gameId}`;
+    const taskId = createGameImportTaskId(libraryId, libraryPath);
     await taskHandler.create({
       name: `Import game "${result.name}" (${libraryPath})`,
       id: taskId,
@@ -279,9 +277,6 @@ export class MetadataHandler {
 
         logger.info(`Finished game import.`);
         progress(100);
-      },
-      async finally() {
-        await libraryManager.unlockGame(libraryId, libraryPath);
       },
     });
 

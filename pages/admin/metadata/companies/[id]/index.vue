@@ -30,7 +30,7 @@
             {{ company.mName }}
             <button @click="() => editName()">
               <PencilIcon
-                class="transition duration-200 opacity-0 group-hover/name:opacity-100 size-8"
+                class="transition duration-200 xl:opacity-0 group-hover/name:opacity-100 size-8"
               />
             </button>
           </h1>
@@ -43,17 +43,20 @@
             }}
             <button @click="() => editShortDescription()">
               <PencilIcon
-                class="transition duration-200 opacity-0 group-hover/description:opacity-100 size-5"
+                class="transition duration-200 xl:opacity-0 group-hover/description:opacity-100 size-5"
               />
             </button>
           </p>
           <p
             class="group/website mt-1 text-zinc-500 inline-flex items-center gap-x-3"
           >
-            {{ company.mWebsite }}
+            {{
+              company.mWebsite ||
+              $t("library.admin.metadata.companies.editor.websitePlaceholder")
+            }}
             <button @click="() => editWebsite()">
               <PencilIcon
-                class="transition duration-200 opacity-0 group-hover/website:opacity-100 size-4"
+                class="transition duration-200 xl:opacity-0 group-hover/website:opacity-100 size-4"
               />
             </button>
           </p>
