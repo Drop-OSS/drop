@@ -17,14 +17,14 @@ import type { GameModel } from "~/prisma/client/models";
 
 export function createGameImportTaskId(libraryId: string, libraryPath: string) {
   const text = `import:${libraryId}:${libraryPath}`;
-    // base64 can contain "/" which breaks the URL. So we remove it
+  // base64 can contain "/" which breaks the URL. So we remove it
   return Buffer.from(text, 'utf8').toString('base64').replaceAll("/", "");
 }
 
 export function createVersionImportTaskId(gameId: string, versionName: string) {
-    const text = `import:${gameId}:${versionName}`;
-    // base64 can contain "/" which breaks the URL. So we remove it
-    return Buffer.from(text, 'utf8').toString('base64').replaceAll("/", "");
+  const text = `import:${gameId}:${versionName}`;
+  // base64 can contain "/" which breaks the URL. So we remove it
+  return Buffer.from(text, 'utf8').toString('base64').replaceAll("/", "");
 }
 
 class LibraryManager {
@@ -133,9 +133,9 @@ class LibraryManager {
           game: e,
           status: versions
             ? {
-                noVersions: e.versions.length == 0,
-                unimportedVersions: versions,
-              }
+              noVersions: e.versions.length == 0,
+              unimportedVersions: versions,
+            }
             : ("offline" as const),
         };
       }),
