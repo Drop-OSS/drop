@@ -58,7 +58,8 @@
     "vue-router": "latest",
     "vue3-carousel": "^0.16.0",
     "vue3-carousel-nuxt": "^1.1.5",
-    "vuedraggable": "^4.1.0"
+    "vuedraggable": "^4.1.0",
+    "ts-md5": "^2.0.1"
   },
   "devDependencies": {
     "@intlify/eslint-plugin-vue-i18n": "^4.0.1",
