@@ -14,14 +14,17 @@ import notificationSystem from "../notifications";
 import { GameNotFoundError, type LibraryProvider } from "./provider";
 import { logger } from "../logging";
 import type { GameModel } from "~/prisma/client/models";
-import { Md5 } from "ts-md5";
 
 export function createGameImportTaskId(libraryId: string, libraryPath: string) {
-  return Md5.hashStr(`import:${libraryId}:${libraryPath}`);
+  const text = `import:${libraryId}:${libraryPath}`;
+  // base64 can contain "/" which breaks the URL. So we remove it
+  return Buffer.from(text, "utf8").toString("base64").replaceAll("/", "");
 }
 
 export function createVersionImportTaskId(gameId: string, versionName: string) {
-  return Md5.hashStr(`import:${gameId}:${versionName}`);
+  const text = `import:${gameId}:${versionName}`;
+  // base64 can contain "/" which breaks the URL. So we remove it
+  return Buffer.from(text, "utf8").toString("base64").replaceAll("/", "");
 }
 
 class LibraryManager {
