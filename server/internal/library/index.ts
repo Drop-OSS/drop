@@ -14,13 +14,18 @@ import notificationSystem from "../notifications";
 import { GameNotFoundError, type LibraryProvider } from "./provider";
 import { logger } from "../logging";
 import type { GameModel } from "~/prisma/client/models";
+import { createHash } from "node:crypto";
 
 export function createGameImportTaskId(libraryId: string, libraryPath: string) {
-  return btoa(`import:${libraryId}:${libraryPath}`);
+  return createHash("md5")
+    .update(`import:${libraryId}:${libraryPath}`)
+    .digest("hex");
 }
 
 export function createVersionImportTaskId(gameId: string, versionName: string) {
-  return btoa(`import:${gameId}:${versionName}`);
+  return createHash("md5")
+    .update(`import:${gameId}:${versionName}`)
+    .digest("hex");
 }
 
 class LibraryManager {
