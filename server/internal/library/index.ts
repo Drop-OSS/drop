@@ -16,11 +16,15 @@ import { logger } from "../logging";
 import type { GameModel } from "~/prisma/client/models";
 
 export function createGameImportTaskId(libraryId: string, libraryPath: string) {
-  return btoa(`import:${libraryId}:${libraryPath}`);
+    const text = `import:${libraryId}:${libraryPath}`;
+    // base64 can contain "/" which breaks the URL. So we remove it
+    return Buffer.from(text, 'utf8').toString('base64').replaceAll("/", "")
 }
 
 export function createVersionImportTaskId(gameId: string, versionName: string) {
-  return btoa(`import:${gameId}:${versionName}`);
+    const text = `import:${gameId}:${versionName}`;
+    // base64 can contain "/" which breaks the URL. So we remove it
+    return Buffer.from(text, 'utf8').toString('base64').replaceAll("/", "")
 }
 
 class LibraryManager {
