@@ -18,8 +18,12 @@
       </i18n-t>
     </NuxtLink>
 
-    <DevOnly
-      ><h1 class="mt-3 text-sm text-gray-500">{{ $t("welcome") }}</h1>
+    <DevOnly>
+      <h1 class="mt-3 text-sm text-gray-500">{{ $t("welcome") }}</h1>
     </DevOnly>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
+</script>

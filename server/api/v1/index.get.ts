@@ -5,5 +5,6 @@ export default defineEventHandler((_h3) => {
     appName: "Drop",
     version: systemConfig.getDropVersion(),
     gitRef: `#${systemConfig.getGitRef()}`,
+    external: systemConfig.getExternalUrl(),
   };
 });

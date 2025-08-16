@@ -73,6 +73,8 @@ class TaskHandler {
   }
 
   async create(task: Task) {
+    if (this.hasTask(task.id)) throw new Error("Task with ID already exists.");
+
     let updateCollectTimeout: NodeJS.Timeout | undefined;
     let updateCollectResolves: Array<(value: unknown) => void> = [];
     let logOffset: number = 0;
@@ -206,8 +208,6 @@ class TaskHandler {
         };
       }
 
-      if (task.finally) await task.finally();
-
       taskEntry.endTime = new Date().toISOString();
       await updateAllClients();
 
@@ -247,7 +247,10 @@ class TaskHandler {
   ) {
     const task =
       this.taskPool.get(taskId) ??
-      (await prisma.task.findUnique({ where: { id: taskId } }));
+      (await prisma.task.findFirst({
+        where: { id: taskId },
+        orderBy: { started: "desc" },
+      }));
     if (!task) {
       peer.send(
         `error/${taskId}/Unknown task/Drop couldn't find the task you're looking for.`,
@@ -322,6 +325,10 @@ class TaskHandler {
       .entries()
       .map(([id, value]) => ({ ...value, id, log: undefined }))
       .toArray();
+  }
+
+  hasTask(id: string) {
+    return this.taskPool.has(id);
   }
 
   dailyTasks() {
@@ -429,7 +436,6 @@ export interface Task {
   taskGroup: TaskGroup;
   name: string;
   run: (context: TaskRunContext) => Promise<void>;
-  finally?: () => Promise<void> | void;
   acls: GlobalACL[];
 }
 

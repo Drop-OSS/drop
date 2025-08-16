@@ -212,6 +212,10 @@
         "desc": "Drop encountered an error while updating the version: {error}",
         "title": "There an error while updating the version order"
       }
+    },
+    "externalUrl": {
+      "title": "Accessing over different EXTERNAL_URL. Please check the docs.",
+      "subtitle": "This message is only visible to admins."
     }
   },
   "footer": {
@@ -329,7 +333,9 @@
             "noDescription": "(no description)",
             "published": "Published",
             "uploadBanner": "Upload banner",
-            "uploadIcon": "Upload icon"
+            "uploadIcon": "Upload icon",
+            "descriptionPlaceholder": "{'<'}description{'>'}",
+            "websitePlaceholder": "{'<'}website{'>'}"
           },
           "modals": {
             "nameDescription": "Edit the company's name. Used to match to new game imports.",
@@ -337,7 +343,16 @@
             "shortDeckDescription": "Edit the company's description. Doesn't affect long (markdown) description.",
             "shortDeckTitle": "Edit company description",
             "websiteDescription": "Edit the company's website. Note: this will be a link, and won't have redirect protection.",
-            "websiteTitle": "Edit company website"
+            "websiteTitle": "Edit company website",
+
+            "createTitle": "Create a company",
+            "createDescription": "Create a company to further organize your games.",
+            "createFieldName": "Company Name",
+            "createFieldNamePlaceholder": "My New Company...",
+            "createFieldDescription": "Company Description",
+            "createFieldDescriptionPlaceholder": "A small indie studio that...",
+            "createFieldWebsite": "Company Website",
+            "createFieldWebsitePlaceholder": "https://example.com/"
           },
           "noCompanies": "No companies",
           "noGames": "No games",
@@ -499,7 +514,9 @@
     "images": "Game Images",
     "lookAt": "Check it out",
     "noDevelopers": "No developers",
-    "noGame": "no game",
+    "noGame": "NO GAME",
+    "noFeatured": "NO FEATURED GAMES",
+    "openFeatured": "Star games in Admin Library {arrow}",
     "noImages": "No images",
     "noPublishers": "No publishers.",
     "noTags": "No tags",

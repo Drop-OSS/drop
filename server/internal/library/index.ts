@@ -13,12 +13,18 @@ import { parsePlatform } from "../utils/parseplatform";
 import notificationSystem from "../notifications";
 import { GameNotFoundError, type LibraryProvider } from "./provider";
 import { logger } from "../logging";
+import type { GameModel } from "~/prisma/client/models";
+
+export function createGameImportTaskId(libraryId: string, libraryPath: string) {
+  return btoa(`import:${libraryId}:${libraryPath}`);
+}
+
+export function createVersionImportTaskId(gameId: string, versionName: string) {
+  return btoa(`import:${gameId}:${versionName}`);
+}
 
 class LibraryManager {
   private libraries: Map<string, LibraryProvider<unknown>> = new Map();
-
-  private gameImportLocks: Map<string, Array<string>> = new Map(); // Library ID to Library Path
-  private versionImportLocks: Map<string, Array<string>> = new Map(); // Game ID to Version Name
 
   addLibrary(library: LibraryProvider<unknown>) {
     this.libraries.set(library.id(), library);
@@ -37,24 +43,30 @@ class LibraryManager {
     return libraryWithMetadata;
   }
 
+  async fetchGamesByLibrary() {
+    const results: { [key: string]: { [key: string]: GameModel } } = {};
+    const games = await prisma.game.findMany({});
+    for (const game of games) {
+      const libraryId = game.libraryId!;
+      const libraryPath = game.libraryPath!;
+
+      results[libraryId] ??= {};
+      results[libraryId][libraryPath] = game;
+    }
+
+    return results;
+  }
+
   async fetchUnimportedGames() {
     const unimportedGames: { [key: string]: string[] } = {};
+    const instanceGames = await this.fetchGamesByLibrary();
 
     for (const [id, library] of this.libraries.entries()) {
-      const games = await library.listGames();
-      const validGames = await prisma.game.findMany({
-        where: {
-          libraryId: id,
-          libraryPath: { in: games },
-        },
-        select: {
-          libraryPath: true,
-        },
-      });
-      const providerUnimportedGames = games.filter(
-        (e) =>
-          validGames.findIndex((v) => v.libraryPath == e) == -1 &&
-          !(this.gameImportLocks.get(id) ?? []).includes(e),
+      const providerGames = await library.listGames();
+      const providerUnimportedGames = providerGames.filter(
+        (libraryPath) =>
+          !instanceGames[id]?.[libraryPath] &&
+          !taskHandler.hasTask(createGameImportTaskId(id, libraryPath)),
       );
       unimportedGames[id] = providerUnimportedGames;
     }
@@ -84,7 +96,7 @@ class LibraryManager {
       const unimportedVersions = versions.filter(
         (e) =>
           game.versions.findIndex((v) => v.versionName == e) == -1 &&
-          !(this.versionImportLocks.get(game.id) ?? []).includes(e),
+          !taskHandler.hasTask(createVersionImportTaskId(game.id, e)),
       );
       return unimportedVersions;
     } catch (e) {
@@ -168,7 +180,8 @@ class LibraryManager {
     for (const filename of files) {
       const basename = path.basename(filename);
       const dotLocation = filename.lastIndexOf(".");
-      const ext = dotLocation == -1 ? "" : filename.slice(dotLocation);
+      const ext =
+        dotLocation == -1 ? "" : filename.slice(dotLocation).toLowerCase();
       for (const [platform, checkExts] of Object.entries(fileExts)) {
         for (const checkExt of checkExts) {
           if (checkExt != ext) continue;
@@ -206,70 +219,6 @@ class LibraryManager {
   }
   */
 
-  /**
-   * Locks the game so you can't be imported
-   * @param libraryId
-   * @param libraryPath
-   */
-  async lockGame(libraryId: string, libraryPath: string) {
-    let games = this.gameImportLocks.get(libraryId);
-    if (!games) this.gameImportLocks.set(libraryId, (games = []));
-
-    if (!games.includes(libraryPath)) games.push(libraryPath);
-
-    this.gameImportLocks.set(libraryId, games);
-  }
-
-  /**
-   * Unlocks the game, call once imported
-   * @param libraryId
-   * @param libraryPath
-   */
-  async unlockGame(libraryId: string, libraryPath: string) {
-    let games = this.gameImportLocks.get(libraryId);
-    if (!games) this.gameImportLocks.set(libraryId, (games = []));
-
-    if (games.includes(libraryPath))
-      games.splice(
-        games.findIndex((e) => e === libraryPath),
-        1,
-      );
-
-    this.gameImportLocks.set(libraryId, games);
-  }
-
-  /**
-   * Locks a version so it can't be imported
-   * @param gameId
-   * @param versionName
-   */
-  async lockVersion(gameId: string, versionName: string) {
-    let versions = this.versionImportLocks.get(gameId);
-    if (!versions) this.versionImportLocks.set(gameId, (versions = []));
-
-    if (!versions.includes(versionName)) versions.push(versionName);
-
-    this.versionImportLocks.set(gameId, versions);
-  }
-
-  /**
-   * Unlocks the version, call once imported
-   * @param libraryId
-   * @param libraryPath
-   */
-  async unlockVersion(gameId: string, versionName: string) {
-    let versions = this.versionImportLocks.get(gameId);
-    if (!versions) this.versionImportLocks.set(gameId, (versions = []));
-
-    if (versions.includes(gameId))
-      versions.splice(
-        versions.findIndex((e) => e === versionName),
-        1,
-      );
-
-    this.versionImportLocks.set(gameId, versions);
-  }
-
   async importVersion(
     gameId: string,
     versionName: string,
@@ -286,7 +235,7 @@ class LibraryManager {
       umuId: string;
     },
   ) {
-    const taskId = `import:${gameId}:${versionName}`;
+    const taskId = createVersionImportTaskId(gameId, versionName);
 
     const platform = parsePlatform(metadata.platform);
     if (!platform) return undefined;
@@ -299,8 +248,6 @@ class LibraryManager {
 
     const library = this.libraries.get(game.libraryId);
     if (!library) return undefined;
-
-    await this.lockVersion(gameId, versionName);
 
     taskHandler.create({
       id: taskId,
@@ -378,9 +325,6 @@ class LibraryManager {
 
         progress(100);
       },
-      async finally() {
-        await libraryManager.unlockVersion(gameId, versionName);
-      },
     });
 
     return taskId;
@@ -394,7 +338,7 @@ class LibraryManager {
   ) {
     const library = this.libraries.get(libraryId);
     if (!library) return undefined;
-    return library.peekFile(game, version, filename);
+    return await library.peekFile(game, version, filename);
   }
 
   async readFile(
@@ -406,7 +350,7 @@ class LibraryManager {
   ) {
     const library = this.libraries.get(libraryId);
     if (!library) return undefined;
-    return library.readFile(game, version, filename, options);
+    return await library.readFile(game, version, filename, options);
   }
 }
 

@@ -59,13 +59,30 @@
     </VueCarousel>
     <div
       v-else
-      class="w-full h-full flex items-center justify-center bg-zinc-950/50 px-6 py-32 sm:px-12 sm:py-40 lg:px-16"
+      class="w-full h-full flex flex-col items-center justify-center bg-zinc-950/50 px-6 py-32 sm:px-12 sm:py-40 lg:px-16 gap-4"
     >
       <h2
         class="uppercase text-xl font-bold tracking-tight text-zinc-700 sm:text-3xl"
       >
-        {{ $t("store.noGame") }}
+        {{ $t("store.noFeatured") }}
       </h2>
+      <NuxtLink
+        v-if="user?.admin"
+        to="/admin/library"
+        type="button"
+        class="inline-flex items-center gap-x-2 rounded-md bg-zinc-800 px-3 py-1 text-sm font-semibold font-display text-white shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 duration-200 hover:scale-105 active:scale-95"
+      >
+        <i18n-t
+          keypath="store.openFeatured"
+          tag="span"
+          scope="global"
+          class="inline-flex items-center gap-x-1"
+        >
+          <template #arrow>
+            <ArrowTopRightOnSquareIcon class="size-4" />
+          </template>
+        </i18n-t>
+      </NuxtLink>
     </div>
 
     <StoreView />
@@ -73,7 +90,11 @@
 </template>
 
 <script setup lang="ts">
+import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
+
 const recent = await $dropFetch("/api/v1/store/featured");
+
+const user = useUser();
 
 const { t } = useI18n();
 
