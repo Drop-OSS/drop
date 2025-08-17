@@ -7,8 +7,9 @@ export default defineEventHandler(async (h3) => {
 
   const unimportedGames = await libraryManager.fetchUnimportedGames();
   const games = await libraryManager.fetchGamesWithStatus();
+  const libraries = await libraryManager.fetchLibraries();
 
   // Fetch other library data here
 
-  return { unimportedGames, games };
+  return { unimportedGames, games, hasLibraries: libraries.length > 0 };
 });

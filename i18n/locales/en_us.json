@@ -372,6 +372,8 @@
       },
       "metadataProvider": "Metadata provider",
       "noGames": "No games imported",
+      "libraryHint": "No libraries configured.",
+      "libraryHintDocsLink": "What does this mean? {arrow}",
       "offline": "Drop couldn't access this game.",
       "offlineTitle": "Game offline",
       "openEditor": "Open in Editor {arrow}",
