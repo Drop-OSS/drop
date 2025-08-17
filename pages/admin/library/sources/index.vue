@@ -189,7 +189,7 @@
                         <RadioGroupLabel
                           as="span"
                           class="font-semibold text-zinc-100"
-                          >{{ metadata.title }}</RadioGroupLabel
+                          >{{ metadata.title }} <span class="ml-2 font-mono text-zinc-500 text-xs">{{ source }}</span></RadioGroupLabel
                         >
                         <RadioGroupDescription
                           as="span"
