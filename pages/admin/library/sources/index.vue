@@ -64,8 +64,8 @@
                 >
                   {{ source.name }}
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
-                  {{ source.backend }}
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400 inline-flex gap-x-1 items-center">
+                  <component :is="optionsMetadata[source.backend].icon" class="size-5 text-zinc-400" /> {{ optionsMetadata[source.backend].title }}
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
                   <CheckIcon
@@ -334,7 +334,7 @@ const sources = ref(
 const editIndex = ref<undefined | number>(undefined);
 const createMode = computed(() => editIndex.value === undefined);
 
-const actionSourceOpen = ref(true);
+const actionSourceOpen = ref(false);
 const currentSourceOption = ref<LibraryBackend>("Filesystem");
 const sourceName = ref("");
 const sourceConfig = ref<object>({});
