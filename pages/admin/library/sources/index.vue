@@ -189,11 +189,31 @@
                         <RadioGroupLabel
                           as="span"
                           class="font-semibold text-zinc-100"
-                          >{{ source }}</RadioGroupLabel
+                          >{{ metadata.title }}</RadioGroupLabel
                         >
-                        <RadioGroupDescription as="span" class="text-zinc-400">
+                        <RadioGroupDescription
+                          as="span"
+                          class="text-zinc-400 text-xs"
+                        >
                           {{ metadata.description }}
                         </RadioGroupDescription>
+                        <NuxtLink
+                          :href="metadata.docsLink"
+                          :external="true"
+                          target="_blank"
+                          class="mt-2 block w-fit rounded-md bg-blue-600 px-2 py-1 text-center text-xs font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                        >
+                          <i18n-t
+                            keypath="library.admin.sources.documentationLink"
+                            tag="span"
+                            scope="global"
+                            class="inline-flex items-center gap-x-1"
+                          >
+                            <template #arrow>
+                              <ArrowTopRightOnSquareIcon class="size-4" />
+                            </template>
+                          </i18n-t>
+                        </NuxtLink>
                       </span>
                     </span>
                     <span
@@ -269,6 +289,7 @@
  */
 
 import {
+  DropLogo,
   SourceOptionsFilesystem,
   SourceOptionsFlatFilesystem,
 } from "#components";
@@ -279,8 +300,11 @@ import {
   RadioGroupLabel,
   RadioGroupOption,
 } from "@headlessui/vue";
-import { XCircleIcon } from "@heroicons/vue/20/solid";
-import { CheckIcon, DocumentIcon, XMarkIcon } from "@heroicons/vue/24/outline";
+import {
+  XCircleIcon,
+  ArrowTopRightOnSquareIcon,
+} from "@heroicons/vue/20/solid";
+import { BackwardIcon, CheckIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 import { FetchError } from "ofetch";
 import type { Component } from "vue";
 import type { LibraryBackend } from "~/prisma/client/enums";
@@ -310,7 +334,7 @@ const sources = ref(
 const editIndex = ref<undefined | number>(undefined);
 const createMode = computed(() => editIndex.value === undefined);
 
-const actionSourceOpen = ref(false);
+const actionSourceOpen = ref(true);
 const currentSourceOption = ref<LibraryBackend>("Filesystem");
 const sourceName = ref("");
 const sourceConfig = ref<object>({});
@@ -324,17 +348,23 @@ const optionUIs: { [key in LibraryBackend]: Component } = {
 };
 const optionsMetadata: {
   [key in LibraryBackend]: {
+    title: string;
     description: string;
+    docsLink: string;
     icon: Component;
   };
 } = {
   Filesystem: {
+    title: t("library.admin.sources.fsTitle"),
     description: t("library.admin.sources.fsDesc"),
-    icon: DocumentIcon,
+    docsLink: "https://docs.droposs.org/docs/library#drop-style",
+    icon: DropLogo,
   },
   FlatFilesystem: {
+    title: t("library.admin.sources.fsFlatTitle"),
     description: t("library.admin.sources.fsFlatDesc"),
-    icon: DocumentIcon,
+    docsLink: "https://docs.droposs.org/docs/library#flat-style-or-compat",
+    icon: BackwardIcon,
   },
 };
 const optionsMetadataIter = Object.entries(optionsMetadata);
