@@ -564,7 +564,9 @@
         "cleanupSessionsName": "Clean up sessions."
       },
       "viewTask": "View {arrow}",
-      "weeklyScheduledTitle": "Weekly scheduled tasks"
+      "weeklyScheduledTitle": "Weekly scheduled tasks",
+      "progress": "{0}%",
+      "execute": "{arrow} Execute"
     }
   },
   "title": "Drop",
