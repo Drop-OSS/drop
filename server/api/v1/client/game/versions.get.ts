@@ -13,6 +13,7 @@ export default defineClientEventHandler(async (h3) => {
   const versions = await prisma.gameVersion.findMany({
     where: {
       gameId: id,
+      hidden: false,
     },
     orderBy: {
       versionIndex: "desc", // Latest one first

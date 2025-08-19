@@ -15,6 +15,7 @@ import { GameNotFoundError, type LibraryProvider } from "./provider";
 import { logger } from "../logging";
 import type { GameModel } from "~/prisma/client/models";
 import { createHash } from "node:crypto";
+import type { ImportVersion } from "~/server/api/v1/admin/import/version/index.post";
 
 export function createGameImportTaskId(libraryId: string, libraryPath: string) {
   return createHash("md5")
@@ -231,18 +232,7 @@ class LibraryManager {
   async importVersion(
     gameId: string,
     versionName: string,
-    metadata: {
-      platform: string;
-      onlySetup: boolean;
-
-      setup: string;
-      setupArgs: string;
-      launch: string;
-      launchArgs: string;
-      delta: boolean;
-
-      umuId: string;
-    },
+    metadata: Omit<typeof ImportVersion.infer, "id" | "version">,
   ) {
     const taskId = createVersionImportTaskId(gameId, versionName);
 
@@ -286,41 +276,24 @@ class LibraryManager {
         });
 
         // Then, create the database object
-        if (metadata.onlySetup) {
-          await prisma.gameVersion.create({
-            data: {
-              gameId: gameId,
-              versionName: versionName,
-              dropletManifest: manifest,
-              versionIndex: currentIndex,
-              delta: metadata.delta,
-              umuIdOverride: metadata.umuId,
-              platform: platform,
+        await prisma.gameVersion.create({
+          data: {
+            gameId: gameId,
+            versionName: versionName,
+            dropletManifest: manifest,
+            versionIndex: currentIndex,
+            delta: metadata.delta,
+            umuIdOverride: metadata.umuId,
+            platform: platform,
 
-              onlySetup: true,
-              setupCommand: metadata.setup,
-              setupArgs: metadata.setupArgs.split(" "),
-            },
-          });
-        } else {
-          await prisma.gameVersion.create({
-            data: {
-              gameId: gameId,
-              versionName: versionName,
-              dropletManifest: manifest,
-              versionIndex: currentIndex,
-              delta: metadata.delta,
-              umuIdOverride: metadata.umuId,
-              platform: platform,
-
-              onlySetup: false,
-              setupCommand: metadata.setup,
-              setupArgs: metadata.setupArgs.split(" "),
-              launchCommand: metadata.launch,
-              launchArgs: metadata.launchArgs.split(" "),
-            },
-          });
-        }
+            hidden: metadata.hide,
+            onlySetup: metadata.onlySetup,
+            setupCommand: metadata.setup,
+            setupArgs: metadata.setupArgs.split(" "),
+            launchCommand: metadata.launch,
+            launchArgs: metadata.launchArgs.split(" "),
+          },
+        });
 
         logger.info("Successfully created version!");
 

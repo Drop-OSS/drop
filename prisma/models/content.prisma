@@ -56,11 +56,10 @@ model GameTag {
   id   String @id @default(uuid())
   name String @unique
 
-  games    Game[]
+  games Game[]
 
   @@index([name(ops: raw("gist_trgm_ops(siglen=32)"))], type: Gist)
 }
-
 
 model GameRating {
   id String @id @default(uuid())
@@ -95,6 +94,7 @@ model GameVersion {
   setupCommand  String   @default("") // Command to setup game (dependencies and such)
   setupArgs     String[]
   onlySetup     Boolean  @default(false)
+  hidden        Boolean  @default(false)
 
   umuIdOverride String?
 

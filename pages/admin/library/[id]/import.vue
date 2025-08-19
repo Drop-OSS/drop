@@ -398,6 +398,36 @@
           />
         </Switch>
       </SwitchGroup>
+            <!-- setup mode -->
+      <SwitchGroup as="div" class="flex items-center justify-between">
+        <span class="flex flex-grow flex-col">
+          <SwitchLabel
+            as="span"
+            class="text-sm font-medium leading-6 text-zinc-100"
+            passive
+            >{{ $t("library.admin.import.version.hide") }}</SwitchLabel
+          >
+          <SwitchDescription as="span" class="text-sm text-zinc-400">{{
+            $t("library.admin.import.version.hideDesc")
+          }}</SwitchDescription>
+        </span>
+        <Switch
+          v-model="versionSettings.hide"
+          :class="[
+            versionSettings.hide ? 'bg-blue-600' : 'bg-zinc-800',
+            'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2',
+          ]"
+        >
+          <span
+            aria-hidden="true"
+            :class="[
+              versionSettings.hide ? 'translate-x-5' : 'translate-x-0',
+              'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+            ]"
+          />
+        </Switch>
+      </SwitchGroup>
+
       <Disclosure v-slot="{ open }" as="div" class="py-2">
         <dt>
           <DisclosureButton
@@ -548,6 +578,7 @@ import {
 import { XCircleIcon } from "@heroicons/vue/16/solid";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/vue/24/solid";
+import type { ImportVersion } from "~/server/api/v1/admin/import/version/index.post";
 
 definePageMeta({
   layout: "admin",
@@ -561,18 +592,7 @@ const versions = await $dropFetch(
   `/api/v1/admin/import/version?id=${encodeURIComponent(gameId)}`,
 );
 const currentlySelectedVersion = ref(-1);
-const versionSettings = ref<{
-  platform: PlatformClient | undefined;
-
-  onlySetup: boolean;
-  launch: string;
-  launchArgs: string;
-  setup: string;
-  setupArgs: string;
-
-  delta: boolean;
-  umuId: string;
-}>({
+const versionSettings = ref<Partial<typeof ImportVersion.infer>>({
   platform: undefined,
   launch: "",
   launchArgs: "",
@@ -581,6 +601,7 @@ const versionSettings = ref<{
   delta: false,
   onlySetup: false,
   umuId: "",
+  hide: false,
 });
 
 const versionGuesses =

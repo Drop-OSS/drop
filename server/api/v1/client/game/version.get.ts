@@ -17,6 +17,7 @@ export default defineClientEventHandler(async (h3) => {
         gameId: id,
         versionName: version,
       },
+      hidden: false,
     },
   });
 

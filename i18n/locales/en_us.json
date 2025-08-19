@@ -308,8 +308,10 @@
           "umuLauncherId": "UMU Launcher ID",
           "umuOverride": "Override UMU Launcher Game ID",
           "umuOverrideDesc": "By default, Drop uses a non-ID when launching with UMU Launcher. In order to get the right patches for some games, you may have to manually set this field.",
-          "updateMode": "Update mode",
+          "updateMode": "Update/delta mode",
           "updateModeDesc": "When enabled, these files will be installed on top of (overwriting) the previous version's. If multiple \"update modes\" are chained together, they are applied in order.",
+          "hide": "Hide version",
+          "hideDesc": "Hide version so clients cannot install it. Useful if you are using delta versions to save space, but don't want to allow users to install partial games.",
           "version": "Select version to import"
         },
         "withoutMetadata": "Import without metadata"

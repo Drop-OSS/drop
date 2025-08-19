@@ -1,20 +1,25 @@
 import { type } from "arktype";
+import { PlatformClient } from "~/composables/types";
 import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import libraryManager from "~/server/internal/library";
-import { parsePlatform } from "~/server/internal/utils/parseplatform";
 
-const ImportVersion = type({
+export const ImportVersion = type({
   id: "string",
   version: "string",
 
-  platform: "string",
+  platform: type.valueOf(PlatformClient),
+
   launch: "string = ''",
   launchArgs: "string = ''",
+
   setup: "string = ''",
   setupArgs: "string = ''",
+
   onlySetup: "boolean = false",
+  hide: "boolean = false",
+
   delta: "boolean = false",
   umuId: "string = ''",
 }).configure(throwingArktype);
@@ -34,15 +39,12 @@ export default defineEventHandler(async (h3) => {
     onlySetup,
     delta,
     umuId,
+    hide,
   } = await readDropValidatedBody(h3, ImportVersion);
-
-  const platformParsed = parsePlatform(platform);
-  if (!platformParsed)
-    throw createError({ statusCode: 400, statusMessage: "Invalid platform." });
 
   if (delta) {
     const validOverlayVersions = await prisma.gameVersion.count({
-      where: { gameId: id, platform: platformParsed, delta: false },
+      where: { gameId: id, platform, delta: false },
     });
     if (validOverlayVersions == 0)
       throw createError({
@@ -75,6 +77,7 @@ export default defineEventHandler(async (h3) => {
     launchArgs,
     setup,
     setupArgs,
+    hide,
 
     umuId,
     delta,
