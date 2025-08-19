@@ -481,7 +481,7 @@ interface DropTask {
 export const TaskLog = type({
   timestamp: "string",
   message: "string",
-  level: "string"
+  level: "string",
 });
 
 // /**

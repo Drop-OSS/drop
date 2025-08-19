@@ -64,8 +64,14 @@
                 >
                   {{ source.name }}
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400 inline-flex gap-x-1 items-center">
-                  <component :is="optionsMetadata[source.backend].icon" class="size-5 text-zinc-400" /> {{ optionsMetadata[source.backend].title }}
+                <td
+                  class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400 inline-flex gap-x-1 items-center"
+                >
+                  <component
+                    :is="optionsMetadata[source.backend].icon"
+                    class="size-5 text-zinc-400"
+                  />
+                  {{ optionsMetadata[source.backend].title }}
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
                   <CheckIcon
@@ -189,7 +195,10 @@
                         <RadioGroupLabel
                           as="span"
                           class="font-semibold text-zinc-100"
-                          >{{ metadata.title }} <span class="ml-2 font-mono text-zinc-500 text-xs">{{ source }}</span></RadioGroupLabel
+                          >{{ metadata.title }}
+                          <span class="ml-2 font-mono text-zinc-500 text-xs">{{
+                            source
+                          }}</span></RadioGroupLabel
                         >
                         <RadioGroupDescription
                           as="span"

@@ -14,7 +14,7 @@ export default defineEventHandler(async (h3) => {
     });
 
   const runningTasks = (await taskHandler.runningTasks()).map((e) => e.id);
-  const historicalTasks = await prisma.task.findMany({
+  const historicalTasks = (await prisma.task.findMany({
     where: {
       OR: [
         {
@@ -29,7 +29,7 @@ export default defineEventHandler(async (h3) => {
       ended: "desc",
     },
     take: 10,
-  }) as Array<TaskMessage>;
+  })) as Array<TaskMessage>;
   const dailyTasks = await taskHandler.dailyTasks();
   const weeklyTasks = await taskHandler.weeklyTasks();
 

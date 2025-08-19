@@ -18,12 +18,14 @@ export function parseTaskLog(
   const log = JSON.parse(logStr);
 
   if (typeof log.level === "number") {
-    log.level = labelNumberMap[log.level as keyof typeof labelNumberMap] as string;
+    log.level = labelNumberMap[
+      log.level as keyof typeof labelNumberMap
+    ] as string;
   }
 
   return {
     message: log.msg,
     timestamp: log.time,
-    level: log.level
+    level: log.level,
   };
 }

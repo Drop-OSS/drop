@@ -8,7 +8,10 @@
         <div>
           <CheckCircleIcon v-if="task.success" class="size-5 text-green-600" />
           <XMarkIcon v-else-if="task.error" class="size-5 text-red-600" />
-          <div v-else class="size-2 bg-blue-600 rounded-full animate-pulse m-1" />
+          <div
+            v-else
+            class="size-2 bg-blue-600 rounded-full animate-pulse m-1"
+          />
         </div>
         <h3 class="truncate text-sm font-medium text-zinc-100">
           {{ task.name }}

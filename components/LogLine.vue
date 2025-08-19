@@ -8,7 +8,9 @@
       ]"
       >{{ log.level }}</span
     >
-    <pre :class="[short ? 'line-clamp-1' : '', 'mt-[1px]']">{{ log.message }}</pre>
+    <pre :class="[short ? 'line-clamp-1' : '', 'mt-[1px]']">{{
+      log.message
+    }}</pre>
   </span>
 </template>
 
