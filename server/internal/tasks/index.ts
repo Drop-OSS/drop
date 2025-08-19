@@ -53,6 +53,7 @@ class TaskHandler {
     "cleanup:invitations",
     "cleanup:sessions",
     "check:update",
+    "debug",
   ];
   private weeklyScheduledTasks: TaskGroup[] = ["cleanup:objects"];
 
@@ -62,6 +63,7 @@ class TaskHandler {
     this.saveScheduledTask(cleanupSessions);
     this.saveScheduledTask(checkUpdate);
     this.saveScheduledTask(cleanupObjects);
+    //this.saveScheduledTask(debug);
   }
 
   /**
@@ -162,6 +164,13 @@ class TaskHandler {
         // You can configure timestamp, level, etc. here
         timestamp: pino.stdTimeFunctions.isoTime,
         base: null, // Remove pid/hostname if not needed
+        formatters: {
+          level(label) {
+            return {
+              level: label,
+            };
+          },
+        },
       },
       logStream,
     );
@@ -339,13 +348,15 @@ class TaskHandler {
     return this.weeklyScheduledTasks;
   }
 
-  runTaskGroupByName(name: TaskGroup) {
-    const task = this.taskCreators.get(name);
-    if (!task) {
+  async runTaskGroupByName(name: TaskGroup) {
+    const taskConstructor = this.taskCreators.get(name);
+    if (!taskConstructor) {
       logger.warn(`No task found for group ${name}`);
       return;
     }
-    this.create(task());
+    const task = taskConstructor();
+    await this.create(task);
+    return task.id;
   }
 
   /**
@@ -444,7 +455,7 @@ export type TaskMessage = {
   name: string;
   success: boolean;
   progress: number;
-  error: undefined | { title: string; description: string };
+  error: null | undefined | { title: string; description: string };
   log: string[];
   reset?: boolean;
 };
@@ -470,6 +481,7 @@ interface DropTask {
 export const TaskLog = type({
   timestamp: "string",
   message: "string",
+  level: "string",
 });
 
 // /**
@@ -499,8 +511,6 @@ export const TaskLog = type({
 // }
 
 export function defineDropTask(buildTask: BuildTask): DropTask {
-  // TODO: only let one task with the same taskGroup run at the same time if specified
-
   return {
     taskGroup: buildTask.taskGroup,
     build: () => ({

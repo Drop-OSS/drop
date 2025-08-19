@@ -116,7 +116,11 @@ class LibraryManager {
   async fetchGamesWithStatus() {
     const games = await prisma.game.findMany({
       include: {
-        versions: true,
+        versions: {
+          select: {
+            versionName: true,
+          },
+        },
         library: true,
       },
       orderBy: {

@@ -44,19 +44,26 @@
         </div>
         {{ task.name }}
       </h1>
-      <div class="h-2 rounded-full bg-zinc-950 overflow-hidden">
+      <div
+        class="bg-zinc-950 p-2 rounded-md h-[80vh] flex flex-col flex-col-reverse overflow-y-scroll gap-y-1"
+      >
+        <LogLine
+          v-for="(_, idx) in task.log"
+          :key="idx"
+          :log="parseTaskLog(task.log.at(-(idx + 1)))"
+        />
+      </div>
+      <div class="relative h-5 rounded-xl bg-zinc-950 overflow-hidden">
         <div
           :style="{ width: `${task.progress}%` }"
           class="transition-all bg-blue-600 h-full"
         />
-      </div>
-
-      <div
-        class="relative bg-zinc-950/50 rounded-md p-2 text-zinc-100 h-[80vh] overflow-y-scroll"
-      >
-        <pre v-for="(line, idx) in task.log" :key="idx">{{
-          formatLine(line)
-        }}</pre>
+        <span
+          class="absolute inset-0 flex items-center justify-center text-blue-200 text-sm font-bold font-display"
+          >{{
+            $t("tasks.admin.progress", [Math.round(task.progress * 10) / 10])
+          }}</span
+        >
       </div>
     </div>
     <div v-else role="status" class="w-full flex items-center justify-center">
@@ -89,11 +96,6 @@ const route = useRoute();
 const taskId = route.params.id.toString();
 
 const task = useTask(taskId);
-
-function formatLine(line: string): string {
-  const res = parseTaskLog(line);
-  return `[${res.timestamp}] ${res.message}`;
-}
 
 definePageMeta({
   layout: "admin",

@@ -13,62 +13,7 @@
           :key="task.value?.id"
           class="col-span-1 divide-y divide-gray-200 rounded-lg bg-zinc-800 border border-zinc-700 shadow-sm"
         >
-          <div
-            v-if="task.value"
-            class="flex w-full items-center justify-between space-x-6 p-6"
-          >
-            <div class="flex-1 truncate">
-              <div class="flex items-center space-x-2">
-                <div>
-                  <CheckIcon
-                    v-if="task.value.success"
-                    class="size-4 text-green-600"
-                  />
-                  <XMarkIcon
-                    v-else-if="task.value.error"
-                    class="size-4 text-red-600"
-                  />
-                  <div
-                    v-else
-                    class="size-2 bg-blue-600 rounded-full animate-pulse"
-                  />
-                </div>
-                <h3 class="truncate text-sm font-medium text-zinc-100">
-                  {{ task.value.name }}
-                </h3>
-              </div>
-              <p class="text-xs text-zinc-600 mt-0.5 font-mono">
-                {{ task.value.id }}
-              </p>
-              <div class="mt-1 w-full rounded-full overflow-hidden bg-zinc-900">
-                <div
-                  :style="{ width: `${task.value.progress}%` }"
-                  class="bg-blue-600 h-1.5 transition-all"
-                />
-              </div>
-              <p class="mt-1 truncate text-sm text-zinc-400">
-                {{ parseTaskLog(task.value.log.at(-1)).message }}
-              </p>
-              <NuxtLink
-                type="button"
-                :href="`/admin/task/${task.value.id}`"
-                class="mt-3 rounded-md text-xs font-medium text-zinc-100 hover:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-100 focus:ring-offset-2"
-              >
-                <i18n-t
-                  keypath="tasks.admin.viewTask"
-                  tag="span"
-                  scope="global"
-                >
-                  <template #arrow>
-                    <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
-                  </template>
-                </i18n-t>
-              </NuxtLink>
-            </div>
-          </div>
-          <div v-else>
-            <!-- renders server side when we don't want to access the current tasks -->
-          </div>
+          <TaskWidget :task="task.value" :active="true" />
         </li>
       </ul>
       <div
@@ -89,51 +34,7 @@
             :key="task.id"
             class="col-span-1 divide-y divide-gray-200 rounded-lg bg-zinc-800 border border-zinc-700 shadow-sm"
           >
-            <div class="flex w-full items-center justify-between space-x-6 p-6">
-              <div class="flex-1 truncate">
-                <div class="flex items-center space-x-2">
-                  <div>
-                    <CheckIcon
-                      v-if="task.success"
-                      class="size-4 text-green-600"
-                    />
-                    <XMarkIcon
-                      v-else-if="task.error"
-                      class="size-4 text-red-600"
-                    />
-                    <div
-                      v-else
-                      class="size-2 bg-blue-600 rounded-full animate-pulse"
-                    />
-                  </div>
-                  <h3 class="truncate text-sm font-medium text-zinc-100">
-                    {{ task.name }}
-                  </h3>
-                  <RelativeTime class="text-zinc-500" :date="task.ended" />
-                </div>
-                <p class="text-xs text-zinc-600 mt-0.5 font-mono">
-                  {{ task.id }}
-                </p>
-                <p class="mt-1 truncate text-sm text-zinc-400">
-                  {{ parseTaskLog(task.log.at(-1)).message }}
-                </p>
-                <NuxtLink
-                  type="button"
-                  :href="`/admin/task/${task.id}`"
-                  class="mt-3 rounded-md text-xs font-medium text-zinc-100 hover:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-100 focus:ring-offset-2"
-                >
-                  <i18n-t
-                    keypath="tasks.admin.viewTask"
-                    tag="span"
-                    scope="global"
-                  >
-                    <template #arrow>
-                      <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
-                    </template>
-                  </i18n-t>
-                </NuxtLink>
-              </div>
-            </div>
+            <TaskWidget :task="task" />
           </li>
         </ul>
       </div>
@@ -157,6 +58,21 @@
                 <p class="mt-1 text-sm text-zinc-400">
                   {{ scheduledTasks[task].description }}
                 </p>
+                <button
+                  class="mt-3 rounded-md text-xs font-medium text-zinc-100 hover:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-100 focus:ring-offset-2"
+                  @click="() => startTask(task)"
+                >
+                  <i18n-t
+                    keypath="tasks.admin.execute"
+                    tag="span"
+                    scope="global"
+                    class="inline-flex items-center gap-x-1"
+                  >
+                    <template #arrow>
+                      <PlayIcon class="size-4" aria-hidden="true" />
+                    </template>
+                  </i18n-t>
+                </button>
               </div>
             </div>
           </li>
@@ -180,6 +96,21 @@
                 <p class="mt-1 text-sm text-zinc-400">
                   {{ scheduledTasks[task].description }}
                 </p>
+                <button
+                  class="mt-3 rounded-md text-xs font-medium text-zinc-100 hover:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-100 focus:ring-offset-2"
+                  @click="() => startTask(task)"
+                >
+                  <i18n-t
+                    keypath="tasks.admin.execute"
+                    tag="span"
+                    scope="global"
+                    class="inline-flex items-center gap-x-1"
+                  >
+                    <template #arrow>
+                      <PlayIcon class="size-4" aria-hidden="true" />
+                    </template>
+                  </i18n-t>
+                </button>
               </div>
             </div>
           </li>
@@ -189,7 +120,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { CheckIcon, XMarkIcon } from "@heroicons/vue/24/outline";
+import { PlayIcon } from "@heroicons/vue/24/outline";
 import type { TaskGroup } from "~/server/internal/tasks/group";
 
 useHead({
@@ -205,7 +136,9 @@ const { t } = useI18n();
 const { runningTasks, historicalTasks, dailyTasks, weeklyTasks } =
   await $dropFetch("/api/v1/admin/task");
 
-const liveRunningTasks = await Promise.all(runningTasks.map((e) => useTask(e)));
+const liveRunningTasks = ref(
+  await Promise.all(runningTasks.map((e) => useTask(e))),
+);
 
 const scheduledTasks: {
   [key in TaskGroup]: { name: string; description: string };
@@ -230,5 +163,19 @@ const scheduledTasks: {
     name: "",
     description: "",
   },
+  debug: {
+    name: "Debug Task",
+    description: "Does debugging things.",
+  },
 };
+
+async function startTask(taskGroup: string) {
+  const task = await $dropFetch("/api/v1/admin/task", {
+    method: "POST",
+    body: { taskGroup },
+    failTitle: "Failed to start task",
+  });
+  const taskRef = await useTask(task.id);
+  liveRunningTasks.value.push(taskRef);
+}
 </script>

@@ -242,10 +242,39 @@
         {{ $t("common.noResults") }}
       </p>
       <p
-        v-if="filteredLibraryGames.length == 0 && libraryGames.length == 0"
+        v-if="
+          filteredLibraryGames.length == 0 &&
+          libraryGames.length == 0 &&
+          libraryState.hasLibraries
+        "
         class="text-zinc-600 text-sm font-display font-bold uppercase text-center col-span-4"
       >
         {{ $t("library.admin.noGames") }}
+      </p>
+      <p
+        v-else-if="!libraryState.hasLibraries"
+        class="flex flex-col gap-2 text-zinc-600 text-center col-span-4"
+      >
+        <span class="text-sm font-display font-bold uppercase">{{
+          $t("library.admin.libraryHint")
+        }}</span>
+
+        <NuxtLink
+          class="transition text-xs text-zinc-600 hover:underline hover:text-zinc-400"
+          href="https://docs.droposs.org/docs/library"
+          target="_blank"
+        >
+          <i18n-t
+            keypath="library.admin.libraryHintDocsLink"
+            tag="span"
+            scope="global"
+            class="inline-flex items-center gap-x-1"
+          >
+            <template #arrow>
+              <ArrowTopRightOnSquareIcon class="size-4" />
+            </template>
+          </i18n-t>
+        </NuxtLink>
       </p>
     </ul>
   </div>
@@ -256,7 +285,11 @@ import {
   ExclamationTriangleIcon,
   ExclamationCircleIcon,
 } from "@heroicons/vue/16/solid";
-import { InformationCircleIcon, StarIcon } from "@heroicons/vue/20/solid";
+import {
+  ArrowTopRightOnSquareIcon,
+  InformationCircleIcon,
+  StarIcon,
+} from "@heroicons/vue/20/solid";
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
 
 const { t } = useI18n();
