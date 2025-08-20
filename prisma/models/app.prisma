@@ -28,5 +28,6 @@ model Library {
     backend LibraryBackend
     options Json
 
-    games Game[]
+    games           Game[]
+    redists Redist[]
 }

@@ -13,7 +13,6 @@ import { parsePlatform } from "../utils/parseplatform";
 import notificationSystem from "../notifications";
 import { GameNotFoundError, type LibraryProvider } from "./provider";
 import { logger } from "../logging";
-import type { GameModel } from "~/prisma/client/models";
 import { createHash } from "node:crypto";
 
 export function createGameImportTaskId(libraryId: string, libraryPath: string) {
@@ -49,14 +48,15 @@ class LibraryManager {
   }
 
   async fetchGamesByLibrary() {
-    const results: { [key: string]: { [key: string]: GameModel } } = {};
+    const results: { [key: string]: { [key: string]: boolean } } = {};
     const games = await prisma.game.findMany({});
-    for (const game of games) {
-      const libraryId = game.libraryId!;
-      const libraryPath = game.libraryPath!;
+    const redist = await prisma.redist.findMany({});
+    for (const item of [...games, ...redist]) {
+      const libraryId = item.libraryId!;
+      const libraryPath = item.libraryPath!;
 
       results[libraryId] ??= {};
-      results[libraryId][libraryPath] = game;
+      results[libraryId][libraryPath] = true;
     }
 
     return results;
@@ -82,18 +82,31 @@ class LibraryManager {
   async fetchUnimportedGameVersions(libraryId: string, libraryPath: string) {
     const provider = this.libraries.get(libraryId);
     if (!provider) return undefined;
-    const game = await prisma.game.findUnique({
-      where: {
-        libraryKey: {
-          libraryId,
-          libraryPath,
+    const game =
+      (await prisma.game.findUnique({
+        where: {
+          libraryKey: {
+            libraryId,
+            libraryPath,
+          },
         },
-      },
-      select: {
-        id: true,
-        versions: true,
-      },
-    });
+        select: {
+          id: true,
+          versions: true,
+        },
+      })) ??
+      (await prisma.redist.findUnique({
+        where: {
+          libraryKey: {
+            libraryId,
+            libraryPath,
+          },
+        },
+        select: {
+          id: true,
+          versions: true,
+        },
+      }));
     if (!game) return undefined;
 
     try {
@@ -217,6 +230,10 @@ class LibraryManager {
       })) > 0;
     if (hasGame) return false;
 
+    const hasRedist =
+      (await prisma.redist.count({ where: { libraryId, libraryPath } })) > 0;
+    if (hasRedist) return false;
+
     return true;
   }
 
@@ -286,41 +303,23 @@ class LibraryManager {
         });
 
         // Then, create the database object
-        if (metadata.onlySetup) {
-          await prisma.gameVersion.create({
-            data: {
-              gameId: gameId,
-              versionName: versionName,
-              dropletManifest: manifest,
-              versionIndex: currentIndex,
-              delta: metadata.delta,
-              umuIdOverride: metadata.umuId,
-              platform: platform,
+        await prisma.gameVersion.create({
+          data: {
+            gameId: gameId,
+            versionName: versionName,
+            dropletManifest: manifest,
+            versionIndex: currentIndex,
+            delta: metadata.delta,
+            umuIdOverride: metadata.umuId,
+            platform: platform,
 
-              onlySetup: true,
-              setupCommand: metadata.setup,
-              setupArgs: metadata.setupArgs.split(" "),
-            },
-          });
-        } else {
-          await prisma.gameVersion.create({
-            data: {
-              gameId: gameId,
-              versionName: versionName,
-              dropletManifest: manifest,
-              versionIndex: currentIndex,
-              delta: metadata.delta,
-              umuIdOverride: metadata.umuId,
-              platform: platform,
-
-              onlySetup: false,
-              setupCommand: metadata.setup,
-              setupArgs: metadata.setupArgs.split(" "),
-              launchCommand: metadata.launch,
-              launchArgs: metadata.launchArgs.split(" "),
-            },
-          });
-        }
+            onlySetup: metadata.onlySetup,
+            setupCommand: metadata.setup,
+            setupArgs: metadata.setupArgs.split(" "),
+            launchCommand: metadata.launch,
+            launchArgs: metadata.launchArgs.split(" "),
+          },
+        });
 
         logger.info("Successfully created version!");
 
