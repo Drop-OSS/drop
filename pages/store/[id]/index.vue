@@ -245,7 +245,6 @@
 import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
 import { StarIcon } from "@heroicons/vue/24/solid";
 import { micromark } from "micromark";
-import type { PlatformClient } from "~/composables/types";
 
 const route = useRoute();
 const gameId = route.params.id.toString();
@@ -279,7 +278,7 @@ const descriptionHTML = micromark(game.mDescription);
 
 const showReadMore = previewHTML != descriptionHTML;
 const platforms = game.versions
-  .map((e) => e.platform as PlatformClient)
+  .map((e) => e.platform)
   .flat()
   .filter((e, i, u) => u.indexOf(e) === i);
 

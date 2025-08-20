@@ -14,14 +14,26 @@ export default defineEventHandler(async (h3) => {
     },
     include: {
       versions: {
+        where: {
+          gameVersion: {
+            isNot: null,
+          },
+        },
         orderBy: {
-          versionIndex: "asc",
+          gameVersion: {
+            versionIndex: "asc",
+          },
         },
         select: {
-          versionIndex: true,
+          versionId: true,
           versionName: true,
           platform: true,
-          delta: true,
+          gameVersion: {
+            select: {
+              versionIndex: true,
+              delta: true,
+            },
+          },
         },
       },
       tags: true,

@@ -16,32 +16,24 @@ export default defineEventHandler<{ body: typeof UpdateVersionOrder }>(
     if (!allowed) throw createError({ statusCode: 403 });
 
     const body = await readDropValidatedBody(h3, UpdateVersionOrder);
-    const gameId = body.id;
     // We expect an array of the version names for this game
     const versions = body.versions;
 
-    const newVersions = await prisma.$transaction(
-      versions.map((versionName, versionIndex) =>
+    await prisma.$transaction(
+      versions.map((versionId, versionIndex) =>
         prisma.gameVersion.update({
           where: {
-            gameId_versionName: {
-              gameId: gameId,
-              versionName: versionName,
-            },
+            versionId,
           },
           data: {
             versionIndex: versionIndex,
           },
-          select: {
-            versionIndex: true,
-            versionName: true,
-            platform: true,
-            delta: true,
-          },
+          select: {},
         }),
       ),
     );
 
-    return newVersions;
+    setResponseStatus(h3, 201);
+    return;
   },
 );

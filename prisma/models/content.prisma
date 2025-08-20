@@ -1,41 +1,83 @@
-// A particular set of files that relate to the version
+model Version {
+    versionId String @id @unique @default(uuid())
+
+    versionPath String
+
+    versionName String
+    created     DateTime @default(now())
+
+    gameId      String?
+    game        Game?        @relation(fields: [gameId], references: [id], map: "game_link", onDelete: Cascade, onUpdate: Cascade)
+    gameVersion GameVersion?
+
+    redistId      String?
+    redist        Redist?        @relation(fields: [redistId], references: [id], map: "redist_link", onDelete: Cascade, onUpdate: Cascade)
+    redistVersion RedistVersion?
+
+    addonId      String?
+    addon        Addon?        @relation(fields: [addonId], references: [id], map: "addon_link", onDelete: Cascade, onUpdate: Cascade)
+    addonVersion AddonVersion?
+
+    modId      String?
+    mod        Mod?        @relation(fields: [modId], references: [id], map: "mod_link", onDelete: Cascade, onUpdate: Cascade)
+    modVersion ModVersion?
+
+    platform        Platform
+    dropletManifest Json // Results from droplet
+}
+
 model GameVersion {
-    gameId      String
-    game        Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
-    versionName String // Sub directory for the game files
+    versionId String  @id
+    version   Version @relation(fields: [versionId], references: [versionId], onDelete: Cascade, onUpdate: Cascade)
 
-    created DateTime @default(now())
+    redistDeps RedistVersion[]
 
-    platform Platform
+    launches GameVersionLaunch[]
 
-    launchCommand String   @default("") // Command to run to start. Platform-specific. Windows games on Linux will wrap this command in Proton/Wine
-    launchArgs    String[]
-    setupCommand  String   @default("") // Command to setup game (dependencies and such)
-    setupArgs     String[]
-    onlySetup     Boolean  @default(false)
+    setup     String  @default("") // Command to setup game (dependencies and such)
+    setupArgs String  @default("")
+    onlySetup Boolean @default(false)
 
     umuIdOverride String?
 
-    dropletManifest Json // Results from droplet
-
     versionIndex Int
     delta        Boolean @default(false)
+    hidden       Boolean @default(false)
+}
 
-    @@id([gameId, versionName])
+model GameVersionLaunch {
+    launchId  String @id @default(uuid())
+    versionId String
+
+    gameVersion GameVersion @relation(fields: [versionId], references: [versionId], onDelete: Cascade, onUpdate: Cascade)
+
+    name        String
+    description String
+
+    launchCommand String
+    launchArgs    String @default("")
+}
+
+model AddonVersion {
+    versionId String  @id
+    version   Version @relation(fields: [versionId], references: [versionId], onDelete: Cascade, onUpdate: Cascade)
+
+    redistDeps RedistVersion[]
 }
 
 model RedistVersion {
-    redistId    String
-    redist      Redist @relation(fields: [redistId], references: [id], onDelete: Cascade)
-    versionName String
+    versionId String  @id
+    version   Version @relation(fields: [versionId], references: [versionId], onDelete: Cascade, onUpdate: Cascade)
 
-    created DateTime @default(now())
+    gameDependees  GameVersion[]
+    addonDependees AddonVersion[]
+}
 
-    platform Platform
+model ModVersion {
+    versionId String  @id
+    version   Version @relation(fields: [versionId], references: [versionId], onDelete: Cascade, onUpdate: Cascade)
 
-    dropletManifest Json // Results from droplet
-
-    @@id([redistId, versionName])
+    dependencies String[]
 }
 
 // A save slot for a game

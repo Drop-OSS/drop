@@ -32,7 +32,7 @@
           class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-zinc-950 ring-opacity-5 focus:outline-none sm:text-sm"
         >
           <ListboxOption
-            v-for="[name, value] in Object.entries(values)"
+            v-for="[name, value] in values"
             :key="value"
             v-slot="{ active, selected }"
             as="template"
@@ -82,10 +82,11 @@ import {
   ListboxOptions,
 } from "@headlessui/vue";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
+import { Platform } from "~/prisma/client/enums";
 
-const model = defineModel<PlatformClient | undefined>();
+const model = defineModel<Platform | undefined>();
 
-const typedModel = computed<PlatformClient | null>({
+const typedModel = computed<Platform | null>({
   get() {
     return model.value || null;
   },
@@ -95,5 +96,5 @@ const typedModel = computed<PlatformClient | null>({
   },
 });
 
-const values = Object.fromEntries(Object.entries(PlatformClient));
+const values = Object.entries(Platform);
 </script>

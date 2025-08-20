@@ -31,7 +31,8 @@ model Game {
   mImageCarouselObjectIds String[] // linked to below array
   mImageLibraryObjectIds  String[] // linked to objects in s3
 
-  versions GameVersion[]
+  versions Version[]
+  mods     Mod[]
 
   // These fields will not be optional in the next version
   // Any game without a library ID will be assigned one at startup, based on the defaults
@@ -52,9 +53,8 @@ model Game {
   @@unique([libraryId, libraryPath], name: "libraryKey")
 }
 
-model Redist {
-  id      String   @id @default(uuid())
-  created DateTime @default(now())
+model Addon {
+  id String @id @default(uuid())
 
   name         String
   description  String
@@ -64,9 +64,53 @@ model Redist {
   library     Library @relation(fields: [libraryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   libraryPath String
 
-  versions RedistVersion[]
+  versions Version[]
+}
+
+model Redist {
+  id      String   @id @default(uuid())
+  created DateTime @default(now())
+
+  mName             String
+  mShortDescription String
+  mIconObjectId     String
+
+  libraryId   String
+  library     Library @relation(fields: [libraryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  libraryPath String
+
+  versions Version[]
 
   @@unique([libraryId, libraryPath], name: "libraryKey")
+}
+
+model Mod {
+  id      String   @id @default(uuid())
+  created DateTime @default(now())
+
+  gameId String
+  game   Game   @relation(fields: [gameId], references: [id])
+
+  // If this mod is user-provided
+  user Boolean @default(true)
+
+  mName             String
+  mShortDescription String
+  mDescription      String
+
+  mIconObjectId           String // linked to objects in s3
+  mBannerObjectId         String // linked to objects in s3
+  mCoverObjectId          String
+  mImageCarouselObjectIds String[] // linked to below array
+  mImageLibraryObjectIds  String[] // linked to objects in s3
+
+  libraryId   String
+  library     Library @relation(fields: [libraryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  libraryPath String
+
+  tags GameTag[]
+
+  versions Version[]
 }
 
 model GameTag {
@@ -74,6 +118,7 @@ model GameTag {
   name String @unique
 
   games Game[]
+  mods  Mod[]
 
   @@index([name(ops: raw("gist_trgm_ops(siglen=32)"))], type: Gist)
 }
