@@ -140,7 +140,7 @@
             </dl>
             <div class="mt-4 flex flex-col gap-y-1">
               <NuxtLink
-                :href="`/admin/library/${game.id}`"
+                :href="`/admin/library/g/${game.id}`"
                 class="w-fit rounded-md bg-zinc-800 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               >
                 <i18n-t
@@ -180,7 +180,7 @@
                 </p>
                 <p class="mt-3 text-sm md:ml-6 md:mt-0">
                   <NuxtLink
-                    :href="`/admin/library/${game.id}/import`"
+                    :href="`/admin/library/g/${game.id}/import`"
                     class="whitespace-nowrap font-medium text-blue-400 hover:text-blue-500"
                   >
                     <i18n-t

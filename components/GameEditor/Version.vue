@@ -22,7 +22,7 @@
                   <!-- import games button -->
 
                   <NuxtLink
-                    :href="canImport ? `/admin/library/${game.id}/import` : ''"
+                    :href="canImport ? `/admin/library/g/${game.id}/import` : ''"
                     type="button"
                     :class="[
                       canImport

@@ -336,7 +336,7 @@ class LibraryManager {
           nonce: `version-create-${gameId}-${versionPath}`,
           title: `'${game.mName}' ('${versionPath}') finished importing.`,
           description: `Drop finished importing version ${versionPath} for ${game.mName}.`,
-          actions: [`View|/admin/library/${gameId}`],
+          actions: [`View|/admin/library/g/${gameId}`],
           acls: ["system:import:version:read"],
         });
 

@@ -251,6 +251,7 @@ export default defineNuxtConfig({
         "img-src": [
           "'self'",
           "data:",
+          "blob:",
           "https://www.giantbomb.com",
           "https://images.pcgamingwiki.com",
           "https://images.igdb.com",

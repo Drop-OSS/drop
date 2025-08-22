@@ -24,7 +24,7 @@ enum LibraryBackend {
 enum LibraryMode {
     Game
     Redist
-    Addon
+    DLC
     Mod
 }
 
@@ -34,9 +34,10 @@ model Library {
 
     backend LibraryBackend
     options Json
+    mode    LibraryMode @default(Game)
 
     games   Game[]
     redists Redist[]
-    addons   Addon[]
-    mods     Mod[]
+    dlcs  DLC[]
+    mods    Mod[]
 }

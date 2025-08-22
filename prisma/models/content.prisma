@@ -14,9 +14,9 @@ model Version {
     redist        Redist?        @relation(fields: [redistId], references: [id], map: "redist_link", onDelete: Cascade, onUpdate: Cascade)
     redistVersion RedistVersion?
 
-    addonId      String?
-    addon        Addon?        @relation(fields: [addonId], references: [id], map: "addon_link", onDelete: Cascade, onUpdate: Cascade)
-    addonVersion AddonVersion?
+    dlcId      String?
+    dlc        DLC?        @relation(fields: [dlcId], references: [id], map: "dlc_link", onDelete: Cascade, onUpdate: Cascade)
+    dlcVersion DLCVersion?
 
     modId      String?
     mod        Mod?        @relation(fields: [modId], references: [id], map: "mod_link", onDelete: Cascade, onUpdate: Cascade)
@@ -58,7 +58,7 @@ model GameVersionLaunch {
     launchArgs    String @default("")
 }
 
-model AddonVersion {
+model DLCVersion {
     versionId String  @id
     version   Version @relation(fields: [versionId], references: [versionId], onDelete: Cascade, onUpdate: Cascade)
 
@@ -70,7 +70,7 @@ model RedistVersion {
     version   Version @relation(fields: [versionId], references: [versionId], onDelete: Cascade, onUpdate: Cascade)
 
     gameDependees  GameVersion[]
-    addonDependees AddonVersion[]
+    dlcDependees DLCVersion[]
 }
 
 model ModVersion {

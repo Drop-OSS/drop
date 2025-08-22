@@ -74,9 +74,10 @@ export const systemACLs = [
 
   "import:version:read",
   "import:version:new",
-
   "import:game:read",
   "import:game:new",
+  "import:redist:read",
+  "import:redist:new",
 
   "user:read",
   "user:delete",
