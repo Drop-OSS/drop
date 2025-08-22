@@ -42,6 +42,8 @@ ENV NUXT_TELEMETRY_DISABLED=1
 # RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn yarn add --network-timeout 1000000 --no-lockfile --ignore-scripts prisma@6.11.1
 RUN apk add --no-cache pnpm
 RUN pnpm install prisma@6.11.1
+# init prisma to download all required files
+RUN pnpm prisma init
 
 COPY --from=build-system /app/package.json ./
 COPY --from=build-system /app/.output ./app
