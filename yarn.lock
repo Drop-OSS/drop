@@ -9086,10 +9086,10 @@ vite-plugin-inspect@^11.3.0:
     unplugin-utils "^0.2.4"
     vite-dev-rpc "^1.1.0"
 
-vite-plugin-static-copy@^3.0.0:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/vite-plugin-static-copy/-/vite-plugin-static-copy-3.1.1.tgz#25d6f52c9a760d2d2e84d0803a37e3310aed644a"
-  integrity sha512-oR53SkL5cX4KT1t18E/xU50vJDo0N8oaHza4EMk0Fm+2/u6nQivxavOfrDk3udWj+dizRizB/QnBvJOOQrTTAQ==
+vite-plugin-static-copy@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/vite-plugin-static-copy/-/vite-plugin-static-copy-3.1.2.tgz#5d5e6ce965e5da6a326d47a5feb5033d52db43ca"
+  integrity sha512-aVmYOzptLVOI2b1jL+cmkF7O6uhRv1u5fvOkQgbohWZp2CbR22kn9ZqkCUIt9umKF7UhdbsEpshn1rf4720QFg==
   dependencies:
     chokidar "^3.6.0"
     fs-extra "^11.3.0"
