@@ -46,10 +46,28 @@ export const $dropFetch: DropFetch = async (rawRequest, opts) => {
   });
   const request = requestParts.join("/");
 
+  // If not in setup
   if (!getCurrentInstance()?.proxy) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore Excessive stack depth comparing types
-    return await $fetch(request, opts);
+    try {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore Excessive stack depth comparing types
+      return await $fetch(request, opts);
+    } catch (e) {
+      if (import.meta.client && opts?.failTitle) {
+        console.warn(e);
+        createModal(
+          ModalType.Notification,
+          {
+            title: opts.failTitle,
+            description:
+              (e as FetchError)?.statusMessage ?? (e as string).toString(),
+            buttonText: $t("common.close"),
+          },
+          (_, c) => c(),
+        );
+      }
+      throw e;
+    }
   }
 
   const id = request.toString();
@@ -64,26 +82,10 @@ export const $dropFetch: DropFetch = async (rawRequest, opts) => {
   }
 
   const headers = useRequestHeaders(["cookie", "authorization"]);
-  try {
-    const data = await $fetch(request, {
-      ...opts,
-      headers: { ...headers, ...opts?.headers },
-    });
-    if (import.meta.server) state.value = data;
-    return data;
-  } catch (e) {
-    if (import.meta.client && opts?.failTitle) {
-      createModal(
-        ModalType.Notification,
-        {
-          title: opts.failTitle,
-          description:
-            (e as FetchError)?.statusMessage ?? (e as string).toString(),
-          buttonText: $t("common.close"),
-        },
-        (_, c) => c(),
-      );
-    }
-    throw e;
-  }
+  const data = await $fetch(request, {
+    ...opts,
+    headers: { ...headers, ...opts?.headers },
+  });
+  if (import.meta.server) state.value = data;
+  return data;
 };

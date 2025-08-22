@@ -17,11 +17,8 @@ export default defineEventHandler(async (h3) => {
         orderBy: {
           versionIndex: "asc",
         },
-        select: {
-          versionIndex: true,
-          versionName: true,
-          platform: true,
-          delta: true,
+        omit: {
+          dropletManifest: true,
         },
       },
       tags: true,
