@@ -35,7 +35,9 @@
           <p class="text-xs text-green-300/70">
             {{ $t("account.token.successNote") }}
           </p>
-          <p class="mt-2 bg-zinc-950 px-3 py-2 font-mono text-zinc-400 rounded-xl">
+          <p
+            class="mt-2 bg-zinc-950 px-3 py-2 font-mono text-zinc-400 rounded-xl"
+          >
             {{ newToken }}
           </p>
         </div>
