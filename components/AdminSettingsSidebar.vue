@@ -1,8 +1,5 @@
 <template>
-  <div class="flex grow flex-col gap-y-5 overflow-y-auto px-6 py-4">
-    <span class="inline-flex items-center gap-x-2 font-semibold text-zinc-100">
-      <UserIcon class="size-5" /> {{ $t("account.title") }}
-    </span>
+  <div class="flex grow flex-col gap-y-5 overflow-y-auto pr-4">
     <nav class="flex flex-1 flex-col">
       <ul role="list" class="flex flex-1 flex-col gap-y-7">
         <li>
@@ -47,7 +44,6 @@ import {
   WrenchScrewdriverIcon,
   CodeBracketIcon,
 } from "@heroicons/vue/24/outline";
-import { UserIcon } from "@heroicons/vue/24/solid";
 import type { Component } from "vue";
 
 const notifications = useNotifications();

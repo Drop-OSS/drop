@@ -1,7 +1,7 @@
 import { type } from "arktype";
 import { APITokenMode } from "~/prisma/client/enums";
 import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
-import aclManager, { userACLs } from "~/server/internal/acls";
+import aclManager, { systemACLs } from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 
 const CreateToken = type({
@@ -11,13 +11,13 @@ const CreateToken = type({
 }).configure(throwingArktype);
 
 export default defineEventHandler(async (h3) => {
-  const userId = await aclManager.getUserIdACL(h3, []); // No ACLs only allows session authentication
-  if (!userId) throw createError({ statusCode: 403 });
+  const allowed = await aclManager.allowSystemACL(h3, []); // No ACLs only allows session authentication
+  if (!allowed) throw createError({ statusCode: 403 });
 
   const body = await readDropValidatedBody(h3, CreateToken);
 
   const invalidACLs = body.acls.filter(
-    (e) => userACLs.findIndex((v) => e == v) == -1,
+    (e) => systemACLs.findIndex((v) => e == v) == -1,
   );
   if (invalidACLs.length > 0)
     throw createError({
@@ -27,9 +27,8 @@ export default defineEventHandler(async (h3) => {
 
   const token = await prisma.aPIToken.create({
     data: {
-      mode: APITokenMode.User,
+      mode: APITokenMode.System,
       name: body.name,
-      userId: userId,
       acls: body.acls,
       expiresAt: body.expiry ?? null,
     },

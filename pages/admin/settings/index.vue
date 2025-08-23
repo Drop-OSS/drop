@@ -1,68 +1,55 @@
 <template>
-  <div class="space-y-4">
-    <div class="sm:flex sm:items-center">
-      <div class="sm:flex-auto">
-        <h1 class="text-2xl font-semibold text-zinc-100">
-          {{ $t("settings.admin.title") }}
-        </h1>
-        <p class="mt-2 text-base text-zinc-400">
-          {{ $t("settings.admin.description") }}
-        </p>
-      </div>
+  <form class="space-y-4" @submit.prevent="() => saveSettings()">
+    <div class="pb-4 border-b border-zinc-700">
+      <h2 class="text-xl font-semibold text-zinc-100">
+        {{ $t("settings.admin.store.title") }}
+      </h2>
+
+      <h3 class="text-base font-medium text-zinc-400 mb-3 m-x-0">
+        {{ $t("settings.admin.store.showGamePanelTextDecoration") }}
+      </h3>
+      <ul class="flex gap-3">
+        <li class="inline-block">
+          <OptionWrapper
+            :active="showGamePanelTextDecoration"
+            @click="setShowTitleDescription(true)"
+          >
+            <div class="flex">
+              <GamePanel
+                :animate="false"
+                :game="game"
+                :default-placeholder="true"
+              />
+            </div>
+          </OptionWrapper>
+        </li>
+        <li class="inline-block">
+          <OptionWrapper
+            :active="!showGamePanelTextDecoration"
+            @click="setShowTitleDescription(false)"
+          >
+            <div class="flex">
+              <GamePanel
+                :game="game"
+                :show-title-description="false"
+                :animate="false"
+                :default-placeholder="true"
+              />
+            </div>
+          </OptionWrapper>
+        </li>
+      </ul>
     </div>
 
-    <form class="space-y-4" @submit.prevent="() => saveSettings()">
-      <div class="py-6 border-y border-zinc-700">
-        <h2 class="text-xl font-semibold text-zinc-100">
-          {{ $t("settings.admin.store.title") }}
-        </h2>
-
-        <h3 class="text-base font-medium text-zinc-400 mb-3 m-x-0">
-          {{ $t("settings.admin.store.showGamePanelTextDecoration") }}
-        </h3>
-        <ul class="flex gap-3">
-          <li class="inline-block">
-            <OptionWrapper
-              :active="showGamePanelTextDecoration"
-              @click="setShowTitleDescription(true)"
-            >
-              <div class="flex">
-                <GamePanel
-                  :animate="false"
-                  :game="game"
-                  :default-placeholder="true"
-                />
-              </div>
-            </OptionWrapper>
-          </li>
-          <li class="inline-block">
-            <OptionWrapper
-              :active="!showGamePanelTextDecoration"
-              @click="setShowTitleDescription(false)"
-            >
-              <div class="flex">
-                <GamePanel
-                  :game="game"
-                  :show-title-description="false"
-                  :animate="false"
-                  :default-placeholder="true"
-                />
-              </div>
-            </OptionWrapper>
-          </li>
-        </ul>
-      </div>
-
-      <LoadingButton
-        type="submit"
-        class="inline-flex w-full shadow-sm sm:w-auto"
-        :loading="saving"
-        :disabled="!allowSave"
-      >
-        {{ allowSave ? $t("common.save") : $t("common.saved") }}
-      </LoadingButton>
-    </form>
-  </div>
+    <LoadingButton
+      type="submit"
+      class="inline-flex w-full shadow-sm sm:w-auto"
+      :loading="saving"
+      :disabled="!allowSave"
+    >
+      {{ allowSave ? $t("common.save") : $t("common.saved") }}
+    </LoadingButton>
+  </form>
 </template>
 
 <script setup lang="ts">
