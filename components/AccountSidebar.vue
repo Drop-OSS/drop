@@ -45,6 +45,7 @@ import {
   LockClosedIcon,
   DevicePhoneMobileIcon,
   WrenchScrewdriverIcon,
+  CodeBracketIcon,
 } from "@heroicons/vue/24/outline";
 import { UserIcon } from "@heroicons/vue/24/solid";
 import type { Component } from "vue";
@@ -72,6 +73,12 @@ const navigation: (NavigationItem & { icon: Component; count?: number })[] = [
     prefix: "/account/notifications",
     icon: BellIcon,
     count: notifications.value.length,
+  },
+  {
+    label: t("account.token.title"),
+    route: "/account/tokens",
+    prefix: "/account/tokens",
+    icon: CodeBracketIcon,
   },
   {
     label: t("account.settings"),

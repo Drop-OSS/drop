@@ -45,6 +45,8 @@ model APIToken {
 
     acls String[]
 
+    expiresAt DateTime?
+
     @@index([token])
 }
 
