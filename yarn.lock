@@ -342,71 +342,71 @@
     jsonfile "^5.0.0"
     universalify "^0.1.2"
 
-"@drop-oss/droplet-darwin-arm64@2.3.1":
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/@drop-oss/droplet-darwin-arm64/-/droplet-darwin-arm64-2.3.1.tgz#ee1c32b4f180fd40bde57b4d428bdf51119cf6c8"
-  integrity sha512-s0qORIlGTyjnDL2W6Eljoz8yloBXVTpuyiEqnOCVTTtse3uLgqG+78wF2sVhiCKKCNuNwELv5icomJ2k4w2K5w==
+"@drop-oss/droplet-darwin-arm64@3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@drop-oss/droplet-darwin-arm64/-/droplet-darwin-arm64-3.0.1.tgz#37acbeaedcf28623c18b545aa2ed9205533a7128"
+  integrity sha512-LXe8vsXUBL96boI78H6oXpSaPVwF4cCwJ5l/QVtsOWMebNo6gk9wICDZ+5IoR/Ol32t1a1lk+DjbD1zeGenPxg==
 
-"@drop-oss/droplet-darwin-universal@2.3.1":
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/@drop-oss/droplet-darwin-universal/-/droplet-darwin-universal-2.3.1.tgz#c6529184bd959d326c85ed97c7e8d2b07529abbb"
-  integrity sha512-L1fZjj2LQpLAesNtP3s0PzFPsJ77nVbyXbBeQGaoaq5kF0/npO4NYQ/7flkllGhIlJf/OQENWcARvfablM/G8g==
+"@drop-oss/droplet-darwin-universal@3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@drop-oss/droplet-darwin-universal/-/droplet-darwin-universal-3.0.1.tgz#8e90214758ae03e2e37501a107e5a8acaeec6d32"
+  integrity sha512-Mf2gjC24u6s8djV/3slZvwdr4+h0qBu2OYXBUSDfR4H/VJwV5TstnWVKF+U8d1hjmHE9eLO8elbGNnpQmSoTOQ==
 
-"@drop-oss/droplet-darwin-x64@2.3.1":
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/@drop-oss/droplet-darwin-x64/-/droplet-darwin-x64-2.3.1.tgz#711855d85821080ac11e80b81ec91df1eaa23405"
-  integrity sha512-4UvveQRCq10iEoVfArdCeBuQg51jbn5tkW68LXRoFWzicQz6MFhbowVmzz5RbjYcT5kYwI4c7jBZgeKBGOvc+g==
+"@drop-oss/droplet-darwin-x64@3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@drop-oss/droplet-darwin-x64/-/droplet-darwin-x64-3.0.1.tgz#602cf4e7cb1ceda4ef95673f61542025b9215e9a"
+  integrity sha512-4IIDl/E+hzZ2Vt9m4FMPlZEXwj1EwE6qXyUidACK6TTFqpjLpsEHKuhv1FOxGyJ8qkvagtyPCc+cs1TxoZD6FA==
 
-"@drop-oss/droplet-linux-arm64-gnu@2.3.1":
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/@drop-oss/droplet-linux-arm64-gnu/-/droplet-linux-arm64-gnu-2.3.1.tgz#f3a3a00239a9063bba1fbcb2209303b337cd862d"
-  integrity sha512-URlpIZZDG/u2pwxM+PaWK240+Phr4RETzwcUQyERAPv22vTjl4l/s4sYa4o4fHX/eosgNLncO+jYgO0f9FS3kg==
+"@drop-oss/droplet-linux-arm64-gnu@3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@drop-oss/droplet-linux-arm64-gnu/-/droplet-linux-arm64-gnu-3.0.1.tgz#a49d1998229fafbd42ac4b8fc5f67754ab1ac49c"
+  integrity sha512-klGvlLf1xSMT3iYsIAaBbmbir1ZJWtcVyOMUlsfc1lkJ8mgyB+PrW4BsnYj7Pp4G34n7WsOChjC8TdJDBBuBWg==
 
-"@drop-oss/droplet-linux-arm64-musl@2.3.1":
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/@drop-oss/droplet-linux-arm64-musl/-/droplet-linux-arm64-musl-2.3.1.tgz#8743132ad2fb050ef5f3cd5ddbe93b1b35ebda73"
-  integrity sha512-+m5IVmD4J979KggUSpyrE4PD4mjHAnvJ8EY2AOMSxmCu3JmONMIKHNmx1TA/k9PlesGKe6GjAs2WGlxwZRCZ2g==
+"@drop-oss/droplet-linux-arm64-musl@3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@drop-oss/droplet-linux-arm64-musl/-/droplet-linux-arm64-musl-3.0.1.tgz#3e0ffee4f0aba051c244236aecdb5c1221c1b999"
+  integrity sha512-oOjvGETlrJGC1RlNhUoVS9N89Rn/0DqBauVz3BBFjJTKSd5jU3/gLzwgmfkKDGVEU5lyGPAn2WQroiESEG9wdA==
 
-"@drop-oss/droplet-linux-riscv64-gnu@2.3.1":
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/@drop-oss/droplet-linux-riscv64-gnu/-/droplet-linux-riscv64-gnu-2.3.1.tgz#d7f03d78f107a04f952c8958a024c27df6ad9818"
-  integrity sha512-AkSbSjt8nvcuxJYBeEvGGh6HaQSPO+OeLYUjc4pBZDACUOULHLWnZ5LdD/GUN97JcZOfq+BYfP50mz/1BvWoSA==
+"@drop-oss/droplet-linux-riscv64-gnu@3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@drop-oss/droplet-linux-riscv64-gnu/-/droplet-linux-riscv64-gnu-3.0.1.tgz#2208f1a038d54ced68d1537c4daa964b115d4e5c"
+  integrity sha512-Zf3gUsWq9Hqb275MOi7PJDhmJz7Qa/Y1XMen880bxPaOeDFqFOoKUxUr2/qv1MYp6tT3zO27NprGsHirYWqsyA==
 
-"@drop-oss/droplet-linux-x64-gnu@2.3.1":
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/@drop-oss/droplet-linux-x64-gnu/-/droplet-linux-x64-gnu-2.3.1.tgz#7deff7a3de0697de13685c81ec4e9c8e6186ed0a"
-  integrity sha512-jaswkLtTJ4U5GhyBn+86r7cEf8dnHQmcklxomEA8P/DWTHkab1g23XlgaSGHX/FaiRpKAxXGNLTPyY8lR6wePQ==
+"@drop-oss/droplet-linux-x64-gnu@3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@drop-oss/droplet-linux-x64-gnu/-/droplet-linux-x64-gnu-3.0.1.tgz#ffe2e39f978d32858a003f0c28614a8a4d1bdeef"
+  integrity sha512-sskblycJdtNJVnRHjPHhwHkQUfQNaDIWDzXOzEaBPOcDKqYA7od7VMDAseqBkrKDn7l8bBUtRXFAipdsO8hffw==
 
-"@drop-oss/droplet-linux-x64-musl@2.3.1":
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/@drop-oss/droplet-linux-x64-musl/-/droplet-linux-x64-musl-2.3.1.tgz#31a2f5107817a59ff5a516cd1912261c85b2e0c7"
-  integrity sha512-xn+W31FOnPVvkoxks104QusnHS1/J0V4Lwzegu3hPjPpZnc0YqFEo74pcxb2VfltgjMTtBOmzyKaApt9Snhd8Q==
+"@drop-oss/droplet-linux-x64-musl@3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@drop-oss/droplet-linux-x64-musl/-/droplet-linux-x64-musl-3.0.1.tgz#4bd501eeeddfdaf3c49e6508cc1798419b0c78cc"
+  integrity sha512-lh+1M6UAf5+ET1/ZEFRsB3shFHjkT/9Ql9akr/vyUue91TWPmP71meqVkCugWDhP6lxBt56jg2VVrJfmPAsK6w==
 
-"@drop-oss/droplet-win32-arm64-msvc@2.3.1":
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/@drop-oss/droplet-win32-arm64-msvc/-/droplet-win32-arm64-msvc-2.3.1.tgz#4cf431b654b33c58df4cef256e84881b0556a046"
-  integrity sha512-MwDz/4SfFSCEYzGCsptVD38amB18c2MSheJM+mV7Y8qjVDfjzAGrdX9923e8BYIm8eY8ypnOQBTy4/qae8+3uw==
+"@drop-oss/droplet-win32-arm64-msvc@3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@drop-oss/droplet-win32-arm64-msvc/-/droplet-win32-arm64-msvc-3.0.1.tgz#9308c75d22773fbb78bba0286c101870b3eaf5f6"
+  integrity sha512-caQDPoDNJyyJXUEijw+hGTy0wmCrW5efTqBwnvMcQ282EOilg1d5WeJ31pfEcuLYF4MK1t9uaLcG6jZ9YLtzEQ==
 
-"@drop-oss/droplet-win32-x64-msvc@2.3.1":
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/@drop-oss/droplet-win32-x64-msvc/-/droplet-win32-x64-msvc-2.3.1.tgz#01b33c5241cca9aa026605cbb18027d82f57cc6f"
-  integrity sha512-5FRfblFZBI9jpLNS0z+QSqYzxpDg3YSTP/2LvEqI2Z7ZYC02j4SKnW/+C4zzblNuR3e/igfaP0I9yBv4uIb6ew==
+"@drop-oss/droplet-win32-x64-msvc@3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@drop-oss/droplet-win32-x64-msvc/-/droplet-win32-x64-msvc-3.0.1.tgz#3f50f1328bd7aafd8dfe7edd0413f13217cbc9ce"
+  integrity sha512-bp8KwewF/T3JkVeJWkg86U3b0cGQD9i8k92x6HYPtnF5nLPAb2UIUEJgmYYFNPFe36RECBV7PIIG0ujdT1ELQw==
 
-"@drop-oss/droplet@2.3.1":
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/@drop-oss/droplet/-/droplet-2.3.1.tgz#664e42bf0b205ffa06f5d5f48f0080012145d8c2"
-  integrity sha512-oar7wvwMC1Evau4lXYcGerFcK/HqTi2Fn/4mcBldIF7B33NhsXhg4RncSNGS5J0WfwG4rkbI249nbs4aDeIrFg==
+"@drop-oss/droplet@3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@drop-oss/droplet/-/droplet-3.0.1.tgz#e7f6772aa1f94010d41086fc8a1f396a5d392184"
+  integrity sha512-YhtgpwNqEHO8R03yf9Xb5LXuaLWkQvY+2lxOD1PwzpGI5V9PKlDE+x1IJBmdBF5bDPDGk9MxQidGtnYQuAEBEA==
   optionalDependencies:
-    "@drop-oss/droplet-darwin-arm64" "2.3.1"
-    "@drop-oss/droplet-darwin-universal" "2.3.1"
-    "@drop-oss/droplet-darwin-x64" "2.3.1"
-    "@drop-oss/droplet-linux-arm64-gnu" "2.3.1"
-    "@drop-oss/droplet-linux-arm64-musl" "2.3.1"
-    "@drop-oss/droplet-linux-riscv64-gnu" "2.3.1"
-    "@drop-oss/droplet-linux-x64-gnu" "2.3.1"
-    "@drop-oss/droplet-linux-x64-musl" "2.3.1"
-    "@drop-oss/droplet-win32-arm64-msvc" "2.3.1"
-    "@drop-oss/droplet-win32-x64-msvc" "2.3.1"
+    "@drop-oss/droplet-darwin-arm64" "3.0.1"
+    "@drop-oss/droplet-darwin-universal" "3.0.1"
+    "@drop-oss/droplet-darwin-x64" "3.0.1"
+    "@drop-oss/droplet-linux-arm64-gnu" "3.0.1"
+    "@drop-oss/droplet-linux-arm64-musl" "3.0.1"
+    "@drop-oss/droplet-linux-riscv64-gnu" "3.0.1"
+    "@drop-oss/droplet-linux-x64-gnu" "3.0.1"
+    "@drop-oss/droplet-linux-x64-musl" "3.0.1"
+    "@drop-oss/droplet-win32-arm64-msvc" "3.0.1"
+    "@drop-oss/droplet-win32-x64-msvc" "3.0.1"
 
 "@emnapi/core@^1.4.3":
   version "1.4.5"
