@@ -19,6 +19,28 @@
       "title": "Notifications",
       "unread": "Unread Notifications"
     },
+    "token": {
+      "title": "API Tokens",
+      "subheader": "Manage your API tokens, and what they can access.",
+      "name": "API token name",
+      "nameDesc": "The name of the token, for reference.",
+      "namePlaceholder": "My New Token",
+      "acls": "ACLs/scopes",
+      "aclsDesc": "Defines what this token has the authority to do. You should avoid selecting all ACLs, if they are not necessary.",
+      "expiry": "Expiry",
+      "noExpiry": "No expiry",
+      "revoke": "Revoke",
+      "noTokens": "No tokens connected to your account.",
+
+      "expiryMonth": "A month",
+      "expiry3Month": "3 months",
+      "expiry6Month": "6 months",
+      "expiryYear": "A year",
+      "expiry5Year": "5 years",
+
+      "success": "Successfully created token.",
+      "successNote": "Make sure to copy it now, as it won't be shown again."
+    },
     "settings": "Settings",
     "title": "Account Settings"
   },
@@ -241,7 +263,11 @@
     "admin": {
       "admin": "Admin",
       "metadata": "Meta",
-      "settings": "Settings",
+      "settings": {
+        "title": "Settings",
+        "store": "Store",
+        "tokens": "API tokens"
+      },
       "tasks": "Tasks",
       "users": "Users"
     },

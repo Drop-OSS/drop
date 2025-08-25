@@ -36,7 +36,7 @@ export const userACLDescriptions: ObjectFromList<typeof userACLs> = {
   "library:remove": "Remove a game from your library.",
 
   "clients:read": "Read the clients connected to this account",
-  "clients:revoke": "",
+  "clients:revoke": "Remove clients connected to this account",
 
   "news:read": "Read the server's news articles.",
 

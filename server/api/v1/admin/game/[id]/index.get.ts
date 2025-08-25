@@ -24,16 +24,8 @@ export default defineEventHandler(async (h3) => {
             versionIndex: "asc",
           },
         },
-        select: {
-          versionId: true,
-          versionName: true,
-          platform: true,
-          gameVersion: {
-            select: {
-              versionIndex: true,
-              delta: true,
-            },
-          },
+        omit: {
+          dropletManifest: true,
         },
       },
       tags: true,

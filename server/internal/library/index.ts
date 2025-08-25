@@ -186,6 +186,8 @@ class LibraryManager {
         ".sh",
         // No extension is common for Linux binaries
         "",
+        // AppImages
+        ".appimage",
       ],
       Windows: [".exe", ".bat"],
       macOS: [
