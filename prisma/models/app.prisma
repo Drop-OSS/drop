@@ -21,12 +21,23 @@ enum LibraryBackend {
     FlatFilesystem
 }
 
+enum LibraryMode {
+    Game
+    Redist
+    DLC
+    Mod
+}
+
 model Library {
     id   String @id @default(uuid())
     name String
 
     backend LibraryBackend
     options Json
+    mode    LibraryMode @default(Game)
 
-    games Game[]
+    games   Game[]
+    redists Redist[]
+    dlcs  DLC[]
+    mods    Mod[]
 }

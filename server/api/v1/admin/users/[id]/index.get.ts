@@ -15,7 +15,7 @@ export default defineEventHandler(async (h3) => {
   if (userId == "system")
     throw createError({
       statusCode: 400,
-      statusMessage: "Cannot delete system user.",
+      statusMessage: "Cannot fetch system user.",
     });
 
   const user = await prisma.user.findUnique({ where: { id: userId } });

@@ -5,7 +5,6 @@ import prisma from "~/server/internal/db/database";
 
 const DeleteVersion = type({
   id: "string",
-  versionName: "string",
 }).configure(throwingArktype);
 
 export default defineEventHandler<{ body: typeof DeleteVersion }>(
@@ -17,15 +16,9 @@ export default defineEventHandler<{ body: typeof DeleteVersion }>(
 
     const body = await readDropValidatedBody(h3, DeleteVersion);
 
-    const gameId = body.id.toString();
-    const version = body.versionName.toString();
-
-    await prisma.gameVersion.delete({
+    await prisma.version.delete({
       where: {
-        gameId_versionName: {
-          gameId: gameId,
-          versionName: version,
-        },
+        versionId: body.id,
       },
     });
 

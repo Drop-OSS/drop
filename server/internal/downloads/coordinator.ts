@@ -15,12 +15,13 @@ class DownloadContextManager {
     }
   > = new Map();
 
-  async createContext(game: string, versionName: string) {
-    const version = await prisma.gameVersion.findUnique({
+  async createContext(game: string, versionPath: string) {
+    const version = await prisma.version.findFirst({
       where: {
-        gameId_versionName: {
-          gameId: game,
-          versionName,
+        gameId: game,
+        versionPath,
+        gameVersion: {
+          isNot: null,
         },
       },
       include: {
@@ -38,9 +39,9 @@ class DownloadContextManager {
     this.contexts.set(contextId, {
       timeout: new Date(),
       manifest: JSON.parse(version.dropletManifest as string) as DropManifest,
-      versionName,
-      libraryId: version.game.libraryId!,
-      libraryPath: version.game.libraryPath,
+      versionName: versionPath,
+      libraryId: version.game!.libraryId!,
+      libraryPath: version.game!.libraryPath,
     });
 
     return contextId;

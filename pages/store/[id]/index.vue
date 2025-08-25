@@ -40,7 +40,7 @@
           </div>
           <NuxtLink
             v-if="user?.admin"
-            :href="`/admin/library/${game.id}`"
+            :href="`/admin/library/g/${game.id}`"
             type="button"
             class="inline-flex items-center gap-x-2 rounded-md bg-zinc-800 px-3 py-1 text-sm font-semibold font-display text-white shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 duration-200 hover:scale-105 active:scale-95"
           >
@@ -245,7 +245,6 @@
 import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
 import { StarIcon } from "@heroicons/vue/24/solid";
 import { micromark } from "micromark";
-import type { PlatformClient } from "~/composables/types";
 
 const route = useRoute();
 const gameId = route.params.id.toString();
@@ -279,7 +278,7 @@ const descriptionHTML = micromark(game.mDescription);
 
 const showReadMore = previewHTML != descriptionHTML;
 const platforms = game.versions
-  .map((e) => e.platform as PlatformClient)
+  .map((e) => e.platform)
   .flat()
   .filter((e, i, u) => u.indexOf(e) === i);
 
