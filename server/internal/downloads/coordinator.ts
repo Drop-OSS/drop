@@ -57,7 +57,7 @@ class DownloadContextManager {
   async cleanup() {
     for (const key of this.contexts.keys()) {
       const context = this.contexts.get(key)!;
-      if (context.timeout.getDate() + TIMEOUT < Date.now()) {
+      if (context.timeout.getTime() < Date.now() - TIMEOUT) {
         this.contexts.delete(key);
       }
     }
