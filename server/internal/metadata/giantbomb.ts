@@ -191,7 +191,7 @@ export class GiantBombProvider implements MetadataProvider {
 
         const res = await publisher(pub.name);
         if (res === undefined) {
-          context?.logger.warn(`Failed to import publisher "${pub}"`);
+          context?.logger.warn(`Failed to import publisher "${pub.name}"`);
           continue;
         }
         context?.logger.info(`Imported publisher "${pub.name}"`);
@@ -208,10 +208,10 @@ export class GiantBombProvider implements MetadataProvider {
 
         const res = await developer(dev.name);
         if (res === undefined) {
-          context?.logger.warn(`Failed to import developer "${dev}"`);
+          context?.logger.warn(`Failed to import developer "${dev.name}"`);
           continue;
         }
-        context?.logger.info(`Imported developer "${dev}"`);
+        context?.logger.info(`Imported developer "${dev.name}"`);
         developers.push(res);
       }
     }
