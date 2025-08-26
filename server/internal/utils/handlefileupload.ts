@@ -1,5 +1,5 @@
 import type { EventHandlerRequest, H3Event } from "h3";
-import type { Dump, Pull } from "../objects/transactional";
+import type { Dump, Pull, Register } from "../objects/transactional";
 import { ObjectTransactionalHandler } from "../objects/transactional";
 
 export async function handleFileUpload(
@@ -7,7 +7,7 @@ export async function handleFileUpload(
   metadata: { [key: string]: string },
   permissions: Array<string>,
   max = -1,
-): Promise<[string[], { [key: string]: string }, Pull, Dump] | undefined> {
+): Promise<[string[], { [key: string]: string }, Pull, Dump, Register] | undefined> {
   const formData = await readMultipartFormData(h3);
   if (!formData) return undefined;
   const transactionalHandler = new ObjectTransactionalHandler();
@@ -28,5 +28,5 @@ export async function handleFileUpload(
     options[entry.name] = entry.data.toString("utf-8");
   }
 
-  return [ids, options, pull, dump];
+  return [ids, options, pull, dump, add];
 }

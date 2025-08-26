@@ -1,4 +1,3 @@
-import type { GameVersionModel } from "~/prisma/client/models";
 import prisma from "../db/database";
 
 export type DropChunk = {
@@ -14,11 +13,11 @@ export type DropManifest = {
 
 export type DropManifestMetadata = {
   manifest: DropManifest;
-  versionName: string;
+  versionId: string;
 };
 
 export type DropGeneratedManifest = DropManifest & {
-  [key: string]: { versionName: string };
+  [key: string]: { versionId: string };
 };
 
 class ManifestGenerator {
@@ -31,7 +30,7 @@ class ManifestGenerator {
         Object.entries(rootManifest.manifest).map(([key, value]) => {
           return [
             key,
-            Object.assign({}, value, { versionName: rootManifest.versionName }),
+            Object.assign({}, value, { versionId: rootManifest.versionId }),
           ];
         }),
       );
@@ -44,7 +43,7 @@ class ManifestGenerator {
       for (const [filename, chunk] of Object.entries(version.manifest)) {
         if (manifest[filename]) continue;
         manifest[filename] = Object.assign({}, chunk, {
-          versionName: version.versionName,
+          versionId: version.versionId,
         });
       }
     }
@@ -53,45 +52,50 @@ class ManifestGenerator {
   }
 
   // Local function because eventual caching
-  async generateManifest(gameId: string, versionName: string) {
-    const versions: GameVersionModel[] = [];
+  async generateManifest(versionId: string) {
+    const versions = [];
 
-    const baseVersion = await prisma.gameVersion.findUnique({
+    const baseVersion = await prisma.version.findUnique({
       where: {
-        gameId_versionName: {
-          gameId: gameId,
-          versionName: versionName,
-        },
+        versionId,
+      },
+      include: {
+        gameVersion: true,
       },
     });
     if (!baseVersion) return undefined;
     versions.push(baseVersion);
 
     // Collect other versions if this is a delta
-    if (baseVersion.delta) {
+    if (baseVersion.gameVersion?.delta) {
       // Start at the same index minus one, and keep grabbing them
       // until we run out or we hit something that isn't a delta
       // eslint-disable-next-line no-constant-condition
-      for (let i = baseVersion.versionIndex - 1; true; i--) {
-        const currentVersion = await prisma.gameVersion.findFirst({
+      for (let i = baseVersion.gameVersion.versionIndex - 1; true; i--) {
+        const currentVersion = await prisma.version.findFirst({
           where: {
-            gameId: gameId,
-            versionIndex: i,
+            gameId: baseVersion.gameId,
             platform: baseVersion.platform,
+            gameVersion: {
+              versionIndex: i,
+            },
+          },
+          include: {
+            gameVersion: true,
           },
         });
         if (!currentVersion) return undefined;
         versions.push(currentVersion);
-        if (!currentVersion.delta) break;
+        if (!currentVersion.gameVersion?.delta) break;
       }
     }
-    const leastToMost = versions.reverse();
-    const metadata: DropManifestMetadata[] = leastToMost.map((e) => {
+    versions.reverse();
+    const metadata: DropManifestMetadata[] = versions.map((version) => {
       return {
         manifest: JSON.parse(
-          e.dropletManifest?.toString() ?? "{}",
+          version.dropletManifest?.toString() ?? "{}",
         ) as DropManifest,
-        versionName: e.versionName,
+        versionId: version.versionId,
       };
     });
 

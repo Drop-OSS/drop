@@ -11,9 +11,3 @@ export type QuickActionNav = {
   notifications?: Ref<number>;
   action: () => Promise<void>;
 };
-
-export enum PlatformClient {
-  Windows = "Windows",
-  Linux = "Linux",
-  macOS = "macOS",
-}

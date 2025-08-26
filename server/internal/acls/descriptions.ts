@@ -84,6 +84,8 @@ export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
   "import:game:read":
     "Fetch games to be imported, and search the metadata for games.",
   "import:game:new": "Import a game.",
+  "import:redist:read": "Fetch redists to be imported.",
+  "import:redist:new": "Import a redist.",
 
   "tags:read": "Fetch all tags",
   "tags:create": "Create a tag",
