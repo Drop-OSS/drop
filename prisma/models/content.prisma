@@ -1,3 +1,16 @@
+model UserPlatform {
+    id String @id @default(uuid())
+
+    redistId String? @unique
+    redist   Redist? @relation(fields: [redistId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    platformName   String
+    iconSvg        String
+    fileExtensions String[] @default([])
+
+    versions Version[]
+}
+
 model Version {
     versionId String @id @unique @default(uuid())
 
@@ -22,7 +35,11 @@ model Version {
     mod        Mod?        @relation(fields: [modId], references: [id], map: "mod_link", onDelete: Cascade, onUpdate: Cascade)
     modVersion ModVersion?
 
-    platform        Platform
+    platform Platform?
+
+    userPlatformRedistId String?
+    userPlatform         UserPlatform? @relation(fields: [userPlatformRedistId], references: [redistId])
+
     dropletManifest Json // Results from droplet
 }
 
@@ -32,11 +49,11 @@ model GameVersion {
 
     redistDeps RedistVersion[]
 
-    launches GameVersionLaunch[]
+    launches LaunchOption[]
 
-    setup     String  @default("") // Command to setup game (dependencies and such)
-    setupArgs String  @default("")
-    onlySetup Boolean @default(false)
+    setupCommand String  @default("")
+    setupArgs    String  @default("")
+    onlySetup    Boolean @default(false)
 
     umuIdOverride String?
 
@@ -45,11 +62,12 @@ model GameVersion {
     hidden       Boolean @default(false)
 }
 
-model GameVersionLaunch {
+model LaunchOption {
     launchId  String @id @default(uuid())
     versionId String
 
-    gameVersion GameVersion @relation(fields: [versionId], references: [versionId], onDelete: Cascade, onUpdate: Cascade)
+    gameVersion   GameVersion?   @relation(fields: [versionId], references: [versionId], onDelete: Cascade, onUpdate: Cascade, map: "gameVersion_fkey")
+    redistVersion RedistVersion? @relation(fields: [versionId], references: [versionId], onDelete: Cascade, onUpdate: Cascade, map: "redistVersion_fkey")
 
     name        String
     description String
@@ -69,8 +87,10 @@ model RedistVersion {
     versionId String  @id
     version   Version @relation(fields: [versionId], references: [versionId], onDelete: Cascade, onUpdate: Cascade)
 
-    gameDependees  GameVersion[]
-    dlcDependees DLCVersion[]
+    launches LaunchOption[]
+
+    gameDependees GameVersion[]
+    dlcDependees  DLCVersion[]
 }
 
 model ModVersion {

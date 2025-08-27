@@ -12,13 +12,13 @@ export default defineEventHandler(async (h3) => {
   if (!id)
     throw createError({
       statusCode: 400,
-      statusMessage: "ID required in route params",
+      message: "ID required in route params",
     });
 
   const body = await readBody(h3);
   const gameId = body.id;
   if (!gameId)
-    throw createError({ statusCode: 400, statusMessage: "Game ID required" });
+    throw createError({ statusCode: 400, message: "Game ID required" });
 
   return await userLibraryManager.collectionAdd(gameId, id, userId);
 });

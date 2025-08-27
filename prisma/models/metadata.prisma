@@ -79,7 +79,8 @@ model Redist {
   library     Library @relation(fields: [libraryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   libraryPath String
 
-  versions Version[]
+  versions     Version[]
+  platform UserPlatform?
 
   @@unique([libraryId, libraryPath], name: "libraryKey")
 }

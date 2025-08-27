@@ -73,15 +73,21 @@
                 <td
                   class="whitespace-nowrap inline-flex gap-x-4 px-3 py-4 text-sm text-zinc-400"
                 >
-                  <component
-                    :is="PLATFORM_ICONS[platform]"
+                  <div
                     v-for="platform in platforms"
-                    :key="platform"
-                    class="text-blue-600 w-6 h-6"
-                  />
+                    :key="typeof platform === 'string' ? platform : platform.id"
+                  >
+                    <component
+                      :is="PLATFORM_ICONS[platform]"
+                      v-if="typeof platform === 'string'"
+                      class="text-blue-600 w-6 h-6"
+                    />
+                    <div v-else class="text-blue-600 w-6 h-6" v-html="platform.iconSvg" />
+                  </div>
+
                   <span
                     v-if="platforms.length == 0"
-                    class="font-semibold text-blue-600"
+                    class="font-display uppercase font-bold text-zinc-700"
                     >{{ $t("store.commingSoon") }}</span
                   >
                 </td>
@@ -278,8 +284,9 @@ const descriptionHTML = micromark(game.mDescription);
 
 const showReadMore = previewHTML != descriptionHTML;
 const platforms = game.versions
-  .map((e) => e.platform)
+  .map((e) => e.platform ?? e.userPlatform)
   .flat()
+  .filter((e) => e !== null)
   .filter((e, i, u) => u.indexOf(e) === i);
 
 // const rating = Math.round(game.mReviewRating * 5);

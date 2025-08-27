@@ -28,7 +28,7 @@ export default defineEventHandler(async (h3) => {
   const query = getQuery(h3);
   const options = StoreRead(query);
   if (options instanceof ArkErrors)
-    throw createError({ statusCode: 400, statusMessage: options.summary });
+    throw createError({ statusCode: 400, message: options.summary });
 
   /**
    * Generic filters

@@ -7,7 +7,7 @@ export default defineClientEventHandler(async (h3) => {
   if (!id)
     throw createError({
       statusCode: 400,
-      statusMessage: "No ID in request query",
+      message: "No ID in request query",
     });
 
   const versions = await prisma.gameVersion.findMany({

@@ -202,7 +202,7 @@
       :game-name="games.unimportedGames[currentlySelectedGame].game"
       :loading="importLoading"
       :error="importError"
-      @import="(v: unknown) => importModes[currentImportMode].import(v)"
+      @import="(...v: unknown[]) => importModes[currentImportMode].import(...v)"
     />
   </div>
 </template>
@@ -233,7 +233,7 @@ const importModes = shallowRef<{
     description: string;
     icon: Component;
     component: Component;
-    import: (v: unknown) => void;
+    import: (...v: unknown[]) => void;
   };
 }>({
   Game: {
@@ -249,7 +249,7 @@ const importModes = shallowRef<{
       "Redistributables are packaged dependencies for games, that are installed alongside and required to play certain games.",
     icon: ArchiveBoxIcon,
     component: ImportRedist,
-    import: importRedist as (v: unknown) => void,
+    import: importRedist as (v: unknown, k: unknown) => void,
   },
 });
 
@@ -303,12 +303,12 @@ async function importGame_wrapper(
   } catch (error) {
     console.warn(error);
     importError.value =
-      (error as FetchError)?.statusMessage || t("errors.unknown");
+      (error as FetchError)?.message || t("errors.unknown");
   }
   importLoading.value = false;
 }
 
-async function importRedist(data: object) {
+async function importRedist(data: object, platform: object | undefined) {
   importLoading.value = true;
   importError.value = undefined;
   try {
@@ -316,7 +316,19 @@ async function importRedist(data: object) {
 
     const formData = new FormData();
     for (const [key, value] of Object.entries(data)) {
-      formData.append(key, value);
+      formData.append(
+        key,
+        typeof value === "object" ? JSON.stringify(value) : value,
+      );
+    }
+
+    if (platform) {
+      for (const [key, value] of Object.entries(platform)) {
+        formData.append(
+          `platform.${key}`,
+          typeof value === "object" ? JSON.stringify(value) : value,
+        );
+      }
     }
 
     formData.append("library", option.library.id);
@@ -335,7 +347,7 @@ async function importRedist(data: object) {
   } catch (error) {
     console.warn(error);
     importError.value =
-      (error as FetchError)?.statusMessage || t("errors.unknown");
+      (error as FetchError)?.message || t("errors.unknown");
   }
   importLoading.value = false;
 }

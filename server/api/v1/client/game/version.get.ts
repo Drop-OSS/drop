@@ -8,7 +8,7 @@ export default defineClientEventHandler(async (h3) => {
   if (!id || !version)
     throw createError({
       statusCode: 400,
-      statusMessage: "Missing id or version in query",
+      message: "Missing id or version in query",
     });
 
   const gameVersion = await prisma.gameVersion.findUnique({
@@ -20,7 +20,7 @@ export default defineClientEventHandler(async (h3) => {
   if (!gameVersion)
     throw createError({
       statusCode: 404,
-      statusMessage: "Game version not found",
+      message: "Game version not found",
     });
 
   return gameVersion;

@@ -8,27 +8,27 @@ export default defineClientEventHandler(
     if (!client.capabilities.includes(ClientCapabilities.CloudSaves))
       throw createError({
         statusCode: 403,
-        statusMessage: "Capability not allowed.",
+        message: "Capability not allowed.",
       });
     const user = await fetchUser();
     const gameId = getRouterParam(h3, "gameid");
     if (!gameId)
       throw createError({
         statusCode: 400,
-        statusMessage: "No gameID in route params",
+        message: "No gameID in route params",
       });
 
     const slotIndexString = getRouterParam(h3, "slotindex");
     if (!slotIndexString)
       throw createError({
         statusCode: 400,
-        statusMessage: "No slotIndex in route params",
+        message: "No slotIndex in route params",
       });
     const slotIndex = parseInt(slotIndexString);
     if (Number.isNaN(slotIndex))
       throw createError({
         statusCode: 400,
-        statusMessage: "Invalid slotIndex",
+        message: "Invalid slotIndex",
       });
 
     const game = await prisma.game.findUnique({
@@ -36,7 +36,7 @@ export default defineClientEventHandler(
       select: { id: true },
     });
     if (!game)
-      throw createError({ statusCode: 400, statusMessage: "Invalid game ID" });
+      throw createError({ statusCode: 400, message: "Invalid game ID" });
 
     const save = await prisma.saveSlot.delete({
       where: {
@@ -48,6 +48,6 @@ export default defineClientEventHandler(
       },
     });
     if (!save)
-      throw createError({ statusCode: 404, statusMessage: "Save not found" });
+      throw createError({ statusCode: 404, message: "Save not found" });
   },
 );

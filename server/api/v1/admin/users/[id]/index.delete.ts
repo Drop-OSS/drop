@@ -19,12 +19,12 @@ export default defineEventHandler(async (h3) => {
   if (userId === "system")
     throw createError({
       statusCode: 400,
-      statusMessage: "Cannot interact with system user.",
+      message: "Cannot interact with system user.",
     });
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user)
-    throw createError({ statusCode: 404, statusMessage: "User not found." });
+    throw createError({ statusCode: 404, message: "User not found." });
 
   await prisma.user.delete({ where: { id: userId } });
   return { success: true };

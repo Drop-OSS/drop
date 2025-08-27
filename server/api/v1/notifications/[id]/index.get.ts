@@ -9,7 +9,7 @@ export default defineEventHandler(async (h3) => {
   if (!notificationId)
     throw createError({
       statusCode: 400,
-      statusMessage: "Missing notification ID",
+      message: "Missing notification ID",
     });
 
   const userIds = [userId];
@@ -30,7 +30,7 @@ export default defineEventHandler(async (h3) => {
   if (!notification)
     throw createError({
       statusCode: 400,
-      statusMessage: "Invalid notification ID",
+      message: "Invalid notification ID",
     });
 
   return notification;

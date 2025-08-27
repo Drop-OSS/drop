@@ -39,12 +39,12 @@ export async function readDropValidatedBody<T>(
     if (e instanceof ArkErrors) {
       throw createError({
         statusCode: 400,
-        statusMessage: t("errors.invalidBody", [e.summary]),
+        message: t("errors.invalidBody", [e.summary]),
       });
     }
     throw createError({
       statusCode: 400,
-      statusMessage: t("errors.invalidBody", [
+      message: t("errors.invalidBody", [
         e instanceof Error ? e.message : `${e}`,
       ]),
     });

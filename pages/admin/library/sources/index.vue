@@ -412,7 +412,7 @@ function performActionSource_wrapper() {
     })
     .catch((e) => {
       if (e instanceof FetchError) {
-        modalError.value = e.statusMessage ?? e.message;
+        modalError.value = e.message ?? e.message;
       } else {
         modalError.value = e as string;
       }
@@ -449,8 +449,8 @@ async function deleteSource(index: number) {
       {
         title: t("errors.library.source.delete.title"),
         description: t("errors.library.source.delete.desc", [
-          // @ts-expect-error attempt to display statusMessage on error
-          e?.statusMessage ?? t("errors.unknown"),
+          // @ts-expect-error attempt to display message on error
+          e?.message ?? t("errors.unknown"),
         ]),
       },
       (_, c) => c(),

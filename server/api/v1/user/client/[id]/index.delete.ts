@@ -9,7 +9,7 @@ export default defineEventHandler(async (h3) => {
   if (!clientId)
     throw createError({
       statusCode: 400,
-      statusMessage: "Client ID missing in route params",
+      message: "Client ID missing in route params",
     });
 
   await clientHandler.removeClient(clientId);

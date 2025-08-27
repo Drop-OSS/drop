@@ -5,6 +5,13 @@ import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import libraryManager from "~/server/internal/library";
 
+export const LaunchCommands = type({
+    name: "string > 0",
+    description: "string = ''",
+    launchCommand: "string > 0",
+    launchArgs: "string = ''",
+  }).array();
+
 export const ImportVersion = type({
   id: "string",
   version: "string",
@@ -17,12 +24,7 @@ export const ImportVersion = type({
   delta: "boolean = false",
   umuId: "string = ''",
 
-  launches: type({
-    name: "string > 0",
-    description: "string = ''",
-    launchCommand: "string > 0",
-    launchArgs: "string = ''",
-  }).array(),
+  launches: LaunchCommands,
 }).configure(throwingArktype);
 
 export default defineEventHandler(async (h3) => {
@@ -41,7 +43,7 @@ export default defineEventHandler(async (h3) => {
     if (validOverlayVersions == 0)
       throw createError({
         statusCode: 400,
-        statusMessage:
+        message:
           "Update mode requires a pre-existing version for this platform.",
       });
   }
@@ -50,13 +52,13 @@ export default defineEventHandler(async (h3) => {
     if (!body.setup)
       throw createError({
         statusCode: 400,
-        statusMessage: 'Setup required in "setup mode".',
+        message: 'Setup required in "setup mode".',
       });
   } else {
     if (!body.delta && body.launches.length == 0)
       throw createError({
         statusCode: 400,
-        statusMessage:
+        message:
           "At least one launch command is required for non-delta versions",
       });
   }
@@ -70,7 +72,7 @@ export default defineEventHandler(async (h3) => {
   if (!taskId)
     throw createError({
       statusCode: 400,
-      statusMessage: "Invalid options for import",
+      message: "Invalid options for import",
     });
 
   return { taskId: taskId };

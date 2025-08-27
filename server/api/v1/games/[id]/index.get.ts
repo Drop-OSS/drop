@@ -9,13 +9,17 @@ export default defineEventHandler(async (h3) => {
   if (!gameId)
     throw createError({
       statusCode: 400,
-      statusMessage: "Missing gameId in route params (somehow...?)",
+      message: "Missing gameId in route params (somehow...?)",
     });
 
   const game = await prisma.game.findUnique({
     where: { id: gameId },
     include: {
-      versions: true,
+      versions: {
+        include: {
+          userPlatform: true,
+        },
+      },
       publishers: {
         select: {
           id: true,
@@ -37,7 +41,7 @@ export default defineEventHandler(async (h3) => {
   });
 
   if (!game)
-    throw createError({ statusCode: 404, statusMessage: "Game not found" });
+    throw createError({ statusCode: 404, message: "Game not found" });
 
   const rating = await prisma.gameRating.aggregate({
     where: {

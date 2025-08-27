@@ -32,11 +32,11 @@ export default defineEventHandler<{
   });
 
   if (!game)
-    throw createError({ statusCode: 400, statusMessage: "Invalid game ID" });
+    throw createError({ statusCode: 400, message: "Invalid game ID" });
 
   const imageIndex = game.mImageLibraryObjectIds.findIndex((e) => e == imageId);
   if (imageIndex == -1)
-    throw createError({ statusCode: 400, statusMessage: "Image not found" });
+    throw createError({ statusCode: 400, message: "Image not found" });
 
   game.mImageLibraryObjectIds.splice(imageIndex, 1);
   await objectHandler.deleteAsSystem(imageId);

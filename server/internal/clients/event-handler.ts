@@ -31,7 +31,7 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
         if (!client)
           throw createError({
             statusCode: 400,
-            statusMessage: "No clients created.",
+            message: "No clients created.",
           });
         clientId = client.id;
         break;
@@ -55,7 +55,7 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
           // We reject the request
           throw createError({
             statusCode: 403,
-            statusMessage: "Nonce expired",
+            message: "Nonce expired",
           });
         }
 
@@ -66,21 +66,21 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
         if (!certBundle)
           throw createError({
             statusCode: 403,
-            statusMessage: "Invalid client ID",
+            message: "Invalid client ID",
           });
 
         const valid = droplet.verifyNonce(certBundle.cert, nonce, signature);
         if (!valid)
           throw createError({
             statusCode: 403,
-            statusMessage: "Invalid nonce signature.",
+            message: "Invalid nonce signature.",
           });
         break;
       }
       default: {
         throw createError({
           statusCode: 403,
-          statusMessage: "No authentication",
+          message: "No authentication",
         });
       }
     }
@@ -88,7 +88,7 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
     if (clientId === undefined)
       throw createError({
         statusCode: 500,
-        statusMessage: "Failed to execute authentication pipeline.",
+        message: "Failed to execute authentication pipeline.",
       });
 
     async function fetchClient() {

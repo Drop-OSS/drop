@@ -44,7 +44,8 @@ const collection = computed(() =>
 if (collection.value === undefined) {
   throw createError({
     statusCode: 404,
-    statusMessage: t("library.collection.notFound"),
+    message: t("library.collection.notFound"),
+    fatal: true,
   });
 }
 

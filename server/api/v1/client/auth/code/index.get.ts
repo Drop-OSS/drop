@@ -10,12 +10,12 @@ export default defineEventHandler(async (h3) => {
   if (!code)
     throw createError({
       statusCode: 400,
-      statusMessage: "Code required in query params.",
+      message: "Code required in query params.",
     });
 
   const clientId = await clientHandler.fetchClientIdByCode(code);
   if (!clientId)
-    throw createError({ statusCode: 400, statusMessage: "Invalid code." });
+    throw createError({ statusCode: 400, message: "Invalid code." });
 
   return clientId;
 });

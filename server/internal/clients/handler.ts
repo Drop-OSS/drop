@@ -80,15 +80,15 @@ export class ClientHandler {
     if (!clientId)
       throw createError({
         statusCode: 403,
-        statusMessage: "Invalid or unknown code.",
+        message: "Invalid or unknown code.",
       });
     const metadata = this.temporaryClientTable.get(clientId);
     if (!metadata)
-      throw createError({ statusCode: 500, statusMessage: "Broken code." });
+      throw createError({ statusCode: 500, message: "Broken code." });
     if (metadata.peer)
       throw createError({
         statusCode: 400,
-        statusMessage: "Pre-existing listener for this code.",
+        message: "Pre-existing listener for this code.",
       });
     metadata.peer = peer;
     this.temporaryClientTable.set(clientId, metadata);
@@ -129,12 +129,12 @@ export class ClientHandler {
     if (!client)
       throw createError({
         statusCode: 500,
-        statusMessage: "Corrupted code, please restart the process.",
+        message: "Corrupted code, please restart the process.",
       });
     if (!client.peer)
       throw createError({
         statusCode: 400,
-        statusMessage: "Client has not connected yet. Please try again later.",
+        message: "Client has not connected yet. Please try again later.",
       });
     await client.peer.send(
       JSON.stringify({ type: "token", value: `${clientId}/${token}` }),

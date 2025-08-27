@@ -177,7 +177,7 @@ function uploadFile_wrapper() {
   uploadLoading.value = true;
   uploadFile()
     .catch((error) => {
-      uploadError.value = error.statusMessage ?? t("errors.unknown");
+      uploadError.value = error.message ?? t("errors.unknown");
     })
     .finally(() => {
       uploadLoading.value = false;

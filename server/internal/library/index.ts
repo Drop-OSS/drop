@@ -15,7 +15,7 @@ import { GameNotFoundError, type LibraryProvider } from "./provider";
 import { logger } from "../logging";
 import { createHash } from "node:crypto";
 import type { ImportVersion } from "~/server/api/v1/admin/import/version/index.post";
-import type { GameVersionLaunchCreateManyGameVersionInputEnvelope } from "~/prisma/client/models";
+import type { LaunchOptionCreateManyGameVersionInput } from "~/prisma/client/models";
 
 export function createGameImportTaskId(libraryId: string, libraryPath: string) {
   return createHash("md5")
@@ -311,7 +311,7 @@ class LibraryManager {
                 umuIdOverride: metadata.umuId,
 
                 onlySetup: metadata.onlySetup,
-                setup: metadata.setup,
+                setupCommand: metadata.setup,
                 setupArgs: metadata.setupArgs,
 
                 launches: {
@@ -323,7 +323,7 @@ class LibraryManager {
                           description: v.description,
                           launchCommand: v.launchCommand,
                           launchArgs: v.launchArgs,
-                        }) satisfies GameVersionLaunchCreateManyGameVersionInputEnvelope["data"],
+                        }) satisfies LaunchOptionCreateManyGameVersionInput,
                     ),
                   },
                 },

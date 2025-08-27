@@ -7,7 +7,7 @@ export default defineEventHandler(async (h3) => {
   if (!allowed)
     throw createError({
       statusCode: 403,
-      statusMessage: "Must use a setup token.",
+      message: "Must use a setup token.",
     });
   await prisma.aPIToken.deleteMany({
     where: {

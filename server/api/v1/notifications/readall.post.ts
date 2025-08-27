@@ -9,7 +9,7 @@ export default defineEventHandler(async (h3) => {
   if (!acls)
     throw createError({
       statusCode: 500,
-      statusMessage: "Got userId but no ACLs - what?",
+      message: "Got userId but no ACLs - what?",
     });
 
   await prisma.notification.updateMany({

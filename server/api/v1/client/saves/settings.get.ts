@@ -7,7 +7,7 @@ export default defineClientEventHandler(async (_h3, { fetchClient }) => {
   if (!client.capabilities.includes(ClientCapabilities.CloudSaves))
     throw createError({
       statusCode: 403,
-      statusMessage: "Capability not allowed.",
+      message: "Capability not allowed.",
     });
 
   const slotLimit = await applicationSettings.get("saveSlotCountLimit");

@@ -18,14 +18,14 @@ export default defineEventHandler(async (h3) => {
   if (!taskGroups[taskGroup])
     throw createError({
       statusCode: 400,
-      statusMessage: "Invalid task group.",
+      message: "Invalid task group.",
     });
 
   const task = await taskHandler.runTaskGroupByName(taskGroup);
   if (!task)
     throw createError({
       statusCode: 500,
-      statusMessage: "Could not start task.",
+      message: "Could not start task.",
     });
   return { id: task };
 });

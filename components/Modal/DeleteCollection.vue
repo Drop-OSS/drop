@@ -67,8 +67,8 @@ async function deleteCollection() {
       {
         title: t("errors.library.add.title"),
         description: t("errors.library.add.desc", [
-          // @ts-expect-error attempt to display statusMessage on error
-          e?.statusMessage ?? t("errors.unknown"),
+          // @ts-expect-error attempt to display message on error
+          e?.message ?? t("errors.unknown"),
         ]),
       },
       (_, c) => c(),

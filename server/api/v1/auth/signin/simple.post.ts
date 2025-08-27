@@ -23,7 +23,7 @@ export default defineEventHandler<{
   if (!authManager.getAuthProviders().Simple)
     throw createError({
       statusCode: 403,
-      statusMessage: t("errors.auth.method.signinDisabled"),
+      message: t("errors.auth.method.signinDisabled"),
     });
 
   const body = signinValidator(await readBody(h3));
@@ -33,7 +33,7 @@ export default defineEventHandler<{
 
     throw createError({
       statusCode: 400,
-      statusMessage: body.summary,
+      message: body.summary,
     });
   }
 
@@ -57,13 +57,13 @@ export default defineEventHandler<{
   if (!authMek)
     throw createError({
       statusCode: 401,
-      statusMessage: t("errors.auth.invalidUserOrPass"),
+      message: t("errors.auth.invalidUserOrPass"),
     });
 
   if (!authMek.user.enabled)
     throw createError({
       statusCode: 403,
-      statusMessage: t("errors.auth.disabled"),
+      message: t("errors.auth.disabled"),
     });
 
   // LEGACY bcrypt
@@ -74,13 +74,13 @@ export default defineEventHandler<{
     if (!hash)
       throw createError({
         statusCode: 500,
-        statusMessage: t("errors.auth.invalidPassState"),
+        message: t("errors.auth.invalidPassState"),
       });
 
     if (!(await checkHashBcrypt(body.password, hash)))
       throw createError({
         statusCode: 401,
-        statusMessage: t("errors.auth.invalidUserOrPass"),
+        message: t("errors.auth.invalidUserOrPass"),
       });
 
     // TODO: send user to forgot password screen or something to force them to change their password to new system
@@ -93,13 +93,13 @@ export default defineEventHandler<{
   if (!hash || typeof hash !== "string")
     throw createError({
       statusCode: 500,
-      statusMessage: t("errors.auth.invalidPassState"),
+      message: t("errors.auth.invalidPassState"),
     });
 
   if (!(await checkHashArgon2(body.password, hash)))
     throw createError({
       statusCode: 401,
-      statusMessage: t("errors.auth.invalidUserOrPass"),
+      message: t("errors.auth.invalidUserOrPass"),
     });
 
   await sessionHandler.signin(h3, authMek.userId, body.rememberMe);

@@ -22,7 +22,7 @@ export default defineEventHandler(async (h3) => {
   if (invalidACLs.length > 0)
     throw createError({
       statusCode: 400,
-      statusMessage: `Invalid ACLs: ${invalidACLs.join(", ")}`,
+      message: `Invalid ACLs: ${invalidACLs.join(", ")}`,
     });
 
   const token = await prisma.aPIToken.create({

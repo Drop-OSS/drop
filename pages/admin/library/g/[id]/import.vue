@@ -727,7 +727,7 @@ function startImport_wrapper() {
   importLoading.value = true;
   startImport()
     .catch((error) => {
-      importError.value = error.statusMessage ?? t("errors.unknown");
+      importError.value = error.message ?? t("errors.unknown");
     })
     .finally(() => {
       importLoading.value = false;

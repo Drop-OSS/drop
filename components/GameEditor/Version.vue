@@ -71,10 +71,6 @@
                     }}
                   </div>
                   <div class="inline-flex items-center gap-x-2">
-                    <component
-                      :is="PLATFORM_ICONS[item.platform]"
-                      class="size-6 text-blue-600"
-                    />
                     <Bars3Icon
                       class="cursor-move w-6 h-6 text-zinc-400 handle"
                     />
@@ -151,7 +147,7 @@ const game = defineModel<SerializeObject<GameAndVersions>>() as Ref<
 if (!game.value)
   throw createError({
     statusCode: 500,
-    statusMessage: "Game not provided to editor component",
+    message: "Game not provided to editor component",
   });
 
 async function updateVersionOrder() {
@@ -170,7 +166,7 @@ async function updateVersionOrder() {
       {
         title: t("errors.version.order.title"),
         description: t("errors.version.order.desc", {
-          error: (e as H3Error)?.statusMessage ?? t("errors.unknown"),
+          error: (e as H3Error)?.message ?? t("errors.unknown"),
         }),
         buttonText: t("common.close"),
       },

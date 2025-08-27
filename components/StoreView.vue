@@ -377,6 +377,8 @@ const props = defineProps<{
 const tags =
   await $dropFetch<Array<SerializeObject<GameTagModel>>>("/api/v1/store/tags");
 
+const userPlatforms = await $dropFetch("/api/v1/store/platforms");
+
 const sorts: Array<StoreSortOption> = [
   {
     name: "Default",
@@ -408,7 +410,10 @@ const options: Array<StoreFilterOption> = [
     name: "Platform",
     param: "platform",
     multiple: true,
-    options: Object.values(Platform).map((e) => ({ name: e, param: e })),
+    options: [
+      ...Object.values(Platform).map((e) => ({ name: e, param: e })),
+      ...userPlatforms.map((e) => ({ name: e.platformName, param: e.id })),
+    ],
   },
   ...(props.extraOptions ?? []),
 ];

@@ -6,13 +6,13 @@ export default defineEventHandler(async (h3) => {
   if (!userId)
     throw createError({
       statusCode: 403,
-      statusMessage: "Requires authentication",
+      message: "Requires authentication",
     });
 
   const body = await readBody(h3);
   const gameId = body.id;
   if (!gameId)
-    throw createError({ statusCode: 400, statusMessage: "Game ID required" });
+    throw createError({ statusCode: 400, message: "Game ID required" });
 
   // Add the game to the default collection
   await userLibraryManager.libraryAdd(gameId, userId);

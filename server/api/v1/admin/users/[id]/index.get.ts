@@ -9,18 +9,18 @@ export default defineEventHandler(async (h3) => {
   if (!userId)
     throw createError({
       statusCode: 400,
-      statusMessage: "No userId in route.",
+      message: "No userId in route.",
     });
 
   if (userId == "system")
     throw createError({
       statusCode: 400,
-      statusMessage: "Cannot fetch system user.",
+      message: "Cannot fetch system user.",
     });
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user)
-    throw createError({ statusCode: 404, statusMessage: "User not found." });
+    throw createError({ statusCode: 404, message: "User not found." });
 
   return user;
 });

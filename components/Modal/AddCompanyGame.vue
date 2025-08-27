@@ -231,7 +231,7 @@ async function addGame() {
     emit("created", game, published.value, developed.value);
   } catch (e) {
     if (e instanceof FetchError) {
-      addError.value = e.statusMessage ?? e.message ?? t("errors.unknown");
+      addError.value = e.message ?? t("errors.unknown");
     } else {
       throw e;
     }

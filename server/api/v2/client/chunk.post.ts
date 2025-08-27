@@ -19,7 +19,7 @@ export default defineEventHandler(async (h3) => {
   if (!context)
     throw createError({
       statusCode: 400,
-      statusMessage: "Invalid download context.",
+      message: "Invalid download context.",
     });
 
   const streamFiles = [];
@@ -29,7 +29,7 @@ export default defineEventHandler(async (h3) => {
     if (!manifestFile)
       throw createError({
         statusCode: 400,
-        statusMessage: `Unknown file: ${file.filename}`,
+        message: `Unknown file: ${file.filename}`,
       });
 
     const start = manifestFile.lengths
@@ -57,7 +57,7 @@ export default defineEventHandler(async (h3) => {
     if (!gameReadStream)
       throw createError({
         statusCode: 500,
-        statusMessage: "Failed to create read stream",
+        message: "Failed to create read stream",
       });
     let length = 0;
     await gameReadStream.pipeTo(
@@ -75,7 +75,7 @@ export default defineEventHandler(async (h3) => {
       );
       throw createError({
         statusCode: 500,
-        statusMessage: "Failed to read enough from stream.",
+        message: "Failed to read enough from stream.",
       });
     }
   }

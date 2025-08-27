@@ -7,14 +7,14 @@ export default defineClientEventHandler(async (h3) => {
   if (!id)
     throw createError({
       statusCode: 400,
-      statusMessage: "Missing version id in query",
+      message: "Missing version id in query",
     });
 
   const manifest = await manifestGenerator.generateManifest(id);
   if (!manifest)
     throw createError({
       statusCode: 400,
-      statusMessage: "Invalid game or version, or no versions added.",
+      message: "Invalid game or version, or no versions added.",
     });
   return manifest;
 });

@@ -414,8 +414,8 @@ async function createArticle() {
 
     modalOpen.value = false;
   } catch (e) {
-    // @ts-expect-error attempt to get statusMessage on error
-    error.value = e?.statusMessage ?? t("errors.unknown");
+    // @ts-expect-error attempt to get message on error
+    error.value = e?.message ?? t("errors.unknown");
   } finally {
     loading.value = false;
   }

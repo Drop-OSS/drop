@@ -1,4 +1,4 @@
--- Add pg_trgm
+-- enable pg_trgm
 CREATE EXTENSION pg_trgm;
 
 -- CreateEnum
@@ -8,7 +8,7 @@ CREATE TYPE "public"."Platform" AS ENUM ('windows', 'linux', 'macos');
 CREATE TYPE "public"."LibraryBackend" AS ENUM ('Filesystem', 'FlatFilesystem');
 
 -- CreateEnum
-CREATE TYPE "public"."LibraryMode" AS ENUM ('Game', 'Redist', 'Addon', 'Mod');
+CREATE TYPE "public"."LibraryMode" AS ENUM ('Game', 'Redist', 'DLC', 'Mod');
 
 -- CreateEnum
 CREATE TYPE "public"."AuthMec" AS ENUM ('Simple', 'OpenID');
@@ -40,6 +40,7 @@ CREATE TABLE "public"."Library" (
     "name" TEXT NOT NULL,
     "backend" "public"."LibraryBackend" NOT NULL,
     "options" JSONB NOT NULL,
+    "mode" "public"."LibraryMode" NOT NULL DEFAULT 'Game',
 
     CONSTRAINT "Library_pkey" PRIMARY KEY ("id")
 );
@@ -75,6 +76,7 @@ CREATE TABLE "public"."APIToken" (
     "userId" TEXT,
     "clientId" TEXT,
     "acls" TEXT[],
+    "expiresAt" TIMESTAMP(3),
 
     CONSTRAINT "APIToken_pkey" PRIMARY KEY ("id")
 );
@@ -130,13 +132,27 @@ CREATE TABLE "public"."CollectionEntry" (
 );
 
 -- CreateTable
+CREATE TABLE "public"."UserPlatform" (
+    "id" TEXT NOT NULL,
+    "redistId" TEXT,
+    "platformName" TEXT NOT NULL,
+    "iconSvg" TEXT NOT NULL,
+
+    CONSTRAINT "UserPlatform_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "public"."Version" (
     "versionId" TEXT NOT NULL,
-    "rootId" TEXT NOT NULL,
     "versionPath" TEXT NOT NULL,
     "versionName" TEXT NOT NULL,
     "created" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "platform" "public"."Platform" NOT NULL,
+    "gameId" TEXT,
+    "redistId" TEXT,
+    "dlcId" TEXT,
+    "modId" TEXT,
+    "platform" "public"."Platform",
+    "userPlatformRedistId" TEXT,
     "dropletManifest" JSONB NOT NULL,
 
     CONSTRAINT "Version_pkey" PRIMARY KEY ("versionId")
@@ -145,31 +161,34 @@ CREATE TABLE "public"."Version" (
 -- CreateTable
 CREATE TABLE "public"."GameVersion" (
     "versionId" TEXT NOT NULL,
-    "setup" TEXT NOT NULL DEFAULT '',
+    "setupCommand" TEXT NOT NULL DEFAULT '',
+    "setupArgs" TEXT NOT NULL DEFAULT '',
     "onlySetup" BOOLEAN NOT NULL DEFAULT false,
     "umuIdOverride" TEXT,
     "versionIndex" INTEGER NOT NULL,
     "delta" BOOLEAN NOT NULL DEFAULT false,
+    "hidden" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "GameVersion_pkey" PRIMARY KEY ("versionId")
 );
 
 -- CreateTable
-CREATE TABLE "public"."GameVersionLaunch" (
+CREATE TABLE "public"."LaunchOption" (
     "launchId" TEXT NOT NULL,
     "versionId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "launchCommand" TEXT NOT NULL,
+    "launchArgs" TEXT NOT NULL DEFAULT '',
 
-    CONSTRAINT "GameVersionLaunch_pkey" PRIMARY KEY ("launchId")
+    CONSTRAINT "LaunchOption_pkey" PRIMARY KEY ("launchId")
 );
 
 -- CreateTable
-CREATE TABLE "public"."AddonVersion" (
+CREATE TABLE "public"."DLCVersion" (
     "versionId" TEXT NOT NULL,
 
-    CONSTRAINT "AddonVersion_pkey" PRIMARY KEY ("versionId")
+    CONSTRAINT "DLCVersion_pkey" PRIMARY KEY ("versionId")
 );
 
 -- CreateTable
@@ -255,7 +274,7 @@ CREATE TABLE "public"."Game" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."Addon" (
+CREATE TABLE "public"."DLC" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
@@ -263,7 +282,7 @@ CREATE TABLE "public"."Addon" (
     "libraryId" TEXT NOT NULL,
     "libraryPath" TEXT NOT NULL,
 
-    CONSTRAINT "Addon_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "DLC_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -411,11 +430,11 @@ CREATE TABLE "public"."_GameVersionToRedistVersion" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."_AddonVersionToRedistVersion" (
+CREATE TABLE "public"."_DLCVersionToRedistVersion" (
     "A" TEXT NOT NULL,
     "B" TEXT NOT NULL,
 
-    CONSTRAINT "_AddonVersionToRedistVersion_AB_pkey" PRIMARY KEY ("A","B")
+    CONSTRAINT "_DLCVersionToRedistVersion_AB_pkey" PRIMARY KEY ("A","B")
 );
 
 -- CreateTable
@@ -465,6 +484,9 @@ CREATE UNIQUE INDEX "APIToken_token_key" ON "public"."APIToken"("token");
 CREATE INDEX "APIToken_token_idx" ON "public"."APIToken"("token");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "UserPlatform_redistId_key" ON "public"."UserPlatform"("redistId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Version_versionId_key" ON "public"."Version"("versionId");
 
 -- CreateIndex
@@ -510,7 +532,7 @@ CREATE UNIQUE INDEX "Notification_userId_nonce_key" ON "public"."Notification"("
 CREATE INDEX "_GameVersionToRedistVersion_B_index" ON "public"."_GameVersionToRedistVersion"("B");
 
 -- CreateIndex
-CREATE INDEX "_AddonVersionToRedistVersion_B_index" ON "public"."_AddonVersionToRedistVersion"("B");
+CREATE INDEX "_DLCVersionToRedistVersion_B_index" ON "public"."_DLCVersionToRedistVersion"("B");
 
 -- CreateIndex
 CREATE INDEX "_GameToGameTag_B_index" ON "public"."_GameToGameTag"("B");
@@ -552,31 +574,40 @@ ALTER TABLE "public"."CollectionEntry" ADD CONSTRAINT "CollectionEntry_collectio
 ALTER TABLE "public"."CollectionEntry" ADD CONSTRAINT "CollectionEntry_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "public"."Game"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Version" ADD CONSTRAINT "game_link" FOREIGN KEY ("rootId") REFERENCES "public"."Game"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."UserPlatform" ADD CONSTRAINT "UserPlatform_redistId_fkey" FOREIGN KEY ("redistId") REFERENCES "public"."Redist"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Version" ADD CONSTRAINT "redist_link" FOREIGN KEY ("rootId") REFERENCES "public"."Redist"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."Version" ADD CONSTRAINT "game_link" FOREIGN KEY ("gameId") REFERENCES "public"."Game"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Version" ADD CONSTRAINT "addon_link" FOREIGN KEY ("rootId") REFERENCES "public"."Addon"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."Version" ADD CONSTRAINT "redist_link" FOREIGN KEY ("redistId") REFERENCES "public"."Redist"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Version" ADD CONSTRAINT "mod_link" FOREIGN KEY ("rootId") REFERENCES "public"."Mod"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."Version" ADD CONSTRAINT "dlc_link" FOREIGN KEY ("dlcId") REFERENCES "public"."DLC"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."GameVersion" ADD CONSTRAINT "GameVersion_versionId_fkey" FOREIGN KEY ("versionId") REFERENCES "public"."Version"("versionId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."Version" ADD CONSTRAINT "mod_link" FOREIGN KEY ("modId") REFERENCES "public"."Mod"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."GameVersionLaunch" ADD CONSTRAINT "GameVersionLaunch_versionId_fkey" FOREIGN KEY ("versionId") REFERENCES "public"."GameVersion"("versionId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."Version" ADD CONSTRAINT "Version_userPlatformRedistId_fkey" FOREIGN KEY ("userPlatformRedistId") REFERENCES "public"."UserPlatform"("redistId") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."AddonVersion" ADD CONSTRAINT "AddonVersion_versionId_fkey" FOREIGN KEY ("versionId") REFERENCES "public"."Version"("versionId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."GameVersion" ADD CONSTRAINT "GameVersion_versionId_fkey" FOREIGN KEY ("versionId") REFERENCES "public"."Version"("versionId") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."RedistVersion" ADD CONSTRAINT "RedistVersion_versionId_fkey" FOREIGN KEY ("versionId") REFERENCES "public"."Version"("versionId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."LaunchOption" ADD CONSTRAINT "gameVersion_fkey" FOREIGN KEY ("versionId") REFERENCES "public"."GameVersion"("versionId") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."ModVersion" ADD CONSTRAINT "ModVersion_versionId_fkey" FOREIGN KEY ("versionId") REFERENCES "public"."Version"("versionId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."LaunchOption" ADD CONSTRAINT "redistVersion_fkey" FOREIGN KEY ("versionId") REFERENCES "public"."RedistVersion"("versionId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."DLCVersion" ADD CONSTRAINT "DLCVersion_versionId_fkey" FOREIGN KEY ("versionId") REFERENCES "public"."Version"("versionId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."RedistVersion" ADD CONSTRAINT "RedistVersion_versionId_fkey" FOREIGN KEY ("versionId") REFERENCES "public"."Version"("versionId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."ModVersion" ADD CONSTRAINT "ModVersion_versionId_fkey" FOREIGN KEY ("versionId") REFERENCES "public"."Version"("versionId") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."SaveSlot" ADD CONSTRAINT "SaveSlot_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "public"."Game"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -603,7 +634,7 @@ ALTER TABLE "public"."Playtime" ADD CONSTRAINT "Playtime_userId_fkey" FOREIGN KE
 ALTER TABLE "public"."Game" ADD CONSTRAINT "Game_libraryId_fkey" FOREIGN KEY ("libraryId") REFERENCES "public"."Library"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Addon" ADD CONSTRAINT "Addon_libraryId_fkey" FOREIGN KEY ("libraryId") REFERENCES "public"."Library"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."DLC" ADD CONSTRAINT "DLC_libraryId_fkey" FOREIGN KEY ("libraryId") REFERENCES "public"."Library"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."Redist" ADD CONSTRAINT "Redist_libraryId_fkey" FOREIGN KEY ("libraryId") REFERENCES "public"."Library"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -630,10 +661,10 @@ ALTER TABLE "public"."_GameVersionToRedistVersion" ADD CONSTRAINT "_GameVersionT
 ALTER TABLE "public"."_GameVersionToRedistVersion" ADD CONSTRAINT "_GameVersionToRedistVersion_B_fkey" FOREIGN KEY ("B") REFERENCES "public"."RedistVersion"("versionId") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."_AddonVersionToRedistVersion" ADD CONSTRAINT "_AddonVersionToRedistVersion_A_fkey" FOREIGN KEY ("A") REFERENCES "public"."AddonVersion"("versionId") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."_DLCVersionToRedistVersion" ADD CONSTRAINT "_DLCVersionToRedistVersion_A_fkey" FOREIGN KEY ("A") REFERENCES "public"."DLCVersion"("versionId") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."_AddonVersionToRedistVersion" ADD CONSTRAINT "_AddonVersionToRedistVersion_B_fkey" FOREIGN KEY ("B") REFERENCES "public"."RedistVersion"("versionId") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."_DLCVersionToRedistVersion" ADD CONSTRAINT "_DLCVersionToRedistVersion_B_fkey" FOREIGN KEY ("B") REFERENCES "public"."RedistVersion"("versionId") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."_GameToGameTag" ADD CONSTRAINT "_GameToGameTag_A_fkey" FOREIGN KEY ("A") REFERENCES "public"."Game"("id") ON DELETE CASCADE ON UPDATE CASCADE;

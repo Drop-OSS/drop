@@ -180,7 +180,7 @@ if (route.query.payload) {
   } catch {
     throw createError({
       statusCode: 400,
-      statusMessage: "Failed to parse the token create payload.",
+      message: "Failed to parse the token create payload.",
       fatal: true,
     });
   }

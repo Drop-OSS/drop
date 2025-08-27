@@ -12,19 +12,19 @@ export default defineEventHandler(async (h3) => {
   if (!client)
     throw createError({
       statusCode: 400,
-      statusMessage: "Invalid or expired client ID.",
+      message: "Invalid or expired client ID.",
     });
 
   if (client.userId != user.userId)
     throw createError({
       statusCode: 403,
-      statusMessage: "Not allowed to authorize this client.",
+      message: "Not allowed to authorize this client.",
     });
 
   if (!client.peer)
     throw createError({
       statusCode: 500,
-      statusMessage: "No client listening for authorization.",
+      message: "No client listening for authorization.",
     });
 
   const token = await clientHandler.generateAuthToken(clientId);

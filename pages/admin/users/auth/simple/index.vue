@@ -502,7 +502,7 @@ function invite_wrapper() {
       invitations.value.push(invitation);
     })
     .catch((response) => {
-      const message = response.statusMessage || t("errors.unknown");
+      const message = response.message || t("errors.unknown");
       error.value = message;
     })
     .finally(() => {

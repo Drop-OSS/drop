@@ -32,7 +32,7 @@ class SaveManager {
       },
     });
     if (!save)
-      throw createError({ statusCode: 404, statusMessage: "Save not found" });
+      throw createError({ statusCode: 404, message: "Save not found" });
 
     const newSaveObjectId = randomUUID();
     const newSaveStream = await objectHandler.createWithStream(
@@ -43,7 +43,7 @@ class SaveManager {
     if (!newSaveStream)
       throw createError({
         statusCode: 500,
-        statusMessage: "Failed to create writing stream to storage backend.",
+        message: "Failed to create writing stream to storage backend.",
       });
 
     let hash: string | undefined;
@@ -64,7 +64,7 @@ class SaveManager {
       await objectHandler.deleteAsSystem(newSaveObjectId);
       throw createError({
         statusCode: 500,
-        statusMessage: "Hash failed to generate",
+        message: "Hash failed to generate",
       });
     }
 

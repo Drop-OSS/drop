@@ -466,7 +466,7 @@ const game = defineModel<ModelType>() as Ref<ModelType>;
 if (!game.value)
   throw createError({
     statusCode: 500,
-    statusMessage: "Game not provided to editor component",
+    message: "Game not provided to editor component",
   });
 
 const currentTags = ref<{ [key: string]: boolean }>(
@@ -553,7 +553,7 @@ function coreMetadataUpdate_wrapper() {
         {
           title: t("errors.game.metadata.title"),
           description: t("errors.game.metadata.description", [
-            (e as H3Error)?.statusMessage ?? t("errors.unknown"),
+            (e as H3Error)?.message ?? t("errors.unknown"),
           ]),
           buttonText: t("common.close"),
         },
@@ -614,7 +614,7 @@ watch(descriptionHTML, (_v) => {
         {
           title: t("errors.game.description.title"),
           description: t("errors.game.description.description", [
-            (e as H3Error)?.statusMessage ?? t("errors.unknown"),
+            (e as H3Error)?.message ?? t("errors.unknown"),
           ]),
           buttonText: t("common.close"),
         },
@@ -660,7 +660,7 @@ async function updateBannerImage(id: string) {
       {
         title: t("errors.game.banner.title"),
         description: t("errors.game.banner.description", [
-          (e as H3Error)?.statusMessage ?? t("errors.unknown"),
+          (e as H3Error)?.message ?? t("errors.unknown"),
         ]),
         buttonText: t("common.close"),
       },
@@ -688,7 +688,7 @@ async function updateCoverImage(id: string) {
       {
         title: t("errors.game.cover.title"),
         description: t("errors.game.cover.description", [
-          (e as H3Error)?.statusMessage ?? t("errors.unknown"),
+          (e as H3Error)?.message ?? t("errors.unknown"),
         ]),
         buttonText: t("common.close"),
       },
@@ -717,7 +717,7 @@ async function deleteImage(id: string) {
       {
         title: t("errors.game.deleteImage.title"),
         description: t("errors.game.deleteImage.description", [
-          (e as H3Error)?.statusMessage ?? t("errors.unknown"),
+          (e as H3Error)?.message ?? t("errors.unknown"),
         ]),
         buttonText: t("common.close"),
       },
@@ -761,7 +761,7 @@ async function updateImageCarousel() {
       {
         title: t("errors.game.carousel.title"),
         description: t("errors.game.carousel.description", [
-          (e as H3Error)?.statusMessage ?? t("errors.unknown"),
+          (e as H3Error)?.message ?? t("errors.unknown"),
         ]),
         buttonText: t("common.close"),
       },

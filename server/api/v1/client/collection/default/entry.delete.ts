@@ -8,7 +8,7 @@ export default defineClientEventHandler(async (h3, { fetchUser }) => {
 
   const gameId = body.id;
   if (!gameId)
-    throw createError({ statusCode: 400, statusMessage: "Game ID required" });
+    throw createError({ statusCode: 400, message: "Game ID required" });
 
   await userLibraryManager.libraryRemove(gameId, user.id);
   return {};

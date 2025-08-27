@@ -11,7 +11,7 @@ export default defineEventHandler(async (h3) => {
   if (!gameId || !versionName)
     throw createError({
       statusCode: 400,
-      statusMessage: "Missing id or version in request params",
+      message: "Missing id or version in request params",
     });
 
   const preload = await libraryManager.fetchUnimportedVersionInformation(
@@ -21,7 +21,7 @@ export default defineEventHandler(async (h3) => {
   if (!preload)
     throw createError({
       statusCode: 400,
-      statusMessage: "Invalid game or version id/name",
+      message: "Invalid game or version id/name",
     });
 
   return preload;

@@ -9,14 +9,14 @@ export default defineClientEventHandler(
     if (!client.capabilities.includes(ClientCapabilities.CloudSaves))
       throw createError({
         statusCode: 403,
-        statusMessage: "Capability not allowed.",
+        message: "Capability not allowed.",
       });
     const user = await fetchUser();
     const gameId = getRouterParam(h3, "gameid");
     if (!gameId)
       throw createError({
         statusCode: 400,
-        statusMessage: "No gameID in route params",
+        message: "No gameID in route params",
       });
 
     const game = await prisma.game.findUnique({
@@ -24,7 +24,7 @@ export default defineClientEventHandler(
       select: { id: true },
     });
     if (!game)
-      throw createError({ statusCode: 400, statusMessage: "Invalid game ID" });
+      throw createError({ statusCode: 400, message: "Invalid game ID" });
 
     const saves = await prisma.saveSlot.findMany({
       where: {
@@ -40,7 +40,7 @@ export default defineClientEventHandler(
     if (saves.length + 1 > limit)
       throw createError({
         statusCode: 400,
-        statusMessage: "Out of save slots",
+        message: "Out of save slots",
       });
 
     let firstIndex = 0;

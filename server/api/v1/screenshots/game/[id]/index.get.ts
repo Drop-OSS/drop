@@ -10,7 +10,7 @@ export default defineEventHandler(async (h3) => {
   if (!gameId)
     throw createError({
       statusCode: 400,
-      statusMessage: "Missing game ID",
+      message: "Missing game ID",
     });
 
   const results = await screenshotManager.getUserAllByGame(userId, gameId);

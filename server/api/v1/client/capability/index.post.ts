@@ -14,13 +14,13 @@ export default defineClientEventHandler(
     if (!rawCapability || typeof rawCapability !== "string")
       throw createError({
         statusCode: 400,
-        statusMessage: "capability must be a string",
+        message: "capability must be a string",
       });
 
     if (!configuration || typeof configuration !== "object")
       throw createError({
         statusCode: 400,
-        statusMessage: "configuration must be an object",
+        message: "configuration must be an object",
       });
 
     const capability = rawCapability as InternalClientCapability;
@@ -28,7 +28,7 @@ export default defineClientEventHandler(
     if (!validCapabilities.includes(capability))
       throw createError({
         statusCode: 400,
-        statusMessage: "Invalid capability.",
+        message: "Invalid capability.",
       });
 
     const isValid = await capabilityManager.validateCapabilityConfiguration(
@@ -38,7 +38,7 @@ export default defineClientEventHandler(
     if (!isValid)
       throw createError({
         statusCode: 400,
-        statusMessage: "Invalid capability configuration.",
+        message: "Invalid capability configuration.",
       });
 
     await capabilityManager.upsertClientCapability(

@@ -80,7 +80,7 @@ class ScreenshotManager {
     if (!saveStream)
       throw createError({
         statusCode: 500,
-        statusMessage: "Failed to create writing stream to storage backend.",
+        message: "Failed to create writing stream to storage backend.",
       });
 
     // pipe into object store

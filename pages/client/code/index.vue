@@ -125,7 +125,7 @@ async function complete(code: string) {
   } catch (e) {
     if (e instanceof FetchError) {
       error.value =
-        e.statusMessage ?? e.message ?? "An unknown error occurred.";
+        e.message ?? "An unknown error occurred.";
     } else {
       error.value = (e as string)?.toString();
     }

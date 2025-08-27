@@ -8,7 +8,7 @@ export default defineEventHandler(async (h3) => {
   if (!authManager.getAuthProviders().Simple)
     throw createError({
       statusCode: 403,
-      statusMessage: t("errors.auth.method.signinDisabled"),
+      message: t("errors.auth.method.signinDisabled"),
     });
 
   const query = getQuery(h3);
@@ -16,7 +16,7 @@ export default defineEventHandler(async (h3) => {
   if (!id)
     throw createError({
       statusCode: 400,
-      statusMessage: t("errors.auth.inviteIdRequired"),
+      message: t("errors.auth.inviteIdRequired"),
     });
   taskHandler.runTaskGroupByName("cleanup:invitations");
 
@@ -24,7 +24,7 @@ export default defineEventHandler(async (h3) => {
   if (!invitation)
     throw createError({
       statusCode: 404,
-      statusMessage: t("errors.auth.invalidInvite"),
+      message: t("errors.auth.invalidInvite"),
     });
 
   return invitation;
