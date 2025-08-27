@@ -10,6 +10,7 @@ export default defineEventHandler(async (h3) => {
     select: {
       id: true,
       platformName: true,
+      iconSvg: true,
     },
   });
   return platforms;

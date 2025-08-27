@@ -247,7 +247,7 @@
                     <div
                       v-for="(option, optionIdx) in section.options"
                       :key="option.param"
-                      class="flex gap-3"
+                      class="flex items-center gap-3"
                     >
                       <div class="flex h-5 shrink-0 items-center">
                         <div class="group grid size-4 grid-cols-1">
@@ -272,6 +272,12 @@
                           />
                         </div>
                       </div>
+                      <IconsPlatform
+                        v-if="option.platformIcon"
+                        :platform="option.platformIcon.key"
+                        :fallback="option.platformIcon.fallback"
+                        class="size-5 text-blue-500"
+                      />
                       <label
                         :for="`filter-${section.param}-${optionIdx}`"
                         class="text-sm text-zinc-400"
@@ -411,8 +417,16 @@ const options: Array<StoreFilterOption> = [
     param: "platform",
     multiple: true,
     options: [
-      ...Object.values(Platform).map((e) => ({ name: e, param: e })),
-      ...userPlatforms.map((e) => ({ name: e.platformName, param: e.id })),
+      ...Object.values(Platform).map((e) => ({
+        name: e,
+        param: e,
+        platformIcon: { key: e },
+      })),
+      ...userPlatforms.map((e) => ({
+        name: e.platformName,
+        param: e.id,
+        platformIcon: { key: e.id, fallback: e.iconSvg },
+      })),
     ],
   },
   ...(props.extraOptions ?? []),

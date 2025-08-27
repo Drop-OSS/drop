@@ -73,18 +73,18 @@
                 <td
                   class="whitespace-nowrap inline-flex gap-x-4 px-3 py-4 text-sm text-zinc-400"
                 >
-                  <div
+                  <IconsPlatform
                     v-for="platform in platforms"
                     :key="typeof platform === 'string' ? platform : platform.id"
-                  >
-                    <component
-                      :is="PLATFORM_ICONS[platform]"
-                      v-if="typeof platform === 'string'"
-                      class="text-blue-600 w-6 h-6"
-                    />
-                    <div v-else class="text-blue-600 w-6 h-6" v-html="platform.iconSvg" />
-                  </div>
-
+                    :platform="
+                      typeof platform === 'string' ? platform : platform.id
+                    "
+                    :fallback="
+                      typeof platform === 'string'
+                        ? undefined
+                        : platform.iconSvg
+                    "
+                  />
                   <span
                     v-if="platforms.length == 0"
                     class="font-display uppercase font-bold text-zinc-700"
