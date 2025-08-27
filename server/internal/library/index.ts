@@ -128,29 +128,23 @@ class LibraryManager {
     }
   }
 
-  async fetchGamesWithStatus() {
-    const games = await prisma.game.findMany({
-      include: {
-        versions: {
-          select: {
-            versionName: true,
-          },
-        },
-        library: true,
-      },
-      orderBy: {
-        mName: "asc",
-      },
-    });
-
+  async fetchLibraryObjectWithStatus<T>(
+    objects: Array<
+      {
+        libraryId: string;
+        libraryPath: string;
+        versions: Array<unknown>;
+      } & T
+    >,
+  ) {
     return await Promise.all(
-      games.map(async (e) => {
+      objects.map(async (e) => {
         const versions = await this.fetchUnimportedGameVersions(
           e.libraryId ?? "",
           e.libraryPath,
         );
         return {
-          game: e,
+          value: e,
           status: versions
             ? {
                 noVersions: e.versions.length == 0,
@@ -160,6 +154,55 @@ class LibraryManager {
         };
       }),
     );
+  }
+
+  async fetchGamesWithStatus() {
+    const games = await prisma.game.findMany({
+      include: {
+        versions: {
+          select: {
+            versionId: true,
+            versionName: true,
+          },
+        },
+        library: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      orderBy: {
+        mName: "asc",
+      },
+    });
+
+    return await this.fetchLibraryObjectWithStatus(games);
+  }
+
+  async fetchRedistsWithStatus() {
+    const redists = await prisma.redist.findMany({
+      include: {
+        versions: {
+          select: {
+            versionId: true,
+            versionName: true,
+          },
+        },
+        library: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        platform: true,
+      },
+      orderBy: {
+        mName: "asc",
+      },
+    });
+
+    return await this.fetchLibraryObjectWithStatus(redists);
   }
 
   /**

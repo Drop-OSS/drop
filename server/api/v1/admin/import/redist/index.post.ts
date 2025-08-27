@@ -5,7 +5,6 @@ import * as jdenticon from "jdenticon";
 import prisma from "~/server/internal/db/database";
 import libraryManager from "~/server/internal/library";
 import jsdom from "jsdom";
-import DOMPurify from 'dompurify';
 
 export const ImportRedist = type({
   library: "string",
@@ -28,7 +27,8 @@ export default defineEventHandler(async (h3) => {
   const body = await handleFileUpload(h3, {}, ["internal:read"], 1);
   if (!body) throw createError({ statusCode: 400, message: "Body required." });
 
-  const [[id], rawOptions, pull, , add] = body;
+  const [ids, rawOptions, pull, , add] = body;
+  const id = ids.at(0);
 
   const options = ImportRedist(rawOptions);
   if (options instanceof ArkErrors)
@@ -48,7 +48,7 @@ export default defineEventHandler(async (h3) => {
 
   let svgContent = "";
   if (options.platform) {
-    // This logic is duplicated on the client to make viewing there possible. 
+    // This logic is duplicated on the client to make viewing there possible.
     // TODO?: refactor into a single function. Not totally sure if this is a good idea though,
     // because they do different things
     const dom = new jsdom.JSDOM(options.platform.icon);
@@ -60,7 +60,7 @@ export default defineEventHandler(async (h3) => {
       });
     svg.removeAttribute("width");
     svg.removeAttribute("height");
-    svgContent = DOMPurify.sanitize(svg.outerHTML, {USE_PROFILES: {svg: true, svgFilters: true}});
+    svgContent = svg.outerHTML;
   }
 
   const redist = await prisma.redist.create({

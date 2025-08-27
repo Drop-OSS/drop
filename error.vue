@@ -8,6 +8,8 @@ const props = defineProps({
   },
 });
 
+await updateUser();
+
 const { t } = useI18n();
 const route = useRoute();
 const user = useUser();

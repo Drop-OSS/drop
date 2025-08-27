@@ -129,7 +129,7 @@
     <LoadingButton
       class="w-fit"
       :loading="props.loading"
-      :disabled="!(name && description && currentFileObjectUrl)"
+      :disabled="buttonDisabled"
       @click="() => importRedist()"
     >
       {{ $t("library.admin.import.import") }}
@@ -177,6 +177,8 @@ const platform = ref<{ name: string; icon: string; fileExts: string[] }>({
   icon: "",
   fileExts: [],
 });
+
+const buttonDisabled = computed<boolean>(() => !(name.value && description.value && currentFileObjectUrl.value && (!isPlatform.value || (platform.value.name && platform.value.icon))))
 
 function addFile(event: Event) {
   const file = (event.target as HTMLInputElement)?.files?.[0];

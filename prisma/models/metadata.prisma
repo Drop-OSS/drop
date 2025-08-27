@@ -34,10 +34,8 @@ model Game {
   versions Version[]
   mods     Mod[]
 
-  // These fields will not be optional in the next version
-  // Any game without a library ID will be assigned one at startup, based on the defaults
-  libraryId   String?
-  library     Library? @relation(fields: [libraryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  libraryId   String
+  library     Library @relation(fields: [libraryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   libraryPath String
 
   collections CollectionEntry[]

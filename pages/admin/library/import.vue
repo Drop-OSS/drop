@@ -318,12 +318,15 @@ async function importRedist(data: object, platform: object | undefined) {
     for (const [key, value] of Object.entries(data)) {
       formData.append(
         key,
-        typeof value === "object" ? JSON.stringify(value) : value,
+        value,
       );
     }
 
     if (platform) {
       for (const [key, value] of Object.entries(platform)) {
+        // Because we know there will be no file, and we need to handle more complex objects for
+        // the platform, we do this.
+        // Maybe we shouldn't.
         formData.append(
           `platform.${key}`,
           typeof value === "object" ? JSON.stringify(value) : value,

@@ -73,6 +73,10 @@ export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
   "game:image:new": "Upload an image for a game.",
   "game:image:delete": "Delete an image for a game.",
 
+  "redist:read": "Fetch redistributables on this instance.",
+  "redist:update": "Update redistributables on this instance.",
+  "redist:delete": "Delete redistributables on this instance.",
+
   "company:read": "Fetch companies.",
   "company:create": "Create a new company.",
   "company:update": "Update existing companies.",
