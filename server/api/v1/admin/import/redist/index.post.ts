@@ -5,6 +5,7 @@ import * as jdenticon from "jdenticon";
 import prisma from "~/server/internal/db/database";
 import libraryManager from "~/server/internal/library";
 import jsdom from "jsdom";
+import DOMPurify from 'dompurify';
 
 export const ImportRedist = type({
   library: "string",
@@ -47,6 +48,9 @@ export default defineEventHandler(async (h3) => {
 
   let svgContent = "";
   if (options.platform) {
+    // This logic is duplicated on the client to make viewing there possible. 
+    // TODO?: refactor into a single function. Not totally sure if this is a good idea though,
+    // because they do different things
     const dom = new jsdom.JSDOM(options.platform.icon);
     const svg = dom.window.document.getElementsByTagName("svg").item(0);
     if (!svg)
@@ -56,7 +60,7 @@ export default defineEventHandler(async (h3) => {
       });
     svg.removeAttribute("width");
     svg.removeAttribute("height");
-    svgContent = svg.outerHTML;
+    svgContent = DOMPurify.sanitize(svg.outerHTML, {USE_PROFILES: {svg: true, svgFilters: true}});
   }
 
   const redist = await prisma.redist.create({

@@ -37,6 +37,7 @@
     "bcryptjs": "^3.0.2",
     "cheerio": "^1.0.0",
     "cookie-es": "^2.0.0",
+    "dompurify": "^3.2.6",
     "fast-fuzzy": "^1.12.0",
     "file-type-mime": "^0.4.3",
     "jdenticon": "^3.3.0",
