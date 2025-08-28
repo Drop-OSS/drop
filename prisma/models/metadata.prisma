@@ -63,6 +63,22 @@ model DLC {
   libraryPath String
 
   versions Version[]
+  metadata GameDLCMetadata?
+}
+
+model GameDLCMetadata {
+  id  String @id
+  dlc DLC    @relation(fields: [id], references: [id])
+
+  mName             String
+  mShortDescription String
+  mDescription      String
+
+  mIconObjectId           String // linked to objects in s3
+  mBannerObjectId         String // linked to objects in s3
+  mCoverObjectId          String
+  mImageCarouselObjectIds String[] // linked to below array
+  mImageLibraryObjectIds  String[] // linked to objects in s3
 }
 
 model Redist {
@@ -77,7 +93,7 @@ model Redist {
   library     Library @relation(fields: [libraryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   libraryPath String
 
-  versions     Version[]
+  versions Version[]
   platform UserPlatform?
 
   @@unique([libraryId, libraryPath], name: "libraryKey")
@@ -96,6 +112,8 @@ model Mod {
   mName             String
   mShortDescription String
   mDescription      String
+
+  mReleased DateTime
 
   mIconObjectId           String // linked to objects in s3
   mBannerObjectId         String // linked to objects in s3

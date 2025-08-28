@@ -7,7 +7,6 @@
     >
       <!--start-->
       <div>
-
         <div class="pt-4 inline-flex gap-x-2">
           <div
             v-for="[value, { icon }] in Object.entries(components)"
@@ -20,7 +19,7 @@
                   ? 'bg-zinc-900 text-zinc-100'
                   : 'bg-transparent text-zinc-500',
               ]"
-              @click="() => (currentMode = value as GameEditorMode)"
+              @click="() => (currentMode = value as RedistEditorMode)"
             >
               <component :is="icon" class="size-4" />
               {{ value }}
@@ -30,72 +29,57 @@
       </div>
       <div>
         <!-- open in store button -->
-        <NuxtLink
-          :href="`/store/${game.id}`"
-          type="button"
-          class="inline-flex w-fit items-center gap-x-2 rounded-md bg-zinc-800 px-3 py-1 text-sm font-semibold font-display text-white shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-        >
-          {{ $t("library.admin.openStore") }}
-          <ArrowTopRightOnSquareIcon
-            class="-mr-0.5 h-7 w-7 p-1"
-            aria-hidden="true"
-          />
-        </NuxtLink>
       </div>
     </div>
     <component
       :is="components[currentMode].editor"
-      v-model="game"
+      v-model="redist"
       :unimported-versions="unimportedVersions"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { GameEditorMetadata, GameEditorVersion } from "#components";
-import {
-  ArrowTopRightOnSquareIcon,
-  DocumentIcon,
-  ServerStackIcon,
-} from "@heroicons/vue/24/outline";
+import { GameEditorVersion, RedistEditorMetadata } from "#components";
+import { DocumentIcon, ServerStackIcon } from "@heroicons/vue/24/outline";
 import type { Component } from "vue";
 
 const route = useRoute();
-const gameId = route.params.id.toString();
-const { game: rawGame, unimportedVersions } = await $dropFetch(
-  `/api/v1/admin/game/:id`,
-  { params: { id: gameId } },
+const redistId = route.params.id.toString();
+const { redist: rawRedist, unimportedVersions } = await $dropFetch(
+  `/api/v1/admin/redist/:id`,
+  { params: { id: redistId } },
 );
-const game = ref(rawGame);
+const redist = ref(rawRedist);
 
 definePageMeta({
   layout: "admin",
 });
 
-enum GameEditorMode {
+enum RedistEditorMode {
   Metadata = "Metadata",
   Versions = "Versions",
 }
 
 const components: {
-  [key in GameEditorMode]: { editor: Component; icon: Component };
+  [key in RedistEditorMode]: { editor: Component; icon: Component };
 } = {
-  [GameEditorMode.Metadata]: { editor: GameEditorMetadata, icon: DocumentIcon },
-  [GameEditorMode.Versions]: {
+  [RedistEditorMode.Metadata]: { editor: RedistEditorMetadata, icon: DocumentIcon },
+  [RedistEditorMode.Versions]: {
     editor: GameEditorVersion,
     icon: ServerStackIcon,
   },
 };
 
-const currentMode = ref<GameEditorMode>(GameEditorMode.Metadata);
+const currentMode = ref<RedistEditorMode>(RedistEditorMode.Metadata);
 
 useHead({
-  title: `${currentMode.value} - ${game.value.mName}`,
+  title: `${currentMode.value} - ${redist.value.mName}`,
 });
 
 watch(currentMode, (v) => {
   useHead({
-    title: `${v} - ${game.value.mName}`,
+    title: `${v} - ${redist.value.mName}`,
   });
 });
 </script>

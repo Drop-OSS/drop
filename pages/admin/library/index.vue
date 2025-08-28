@@ -210,7 +210,7 @@
             </dl>
             <dl
               v-if="entry.platform"
-              class="mt-2 flex items-center text-zinc-200 font-semibold text-sm gap-x-1 p-2 bg-zinc-900 rounded-xl"
+              class="mt-2 flex items-center text-zinc-200 font-semibold text-sm gap-x-1 p-2 bg-zinc-800 rounded-xl"
             >
               <IconsPlatform
                 :platform="entry.platform.id"
