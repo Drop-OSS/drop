@@ -9,6 +9,7 @@ const GetChunk = type({
   files: type({
     filename: "string",
     chunkIndex: "number",
+    version: "string?",
   }).array(),
 }).configure(throwingArktype);
 
@@ -37,7 +38,7 @@ export default defineEventHandler(async (h3) => {
       .reduce((a, b) => a + b, 0);
     const end = start + manifestFile.lengths[file.chunkIndex];
 
-    streamFiles.push({ filename: file.filename, start, end });
+    streamFiles.push({ filename: file.filename, start, end, version: file.version });
   }
 
   setHeader(
@@ -50,7 +51,7 @@ export default defineEventHandler(async (h3) => {
     const gameReadStream = await libraryManager.readFile(
       context.libraryId,
       context.libraryPath,
-      context.versionName,
+      file.version ?? context.versionName,
       file.filename,
       { start: file.start, end: file.end },
     );
