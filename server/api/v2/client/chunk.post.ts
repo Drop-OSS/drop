@@ -38,7 +38,12 @@ export default defineEventHandler(async (h3) => {
       .reduce((a, b) => a + b, 0);
     const end = start + manifestFile.lengths[file.chunkIndex];
 
-    streamFiles.push({ filename: file.filename, start, end, version: file.version });
+    streamFiles.push({
+      filename: file.filename,
+      start,
+      end,
+      version: file.version,
+    });
   }
 
   setHeader(
