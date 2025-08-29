@@ -1,17 +1,18 @@
 {
   "account": {
     "devices": {
-      "capabilities": "Möglichkeiten",
+      "capabilities": "Funktionen",
       "lastConnected": "Zuletzt verbunden",
       "noDevices": "Keine Geräte sind mit deinem Konto verbunden.",
       "platform": "Plattform",
       "revoke": "Wiederrufen",
+      "subheader": "Geräte verwalten, die auf Ihr Drop Konto zugreifen dürfen.",
       "title": "Geräte"
     },
     "notifications": {
       "all": "Alle anzeigen {arrow}",
       "desc": "Benachrichtigungen anzeigen und verwalten.",
-      "markAllAsRead": "Alles als gelesen markieren",
+      "markAllAsRead": "Markiere alle als gelesen",
       "markAsRead": "Als gelesen Markieren",
       "none": "Keine Benachrichtigungen",
       "notifications": "Benachrichtigungen",
@@ -41,6 +42,7 @@
       "description": "Verwende ein Code, um dein Drop Client zu verbinden, wenn dein Gerät kein Webbrowser öffnen kann.",
       "title": "Verbinde dein Drop Client"
     },
+    "confirmPassword": "Bestätige @:auth.password",
     "displayName": "Anzeigename",
     "email": "E-Mail",
     "password": "Passwort",
