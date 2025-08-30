@@ -14,7 +14,7 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare && prisma generate",
     "typecheck": "nuxt typecheck",
-    "lint": "yarn lint:eslint && yarn lint:prettier",
+    "lint": "pnpm run lint:eslint && pnpm run lint:prettier",
     "lint:eslint": "eslint .",
     "lint:prettier": "prettier . --check",
     "lint:fix": "eslint . --fix && prettier --write --list-different ."
@@ -89,5 +89,6 @@
   },
   "prisma": {
     "schema": "./prisma"
-  }
+  },
+  "packageManager": "pnpm@10.15.0+sha512.486ebc259d3e999a4e8691ce03b5cac4a71cbeca39372a9b762cb500cfdf0873e2cb16abe3d951b1ee2cf012503f027b98b6584e4df22524e0c7450d9ec7aa7b"
 }

@@ -21,17 +21,20 @@ jobs:
         with:
           submodules: true
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: "yarn"
+          cache: "pnpm"
 
       - name: Install dependencies
-        run: yarn install --immutable --network-timeout 1000000
+        run: pnpm install
 
       - name: Typecheck
-        run: yarn typecheck
+        run: pnpm run typecheck
 
   lint:
     name: Lint
@@ -42,14 +45,17 @@ jobs:
         with:
           submodules: true
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: "yarn"
+          cache: "pnpm"
 
       - name: Install dependencies
-        run: yarn install --immutable --network-timeout 1000000
+        run: pnpm install
 
       - name: Lint
-        run: yarn lint
+        run: pnpm run lint
