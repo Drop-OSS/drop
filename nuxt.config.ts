@@ -85,7 +85,7 @@ export default defineNuxtConfig({
             dest: "twemoji",
           },
         ],
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       }) as any,
     ],
   },

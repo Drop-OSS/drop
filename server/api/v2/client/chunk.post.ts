@@ -9,7 +9,10 @@ const GetChunk = type({
   files: type({
     filename: "string",
     chunkIndex: "number",
-  }).array().atLeastLength(1).atMostLength(256),
+  })
+    .array()
+    .atLeastLength(1)
+    .atMostLength(256),
 }).configure(throwingArktype);
 
 export default defineEventHandler(async (h3) => {
