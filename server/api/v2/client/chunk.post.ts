@@ -9,7 +9,10 @@ const GetChunk = type({
   files: type({
     filename: "string",
     chunkIndex: "number",
-  }).array(),
+  })
+    .array()
+    .atLeastLength(1)
+    .atMostLength(256),
 }).configure(throwingArktype);
 
 export default defineEventHandler(async (h3) => {
@@ -46,21 +49,27 @@ export default defineEventHandler(async (h3) => {
     streamFiles.map((e) => e.end - e.start).join(","),
   ); // Non-standard header, but we're cool like that 😎
 
-  for (const file of streamFiles) {
-    const gameReadStream = await libraryManager.readFile(
-      context.libraryId,
-      context.libraryPath,
-      context.versionName,
-      file.filename,
-      { start: file.start, end: file.end },
-    );
-    if (!gameReadStream)
-      throw createError({
-        statusCode: 500,
-        statusMessage: "Failed to create read stream",
-      });
+  const streams = await Promise.all(
+    streamFiles.map(async (file) => {
+      const gameReadStream = await libraryManager.readFile(
+        context.libraryId,
+        context.libraryPath,
+        context.versionName,
+        file.filename,
+        { start: file.start, end: file.end },
+      );
+      if (!gameReadStream)
+        throw createError({
+          statusCode: 500,
+          statusMessage: "Failed to create read stream",
+        });
+      return { ...file, stream: gameReadStream };
+    }),
+  );
+
+  for (const file of streams) {
     let length = 0;
-    await gameReadStream.pipeTo(
+    await file.stream.pipeTo(
       new WritableStream({
         write(chunk) {
           h3.node.res.write(chunk);

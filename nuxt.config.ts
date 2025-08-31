@@ -74,7 +74,8 @@ export default defineNuxtConfig({
 
   vite: {
     plugins: [
-      tailwindcss(),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      tailwindcss() as any,
       // only used in dev server, not build because nitro sucks
       // see build hook below
       viteStaticCopy({
@@ -84,7 +85,8 @@ export default defineNuxtConfig({
             dest: "twemoji",
           },
         ],
-      }),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      }) as any,
     ],
   },
 
