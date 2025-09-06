@@ -46,7 +46,7 @@
       "description": "Verwende einen Code, um dein Drop Client zu verbinden, wenn dein Gerät kein Webbrowser öffnen kann.",
       "title": "Verbinde deinen Drop Client"
     },
-    "confirmPassword": "Bestätige @:auth.password",
+    "confirmPassword": "Bestätigte  @:auth.password",
     "displayName": "Anzeigename",
     "email": "E-Mail",
     "password": "Passwort",
