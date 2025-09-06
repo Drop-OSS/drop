@@ -20,7 +20,27 @@
       "unread": "Notifications Non Lues"
     },
     "settings": "Paramètres",
-    "title": "Paramètres du Compte"
+    "title": "Paramètres du Compte",
+    "token": {
+      "acls": "ACLs/scopes",
+      "aclsDesc": "Définir les permissions du Token. Il n'est pas recommandé de sélectionner toutes les ACLs, à moins que ce soit nécessaire.",
+      "expiry": "Expiration",
+      "expiry3Month": "3 mois",
+      "expiry5Year": "5 Années",
+      "expiry6Month": "6 mois",
+      "expiryMonth": "Un mois",
+      "expiryYear": "Une année",
+      "name": "Nom du Token API",
+      "nameDesc": "Le nom du Token, comme référence.",
+      "namePlaceholder": "Mon nouveau Token",
+      "noExpiry": "Pas d'expiration",
+      "noTokens": "Aucun Token connecté à votre compte.",
+      "revoke": "Révoquer",
+      "subheader": "Gérer vos Tokens et leurs permissions associées.",
+      "success": "Token créé avec succès.",
+      "successNote": "Assurez vous de le sauvegarder maintenant, il ne sera plus disponible après.",
+      "title": "API Tokens"
+    }
   },
   "actions": "Actions",
   "add": "Ajouter",

@@ -1,17 +1,18 @@
 {
   "account": {
     "devices": {
-      "capabilities": "Möglichkeiten",
+      "capabilities": "Funktionen",
       "lastConnected": "Zuletzt verbunden",
       "noDevices": "Keine Geräte sind mit deinem Konto verbunden.",
       "platform": "Plattform",
       "revoke": "Wiederrufen",
+      "subheader": "Geräte verwalten, die auf Ihr Drop Konto zugreifen dürfen.",
       "title": "Geräte"
     },
     "notifications": {
       "all": "Alle anzeigen {arrow}",
       "desc": "Benachrichtigungen anzeigen und verwalten.",
-      "markAllAsRead": "Alles als gelesen markieren",
+      "markAllAsRead": "Markiere alle als gelesen",
       "markAsRead": "Als gelesen Markieren",
       "none": "Keine Benachrichtigungen",
       "notifications": "Benachrichtigungen",
@@ -19,7 +20,11 @@
       "unread": "Ungelesene Benachrichtigungen"
     },
     "settings": "Einstellungen",
-    "title": "Kontoeinstellungen"
+    "title": "Kontoeinstellungen",
+    "token": {
+      "expiry6Month": "6 Monate",
+      "revoke": "Wiederrufen"
+    }
   },
   "actions": "Aktionen",
   "add": "Hinzufügen",
@@ -29,7 +34,7 @@
     "callback": {
       "authClient": "Client autorisieren?",
       "authorize": "Autorisieren",
-      "authorizedClient": "Drop hat den Client erfolgreich autorisiert. Du darfst dieses Fenster nun schließen.",
+      "authorizedClient": "Drop hat den Client erfolgreich autorisiert. Du kannst dieses Fenster nun schließen.",
       "issues": "Probleme?",
       "learn": "Mehr erfahren {arrow}",
       "paste": "Füge diesen Code in den Client ein, um fortzufahren:",
@@ -38,9 +43,10 @@
       "success": "Erfolgreich!"
     },
     "code": {
-      "description": "Verwende ein Code, um dein Drop Client zu verbinden, wenn dein Gerät kein Webbrowser öffnen kann.",
-      "title": "Verbinde dein Drop Client"
+      "description": "Verwende einen Code, um dein Drop Client zu verbinden, wenn dein Gerät kein Webbrowser öffnen kann.",
+      "title": "Verbinde deinen Drop Client"
     },
+    "confirmPassword": "Bestätigte  @:auth.password",
     "displayName": "Anzeigename",
     "email": "E-Mail",
     "password": "Passwort",
