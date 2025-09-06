@@ -299,7 +299,7 @@ export class MetadataHandler {
         result = await provider.fetchCompany({ query, createObject });
         if (result === undefined) {
           throw new Error(
-            `${provider.source()} failed to find a company for "${query}`,
+            `${provider.source()} failed to find a company for "${query}"`,
           );
         }
       } catch (e) {
