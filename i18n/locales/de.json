@@ -34,7 +34,7 @@
     "callback": {
       "authClient": "Client autorisieren?",
       "authorize": "Autorisieren",
-      "authorizedClient": "Drop hat den Client erfolgreich autorisiert. Du darfst dieses Fenster nun schließen.",
+      "authorizedClient": "Drop hat den Client erfolgreich autorisiert. Du kannst dieses Fenster nun schließen.",
       "issues": "Probleme?",
       "learn": "Mehr erfahren {arrow}",
       "paste": "Füge diesen Code in den Client ein, um fortzufahren:",
@@ -43,8 +43,8 @@
       "success": "Erfolgreich!"
     },
     "code": {
-      "description": "Verwende ein Code, um dein Drop Client zu verbinden, wenn dein Gerät kein Webbrowser öffnen kann.",
-      "title": "Verbinde dein Drop Client"
+      "description": "Verwende einen Code, um dein Drop Client zu verbinden, wenn dein Gerät kein Webbrowser öffnen kann.",
+      "title": "Verbinde deinen Drop Client"
     },
     "confirmPassword": "Bestätige @:auth.password",
     "displayName": "Anzeigename",
