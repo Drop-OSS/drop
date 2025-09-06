@@ -84,6 +84,7 @@
                         ? undefined
                         : platform.iconSvg
                     "
+                    class="size-8 text-blue-600"
                   />
                   <span
                     v-if="platforms.length == 0"
@@ -257,7 +258,7 @@ const gameId = route.params.id.toString();
 
 const user = useUser();
 
-const { game, rating } = await $dropFetch(`/api/v1/games/${gameId}`);
+const { game, rating, platforms } = await $dropFetch(`/api/v1/games/${gameId}`);
 
 // Preview description (first 30 lines)
 const showPreview = ref(true);
@@ -283,11 +284,6 @@ const previewHTML = micromark(previewDescription);
 const descriptionHTML = micromark(game.mDescription);
 
 const showReadMore = previewHTML != descriptionHTML;
-const platforms = game.versions
-  .map((e) => e.platform ?? e.userPlatform)
-  .flat()
-  .filter((e) => e !== null)
-  .filter((e, i, u) => u.indexOf(e) === i);
 
 // const rating = Math.round(game.mReviewRating * 5);
 const averageRating = Math.round((rating._avg.mReviewRating ?? 0) * 5);

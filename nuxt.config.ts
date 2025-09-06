@@ -241,6 +241,9 @@ export default defineNuxtConfig({
         file: "zh_tw.json",
       },
     ],
+    bundle: {
+      optimizeTranslationDirective: false,
+    },
   },
 
   security: {

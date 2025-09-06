@@ -9,13 +9,12 @@ import path from "path";
 import prisma from "../db/database";
 import { fuzzy } from "fast-fuzzy";
 import taskHandler from "../tasks";
-import { parsePlatform } from "../utils/parseplatform";
 import notificationSystem from "../notifications";
 import { GameNotFoundError, type LibraryProvider } from "./provider";
 import { logger } from "../logging";
 import { createHash } from "node:crypto";
 import type { ImportVersion } from "~/server/api/v1/admin/import/version/index.post";
-import type { LaunchOptionCreateManyGameVersionInput } from "~/prisma/client/models";
+import type { LaunchOptionCreateManyInput } from "~/prisma/client/models";
 
 export function createGameImportTaskId(libraryId: string, libraryPath: string) {
   return createHash("md5")
@@ -221,6 +220,8 @@ class LibraryManager {
     const library = this.libraries.get(game.libraryId);
     if (!library) return undefined;
 
+    const userPlatforms = await prisma.userPlatform.findMany({});
+
     const fileExts: { [key: string]: string[] } = {
       Linux: [
         // Ext for Unity games
@@ -238,6 +239,12 @@ class LibraryManager {
         ".app",
       ],
     };
+
+    for (const platform of userPlatforms) {
+      fileExts[platform.id] = platform.fileExtensions;
+    }
+
+    console.log(fileExts);
 
     const options: Array<{
       filename: string;
@@ -299,9 +306,6 @@ class LibraryManager {
   ) {
     const taskId = createVersionImportTaskId(gameId, versionPath);
 
-    const platform = parsePlatform(metadata.platform);
-    if (!platform) return undefined;
-
     const game = await prisma.game.findUnique({
       where: { id: gameId },
       select: { mName: true, libraryId: true, libraryPath: true },
@@ -345,17 +349,14 @@ class LibraryManager {
             versionPath: versionPath,
             versionName: metadata.name ?? versionPath,
             dropletManifest: manifest,
-            platform: platform,
 
-            gameVersion: {
+            gameVersions: {
               create: {
                 versionIndex: currentIndex,
                 delta: metadata.delta,
                 umuIdOverride: metadata.umuId,
 
                 onlySetup: metadata.onlySetup,
-                setupCommand: metadata.setup,
-                setupArgs: metadata.setupArgs,
 
                 launches: {
                   createMany: {
@@ -364,10 +365,25 @@ class LibraryManager {
                         ({
                           name: v.name,
                           description: v.description,
-                          launchCommand: v.launchCommand,
-                          launchArgs: v.launchArgs,
-                        }) satisfies LaunchOptionCreateManyGameVersionInput,
+                          command: v.launchCommand,
+                          args: v.launchArgs,
+                        }) satisfies LaunchOptionCreateManyInput,
                     ),
+                  },
+                },
+
+                install: {
+                  create: {
+                    name: "",
+                    description: "",
+                    command: metadata.setup,
+                    args: metadata.setupArgs,
+                  },
+                },
+
+                platform: {
+                  connect: {
+                    id: metadata.platform,
                   },
                 },
               },

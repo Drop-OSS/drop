@@ -1,23 +1,23 @@
 import { type } from "arktype";
-import { Platform } from "~/prisma/client/enums";
 import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import libraryManager from "~/server/internal/library";
+import { convertIDToLink } from "~/server/internal/platform/link";
 
 export const LaunchCommands = type({
-    name: "string > 0",
-    description: "string = ''",
-    launchCommand: "string > 0",
-    launchArgs: "string = ''",
-  }).array();
+  name: "string > 0",
+  description: "string = ''",
+  launchCommand: "string > 0",
+  launchArgs: "string = ''",
+}).array();
 
 export const ImportVersion = type({
   id: "string",
   version: "string",
   name: "string?",
 
-  platform: type.valueOf(Platform),
+  platform: "string",
   setup: "string = ''",
   setupArgs: "string = ''",
   onlySetup: "boolean = false",
@@ -33,11 +33,18 @@ export default defineEventHandler(async (h3) => {
 
   const body = await readDropValidatedBody(h3, ImportVersion);
 
+  const platform = await convertIDToLink(body.platform);
+  if (!platform)
+    throw createError({ statusCode: 400, message: "Invalid platform." });
+
   if (body.delta) {
     const validOverlayVersions = await prisma.gameVersion.count({
       where: {
-        version: { gameId: body.id, platform: body.platform },
+        version: {
+          gameId: body.id,
+        },
         delta: false,
+        platform,
       },
     });
     if (validOverlayVersions == 0)

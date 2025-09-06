@@ -14,7 +14,7 @@ model Client {
   capabilities ClientCapabilities[]
 
   name          String
-  platform      Platform
+  platform      HardwarePlatform
   lastConnected DateTime
 
   lastAccessedSaves SaveSlot[]

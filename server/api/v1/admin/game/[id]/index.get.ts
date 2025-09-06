@@ -14,16 +14,6 @@ export default defineEventHandler(async (h3) => {
     },
     include: {
       versions: {
-        where: {
-          gameVersion: {
-            isNot: null,
-          },
-        },
-        orderBy: {
-          gameVersion: {
-            versionIndex: "asc",
-          },
-        },
         omit: {
           dropletManifest: true,
         },

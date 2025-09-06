@@ -1,16 +1,62 @@
+enum HardwarePlatform {
+    Windows @map("windows")
+    Linux   @map("linux")
+    macOS   @map("macos")
+    // Switch @map("switch")
+    // etc
+
+    //  @@map("Platform")
+}
+
 model UserPlatform {
     id String @id @default(uuid())
-
-    redistId String? @unique
-    redist   Redist? @relation(fields: [redistId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
     platformName   String
     iconSvg        String
     fileExtensions String[] @default([])
 
-    versions Version[]
+    redistId String @unique
+    redist   Redist @relation(fields: [redistId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    //platform PlatformLink[]
 }
 
+model PlatformLink {
+    id String @id // This is either the ID of the user platform, or a repeat of the HardwarePlatform enum. It's cursed.
+
+    hardwarePlatform HardwarePlatform?
+    // Waiting on weak reference
+    // userPlatform     UserPlatform?     @relation(fields: [id], references: [id])
+
+    gameVersions   GameVersion[]
+    dlcVersions    DLCVersion[]
+    redistVerisons RedistVersion[]
+    modVersions    ModVersion[]
+}
+
+/**
+ */
+model LaunchOption {
+    launchId String @id @default(uuid())
+
+    redistVersionId String?
+    redistVersion   RedistVersion? @relation(fields: [redistVersionId], references: [versionId], onDelete: Cascade, onUpdate: Cascade, map: "redistVersion_fkey")
+
+    launchGId         String?
+    launchGVersion    GameVersion? @relation(name: "launches", fields: [launchGId], references: [versionId])
+    installGId        String?      @unique
+    installGVersion   GameVersion? @relation(name: "install")
+    uninstallGId      String?      @unique
+    uninstallGVersion GameVersion? @relation(name: "uninstall")
+
+    name        String
+    description String
+
+    command String
+    args    String @default("")
+}
+
+// Platform agnostic object
 model Version {
     versionId String @id @unique @default(uuid())
 
@@ -19,72 +65,62 @@ model Version {
     versionName String
     created     DateTime @default(now())
 
-    gameId      String?
-    game        Game?        @relation(fields: [gameId], references: [id], map: "game_link", onDelete: Cascade, onUpdate: Cascade)
-    gameVersion GameVersion?
+    gameId       String?
+    game         Game?         @relation(fields: [gameId], references: [id], map: "game_link", onDelete: Cascade, onUpdate: Cascade)
+    gameVersions GameVersion[]
 
-    redistId      String?
-    redist        Redist?        @relation(fields: [redistId], references: [id], map: "redist_link", onDelete: Cascade, onUpdate: Cascade)
-    redistVersion RedistVersion?
+    redistId       String?
+    redist         Redist?         @relation(fields: [redistId], references: [id], map: "redist_link", onDelete: Cascade, onUpdate: Cascade)
+    redistVersions RedistVersion[]
 
-    dlcId      String?
-    dlc        DLC?        @relation(fields: [dlcId], references: [id], map: "dlc_link", onDelete: Cascade, onUpdate: Cascade)
-    dlcVersion DLCVersion?
+    dlcId       String?
+    dlc         DLC?         @relation(fields: [dlcId], references: [id], map: "dlc_link", onDelete: Cascade, onUpdate: Cascade)
+    dlcVersions DLCVersion[]
 
-    modId      String?
-    mod        Mod?        @relation(fields: [modId], references: [id], map: "mod_link", onDelete: Cascade, onUpdate: Cascade)
-    modVersion ModVersion?
-
-    platform Platform?
-
-    userPlatformRedistId String?
-    userPlatform         UserPlatform? @relation(fields: [userPlatformRedistId], references: [redistId])
+    modId       String?
+    mod         Mod?         @relation(fields: [modId], references: [id], map: "mod_link", onDelete: Cascade, onUpdate: Cascade)
+    modVersions ModVersion[]
 
     dropletManifest Json // Results from droplet
 }
 
+// Platform specific object
 model GameVersion {
     versionId String  @id
     version   Version @relation(fields: [versionId], references: [versionId], onDelete: Cascade, onUpdate: Cascade)
 
     redistDeps RedistVersion[]
 
-    launches LaunchOption[]
+    launches LaunchOption[] @relation(name: "launches")
 
-    setupCommand String  @default("")
-    setupArgs    String  @default("")
-    onlySetup    Boolean @default(false)
+    installId   String?       @unique
+    install     LaunchOption? @relation(name: "install", fields: [installId], references: [launchId])
+    uninstallId String?       @unique
+    uninstall   LaunchOption? @relation(name: "uninstall", fields: [uninstallId], references: [launchId])
+    onlySetup   Boolean       @default(false)
 
     umuIdOverride String?
 
     versionIndex Int
     delta        Boolean @default(false)
     hidden       Boolean @default(false)
+
+    platformId String
+    platform   PlatformLink @relation(fields: [platformId], references: [id])
 }
 
-model LaunchOption {
-    launchId  String @id @default(uuid())
-    versionId String
-
-    gameVersion   GameVersion?   @relation(fields: [versionId], references: [versionId], onDelete: Cascade, onUpdate: Cascade, map: "gameVersion_fkey")
-    redistVersion RedistVersion? @relation(fields: [versionId], references: [versionId], onDelete: Cascade, onUpdate: Cascade, map: "redistVersion_fkey")
-
-    name        String
-    description String
-
-    launchCommand String
-    launchArgs    String @default("")
-
-    
-}
-
+// Platform specific object
 model DLCVersion {
     versionId String  @id
     version   Version @relation(fields: [versionId], references: [versionId], onDelete: Cascade, onUpdate: Cascade)
 
     redistDeps RedistVersion[]
+
+    platformId String
+    platform   PlatformLink @relation(fields: [platformId], references: [id])
 }
 
+// Platform specific object
 model RedistVersion {
     versionId String  @id
     version   Version @relation(fields: [versionId], references: [versionId], onDelete: Cascade, onUpdate: Cascade)
@@ -93,13 +129,20 @@ model RedistVersion {
 
     gameDependees GameVersion[]
     dlcDependees  DLCVersion[]
+
+    platformId String
+    platform   PlatformLink @relation(fields: [platformId], references: [id])
 }
 
+// Platform specific object
 model ModVersion {
     versionId String  @id
     version   Version @relation(fields: [versionId], references: [versionId], onDelete: Cascade, onUpdate: Cascade)
 
     dependencies String[]
+
+    platformId String
+    platform   PlatformLink @relation(fields: [platformId], references: [id])
 }
 
 // A save slot for a game

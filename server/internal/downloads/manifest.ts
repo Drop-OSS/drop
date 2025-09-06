@@ -55,47 +55,64 @@ class ManifestGenerator {
   async generateManifest(versionId: string) {
     const versions = [];
 
-    const baseVersion = await prisma.version.findUnique({
+    const baseVersion = await prisma.gameVersion.findUnique({
       where: {
         versionId,
+        version: {
+          gameId: {
+            not: null,
+          },
+        },
       },
       include: {
-        gameVersion: true,
+        platform: true,
+        version: {
+          select: {
+            gameId: true,
+            dropletManifest: true,
+          },
+        },
       },
     });
     if (!baseVersion) return undefined;
     versions.push(baseVersion);
 
     // Collect other versions if this is a delta
-    if (baseVersion.gameVersion?.delta) {
+    if (baseVersion.delta) {
       // Start at the same index minus one, and keep grabbing them
       // until we run out or we hit something that isn't a delta
       // eslint-disable-next-line no-constant-condition
-      for (let i = baseVersion.gameVersion.versionIndex - 1; true; i--) {
-        const currentVersion = await prisma.version.findFirst({
+      for (let i = baseVersion.versionIndex - 1; true; i--) {
+        const currentVersion = await prisma.gameVersion.findFirst({
           where: {
-            gameId: baseVersion.gameId,
-            platform: baseVersion.platform,
-            gameVersion: {
-              versionIndex: i,
+            version: {
+              gameId: baseVersion.version.gameId!,
             },
+            platform: {
+              id: baseVersion.platform.id,
+            },
+            versionIndex: i,
           },
           include: {
-            gameVersion: true,
+            version: {
+              select: {
+                dropletManifest: true,
+              },
+            },
           },
         });
         if (!currentVersion) return undefined;
         versions.push(currentVersion);
-        if (!currentVersion.gameVersion?.delta) break;
+        if (!currentVersion?.delta) break;
       }
     }
     versions.reverse();
-    const metadata: DropManifestMetadata[] = versions.map((version) => {
+    const metadata: DropManifestMetadata[] = versions.map((gameVersion) => {
       return {
         manifest: JSON.parse(
-          version.dropletManifest?.toString() ?? "{}",
+          gameVersion.version.dropletManifest?.toString() ?? "{}",
         ) as DropManifest,
-        versionId: version.versionId,
+        versionId: gameVersion.versionId,
       };
     });
 

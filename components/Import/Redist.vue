@@ -1,11 +1,14 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
   <div class="flex flex-row gap-x-4">
-    <div class="relative size-24 bg-zinc-800 rounded-md overflow-hidden">
+    <label
+      for="icon-upload"
+      class="relative size-24 bg-zinc-800 rounded-md overflow-hidden has-[:focus]:ring-2 has-[:focus]:ring-blue-600"
+    >
       <input
         id="icon-upload"
         type="file"
-        class="hidden"
+        class="sr-only"
         accept="image/*"
         @change="addFile"
       />
@@ -14,14 +17,13 @@
         :src="currentFileObjectUrl"
         class="absolute inset-0 object-cover w-full h-full"
       />
-      <label
-        for="icon-upload"
+      <div
         class="absolute inset-0 cursor-pointer flex flex-col gap-y-1 items-center justify-center text-zinc-300 bg-zinc-900/50"
       >
         <ArrowUpTrayIcon class="size-6" />
         <span class="text-xs font-bold font-display uppercase">Upload</span>
-      </label>
-    </div>
+      </div>
+    </label>
     <div class="grow flex flex-col gap-y-4">
       <div>
         <label for="name" class="block text-sm font-medium text-zinc-100"
@@ -83,12 +85,16 @@
   </SwitchGroup>
   <div class="relative">
     <div class="flex flex-row gap-x-4">
-      <div class="relative size-24 bg-zinc-800 rounded-md overflow-hidden">
+      <label
+        for="platform-icon-upload"
+        class="relative size-24 bg-zinc-800 rounded-md overflow-hidden has-[:focus]:ring-2 has-[:focus]:ring-blue-600"
+      >
         <input
           id="platform-icon-upload"
           type="file"
-          class="hidden"
+          class="sr-only"
           accept="image/svg+xml"
+          :disabled="!isPlatform"
           @change="addSvg"
         />
         <div
@@ -96,16 +102,15 @@
           class="absolute inset-0 object-cover w-full h-full text-blue-600"
           v-html="platform.icon"
         />
-        <label
-          for="platform-icon-upload"
-          class="absolute inset-0 cursor-pointer flex flex-col gap-y-1 items-center justify-center text-zinc-300 bg-zinc-900/50"
+        <div
+          class="absolute inset-0 cursor-pointer flex flex-col gap-y-1 items-center justify-center text-zinc-300 bg-zinc-900/50 focus:text-zinc-100"
         >
           <ArrowUpTrayIcon class="size-6" />
           <span class="text-xs font-bold font-display uppercase"
             >Upload SVG</span
           >
-        </label>
-      </div>
+        </div>
+      </label>
       <div class="grow flex flex-col gap-y-4">
         <div>
           <label
@@ -117,9 +122,71 @@
             id="platform-name"
             v-model="platform.name"
             type="text"
+            :disabled="!isPlatform"
             class="mt-1 block w-full rounded-md border-0 bg-zinc-950 py-1.5 text-white shadow-sm ring-1 ring-inset ring-zinc-700 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
           />
         </div>
+      </div>
+    </div>
+
+    <div class="mt-2 w-full">
+      <label for="platform-name" class="block text-sm font-medium text-zinc-100"
+        >File Extensions           {{ currentExtDotted }}
+</label
+      >
+      <Combobox
+        as="div"
+        :model-value="currentExtDotted"
+        nullable
+        class="mt-1 w-full"
+        :disabled="!isPlatform"
+        @update:model-value="(v) => addExt(v)"
+      >
+        <div class="relative">
+          <ComboboxInput
+            class="w-full block flex-1 rounded-lg border-1 border-zinc-800 py-2 px-2 bg-zinc-950 text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
+            placeholder=".exe"
+            @change="currentExt = $event.target.value"
+            @blur="currentExt = ''"
+          />
+          <ComboboxOptions
+            class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-white/5 focus:outline-none sm:text-sm"
+          >
+            <ComboboxOption
+              v-if="currentExt"
+              v-slot="{ active }"
+              :value="currentExtDotted"
+            >
+              <li
+                :class="[
+                  'relative cursor-default select-none py-2 pl-3 pr-9',
+                  active
+                    ? 'bg-blue-600 text-white outline-none'
+                    : 'text-zinc-100',
+                ]"
+              >
+                <span class="block">
+                  <span class="text-blue-300">filename</span
+                  ><span class="font-semibold">{{ currentExtDotted }}</span>
+                </span>
+              </li>
+            </ComboboxOption>
+          </ComboboxOptions>
+        </div>
+      </Combobox>
+      <div class="mt-2 flex gap-1 flex-wrap">
+        <div
+          v-for="ext in platform.fileExts"
+          :key="ext"
+          class="bg-blue-600/10 border-1 border-blue-700 rounded-full px-2 py-1 text-xs text-blue-400"
+        >
+          {{ ext }}
+        </div>
+        <span
+          v-if="platform.fileExts.length == 0"
+          class="uppercase font-display text-zinc-700 font-bold text-xs"
+          >No suggested file extensions.</span
+        >
       </div>
     </div>
 
@@ -152,6 +219,10 @@
 
 <script setup lang="ts">
 import {
+  Combobox,
+  ComboboxInput,
+  ComboboxOption,
+  ComboboxOptions,
   Switch,
   SwitchDescription,
   SwitchGroup,
@@ -172,13 +243,27 @@ const emit = defineEmits<{
 const name = ref("");
 const description = ref("");
 const isPlatform = ref(false);
+const currentExt = ref("");
+const currentExtDotted = computed(() => {
+  if(!currentExt.value) return "";
+  const cleaned = currentExt.value.replace(/\W/g, "").toLowerCase();
+  return `.${cleaned}`;
+});
 const platform = ref<{ name: string; icon: string; fileExts: string[] }>({
   name: "",
   icon: "",
   fileExts: [],
 });
 
-const buttonDisabled = computed<boolean>(() => !(name.value && description.value && currentFileObjectUrl.value && (!isPlatform.value || (platform.value.name && platform.value.icon))))
+const buttonDisabled = computed<boolean>(
+  () =>
+    !(
+      name.value &&
+      description.value &&
+      currentFileObjectUrl.value &&
+      (!isPlatform.value || (platform.value.name && platform.value.icon))
+    ),
+);
 
 function addFile(event: Event) {
   const file = (event.target as HTMLInputElement)?.files?.[0];
@@ -218,6 +303,13 @@ async function addSvg(event: Event) {
   }
 }
 
+function addExt(ext: string | null) {
+  if (!ext) return;
+  if (platform.value.fileExts.includes(ext)) return;
+  platform.value.fileExts.push(ext);
+  currentExt.value = "";
+}
+
 const props = defineProps<{
   gameName: string;
   loading: boolean;
@@ -233,7 +325,12 @@ function importRedist() {
       description: description.value,
       icon: currentFile.value,
     },
-    isPlatform.value ? platform.value : undefined,
+    isPlatform.value
+      ? {
+          ...platform.value,
+          fileExts: platform.value.fileExts.map((e) => e.slice(1)),
+        }
+      : undefined,
   );
 }
 </script>

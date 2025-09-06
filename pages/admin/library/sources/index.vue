@@ -198,8 +198,8 @@
                           >{{ metadata.title }}
                           <span class="ml-2 font-mono text-zinc-500 text-xs">{{
                             source
-                          }}</span></RadioGroupLabel
-                        >
+                          }}</span>
+                        </RadioGroupLabel>
                         <RadioGroupDescription
                           as="span"
                           class="text-zinc-400 text-xs"
@@ -405,18 +405,21 @@ function performActionSource_wrapper() {
   modalError.value = undefined;
   modalLoading.value = true;
   performActionSource()
-    .then(() => {
-      actionSourceOpen.value = false;
-      sourceConfig.value = {};
-      sourceName.value = "";
-    })
-    .catch((e) => {
-      if (e instanceof FetchError) {
-        modalError.value = e.message ?? e.message;
-      } else {
-        modalError.value = e as string;
-      }
-    })
+    .then(
+      () => {
+        actionSourceOpen.value = false;
+        sourceConfig.value = {};
+        sourceName.value = "";
+      },
+      (e) => {
+        if (e instanceof FetchError) {
+                  console.log(e.data.message);
+          modalError.value = e.message;
+        } else {
+          modalError.value = e as string;
+        }
+      },
+    )
     .finally(() => {
       modalLoading.value = false;
     });

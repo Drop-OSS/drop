@@ -1,5 +1,5 @@
 <template>
-  <Listbox v-model="typedModel" as="div">
+  <Listbox v-model="model" as="div">
     <ListboxLabel class="block text-sm font-medium leading-6 text-zinc-100"
       ><slot
     /></ListboxLabel>
@@ -7,13 +7,13 @@
       <ListboxButton
         class="relative w-full cursor-default rounded-md bg-zinc-950 py-1.5 pl-3 pr-10 text-left text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm sm:leading-6"
       >
-        <span v-if="model" class="flex items-center">
-          <component
-            :is="PLATFORM_ICONS[model]"
-            alt=""
+        <span v-if="currentEntry" class="flex items-center">
+          <IconsPlatform
+            :platform="currentEntry.platformIcon.key"
+            :fallback="currentEntry.platformIcon.fallback"
             class="h-5 w-5 flex-shrink-0 text-blue-600"
           />
-          <span class="ml-3 block truncate">{{ model }}</span>
+          <span class="ml-3 block truncate">{{ currentEntry.name }}</span>
         </span>
         <span v-else>{{ $t("library.admin.import.selectPlatform") }}</span>
         <span
@@ -32,11 +32,11 @@
           class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-zinc-950 ring-opacity-5 focus:outline-none sm:text-sm"
         >
           <ListboxOption
-            v-for="[name, value] in values"
-            :key="value"
+            v-for="entry in values"
+            :key="entry.param"
             v-slot="{ active, selected }"
             as="template"
-            :value="value"
+            :value="entry.param"
           >
             <li
               :class="[
@@ -45,15 +45,13 @@
               ]"
             >
               <div class="flex items-center">
-                <component
-                  :is="PLATFORM_ICONS[value]"
-                  alt=""
-                  :class="[
-                    active ? 'text-zinc-100' : 'text-blue-600',
-                    'h-5 w-5 flex-shrink-0',
-                  ]"
+                <IconsPlatform
+                  v-if="entry.platformIcon"
+                  :platform="entry.platformIcon.key"
+                  :fallback="entry.platformIcon.fallback"
+                  class="size-5 text-blue-500"
                 />
-                <span class="ml-3 block truncate">{{ name }}</span>
+                <span class="ml-3 block truncate">{{ entry.name }}</span>
               </div>
 
               <span
@@ -82,19 +80,15 @@ import {
   ListboxOptions,
 } from "@headlessui/vue";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
-import { Platform } from "~/prisma/client/enums";
 
-const model = defineModel<Platform | undefined>();
+const model = defineModel<string | undefined>();
 
-const typedModel = computed<Platform | null>({
-  get() {
-    return model.value || null;
-  },
-  set(v) {
-    if (v === null) return (model.value = undefined);
-    model.value = v;
-  },
-});
+const props = defineProps<{ platforms: PlatformRenderable[] }>();
+const currentEntry = computed(() =>
+  model.value
+    ? props.platforms.find((v) => v.param === model.value)
+    : undefined,
+);
 
-const values = Object.entries(Platform);
+const values = props.platforms;
 </script>

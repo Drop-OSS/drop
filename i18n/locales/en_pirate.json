@@ -71,7 +71,7 @@
   "chars": {
     "arrow": "→",
     "arrowBack": "←",
-    "quoted": "\"\"",
+    "quoted": "\"{text}\"",
     "srComma": ", {0}"
   },
   "common": {

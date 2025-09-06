@@ -16,7 +16,7 @@ export const ImportRedist = type({
   "platform?": type({
     name: "string",
     icon: "string",
-    fileExts: type("string").pipe.try((s) => JSON.parse(s), type("string[]")),
+    fileExts: type("string").pipe.try((s) => JSON.parse(s), type("string.alphanumeric").array()),
   }),
 });
 
@@ -78,7 +78,7 @@ export default defineEventHandler(async (h3) => {
               create: {
                 platformName: options.platform.name,
                 iconSvg: svgContent,
-                fileExtensions: options.platform.fileExts,
+                fileExtensions: options.platform.fileExts.map((v) => `.${v}`),
               },
             }
           : undefined),

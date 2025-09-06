@@ -20,7 +20,7 @@ class DownloadContextManager {
       where: {
         gameId: game,
         versionPath,
-        gameVersion: {
+        game: {
           isNot: null,
         },
       },

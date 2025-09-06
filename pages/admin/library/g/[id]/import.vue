@@ -438,7 +438,11 @@
         />
       </div>
 
-      <PlatformSelector v-model="versionSettings.platform" class="max-w-lg">
+      <PlatformSelector
+        v-model="versionSettings.platform"
+        class="max-w-lg"
+        :platforms="allPlatforms"
+      >
         {{ $t("library.admin.import.version.platform") }}
       </PlatformSelector>
       <SwitchGroup as="div" class="flex items-center justify-between max-w-lg">
@@ -636,6 +640,10 @@ const gameId = route.params.id.toString();
 const versions = await $dropFetch(
   `/api/v1/admin/import/version?id=${encodeURIComponent(gameId)}`,
 );
+const userPlatforms = await $dropFetch(
+  "/api/v1/admin/import/version/platforms",
+);
+const allPlatforms = renderPlatforms(userPlatforms);
 const currentlySelectedVersion = ref(-1);
 const versionSettings = ref<Partial<typeof ImportVersion.infer>>({
   id: gameId,
@@ -643,7 +651,8 @@ const versionSettings = ref<Partial<typeof ImportVersion.infer>>({
 });
 
 const versionGuesses =
-  ref<Array<SerializeObject<{ platform: Platform; filename: string }>>>();
+  ref<Array<SerializeObject<{ platform: string; filename: string }>>>();
+
 const launchProcessQuery = ref("");
 const setupProcessQuery = ref("");
 
@@ -698,15 +707,12 @@ async function updateCurrentlySelectedVersion(value: number) {
   if (currentlySelectedVersion.value == value) return;
   currentlySelectedVersion.value = value;
   const version = versions[currentlySelectedVersion.value];
-  const results = await $dropFetch(
+  const options = await $dropFetch(
     `/api/v1/admin/import/version/preload?id=${encodeURIComponent(
       gameId,
     )}&version=${encodeURIComponent(version)}`,
   );
-  versionGuesses.value = results.map((e) => ({
-    ...e,
-    platform: e.platform as Platform,
-  }));
+  versionGuesses.value = options;
   versionSettings.value.name = version;
 }
 
