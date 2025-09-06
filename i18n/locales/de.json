@@ -314,6 +314,7 @@
         "selectGameSearch": "Spiel auswählen",
         "selectPlatform": "Bitte wähle eine Plattform aus…",
         "version": {
+          "advancedOptions": "Erweiterte Optionen",
           "import": "Version Importieren",
           "installDir": "(Installationsverzeichnis)/",
           "launchCmd": "Programm/Befehl starten",
@@ -329,6 +330,7 @@
           "setupModeDesc": "Wenn aktiviert, hat diese Version keinen Startbefehl und führt einfach die ausführbare Datei auf dem Computer des Nutzers aus. Nützlich für Spiele, die nur einen Installer bereitstellen und keine portablen Dateien.",
           "setupPlaceholder": "setup.exe",
           "umuLauncherId": "UMU Launcher ID",
+          "umuOverride": "Überschreibe UMU Launcher Spiel ID",
           "umuOverrideDesc": "Standardmäßig verwendet Drop beim Start über den UMU Launcher eine Nicht-ID. Um die richtigen Patches für manche Spiele zu erhalten, musst du dieses Feld eventuell manuell setzen.",
           "updateMode": "Aktualisierungsmodus",
           "updateModeDesc": "Wenn aktiviert, werden diese Dateien über die vorherige Version installiert (überschrieben). Werden mehrere ‚Update-Modi‘ hintereinander verwendet, werden sie in der angegebenen Reihenfolge angewendet.",
@@ -343,7 +345,8 @@
             "description": "Wähle ein Spiel aus, das dem Unternehmen hinzugefügt werden soll, und lege fest, ob es als Entwickler, Publisher oder beides geführt werden soll.",
             "developer": "Entwickler?",
             "noGames": "Keine Spiele zum hinzufügen",
-            "publisher": "Publisher?"
+            "publisher": "Publisher?",
+            "title": "Verbinde das Spiel mit dieser Firma"
           },
           "editor": {
             "action": "Spiel hinzufügen {plus}",
@@ -356,6 +359,7 @@
             "uploadIcon": "Icon hochladen"
           },
           "modals": {
+            "nameTitle": "Bearbeite Firmenname",
             "shortDeckDescription": "Bearbeite die Firmenbeschreibung. Beeinträchtigt nicht die Lange (markdown) Beschreibung.",
             "shortDeckTitle": "Bearbeite Firmenbeschreibung"
           }
