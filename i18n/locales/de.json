@@ -20,7 +20,11 @@
       "unread": "Ungelesene Benachrichtigungen"
     },
     "settings": "Einstellungen",
-    "title": "Kontoeinstellungen"
+    "title": "Kontoeinstellungen",
+    "token": {
+      "expiry6Month": "6 Monate",
+      "revoke": "Wiederrufen"
+    }
   },
   "actions": "Aktionen",
   "add": "Hinzufügen",
