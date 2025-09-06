@@ -10,12 +10,6 @@ model ApplicationSettings {
     showGamePanelTextDecoration Boolean @default(true)
 }
 
-enum Platform {
-    Windows @map("windows")
-    Linux   @map("linux")
-    macOS   @map("macos")
-}
-
 enum LibraryBackend {
     Filesystem
     FlatFilesystem
