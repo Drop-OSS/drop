@@ -238,7 +238,9 @@
   "header": {
     "admin": {
       "admin": "Administrator",
-      "settings": "Einstellungen",
+      "settings": {
+        "title": "Einstellungen"
+      },
       "tasks": "Aufgaben",
       "users": "Benutzer"
     },
@@ -257,6 +259,7 @@
         "addCarouselNoImages": "Keine Bilder zum hinzufügen.",
         "addDescriptionNoImages": "Keine Bilder zum hinzufügen."
       },
+      "gameLibrary": "Spielebibliothek",
       "import": {
         "version": {
           "import": "Version Importieren",
@@ -298,7 +301,8 @@
         },
         "tags": {
           "action": "Verwalte {arrow}",
-          "create": "Erstellen"
+          "create": "Erstellen",
+          "title": "Tags"
         }
       },
       "metadataProvider": "Metadatenanbieter",
@@ -308,6 +312,7 @@
       "openEditor": "Im Editor öffnen {arrow}",
       "openStore": "Im Store öffnen",
       "sources": {
+        "documentationLink": "Dokumentation {arrow}",
         "fsPath": "Pfad",
         "fsPathDesc": "Absoluter Pfad zur Spielebibliothek.",
         "fsPathPlaceholder": "/mnt/spiele"
@@ -410,6 +415,7 @@
     "recentlyUpdated": "Kürzlich aktualisiert",
     "released": "Veröffentlicht",
     "reviews": "({0} Bewertungen)",
+    "tags": "Tags",
     "view": {
       "sort": "Sortieren",
       "srFilters": "Filter",
@@ -464,6 +470,7 @@
         "invite6Months": "6 Monate",
         "inviteAdminSwitchDescription": "Erstelle diesen Benutzer als Administrator",
         "inviteButton": "Einladung",
+        "inviteEmailDescription": "Muss im Format nutzer{'@'}beispiel.de sein",
         "inviteEmailLabel": "E-Mail-Adresse (optional)",
         "inviteMonth": "1 Monat",
         "inviteNever": "Niemals",
