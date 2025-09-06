@@ -1,4 +1,4 @@
-import { Platform, type HardwarePlatform } from "~/prisma/client/enums";
+import { HardwarePlatform } from "~/prisma/client/enums";
 import prisma from "../db/database";
 import type { PlatformLink } from "~/prisma/client/client";
 
@@ -26,7 +26,7 @@ export async function convertIDToLink(
   });
   if (link) return link;
 
-  if (Platform[id as Platform]) {
+  if (HardwarePlatform[id as HardwarePlatform]) {
     return await prisma.platformLink.create({
       data: {
         id,

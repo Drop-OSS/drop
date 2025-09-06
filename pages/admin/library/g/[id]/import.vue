@@ -167,9 +167,10 @@
                         ]"
                       >
                         {{ guess.filename }}
-                        <component
-                          :is="PLATFORM_ICONS[guess.platform as Platform]"
-                          class="size-5"
+                        <IconsPlatform
+                          :platform="guess.platform.platformIcon.key"
+                          :fallback="guess.platform.platformIcon.fallback"
+                          class="size-5 flex-shrink-0 text-blue-600"
                         />
                       </span>
 
@@ -339,9 +340,10 @@
                           ]"
                         >
                           {{ guess.filename }}
-                          <component
-                            :is="PLATFORM_ICONS[guess.platform as Platform]"
-                            class="size-5"
+                          <IconsPlatform
+                            :platform="guess.platform.platformIcon.key"
+                            :fallback="guess.platform.platformIcon.fallback"
+                            class="size-5 flex-shrink-0 text-blue-600"
                           />
                         </span>
 
@@ -626,7 +628,6 @@ import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 import { PlusIcon, TrashIcon } from "@heroicons/vue/24/outline";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/vue/24/solid";
 import type { SerializeObject } from "nitropack";
-import type { Platform } from "~/prisma/client/enums";
 import type { ImportVersion } from "~/server/api/v1/admin/import/version/index.post";
 
 definePageMeta({
@@ -651,7 +652,9 @@ const versionSettings = ref<Partial<typeof ImportVersion.infer>>({
 });
 
 const versionGuesses =
-  ref<Array<SerializeObject<{ platform: string; filename: string }>>>();
+  ref<
+    Array<SerializeObject<{ platform: PlatformRenderable; filename: string }>>
+  >();
 
 const launchProcessQuery = ref("");
 const setupProcessQuery = ref("");
@@ -684,7 +687,8 @@ function autosetPlatform(value: string) {
     (e) => e.filename === value,
   );
   if (guessIndex == -1) return;
-  versionSettings.value.platform = versionGuesses.value[guessIndex].platform;
+  versionSettings.value.platform =
+    versionGuesses.value[guessIndex].platform.param;
 }
 
 const umuIdEnabled = ref(false);
@@ -712,7 +716,10 @@ async function updateCurrentlySelectedVersion(value: number) {
       gameId,
     )}&version=${encodeURIComponent(version)}`,
   );
-  versionGuesses.value = options;
+  versionGuesses.value = options.map((e) => ({
+    ...e,
+    platform: allPlatforms.find((v) => v.param === e.platform)!,
+  }));
   versionSettings.value.name = version;
 }
 

@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import prisma from "../db/database";
-import type { Platform } from "~/prisma/client/enums";
+import type { HardwarePlatform } from "~/prisma/client/enums";
 import { useCertificateAuthority } from "~/server/plugins/ca";
 import type {
   CapabilityConfiguration,
@@ -16,7 +16,7 @@ export enum AuthMode {
 
 export interface ClientMetadata {
   name: string;
-  platform: Platform;
+  platform: HardwarePlatform;
   capabilities: Partial<CapabilityConfiguration>;
   mode: AuthMode;
 }

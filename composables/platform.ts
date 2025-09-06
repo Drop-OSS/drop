@@ -1,4 +1,4 @@
-import { Platform } from "~/prisma/client/enums";
+import { HardwarePlatform } from "~/prisma/client/enums";
 
 export type PlatformRenderable = {
   name: string;
@@ -10,7 +10,7 @@ export function renderPlatforms(
   userPlatforms: { platformName: string; id: string; iconSvg: string }[],
 ): PlatformRenderable[] {
   return [
-    ...Object.values(Platform).map((e) => ({
+    ...Object.values(HardwarePlatform).map((e) => ({
       name: e,
       param: e,
       platformIcon: { key: e },
