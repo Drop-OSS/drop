@@ -97,13 +97,13 @@ async function createCollection() {
   } catch (error) {
     console.error("Failed to create collection:", error);
 
-    const err = error as { statusMessage?: string };
+    const err = error as { message?: string };
     createModal(
       ModalType.Notification,
       {
         title: t("errors.library.collection.create.title"),
         description: t("errors.library.collection.create.desc", [
-          err?.statusMessage ?? t("errors.unknown"),
+          err?.message ?? t("errors.unknown"),
         ]),
       },
       (_, c) => c(),

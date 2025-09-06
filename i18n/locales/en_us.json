@@ -93,7 +93,7 @@
   "chars": {
     "arrow": "→",
     "arrowBack": "←",
-    "quoted": "\"\"",
+    "quoted": "\"{text}\"",
     "srComma": ", {0}"
   },
   "common": {
@@ -281,8 +281,8 @@
     "addGames": "All Games",
     "addToLib": "Add to Library",
     "admin": {
-      "detectedGame": "Drop has detected you have new games to import.",
-      "detectedVersion": "Drop has detected you have new versions of this game to import.",
+      "detectedGame": "Drop has detected you have new items to import.",
+      "detectedVersion": "Drop has detected you have new versions to import.",
       "game": {
         "addCarouselNoImages": "No images to add.",
         "addDescriptionNoImages": "No images to add.",
@@ -319,8 +319,8 @@
           "advancedOptions": "Advanced options",
           "import": "Import version",
           "installDir": "(install_dir)/",
-          "launchCmd": "Launch executable/command",
-          "launchDesc": "Executable to launch the game",
+          "launchCmd": "Launch executables/commands",
+          "launchDesc": "Executables to launch the game",
           "launchPlaceholder": "game.exe",
           "loadingVersion": "Loading version metadata…",
           "noAdv": "No advanced options for this configuration.",
@@ -429,7 +429,7 @@
       "title": "Libraries",
       "version": {
         "delta": "Upgrade mode",
-        "noVersions": "You have no versions of this game available.",
+        "noVersions": "No versions available.",
         "noVersionsAdded": "no versions added"
       },
       "versionPriority": "Version priority"

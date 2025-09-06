@@ -8,4 +8,5 @@ export type StoreFilterOption = {
 export type StoreSortOption = {
   name: string;
   param: string;
+  platformIcon?: { key: string; fallback?: string };
 };

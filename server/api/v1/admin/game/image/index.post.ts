@@ -10,14 +10,14 @@ export default defineEventHandler(async (h3) => {
   if (!form)
     throw createError({
       statusCode: 400,
-      statusMessage: "This endpoint requires multipart form data.",
+      message: "This endpoint requires multipart form data.",
     });
 
   const uploadResult = await handleFileUpload(h3, {}, ["internal:read"]);
   if (!uploadResult)
     throw createError({
       statusCode: 400,
-      statusMessage: "Failed to upload file",
+      message: "Failed to upload file",
     });
 
   const [ids, options, pull, dump] = uploadResult;
@@ -25,21 +25,21 @@ export default defineEventHandler(async (h3) => {
     dump();
     throw createError({
       statusCode: 400,
-      statusMessage: "Did not upload a file",
+      message: "Did not upload a file",
     });
   }
 
-  const gameId = options.id;
+  const gameId = options.id as string;
   if (!gameId)
     throw createError({
       statusCode: 400,
-      statusMessage: "No game ID attached",
+      message: "No game ID attached",
     });
 
   const hasGame = (await prisma.game.count({ where: { id: gameId } })) != 0;
   if (!hasGame) {
     dump();
-    throw createError({ statusCode: 400, statusMessage: "Invalid game ID" });
+    throw createError({ statusCode: 400, message: "Invalid game ID" });
   }
 
   const result = await prisma.game.update({

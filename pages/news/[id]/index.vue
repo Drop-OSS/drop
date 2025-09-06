@@ -99,7 +99,7 @@ const article = computed(() =>
 if (!article.value)
   throw createError({
     statusCode: 404,
-    statusMessage: t("news.notFound"),
+    message: t("news.notFound"),
     fatal: true,
   });
 

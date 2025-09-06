@@ -159,7 +159,7 @@ const token = route.query.token;
 if (!token)
   throw createError({
     statusCode: 400,
-    statusMessage: "No token.",
+    message: "No token.",
     fatal: true,
   });
 const bearerToken = `Bearer ${token}`;
@@ -170,7 +170,7 @@ const allowed = await $dropFetch("/api/v1/admin", {
 if (!allowed)
   throw createError({
     statusCode: 400,
-    statusMessage: "Invalid setup token. Please check the URL you opened.",
+    message: "Invalid setup token. Please check the URL you opened.",
     fatal: true,
   });
 

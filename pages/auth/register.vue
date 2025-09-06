@@ -203,7 +203,7 @@ const invitationId = route.query.id?.toString();
 if (!invitationId)
   throw createError({
     statusCode: 400,
-    statusMessage: t("errors.inviteRequired"),
+    message: t("errors.inviteRequired"),
   });
 
 const invitation = await $dropFetch(
@@ -271,7 +271,7 @@ function register_wrapper() {
       router.push("/auth/signin");
     })
     .catch((response) => {
-      const message = response.statusMessage || t("errors.unknown");
+      const message = response.message || t("errors.unknown");
       error.value = message;
     })
     .finally(() => {

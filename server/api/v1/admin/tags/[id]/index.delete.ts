@@ -9,6 +9,6 @@ export default defineEventHandler(async (h3) => {
 
   const tag = await prisma.gameTag.deleteMany({ where: { id } });
   if (tag.count == 0)
-    throw createError({ statusCode: 404, statusMessage: "Tag not found" });
+    throw createError({ statusCode: 404, message: "Tag not found" });
   return;
 });

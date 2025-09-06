@@ -2,7 +2,6 @@ import { ArkErrors, type } from "arktype";
 import type { Prisma } from "~/prisma/client/client";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
-import { parsePlatform } from "~/server/internal/utils/parseplatform";
 
 const StoreRead = type({
   skip: type("string")
@@ -28,7 +27,7 @@ export default defineEventHandler(async (h3) => {
   const query = getQuery(h3);
   const options = StoreRead(query);
   if (options instanceof ArkErrors)
-    throw createError({ statusCode: 400, statusMessage: options.summary });
+    throw createError({ statusCode: 400, message: options.summary });
 
   /**
    * Generic filters
@@ -45,18 +44,19 @@ export default defineEventHandler(async (h3) => {
       }
     : undefined;
   const platformFilter = options.platform
-    ? {
+    ? ({
         versions: {
           some: {
-            platform: {
-              in: options.platform
-                .split(",")
-                .map(parsePlatform)
-                .filter((e) => e !== undefined),
-            },
+            gameVersions: {
+              some: {
+                platform: {
+                  id: options.platform
+                }
+              }
+            }
           },
         },
-      }
+      } satisfies Prisma.GameWhereInput)
     : undefined;
 
   /**

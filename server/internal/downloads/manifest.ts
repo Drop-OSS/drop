@@ -1,4 +1,3 @@
-import type { GameVersionModel } from "~/prisma/client/models";
 import prisma from "../db/database";
 
 export type DropChunk = {
@@ -14,11 +13,11 @@ export type DropManifest = {
 
 export type DropManifestMetadata = {
   manifest: DropManifest;
-  versionName: string;
+  versionId: string;
 };
 
 export type DropGeneratedManifest = DropManifest & {
-  [key: string]: { versionName: string };
+  [key: string]: { versionId: string };
 };
 
 class ManifestGenerator {
@@ -31,7 +30,7 @@ class ManifestGenerator {
         Object.entries(rootManifest.manifest).map(([key, value]) => {
           return [
             key,
-            Object.assign({}, value, { versionName: rootManifest.versionName }),
+            Object.assign({}, value, { versionId: rootManifest.versionId }),
           ];
         }),
       );
@@ -44,7 +43,7 @@ class ManifestGenerator {
       for (const [filename, chunk] of Object.entries(version.manifest)) {
         if (manifest[filename]) continue;
         manifest[filename] = Object.assign({}, chunk, {
-          versionName: version.versionName,
+          versionId: version.versionId,
         });
       }
     }
@@ -53,14 +52,25 @@ class ManifestGenerator {
   }
 
   // Local function because eventual caching
-  async generateManifest(gameId: string, versionName: string) {
-    const versions: GameVersionModel[] = [];
+  async generateManifest(versionId: string) {
+    const versions = [];
 
     const baseVersion = await prisma.gameVersion.findUnique({
       where: {
-        gameId_versionName: {
-          gameId: gameId,
-          versionName: versionName,
+        versionId,
+        version: {
+          gameId: {
+            not: null,
+          },
+        },
+      },
+      include: {
+        platform: true,
+        version: {
+          select: {
+            gameId: true,
+            dropletManifest: true,
+          },
         },
       },
     });
@@ -75,23 +85,34 @@ class ManifestGenerator {
       for (let i = baseVersion.versionIndex - 1; true; i--) {
         const currentVersion = await prisma.gameVersion.findFirst({
           where: {
-            gameId: gameId,
+            version: {
+              gameId: baseVersion.version.gameId!,
+            },
+            platform: {
+              id: baseVersion.platform.id,
+            },
             versionIndex: i,
-            platform: baseVersion.platform,
+          },
+          include: {
+            version: {
+              select: {
+                dropletManifest: true,
+              },
+            },
           },
         });
         if (!currentVersion) return undefined;
         versions.push(currentVersion);
-        if (!currentVersion.delta) break;
+        if (!currentVersion?.delta) break;
       }
     }
-    const leastToMost = versions.reverse();
-    const metadata: DropManifestMetadata[] = leastToMost.map((e) => {
+    versions.reverse();
+    const metadata: DropManifestMetadata[] = versions.map((gameVersion) => {
       return {
         manifest: JSON.parse(
-          e.dropletManifest?.toString() ?? "{}",
+          gameVersion.version.dropletManifest?.toString() ?? "{}",
         ) as DropManifest,
-        versionName: e.versionName,
+        versionId: gameVersion.versionId,
       };
     });
 

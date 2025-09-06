@@ -4,7 +4,7 @@ import type {
   NitroFetchRequest,
   TypedInternalResponse,
 } from "nitropack/types";
-import type { FetchError } from "ofetch";
+import { FetchError } from "ofetch";
 
 interface DropFetch<
   DefaultT = unknown,
@@ -60,11 +60,14 @@ export const $dropFetch: DropFetch = async (rawRequest, opts) => {
           {
             title: opts.failTitle,
             description:
-              (e as FetchError)?.statusMessage ?? (e as string).toString(),
+              (e as FetchError)?.message ?? (e as string).toString(),
             //buttonText: $t("common.close"),
           },
           (_, c) => c(),
         );
+      }
+      if(e instanceof FetchError) {
+        e.message = e.data.message ?? e.message;
       }
       throw e;
     }

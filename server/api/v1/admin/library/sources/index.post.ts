@@ -29,7 +29,7 @@ export default defineEventHandler<{ body: typeof CreateLibrarySource.infer }>(
     if (!backend)
       throw createError({
         statusCode: 400,
-        statusMessage: "Invalid source backend.",
+        message: "Invalid source backend.",
       });
 
     const constructor = libraryConstructors[backend];
@@ -63,7 +63,7 @@ export default defineEventHandler<{ body: typeof CreateLibrarySource.infer }>(
     } catch (e) {
       throw createError({
         statusCode: 400,
-        statusMessage: `Failed to create source: ${e}`,
+        message: `Failed to create source: ${e}`,
       });
     }
   },

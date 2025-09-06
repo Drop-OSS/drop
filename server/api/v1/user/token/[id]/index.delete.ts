@@ -10,14 +10,14 @@ export default defineEventHandler(async (h3) => {
   if (!id)
     throw createError({
       statusCode: 400,
-      statusMessage: "No id in router params",
+      message: "No id in router params",
     });
 
   const deleted = await prisma.aPIToken.delete({
     where: { id: id, userId: userId, mode: APITokenMode.User },
   })!;
   if (!deleted)
-    throw createError({ statusCode: 404, statusMessage: "Token not found" });
+    throw createError({ statusCode: 404, message: "Token not found" });
 
   return;
 });

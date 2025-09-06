@@ -33,7 +33,7 @@ export class WebSocketHandler {
         case "unauthenticated": {
           const error = createError({
             statusCode: 403,
-            statusMessage: "Unable to connect to websocket - unauthenticated",
+            message: "Unable to connect to websocket - unauthenticated",
           });
           if (this.errorHandler) {
             return this.errorHandler(error);

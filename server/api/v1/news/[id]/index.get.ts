@@ -7,7 +7,7 @@ export default defineEventHandler(async (h3) => {
   if (!userId)
     throw createError({
       statusCode: 403,
-      statusMessage: "Requires authentication",
+      message: "Requires authentication",
     });
 
   const id = h3.context.params?.id;

@@ -1,0 +1,179 @@
+enum MetadataSource {
+  Manual
+  GiantBomb
+  PCGamingWiki
+  IGDB
+  Metacritic
+  OpenCritic
+}
+
+model Game {
+  id String @id @default(uuid())
+
+  metadataSource MetadataSource
+  metadataId     String
+  created        DateTime       @default(now())
+
+  // Any field prefixed with m is filled in from metadata
+  // Acts as a cache so we can search and filter it
+  mName             String // Name of game
+  mShortDescription String // Short description
+  mDescription      String // Supports markdown
+  mReleased         DateTime // When the game was released
+
+  ratings GameRating[]
+
+  featured Boolean @default(false)
+
+  mIconObjectId           String // linked to objects in s3
+  mBannerObjectId         String // linked to objects in s3
+  mCoverObjectId          String
+  mImageCarouselObjectIds String[] // linked to below array
+  mImageLibraryObjectIds  String[] // linked to objects in s3
+
+  versions Version[]
+  mods     Mod[]
+
+  libraryId   String
+  library     Library @relation(fields: [libraryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  libraryPath String
+
+  collections CollectionEntry[]
+  saves       SaveSlot[]
+  screenshots Screenshot[]
+  tags        GameTag[]
+  playtime    Playtime[]
+
+  developers Company[] @relation(name: "developers")
+  publishers Company[] @relation(name: "publishers")
+
+  @@unique([metadataSource, metadataId], name: "metadataKey")
+  @@unique([libraryId, libraryPath], name: "libraryKey")
+}
+
+model DLC {
+  id String @id @default(uuid())
+
+  name         String
+  description  String
+  iconObjectId String
+
+  libraryId   String
+  library     Library @relation(fields: [libraryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  libraryPath String
+
+  versions Version[]
+  metadata GameDLCMetadata?
+}
+
+model GameDLCMetadata {
+  id  String @id
+  dlc DLC    @relation(fields: [id], references: [id])
+
+  mName             String
+  mShortDescription String
+  mDescription      String
+
+  mIconObjectId           String // linked to objects in s3
+  mBannerObjectId         String // linked to objects in s3
+  mCoverObjectId          String
+  mImageCarouselObjectIds String[] // linked to below array
+  mImageLibraryObjectIds  String[] // linked to objects in s3
+}
+
+model Redist {
+  id      String   @id @default(uuid())
+  created DateTime @default(now())
+
+  mName             String
+  mShortDescription String
+  mIconObjectId     String
+
+  libraryId   String
+  library     Library @relation(fields: [libraryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  libraryPath String
+
+  versions Version[]
+  platform UserPlatform?
+
+  @@unique([libraryId, libraryPath], name: "libraryKey")
+}
+
+model Mod {
+  id      String   @id @default(uuid())
+  created DateTime @default(now())
+
+  gameId String
+  game   Game   @relation(fields: [gameId], references: [id])
+
+  // If this mod is user-provided
+  user Boolean @default(true)
+
+  mName             String
+  mShortDescription String
+  mDescription      String
+
+  mReleased DateTime
+
+  mIconObjectId           String // linked to objects in s3
+  mBannerObjectId         String // linked to objects in s3
+  mCoverObjectId          String
+  mImageCarouselObjectIds String[] // linked to below array
+  mImageLibraryObjectIds  String[] // linked to objects in s3
+
+  libraryId   String
+  library     Library @relation(fields: [libraryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  libraryPath String
+
+  tags GameTag[]
+
+  versions Version[]
+}
+
+model GameTag {
+  id   String @id @default(uuid())
+  name String @unique
+
+  games Game[]
+  mods  Mod[]
+
+  @@index([name(ops: raw("gist_trgm_ops(siglen=32)"))], type: Gist)
+}
+
+model GameRating {
+  id String @id @default(uuid())
+
+  metadataSource MetadataSource
+  metadataId     String
+  created        DateTime       @default(now())
+
+  mReviewCount  Int
+  mReviewRating Float // 0 to 1
+
+  mReviewHref String?
+
+  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  gameId String
+
+  @@unique([metadataSource, metadataId], name: "metadataKey")
+}
+
+model Company {
+  id String @id @default(uuid())
+
+  metadataSource        MetadataSource
+  metadataId            String
+  metadataOriginalQuery String
+
+  mName             String
+  mShortDescription String
+  mDescription      String
+  mLogoObjectId     String
+  mBannerObjectId   String
+  mWebsite          String
+
+  developed Game[] @relation(name: "developers")
+  published Game[] @relation(name: "publishers")
+
+  @@unique([metadataSource, metadataId], name: "metadataKey")
+}

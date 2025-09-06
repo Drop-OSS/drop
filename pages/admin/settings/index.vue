@@ -96,7 +96,7 @@ async function saveSettings() {
         title: `Failed to save settings.`,
         description:
           e instanceof FetchError
-            ? (e.statusMessage ?? e.message)
+            ? (e.message)
             : (e as string).toString(),
       },
       (_, c) => c(),

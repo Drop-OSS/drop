@@ -20,7 +20,7 @@ export default defineClientEventHandler(async (h3) => {
   if (!gameId || !versionName || !filename || Number.isNaN(chunkIndex))
     throw createError({
       statusCode: 400,
-      statusMessage: "Invalid chunk arguments",
+      message: "Invalid chunk arguments",
     });
 
   let game = await gameLookupCache.getItem(gameId);
@@ -35,7 +35,7 @@ export default defineClientEventHandler(async (h3) => {
       },
     });
     if (!game || !game.libraryId)
-      throw createError({ statusCode: 400, statusMessage: "Invalid game ID" });
+      throw createError({ statusCode: 400, message: "Invalid game ID" });
 
     await gameLookupCache.setItem(gameId, game);
   }
@@ -43,7 +43,7 @@ export default defineClientEventHandler(async (h3) => {
   if (!game.libraryId)
     throw createError({
       statusCode: 500,
-      statusMessage: "Somehow, we got here.",
+      message: "Somehow, we got here.",
     });
 
   const peek = await libraryManager.peekFile(
@@ -53,7 +53,7 @@ export default defineClientEventHandler(async (h3) => {
     filename,
   );
   if (!peek)
-    throw createError({ status: 400, statusMessage: "Failed to peek file" });
+    throw createError({ status: 400, message: "Failed to peek file" });
 
   const start = chunkIndex * chunkSize;
   const end = Math.min((chunkIndex + 1) * chunkSize, peek.size);
@@ -63,7 +63,7 @@ export default defineClientEventHandler(async (h3) => {
   if (start >= end)
     throw createError({
       statusCode: 400,
-      statusMessage: "Invalid chunk index",
+      message: "Invalid chunk index",
     });
 
   const gameReadStream = await libraryManager.readFile(
@@ -76,7 +76,7 @@ export default defineClientEventHandler(async (h3) => {
   if (!gameReadStream)
     throw createError({
       statusCode: 400,
-      statusMessage: "Failed to create stream",
+      message: "Failed to create stream",
     });
 
   return sendStream(h3, gameReadStream);

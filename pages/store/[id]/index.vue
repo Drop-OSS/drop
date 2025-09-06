@@ -40,7 +40,7 @@
           </div>
           <NuxtLink
             v-if="user?.admin"
-            :href="`/admin/library/${game.id}`"
+            :href="`/admin/library/g/${game.id}`"
             type="button"
             class="inline-flex items-center gap-x-2 rounded-md bg-zinc-800 px-3 py-1 text-sm font-semibold font-display text-white shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 duration-200 hover:scale-105 active:scale-95"
           >
@@ -73,15 +73,22 @@
                 <td
                   class="whitespace-nowrap inline-flex gap-x-4 px-3 py-4 text-sm text-zinc-400"
                 >
-                  <component
-                    :is="PLATFORM_ICONS[platform]"
+                  <IconsPlatform
                     v-for="platform in platforms"
-                    :key="platform"
-                    class="text-blue-600 w-6 h-6"
+                    :key="typeof platform === 'string' ? platform : platform.id"
+                    :platform="
+                      typeof platform === 'string' ? platform : platform.id
+                    "
+                    :fallback="
+                      typeof platform === 'string'
+                        ? undefined
+                        : platform.iconSvg
+                    "
+                    class="size-8 text-blue-600"
                   />
                   <span
                     v-if="platforms.length == 0"
-                    class="font-semibold text-blue-600"
+                    class="font-display uppercase font-bold text-zinc-700"
                     >{{ $t("store.commingSoon") }}</span
                   >
                 </td>
@@ -245,14 +252,13 @@
 import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
 import { StarIcon } from "@heroicons/vue/24/solid";
 import { micromark } from "micromark";
-import type { PlatformClient } from "~/composables/types";
 
 const route = useRoute();
 const gameId = route.params.id.toString();
 
 const user = useUser();
 
-const { game, rating } = await $dropFetch(`/api/v1/games/${gameId}`);
+const { game, rating, platforms } = await $dropFetch(`/api/v1/games/${gameId}`);
 
 // Preview description (first 30 lines)
 const showPreview = ref(true);
@@ -278,10 +284,6 @@ const previewHTML = micromark(previewDescription);
 const descriptionHTML = micromark(game.mDescription);
 
 const showReadMore = previewHTML != descriptionHTML;
-const platforms = game.versions
-  .map((e) => e.platform as PlatformClient)
-  .flat()
-  .filter((e, i, u) => u.indexOf(e) === i);
 
 // const rating = Math.round(game.mReviewRating * 5);
 const averageRating = Math.round((rating._avg.mReviewRating ?? 0) * 5);

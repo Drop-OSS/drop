@@ -11,7 +11,7 @@ export default defineEventHandler(async (h3) => {
   if (!unsafeId)
     throw createError({
       statusCode: 400,
-      statusMessage: "Missing screenshot ID",
+      message: "Missing screenshot ID",
     });
 
   const result = await screenshotManager.get(sanitize(unsafeId));

@@ -1,14 +1,14 @@
-import { Platform } from "~/prisma/client/enums";
+import { HardwarePlatform } from "~/prisma/client/enums";
 
 export function parsePlatform(platform: string) {
   switch (platform.toLowerCase()) {
     case "linux":
-      return Platform.Linux;
+      return HardwarePlatform.Linux;
     case "windows":
-      return Platform.Windows;
+      return HardwarePlatform.Windows;
     case "mac":
     case "macos":
-      return Platform.macOS;
+      return HardwarePlatform.macOS;
   }
 
   return undefined;

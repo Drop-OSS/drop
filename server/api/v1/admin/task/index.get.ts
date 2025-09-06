@@ -10,7 +10,7 @@ export default defineEventHandler(async (h3) => {
   if (!allAcls)
     throw createError({
       statusCode: 403,
-      statusMessage: "Somehow no ACLs on authenticated request.",
+      message: "Somehow no ACLs on authenticated request.",
     });
 
   const runningTasks = (await taskHandler.runningTasks()).map((e) => e.id);

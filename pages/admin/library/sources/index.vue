@@ -198,8 +198,8 @@
                           >{{ metadata.title }}
                           <span class="ml-2 font-mono text-zinc-500 text-xs">{{
                             source
-                          }}</span></RadioGroupLabel
-                        >
+                          }}</span>
+                        </RadioGroupLabel>
                         <RadioGroupDescription
                           as="span"
                           class="text-zinc-400 text-xs"
@@ -405,18 +405,21 @@ function performActionSource_wrapper() {
   modalError.value = undefined;
   modalLoading.value = true;
   performActionSource()
-    .then(() => {
-      actionSourceOpen.value = false;
-      sourceConfig.value = {};
-      sourceName.value = "";
-    })
-    .catch((e) => {
-      if (e instanceof FetchError) {
-        modalError.value = e.statusMessage ?? e.message;
-      } else {
-        modalError.value = e as string;
-      }
-    })
+    .then(
+      () => {
+        actionSourceOpen.value = false;
+        sourceConfig.value = {};
+        sourceName.value = "";
+      },
+      (e) => {
+        if (e instanceof FetchError) {
+                  console.log(e.data.message);
+          modalError.value = e.message;
+        } else {
+          modalError.value = e as string;
+        }
+      },
+    )
     .finally(() => {
       modalLoading.value = false;
     });
@@ -449,8 +452,8 @@ async function deleteSource(index: number) {
       {
         title: t("errors.library.source.delete.title"),
         description: t("errors.library.source.delete.desc", [
-          // @ts-expect-error attempt to display statusMessage on error
-          e?.statusMessage ?? t("errors.unknown"),
+          // @ts-expect-error attempt to display message on error
+          e?.message ?? t("errors.unknown"),
         ]),
       },
       (_, c) => c(),

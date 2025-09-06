@@ -15,7 +15,7 @@ export default defineClientEventHandler(async (h3) => {
   if (!context)
     throw createError({
       statusCode: 400,
-      statusMessage: "Invalid game or version",
+      message: "Invalid game or version",
     });
 
   return { context };

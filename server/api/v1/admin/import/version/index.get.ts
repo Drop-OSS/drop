@@ -11,7 +11,7 @@ export default defineEventHandler(async (h3) => {
   if (!gameId)
     throw createError({
       statusCode: 400,
-      statusMessage: "Missing id in request params",
+      message: "Missing id in request params",
     });
 
   const game = await prisma.game.findUnique({
@@ -19,14 +19,14 @@ export default defineEventHandler(async (h3) => {
     select: { libraryId: true, libraryPath: true },
   });
   if (!game || !game.libraryId)
-    throw createError({ statusCode: 404, statusMessage: "Game not found" });
+    throw createError({ statusCode: 404, message: "Game not found" });
 
   const unimportedVersions = await libraryManager.fetchUnimportedGameVersions(
     game.libraryId,
     game.libraryPath,
   );
   if (!unimportedVersions)
-    throw createError({ statusCode: 400, statusMessage: "Invalid game ID" });
+    throw createError({ statusCode: 400, message: "Invalid game ID" });
 
   return unimportedVersions;
 });

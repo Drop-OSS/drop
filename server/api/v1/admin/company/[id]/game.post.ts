@@ -20,7 +20,7 @@ export default defineEventHandler(async (h3) => {
   if (!body.published && !body.developed)
     throw createError({
       statusCode: 400,
-      statusMessage: "Must be related (either developed or published).",
+      message: "Must be related (either developed or published).",
     });
 
   const publisherConnect = body.published

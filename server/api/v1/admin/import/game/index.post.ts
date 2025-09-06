@@ -27,14 +27,14 @@ export default defineEventHandler<{ body: typeof ImportGameBody.infer }>(
     if (!path)
       throw createError({
         statusCode: 400,
-        statusMessage: "Path missing from body",
+        message: "Path missing from body",
       });
 
     const valid = await libraryManager.checkUnimportedGamePath(library, path);
     if (!valid)
       throw createError({
         statusCode: 400,
-        statusMessage: "Invalid library or game.",
+        message: "Invalid library or game.",
       });
 
     const taskId = metadata
@@ -44,7 +44,7 @@ export default defineEventHandler<{ body: typeof ImportGameBody.infer }>(
     if (!taskId)
       throw createError({
         statusCode: 400,
-        statusMessage:
+        message:
           "Duplicate metadata import. Please chose a different game or metadata provider.",
       });
 

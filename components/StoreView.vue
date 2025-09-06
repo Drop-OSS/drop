@@ -247,7 +247,7 @@
                     <div
                       v-for="(option, optionIdx) in section.options"
                       :key="option.param"
-                      class="flex gap-3"
+                      class="flex items-center gap-3"
                     >
                       <div class="flex h-5 shrink-0 items-center">
                         <div class="group grid size-4 grid-cols-1">
@@ -272,6 +272,12 @@
                           />
                         </div>
                       </div>
+                      <IconsPlatform
+                        v-if="option.platformIcon"
+                        :platform="option.platformIcon.key"
+                        :fallback="option.platformIcon.fallback"
+                        class="size-5 text-blue-500"
+                      />
                       <label
                         :for="`filter-${section.param}-${optionIdx}`"
                         class="text-sm text-zinc-400"
@@ -376,6 +382,8 @@ const props = defineProps<{
 const tags =
   await $dropFetch<Array<SerializeObject<GameTagModel>>>("/api/v1/store/tags");
 
+const userPlatforms = await $dropFetch("/api/v1/store/platforms");
+
 const sorts: Array<StoreSortOption> = [
   {
     name: "Default",
@@ -407,7 +415,7 @@ const options: Array<StoreFilterOption> = [
     name: "Platform",
     param: "platform",
     multiple: true,
-    options: Object.values(PlatformClient).map((e) => ({ name: e, param: e })),
+    options: renderPlatforms(userPlatforms),
   },
   ...(props.extraOptions ?? []),
 ];

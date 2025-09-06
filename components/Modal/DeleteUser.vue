@@ -62,8 +62,8 @@ async function deleteUser() {
       {
         title: t("errors.admin.user.delete.title"),
         description: t("errors.admin.user.delete.desc", [
-          // @ts-expect-error attempt to display statusMessage on error
-          e?.statusMessage ?? t("errors.unknown"),
+          // @ts-expect-error attempt to display message on error
+          e?.message ?? t("errors.unknown"),
         ]),
       },
       (_, c) => c(),

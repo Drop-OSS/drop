@@ -1,7 +1,13 @@
+import { ArkErrors, type } from "arktype";
 import type { Prisma } from "~/prisma/client/client";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import { handleFileUpload } from "~/server/internal/utils/handlefileupload";
+
+const UpdateMetadata = type({
+  name: "string?",
+  description: "string?",
+});
 
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["game:update"]);
@@ -11,7 +17,7 @@ export default defineEventHandler(async (h3) => {
   if (!form)
     throw createError({
       statusCode: 400,
-      statusMessage: "This endpoint requires multipart form data.",
+      message: "This endpoint requires multipart form data.",
     });
 
   const gameId = getRouterParam(h3, "id")!;
@@ -20,20 +26,20 @@ export default defineEventHandler(async (h3) => {
   if (!uploadResult)
     throw createError({
       statusCode: 400,
-      statusMessage: "Failed to upload file",
+      message: "Failed to upload file",
     });
 
   const [ids, options, pull, dump] = uploadResult;
 
   const id = ids.at(0);
 
-  // handleFileUpload reads the rest of the options for us.
-  const name = options.name;
-  const description = options.description;
+  const body = UpdateMetadata(options);
+  if (body instanceof ArkErrors)
+    throw createError({ statusCode: 400, message: body.summary });
 
   const updateModel: Prisma.GameUpdateInput = {
-    mName: name,
-    mShortDescription: description,
+    ...(body.name ? { mName: body.name } : undefined),
+    ...(body.description ? { mShortDescription: body.description } : undefined),
   };
 
   // handle if user uploaded new icon

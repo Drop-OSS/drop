@@ -73,6 +73,10 @@ export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
   "game:image:new": "Upload an image for a game.",
   "game:image:delete": "Delete an image for a game.",
 
+  "redist:read": "Fetch redistributables on this instance.",
+  "redist:update": "Update redistributables on this instance.",
+  "redist:delete": "Delete redistributables on this instance.",
+
   "company:read": "Fetch companies.",
   "company:create": "Create a new company.",
   "company:update": "Update existing companies.",
@@ -84,6 +88,8 @@ export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
   "import:game:read":
     "Fetch games to be imported, and search the metadata for games.",
   "import:game:new": "Import a game.",
+  "import:redist:read": "Fetch redists to be imported.",
+  "import:redist:new": "Import a redist.",
 
   "tags:read": "Fetch all tags",
   "tags:create": "Create a tag",

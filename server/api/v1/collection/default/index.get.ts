@@ -6,7 +6,7 @@ export default defineEventHandler(async (h3) => {
   if (!userId)
     throw createError({
       statusCode: 403,
-      statusMessage: "Requires authentication",
+      message: "Requires authentication",
     });
 
   const collection = await userLibraryManager.fetchLibrary(userId);

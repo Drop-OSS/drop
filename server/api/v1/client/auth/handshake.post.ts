@@ -8,24 +8,24 @@ export default defineEventHandler(async (h3) => {
   if (!clientId || !token)
     throw createError({
       statusCode: 400,
-      statusMessage: "Missing token or client ID from body",
+      message: "Missing token or client ID from body",
     });
 
   const metadata = await clientHandler.fetchClient(clientId);
   if (!metadata)
     throw createError({
       statusCode: 403,
-      statusMessage: "Invalid client ID",
+      message: "Invalid client ID",
     });
   if (!metadata.authToken || !metadata.userId)
     throw createError({
       statusCode: 400,
-      statusMessage: "Un-authorized client ID",
+      message: "Un-authorized client ID",
     });
   if (metadata.authToken !== token)
     throw createError({
       statusCode: 403,
-      statusMessage: "Invalid token",
+      message: "Invalid token",
     });
 
   const certificateAuthority = useCertificateAuthority();

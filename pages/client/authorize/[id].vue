@@ -192,7 +192,7 @@ async function authorize() {
   }
   throw createError({
     statusCode: 500,
-    statusMessage: "Unknown client auth mode: " + clientData.mode,
+    message: "Unknown client auth mode: " + clientData.mode,
     fatal: true,
   });
 }
@@ -202,7 +202,7 @@ async function authorize_wrapper() {
     await authorize();
   } catch (e) {
     const errorMessage =
-      (e as FetchError)?.statusMessage || "An unknown error occurred.";
+      (e as FetchError)?.message || "An unknown error occurred.";
     error.value = errorMessage;
   } finally {
     completed.value = true;

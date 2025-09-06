@@ -13,7 +13,7 @@ export default defineEventHandler(async (h3) => {
   if (!gameId)
     throw createError({
       statusCode: 400,
-      statusMessage: "Missing game ID",
+      message: "Missing game ID",
     });
 
   const game = await prisma.game.findUnique({
@@ -21,7 +21,7 @@ export default defineEventHandler(async (h3) => {
     select: { id: true },
   });
   if (!game)
-    throw createError({ statusCode: 400, statusMessage: "Invalid game ID" });
+    throw createError({ statusCode: 400, message: "Invalid game ID" });
 
   await screenshotManager.upload(userId, gameId, h3.node.req);
 });

@@ -28,7 +28,7 @@ export default defineEventHandler(async (h3) => {
   if (!platform)
     throw createError({
       statusCode: 400,
-      statusMessage: "Invalid or unsupported platform",
+      message: "Invalid or unsupported platform",
     });
 
   const capabilityIterable = Object.entries(capabilities) as Array<
@@ -42,7 +42,7 @@ export default defineEventHandler(async (h3) => {
   )
     throw createError({
       statusCode: 400,
-      statusMessage: "Invalid capabilities.",
+      message: "Invalid capabilities.",
     });
 
   if (
@@ -57,7 +57,7 @@ export default defineEventHandler(async (h3) => {
   )
     throw createError({
       statusCode: 400,
-      statusMessage: "Invalid capability configuration.",
+      message: "Invalid capability configuration.",
     });
 
   const result = await clientHandler.initiate({

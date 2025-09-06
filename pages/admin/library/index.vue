@@ -71,41 +71,59 @@
         aria-hidden="true"
       />
     </div>
+
+    <div class="flex gap-x-4 text-zinc-300 font-bold uppercase font-display text-sm">
+      <span class="inline-flex items-center gap-x-1"
+        ><div class="size-2 rounded-full bg-blue-600" />
+        Game</span
+      >
+      <span class="inline-flex items-center gap-x-1"
+        ><div class="size-2 rounded-full bg-emerald-600" />
+        Redistributable</span
+      >
+    </div>
     <ul
       role="list"
       class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
     >
       <li
-        v-for="game in filteredLibraryGames"
-        :key="game.id"
+        v-for="entry in filteredLibrary"
+        :key="entry.id"
         class="relative overflow-hidden col-span-1 flex flex-col justify-center divide-y divide-zinc-800 rounded-xl bg-zinc-950/30 text-left shadow-md border hover:scale-102 hover:shadow-xl hover:bg-zinc-950/70 border-zinc-800 transition-all duration-200 group"
       >
-        <div class="flex flex-1 flex-row p-4 gap-x-4">
+        <div
+          v-if="entry.type === 'game'"
+          class="relative flex flex-1 flex-row p-4 gap-x-4"
+        >
+          <div
+            class="absolute top-0 right-0 w-10 bg-blue-600 h-4 rotate-[45deg] translate-x-1/2"
+          />
+
           <img
             class="h-20 w-20 p-3 flex-shrink-0 rounded-xl shadow group-hover:shadow-lg transition-all duration-200 bg-zinc-900 object-cover border border-zinc-800"
-            :src="useObject(game.mIconObjectId)"
+            :src="useObject(entry.mIconObjectId)"
             alt=""
           />
           <div class="flex flex-col">
             <h3
               class="gap-x-2 text-sm inline-flex items-center font-medium text-zinc-100 font-display"
             >
-              {{ game.mName }}
+              {{ entry.mName }}
               <button
                 type="button"
                 :class="[
                   'rounded-full p-1 shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2',
-                  game.featured
+                  entry.featured
                     ? 'bg-yellow-400 hover:bg-yellow-300 focus-visible:outline-yellow-400 text-zinc-900'
                     : 'bg-zinc-800 hover:bg-zinc-700 focus-visible:outline-zinc-400 text-white',
                 ]"
-                @click="() => featureGame(game.id)"
+                @click="() => featureGame(entry.id)"
               >
                 <svg
-                  v-if="gameFeatureLoading[game.id]"
+                  v-if="gameFeatureLoading[entry.id]"
                   aria-hidden="true"
                   :class="[
-                    game.featured ? ' fill-zinc-900' : 'fill-zinc-100',
+                    entry.featured ? ' fill-zinc-900' : 'fill-zinc-100',
                     'size-3 text-transparent animate-spin',
                   ]"
                   viewBox="0 0 100 101"
@@ -126,13 +144,13 @@
               </button>
               <span
                 class="inline-flex items-center rounded-full bg-blue-600/10 px-2 py-1 text-xs font-medium text-blue-600 ring-1 ring-inset ring-blue-600/20"
-                >{{ game.library!.name }}</span
+                >{{ entry.library.name }}</span
               >
             </h3>
             <dl class="mt-1 flex flex-col justify-between">
               <dt class="sr-only">{{ $t("library.admin.shortDesc") }}</dt>
               <dd class="text-sm text-zinc-400">
-                {{ game.mShortDescription }}
+                {{ entry.mShortDescription }}
               </dd>
               <dt class="sr-only">
                 {{ $t("library.admin.metadataProvider") }}
@@ -140,7 +158,7 @@
             </dl>
             <div class="mt-4 flex flex-col gap-y-1">
               <NuxtLink
-                :href="`/admin/library/${game.id}`"
+                :href="`/admin/library/g/${entry.id}`"
                 class="w-fit rounded-md bg-zinc-800 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               >
                 <i18n-t
@@ -155,16 +173,79 @@
               </NuxtLink>
               <button
                 class="w-fit rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-red-500 hover:scale-105 hover:shadow-lg hover:shadow-red-500/25 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
-                @click="() => deleteGame(game.id)"
+                @click="() => deleteGame(entry.id)"
               >
                 {{ $t("delete") }}
               </button>
             </div>
           </div>
         </div>
-        <div v-if="game.hasNotifications" class="flex flex-col gap-y-2 p-2">
+        <div
+          v-else-if="entry.type === 'redist'"
+          class="relative flex flex-1 flex-row p-4 gap-x-4"
+        >
           <div
-            v-if="game.notifications.toImport"
+            class="absolute top-0 right-0 w-10 bg-emerald-600 h-4 rotate-[45deg] translate-x-1/2"
+          />
+          <img
+            class="h-20 w-20 p-3 flex-shrink-0 rounded-xl shadow group-hover:shadow-lg transition-all duration-200 bg-zinc-900 object-cover border border-zinc-800"
+            :src="useObject(entry.mIconObjectId)"
+            alt=""
+          />
+          <div class="flex flex-col">
+            <h3
+              class="gap-x-2 text-sm inline-flex items-center font-medium text-zinc-100 font-display"
+            >
+              {{ entry.mName }}
+              <span
+                class="inline-flex items-center rounded-full bg-blue-600/10 px-2 py-1 text-xs font-medium text-blue-600 ring-1 ring-inset ring-blue-600/20"
+                >{{ entry.library.name }}</span
+              >
+            </h3>
+            <dl class="mt-1 flex flex-col justify-between">
+              <dt class="sr-only">{{ $t("library.admin.shortDesc") }}</dt>
+              <dd class="text-sm text-zinc-400">
+                {{ entry.mShortDescription }}
+              </dd>
+            </dl>
+            <dl
+              v-if="entry.platform"
+              class="mt-2 flex items-center text-zinc-200 font-semibold text-sm gap-x-1 p-2 bg-zinc-800 rounded-xl"
+            >
+              <IconsPlatform
+                :platform="entry.platform.id"
+                :fallback="entry.platform.iconSvg"
+                class="size-6 text-blue-600"
+              />
+              <span>{{ entry.platform.platformName }}</span>
+            </dl>
+            <div class="mt-4 flex flex-col gap-y-1">
+              <NuxtLink
+                :href="`/admin/library/r/${entry.id}`"
+                class="w-fit rounded-md bg-zinc-800 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+              >
+                <i18n-t
+                  keypath="library.admin.openEditor"
+                  tag="span"
+                  scope="global"
+                >
+                  <template #arrow>
+                    <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
+                  </template>
+                </i18n-t>
+              </NuxtLink>
+              <button
+                class="w-fit rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-red-500 hover:scale-105 hover:shadow-lg hover:shadow-red-500/25 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                @click="() => deleteRedist(entry.id)"
+              >
+                {{ $t("delete") }}
+              </button>
+            </div>
+          </div>
+        </div>
+        <div v-if="entry.hasNotifications" class="flex flex-col gap-y-2 p-2">
+          <div
+            v-if="entry.notifications.toImport"
             class="rounded-md bg-blue-600/10 p-4"
           >
             <div class="flex">
@@ -180,7 +261,7 @@
                 </p>
                 <p class="mt-3 text-sm md:ml-6 md:mt-0">
                   <NuxtLink
-                    :href="`/admin/library/${game.id}/import`"
+                    :href="`/admin/library/g/${entry.id}/import`"
                     class="whitespace-nowrap font-medium text-blue-400 hover:text-blue-500"
                   >
                     <i18n-t
@@ -198,7 +279,7 @@
             </div>
           </div>
           <div
-            v-if="game.notifications.noVersions"
+            v-if="entry.notifications.noVersions"
             class="rounded-md bg-yellow-600/10 p-4"
           >
             <div class="flex">
@@ -216,7 +297,7 @@
             </div>
           </div>
           <div
-            v-if="game.notifications.offline"
+            v-if="entry.notifications.offline"
             class="rounded-md bg-red-600/10 p-4"
           >
             <div class="flex">
@@ -236,14 +317,14 @@
         </div>
       </li>
       <p
-        v-if="filteredLibraryGames.length == 0 && libraryGames.length != 0"
+        v-if="filteredLibrary.length == 0 && libraryGames.length != 0"
         class="text-zinc-600 text-sm font-display font-bold uppercase text-center col-span-4"
       >
         {{ $t("common.noResults") }}
       </p>
       <p
         v-if="
-          filteredLibraryGames.length == 0 &&
+          filteredLibrary.length == 0 &&
           libraryGames.length == 0 &&
           libraryState.hasLibraries
         "
@@ -305,29 +386,33 @@ useHead({
 const searchQuery = ref("");
 
 const libraryState = await $dropFetch("/api/v1/admin/library");
-type LibraryStateGame = (typeof libraryState.games)[number]["game"];
 
 const toImport = ref(
   Object.values(libraryState.unimportedGames).flat().length > 0,
 );
 
-const libraryGames = ref<
-  Array<
-    LibraryStateGame & {
-      status: "online" | "offline";
-      hasNotifications?: boolean;
-      notifications: {
-        noVersions?: boolean;
-        toImport?: boolean;
-        offline?: boolean;
-      };
-    }
-  >
->(
-  libraryState.games.map((e) => {
+// Potentially make a server-side transformation to make the client lighter
+function clientSideTransformation<T, V extends keyof T, K extends string>(
+  values: Array<T & { status: (typeof libraryState.games)[number]["status"] }>,
+  expand: V,
+  type: K,
+): Array<
+  T[V] & {
+    status: "online" | "offline";
+    type: K;
+    hasNotifications?: boolean;
+    notifications: {
+      noVersions?: boolean;
+      toImport?: boolean;
+      offline?: boolean;
+    };
+  }
+> {
+  return values.map((e) => {
     if (e.status == "offline") {
       return {
-        ...e.game,
+        ...e[expand],
+        type: type,
         status: "offline" as const,
         hasNotifications: true,
         notifications: {
@@ -340,7 +425,8 @@ const libraryGames = ref<
     const toImport = e.status.unimportedVersions.length > 0;
 
     return {
-      ...e.game,
+      ...e[expand],
+      type: type,
       notifications: {
         noVersions,
         toImport,
@@ -348,13 +434,18 @@ const libraryGames = ref<
       hasNotifications: noVersions || toImport,
       status: "online" as const,
     };
-  }),
+  });
+}
+
+const libraryGames = ref(
+  clientSideTransformation(libraryState.games, "value", "game"),
+);
+const libraryRedists = ref(
+  clientSideTransformation(libraryState.redists, "value", "redist"),
 );
 
-const filteredLibraryGames = computed(() =>
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore excessively deep ts
-  libraryGames.value.filter((e) => {
+const filteredLibrary = computed(() =>
+  [...libraryGames.value, ...libraryRedists.value].filter((e) => {
     if (!searchQuery.value) return true;
     const searchQueryLower = searchQuery.value.toLowerCase();
     if (e.mName.toLowerCase().includes(searchQueryLower)) return true;
@@ -371,6 +462,16 @@ async function deleteGame(id: string) {
   });
   const index = libraryGames.value.findIndex((e) => e.id === id);
   libraryGames.value.splice(index, 1);
+  toImport.value = true;
+}
+
+async function deleteRedist(id: string) {
+  await $dropFetch(`/api/v1/admin/redist/${id}`, {
+    method: "DELETE",
+    failTitle: "Failed to delete game",
+  });
+  const index = libraryRedists.value.findIndex((e) => e.id === id);
+  libraryRedists.value.splice(index, 1);
   toImport.value = true;
 }
 

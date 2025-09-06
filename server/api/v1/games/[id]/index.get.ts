@@ -1,5 +1,6 @@
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
+import { convertIDsToPlatforms } from "~/server/internal/platform/link";
 
 export default defineEventHandler(async (h3) => {
   const userId = await aclManager.getUserIdACL(h3, ["store:read"]);
@@ -9,13 +10,21 @@ export default defineEventHandler(async (h3) => {
   if (!gameId)
     throw createError({
       statusCode: 400,
-      statusMessage: "Missing gameId in route params (somehow...?)",
+      message: "Missing gameId in route params (somehow...?)",
     });
 
   const game = await prisma.game.findUnique({
     where: { id: gameId },
     include: {
-      versions: true,
+      versions: {
+        include: {
+          gameVersions: {
+            include: {
+              platform: true,
+            },
+          },
+        },
+      },
       publishers: {
         select: {
           id: true,
@@ -36,8 +45,7 @@ export default defineEventHandler(async (h3) => {
     },
   });
 
-  if (!game)
-    throw createError({ statusCode: 404, statusMessage: "Game not found" });
+  if (!game) throw createError({ statusCode: 404, message: "Game not found" });
 
   const rating = await prisma.gameRating.aggregate({
     where: {
@@ -51,5 +59,18 @@ export default defineEventHandler(async (h3) => {
     },
   });
 
-  return { game, rating };
+  const platformIDs = game.versions
+    .map((e) => e.gameVersions)
+    .flat()
+    .map((e) => e.platform)
+    .flat()
+    .map((e) => e.id)
+    .filter((e) => e !== null)
+    .filter((v, index, arr) => arr.findIndex((k) => k == v) == index);
+
+  const platforms = await convertIDsToPlatforms(platformIDs);
+
+  const noVersionsGame = { ...game, versions: undefined };
+
+  return { game: noVersionsGame, rating, platforms };
 });

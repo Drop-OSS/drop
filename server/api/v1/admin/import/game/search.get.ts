@@ -8,14 +8,14 @@ export default defineEventHandler(async (h3) => {
   const query = getQuery(h3);
   const search = query.q?.toString();
   if (!search)
-    throw createError({ statusCode: 400, statusMessage: "Invalid search" });
+    throw createError({ statusCode: 400, message: "Invalid search" });
 
   const results = await metadataHandler.search(search);
 
   if (results.length == 0)
     throw createError({
       statusCode: 404,
-      statusMessage: "No metadata provider returned search results.",
+      message: "No metadata provider returned search results.",
     });
 
   return results;

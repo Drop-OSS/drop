@@ -14,9 +14,6 @@ export default defineEventHandler(async (h3) => {
     },
     include: {
       versions: {
-        orderBy: {
-          versionIndex: "asc",
-        },
         omit: {
           dropletManifest: true,
         },
@@ -26,7 +23,7 @@ export default defineEventHandler(async (h3) => {
   });
 
   if (!game || !game.libraryId)
-    throw createError({ statusCode: 404, statusMessage: "Game ID not found" });
+    throw createError({ statusCode: 404, message: "Game ID not found" });
 
   const unimportedVersions = await libraryManager.fetchUnimportedGameVersions(
     game.libraryId,

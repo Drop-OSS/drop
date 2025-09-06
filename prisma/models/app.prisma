@@ -10,15 +10,16 @@ model ApplicationSettings {
     showGamePanelTextDecoration Boolean @default(true)
 }
 
-enum Platform {
-    Windows @map("windows")
-    Linux   @map("linux")
-    macOS   @map("macos")
-}
-
 enum LibraryBackend {
     Filesystem
     FlatFilesystem
+}
+
+enum LibraryMode {
+    Game
+    Redist
+    DLC
+    Mod
 }
 
 model Library {
@@ -27,6 +28,10 @@ model Library {
 
     backend LibraryBackend
     options Json
+    mode    LibraryMode @default(Game)
 
-    games Game[]
+    games   Game[]
+    redists Redist[]
+    dlcs  DLC[]
+    mods    Mod[]
 }

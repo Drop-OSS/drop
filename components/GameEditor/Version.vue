@@ -22,7 +22,7 @@
                   <!-- import games button -->
 
                   <NuxtLink
-                    :href="canImport ? `/admin/library/${game.id}/import` : ''"
+                    :href="canImport ? `/admin/library/g/${game.id}/import` : ''"
                     type="button"
                     :class="[
                       canImport
@@ -51,7 +51,11 @@
               @update="() => updateVersionOrder()"
             >
               <template
-                #item="{ element: item }: { element: GameVersionModel }"
+                #item="{
+                  element: item,
+                }: {
+                  element: VersionModel & { gameVersion: GameVersionModel };
+                }"
               >
                 <div
                   class="w-full inline-flex items-center px-4 py-2 bg-zinc-800 rounded justify-between"
@@ -60,17 +64,17 @@
                     {{ item.versionName }}
                   </div>
                   <div class="text-zinc-400">
-                    {{ item.delta ? $t("library.admin.version.delta") : "" }}
+                    {{
+                      item.gameVersion.delta
+                        ? $t("library.admin.version.delta")
+                        : ""
+                    }}
                   </div>
                   <div class="inline-flex items-center gap-x-2">
-                    <component
-                      :is="PLATFORM_ICONS[item.platform]"
-                      class="size-6 text-blue-600"
-                    />
                     <Bars3Icon
                       class="cursor-move w-6 h-6 text-zinc-400 handle"
                     />
-                    <button @click="() => deleteVersion(item.versionName)">
+                    <button @click="() => deleteVersion(item.versionId)">
                       <TrashIcon class="w-5 h-5 text-red-600" />
                     </button>
                   </div>
@@ -112,7 +116,11 @@
 </template>
 
 <script setup lang="ts">
-import type { GameModel, GameVersionModel } from "~/prisma/client/models";
+import type {
+  GameModel,
+  GameVersionModel,
+  VersionModel,
+} from "~/prisma/client/models";
 import { Bars3Icon, TrashIcon } from "@heroicons/vue/24/solid";
 import type { SerializeObject } from "nitropack";
 import type { H3Error } from "h3";
@@ -130,14 +138,16 @@ const canImport = computed(
   () => hasDeleted.value || props.unimportedVersions.length > 0,
 );
 
-type GameAndVersions = GameModel & { versions: GameVersionModel[] };
+type GameAndVersions = GameModel & {
+  versions: (VersionModel & { gameVersion: GameVersionModel })[];
+};
 const game = defineModel<SerializeObject<GameAndVersions>>() as Ref<
   SerializeObject<GameAndVersions>
 >;
 if (!game.value)
   throw createError({
     statusCode: 500,
-    statusMessage: "Game not provided to editor component",
+    message: "Game not provided to editor component",
   });
 
 async function updateVersionOrder() {
@@ -146,7 +156,7 @@ async function updateVersionOrder() {
       method: "PATCH",
       body: {
         id: game.value.id,
-        versions: game.value.versions.map((e) => e.versionName),
+        versions: game.value.versions.map((e) => e.versionId),
       },
     });
     game.value.versions = newVersions;
@@ -156,7 +166,7 @@ async function updateVersionOrder() {
       {
         title: t("errors.version.order.title"),
         description: t("errors.version.order.desc", {
-          error: (e as H3Error)?.statusMessage ?? t("errors.unknown"),
+          error: (e as H3Error)?.message ?? t("errors.unknown"),
         }),
         buttonText: t("common.close"),
       },
@@ -165,32 +175,18 @@ async function updateVersionOrder() {
   }
 }
 
-async function deleteVersion(versionName: string) {
-  try {
-    await $dropFetch("/api/v1/admin/game/version", {
-      method: "DELETE",
-      body: {
-        id: game.value.id,
-        versionName: versionName,
-      },
-    });
-    game.value.versions.splice(
-      game.value.versions.findIndex((e) => e.versionName === versionName),
-      1,
-    );
-    hasDeleted.value = true;
-  } catch (e) {
-    createModal(
-      ModalType.Notification,
-      {
-        title: t("errors.version.delete.title"),
-        description: t("errors.version.delete.desc", {
-          error: (e as H3Error)?.statusMessage ?? t("errors.unknown"),
-        }),
-        buttonText: t("common.close"),
-      },
-      (e, c) => c(),
-    );
-  }
+async function deleteVersion(versionId: string) {
+  await $dropFetch("/api/v1/admin/game/version", {
+    method: "DELETE",
+    body: {
+      id: versionId,
+    },
+    failTitle: "Failed to delete version.",
+  });
+  game.value.versions.splice(
+    game.value.versions.findIndex((e) => e.versionId === versionId),
+    1,
+  );
+  hasDeleted.value = true;
 }
 </script>

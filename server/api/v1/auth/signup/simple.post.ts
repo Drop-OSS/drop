@@ -26,7 +26,7 @@ export default defineEventHandler<{
   if (!authManager.getAuthProviders().Simple)
     throw createError({
       statusCode: 403,
-      statusMessage: t("errors.auth.method.signinDisabled"),
+      message: t("errors.auth.method.signinDisabled"),
     });
 
   const user = await readValidatedBody(h3, CreateUserValidator);
@@ -37,7 +37,7 @@ export default defineEventHandler<{
   if (!invitation)
     throw createError({
       statusCode: 401,
-      statusMessage: t("errors.auth.invalidInvite"),
+      message: t("errors.auth.invalidInvite"),
     });
 
   // reuse items from invite
@@ -50,7 +50,7 @@ export default defineEventHandler<{
   if (existing > 0)
     throw createError({
       statusCode: 400,
-      statusMessage: t("errors.auth.usernameTaken"),
+      message: t("errors.auth.usernameTaken"),
     });
 
   const userId = randomUUID();

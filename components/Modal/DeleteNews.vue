@@ -71,8 +71,8 @@ async function deleteArticle() {
       {
         title: t("errors.news.article.delete.title"),
         description: t("errors.news.article.delete.desc", [
-          // @ts-expect-error attempt to display statusMessage on error
-          e?.statusMessage ?? t("errors.unknown"),
+          // @ts-expect-error attempt to display message on error
+          e?.message ?? t("errors.unknown"),
         ]),
       },
       (_, c) => c(),

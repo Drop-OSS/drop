@@ -67,6 +67,10 @@ export const systemACLs = [
   "game:image:new",
   "game:image:delete",
 
+  "redist:read",
+  "redist:update",
+  "redist:delete",
+
   "company:read",
   "company:update",
   "company:create",
@@ -74,9 +78,10 @@ export const systemACLs = [
 
   "import:version:read",
   "import:version:new",
-
   "import:game:read",
   "import:game:new",
+  "import:redist:read",
+  "import:redist:new",
 
   "user:read",
   "user:delete",

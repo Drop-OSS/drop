@@ -8,7 +8,7 @@ export default defineClientEventHandler(
     if (!client.capabilities.includes(ClientCapabilities.CloudSaves))
       throw createError({
         statusCode: 403,
-        statusMessage: "Capability not allowed.",
+        message: "Capability not allowed.",
       });
     const user = await fetchUser();
 

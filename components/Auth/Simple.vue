@@ -106,7 +106,7 @@ function signin_wrapper() {
       router.push(route.query.redirect?.toString() ?? "/");
     })
     .catch((response) => {
-      const message = response.statusMessage || t("errors.unknown");
+      const message = response.message || t("errors.unknown");
       error.value = message;
     })
     .finally(() => {
