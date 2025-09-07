@@ -18,13 +18,15 @@ export const ImportVersion = type({
   name: "string?",
 
   platform: "string",
-  setup: "string = ''",
-  setupArgs: "string = ''",
   onlySetup: "boolean = false",
   delta: "boolean = false",
   umuId: "string = ''",
 
+  install: "string?",
+  installArgs: "string?",
   launches: LaunchCommands,
+  uninstall: "string?",
+  uninstallArgs: "string?",
 }).configure(throwingArktype);
 
 export default defineEventHandler(async (h3) => {
@@ -56,10 +58,10 @@ export default defineEventHandler(async (h3) => {
   }
 
   if (body.onlySetup) {
-    if (!body.setup)
+    if (!body.install)
       throw createError({
         statusCode: 400,
-        message: 'Setup required in "setup mode".',
+        message: 'Install required in "setup mode".',
       });
   } else {
     if (!body.delta && body.launches.length == 0)

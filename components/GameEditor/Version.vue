@@ -1,96 +1,190 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <div v-if="game && unimportedVersions">
-    <div class="grow flex flex-row gap-y-8">
-      <div class="grow w-full h-full px-6 py-4 flex flex-col"></div>
-      <div
-        class="lg:overflow-y-auto lg:border-l lg:border-zinc-800 lg:block lg:inset-y-0 lg:z-50 lg:w-[30vw] flex flex-col gap-y-8 px-6 py-4"
-      >
-        <!-- version manager -->
+  <div v-if="game && unimportedVersions" class="p-8">
+    <div>
+      <div class="sm:flex sm:items-center">
+        <div class="sm:flex-auto">
+          <h1 class="text-base font-semibold text-zinc-100">Versions</h1>
+          <p class="mt-2 text-sm text-zinc-400 max-w-lg">
+            Versions are a collection of files that are downloaded to clients.
+            Each version can have multiple configurations, for different
+            platforms.
+          </p>
+        </div>
+        <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+          <NuxtLink
+            :href="canImport ? `/admin/library/g/${game.id}/import` : ''"
+            type="button"
+            :class="[
+              canImport ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-800/50',
+              'inline-flex w-fit items-center gap-x-2 rounded-md  px-3 py-1 text-sm font-semibold font-display text-white shadow-sm  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600',
+            ]"
+          >
+            {{
+              canImport
+                ? $t("library.admin.import.version.import")
+                : $t("library.admin.import.version.noVersions")
+            }}
+          </NuxtLink>
+        </div>
+      </div>
+      <div class="mt-8 rounded-xl border border-zinc-800 bg-zinc-900 shadow-sm">
         <div>
-          <!-- version priority -->
-          <div>
-            <div class="border-b border-zinc-800 pb-3">
-              <div
-                class="flex flex-wrap items-center justify-between sm:flex-nowrap"
-              >
-                <h3
-                  class="text-base font-semibold font-display leading-6 text-zinc-100"
+          <table class="min-w-full divide-y divide-zinc-800">
+            <thead>
+              <tr class="bg-zinc-800/50">
+                <th
+                  scope="col"
+                  class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-zinc-100 sm:pl-6"
                 >
-                  {{ $t("library.admin.versionPriority") }}
+                  Version Name
+                </th>
+                <th
+                  scope="col"
+                  class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
+                >
+                  Imported
+                </th>
+                <th
+                  scope="col"
+                  class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
+                >
+                  Platforms
+                </th>
+                <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                  <span class="sr-only">{{ $t("actions") }}</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-800">
+              <tr
+                v-for="version in game.versions"
+                :key="version.versionId"
+                class="transition-colors duration-150 hover:bg-zinc-800/50"
+              >
+                <td
+                  class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-6"
+                >
+                  {{ version.versionName }}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
+                  <RelativeTime :date="version.created" />
+                </td>
+                <td class="px-3 py-4">
+                  <ul class="space-y-4">
+                    <li
+                      v-for="gameVersion in version.gameVersions"
+                      :key="gameVersion.versionId"
+                      class="px-3 py-2 bg-zinc-800 rounded-lg shadow"
+                    >
+                      <div>
+                        <div
+                          class="text-sm flex items-center text-zinc-200 font-semibold"
+                        >
+                          <IconsPlatform
+                            :platform="
+                              platforms[gameVersion.platformId].platformIcon.key
+                            "
+                            :fallback="
+                              platforms[gameVersion.platformId].platformIcon
+                                .fallback
+                            "
+                            class="size-5 text-blue-500"
+                          />
+                          <span class="ml-3 block truncate">{{
+                            platforms[gameVersion.platformId].name
+                          }}</span>
+                        </div>
 
-                  <!-- import games button -->
+                        <!-- launch commands -->
+                        <div class="space-y-1 mt-4">
+                          <div
+                            v-if="gameVersion.install"
+                            class="flex items-center justify-between"
+                          >
+                            <span
+                              class="font-display text-xs text-zinc-300 font-semibold uppercase tracking-wide"
+                              >Install</span
+                            >
 
-                  <NuxtLink
-                    :href="canImport ? `/admin/library/g/${game.id}/import` : ''"
-                    type="button"
-                    :class="[
-                      canImport
-                        ? 'bg-blue-600 hover:bg-blue-700'
-                        : 'bg-blue-800/50',
-                      'inline-flex w-fit items-center gap-x-2 rounded-md  px-3 py-1 text-sm font-semibold font-display text-white shadow-sm  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600',
-                    ]"
+                            <div
+                              class="whitespace-nowrap font-mono text-xs text-zinc-300 bg-zinc-950 px-1 py-0.5 w-fit rounded"
+                            >
+                              <span class="text-zinc-700">(install dir)/</span
+                              >{{ gameVersion.install.command }}
+                              {{ gameVersion.install.args }}
+                            </div>
+                          </div>
+
+                          <div>
+                            <span class="font-semibold text-sm text-zinc-100"
+                              >Launch options</span
+                            >
+                            <ul class="divide-y divide-zinc-700">
+                              <li
+                                v-for="launch in gameVersion.launches"
+                                :key="launch.command"
+                                class="ml-2 py-2 flex justify-between items-center"
+                              >
+                                <h1
+                                  class="font-display text-xs text-zinc-300 font-semibold uppercase tracking-wide"
+                                >
+                                  {{ launch.name }}
+                                </h1>
+                                <div
+                                  class="mt-1 whitespace-nowrap font-mono text-xs text-zinc-300 bg-zinc-950 px-1 py-0.5 w-fit rounded"
+                                >
+                                  <span class="text-zinc-700"
+                                    >(install dir)/</span
+                                  >{{ launch.command }} {{ launch.args }}
+                                </div>
+                              </li>
+                            </ul>
+                          </div>
+
+                          <div
+                            v-if="gameVersion.uninstall"
+                            class="flex items-center justify-between"
+                          >
+                            <span
+                              class="font-display text-xs text-zinc-300 font-semibold uppercase tracking-wide"
+                              >Uninstall</span
+                            >
+
+                            <div
+                              class="whitespace-nowrap font-mono text-xs text-zinc-300 bg-zinc-950 px-1 py-0.5 w-fit rounded"
+                            >
+                              <span class="text-zinc-700">(install dir)/</span
+                              >{{ gameVersion.uninstall.command }}
+                              {{ gameVersion.uninstall.args }}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </td>
+                <td
+                  class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6"
+                >
+                  <button
+                    class="inline-flex items-center rounded-md bg-red-400/10 px-2 py-1 text-xs font-medium text-red-400 ring-1 ring-inset ring-red-400/20 transition-all duration-200 hover:bg-red-400/20 hover:scale-105 active:scale-95"
+                    @click="() => deleteVersion(version.versionId)"
                   >
-                    {{
-                      canImport
-                        ? $t("library.admin.import.version.import")
-                        : $t("library.admin.import.version.noVersions")
-                    }}
-                  </NuxtLink>
-                </h3>
-              </div>
-            </div>
-
-            <div class="mt-4 text-center w-full text-sm text-zinc-600">
-              {{ $t("lowest") }}
-            </div>
-            <draggable
-              :list="game.versions"
-              handle=".handle"
-              class="mt-2 space-y-4"
-              @update="() => updateVersionOrder()"
-            >
-              <template
-                #item="{
-                  element: item,
-                }: {
-                  element: VersionModel & { gameVersion: GameVersionModel };
-                }"
-              >
-                <div
-                  class="w-full inline-flex items-center px-4 py-2 bg-zinc-800 rounded justify-between"
-                >
-                  <div class="text-zinc-100 font-semibold">
-                    {{ item.versionName }}
-                  </div>
-                  <div class="text-zinc-400">
-                    {{
-                      item.gameVersion.delta
-                        ? $t("library.admin.version.delta")
-                        : ""
-                    }}
-                  </div>
-                  <div class="inline-flex items-center gap-x-2">
-                    <Bars3Icon
-                      class="cursor-move w-6 h-6 text-zinc-400 handle"
-                    />
-                    <button @click="() => deleteVersion(item.versionId)">
-                      <TrashIcon class="w-5 h-5 text-red-600" />
-                    </button>
-                  </div>
-                </div>
-              </template>
-            </draggable>
-            <div
-              v-if="game.versions.length == 0"
-              class="text-center font-bold text-zinc-400 my-3"
-            >
-              {{ $t("library.admin.version.noVersionsAdded") }}
-            </div>
-            <div class="mt-2 text-center w-full text-sm text-zinc-600">
-              {{ $t("highest") }}
-            </div>
-          </div>
+                    Delete
+                    <span class="sr-only">
+                      {{ $t("chars.srComma", [version.versionName]) }}
+                    </span>
+                  </button>
+                </td>
+              </tr>
+              <tr v-if="game.versions.length === 0">
+                <td colspan="5" class="py-8 text-center text-sm text-zinc-400">
+                  No versions
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -116,13 +210,7 @@
 </template>
 
 <script setup lang="ts">
-import type {
-  GameModel,
-  GameVersionModel,
-  VersionModel,
-} from "~/prisma/client/models";
-import { Bars3Icon, TrashIcon } from "@heroicons/vue/24/solid";
-import type { SerializeObject } from "nitropack";
+import type { SerializeObject, TypedInternalResponse } from "nitropack";
 import type { H3Error } from "h3";
 import { ExclamationCircleIcon } from "@heroicons/vue/24/outline";
 
@@ -138,17 +226,22 @@ const canImport = computed(
   () => hasDeleted.value || props.unimportedVersions.length > 0,
 );
 
-type GameAndVersions = GameModel & {
-  versions: (VersionModel & { gameVersion: GameVersionModel })[];
-};
-const game = defineModel<SerializeObject<GameAndVersions>>() as Ref<
-  SerializeObject<GameAndVersions>
->;
+type GameFetchType = TypedInternalResponse<
+  "/api/v1/admin/game/:id",
+  unknown,
+  "get"
+>["game"];
+const game = defineModel<SerializeObject<GameFetchType>>({ required: true });
 if (!game.value)
   throw createError({
     statusCode: 500,
     message: "Game not provided to editor component",
   });
+
+const rawPlatforms = await useAdminPlatforms();
+const platforms = Object.fromEntries(
+  renderPlatforms(rawPlatforms).map((v) => [v.param, v]),
+);
 
 async function updateVersionOrder() {
   try {

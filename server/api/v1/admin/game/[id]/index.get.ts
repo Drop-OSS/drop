@@ -17,6 +17,15 @@ export default defineEventHandler(async (h3) => {
         omit: {
           dropletManifest: true,
         },
+        include: {
+          gameVersions: {
+            include: {
+              install: true,
+              uninstall: true,
+              launches: true,
+            }
+          },
+        },
       },
       tags: true,
     },

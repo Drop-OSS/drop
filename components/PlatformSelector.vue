@@ -3,7 +3,7 @@
     <ListboxLabel class="block text-sm font-medium leading-6 text-zinc-100"
       ><slot
     /></ListboxLabel>
-    <div class="relative mt-2">
+    <div class="relative">
       <ListboxButton
         class="relative w-full cursor-default rounded-md bg-zinc-950 py-1.5 pl-3 pr-10 text-left text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm sm:leading-6"
       >

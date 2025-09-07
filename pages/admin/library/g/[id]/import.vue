@@ -98,7 +98,7 @@
         </div>
       </div>
 
-      <!-- setup command -->
+      <!-- install command -->
       <div class="max-w-lg">
         <label
           for="startup"
@@ -117,110 +117,14 @@
             >
               {{ $t("library.admin.import.version.installDir") }}
             </span>
-            <Combobox
-              as="div"
-              :value="versionSettings.setup"
-              nullable
-              @update:model-value="(v) => updateSetupCommand(v)"
-            >
-              <div class="relative">
-                <ComboboxInput
-                  class="block flex-1 border-0 py-1.5 pl-1 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
-                  :placeholder="
-                    $t('library.admin.import.version.setupPlaceholder')
-                  "
-                  @change="setupProcessQuery = $event.target.value"
-                  @blur="setupProcessQuery = ''"
-                />
-                <ComboboxButton
-                  v-if="setupFilteredVersionGuesses?.length ?? 0 > 0"
-                  class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
-                >
-                  <ChevronUpDownIcon
-                    class="size-5 text-gray-400"
-                    aria-hidden="true"
-                  />
-                </ComboboxButton>
-
-                <ComboboxOptions
-                  class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-white/5 focus:outline-none sm:text-sm"
-                >
-                  <ComboboxOption
-                    v-for="guess in setupFilteredVersionGuesses"
-                    :key="guess.filename"
-                    v-slot="{ active, selected }"
-                    :value="guess.filename"
-                    as="template"
-                  >
-                    <li
-                      :class="[
-                        'relative cursor-default select-none py-2 pl-3 pr-9',
-                        active
-                          ? 'bg-blue-600 text-white outline-none'
-                          : 'text-zinc-100',
-                      ]"
-                    >
-                      <span
-                        :class="[
-                          'inline-flex items-center gap-x-2 block truncate',
-                          selected && 'font-semibold',
-                        ]"
-                      >
-                        {{ guess.filename }}
-                        <IconsPlatform
-                          :platform="guess.platform.platformIcon.key"
-                          :fallback="guess.platform.platformIcon.fallback"
-                          class="size-5 flex-shrink-0 text-blue-600"
-                        />
-                      </span>
-
-                      <span
-                        v-if="selected"
-                        :class="[
-                          'absolute inset-y-0 right-0 flex items-center pr-4',
-                          active ? 'text-white' : 'text-blue-600',
-                        ]"
-                      >
-                        <CheckIcon class="size-5" aria-hidden="true" />
-                      </span>
-                    </li>
-                  </ComboboxOption>
-                  <ComboboxOption
-                    v-if="setupProcessQuery"
-                    v-slot="{ active, selected }"
-                    :value="setupProcessQuery"
-                  >
-                    <li
-                      :class="[
-                        'relative cursor-default select-none py-2 pl-3 pr-9',
-                        active
-                          ? 'bg-blue-600 text-white outline-none'
-                          : 'text-zinc-100',
-                      ]"
-                    >
-                      <span
-                        :class="['block truncate', selected && 'font-semibold']"
-                      >
-                        {{ $t("chars.quoted", { text: setupProcessQuery }) }}
-                      </span>
-
-                      <span
-                        v-if="selected"
-                        :class="[
-                          'absolute inset-y-0 right-0 flex items-center pr-4',
-                          active ? 'text-white' : 'text-blue-600',
-                        ]"
-                      >
-                        <CheckIcon class="size-5" aria-hidden="true" />
-                      </span>
-                    </li>
-                  </ComboboxOption>
-                </ComboboxOptions>
-              </div>
-            </Combobox>
+            <PreloadSelector
+              :value="versionSettings.install"
+              :guesses="versionGuesses"
+              @update="(v) => updateInstallCommand(v)"
+            />
             <input
               id="startup"
-              v-model="versionSettings.setupArgs"
+              v-model="versionSettings.installArgs"
               type="text"
               name="startup"
               class="border-l border-zinc-700 block flex-1 border-0 py-1.5 pl-2 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
@@ -290,110 +194,11 @@
                 class="flex select-none items-center pl-3 text-zinc-500 sm:text-sm"
                 >{{ $t("library.admin.import.version.installDir") }}</span
               >
-              <Combobox
-                as="div"
+              <PreloadSelector
                 :value="launch.launchCommand"
-                nullable
-                @update:model-value="(v) => updateLaunchCommand(launchIdx, v)"
-              >
-                <div class="relative">
-                  <ComboboxInput
-                    class="block flex-1 border-0 py-1.5 pl-1 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
-                    :placeholder="
-                      $t('library.admin.import.version.launchPlaceholder')
-                    "
-                    @change="launchProcessQuery = $event.target.value"
-                    @blur="launchProcessQuery = ''"
-                  />
-                  <ComboboxButton
-                    v-if="launchFilteredVersionGuesses?.length ?? 0 > 0"
-                    class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
-                  >
-                    <ChevronUpDownIcon
-                      class="size-5 text-gray-400"
-                      aria-hidden="true"
-                    />
-                  </ComboboxButton>
-
-                  <ComboboxOptions
-                    class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-white/5 focus:outline-none sm:text-sm"
-                  >
-                    <ComboboxOption
-                      v-for="guess in launchFilteredVersionGuesses"
-                      :key="guess.filename"
-                      v-slot="{ active, selected }"
-                      :value="guess.filename"
-                      as="template"
-                    >
-                      <li
-                        :class="[
-                          'relative cursor-default select-none py-2 pl-3 pr-9',
-                          active
-                            ? 'bg-blue-600 text-white outline-none'
-                            : 'text-zinc-100',
-                        ]"
-                      >
-                        <span
-                          :class="[
-                            'inline-flex items-center gap-x-2 block truncate',
-                            selected && 'font-semibold',
-                          ]"
-                        >
-                          {{ guess.filename }}
-                          <IconsPlatform
-                            :platform="guess.platform.platformIcon.key"
-                            :fallback="guess.platform.platformIcon.fallback"
-                            class="size-5 flex-shrink-0 text-blue-600"
-                          />
-                        </span>
-
-                        <span
-                          v-if="selected"
-                          :class="[
-                            'absolute inset-y-0 right-0 flex items-center pr-4',
-                            active ? 'text-white' : 'text-blue-600',
-                          ]"
-                        >
-                          <CheckIcon class="size-5" aria-hidden="true" />
-                        </span>
-                      </li>
-                    </ComboboxOption>
-                    <ComboboxOption
-                      v-if="launchProcessQuery"
-                      v-slot="{ active, selected }"
-                      :value="launchProcessQuery"
-                    >
-                      <li
-                        :class="[
-                          'relative cursor-default select-none py-2 pl-3 pr-9',
-                          active
-                            ? 'bg-blue-600 text-white outline-none'
-                            : 'text-zinc-100',
-                        ]"
-                      >
-                        <span
-                          :class="[
-                            'block truncate',
-                            selected && 'font-semibold',
-                          ]"
-                        >
-                          {{ $t("chars.quoted", { text: launchProcessQuery }) }}
-                        </span>
-
-                        <span
-                          v-if="selected"
-                          :class="[
-                            'absolute inset-y-0 right-0 flex items-center pr-4',
-                            active ? 'text-white' : 'text-blue-600',
-                          ]"
-                        >
-                          <CheckIcon class="size-5" aria-hidden="true" />
-                        </span>
-                      </li>
-                    </ComboboxOption>
-                  </ComboboxOptions>
-                </div>
-              </Combobox>
+                :guesses="versionGuesses"
+                @update="(v) => updateLaunchCommand(launchIdx, v)"
+              />
               <input
                 id="startup"
                 v-model="launch.launchArgs"
@@ -438,6 +243,41 @@
           v-if="versionSettings.onlySetup"
           class="absolute inset-0 bg-zinc-900/50"
         />
+      </div>
+      <!-- uninstall command -->
+      <div class="max-w-lg">
+        <label
+          for="startup"
+          class="block text-sm font-medium leading-6 text-zinc-100"
+          >Uninstall command</label
+        >
+        <p class="text-zinc-400 text-xs">
+          Executable to be run on uninstalling a game. Useful for installer-only games.
+        </p>
+        <div class="mt-2">
+          <div
+            class="flex w-fit rounded-md shadow-sm bg-zinc-950 ring-1 ring-inset ring-zinc-800 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600"
+          >
+            <span
+              class="flex select-none items-center pl-3 text-zinc-500 sm:text-sm"
+            >
+              {{ $t("library.admin.import.version.installDir") }}
+            </span>
+            <PreloadSelector
+              :value="versionSettings.uninstall"
+              :guesses="versionGuesses"
+              @update="(v) => updateUninstallCommand(v)"
+            />
+            <input
+              id="startup"
+              v-model="versionSettings.uninstallArgs"
+              type="text"
+              name="startup"
+              class="border-l border-zinc-700 block flex-1 border-0 py-1.5 pl-2 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
+              placeholder="--uninstall"
+            />
+          </div>
+        </div>
       </div>
 
       <PlatformSelector
@@ -617,11 +457,6 @@ import {
   Disclosure,
   DisclosureButton,
   DisclosurePanel,
-  Combobox,
-  ComboboxButton,
-  ComboboxInput,
-  ComboboxOption,
-  ComboboxOptions,
 } from "@headlessui/vue";
 import { XCircleIcon } from "@heroicons/vue/16/solid";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
@@ -641,9 +476,7 @@ const gameId = route.params.id.toString();
 const versions = await $dropFetch(
   `/api/v1/admin/import/version?id=${encodeURIComponent(gameId)}`,
 );
-const userPlatforms = await $dropFetch(
-  "/api/v1/admin/import/version/platforms",
-);
+const userPlatforms = await useAdminPlatforms();
 const allPlatforms = renderPlatforms(userPlatforms);
 const currentlySelectedVersion = ref(-1);
 const versionSettings = ref<Partial<typeof ImportVersion.infer>>({
@@ -656,27 +489,19 @@ const versionGuesses =
     Array<SerializeObject<{ platform: PlatformRenderable; filename: string }>>
   >();
 
-const launchProcessQuery = ref("");
-const setupProcessQuery = ref("");
-
-const launchFilteredVersionGuesses = computed(() =>
-  versionGuesses.value?.filter((e) =>
-    e.filename.toLowerCase().includes(launchProcessQuery.value.toLowerCase()),
-  ),
-);
-const setupFilteredVersionGuesses = computed(() =>
-  versionGuesses.value?.filter((e) =>
-    e.filename.toLowerCase().includes(setupProcessQuery.value.toLowerCase()),
-  ),
-);
 
 function updateLaunchCommand(idx: number, value: string) {
   versionSettings.value.launches![idx].launchCommand = value;
   autosetPlatform(value);
 }
 
-function updateSetupCommand(value: string) {
-  versionSettings.value.setup = value;
+function updateInstallCommand(value: string) {
+  versionSettings.value.install = value;
+  autosetPlatform(value);
+}
+
+function updateUninstallCommand(value: string) {
+  versionSettings.value.uninstall = value;
   autosetPlatform(value);
 }
 

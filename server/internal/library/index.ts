@@ -14,7 +14,10 @@ import { GameNotFoundError, type LibraryProvider } from "./provider";
 import { logger } from "../logging";
 import { createHash } from "node:crypto";
 import type { ImportVersion } from "~/server/api/v1/admin/import/version/index.post";
-import type { LaunchOptionCreateManyInput } from "~/prisma/client/models";
+import type {
+  GameVersionCreateInput,
+  LaunchOptionCreateManyInput,
+} from "~/prisma/client/models";
 
 export function createGameImportTaskId(libraryId: string, libraryPath: string) {
   return createHash("md5")
@@ -244,8 +247,6 @@ class LibraryManager {
       fileExts[platform.id] = platform.fileExtensions;
     }
 
-    console.log(fileExts);
-
     const options: Array<{
       filename: string;
       platform: string;
@@ -342,6 +343,28 @@ class LibraryManager {
           where: { version: { gameId: gameId } },
         });
 
+        const installCreator = {
+          install: {
+            create: {
+              name: "",
+              description: "",
+              command: metadata.install!,
+              args: metadata.installArgs || "",
+            },
+          },
+        } satisfies Partial<GameVersionCreateInput>;
+
+        const uninstallCreator = {
+          uninstall: {
+            create: {
+              name: "",
+              description: "",
+              command: metadata.uninstall!,
+              args: metadata.uninstallArgs || "",
+            },
+          },
+        } satisfies Partial<GameVersionCreateInput>;
+
         // Then, create the database object
         await prisma.version.create({
           data: {
@@ -372,14 +395,8 @@ class LibraryManager {
                   },
                 },
 
-                install: {
-                  create: {
-                    name: "",
-                    description: "",
-                    command: metadata.setup,
-                    args: metadata.setupArgs,
-                  },
-                },
+                ...(metadata.install ? installCreator : undefined),
+                ...(metadata.uninstall ? uninstallCreator : undefined),
 
                 platform: {
                   connect: {

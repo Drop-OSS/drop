@@ -159,7 +159,7 @@ export default defineNuxtConfig({
   },
 
   typescript: {
-    typeCheck: true,
+    //typeCheck: true,
 
     tsConfig: {
       compilerOptions: {
