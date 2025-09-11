@@ -1,17 +1,18 @@
 {
   "account": {
     "devices": {
-      "capabilities": "Möglichkeiten",
+      "capabilities": "Funktionen",
       "lastConnected": "Zuletzt verbunden",
       "noDevices": "Keine Geräte sind mit deinem Konto verbunden.",
       "platform": "Plattform",
       "revoke": "Wiederrufen",
+      "subheader": "Geräte verwalten, die auf Ihr Drop Konto zugreifen dürfen.",
       "title": "Geräte"
     },
     "notifications": {
-      "all": "Alle anzeigen {arrow}",
-      "desc": "Benachrichtigungen anzeigen und verwalten.",
-      "markAllAsRead": "Alles als gelesen markieren",
+      "all": "Alles anzeigen {arrow}",
+      "desc": "Anzeigen und Verwalten deiner Benachrichtigung.",
+      "markAllAsRead": "Markiere alle als gelesen",
       "markAsRead": "Als gelesen Markieren",
       "none": "Keine Benachrichtigungen",
       "notifications": "Benachrichtigungen",
@@ -19,17 +20,37 @@
       "unread": "Ungelesene Benachrichtigungen"
     },
     "settings": "Einstellungen",
-    "title": "Kontoeinstellungen"
+    "title": "Kontoeinstellungen",
+    "token": {
+      "acls": "Berechtigungen (ACLs/Scopes)",
+      "aclsDesc": "Definiert, wozu dieses Schlüssel berechtigt ist. Du solltest vermeiden, alle ACLs auszuwählen, wenn dies nicht notwendig ist.",
+      "expiry": "Ablaufdatum",
+      "expiry3Month": "3 Monate",
+      "expiry5Year": "5 Jahre",
+      "expiry6Month": "6 Monate",
+      "expiryMonth": "Ein Monat",
+      "expiryYear": "Ein Jahr",
+      "name": "API-Schlüssel Name",
+      "nameDesc": "Der Name des Schlüssels, als Referenz.",
+      "namePlaceholder": "Mein neuer Schlüssel",
+      "noExpiry": "Unbegrenzt gültig",
+      "noTokens": "Keine Schlüssel mit deinem Konto verbunden.",
+      "revoke": "Wiederrufen",
+      "subheader": "Verwalte deine API-Schlüssel und deren Zugriffsrechte.",
+      "success": "Schlüssel erfolgreich erstellt.",
+      "successNote": "Bitte jetzt kopieren, da es nicht noch einmal angezeigt wird.",
+      "title": "API-Schlüssel"
+    }
   },
   "actions": "Aktionen",
   "add": "Hinzufügen",
-  "adminTitle": "Administrator Dashbord - Drop",
-  "adminTitleTemplate": "{0} - Administrator - Drop",
+  "adminTitle": "Admin Dashboard - Drop",
+  "adminTitleTemplate": "{0} - Admin - Drop",
   "auth": {
     "callback": {
       "authClient": "Client autorisieren?",
       "authorize": "Autorisieren",
-      "authorizedClient": "Drop hat den Client erfolgreich autorisiert. Du darfst dieses Fenster nun schließen.",
+      "authorizedClient": "Drop hat den Client erfolgreich autorisiert. Du kannst dieses Fenster nun schließen.",
       "issues": "Probleme?",
       "learn": "Mehr erfahren {arrow}",
       "paste": "Füge diesen Code in den Client ein, um fortzufahren:",
@@ -38,9 +59,10 @@
       "success": "Erfolgreich!"
     },
     "code": {
-      "description": "Verwende ein Code, um dein Drop Client zu verbinden, wenn dein Gerät kein Webbrowser öffnen kann.",
-      "title": "Verbinde dein Drop Client"
+      "description": "Verwende einen Code, um dein Drop Client zu verbinden, wenn dein Gerät kein Webbrowser öffnen kann.",
+      "title": "Verbinde deinen Drop Client"
     },
+    "confirmPassword": "Bestätige @:auth.password",
     "displayName": "Anzeigename",
     "email": "E-Mail",
     "password": "Passwort",
@@ -55,10 +77,10 @@
     "signin": {
       "externalProvider": "Bei externem Anbieter anmelden {arrow}",
       "forgot": "Passwort vergessen?",
-      "noAccount": "Noch kein Konto? Bitten den Administrator, eines für dich zu erstellt.",
+      "noAccount": "Noch kein Konto? Bitte den Admin, eines für dich zu erstellen.",
       "or": "ODER",
       "pageTitle": "Bei Drop anmelden",
-      "rememberMe": "An mich erinnern",
+      "rememberMe": "Erinnere mich",
       "signin": "Anmelden",
       "title": "Melde dich bei deinem Konto an"
     },
@@ -124,9 +146,9 @@
       }
     },
     "auth": {
-      "disabled": "Ungültiges oder deaktiviertes Konto. Bitte kontaktiere einen Server Administrator.",
+      "disabled": "Ungültiges oder deaktiviertes Konto. Bitte kontaktiere einen Server Admin.",
       "invalidInvite": "Ungültige oder abgelaufene Einladung",
-      "invalidPassState": "Ungültiger Passwortzustand. Bitte kontaktiere einen Server Administrator.",
+      "invalidPassState": "Ungültiger Passwortzustand. Bitte kontaktiere einen Server Admin.",
       "invalidUserOrPass": "Ungültiger Nutzername oder Passwort.",
       "inviteIdRequired": "id erforderlich beim Abrufen der Einladung",
       "method": {
@@ -135,6 +157,10 @@
       "usernameTaken": "Nutzername bereits vergeben."
     },
     "backHome": "{arrow} Zurück zur Startseite",
+    "externalUrl": {
+      "subtitle": "Diese Nachricht ist nur sichtbar für Admins.",
+      "title": "Zugriff über eine andere EXTERNAL_URL. Bitte die Dokumentation prüfen."
+    },
     "game": {
       "banner": {
         "description": "Das Aktualisieren des Banners ist fehlgeschlagen: {0}",
@@ -192,6 +218,8 @@
     "occurred": "Bei der Bearbeitung deiner Anfrage ist ein Fehler aufgetreten. Wenn du glaubst, dass es sich um einen Bug handelt, melde diesen bitte. Versuche dich anzumelden, um zu sehen, ob dadurch das Problem behoben wird.",
     "ohNo": "Oh nein!",
     "pageTitle": "{0} | Drop",
+    "revokeClient": "Client konnte nicht widerrufen werden",
+    "revokeClientFull": "Client konnte nicht widerrufen werden {0}",
     "signIn": "Anmelden {arrow}",
     "support": "Support Discord",
     "unknown": "Ein unbekannter Fehler ist aufgetreten",
@@ -231,8 +259,13 @@
   },
   "header": {
     "admin": {
-      "admin": "Administrator",
-      "settings": "Einstellungen",
+      "admin": "Admin",
+      "metadata": "Metadaten",
+      "settings": {
+        "store": "Store",
+        "title": "Einstellungen",
+        "tokens": "API-Schlüssel"
+      },
       "tasks": "Aufgaben",
       "users": "Benutzer"
     },
@@ -240,6 +273,7 @@
     "openSidebar": "Öffne Seitenleiste"
   },
   "helpUsTranslate": "Hilf uns Drop zu übersetzen {arrow}",
+  "highest": "Höchste",
   "home": "Startseite",
   "library": {
     "addGames": "Alle Spiele",
@@ -249,50 +283,117 @@
       "detectedVersion": "Drop hat erkannt, dass du eine neue Version dieses Spiels importieren kannst.",
       "game": {
         "addCarouselNoImages": "Keine Bilder zum hinzufügen.",
-        "addDescriptionNoImages": "Keine Bilder zum hinzufügen."
+        "addDescriptionNoImages": "Keine Bilder zum hinzufügen.",
+        "addImageCarousel": "Aus der Bilderbibliothek hinzufügen",
+        "currentBanner": "Banner",
+        "currentCover": "Cover",
+        "deleteImage": "Bild löschen",
+        "editGameDescription": "Spielbeschreibung",
+        "editGameName": "Spielname",
+        "imageCarousel": "Bilderkarussell",
+        "imageCarouselDescription": "Anpassen, welche Bilder und in welcher Reihenfolge sie auf der Shop-Seite angezeigt werden.",
+        "imageCarouselEmpty": "Es wurden noch keine Bilder zum Karussell hinzugefügt.",
+        "imageLibrary": "Bilderbibliothek",
+        "imageLibraryDescription": "Bitte beachten: Alle hochgeladenen Bilder sind für alle Nutzer über die Browser-Entwicklertools zugänglich.",
+        "removeImageCarousel": "Bild entfernen",
+        "setBanner": "Als Banner festlegen",
+        "setCover": "Als Cover festlegen"
       },
+      "gameLibrary": "Spielebibliothek",
       "import": {
+        "bulkImportDescription": "Auf dieser Seite wirst du nicht zur Importaufgabe weitergeleitet, sodass du mehrere Spiele nacheinander importieren kannst.",
+        "bulkImportTitle": "Massenimport Modus",
+        "import": "Import",
+        "link": "Import {arrow}",
+        "loading": "Spieldaten werden geladen…",
+        "search": "Suche",
+        "searchPlaceholder": "Fallout 4",
+        "selectDir": "Bitte wähle ein Verzeichnis aus…",
+        "selectGame": "Spiel zum Import auswählen",
+        "selectGamePlaceholder": "Bitte wähle ein Spiel aus…",
+        "selectGameSearch": "Spiel auswählen",
+        "selectPlatform": "Bitte wähle eine Plattform aus…",
         "version": {
+          "advancedOptions": "Erweiterte Optionen",
           "import": "Version Importieren",
+          "installDir": "(Installationsverzeichnis)/",
+          "launchCmd": "Programm/Befehl starten",
           "launchDesc": "Ausführbare Datei zum starten des Spiels",
           "launchPlaceholder": "spiel.exe",
           "loadingVersion": "Lade Versionsmetadaten…",
           "noAdv": "Keine erweiterten Optionen für diese Konfiguration.",
           "noVersions": "Keine Version zum importieren",
+          "platform": "Plattformversion",
+          "setupCmd": "Installationsprogramm oder Befehl ausführen",
+          "setupDesc": "Wird einmal ausgeführt, wenn das Spiel installiert wird",
           "setupMode": "Einrichtungsmodus",
+          "setupModeDesc": "Wenn aktiviert, hat diese Version keinen Startbefehl und führt einfach die ausführbare Datei auf dem Computer des Nutzers aus. Nützlich für Spiele, die nur einen Installer bereitstellen und keine portablen Dateien.",
           "setupPlaceholder": "setup.exe",
           "umuLauncherId": "UMU Launcher ID",
+          "umuOverride": "Überschreibe UMU Launcher Spiel ID",
+          "umuOverrideDesc": "Standardmäßig verwendet Drop beim Start über den UMU Launcher eine Nicht-ID. Um die richtigen Patches für manche Spiele zu erhalten, musst du dieses Feld eventuell manuell setzen.",
           "updateMode": "Aktualisierungsmodus",
+          "updateModeDesc": "Wenn aktiviert, werden diese Dateien über die vorherige Version installiert (überschrieben). Werden mehrere ‚Update-Modi‘ hintereinander verwendet, werden sie in der angegebenen Reihenfolge angewendet.",
           "version": "Wähle die Version für den Import aus"
         },
         "withoutMetadata": "Ohne Metadaten importieren"
       },
+      "libraryHint": "Keine Bibliotheken konfiguriert.",
+      "libraryHintDocsLink": "Was bedeutet das? {arrow}",
       "metadata": {
         "companies": {
           "action": "Verwalte {arrow}",
           "addGame": {
+            "description": "Wähle ein Spiel aus, das dem Unternehmen hinzugefügt werden soll, und lege fest, ob es als Entwickler, Publisher oder beides geführt werden soll.",
             "developer": "Entwickler?",
             "noGames": "Keine Spiele zum hinzufügen",
-            "publisher": "Publisher?"
+            "publisher": "Publisher?",
+            "title": "Verbinde das Spiel mit diesem Unternehmen"
           },
+          "description": "Unternehmen organisieren Spiele danach, wer sie entwickelt oder veröffentlicht hat.",
           "editor": {
             "action": "Spiel hinzufügen {plus}",
+            "descriptionPlaceholder": "{'<'}Beschreibung{'>'}",
             "developed": "Entwickelt",
             "libraryDescription": "Hinzufügen, bearbeiten oder entfernen, was diese Firma entwickelt und/oder veröffentlicht hat.",
             "libraryTitle": "Spielebibliothek",
             "noDescription": "(Keine Beschreibung)",
             "published": "Veröffentlicht",
             "uploadBanner": "Banner hochladen",
-            "uploadIcon": "Icon hochladen"
+            "uploadIcon": "Icon hochladen",
+            "websitePlaceholder": "{'<'}Webseite{'>'}"
           },
           "modals": {
+            "createDescription": "Erstelle ein Unternehmen, um deine Spiele besser zu organisieren.",
+            "createFieldDescription": "Unternehmensbeschreibung",
+            "createFieldDescriptionPlaceholder": "Ein kleines Indie-Studio, das…",
+            "createFieldName": "Unternehmensname",
+            "createFieldNamePlaceholder": "Mein neues Unternehmen…",
+            "createFieldWebsite": "Unternehmenswebseite",
+            "createFieldWebsitePlaceholder": "https://beispiel.de/",
+            "createTitle": "Unternehmen erstellen",
+            "nameDescription": "Bearbeite den Namen des Unternehmens. Wird verwendet, um neue Spielimporte zuzuordnen.",
+            "nameTitle": "Bearbeite Firmenname",
             "shortDeckDescription": "Bearbeite die Firmenbeschreibung. Beeinträchtigt nicht die Lange (markdown) Beschreibung.",
-            "shortDeckTitle": "Bearbeite Firmenbeschreibung"
-          }
+            "shortDeckTitle": "Bearbeite Firmenbeschreibung",
+            "websiteDescription": "„Bearbeite die Webseite des Unternehmens. Hinweis: Dies wird ein Link sein und bietet keinen Redirect-Schutz.",
+            "websiteTitle": "Unternehmenswebseite bearbeiten"
+          },
+          "noCompanies": "Keine Unternehmen",
+          "noGames": "Keine Spiele",
+          "search": "Suche Unternehmen…",
+          "searchGames": "Unternehmensspiele durchsuchen…",
+          "title": "Unternehmen"
         },
         "tags": {
           "action": "Verwalte {arrow}",
-          "create": "Erstellen"
+          "create": "Erstellen",
+          "description": "Tags werden automatisch aus importierten Genres erstellt. Du kannst eigene Tags hinzufügen, um deine Spielbibliothek zu kategorisieren.",
+          "modal": {
+            "description": "Erstelle einen Tag, um deine Bibliothek zu organisieren.",
+            "title": "Tag erstellen"
+          },
+          "title": "Tags"
         }
       },
       "metadataProvider": "Metadatenanbieter",
@@ -301,13 +402,31 @@
       "offlineTitle": "Spiel offline",
       "openEditor": "Im Editor öffnen {arrow}",
       "openStore": "Im Store öffnen",
+      "shortDesc": "Kurzbeschreibung",
       "sources": {
+        "create": "Quelle erstellen",
+        "createDesc": "Drop wird diese Quelle verwenden, um auf deine Spielbibliothek zuzugreifen und die Spiele verfügbar zu machen.",
+        "desc": "Konfiguriere deine Bibliotheksquellen, wo Drop nach neuen Spielen und Versionen zum Import suchen wird.",
+        "documentationLink": "Dokumentation {arrow}",
+        "edit": "Quelle bearbeiten",
+        "fsDesc": "Importiert Spiele von einem Pfad auf der Festplatte. Benötigt eine versionsbasierte Ordnerstruktur und unterstützt archivierte Spiele.",
+        "fsFlatDesc": "Importiert Spiele von einem Pfad auf der Festplatte, jedoch ohne separate Unterordner für Versionen. Nützlich beim Migrieren einer bestehenden Bibliothek zu Drop.",
+        "fsFlatTitle": "Kompatibilität",
         "fsPath": "Pfad",
         "fsPathDesc": "Absoluter Pfad zur Spielebibliothek.",
-        "fsPathPlaceholder": "/mnt/spiele"
+        "fsPathPlaceholder": "/mnt/spiele",
+        "fsTitle": "Drop-Stil",
+        "link": "Quellen {arrow}",
+        "nameDesc": "Der Name deiner Quelle, als Referenz.",
+        "namePlaceholder": "Meine neue Quelle",
+        "sources": "Bibliotheksquellen",
+        "typeDesc": "Der Typ deiner Quelle. Ändert die erforderlichen Optionen.",
+        "working": "Funktioniert es?"
       },
+      "subheader": "Wenn du Ordner zu deinen Bibliotheksquellen hinzufügst, erkennt Drop diese und fordert dich auf, sie zu importieren. Jedes Spiel muss importiert werden, bevor du eine Version importieren kannst.",
       "title": "Bibliotheken",
       "version": {
+        "delta": "Upgrade Modus",
         "noVersions": "Du hast keine verfügbare Version dieses Spiels.",
         "noVersionsAdded": "keine Versionen hinzugefügt"
       },
@@ -331,19 +450,30 @@
     "launcherOpen": "Im Launcher öffnen",
     "noGames": "Keine Spiele in der Bibliothek",
     "notFound": "Spiel nicht gefunden",
-    "search": "Durchsuche Bibliothek…"
+    "search": "Durchsuche Bibliothek…",
+    "subheader": "Verwalte deine Spiele in Sammlungen für einen einfacheren Zugriff auf alle deine Spiele."
   },
+  "lowest": "Niedrigste",
   "news": {
     "article": {
       "add": "Hinzufügen",
+      "content": "Inhalt (Markdown)",
       "create": "Neuen Artikel erstellen",
       "editor": "Editor",
+      "editorGuide": "Verwende die obigen Shortcuts oder schreibe direkt in Markdown. Unterstützt **fett**, *kursiv*, [Links](URL) und mehr.",
       "new": "Neuer Artikel",
       "preview": "Vorschau",
-      "titles": "Titel"
+      "shortDesc": "Kurzbeschreibung",
+      "submit": "Absenden",
+      "tagPlaceholder": "Tag hinzufügen…",
+      "titles": "Titel",
+      "uploadCover": "Cover hochladen"
     },
+    "back": "Zurück zu Neuigkeiten",
+    "checkLater": "Schaue später für Updates vorbei.",
     "delete": "Artikel löschen",
     "filter": {
+      "all": "Gesamt",
       "month": "Diesen Monat",
       "week": "Diese Woche",
       "year": "Dieses Jahr"
@@ -351,7 +481,9 @@
     "none": "Keine Artikel",
     "notFound": "Artikel nicht gefunden",
     "search": "Suche Artikel",
-    "searchPlaceholder": "Suche Artikel…"
+    "searchPlaceholder": "Suche Artikel…",
+    "subheader": "Bleibe auf dem Laufenden über die neuesten Updates und Ankündigungen.",
+    "title": "Neueste Neuigkeiten"
   },
   "options": "Einstellungen",
   "security": "Sicherheit",
@@ -359,30 +491,42 @@
   "settings": {
     "admin": {
       "description": "Konfiguriere Drop Einstellungen",
+      "store": {
+        "dropGameAltPlaceholder": "Beispiel Spielsymbol",
+        "dropGameDescriptionPlaceholder": "Dies ist ein exemplarisches Spiel. Es wird ersetzt wenn du ein Spiel importierst.",
+        "dropGameNamePlaceholder": "Beispielspiel",
+        "showGamePanelTextDecoration": "Zeige Titel und Beschreibung auf den Spielkacheln (Standard: an)",
+        "title": "Store"
+      },
       "title": "Einstellungen"
     }
   },
   "setup": {
     "auth": {
+      "description": "Die Authentifizierung in Drop erfolgt über mehrere konfigurierte ‚Provider‘. Jeder Provider ermöglicht es Nutzern, sich über seine Methode anzumelden. Um zu starten, sollte mindestens ein Authentifizierungs-Provider aktiviert sein und ein Konto über diesen erstellt werden.",
       "docs": "Dokumentation {arrow}",
       "enabled": "Aktiviert?",
       "openid": {
         "description": "OpenID Connect (OIDC) ist eine oft unterstützte OAuth2 Erweiterung. Drop erfordert die Konfiguration von OIDC über Umgebungsvariablen.",
+        "skip": "Ich habe ein OIDC Nutzer",
         "title": "OpenID Connect"
       },
       "simple": {
         "description": "Die einfache Authentifizierung verwendet Nutzername und Password zur Authentifizierung von Benutzern. Sie ist standartmäßig aktiviert, wenn kein anderer Authentifizierungsanbieter aktiviert ist.",
+        "register": "Als Admin registrieren {arrow}",
         "title": "Einfache Authentifizierung"
       },
       "title": "Authentifizierung"
     },
     "finish": "Los geht's {arrow}",
+    "noPage": "keine Seite",
     "stages": {
       "account": {
         "description": "Du benötigst mindestens ein Konto, um Drop zu benutzen.",
         "name": "Richte dein Administratorkonto ein."
       },
       "library": {
+        "description": "Füge mindestens eine Bibliotheksquelle hinzu, um Drop zu nutzen.",
         "name": "Erstelle eine Bibliothek."
       }
     },
@@ -391,79 +535,127 @@
   },
   "store": {
     "about": "Über",
+    "commingSoon": "Demnächst verfügbar",
     "developers": "Entwickler | Entwickler | Entwickler",
     "exploreMore": "Mehr entdecken {arrow}",
     "featured": "Empfohlen",
+    "images": "Spielbilder",
+    "lookAt": "Schau es dir an",
     "noDevelopers": "Keine Entwickler",
-    "noGame": "Kein Spiel",
+    "noFeatured": "KEINE HERVORGEHOBENEN SPIELE",
+    "noGame": "KEIN SPIEL",
     "noImages": "Keine Bilder",
+    "noPublishers": "Kein Publisher.",
+    "noTags": "Keine Tags",
+    "openAdminDashboard": "Im Admin Dashboard öffnen",
+    "openFeatured": "Spiele in der Admin-Bibliothek markieren {arrow}",
     "platform": "Plattform | Plattform | Plattform",
+    "publishers": "Publisher | Publisher | Publisher",
     "rating": "Bewertung",
+    "readLess": "Weniger anzeigen",
+    "readMore": "Mehr anzeigen",
     "recentlyAdded": "Kürzlich hinzugefügt",
     "recentlyReleased": "Kürzlich veröffentlicht",
     "recentlyUpdated": "Kürzlich aktualisiert",
     "released": "Veröffentlicht",
     "reviews": "({0} Bewertungen)",
+    "tags": "Tags",
+    "title": "Store",
     "view": {
       "sort": "Sortieren",
       "srFilters": "Filter",
-      "srGames": "Spiele"
+      "srGames": "Spiele",
+      "srViewGrid": "Raster anzeigen"
     },
+    "viewInStore": "Im Store ansehen",
     "website": "Webseite"
   },
   "tasks": {
     "admin": {
+      "back": "{arrow} Zurück zu den Aufgaben",
+      "completedTasksTitle": "Abgeschlossene Aufgaben",
+      "dailyScheduledTitle": "Tägliche Aufgaben",
+      "execute": "{arrow} Ausführen",
+      "noTasksRunning": "Keine laufenden Aufgaben",
+      "progress": "{0}%",
+      "runningTasksTitle": "Laufende Aufgaben",
       "scheduled": {
+        "checkUpdateDescription": "Drop auf Updates überprüfen.",
+        "checkUpdateName": "Auf Updates prüfen.",
+        "cleanupInvitationsDescription": "Bereinigt abgelaufene Einladungen aus der Datenbank, um Speicherplatz zu sparen.",
         "cleanupInvitationsName": "Einladungen bereinigen",
+        "cleanupObjectsDescription": "Erkennt und löscht nicht referenzierte und ungenutzte Objekte, um Speicherplatz zu sparen.",
+        "cleanupObjectsName": "Objekte bereinigen",
+        "cleanupSessionsDescription": "Bereinigt abgelaufene Sitzungen, um Speicherplatz zu sparen und die Sicherheit zu gewährleisten.",
         "cleanupSessionsName": "Sitzungen bereinigen."
-      }
+      },
+      "viewTask": "Ansehen {arrow}",
+      "weeklyScheduledTitle": "Wöchentliche Aufgaben"
     }
   },
   "title": "Drop",
   "titleTemplate": "{0} - Drop",
+  "todo": "Todo",
+  "type": "Typ",
   "upload": "Hochladen",
   "uploadFile": "Datei hochladen",
   "userHeader": {
     "closeSidebar": "Seitenleiste schließen",
     "links": {
-      "library": "Bibliothek"
+      "community": "Community",
+      "library": "Bibliothek",
+      "news": "Neuigkeiten"
     },
     "profile": {
+      "admin": "Admin Dashboard",
       "settings": "Kontoeinstellungen"
     }
   },
   "users": {
     "admin": {
       "adminHeader": "Administrator?",
+      "adminUserLabel": "Admin",
       "authLink": "Authentifizierung {arrow}",
       "authentication": {
         "configure": "Konfigurieren",
+        "description": "Drop unterstützt eine Vielzahl von Authentifizierungsmechanismen. Wenn du sie aktivierst oder deaktivierst, werden sie auf dem Anmeldebildschirm angezeigt, damit Benutzer sie auswählen können. Klicke auf die Drei-Punkte, um den Authentifizierungsmechanismus zu konfigurieren.",
         "disabled": "Deaktiviert",
         "enabled": "Aktiviert",
         "enabledKey": "Aktiviert?",
         "oidc": "OpenID Connect",
+        "simple": "Einfach (Nutzername/Passwort)",
         "srOpenOptions": "Einstellungen öffnen",
         "title": "Authentifizierung"
       },
       "authoptionsHeader": "Authentifizierungseinstellungen",
       "delete": "Löschen",
       "deleteUser": "Benutzer löschen {0}",
+      "description": "Verwalte Benutzer auf deiner Drop-Instanz und konfiguriere deine Authentifizierungsmethode.",
       "displayNameHeader": "Anzeigename",
       "emailHeader": "E-Mail",
       "normalUserLabel": "Normaler Benutzer",
       "simple": {
+        "adminInvitation": "Admin Einladung",
         "createInvitation": "Einladung erstellen",
+        "description": "Die einfache Authentifizierung verwendet ein Einladungssystem zur Erstellung von Benutzern. Du kannst eine Einladung erstellen und optional einen Benutzernamen oder eine E-Mail-Adresse für den Benutzer angeben. Daraufhin wird eine magische URL generiert, mit der ein Konto erstellt werden kann.",
+        "expires": "Läuft ab: {expiry}",
         "invitationTitle": "Einladungen",
         "invite3Days": "3 Tage",
         "invite6Months": "6 Monate",
         "inviteAdminSwitchDescription": "Erstelle diesen Benutzer als Administrator",
+        "inviteAdminSwitchLabel": "Admin Einladung",
         "inviteButton": "Einladung",
+        "inviteDescription": "Drop erstellt eine URL, die du an die Person senden kannst, die du einladen möchtest. Du kannst optional einen Benutzernamen oder eine E-Mail-Adresse angeben, die sie verwenden soll.",
+        "inviteEmailDescription": "Muss im Format nutzer{'@'}beispiel.de sein",
         "inviteEmailLabel": "E-Mail-Adresse (optional)",
+        "inviteEmailPlaceholder": "ich{'@'}beispiel.de",
+        "inviteExpiryLabel": "Läuft ab",
         "inviteMonth": "1 Monat",
         "inviteNever": "Niemals",
         "inviteTitle": "Ein Benutzer zu Drop einladen",
         "inviteUsernameFormat": "Muss mindestens 5 Zeichen lang sein",
         "inviteUsernameLabel": "Nutzername (optional)",
+        "inviteUsernamePlaceholder": "meinNutzername",
         "inviteWeek": "1 Woche",
         "inviteYear": "1 Jahr",
         "neverExpires": "Läuft niemals ab.",
@@ -476,5 +668,6 @@
       "srEditLabel": "Bearbeiten",
       "usernameHeader": "Nutzername"
     }
-  }
+  },
+  "welcome": "Deutsche, willkommen!"
 }
