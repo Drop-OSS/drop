@@ -33,7 +33,7 @@
     "@vueuse/nuxt": "13.6.0",
     "argon2": "^0.43.0",
     "arktype": "^2.1.10",
-    "axios": "^1.7.7",
+    "axios": "^1.12.0",
     "bcryptjs": "^3.0.2",
     "cheerio": "^1.0.0",
     "cookie-es": "^2.0.0",
