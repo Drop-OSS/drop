@@ -256,6 +256,7 @@ export default defineNuxtConfig({
           "https://www.giantbomb.com",
           "https://images.pcgamingwiki.com",
           "https://images.igdb.com",
+          "https://*.steamstatic.com",
         ],
       },
       strictTransportSecurity: false,

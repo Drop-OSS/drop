@@ -1,6 +1,7 @@
 enum MetadataSource {
   Manual
   GiantBomb
+  Steam
   PCGamingWiki
   IGDB
   Metacritic
