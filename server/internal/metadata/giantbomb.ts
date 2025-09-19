@@ -13,7 +13,7 @@ import type {
 import axios, { type AxiosRequestConfig } from "axios";
 import TurndownService from "turndown";
 import { DateTime } from "luxon";
-import type { TaskRunContext } from "../tasks";
+import type { TaskRunContext } from "../tasks/utils";
 
 interface GiantBombResponseType<T> {
   error: "OK" | string;

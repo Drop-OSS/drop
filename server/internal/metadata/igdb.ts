@@ -13,8 +13,8 @@ import type { AxiosRequestConfig } from "axios";
 import axios from "axios";
 import { DateTime } from "luxon";
 import * as jdenticon from "jdenticon";
-import type { TaskRunContext } from "../tasks";
 import { logger } from "~/server/internal/logging";
+import type { TaskRunContext } from "../tasks/utils";
 
 type IGDBID = number;
 

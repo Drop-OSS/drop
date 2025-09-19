@@ -5,7 +5,7 @@ This is used as a utility in metadata handling, so we only fetch the objects if 
 import type { Readable } from "stream";
 import { randomUUID } from "node:crypto";
 import objectHandler from ".";
-import type { TaskRunContext } from "../tasks";
+import type { TaskRunContext } from "../tasks/utils";
 
 export type TransactionDataType = string | Readable | Buffer;
 type TransactionTable = Map<string, TransactionDataType>; // ID to data

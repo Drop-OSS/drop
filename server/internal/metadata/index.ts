@@ -13,13 +13,14 @@ import type {
 import { ObjectTransactionalHandler } from "../objects/transactional";
 import { PriorityListIndexed } from "../utils/prioritylist";
 import { systemConfig } from "../config/sys-conf";
-import type { TaskRunContext } from "../tasks";
-import taskHandler, { wrapTaskContext } from "../tasks";
 import { randomUUID } from "crypto";
 import { fuzzy } from "fast-fuzzy";
 import { logger } from "~/server/internal/logging";
 import libraryManager, { createGameImportTaskId } from "../library";
 import type { GameTagModel } from "~/prisma/client/models";
+import type { TaskRunContext} from "../tasks/utils";
+import { wrapTaskContext } from "../tasks/utils";
+import taskHandler from "../tasks";
 
 export class MissingMetadataProviderConfig extends Error {
   private providerName: string;

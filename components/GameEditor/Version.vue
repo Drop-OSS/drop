@@ -75,11 +75,11 @@
                     <li
                       v-for="gameVersion in version.gameVersions"
                       :key="gameVersion.versionId"
-                      class="px-3 py-2 bg-zinc-800 rounded-lg shadow"
+                      class="px-3 py-2 border border-zinc-800 rounded-lg shadow"
                     >
                       <div>
                         <div
-                          class="text-sm flex items-center text-zinc-200 font-semibold"
+                          class="text-sm flex items-center gap-x-2 text-zinc-200 font-semibold"
                         >
                           <IconsPlatform
                             :platform="
@@ -91,7 +91,7 @@
                             "
                             class="size-5 text-blue-500"
                           />
-                          <span class="ml-3 block truncate">{{
+                          <span class="block truncate">{{
                             platforms[gameVersion.platformId].name
                           }}</span>
                         </div>
