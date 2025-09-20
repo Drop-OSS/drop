@@ -234,10 +234,10 @@ export class SteamProvider implements MetadataProvider {
     { id, publisher, developer, createObject }: _FetchGameMetadataParams,
     context?: TaskRunContext,
   ): Promise<GameMetadata> {
-    context?.logger.info(`🎮 Starting Steam metadata fetch for game ID: ${id}`);
+    context?.logger.info(`Starting Steam metadata fetch for game ID: ${id}`);
     context?.progress(0);
 
-    context?.logger.info("📡 Fetching game details from Steam API...");
+    context?.logger.info("Fetching game details from Steam API...");
     const response = await this._fetchGameDetails([id], {
       include_assets: true,
       include_basic_info: true,
@@ -249,16 +249,16 @@ export class SteamProvider implements MetadataProvider {
     });
 
     if (response.length === 0) {
-      context?.logger.error(`❌ No game found on Steam with ID: ${id}`);
+      context?.logger.error(`No game found on Steam with ID: ${id}`);
       throw new Error(`No game found on Steam with id: ${id}`);
     }
 
     const currentGame = response[0] as SteamAppDetailsLarge;
 
-    context?.logger.info(`✅ Found game: "${currentGame.name}" on Steam`);
+    context?.logger.info(`Found game: "${currentGame.name}" on Steam`);
     context?.progress(10);
 
-    context?.logger.info("🖼️ Processing game images and assets...");
+    context?.logger.info("Processing game images and assets...");
     const { icon, cover, banner, images } = this._processImages(
       currentGame,
       createObject,
@@ -270,66 +270,66 @@ export class SteamProvider implements MetadataProvider {
       : new Date();
 
     if (currentGame.release?.steam_release_date) {
-      context?.logger.info(`📅 Release date: ${released.toLocaleDateString()}`);
+      context?.logger.info(`Release date: ${released.toLocaleDateString()}`);
     } else {
       context?.logger.warn(
-        "⚠️ No release date found, using current date as fallback",
+        "No release date found, using current date as fallback",
       );
     }
 
     context?.progress(60);
 
     context?.logger.info(
-      `🏷️ Fetching tags from Steam (${currentGame.tagids?.length || 0} tags to process)...`,
+      `Fetching tags from Steam (${currentGame.tagids?.length || 0} tags to process)...`,
     );
     const tags = await this._getTagNames(currentGame.tagids || []);
 
     context?.logger.info(
-      `✅ Successfully fetched ${tags.length} tags: ${tags.slice(0, 5).join(", ")}${tags.length > 5 ? "..." : ""}`,
+      `Successfully fetched ${tags.length} tags: ${tags.slice(0, 5).join(", ")}${tags.length > 5 ? "..." : ""}`,
     );
     context?.progress(70);
 
-    context?.logger.info("🏢 Processing publishers and developers...");
+    context?.logger.info("Processing publishers and developers...");
     const publishers = [];
     const publisherNames = currentGame.basic_info.publishers || [];
     context?.logger.info(
-      `📊 Found ${publisherNames.length} publisher(s) to process`,
+      `Found ${publisherNames.length} publisher(s) to process`,
     );
 
     for (const pub of publisherNames) {
-      context?.logger.info(`🔍 Processing publisher: "${pub.name}"`);
+      context?.logger.info(`Processing publisher: "${pub.name}"`);
       const comp = await publisher(pub.name);
       if (!comp) {
-        context?.logger.warn(`⚠️ Failed to import publisher "${pub.name}"`);
+        context?.logger.warn(`Failed to import publisher "${pub.name}"`);
         continue;
       }
       publishers.push(comp);
-      context?.logger.info(`✅ Successfully imported publisher: "${pub.name}"`);
+      context?.logger.info(`Successfully imported publisher: "${pub.name}"`);
     }
 
     const developers = [];
     const developerNames = currentGame.basic_info.developers || [];
     context?.logger.info(
-      `📊 Found ${developerNames.length} developer(s) to process`,
+      `Found ${developerNames.length} developer(s) to process`,
     );
 
     for (const dev of developerNames) {
-      context?.logger.info(`🔍 Processing developer: "${dev.name}"`);
+      context?.logger.info(`Processing developer: "${dev.name}"`);
       const comp = await developer(dev.name);
       if (!comp) {
-        context?.logger.warn(`⚠️ Failed to import developer "${dev.name}"`);
+        context?.logger.warn(`Failed to import developer "${dev.name}"`);
         continue;
       }
       developers.push(comp);
-      context?.logger.info(`✅ Successfully imported developer: "${dev.name}"`);
+      context?.logger.info(`Successfully imported developer: "${dev.name}"`);
     }
 
     context?.logger.info(
-      `✅ Company processing complete: ${publishers.length} publishers, ${developers.length} developers`,
+      `Company processing complete: ${publishers.length} publishers, ${developers.length} developers`,
     );
     context?.progress(80);
 
-    context?.logger.info("📝 Fetching detailed description and reviews...");
+    context?.logger.info("Fetching detailed description and reviews...");
     const webAppDetails = (await this._getWebAppDetails(
       id,
       "metacritic",
@@ -342,23 +342,21 @@ export class SteamProvider implements MetadataProvider {
 
     let description;
     if (detailedDescription) {
-      context?.logger.info("🔄 Converting HTML description to Markdown...");
+      context?.logger.info("Converting HTML description to Markdown...");
       const converted = this._htmlToMarkdown(detailedDescription, createObject);
       images.push(...converted.objects);
       description = converted.markdown;
       context?.logger.info(
-        `✅ Description converted, ${converted.objects.length} images embedded`,
+        `Description converted, ${converted.objects.length} images embedded`,
       );
     } else {
-      context?.logger.info(
-        "📄 Using fallback description from basic game info",
-      );
+      context?.logger.info("Using fallback description from basic game info");
       description = currentGame.full_description;
     }
 
     context?.progress(90);
 
-    context?.logger.info("⭐ Processing review ratings...");
+    context?.logger.info("Processing review ratings...");
     const reviews = [
       {
         metadataId: id,
@@ -375,7 +373,7 @@ export class SteamProvider implements MetadataProvider {
     const steamRating =
       currentGame.reviews?.summary_filtered?.percent_positive || 0;
     context?.logger.info(
-      `📊 Steam reviews: ${steamReviewCount} reviews, ${steamRating}% positive`,
+      `Steam reviews: ${steamReviewCount} reviews, ${steamRating}% positive`,
     );
 
     if (webAppDetails?.metacritic) {
@@ -387,16 +385,16 @@ export class SteamProvider implements MetadataProvider {
         mReviewRating: webAppDetails.metacritic.score / 100,
       });
       context?.logger.info(
-        `🎯 Metacritic score: ${webAppDetails.metacritic.score}/100`,
+        `Metacritic score: ${webAppDetails.metacritic.score}/100`,
       );
     }
 
     context?.logger.info(
-      `✅ Review processing complete: ${reviews.length} rating sources found`,
+      `Review processing complete: ${reviews.length} rating sources found`,
     );
     context?.progress(100);
 
-    context?.logger.info("🎉 Steam metadata fetch completed successfully!");
+    context?.logger.info("Steam metadata fetch completed successfully!");
 
     return {
       id: currentGame.appid.toString(),
@@ -645,45 +643,45 @@ export class SteamProvider implements MetadataProvider {
   ): { icon: string; cover: string; banner: string; images: string[] } {
     const imageURLFormat = game.assets?.asset_url_format;
 
-    context?.logger.info("🖼️ Processing game icon...");
+    context?.logger.info("Processing game icon...");
     let iconRaw;
     if (game.assets?.community_icon) {
-      context?.logger.info("✅ Found community icon on Steam");
+      context?.logger.info("Found community icon on Steam");
       iconRaw = `https://cdn.fastly.steamstatic.com/steamcommunity/public/images/apps/${game.appid}/${game.assets.community_icon}.jpg`;
     } else {
-      context?.logger.info("⚠️ No icon found, generating fallback icon");
+      context?.logger.info("No icon found, generating fallback icon");
       iconRaw = jdenticon.toPng(game.appid, 512);
     }
 
     const icon = createObject(iconRaw);
     context?.progress(20);
 
-    context?.logger.info("🎨 Processing game cover art...");
+    context?.logger.info("Processing game cover art...");
     let coverRaw;
     if (game.assets?.library_capsule_2x) {
-      context?.logger.info("✅ Found high-resolution cover art");
+      context?.logger.info("Found high-resolution cover art");
       coverRaw = this._getImageUrl(
         game.assets.library_capsule_2x,
         imageURLFormat,
       );
     } else if (game.assets?.library_capsule) {
-      context?.logger.info("✅ Found standard resolution cover art");
+      context?.logger.info("Found standard resolution cover art");
       coverRaw = this._getImageUrl(game.assets.library_capsule, imageURLFormat);
     } else {
-      context?.logger.info("⚠️ No cover art found, generating fallback cover");
+      context?.logger.info("No cover art found, generating fallback cover");
       coverRaw = jdenticon.toPng(game.appid, 512);
     }
 
     const cover = createObject(coverRaw);
     context?.progress(30);
 
-    context?.logger.info("🏞️ Processing game banner...");
+    context?.logger.info("Processing game banner...");
     let bannerRaw;
     if (game.assets?.library_hero) {
-      context?.logger.info("✅ Found library hero banner");
+      context?.logger.info("Found library hero banner");
       bannerRaw = this._getImageUrl(game.assets.library_hero, imageURLFormat);
     } else {
-      context?.logger.info("⚠️ No banner found, generating fallback banner");
+      context?.logger.info("No banner found, generating fallback banner");
       bannerRaw = jdenticon.toPng(game.appid, 512);
     }
 
@@ -692,7 +690,7 @@ export class SteamProvider implements MetadataProvider {
 
     const images = [cover, banner];
     const screenshotCount = game.screenshots?.all_ages_screenshots?.length || 0;
-    context?.logger.info(`📸 Processing ${screenshotCount} screenshots...`);
+    context?.logger.info(`Processing ${screenshotCount} screenshots...`);
 
     for (const image of game.screenshots?.all_ages_screenshots || []) {
       const imageUrl = this._getImageUrl(image.filename);
@@ -700,7 +698,7 @@ export class SteamProvider implements MetadataProvider {
     }
 
     context?.logger.info(
-      `✅ Image processing complete: icon, cover, banner and ${screenshotCount} screenshots`,
+      `Image processing complete: icon, cover, banner and ${screenshotCount} screenshots`,
     );
     context?.progress(50);
 
