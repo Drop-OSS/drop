@@ -1,7 +1,7 @@
-import cacheHandler from "~/server/internal/cache";
-import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
-import prisma from "~/server/internal/db/database";
-import libraryManager from "~/server/internal/library";
+import cacheHandler from "~~/server/internal/cache";
+import { defineClientEventHandler } from "~~/server/internal/clients/event-handler";
+import prisma from "~~/server/internal/db/database";
+import libraryManager from "~~/server/internal/library";
 
 const chunkSize = 1024 * 1024 * 64;
 

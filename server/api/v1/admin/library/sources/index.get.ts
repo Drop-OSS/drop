@@ -1,6 +1,6 @@
-import type { LibraryModel } from "~/prisma/client/models";
-import aclManager from "~/server/internal/acls";
-import libraryManager from "~/server/internal/library";
+import type { LibraryModel } from "~~/prisma/client/models";
+import aclManager from "~~/server/internal/acls";
+import libraryManager from "~~/server/internal/library";
 
 export type WorkingLibrarySource = LibraryModel & { working: boolean };
 

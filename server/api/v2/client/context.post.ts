@@ -1,7 +1,7 @@
 import { type } from "arktype";
-import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
-import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
-import contextManager from "~/server/internal/downloads/coordinator";
+import { readDropValidatedBody, throwingArktype } from "~~/server/arktype";
+import { defineClientEventHandler } from "~~/server/internal/clients/event-handler";
+import contextManager from "~~/server/internal/downloads/coordinator";
 
 const CreateContext = type({
   game: "string",

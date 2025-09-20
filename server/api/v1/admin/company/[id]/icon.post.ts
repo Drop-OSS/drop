@@ -1,7 +1,7 @@
-import aclManager from "~/server/internal/acls";
-import prisma from "~/server/internal/db/database";
-import objectHandler from "~/server/internal/objects";
-import { handleFileUpload } from "~/server/internal/utils/handlefileupload";
+import aclManager from "~~/server/internal/acls";
+import prisma from "~~/server/internal/db/database";
+import objectHandler from "~~/server/internal/objects";
+import { handleFileUpload } from "~~/server/internal/utils/handlefileupload";
 
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["company:update"]);

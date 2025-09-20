@@ -1,7 +1,7 @@
 import { type } from "arktype";
-import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
-import aclManager from "~/server/internal/acls";
-import prisma from "~/server/internal/db/database";
+import { readDropValidatedBody, throwingArktype } from "~~/server/arktype";
+import aclManager from "~~/server/internal/acls";
+import prisma from "~~/server/internal/db/database";
 
 const DeleteInvite = type({
   id: "string",

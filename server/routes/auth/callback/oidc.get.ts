@@ -1,5 +1,5 @@
-import sessionHandler from "~/server/internal/session";
-import authManager from "~/server/internal/auth";
+import sessionHandler from "~~/server/internal/session";
+import authManager from "~~/server/internal/auth";
 
 defineRouteMeta({
   openAPI: {

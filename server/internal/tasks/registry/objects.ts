@@ -1,5 +1,5 @@
-import prisma from "~/server/internal/db/database";
-import objectHandler from "~/server/internal/objects";
+import prisma from "~~/server/internal/db/database";
+import objectHandler from "~~/server/internal/objects";
 import { defineDropTask } from "..";
 
 type FieldReferenceMap = {

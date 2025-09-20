@@ -9,7 +9,7 @@ import prisma from "../db/database";
 import cacheHandler from "../cache";
 import { systemConfig } from "../config/sys-conf";
 import { type } from "arktype";
-import { logger } from "~/server/internal/logging";
+import { logger } from "~~/server/internal/logging";
 import type pino from "pino";
 
 export class FsObjectBackend extends ObjectBackend {

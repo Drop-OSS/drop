@@ -1,5 +1,5 @@
-import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
-import manifestGenerator from "~/server/internal/downloads/manifest";
+import { defineClientEventHandler } from "~~/server/internal/clients/event-handler";
+import manifestGenerator from "~~/server/internal/downloads/manifest";
 
 export default defineClientEventHandler(async (h3) => {
   const query = getQuery(h3);

@@ -1,5 +1,5 @@
-import type { CompanyModel } from "~/prisma/client/models";
-import { MetadataSource } from "~/prisma/client/enums";
+import type { CompanyModel } from "~~/prisma/client/models";
+import { MetadataSource } from "~~/prisma/client/enums";
 import type { MetadataProvider } from ".";
 import type {
   GameMetadataSearchResult,
@@ -15,7 +15,7 @@ import * as jdenticon from "jdenticon";
 import { DateTime } from "luxon";
 import * as cheerio from "cheerio";
 import { type } from "arktype";
-import { logger } from "~/server/internal/logging";
+import { logger } from "~~/server/internal/logging";
 import type { TaskRunContext } from "../tasks/utils";
 
 interface PCGamingWikiParseRawPage {

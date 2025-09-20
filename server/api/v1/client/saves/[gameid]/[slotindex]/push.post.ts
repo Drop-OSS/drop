@@ -1,7 +1,7 @@
-import { ClientCapabilities } from "~/prisma/client/enums";
-import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
-import prisma from "~/server/internal/db/database";
-import saveManager from "~/server/internal/saves";
+import { ClientCapabilities } from "~~/prisma/client/enums";
+import { defineClientEventHandler } from "~~/server/internal/clients/event-handler";
+import prisma from "~~/server/internal/db/database";
+import saveManager from "~~/server/internal/saves";
 
 export default defineClientEventHandler(
   async (h3, { fetchClient, fetchUser }) => {

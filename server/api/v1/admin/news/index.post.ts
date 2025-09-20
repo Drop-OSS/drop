@@ -1,8 +1,8 @@
 import { ArkErrors, type } from "arktype";
 import { defineEventHandler, createError } from "h3";
-import aclManager from "~/server/internal/acls";
-import newsManager from "~/server/internal/news";
-import { handleFileUpload } from "~/server/internal/utils/handlefileupload";
+import aclManager from "~~/server/internal/acls";
+import newsManager from "~~/server/internal/news";
+import { handleFileUpload } from "~~/server/internal/utils/handlefileupload";
 
 const CreateNews = type({
   title: "string",

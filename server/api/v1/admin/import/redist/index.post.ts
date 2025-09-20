@@ -1,9 +1,9 @@
 import { ArkErrors, type } from "arktype";
-import aclManager from "~/server/internal/acls";
-import { handleFileUpload } from "~/server/internal/utils/handlefileupload";
+import aclManager from "~~/server/internal/acls";
+import { handleFileUpload } from "~~/server/internal/utils/handlefileupload";
 import * as jdenticon from "jdenticon";
-import prisma from "~/server/internal/db/database";
-import libraryManager from "~/server/internal/library";
+import prisma from "~~/server/internal/db/database";
+import libraryManager from "~~/server/internal/library";
 import jsdom from "jsdom";
 
 export const ImportRedist = type({

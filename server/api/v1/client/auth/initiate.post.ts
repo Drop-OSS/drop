@@ -1,14 +1,14 @@
 import { type } from "arktype";
-import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
+import { readDropValidatedBody, throwingArktype } from "~~/server/arktype";
 import type {
   CapabilityConfiguration,
   InternalClientCapability,
-} from "~/server/internal/clients/capabilities";
+} from "~~/server/internal/clients/capabilities";
 import capabilityManager, {
   validCapabilities,
-} from "~/server/internal/clients/capabilities";
-import clientHandler, { AuthMode } from "~/server/internal/clients/handler";
-import { parsePlatform } from "~/server/internal/utils/parseplatform";
+} from "~~/server/internal/clients/capabilities";
+import clientHandler, { AuthMode } from "~~/server/internal/clients/handler";
+import { parsePlatform } from "~~/server/internal/utils/parseplatform";
 
 const ClientAuthInitiate = type({
   name: "string",

@@ -166,6 +166,7 @@ export default defineNuxtConfig({
         verbatimModuleSyntax: false,
         strictNullChecks: true,
         exactOptionalPropertyTypes: true,
+        noUncheckedIndexedAccess: false,
       },
     },
   },

@@ -1,5 +1,5 @@
-import aclManager from "~/server/internal/acls";
-import libraryManager from "~/server/internal/library";
+import aclManager from "~~/server/internal/acls";
+import libraryManager from "~~/server/internal/library";
 
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["library:read"]);

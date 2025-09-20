@@ -1,5 +1,5 @@
-import aclManager from "~/server/internal/acls";
-import prisma from "~/server/internal/db/database";
+import aclManager from "~~/server/internal/acls";
+import prisma from "~~/server/internal/db/database";
 
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.getUserACL(h3, ["settings:read"]);

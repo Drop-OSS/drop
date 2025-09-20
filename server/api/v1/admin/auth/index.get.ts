@@ -1,6 +1,6 @@
-import { AuthMec } from "~/prisma/client/enums";
-import aclManager from "~/server/internal/acls";
-import authManager from "~/server/internal/auth";
+import { AuthMec } from "~~/prisma/client/enums";
+import aclManager from "~~/server/internal/acls";
+import authManager from "~~/server/internal/auth";
 
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["auth:read", "setup"]);

@@ -1,6 +1,6 @@
-import { HardwarePlatform } from "~/prisma/client/enums";
+import { HardwarePlatform } from "~~/prisma/client/enums";
 import prisma from "../db/database";
-import type { PlatformLink } from "~/prisma/client/client";
+import type { PlatformLink } from "~~/prisma/client/client";
 
 export async function convertIDsToPlatforms(platformIDs: string[]) {
   const userPlatforms = await prisma.userPlatform.findMany({

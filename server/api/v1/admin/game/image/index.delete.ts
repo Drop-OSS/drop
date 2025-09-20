@@ -1,8 +1,8 @@
-import aclManager from "~/server/internal/acls";
-import prisma from "~/server/internal/db/database";
-import objectHandler from "~/server/internal/objects";
+import aclManager from "~~/server/internal/acls";
+import prisma from "~~/server/internal/db/database";
+import objectHandler from "~~/server/internal/objects";
 import { type } from "arktype";
-import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
+import { readDropValidatedBody, throwingArktype } from "~~/server/arktype";
 
 const DeleteGameImage = type({
   gameId: "string",

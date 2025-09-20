@@ -1,8 +1,8 @@
-import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
-import aclManager from "~/server/internal/acls";
-import prisma from "~/server/internal/db/database";
+import { readDropValidatedBody, throwingArktype } from "~~/server/arktype";
+import aclManager from "~~/server/internal/acls";
+import prisma from "~~/server/internal/db/database";
 import { SharedRegisterValidator } from "../../../auth/signup/simple.post";
-import { systemConfig } from "~/server/internal/config/sys-conf";
+import { systemConfig } from "~~/server/internal/config/sys-conf";
 
 const CreateInvite = SharedRegisterValidator.partial()
   .and({

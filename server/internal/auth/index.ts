@@ -1,6 +1,6 @@
-import { AuthMec } from "~/prisma/client/enums";
+import { AuthMec } from "~~/prisma/client/enums";
 import { OIDCManager } from "./oidc";
-import { logger } from "~/server/internal/logging";
+import { logger } from "~~/server/internal/logging";
 
 class AuthManager {
   private authProviders: {

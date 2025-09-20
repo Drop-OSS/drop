@@ -1,5 +1,5 @@
-import clientHandler from "~/server/internal/clients/handler";
-import { useCertificateAuthority } from "~/server/plugins/ca";
+import clientHandler from "~~/server/internal/clients/handler";
+import { useCertificateAuthority } from "~~/server/plugins/ca";
 
 export default defineEventHandler(async (h3) => {
   const body = await readBody(h3);

@@ -1,6 +1,6 @@
-import { ClientCapabilities } from "~/prisma/client/enums";
-import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
-import { applicationSettings } from "~/server/internal/config/application-configuration";
+import { ClientCapabilities } from "~~/prisma/client/enums";
+import { defineClientEventHandler } from "~~/server/internal/clients/event-handler";
+import { applicationSettings } from "~~/server/internal/config/application-configuration";
 
 export default defineClientEventHandler(async (_h3, { fetchClient }) => {
   const client = await fetchClient();

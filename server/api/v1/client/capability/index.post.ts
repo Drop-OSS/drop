@@ -1,9 +1,9 @@
-import type { InternalClientCapability } from "~/server/internal/clients/capabilities";
+import type { InternalClientCapability } from "~~/server/internal/clients/capabilities";
 import capabilityManager, {
   validCapabilities,
-} from "~/server/internal/clients/capabilities";
-import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
-import notificationSystem from "~/server/internal/notifications";
+} from "~~/server/internal/clients/capabilities";
+import { defineClientEventHandler } from "~~/server/internal/clients/event-handler";
+import notificationSystem from "~~/server/internal/notifications";
 
 export default defineClientEventHandler(
   async (h3, { clientId, fetchClient, fetchUser }) => {

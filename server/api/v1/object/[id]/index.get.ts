@@ -1,5 +1,5 @@
-import aclManager from "~/server/internal/acls";
-import objectHandler from "~/server/internal/objects";
+import aclManager from "~~/server/internal/acls";
+import objectHandler from "~~/server/internal/objects";
 import sanitize from "sanitize-filename";
 
 export default defineEventHandler(async (h3) => {

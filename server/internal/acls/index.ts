@@ -1,7 +1,7 @@
-import { APITokenMode } from "~/prisma/client/enums";
+import { APITokenMode } from "~~/prisma/client/enums";
 import prisma from "../db/database";
 import sessionHandler from "../session";
-import type { MinimumRequestObject } from "~/server/h3";
+import type { MinimumRequestObject } from "~~/server/h3";
 
 export const userACLs = [
   "read",

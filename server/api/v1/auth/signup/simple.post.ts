@@ -1,11 +1,11 @@
-import { AuthMec } from "~/prisma/client/enums";
-import prisma from "~/server/internal/db/database";
-import authManager, { createHashArgon2 } from "~/server/internal/auth";
+import { AuthMec } from "~~/prisma/client/enums";
+import prisma from "~~/server/internal/db/database";
+import authManager, { createHashArgon2 } from "~~/server/internal/auth";
 import * as jdenticon from "jdenticon";
-import objectHandler from "~/server/internal/objects";
+import objectHandler from "~~/server/internal/objects";
 import { type } from "arktype";
 import { randomUUID } from "node:crypto";
-import { throwingArktype } from "~/server/arktype";
+import { throwingArktype } from "~~/server/arktype";
 
 export const SharedRegisterValidator = type({
   username: "string >= 5",

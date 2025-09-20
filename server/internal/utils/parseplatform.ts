@@ -1,4 +1,4 @@
-import { HardwarePlatform } from "~/prisma/client/enums";
+import { HardwarePlatform } from "~~/prisma/client/enums";
 
 export function parsePlatform(platform: string) {
   switch (platform.toLowerCase()) {

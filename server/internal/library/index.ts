@@ -13,11 +13,11 @@ import notificationSystem from "../notifications";
 import { GameNotFoundError, type LibraryProvider } from "./provider";
 import { logger } from "../logging";
 import { createHash } from "node:crypto";
-import type { ImportVersion } from "~/server/api/v1/admin/import/version/index.post";
+import type { ImportVersion } from "~~/server/api/v1/admin/import/version/index.post";
 import type {
   GameVersionCreateInput,
   LaunchOptionCreateManyInput,
-} from "~/prisma/client/models";
+} from "~~/prisma/client/models";
 
 export function createGameImportTaskId(libraryId: string, libraryPath: string) {
   return createHash("md5")

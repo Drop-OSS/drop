@@ -117,7 +117,7 @@ class ManifestGenerator {
     });
 
     const manifest = ManifestGenerator.generateManifestFromMetadata(
-      metadata[0],
+      metadata[0]!,
       ...metadata.slice(1),
     );
 

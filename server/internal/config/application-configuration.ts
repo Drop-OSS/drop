@@ -1,4 +1,4 @@
-import type { ApplicationSettingsModel } from "~/prisma/client/models";
+import type { ApplicationSettingsModel } from "~~/prisma/client/models";
 import prisma from "../db/database";
 
 class ApplicationConfiguration {

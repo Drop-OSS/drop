@@ -1,8 +1,8 @@
-import type { ClientModel, UserModel } from "~/prisma/client/models";
+import type { ClientModel, UserModel } from "~~/prisma/client/models";
 import type { EventHandlerRequest, H3Event } from "h3";
 import droplet from "@drop-oss/droplet";
 import prisma from "../db/database";
-import { useCertificateAuthority } from "~/server/plugins/ca";
+import { useCertificateAuthority } from "~~/server/plugins/ca";
 
 export type EventHandlerFunction<T> = (
   h3: H3Event<EventHandlerRequest>,
@@ -23,7 +23,7 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
     if (!header) throw createError({ statusCode: 403 });
     const [method, ...parts] = header.split(" ");
 
-    let clientId: string;
+    let clientId: string | undefined;
     switch (method) {
       case "Debug": {
         if (!import.meta.dev) throw createError({ statusCode: 403 });
@@ -93,7 +93,7 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
 
     async function fetchClient() {
       const client = await prisma.client.findUnique({
-        where: { id: clientId },
+        where: { id: clientId! },
       });
       if (!client)
         throw new Error(
@@ -104,7 +104,7 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
 
     async function fetchUser() {
       const client = await prisma.client.findUnique({
-        where: { id: clientId },
+        where: { id: clientId! },
         select: {
           user: true,
         },

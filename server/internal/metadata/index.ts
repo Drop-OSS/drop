@@ -1,5 +1,5 @@
-import type { Prisma } from "~/prisma/client/client";
-import { MetadataSource } from "~/prisma/client/enums";
+import type { Prisma } from "~~/prisma/client/client";
+import { MetadataSource } from "~~/prisma/client/enums";
 import prisma from "../db/database";
 import type {
   _FetchGameMetadataParams,
@@ -15,9 +15,9 @@ import { PriorityListIndexed } from "../utils/prioritylist";
 import { systemConfig } from "../config/sys-conf";
 import { randomUUID } from "crypto";
 import { fuzzy } from "fast-fuzzy";
-import { logger } from "~/server/internal/logging";
+import { logger } from "~~/server/internal/logging";
 import libraryManager, { createGameImportTaskId } from "../library";
-import type { GameTagModel } from "~/prisma/client/models";
+import type { GameTagModel } from "~~/prisma/client/models";
 import type { TaskRunContext} from "../tasks/utils";
 import { wrapTaskContext } from "../tasks/utils";
 import taskHandler from "../tasks";

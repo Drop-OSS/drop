@@ -1,13 +1,13 @@
-import { AuthMec } from "~/prisma/client/enums";
+import { AuthMec } from "~~/prisma/client/enums";
 import type { JsonArray } from "@prisma/client/runtime/library";
 import { type } from "arktype";
-import prisma from "~/server/internal/db/database";
-import sessionHandler from "~/server/internal/session";
+import prisma from "~~/server/internal/db/database";
+import sessionHandler from "~~/server/internal/session";
 import authManager, {
   checkHashArgon2,
   checkHashBcrypt,
-} from "~/server/internal/auth";
-import { logger } from "~/server/internal/logging";
+} from "~~/server/internal/auth";
+import { logger } from "~~/server/internal/logging";
 
 const signinValidator = type({
   username: "string",

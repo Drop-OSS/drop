@@ -1,4 +1,4 @@
-import { systemConfig } from "~/server/internal/config/sys-conf";
+import { systemConfig } from "~~/server/internal/config/sys-conf";
 
 export default defineEventHandler((_h3) => {
   return {

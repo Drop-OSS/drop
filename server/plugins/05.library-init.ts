@@ -1,11 +1,11 @@
-import type { LibraryBackend } from "~/prisma/client/enums";
+import type { LibraryBackend } from "~~/prisma/client/enums";
 import prisma from "../internal/db/database";
 import type { JsonValue } from "@prisma/client/runtime/library";
 import type { LibraryProvider } from "../internal/library/provider";
 import { FilesystemProvider } from "../internal/library/providers/filesystem";
 import libraryManager from "../internal/library";
 import { FlatFilesystemProvider } from "../internal/library/providers/flat";
-import { logger } from "~/server/internal/logging";
+import { logger } from "~~/server/internal/logging";
 
 export const libraryConstructors: {
   [key in LibraryBackend]: (

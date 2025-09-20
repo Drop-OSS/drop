@@ -1,6 +1,6 @@
 import { defineEventHandler, createError } from "h3";
-import aclManager from "~/server/internal/acls";
-import newsManager from "~/server/internal/news";
+import aclManager from "~~/server/internal/acls";
+import newsManager from "~~/server/internal/news";
 
 export default defineEventHandler(async (h3) => {
   const userId = await aclManager.getUserIdACL(h3, ["news:read"]);

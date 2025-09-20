@@ -1,7 +1,7 @@
 // create new screenshot
-import aclManager from "~/server/internal/acls";
-import prisma from "~/server/internal/db/database";
-import screenshotManager from "~/server/internal/screenshots";
+import aclManager from "~~/server/internal/acls";
+import prisma from "~~/server/internal/db/database";
+import screenshotManager from "~~/server/internal/screenshots";
 
 // TODO: make defineClientEventHandler instead?
 // only clients will be upload screenshots yea??

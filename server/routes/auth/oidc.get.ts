@@ -1,4 +1,4 @@
-import authManager from "~/server/internal/auth";
+import authManager from "~~/server/internal/auth";
 
 defineRouteMeta({
   openAPI: {

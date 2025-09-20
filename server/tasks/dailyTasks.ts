@@ -1,4 +1,4 @@
-import taskHandler from "~/server/internal/tasks";
+import taskHandler from "~~/server/internal/tasks";
 
 export default defineTask({
   meta: {

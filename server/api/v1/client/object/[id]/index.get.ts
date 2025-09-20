@@ -1,5 +1,5 @@
-import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
-import objectHandler from "~/server/internal/objects";
+import { defineClientEventHandler } from "~~/server/internal/clients/event-handler";
+import objectHandler from "~~/server/internal/objects";
 
 export default defineClientEventHandler(async (h3, utils) => {
   const id = getRouterParam(h3, "id");

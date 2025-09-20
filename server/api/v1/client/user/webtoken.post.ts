@@ -1,8 +1,8 @@
-import { APITokenMode } from "~/prisma/client/enums";
+import { APITokenMode } from "~~/prisma/client/enums";
 import { DateTime } from "luxon";
-import type { UserACL } from "~/server/internal/acls";
-import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
-import prisma from "~/server/internal/db/database";
+import type { UserACL } from "~~/server/internal/acls";
+import { defineClientEventHandler } from "~~/server/internal/clients/event-handler";
+import prisma from "~~/server/internal/db/database";
 
 export default defineClientEventHandler(
   async (h3, { fetchUser, fetchClient, clientId }) => {

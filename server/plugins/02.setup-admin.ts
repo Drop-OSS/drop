@@ -1,5 +1,5 @@
-import { APITokenMode } from "~/prisma/client/enums";
-import prisma from "~/server/internal/db/database";
+import { APITokenMode } from "~~/prisma/client/enums";
+import prisma from "~~/server/internal/db/database";
 import { systemConfig } from "../internal/config/sys-conf";
 import { logger } from "../internal/logging";
 

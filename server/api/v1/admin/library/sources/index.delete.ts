@@ -1,8 +1,8 @@
 import { type } from "arktype";
-import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
-import aclManager from "~/server/internal/acls";
-import prisma from "~/server/internal/db/database";
-import libraryManager from "~/server/internal/library";
+import { readDropValidatedBody, throwingArktype } from "~~/server/arktype";
+import aclManager from "~~/server/internal/acls";
+import prisma from "~~/server/internal/db/database";
+import libraryManager from "~~/server/internal/library";
 
 const DeleteLibrarySource = type({
   id: "string",

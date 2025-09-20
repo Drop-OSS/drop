@@ -1,4 +1,4 @@
-import prisma from "~/server/internal/db/database";
+import prisma from "~~/server/internal/db/database";
 import { defineDropTask } from "..";
 
 export default defineDropTask({

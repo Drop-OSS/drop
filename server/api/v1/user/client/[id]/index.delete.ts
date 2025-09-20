@@ -1,5 +1,5 @@
-import aclManager from "~/server/internal/acls";
-import clientHandler from "~/server/internal/clients/handler";
+import aclManager from "~~/server/internal/acls";
+import clientHandler from "~~/server/internal/clients/handler";
 
 export default defineEventHandler(async (h3) => {
   const userId = await aclManager.getUserIdACL(h3, ["clients:revoke"]);

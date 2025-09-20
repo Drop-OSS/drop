@@ -80,11 +80,12 @@ export class PriorityListIndexed<T> extends PriorityList<T> {
 
   override pop(position?: number): PriorityTagged<T> {
     const value = super.pop(position);
+    if(!value) return undefined!;
 
     const index = this.getIndex(value.object);
     this.indexMap.delete(index);
 
-    return value;
+    return value!;
   }
 
   get(index: string) {

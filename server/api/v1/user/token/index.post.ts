@@ -1,8 +1,8 @@
 import { type } from "arktype";
-import { APITokenMode } from "~/prisma/client/enums";
-import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
-import aclManager, { userACLs } from "~/server/internal/acls";
-import prisma from "~/server/internal/db/database";
+import { APITokenMode } from "~~/prisma/client/enums";
+import { readDropValidatedBody, throwingArktype } from "~~/server/arktype";
+import aclManager, { userACLs } from "~~/server/internal/acls";
+import prisma from "~~/server/internal/db/database";
 
 const CreateToken = type({
   name: "string",

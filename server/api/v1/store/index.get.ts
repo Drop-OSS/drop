@@ -1,7 +1,7 @@
 import { ArkErrors, type } from "arktype";
-import type { Prisma } from "~/prisma/client/client";
-import aclManager from "~/server/internal/acls";
-import prisma from "~/server/internal/db/database";
+import type { Prisma } from "~~/prisma/client/client";
+import aclManager from "~~/server/internal/acls";
+import prisma from "~~/server/internal/db/database";
 
 const StoreRead = type({
   skip: type("string")

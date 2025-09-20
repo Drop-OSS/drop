@@ -1,5 +1,5 @@
-import clientHandler from "~/server/internal/clients/handler";
-import sessionHandler from "~/server/internal/session";
+import clientHandler from "~~/server/internal/clients/handler";
+import sessionHandler from "~~/server/internal/session";
 
 export default defineEventHandler(async (h3) => {
   const user = await sessionHandler.getSession(h3);

@@ -1,6 +1,6 @@
-import aclManager from "~/server/internal/acls";
-import prisma from "~/server/internal/db/database";
-import { convertIDsToPlatforms } from "~/server/internal/platform/link";
+import aclManager from "~~/server/internal/acls";
+import prisma from "~~/server/internal/db/database";
+import { convertIDsToPlatforms } from "~~/server/internal/platform/link";
 
 export default defineEventHandler(async (h3) => {
   const userId = await aclManager.getUserIdACL(h3, ["store:read"]);

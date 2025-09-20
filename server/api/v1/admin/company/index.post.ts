@@ -1,10 +1,10 @@
 import { type } from "arktype";
-import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
-import aclManager from "~/server/internal/acls";
+import { readDropValidatedBody, throwingArktype } from "~~/server/arktype";
+import aclManager from "~~/server/internal/acls";
 import * as jdenticon from "jdenticon";
-import { ObjectTransactionalHandler } from "~/server/internal/objects/transactional";
-import prisma from "~/server/internal/db/database";
-import { MetadataSource } from "~/prisma/client/enums";
+import { ObjectTransactionalHandler } from "~~/server/internal/objects/transactional";
+import prisma from "~~/server/internal/db/database";
+import { MetadataSource } from "~~/prisma/client/enums";
 
 const CompanyCreate = type({
   name: "string",

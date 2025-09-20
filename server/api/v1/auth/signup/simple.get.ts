@@ -1,6 +1,6 @@
-import prisma from "~/server/internal/db/database";
-import taskHandler from "~/server/internal/tasks";
-import authManager from "~/server/internal/auth";
+import prisma from "~~/server/internal/db/database";
+import taskHandler from "~~/server/internal/tasks";
+import authManager from "~~/server/internal/auth";
 
 export default defineEventHandler(async (h3) => {
   const t = await useTranslation(h3);

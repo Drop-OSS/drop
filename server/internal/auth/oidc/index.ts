@@ -1,12 +1,12 @@
 import { randomUUID } from "crypto";
 import prisma from "../../db/database";
-import type { UserModel } from "~/prisma/client/models";
-import { AuthMec } from "~/prisma/client/enums";
+import type { UserModel } from "~~/prisma/client/models";
+import { AuthMec } from "~~/prisma/client/enums";
 import objectHandler from "../../objects";
 import type { Readable } from "stream";
 import * as jdenticon from "jdenticon";
 import { systemConfig } from "../../config/sys-conf";
-import { logger } from "~/server/internal/logging";
+import { logger } from "~~/server/internal/logging";
 
 interface OIDCWellKnown {
   authorization_endpoint: string;

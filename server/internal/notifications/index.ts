@@ -6,7 +6,7 @@ Design goals:
 2. Real-time; use websocket listeners to keep clients up-to-date
 */
 
-import type { NotificationModel } from "~/prisma/client/models";
+import type { NotificationModel } from "~~/prisma/client/models";
 import prisma from "../db/database";
 import type { GlobalACL } from "../acls";
 

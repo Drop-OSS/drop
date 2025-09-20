@@ -1,5 +1,5 @@
-import taskHandler from "~/server/internal/tasks";
-import type { MinimumRequestObject } from "~/server/h3";
+import taskHandler from "~~/server/internal/tasks";
+import type { MinimumRequestObject } from "~~/server/h3";
 
 // TODO add web socket sessions for horizontal scaling
 // ID to admin

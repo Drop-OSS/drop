@@ -1,8 +1,8 @@
 import { type } from "arktype";
-import { applicationSettings } from "~/server/internal/config/application-configuration";
-import { readDropValidatedBody } from "~/server/arktype";
+import { applicationSettings } from "~~/server/internal/config/application-configuration";
+import { readDropValidatedBody } from "~~/server/arktype";
 import { defineEventHandler, createError } from "h3";
-import aclManager from "~/server/internal/acls";
+import aclManager from "~~/server/internal/acls";
 
 const UpdateSettings = type({
   showGamePanelTextDecoration: "boolean",

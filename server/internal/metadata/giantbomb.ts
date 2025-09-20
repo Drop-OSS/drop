@@ -1,5 +1,5 @@
-import type { CompanyModel } from "~/prisma/client/models";
-import { MetadataSource } from "~/prisma/client/enums";
+import type { CompanyModel } from "~~/prisma/client/models";
+import { MetadataSource } from "~~/prisma/client/enums";
 import type { MetadataProvider } from ".";
 import { MissingMetadataProviderConfig } from ".";
 import type {

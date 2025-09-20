@@ -1,5 +1,5 @@
 import type { FetchError } from "ofetch";
-import clientHandler from "~/server/internal/clients/handler";
+import clientHandler from "~~/server/internal/clients/handler";
 
 export default defineWebSocketHandler({
   async open(peer) {

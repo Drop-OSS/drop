@@ -1,5 +1,5 @@
-import aclManager from "~/server/internal/acls";
-import objectHandler from "~/server/internal/objects";
+import aclManager from "~~/server/internal/acls";
+import objectHandler from "~~/server/internal/objects";
 import sanitize from "sanitize-filename";
 
 // this request method is purely used by the browser to check if etag values are still valid

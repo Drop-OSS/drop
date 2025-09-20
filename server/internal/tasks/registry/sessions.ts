@@ -1,4 +1,4 @@
-import sessionHandler from "~/server/internal/session";
+import sessionHandler from "~~/server/internal/session";
 import { defineDropTask } from "..";
 
 export default defineDropTask({

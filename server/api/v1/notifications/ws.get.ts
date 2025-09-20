@@ -1,6 +1,6 @@
-import notificationSystem from "~/server/internal/notifications";
-import aclManager from "~/server/internal/acls";
-import { logger } from "~/server/internal/logging";
+import notificationSystem from "~~/server/internal/notifications";
+import aclManager from "~~/server/internal/acls";
+import { logger } from "~~/server/internal/logging";
 
 // TODO add web socket sessions for horizontal scaling
 // Peer ID to user ID

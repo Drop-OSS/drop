@@ -1,7 +1,7 @@
-import aclManager from "~/server/internal/acls";
-import { systemConfig } from "~/server/internal/config/sys-conf";
-import prisma from "~/server/internal/db/database";
-import taskHandler from "~/server/internal/tasks";
+import aclManager from "~~/server/internal/acls";
+import { systemConfig } from "~~/server/internal/config/sys-conf";
+import prisma from "~~/server/internal/db/database";
+import taskHandler from "~~/server/internal/tasks";
 
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, [
