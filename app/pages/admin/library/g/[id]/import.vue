@@ -252,7 +252,8 @@
           >Uninstall command</label
         >
         <p class="text-zinc-400 text-xs">
-          Executable to be run on uninstalling a game. Useful for installer-only games.
+          Executable to be run on uninstalling a game. Useful for installer-only
+          games.
         </p>
         <div class="mt-2">
           <div
@@ -301,7 +302,8 @@
           </SwitchDescription>
         </span>
         <Switch
-          v-model="versionSettings.delta"
+          :model-value="versionSettings.delta || false"
+          @update:model-value="(v) => (versionSettings.delta = v)"
           :class="[
             versionSettings.delta ? 'bg-blue-600' : 'bg-zinc-800',
             'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2',
@@ -488,7 +490,6 @@ const versionGuesses =
   ref<
     Array<SerializeObject<{ platform: PlatformRenderable; filename: string }>>
   >();
-
 
 function updateLaunchCommand(idx: number, value: string) {
   versionSettings.value.launches![idx].launchCommand = value;

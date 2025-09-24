@@ -106,7 +106,7 @@ const emit = defineEmits<{
 }>();
 
 const props = defineProps<{
-  value?: string;
+  value?: string | undefined;
   guesses?: Array<{ platform: PlatformRenderable; filename: string }>;
 }>();
 

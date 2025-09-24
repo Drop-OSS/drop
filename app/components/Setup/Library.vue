@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import AdminSourcesPage from "~~/pages/admin/library/sources/index.vue";
+import AdminSourcesPage from "~/pages/admin/library/sources/index.vue";
 
 const complete = defineModel<boolean>({ required: true });
 // Only runs on component load, so it's fine

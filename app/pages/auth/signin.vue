@@ -44,7 +44,6 @@
 
 <script setup lang="ts">
 import type { AuthMec } from "~~/prisma/client/enums";
-import DropLogo from "~~/components/DropLogo.vue";
 
 const { t } = useI18n();
 const enabledAuths = await $dropFetch("/api/v1/auth");

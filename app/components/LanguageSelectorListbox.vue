@@ -92,7 +92,7 @@ import type { Locale } from "vue-i18n";
 
 const { showText = true } = defineProps<{ showText?: boolean }>();
 
-const { availableLocales, locale: currLocale, setLocale } = useI18n();
+const { locale: currLocale, setLocale, locales } = useI18n();
 
 function changeLocale(locale: Locale) {
   setLocale(locale);
@@ -102,7 +102,7 @@ function changeLocale(locale: Locale) {
   useHead({
     htmlAttrs: {
       lang: locale,
-      // dir: availableLocales.find((l) => l === locale)?.dir || "ltr",
+      dir: locales.value.find((l) => l.code === locale)?.dir || "ltr",
     },
   });
 }
@@ -150,6 +150,6 @@ const wiredLocale = computed({
   },
 });
 const currentLocaleInformation = computed(() =>
-  availableLocales.find((e) => e == wiredLocale.value),
+  locales.value.find((e) => e.code == wiredLocale.value),
 );
 </script>

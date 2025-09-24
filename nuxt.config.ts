@@ -18,6 +18,7 @@ const twemojiJson = module.findPackageJSON(
 if (!twemojiJson) {
   throw new Error("Could not find @discordapp/twemoji package.");
 }
+const svgSrcDir = path.join(path.dirname(twemojiJson), "dist", "svg");
 
 // get drop version
 const dropVersion = getDropVersion();
@@ -74,14 +75,13 @@ export default defineNuxtConfig({
 
   vite: {
     plugins: [
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      tailwindcss() as any,
+      tailwindcss(),
       // only used in dev server, not build because nitro sucks
       // see build hook below
       viteStaticCopy({
         targets: [
           {
-            src: "node_modules/@discordapp/twemoji/dist/svg/*",
+            src: `${svgSrcDir}/*`,
             dest: "twemoji",
           },
         ],
@@ -96,7 +96,7 @@ export default defineNuxtConfig({
       // https://github.com/nuxt/nuxt/issues/18918#issuecomment-1925774964
       // copy emojis to .output/public/twemoji
       const targetDir = path.join(nitro.options.output.publicDir, "twemoji");
-      cpSync(path.join(path.dirname(twemojiJson), "dist", "svg"), targetDir, {
+      cpSync(svgSrcDir, targetDir, {
         recursive: true,
       });
     },
