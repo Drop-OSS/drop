@@ -76,6 +76,7 @@ export default defineEventHandler(async (h3) => {
   const taskId = await libraryManager.importVersion(
     body.id,
     body.version,
+    "game",
     body,
   );
   if (!taskId)

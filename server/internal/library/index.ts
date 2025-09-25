@@ -17,7 +17,16 @@ import type { ImportVersion } from "~~/server/api/v1/admin/import/version/index.
 import type {
   GameVersionCreateInput,
   LaunchOptionCreateManyInput,
+  VersionCreateArgs,
 } from "~~/prisma/client/models";
+
+export const VersionImportModes = ["game", "redist"] as const;
+export type VersionImportMode = (typeof VersionImportModes)[number];
+
+const modeToLink: { [key in VersionImportMode]: string } = {
+  game: "g",
+  redist: "r",
+};
 
 export function createGameImportTaskId(libraryId: string, libraryPath: string) {
   return createHash("md5")
@@ -207,6 +216,98 @@ class LibraryManager {
     return await this.fetchLibraryObjectWithStatus(redists);
   }
 
+  private async fetchLibraryPath(id: string, mode: VersionImportMode) {
+    switch (mode) {
+      case "game":
+        return [
+          await prisma.game.findUnique({
+            where: { id },
+            select: { mName: true, libraryId: true, libraryPath: true },
+          }),
+          { gameId: id },
+        ] as const;
+      case "redist":
+        return [
+          await prisma.redist.findUnique({
+            where: { id },
+            select: { mName: true, libraryId: true, libraryPath: true },
+          }),
+          { redistId: id },
+        ] as const;
+    }
+    return undefined;
+  }
+
+  private createVersionOptions(
+    id: string,
+    currentIndex: number,
+    mode: VersionImportMode,
+    metadata: typeof ImportVersion.infer,
+  ): Partial<VersionCreateArgs["data"]> {
+    switch (mode) {
+      case "game":
+        const installCreator = {
+          install: {
+            create: {
+              name: "",
+              description: "",
+              command: metadata.install!,
+              args: metadata.installArgs || "",
+            },
+          },
+        } satisfies Partial<GameVersionCreateInput>;
+
+        const uninstallCreator = {
+          uninstall: {
+            create: {
+              name: "",
+              description: "",
+              command: metadata.uninstall!,
+              args: metadata.uninstallArgs || "",
+            },
+          },
+        } satisfies Partial<GameVersionCreateInput>;
+
+        return {
+          gameId: id,
+          gameVersions: {
+            create: {
+              versionIndex: currentIndex,
+              delta: metadata.delta,
+              umuIdOverride: metadata.umuId,
+
+              onlySetup: metadata.onlySetup,
+
+              launches: {
+                createMany: {
+                  data: metadata.launches.map(
+                    (v) =>
+                      ({
+                        name: v.name,
+                        description: v.description,
+                        command: v.launchCommand,
+                        args: v.launchArgs,
+                      }) satisfies LaunchOptionCreateManyInput,
+                  ),
+                },
+              },
+
+              ...(metadata.install ? installCreator : undefined),
+              ...(metadata.uninstall ? uninstallCreator : undefined),
+
+              platform: {
+                connect: {
+                  id: metadata.platform,
+                },
+              },
+            },
+          },
+        };
+      case "redist":
+        return {};
+    }
+  }
+
   /**
    * Fetches recommendations and extra data about the version. Doesn't actually check if it's been imported.
    * @param gameId
@@ -301,32 +402,31 @@ class LibraryManager {
   */
 
   async importVersion(
-    gameId: string,
-    versionPath: string,
+    id: string,
+    version: string,
+    mode: VersionImportMode,
     metadata: typeof ImportVersion.infer,
   ) {
-    const taskId = createVersionImportTaskId(gameId, versionPath);
+    const taskId = createVersionImportTaskId(id, version);
 
-    const game = await prisma.game.findUnique({
-      where: { id: gameId },
-      select: { mName: true, libraryId: true, libraryPath: true },
-    });
-    if (!game || !game.libraryId) return undefined;
+    const value = await this.fetchLibraryPath(id, mode);
+    if (!value || !value[0]) return undefined;
+    const [libraryDetails, idFilter] = value;
 
-    const library = this.libraries.get(game.libraryId);
+    const library = this.libraries.get(libraryDetails.libraryId);
     if (!library) return undefined;
 
     taskHandler.create({
       id: taskId,
       taskGroup: "import:game",
-      name: `Importing version "${metadata.name}" (${versionPath}) for ${game.mName}`,
+      name: `Importing version "${metadata.name}" (${version}) for ${libraryDetails.mName}`,
       acls: ["system:import:version:read"],
       async run({ progress, logger }) {
         // First, create the manifest via droplet.
         // This takes up 90% of our progress, so we wrap it in a *0.9
         const manifest = await library.generateDropletManifest(
-          game.libraryPath,
-          versionPath,
+          libraryDetails.libraryPath,
+          version,
           (err, value) => {
             if (err) throw err;
             progress(value * 0.9);
@@ -339,82 +439,28 @@ class LibraryManager {
 
         logger.info("Created manifest successfully!");
 
-        const currentIndex = await prisma.gameVersion.count({
-          where: { version: { gameId: gameId } },
+        const currentIndex = await prisma.version.count({
+          where: { ...idFilter },
         });
-
-        const installCreator = {
-          install: {
-            create: {
-              name: "",
-              description: "",
-              command: metadata.install!,
-              args: metadata.installArgs || "",
-            },
-          },
-        } satisfies Partial<GameVersionCreateInput>;
-
-        const uninstallCreator = {
-          uninstall: {
-            create: {
-              name: "",
-              description: "",
-              command: metadata.uninstall!,
-              args: metadata.uninstallArgs || "",
-            },
-          },
-        } satisfies Partial<GameVersionCreateInput>;
 
         // Then, create the database object
         await prisma.version.create({
           data: {
-            gameId,
-            versionPath: versionPath,
-            versionName: metadata.name ?? versionPath,
+            versionPath: version,
+            versionName: metadata.name ?? version,
             dropletManifest: manifest,
 
-            gameVersions: {
-              create: {
-                versionIndex: currentIndex,
-                delta: metadata.delta,
-                umuIdOverride: metadata.umuId,
-
-                onlySetup: metadata.onlySetup,
-
-                launches: {
-                  createMany: {
-                    data: metadata.launches.map(
-                      (v) =>
-                        ({
-                          name: v.name,
-                          description: v.description,
-                          command: v.launchCommand,
-                          args: v.launchArgs,
-                        }) satisfies LaunchOptionCreateManyInput,
-                    ),
-                  },
-                },
-
-                ...(metadata.install ? installCreator : undefined),
-                ...(metadata.uninstall ? uninstallCreator : undefined),
-
-                platform: {
-                  connect: {
-                    id: metadata.platform,
-                  },
-                },
-              },
-            },
+            ...libraryManager.createVersionOptions(id, currentIndex, mode, metadata)
           },
         });
 
         logger.info("Successfully created version!");
 
         notificationSystem.systemPush({
-          nonce: `version-create-${gameId}-${versionPath}`,
-          title: `'${game.mName}' ('${versionPath}') finished importing.`,
-          description: `Drop finished importing version ${versionPath} for ${game.mName}.`,
-          actions: [`View|/admin/library/g/${gameId}`],
+          nonce: `version-create-${id}-${version}`,
+          title: `'${libraryDetails.mName}' ('${version}') finished importing.`,
+          description: `Drop finished importing version ${version} for ${libraryDetails.mName}.`,
+          actions: [`View|/admin/library/${modeToLink[mode]}/${id}`],
           acls: ["system:import:version:read"],
         });
 
