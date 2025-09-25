@@ -2,28 +2,18 @@ import type { EnumDictionary } from "../utils/types";
 import prisma from "../db/database";
 import { ClientCapabilities } from "~~/prisma/client/enums";
 
-// These values are technically mapped to the database,
-// but Typescript/Prisma doesn't let me link them
-// They are also what are required by clients in the API
-// BREAKING CHANGE
-export enum InternalClientCapability {
-  PeerAPI = "peerAPI",
-  UserStatus = "userStatus",
-  CloudSaves = "cloudSaves",
-  TrackPlaytime = "trackPlaytime",
-}
 
-export const validCapabilities = Object.values(InternalClientCapability);
+export const validCapabilities = Object.values(ClientCapabilities);
 
 export type CapabilityConfiguration = {
-  [InternalClientCapability.PeerAPI]: object;
-  [InternalClientCapability.UserStatus]: object;
-  [InternalClientCapability.CloudSaves]: object;
+  [ClientCapabilities.PeerAPI]: object;
+  [ClientCapabilities.UserStatus]: object;
+  [ClientCapabilities.CloudSaves]: object;
 };
 
 class CapabilityManager {
   private validationFunctions: EnumDictionary<
-    InternalClientCapability,
+    ClientCapabilities,
     (configuration: object) => Promise<boolean>
   > = {
     /*
@@ -77,14 +67,14 @@ class CapabilityManager {
       return valid;
     },
     */
-    [InternalClientCapability.PeerAPI]: async () => true,
-    [InternalClientCapability.UserStatus]: async () => true, // No requirements for user status
-    [InternalClientCapability.CloudSaves]: async () => true, // No requirements for cloud saves
-    [InternalClientCapability.TrackPlaytime]: async () => true,
+    [ClientCapabilities.PeerAPI]: async () => true,
+    [ClientCapabilities.UserStatus]: async () => true, // No requirements for user status
+    [ClientCapabilities.CloudSaves]: async () => true, // No requirements for cloud saves
+    [ClientCapabilities.TrackPlaytime]: async () => true,
   };
 
   async validateCapabilityConfiguration(
-    capability: InternalClientCapability,
+    capability: ClientCapabilities,
     configuration: object,
   ) {
     const validationFunction = this.validationFunctions[capability];
@@ -93,15 +83,15 @@ class CapabilityManager {
   }
 
   async upsertClientCapability(
-    capability: InternalClientCapability,
+    capability: ClientCapabilities,
     rawCapabilityConfiguration: object,
     clientId: string,
   ) {
     const upsertFunctions: EnumDictionary<
-      InternalClientCapability,
+      ClientCapabilities,
       () => Promise<void> | void
     > = {
-      [InternalClientCapability.PeerAPI]: async function () {
+      [ClientCapabilities.PeerAPI]: async function () {
         // const configuration =rawCapability as CapabilityConfiguration[InternalClientCapability.PeerAPI];
 
         const currentClient = await prisma.client.findUnique({
@@ -139,10 +129,10 @@ class CapabilityManager {
           },
         });
       },
-      [InternalClientCapability.UserStatus]: function (): Promise<void> | void {
+      [ClientCapabilities.UserStatus]: function (): Promise<void> | void {
         throw new Error("Function not implemented.");
       },
-      [InternalClientCapability.CloudSaves]: async function () {
+      [ClientCapabilities.CloudSaves]: async function () {
         const currentClient = await prisma.client.findUnique({
           where: { id: clientId },
           select: {
@@ -162,7 +152,7 @@ class CapabilityManager {
           },
         });
       },
-      [InternalClientCapability.TrackPlaytime]: async function () {
+      [ClientCapabilities.TrackPlaytime]: async function () {
         const currentClient = await prisma.client.findUnique({
           where: { id: clientId },
           select: {

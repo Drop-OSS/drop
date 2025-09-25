@@ -1,5 +1,6 @@
 import { defineDropTask } from "..";
 
+/*
 export default defineDropTask({
   buildId: () => `debug:${new Date().toISOString()}`,
   name: "Debug Task",
@@ -16,3 +17,4 @@ export default defineDropTask({
     }
   },
 });
+*/

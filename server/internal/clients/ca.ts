@@ -24,7 +24,7 @@ export class CertificateAuthority {
     let ca;
     if (root === undefined) {
       const [cert, priv] = droplet.generateRootCa();
-      const bundle: CertificateBundle = { priv, cert };
+      const bundle: CertificateBundle = { priv: priv!, cert: cert! };
       await store.store("ca", bundle);
       ca = new CertificateAuthority(store, bundle);
     } else {
@@ -50,8 +50,8 @@ export class CertificateAuthority {
       caCertificate.priv,
     );
     const certBundle: CertificateBundle = {
-      priv,
-      cert,
+      priv: priv!,
+      cert: cert!,
     };
     return certBundle;
   }

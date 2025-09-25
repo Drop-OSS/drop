@@ -224,14 +224,14 @@ const scopes = [
     href: "/docs/access/status",
     icon: UserGroupIcon,
   },
-  clientData.capabilities["peerAPI"] && {
+  clientData.capabilities["PeerAPI"] && {
     name: "Access the Drop network",
     description:
       "The client will be able to establish P2P connections with other users to enable features like download aggregation, Remote LAN play and P2P multiplayer.",
     href: "/docs/access/network",
     icon: LockClosedIcon,
   },
-  clientData.capabilities["cloudSaves"] && {
+  clientData.capabilities["CloudSaves"] && {
     name: "Upload and sync cloud saves",
     description:
       "The client will be able to upload new cloud saves, and edit your existing ones.",

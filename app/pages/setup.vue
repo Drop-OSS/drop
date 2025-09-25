@@ -110,7 +110,7 @@
               >
                 <div>
                   <component
-                    :is="actions[currentAction].page"
+                    :is="actions[currentAction]!.page"
                     v-model="actionsComplete[currentAction]"
                     :token="bearerToken"
                   />

@@ -32,15 +32,12 @@ export const objectMetadata = type({
 });
 export type ObjectMetadata = typeof objectMetadata.infer;
 
-export enum ObjectPermission {
-  Read = "read",
-  Write = "write",
-  Delete = "delete",
-}
+export const ObjectPermissions = ["read", "write", "delete"] as const;
+export type ObjectPermission = (typeof ObjectPermissions)[number];
 export const ObjectPermissionPriority: Array<ObjectPermission> = [
-  ObjectPermission.Read,
-  ObjectPermission.Write,
-  ObjectPermission.Delete,
+  "read",
+  "write",
+  "delete",
 ];
 
 export type Object = { mime: string; data: Source };

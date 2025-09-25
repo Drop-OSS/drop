@@ -1,20 +1,20 @@
 import { type } from "arktype";
+import { ClientCapabilities } from "~~/prisma/client/enums";
 import { readDropValidatedBody, throwingArktype } from "~~/server/arktype";
 import type {
   CapabilityConfiguration,
-  InternalClientCapability,
 } from "~~/server/internal/clients/capabilities";
 import capabilityManager, {
   validCapabilities,
 } from "~~/server/internal/clients/capabilities";
-import clientHandler, { AuthMode } from "~~/server/internal/clients/handler";
+import clientHandler, { AuthMode, AuthModes } from "~~/server/internal/clients/handler";
 import { parsePlatform } from "~~/server/internal/utils/parseplatform";
 
 const ClientAuthInitiate = type({
   name: "string",
   platform: "string",
   capabilities: "object",
-  mode: type.valueOf(AuthMode).default(AuthMode.Callback),
+  mode: type.enumerated(...AuthModes).default("callback"),
 }).configure(throwingArktype);
 
 export default defineEventHandler(async (h3) => {
@@ -32,7 +32,7 @@ export default defineEventHandler(async (h3) => {
     });
 
   const capabilityIterable = Object.entries(capabilities) as Array<
-    [InternalClientCapability, object]
+    [ClientCapabilities, object]
   >;
   if (
     capabilityIterable.length > 0 &&

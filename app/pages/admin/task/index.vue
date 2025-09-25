@@ -163,9 +163,9 @@ const scheduledTasks: {
     name: "",
     description: "",
   },
-  debug: {
-    name: "Debug Task",
-    description: "Does debugging things.",
+  "import:version": {
+    name: "",
+    description: "",
   },
 };
 

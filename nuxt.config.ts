@@ -163,9 +163,11 @@ export default defineNuxtConfig({
 
     tsConfig: {
       compilerOptions: {
+        // Not having these options on is sloppy, but it's a task for later me
         verbatimModuleSyntax: false,
         strictNullChecks: true,
-        exactOptionalPropertyTypes: true,
+        exactOptionalPropertyTypes: false,
+        //erasableSyntaxOnly: true,
         noUncheckedIndexedAccess: false,
       },
     },

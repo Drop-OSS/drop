@@ -42,10 +42,10 @@ export default defineEventHandler<{
   await objectHandler.deleteAsSystem(imageId);
 
   if (game.mBannerObjectId === imageId) {
-    game.mBannerObjectId = game.mImageLibraryObjectIds[0];
+    game.mBannerObjectId = game.mImageLibraryObjectIds[0] ?? "";
   }
   if (game.mCoverObjectId === imageId) {
-    game.mCoverObjectId = game.mImageLibraryObjectIds[0];
+    game.mCoverObjectId = game.mImageLibraryObjectIds[0] ?? "";
   }
 
   const result = await prisma.game.update({

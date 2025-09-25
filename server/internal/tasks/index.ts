@@ -7,7 +7,7 @@ import cleanupInvites from "./registry/invitations";
 import cleanupSessions from "./registry/sessions";
 import checkUpdate from "./registry/update";
 import cleanupObjects from "./registry/objects";
-import { taskGroups, type TaskGroup } from "./group";
+import { TASK_GROUP_CONFIG, type TaskGroup } from "./group";
 import prisma from "../db/database";
 import { type } from "arktype";
 import pino from "pino";
@@ -54,7 +54,6 @@ class TaskHandler {
     "cleanup:invitations",
     "cleanup:sessions",
     "check:update",
-    "debug",
   ];
   private weeklyScheduledTasks: TaskGroup[] = ["cleanup:objects"];
 
@@ -83,7 +82,7 @@ class TaskHandler {
     let logOffset: number = 0;
 
     // if taskgroup disallows concurrency
-    if (!taskGroups[task.taskGroup].concurrency) {
+    if (!TASK_GROUP_CONFIG[task.taskGroup].concurrency) {
       for (const existingTask of this.taskPool.values()) {
         // if a task is already running, we don't want to start another
         if (existingTask.taskGroup === task.taskGroup) {
@@ -150,7 +149,7 @@ class TaskHandler {
           }
         } catch (e) {
           // fallback: ignore or log error
-          logger.error("Failed to parse log chunk", {
+          logger.error("Failed to parse log chunk %s", {
             error: e,
             chunk: chunk,
           });
@@ -178,7 +177,7 @@ class TaskHandler {
 
     const progress = (progress: number) => {
       if (progress < 0 || progress > 100) {
-        logger.error("Progress must be between 0 and 100", { progress });
+        logger.error("Progress must be between 0 and 100, actually %d", progress);
         return;
       }
       const taskEntry = this.taskPool.get(task.id);

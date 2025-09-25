@@ -254,7 +254,13 @@ import { StarIcon } from "@heroicons/vue/24/solid";
 import { micromark } from "micromark";
 
 const route = useRoute();
-const gameId = route.params.id.toString();
+const gameId = route.params.id?.toString();
+if (!gameId)
+  throw createError({
+    statusCode: 404,
+    message: "Game not found",
+    fatal: true,
+  });
 
 const user = useUser();
 

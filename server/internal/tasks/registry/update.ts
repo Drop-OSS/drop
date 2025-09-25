@@ -49,7 +49,7 @@ export default defineDropTask({
 
     // if response failed somehow
     if (!response.ok) {
-      logger.info("Failed to check for update ", {
+      logger.info("Failed to check for update: %s", {
         status: response.status,
         body: response.body,
       });

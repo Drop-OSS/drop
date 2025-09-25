@@ -105,14 +105,14 @@ function input(index: number) {
 function select(index: number) {
   if (!codeElements.value) return;
   if (index >= codeElements.value.length) return;
-  codeElements.value[index].select();
+  codeElements.value[index]!.select();
 }
 
 function paste(index: number, event: ClipboardEvent) {
   const newCode = event.clipboardData!.getData("text/plain");
   for (let i = 0; i < newCode.length && i < codeLength; i++) {
-    code.value[i] = newCode[i];
-    codeElements.value![i].focus();
+    code.value[i] = newCode[i]!;
+    codeElements.value![i]!.focus();
   }
   event.preventDefault();
 }

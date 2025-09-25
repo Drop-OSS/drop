@@ -200,7 +200,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
             return url.pathname.replace("/games/", "").replace(/\/$/, "");
           }
           default: {
-            logger.warn("Pcgamingwiki, unknown host", url.hostname);
+            logger.warn("Pcgamingwiki, unknown host: %s", url.hostname);
             return undefined;
           }
         }
@@ -234,7 +234,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
           });
           if (ratingObj instanceof type.errors) {
             logger.info(
-              "pcgamingwiki: failed to properly get review rating",
+              "pcgamingwiki: failed to properly get review rating: %s",
               ratingObj.summary,
             );
             return undefined;

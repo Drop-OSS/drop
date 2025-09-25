@@ -1,39 +1,24 @@
-import type { InternalClientCapability } from "~~/server/internal/clients/capabilities";
+import { type } from "arktype";
+import { ClientCapabilities } from "~~/prisma/client/enums";
+import { readDropValidatedBody, throwingArktype } from "~~/server/arktype";
 import capabilityManager, {
   validCapabilities,
 } from "~~/server/internal/clients/capabilities";
 import { defineClientEventHandler } from "~~/server/internal/clients/event-handler";
 import notificationSystem from "~~/server/internal/notifications";
 
+const SetCapability = type({
+  capability: type.enumerated(...Object.values(ClientCapabilities)),
+  configuration: "object"
+}).configure(throwingArktype);
+
 export default defineClientEventHandler(
   async (h3, { clientId, fetchClient, fetchUser }) => {
-    const body = await readBody(h3);
-    const rawCapability = body.capability;
-    const configuration = body.configuration;
-
-    if (!rawCapability || typeof rawCapability !== "string")
-      throw createError({
-        statusCode: 400,
-        message: "capability must be a string",
-      });
-
-    if (!configuration || typeof configuration !== "object")
-      throw createError({
-        statusCode: 400,
-        message: "configuration must be an object",
-      });
-
-    const capability = rawCapability as InternalClientCapability;
-
-    if (!validCapabilities.includes(capability))
-      throw createError({
-        statusCode: 400,
-        message: "Invalid capability.",
-      });
+    const body = await readDropValidatedBody(h3, SetCapability);
 
     const isValid = await capabilityManager.validateCapabilityConfiguration(
-      capability,
-      configuration,
+      body.capability,
+      body.configuration,
     );
     if (!isValid)
       throw createError({
@@ -42,8 +27,8 @@ export default defineClientEventHandler(
       });
 
     await capabilityManager.upsertClientCapability(
-      capability,
-      configuration,
+      body.capability,
+      body.configuration,
       clientId,
     );
 
@@ -51,9 +36,9 @@ export default defineClientEventHandler(
     const user = await fetchUser();
 
     await notificationSystem.push(user.id, {
-      nonce: `capability-${clientId}-${capability}`,
-      title: `"${client.name}" can now access ${capability}`,
-      description: `A device called "${client.name}" now has access to your ${capability}.`,
+      nonce: `capability-${clientId}-${body.capability}`,
+      title: `"${client.name}" can now access ${body.capability}`,
+      description: `A device called "${client.name}" now has access to your ${body.capability}.`,
       actions: ["Review|/account/devices"],
       acls: ["user:clients:read"],
     });
