@@ -1,22 +1,26 @@
+import { ArkErrors, type } from "arktype";
 import aclManager from "~~/server/internal/acls";
-import libraryManager from "~~/server/internal/library";
+import libraryManager, { VersionImportModes } from "~~/server/internal/library";
+
+export const PreloadQuery = type({
+  id: "string",
+  version: "string",
+  mode: type.enumerated(...VersionImportModes),
+});
 
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["import:version:read"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
-  const query = await getQuery(h3);
-  const gameId = query.id?.toString();
-  const versionName = query.version?.toString();
-  if (!gameId || !versionName)
-    throw createError({
-      statusCode: 400,
-      message: "Missing id or version in request params",
-    });
+  const rawQuery = await getQuery(h3);
+  const query = PreloadQuery(rawQuery);
+  if (query instanceof ArkErrors)
+    throw createError({ statusCode: 400, message: query.summary });
 
   const preload = await libraryManager.fetchUnimportedVersionInformation(
-    gameId,
-    versionName,
+    query.id,
+    query.mode,
+    query.version,
   );
   if (!preload)
     throw createError({

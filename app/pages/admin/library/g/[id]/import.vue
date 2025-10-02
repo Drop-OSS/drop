@@ -134,34 +134,41 @@
         </div>
       </div>
       <!-- setup mode -->
-      <SwitchGroup as="div" class="max-w-lg flex items-center justify-between">
-        <span class="flex flex-grow flex-col">
-          <SwitchLabel
-            as="span"
-            class="text-sm font-medium leading-6 text-zinc-100"
-            passive
-            >{{ $t("library.admin.import.version.setupMode") }}</SwitchLabel
+      <fieldset class="max-w-lg">
+        <legend class="text-sm/6 font-semibold text-white">
+          Select an import mode
+        </legend>
+        <div class="mt-2 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-4">
+          <label
+            v-for="mode in setupModes"
+            :key="mode.id"
+            :aria-label="mode.title"
+            :aria-description="mode.description"
+            class="cursor-pointer group relative flex rounded-lg border border-white/10 bg-zinc-800/50 p-4 has-checked:bg-blue-500/10 has-checked:outline-2 has-checked:-outline-offset-2 has-checked:outline-blue-500 has-focus-visible:outline-3 has-focus-visible:-outline-offset-1 has-disabled:bg-gray-800 has-disabled:opacity-25"
           >
-          <SwitchDescription as="span" class="text-sm text-zinc-400">{{
-            $t("library.admin.import.version.setupModeDesc")
-          }}</SwitchDescription>
-        </span>
-        <Switch
-          v-model="versionSettings.onlySetup"
-          :class="[
-            versionSettings.onlySetup ? 'bg-blue-600' : 'bg-zinc-800',
-            'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2',
-          ]"
-        >
-          <span
-            aria-hidden="true"
-            :class="[
-              versionSettings.onlySetup ? 'translate-x-5' : 'translate-x-0',
-              'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
-            ]"
-          />
-        </Switch>
-      </SwitchGroup>
+            <input
+              type="radio"
+              name="mode"
+              :value="mode.id"
+              :checked="versionSettings.onlySetup === mode.value"
+              class="absolute inset-0 appearance-none opacity-0 focus:outline-none"
+              @click="versionSettings.onlySetup = mode.value"
+            />
+            <div class="flex-1">
+              <span class="block text-sm font-medium text-white">{{
+                mode.title
+              }}</span>
+              <span class="mt-1 block text-xs text-zinc-400">{{
+                mode.description
+              }}</span>
+            </div>
+            <CheckCircleIcon
+              class="invisible size-5 text-blue-500 group-has-checked:visible"
+              aria-hidden="true"
+            />
+          </label>
+        </div>
+      </fieldset>
       <!-- launch commands -->
       <div class="relative max-w-3xl">
         <label
@@ -462,10 +469,14 @@ import {
 } from "@headlessui/vue";
 import { XCircleIcon } from "@heroicons/vue/16/solid";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
-import { PlusIcon, TrashIcon } from "@heroicons/vue/24/outline";
+import {
+  CheckCircleIcon,
+  PlusIcon,
+  TrashIcon,
+} from "@heroicons/vue/24/outline";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/vue/24/solid";
 import type { SerializeObject } from "nitropack";
-import type { ImportVersion } from "~~/server/api/v1/admin/import/version/index.post";
+import type { ImportGameVersion } from "~~/server/api/v1/admin/import/version/index.post";
 
 definePageMeta({
   layout: "admin",
@@ -481,9 +492,10 @@ const versions = await $dropFetch(
 const userPlatforms = await useAdminPlatforms();
 const allPlatforms = renderPlatforms(userPlatforms);
 const currentlySelectedVersion = ref(-1);
-const versionSettings = ref<Partial<typeof ImportVersion.infer>>({
-  id: gameId,
+
+const versionSettings = ref<Partial<ImportGameVersion>>({
   launches: [],
+  onlySetup: false,
 });
 
 const versionGuesses =
@@ -540,7 +552,7 @@ async function updateCurrentlySelectedVersion(value: number) {
   const options = await $dropFetch(
     `/api/v1/admin/import/version/preload?id=${encodeURIComponent(
       gameId,
-    )}&version=${encodeURIComponent(version)}`,
+    )}&version=${encodeURIComponent(version)}&mode=game`,
   );
   versionGuesses.value = options.map((e) => ({
     ...e,
@@ -556,6 +568,7 @@ async function startImport() {
     body: {
       id: gameId,
       version: versions[currentlySelectedVersion.value],
+      mode: "game",
       ...versionSettings.value,
     },
   });
@@ -572,4 +585,26 @@ function startImport_wrapper() {
       importLoading.value = false;
     });
 }
+
+const setupModes: Array<{
+  id: string;
+  value: boolean;
+  title: string;
+  description: string;
+}> = [
+  {
+    id: "portable",
+    value: false,
+    title: "Portable",
+    description:
+      "This mode is for games that are designed to be launched directly from the install directory. Drop works best with these.",
+  },
+  {
+    id: "setup",
+    value: true,
+    title: "Installer",
+    description:
+      "Also known as 'setup-only', this mode is for installers that modify the system directly, and install to directories like Program Files.",
+  },
+];
 </script>

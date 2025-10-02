@@ -12,14 +12,18 @@ export const LaunchCommands = type({
   launchArgs: "string = ''",
 }).array();
 
-export const ImportVersion = type({
+const ImportVersionBase = type({
   id: "string",
   version: "string",
   name: "string?",
 
   platform: "string",
-  onlySetup: "boolean = false",
   delta: "boolean = false",
+});
+
+const ImportGameVersion = type({
+  mode: "'game'",
+  onlySetup: "boolean = false",
   umuId: "string = ''",
 
   install: "string?",
@@ -27,7 +31,26 @@ export const ImportVersion = type({
   launches: LaunchCommands,
   uninstall: "string?",
   uninstallArgs: "string?",
-}).configure(throwingArktype);
+});
+
+const ImportRedistVersion = type({
+  mode: "'redist'",
+  install: "string?",
+  installArgs: "string?",
+  launches: LaunchCommands,
+  uninstall: "string?",
+  uninstallArgs: "string?",
+});
+
+export const ImportVersion = ImportVersionBase.and(
+  ImportGameVersion.or(ImportRedistVersion),
+).configure(throwingArktype);
+
+export type ImportGameVersion = typeof ImportVersionBase.infer &
+  typeof ImportGameVersion.infer;
+
+export type ImportRedistVersion = typeof ImportVersionBase.infer &
+  typeof ImportRedistVersion.infer;
 
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["import:version:new"]);
@@ -35,48 +58,10 @@ export default defineEventHandler(async (h3) => {
 
   const body = await readDropValidatedBody(h3, ImportVersion);
 
-  const platform = await convertIDToLink(body.platform);
-  if (!platform)
-    throw createError({ statusCode: 400, message: "Invalid platform." });
-
-  if (body.delta) {
-    const validOverlayVersions = await prisma.gameVersion.count({
-      where: {
-        version: {
-          gameId: body.id,
-        },
-        delta: false,
-        platform,
-      },
-    });
-    if (validOverlayVersions == 0)
-      throw createError({
-        statusCode: 400,
-        message:
-          "Update mode requires a pre-existing version for this platform.",
-      });
-  }
-
-  if (body.onlySetup) {
-    if (!body.install)
-      throw createError({
-        statusCode: 400,
-        message: 'Install required in "setup mode".',
-      });
-  } else {
-    if (!body.delta && body.launches.length == 0)
-      throw createError({
-        statusCode: 400,
-        message:
-          "At least one launch command is required for non-delta versions",
-      });
-  }
-
   // startup & delta require more complex checking logic
   const taskId = await libraryManager.importVersion(
     body.id,
     body.version,
-    "game",
     body,
   );
   if (!taskId)

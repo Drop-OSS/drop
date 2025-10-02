@@ -49,6 +49,11 @@ model LaunchOption {
     uninstallGId      String?      @unique
     uninstallGVersion GameVersion? @relation(name: "uninstall")
 
+    installRId        String?        @unique
+    installRVersion   RedistVersion? @relation(name: "install_redist")
+    uninstallRId      String?        @unique
+    uninstallRVersion RedistVersion? @relation(name: "uninstall_redist")
+
     name        String
     description String
 
@@ -125,7 +130,16 @@ model RedistVersion {
     versionId String  @id
     version   Version @relation(fields: [versionId], references: [versionId], onDelete: Cascade, onUpdate: Cascade)
 
+    installId   String?       @unique
+    install     LaunchOption? @relation(name: "install_redist", fields: [installId], references: [launchId])
+    uninstallId String?       @unique
+    uninstall   LaunchOption? @relation(name: "uninstall_redist", fields: [uninstallId], references: [launchId])
+    onlySetup   Boolean       @default(false)
+
     launches LaunchOption[]
+
+    versionIndex Int
+    delta        Boolean @default(false)
 
     gameDependees GameVersion[]
     dlcDependees  DLCVersion[]

@@ -18,7 +18,11 @@ import type {
   GameVersionCreateInput,
   LaunchOptionCreateManyInput,
   VersionCreateArgs,
+  VersionWhereInput,
 } from "~~/prisma/client/models";
+import { PlatformLink } from "~~/prisma/client/client";
+import { StringifiablePrefixOperator } from "arktype/internal/parser/reduce/shared.ts";
+import { convertIDToLink } from "../platform/link";
 
 export const VersionImportModes = ["game", "redist"] as const;
 export type VersionImportMode = (typeof VersionImportModes)[number];
@@ -216,7 +220,17 @@ class LibraryManager {
     return await this.fetchLibraryObjectWithStatus(redists);
   }
 
-  private async fetchLibraryPath(id: string, mode: VersionImportMode) {
+  private async fetchLibraryPath(
+    id: string,
+    mode: VersionImportMode,
+    platform?: PlatformLink,
+  ): Promise<
+    | [
+        { mName: string; libraryId: string; libraryPath: string } | null,
+        VersionWhereInput,
+      ]
+    | undefined
+  > {
     switch (mode) {
       case "game":
         return [
@@ -224,8 +238,8 @@ class LibraryManager {
             where: { id },
             select: { mName: true, libraryId: true, libraryPath: true },
           }),
-          { gameId: id },
-        ] as const;
+          { gameId: id, gameVersions: { some: { platform } } },
+        ];
       case "redist":
         return [
           await prisma.redist.findUnique({
@@ -233,7 +247,7 @@ class LibraryManager {
             select: { mName: true, libraryId: true, libraryPath: true },
           }),
           { redistId: id },
-        ] as const;
+        ];
     }
     return undefined;
   }
@@ -241,10 +255,9 @@ class LibraryManager {
   private createVersionOptions(
     id: string,
     currentIndex: number,
-    mode: VersionImportMode,
     metadata: typeof ImportVersion.infer,
   ): Partial<VersionCreateArgs["data"]> {
-    switch (mode) {
+    switch (metadata.mode) {
       case "game":
         const installCreator = {
           install: {
@@ -310,18 +323,20 @@ class LibraryManager {
 
   /**
    * Fetches recommendations and extra data about the version. Doesn't actually check if it's been imported.
-   * @param gameId
-   * @param versionName
+   * @param id
+   * @param version
    * @returns
    */
-  async fetchUnimportedVersionInformation(gameId: string, versionName: string) {
-    const game = await prisma.game.findUnique({
-      where: { id: gameId },
-      select: { libraryPath: true, libraryId: true, mName: true },
-    });
-    if (!game || !game.libraryId) return undefined;
+  async fetchUnimportedVersionInformation(
+    id: string,
+    mode: VersionImportMode,
+    version: string,
+  ) {
+    const value = await this.fetchLibraryPath(id, mode);
+    if (!value?.[0] || !value[0].libraryId) return undefined;
+    const [libraryDetails] = value;
 
-    const library = this.libraries.get(game.libraryId);
+    const library = this.libraries.get(libraryDetails.libraryId);
     if (!library) return undefined;
 
     const userPlatforms = await prisma.userPlatform.findMany({});
@@ -354,7 +369,10 @@ class LibraryManager {
       match: number;
     }> = [];
 
-    const files = await library.versionReaddir(game.libraryPath, versionName);
+    const files = await library.versionReaddir(
+      libraryDetails.libraryPath,
+      version,
+    );
     for (const filename of files) {
       const basename = path.basename(filename);
       const dotLocation = filename.lastIndexOf(".");
@@ -363,7 +381,7 @@ class LibraryManager {
       for (const [platform, checkExts] of Object.entries(fileExts)) {
         for (const checkExt of checkExts) {
           if (checkExt != ext) continue;
-          const fuzzyValue = fuzzy(basename, game.mName);
+          const fuzzyValue = fuzzy(basename, libraryDetails.mName);
           options.push({
             filename,
             platform,
@@ -404,17 +422,56 @@ class LibraryManager {
   async importVersion(
     id: string,
     version: string,
-    mode: VersionImportMode,
     metadata: typeof ImportVersion.infer,
   ) {
     const taskId = createVersionImportTaskId(id, version);
 
-    const value = await this.fetchLibraryPath(id, mode);
-    if (!value || !value[0]) return undefined;
+    if (metadata.mode === "game") {
+      if (metadata.onlySetup) {
+        if (!metadata.install)
+          throw createError({
+            statusCode: 400,
+            message: "An install command is required in only-setup mode.",
+          });
+      } else {
+        if (!metadata.delta && metadata.launches.length == 0)
+          throw createError({
+            statusCode: 400,
+            message:
+              "At least one launch command is required in non-delta, non-setup mode.",
+          });
+      }
+    }
+
+    const platform = await convertIDToLink(metadata.platform);
+    if (!platform)
+      throw createError({ statusCode: 400, message: "Invalid platform." });
+
+    const value = await this.fetchLibraryPath(id, metadata.mode, platform);
+    if (!value || !value[0])
+      throw createError({
+        statusCode: 400,
+        message: `${metadata.mode} not found.`,
+      });
     const [libraryDetails, idFilter] = value;
 
     const library = this.libraries.get(libraryDetails.libraryId);
-    if (!library) return undefined;
+    if (!library)
+      throw createError({
+        statusCode: 500,
+        message: "Library not found but exists in database?",
+      });
+
+    const currentIndex = await prisma.version.count({
+      where: { ...idFilter },
+    });
+
+    if (metadata.delta && currentIndex == 0)
+      throw createError({
+        statusCode: 400,
+        message:
+          "At least one pre-existing version of the same platform is required for delta mode.",
+      });
 
     taskHandler.create({
       id: taskId,
@@ -439,10 +496,6 @@ class LibraryManager {
 
         logger.info("Created manifest successfully!");
 
-        const currentIndex = await prisma.version.count({
-          where: { ...idFilter },
-        });
-
         // Then, create the database object
         await prisma.version.create({
           data: {
@@ -450,7 +503,7 @@ class LibraryManager {
             versionName: metadata.name ?? version,
             dropletManifest: manifest,
 
-            ...libraryManager.createVersionOptions(id, currentIndex, mode, metadata)
+            ...libraryManager.createVersionOptions(id, currentIndex, metadata),
           },
         });
 
@@ -460,7 +513,7 @@ class LibraryManager {
           nonce: `version-create-${id}-${version}`,
           title: `'${libraryDetails.mName}' ('${version}') finished importing.`,
           description: `Drop finished importing version ${version} for ${libraryDetails.mName}.`,
-          actions: [`View|/admin/library/${modeToLink[mode]}/${id}`],
+          actions: [`View|/admin/library/${modeToLink[metadata.mode]}/${id}`],
           acls: ["system:import:version:read"],
         });
 
