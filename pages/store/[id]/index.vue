@@ -183,7 +183,7 @@
             {{ game.mShortDescription }}
           </p>
           <div class="mt-6 py-4 rounded">
-            <VueCarousel :items-to-show="1">
+            <VueCarousel :items-to-show="1" :wrap-around="true">
               <VueSlide
                 v-for="image in game.mImageCarouselObjectIds"
                 :key="image"

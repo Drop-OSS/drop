@@ -72,7 +72,7 @@
                 {{ $t("store.images") }}
               </h2>
               <div class="relative">
-                <VueCarousel :items-to-show="1">
+                <VueCarousel :items-to-show="1" :wrap-around="true">
                   <VueSlide
                     v-for="image in game.mImageCarouselObjectIds"
                     :key="image"
