@@ -122,4 +122,11 @@ export class FilesystemProvider
 
     return stream;
   }
+
+  fsStats() {
+    const stats = fs.statfsSync(this.config.baseDir);
+    const freeSpace = stats.bavail * stats.bsize;
+    const totalSpace = stats.blocks * stats.bsize;
+    return { freeSpace, totalSpace };
+  }
 }

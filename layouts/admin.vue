@@ -174,9 +174,14 @@ import { XMarkIcon } from "@heroicons/vue/24/solid";
 const i18nHead = useLocaleHead();
 
 const navigation: Array<NavigationItem & { icon: Component }> = [
-  { label: $t("home"), route: "/admin", prefix: "/admin", icon: HomeIcon },
   {
-    label: $t("userHeader.links.library"),
+    label: $t("header.admin.home"),
+    route: "/admin",
+    prefix: "/admin",
+    icon: HomeIcon,
+  },
+  {
+    label: $t("header.admin.library"),
     route: "/admin/library",
     prefix: "/admin/library",
     icon: ServerStackIcon,

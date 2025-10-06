@@ -268,6 +268,8 @@
         "store": "Store",
         "tokens": "API tokens"
       },
+      "home": "Home",
+      "library": "Library",
       "tasks": "Tasks",
       "users": "Users"
     },
@@ -276,7 +278,12 @@
   },
   "helpUsTranslate": "Help us translate Drop {arrow}",
   "highest": "highest",
-  "home": "Home",
+  "home": {
+    "admin": {
+      "title": "Home",
+      "subheader": "Instance summary"
+    }
+  },
   "library": {
     "addGames": "All Games",
     "addToLib": "Add to Library",

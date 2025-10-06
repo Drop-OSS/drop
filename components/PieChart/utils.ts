@@ -1,22 +1,11 @@
 import Tuple from "~/utils/tuple";
 import type { Slice, SliceData } from "~/components/PieChart/types";
 import { sum, lastItem } from "~/utils/array";
+import { type COLOR, COLORS } from "~/utils/const";
 
 export const START = new Tuple(50, 10);
 export const CENTER = new Tuple(50, 50);
 export const RADIUS = 40;
-export const COLORS = [
-  "red",
-  "blue",
-  "green",
-  "yellow",
-  "purple",
-  "brown",
-  "pink",
-  "orange",
-  "lime",
-  "beige",
-];
 
 export const polarToCartesian = (
   center: Tuple,
@@ -32,7 +21,9 @@ export const polarToCartesian = (
 export const percent2Degrees = (percentage: number) => (360 * percentage) / 100;
 
 export function generateSlices(data: SliceData[]): Slice[] {
-  return data.reduce((accumulator, currentValue, index) => {
+  return data.reduce((accumulator, currentValue, index, array) => {
+    const percentage =
+      (currentValue.value * 100) / sum(array.map((slice) => slice.value));
     return [
       ...accumulator,
       {
@@ -44,13 +35,17 @@ export function generateSlices(data: SliceData[]): Slice[] {
             )
           : START,
         radius: RADIUS,
-        percentage: currentValue.percentage,
+        percentage: percentage,
         totalPercentage:
-          sum(accumulator.map((element) => element.percentage)) +
-          currentValue.percentage,
+          sum(accumulator.map((element) => element.percentage)) + percentage,
         center: CENTER,
-        color: currentValue.color || COLORS[index],
+        color: Object.keys(COLORS)[index] as COLOR,
+        label: currentValue.label,
+        value: currentValue.value,
       },
     ];
   }, [] as Slice[]);
 }
+
+export const getFlags = (percentage: number) =>
+  percentage > 50 ? new Tuple(1, 1) : new Tuple(0, 1);

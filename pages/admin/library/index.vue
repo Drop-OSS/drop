@@ -337,7 +337,10 @@ const libraryGames = ref<
     }
 
     const noVersions = e.status.noVersions;
-    const toImport = e.status.unimportedVersions.length > 0;
+    // const toImport = e.status.unimportedVersions.length > 0;
+    console.log("helllllloooooo");
+    console.log(e.status);
+    const toImport = true;
 
     return {
       ...e.game,

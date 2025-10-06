@@ -21,94 +21,11 @@
     <div class="mt-8 flow-root">
       <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-          <table class="min-w-full divide-y divide-zinc-700">
-            <thead>
-              <tr>
-                <th
-                  scope="col"
-                  class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-zinc-100 sm:pl-3"
-                >
-                  {{ $t("common.name") }}
-                </th>
-                <th
-                  scope="col"
-                  class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
-                >
-                  {{ $t("type") }}
-                </th>
-                <th
-                  scope="col"
-                  class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
-                >
-                  {{ $t("library.admin.sources.working") }}
-                </th>
-                <th
-                  scope="col"
-                  class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
-                >
-                  {{ $t("options") }}
-                </th>
-                <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-3">
-                  <span class="sr-only">{{ $t("common.edit") }}</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="(source, sourceIdx) in sources"
-                :key="source.id"
-                class="even:bg-zinc-800"
-              >
-                <td
-                  class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
-                >
-                  {{ source.name }}
-                </td>
-                <td
-                  class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400 inline-flex gap-x-1 items-center"
-                >
-                  <component
-                    :is="optionsMetadata[source.backend].icon"
-                    class="size-5 text-zinc-400"
-                  />
-                  {{ optionsMetadata[source.backend].title }}
-                </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
-                  <CheckIcon
-                    v-if="source.working"
-                    class="size-5 text-green-500"
-                  />
-                  <XMarkIcon v-else class="size-5 text-red-500" />
-                </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
-                  {{ source.options }}
-                </td>
-                <td
-                  class="relative whitespace-nowrap py-4 pl-3 pr-3 text-right text-sm font-medium space-x-2"
-                >
-                  <button
-                    class="text-blue-500 hover:text-blue-400"
-                    @click="() => edit(sourceIdx)"
-                  >
-                    {{ $t("common.edit") }}
-                    <span class="sr-only">
-                      {{ $t("chars.srComma", [source.name]) }}
-                    </span>
-                  </button>
-
-                  <button
-                    class="text-red-500 hover:text-red-400"
-                    @click="() => deleteSource(sourceIdx)"
-                  >
-                    {{ $t("delete") }}
-                    <span class="sr-only">
-                      {{ $t("chars.srComma", [source.name]) }}
-                    </span>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <SourceTable
+            :sources="sources"
+            :edit-source="edit"
+            :delete-source="deleteSource"
+          />
         </div>
       </div>
     </div>
@@ -313,11 +230,12 @@ import {
   XCircleIcon,
   ArrowTopRightOnSquareIcon,
 } from "@heroicons/vue/20/solid";
-import { BackwardIcon, CheckIcon, XMarkIcon } from "@heroicons/vue/24/outline";
+import { BackwardIcon } from "@heroicons/vue/24/outline";
 import { FetchError } from "ofetch";
 import type { Component } from "vue";
 import type { LibraryBackend } from "~/prisma/client/enums";
 import type { WorkingLibrarySource } from "~/server/api/v1/admin/library/sources/index.get";
+import type { LibraryWithMetadata } from "~/server/internal/library";
 
 definePageMeta({
   layout: "admin",

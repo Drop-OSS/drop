@@ -15,6 +15,7 @@ import { GameNotFoundError, type LibraryProvider } from "./provider";
 import { logger } from "../logging";
 import type { GameModel } from "~/prisma/client/models";
 import { createHash } from "node:crypto";
+import type { WorkingLibrarySource } from "~/server/api/v1/admin/library/sources/index.get";
 
 export function createGameImportTaskId(libraryId: string, libraryPath: string) {
   return createHash("md5")
@@ -39,12 +40,17 @@ class LibraryManager {
     this.libraries.delete(id);
   }
 
-  async fetchLibraries() {
+  async fetchLibraries(): Promise<WorkingLibrarySource[]> {
     const libraries = await prisma.library.findMany({});
-    const libraryWithMetadata = libraries.map((e) => ({
-      ...e,
-      working: this.libraries.has(e.id),
-    }));
+
+    const libraryWithMetadata = libraries.map((library) => {
+      const theLibrary = this.libraries.get(library.id);
+      return {
+        ...library,
+        working: this.libraries.has(library.id),
+        fsStats: theLibrary?.fsStats(),
+      };
+    });
     return libraryWithMetadata;
   }
 
