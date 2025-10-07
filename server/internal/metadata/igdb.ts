@@ -179,7 +179,7 @@ export class IGDBProvider implements MetadataProvider {
 
     if (response.status !== 200)
       throw new Error(
-        `Error in IDGB \nStatus Code: ${response.status}\n${response.data}`,
+        `Error in IGDB \nStatus Code: ${response.status}\n${response.data}`,
       );
 
     this.accessToken = response.data.access_token;
@@ -187,7 +187,7 @@ export class IGDBProvider implements MetadataProvider {
       seconds: response.data.expires_in,
     });
 
-    logger.info("IDGB done authorizing with twitch");
+    logger.info("IGDB done authorizing with twitch");
   }
 
   private async refreshCredentials() {
@@ -359,7 +359,7 @@ export class IGDBProvider implements MetadataProvider {
     const currentGame = (await this.request<IGDBGameFull>("games", body)).at(0);
     if (!currentGame) throw new Error("No game found on IGDB with that id");
 
-    context?.logger.info("Using IDGB provider.");
+    context?.logger.info("Using IGDB provider.");
 
     let iconRaw, coverRaw;
     const cover = currentGame.cover;
