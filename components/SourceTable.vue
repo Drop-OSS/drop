@@ -26,8 +26,30 @@
         >
           {{ $t("options") }}
         </th>
-        <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-3">
-          <span class="sr-only">{{ $t("common.edit") }}</span>
+        <th
+          scope="col"
+          class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
+        >
+          Total space
+        </th>
+        <th
+          scope="col"
+          class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
+        >
+          Free space
+        </th>
+        <th
+          scope="col"
+          class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
+        >
+          Utilization percentage
+        </th>
+        <th
+          v-if="editSource || deleteSource"
+          scope="col"
+          class="relative py-3.5 pl-3 pr-4 sm:pr-3"
+        >
+          <span class="sr-only">Actions</span>
         </th>
       </tr>
     </thead>
@@ -58,38 +80,15 @@
         <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
           {{ source.options }}
         </td>
-        <td
-          class="relative whitespace-nowrap py-4 pl-3 pr-3 text-right text-sm font-medium space-x-2"
-        >
-          <button
-            v-if="editSource"
-            class="text-blue-500 hover:text-blue-400"
-            @click="() => editSource(sourceIdx)"
-          >
-            {{ $t("common.edit") }}
-            <span class="sr-only">
-              {{ $t("chars.srComma", [source.name]) }}
-            </span>
-          </button>
-
-          <button
-            v-if="deleteSource"
-            class="text-red-500 hover:text-red-400"
-            @click="() => deleteSource(sourceIdx)"
-          >
-            {{ $t("delete") }}
-            <span class="sr-only">
-              {{ $t("chars.srComma", [source.name]) }}
-            </span>
-          </button>
-        </td>
-        <td>
+        <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
           {{ source.fsStats && getSize(source.fsStats.totalSpace) }}
         </td>
-        <td>
+        <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
           {{ source.fsStats && getSize(source.fsStats.freeSpace) }}
         </td>
-        <td class="align-middle flex flex-cols-5">
+        <td
+          class="align-middle flex flex-cols-5 whitespace-nowrap px-3 py-4 text-sm text-zinc-400"
+        >
           <div class="flex-auto content-right">
             <ProgressBar
               v-if="source.fsStats"
@@ -119,14 +118,40 @@
             }}%
           </div>
         </td>
+        <td
+          v-if="editSource || deleteSource"
+          class="relative whitespace-nowrap py-4 pl-3 pr-3 text-right text-sm font-medium space-x-2"
+        >
+          <button
+            v-if="editSource"
+            class="text-blue-500 hover:text-blue-400"
+            @click="() => editSource(sourceIdx)"
+          >
+            {{ $t("common.edit") }}
+            <span class="sr-only">
+              {{ $t("chars.srComma", [source.name]) }}
+            </span>
+          </button>
+
+          <button
+            v-if="deleteSource"
+            class="text-red-500 hover:text-red-400"
+            @click="() => deleteSource(sourceIdx)"
+          >
+            {{ $t("delete") }}
+            <span class="sr-only">
+              {{ $t("chars.srComma", [source.name]) }}
+            </span>
+          </button>
+        </td>
       </tr>
     </tbody>
   </table>
 </template>
 
 <script setup lang="ts">
-import type { LibraryWithMetadata } from "~/server/internal/library";
-import type { LibraryBackend } from "~/prisma/client";
+import type { WorkingLibrarySource } from "~/server/api/v1/admin/library/sources/index.get";
+import type { LibraryBackend } from "~/prisma/client/enums";
 import { BackwardIcon, CheckIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 import { DropLogo } from "#components";
 
@@ -135,11 +160,13 @@ const {
   deleteSource = undefined,
   editSource = undefined,
 } = defineProps<{
-  sources: LibraryWithMetadata[];
+  sources: WorkingLibrarySource[];
   summaryMode?: boolean;
   deleteSource?: (id: number) => void;
   editSource?: (id: number) => void;
 }>();
+
+const { t } = useI18n();
 
 const optionsMetadata: {
   [key in LibraryBackend]: {

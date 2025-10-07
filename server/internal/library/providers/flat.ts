@@ -6,6 +6,7 @@ import fs from "fs";
 import path from "path";
 import droplet from "@drop-oss/droplet";
 import { DROPLET_HANDLER } from "./filesystem";
+import { fsStats } from "../../utils/files";
 
 export const FlatFilesystemProviderConfig = type({
   baseDir: "string",
@@ -112,5 +113,9 @@ export class FlatFilesystemProvider
     if (!stream) return undefined;
 
     return stream.getStream();
+  }
+
+  fsStats() {
+    return fsStats(this.config.baseDir);
   }
 }

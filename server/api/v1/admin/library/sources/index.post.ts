@@ -4,8 +4,9 @@ import { LibraryBackend } from "~/prisma/client/enums";
 import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
-import libraryManager, { LibraryWithMetadata } from "~/server/internal/library";
+import libraryManager from "~/server/internal/library";
 import { libraryConstructors } from "~/server/plugins/05.library-init";
+import type { WorkingLibrarySource } from "~/server/api/v1/admin/library/sources/index.get";
 
 const CreateLibrarySource = type({
   name: "string",
@@ -53,7 +54,7 @@ export default defineEventHandler<{ body: typeof CreateLibrarySource.infer }>(
 
       await libraryManager.addLibrary(library);
 
-      const workingSource: LibraryWithMetadata = {
+      const workingSource: WorkingLibrarySource = {
         ...source,
         working: true,
       };

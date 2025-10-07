@@ -2,9 +2,8 @@ import { type } from "arktype";
 import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
-import libraryManager, {
-  type LibraryWithMetadata,
-} from "~/server/internal/library";
+import libraryManager from "~/server/internal/library";
+import type { WorkingLibrarySource } from "~/server/api/v1/admin/library/sources/index.get";
 import { libraryConstructors } from "~/server/plugins/05.library-init";
 
 const UpdateLibrarySource = type({
@@ -53,7 +52,7 @@ export default defineEventHandler<{ body: typeof UpdateLibrarySource.infer }>(
       await libraryManager.removeLibrary(source.id);
       await libraryManager.addLibrary(newLibrary);
 
-      const workingSource: LibraryWithMetadata = {
+      const workingSource: WorkingLibrarySource = {
         ...updatedSource,
         working: true,
       };

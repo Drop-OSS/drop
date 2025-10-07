@@ -235,7 +235,6 @@ import { FetchError } from "ofetch";
 import type { Component } from "vue";
 import type { LibraryBackend } from "~/prisma/client/enums";
 import type { WorkingLibrarySource } from "~/server/api/v1/admin/library/sources/index.get";
-import type { LibraryWithMetadata } from "~/server/internal/library";
 
 definePageMeta({
   layout: "admin",

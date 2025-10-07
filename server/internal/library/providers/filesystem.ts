@@ -8,6 +8,7 @@ import { LibraryBackend } from "~/prisma/client/enums";
 import fs from "fs";
 import path from "path";
 import droplet, { DropletHandler } from "@drop-oss/droplet";
+import { fsStats } from "../../utils/files";
 
 export const FilesystemProviderConfig = type({
   baseDir: "string",
@@ -124,9 +125,6 @@ export class FilesystemProvider
   }
 
   fsStats() {
-    const stats = fs.statfsSync(this.config.baseDir);
-    const freeSpace = stats.bavail * stats.bsize;
-    const totalSpace = stats.blocks * stats.bsize;
-    return { freeSpace, totalSpace };
+    return fsStats(this.config.baseDir);
   }
 }
