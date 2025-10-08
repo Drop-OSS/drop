@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 import { type COLOR, COLORS } from "~/utils/const";
-const { percentage } = defineProps<{
+const { percentage, color } = defineProps<{
   percentage: number;
   color: COLOR;
 }>();
