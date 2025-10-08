@@ -10,7 +10,12 @@
       :style="`color: ${COLORS[tooltip.slice.color]}`"
       class="p-2 border-2 border-blue-200 bg-zinc-900 font-bold"
     >
-      {{ tooltip.slice.label }}: {{ tooltip.slice.value }}
+      {{
+        $t("common.labelValueColon", {
+          label: tooltip.slice.label,
+          value: tooltip.slice.value,
+        })
+      }}
     </div>
   </div>
 </template>

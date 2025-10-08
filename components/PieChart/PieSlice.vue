@@ -1,5 +1,6 @@
 <template>
   <path
+    v-if="slice.percentage !== 0 && slice.percentage !== 100"
     :fill="COLORS[slice.color]"
     :d="`
       M ${slice.start}
@@ -7,6 +8,21 @@
       L ${slice.center}
       z
     `"
+    stroke="white"
+    stroke-width="2"
+    @mousemove="
+      (event) => {
+        setTooltipCoordinates(parentRef, event.clientX, event.clientY, slice);
+      }
+    "
+    @mouseleave="hideTooltip"
+  />
+  <circle
+    v-if="slice.percentage === 100"
+    :r="slice.radius"
+    :cx="slice.center.x"
+    :cy="slice.center.y"
+    :fill="COLORS[slice.color]"
     stroke="white"
     stroke-width="2"
     @mousemove="

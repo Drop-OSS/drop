@@ -15,34 +15,45 @@
     >
       <div class="grid grid-cols-3 gap-4">
         <div class="col-span-1">
-          <TileWithLink title="Drop version">
-            <p>
-              {{ version }}
-            </p>
-          </TileWithLink>
+          <TileWithLink title="Drop version" :right-title="version" />
         </div>
         <div class="col-span-1">
           <TileWithLink
             title="Users"
             :link="{ url: '/admin/users', label: 'Go to users' }"
+            :right-title="
+              $t('library.admin.sources.totalUserCount', {
+                userCount: userCount,
+              })
+            "
           >
-            <div>
-              <PieChart :data="data" title="Active/inactive users" />
+            <div class="text-center">
+              <div>
+                <PieChart :data="pieChartData" title="Active/inactive users" />
+              </div>
+              <ul class="my-4">
+                <li v-for="slice in pieChartData" :key="slice.value">
+                  {{
+                    $t("common.labelValueColon", {
+                      label: slice.label,
+                      value: slice.value,
+                    })
+                  }}
+                </li>
+              </ul>
             </div>
-            <ul class="my-4">
-              <li v-for="slice in data" :key="slice.value">
-                {{ slice.label }}: {{ slice.value }}
-              </li>
-            </ul>
           </TileWithLink>
         </div>
         <div class="col-span-3">
           <TileWithLink
             title="Library"
             :link="{ url: '/admin/library', label: 'Go to library' }"
+            :right-title="
+              $t('library.admin.sources.totalGameCount', {
+                gameCount: gameCount,
+              })
+            "
           >
-            <h2>Game count: {{ gameCount }}</h2>
-            <h2>Sources</h2>
             <SourceTable :sources="sources" />
           </TileWithLink>
         </div>
@@ -60,31 +71,11 @@ useHead({
   title: "Home",
 });
 
-// const { userCount, version, activeUserCount, gameCount } =
-const { version, gameCount, sources } = await $dropFetch("/api/v1/admin/home");
-// const sources = [
-//   {
-//     name: "FS1",
-//     fsTotal: 988995506176,
-//     fsAvailable: 115225112576,
-//     baseDir: "/home/paco/Games",
-//   },
-//   {
-//     name: "FS2",
-//     fsTotal: 48895506176,
-//     fsAvailable: 31522512576,
-//     baseDir: "/home/paco/Games2",
-//   },
-//   {
-//     name: "FS3",
-//     fsTotal: 48895506176,
-//     fsAvailable: 1522512576,
-//     baseDir: "/home/paco/Games3",
-//   },
-// ];
+const { version, gameCount, sources, activeSessions, userCount } =
+  await $dropFetch("/api/v1/admin/home");
 
-const data = [
-  { label: "Inactive users", value: 28 },
-  { label: "Active users", value: 12 },
+const pieChartData = [
+  { label: "Inactive users", value: userCount - activeSessions },
+  { label: "Active users", value: activeSessions },
 ];
 </script>

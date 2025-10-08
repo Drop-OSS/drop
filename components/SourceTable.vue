@@ -30,26 +30,26 @@
           scope="col"
           class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
         >
-          Total space
+          {{ $t("library.admin.sources.totalSpace") }}
         </th>
         <th
           scope="col"
           class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
         >
-          Free space
+          {{ $t("library.admin.sources.freeSpace") }}
         </th>
         <th
           scope="col"
           class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
         >
-          Utilization percentage
+          {{ $t("library.admin.sources.utilizationPercentage") }}
         </th>
         <th
           v-if="editSource || deleteSource"
           scope="col"
           class="relative py-3.5 pl-3 pr-4 sm:pr-3"
         >
-          <span class="sr-only">Actions</span>
+          <span class="sr-only">{{ $t("actions") }}</span>
         </th>
       </tr>
     </thead>
@@ -111,11 +111,13 @@
           <div class="flex-1">
             {{
               source.fsStats &&
-              getPercentage(
-                source.fsStats.freeSpace,
-                source.fsStats.totalSpace,
-              ).toFixed(2)
-            }}%
+              $t("library.admin.sources.percentage", {
+                number: getPercentage(
+                  source.fsStats.freeSpace,
+                  source.fsStats.totalSpace,
+                ).toFixed(2),
+              })
+            }}
           </div>
         </td>
         <td

@@ -10,18 +10,17 @@ export default defineEventHandler(async (h3) => {
 
   const sources = await libraryManager.fetchLibraries();
 
-  const activeUserCount = await prisma.user.count({
-    where: {
-      id: { not: "system" },
-      clients: {
-        every: {
-          lastConnected: {
-            lt: DateTime.now().plus({ months: 1 }).toISO(),
-          },
+  const activeSessions = (
+    await prisma.client.groupBy({
+      by: ["userId"],
+      where: {
+        id: { not: "system" },
+        lastConnected: {
+          gt: DateTime.now().minus({ months: 1 }).toISO(),
         },
       },
-    },
-  });
+    })
+  ).length;
 
   return {
     gameCount: await prisma.game.count(),
@@ -29,7 +28,7 @@ export default defineEventHandler(async (h3) => {
     userCount: await prisma.user.count({
       where: { id: { not: "system" } },
     }),
-    activeUserCount,
+    activeSessions,
     sources,
   };
 });

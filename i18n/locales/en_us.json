@@ -117,7 +117,8 @@
     "servers": "Servers",
     "srLoading": "Loading…",
     "tags": "Tags",
-    "today": "Today"
+    "today": "Today",
+    "labelValueColon": "{label}: {value}"
   },
   "delete": "Delete",
   "drop": {
@@ -430,7 +431,13 @@
         "namePlaceholder": "My New Source",
         "sources": "Library Sources",
         "typeDesc": "The type of your source. Changes the required options.",
-        "working": "Working?"
+        "working": "Working?",
+        "freeSpace": "Free space",
+        "totalSpace": "Free space",
+        "utilizationPercentage": "Utilization percentage",
+        "percentage": "{number}%",
+        "totalGameCount": "Total games: {gameCount}",
+        "totalUserCount": "Total users: {userCount}"
       },
       "subheader": "As you add folders to your library sources, Drop will detect it and prompt you to import it. Each game needs to be imported before you can import a version.",
       "title": "Libraries",

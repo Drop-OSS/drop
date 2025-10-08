@@ -1,12 +1,13 @@
 <template>
   <div
-    :class="`border-2 border-zinc-100 rounded-xl p-4 relative ${link ? 'min-h-50' : 'min-h-30'}`"
+    :class="`border-2 border-zinc-100 rounded-xl p-4 relative ${link ? 'min-h-50 pb-8' : ''}`"
   >
-    <h1 class="font-bold text-xl">{{ props.title }}</h1>
+    <h1 :class="`font-bold text-xl w-full ${link ? 'mb-3' : ''}`">
+      {{ props.title }}
+      <div v-if="rightTitle" class="float-right">{{ props.rightTitle }}</div>
+    </h1>
 
-    <div class="w-full p-6 text-center">
-      <slot />
-    </div>
+    <slot />
 
     <div v-if="props.link" class="absolute bottom-5 right-5">
       <NuxtLink
@@ -25,6 +26,7 @@ import { ArrowRightIcon } from "@heroicons/vue/20/solid";
 
 const props = defineProps<{
   title: string;
+  rightTitle?: string;
   link?: {
     url: string;
     label: string;
