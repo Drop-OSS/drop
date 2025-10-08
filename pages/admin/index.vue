@@ -23,7 +23,7 @@
             :link="{ url: '/admin/users', label: 'Go to users' }"
             :right-title="
               $t('library.admin.sources.totalUserCount', {
-                userCount: userCount,
+                userCount: userStats.userCount,
               })
             "
           >
@@ -71,11 +71,14 @@ useHead({
   title: "Home",
 });
 
-const { version, gameCount, sources, activeSessions, userCount } =
+const { version, gameCount, sources, userStats } =
   await $dropFetch("/api/v1/admin/home");
 
 const pieChartData = [
-  { label: "Inactive users", value: userCount - activeSessions },
-  { label: "Active users", value: activeSessions },
+  {
+    label: "Inactive users",
+    value: userStats.userCount - userStats.activeSessions,
+  },
+  { label: "Active users", value: userStats.activeSessions },
 ];
 </script>
