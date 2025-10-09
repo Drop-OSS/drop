@@ -176,9 +176,12 @@
                           active ? 'bg-zinc-900 outline-hidden' : '',
                           'w-full text-left block px-4 py-2 text-sm',
                         ]"
-                        @click="() => (currentSort = option.param)"
+                        @click.prevent="handleSortClick(option, $event)"
                       >
                         {{ option.name }}
+                        <span v-if="currentSort === option.param">
+                          {{ sortOrder === 'asc' ? '↑' : '↓' }}
+                        </span>
                       </button>
                     </MenuItem>
                   </div>
@@ -389,8 +392,13 @@ const sorts: Array<StoreSortOption> = [
     name: "Recently Added",
     param: "recent",
   },
+  {
+    name: "Name",
+    param: "name",
+  },
 ];
 const currentSort = ref(sorts[0].param);
+const sortOrder = ref<"asc" | "desc">("desc");
 
 const options: Array<StoreFilterOption> = [
   ...(tags.length > 0
@@ -466,7 +474,7 @@ async function updateGames(query: string, resetGames: boolean) {
     results: Array<SerializeObject<GameModel>>;
     count: number;
   }>(
-    `/api/v1/store?take=50&skip=${resetGames ? 0 : games.value?.length || 0}&sort=${currentSort.value}${query ? "&" + query : ""}`,
+    `/api/v1/store?take=50&skip=${resetGames ? 0 : games.value?.length || 0}&sort=${currentSort.value}&order=${sortOrder.value}${query ? "&" + query : ""}`,
   );
   if (resetGames) {
     games.value = newValues.results;
@@ -483,6 +491,20 @@ watch(filterQuery, (newUrl) => {
 watch(currentSort, (_) => {
   updateGames(filterQuery.value, true);
 });
+watch(sortOrder, (_) => {
+  updateGames(filterQuery.value, true);
+});
 
 await updateGames(filterQuery.value, true);
+
+function handleSortClick(option: StoreSortOption, event: MouseEvent) {
+  event.stopPropagation();
+  if (currentSort.value === option.param) {
+    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    currentSort.value = option.param;
+    sortOrder.value = option.param === 'name' ? 'asc' : 'desc';
+  }
+}
+
 </script>

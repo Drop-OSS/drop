@@ -18,7 +18,8 @@ const StoreRead = type({
   company: "string?",
   companyActions: "string = 'published,developed'",
 
-  sort: "'default' | 'newest' | 'recent' = 'default'",
+  sort: "'default' | 'newest' | 'recent' | 'name' = 'default'",
+  order: "'asc' | 'desc' = 'desc'",
 });
 
 export default defineEventHandler(async (h3) => {
@@ -101,10 +102,13 @@ export default defineEventHandler(async (h3) => {
   switch (options.sort) {
     case "default":
     case "newest":
-      sort.mReleased = "desc";
+      sort.mReleased = options.order;
       break;
     case "recent":
-      sort.created = "desc";
+      sort.created = options.order;
+      break;
+    case "name":
+      sort.mName = options.order;
       break;
   }
 
