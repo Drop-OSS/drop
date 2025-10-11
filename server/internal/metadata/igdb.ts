@@ -464,13 +464,22 @@ export class IGDBProvider implements MetadataProvider {
 
     const genres = await this.getGenres(currentGame.genres);
 
-    const deck = this.trimMessage(currentGame.summary, 280);
+    let description = "";
+    let shortDescription = "";
+
+    if (currentGame.summary.length > (currentGame.storyline?.length ?? 0)) {
+      description = currentGame.summary;
+      shortDescription = this.trimMessage(currentGame.storyline ?? currentGame.summary, 280);
+    } else {
+      description = currentGame.storyline ?? currentGame.summary;
+      shortDescription = this.trimMessage(currentGame.summary, 280);
+    }
 
     const metadata = {
       id: currentGame.id.toString(),
       name: currentGame.name,
-      shortDescription: currentGame.storyline ?? deck,
-      description: currentGame.summary,
+      shortDescription,
+      description,
       released,
 
       genres,
