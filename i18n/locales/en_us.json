@@ -292,6 +292,7 @@
         "deleteImage": "Delete image",
         "editGameDescription": "Game Description",
         "editGameName": "Game Name",
+        "editReleaseDate": "Release Date",
         "imageCarousel": "Image Carousel",
         "imageCarouselDescription": "Customise what images and what order are shown on the store page.",
         "imageCarouselEmpty": "No images added to the carousel yet.",
