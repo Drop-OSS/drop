@@ -36,7 +36,7 @@
             <div class="mt-2">
               <input
                 id="releaseDate"
-                v-model="coreMetadataReleaseDate"
+                v-model="releaseDate"
                 type="date"
                 name="releaseDate"
                 class="block w-full rounded-md bg-zinc-800 px-3 py-1.5 text-base text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 placeholder:text-zinc-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6"
@@ -505,16 +505,38 @@ watch(
   { deep: true },
 );
 
+const releaseDate = ref(
+  game.value.mReleased
+    ? new Date(game.value.mReleased).toISOString().substring(0, 10)
+    : ""
+);
+
+watch(releaseDate, async (newDate) => {
+  const body: PatchGameBody = {};
+
+  if (newDate) {
+    const parsed = new Date(newDate);
+    if (!isNaN(parsed.getTime())) {
+      body.mReleased = parsed;
+    }
+  }
+
+  await $dropFetch(`/api/v1/admin/game/:id`, {
+    method: "PATCH",
+    params: {
+      id: game.value.id,
+    },
+    body,
+    failTitle: "Failed to update release date",
+  });
+});
+
 const { t } = useI18n();
 
 // I don't know why I split these fields off.
 const coreMetadataName = ref(game.value.mName);
 const coreMetadataDescription = ref(game.value.mShortDescription);
-const coreMetadataReleaseDate = ref(
-  game.value.mReleased
-    ? new Date(game.value.mReleased).toISOString().substring(0, 10)
-    : ""
-);
+
 const coreMetadataIconUrl = ref(useObject(game.value.mIconObjectId));
 const coreMetadataIconFileUpload = ref<FileList | undefined>();
 const coreMetadataLoading = ref(false);
@@ -552,8 +574,6 @@ async function coreMetadataUpdate() {
 
   formData.append("name", coreMetadataName.value);
   formData.append("description", coreMetadataDescription.value);
-  if (coreMetadataReleaseDate.value)
-    formData.append("releaseDate", coreMetadataReleaseDate.value);
 
   const result = await $dropFetch(
     `/api/v1/admin/game/${game.value.id}/metadata`,

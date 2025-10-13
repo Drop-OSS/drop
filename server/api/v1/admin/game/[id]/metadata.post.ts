@@ -34,9 +34,6 @@ export default defineEventHandler(async (h3) => {
   const updateModel: Prisma.GameUpdateInput = {
     mName: name,
     mShortDescription: description,
-    ...(options.releaseDate && !isNaN(new Date(options.releaseDate).getTime()) && {
-      mReleased: new Date(options.releaseDate),
-    }),
   };
 
   // handle if user uploaded new icon
