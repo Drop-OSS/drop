@@ -433,7 +433,7 @@
         "typeDesc": "The type of your source. Changes the required options.",
         "working": "Working?",
         "freeSpace": "Free space",
-        "totalSpace": "Free space",
+        "totalSpace": "Total space",
         "utilizationPercentage": "Utilization percentage",
         "percentage": "{number}%",
         "totalGameCount": "Total games: {gameCount}",
