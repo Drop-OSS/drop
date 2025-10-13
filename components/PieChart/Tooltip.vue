@@ -7,7 +7,7 @@
     <div
       v-if="tooltip.slice"
       ref="parentRef"
-      :style="`color: ${COLORS[tooltip.slice.color]}`"
+      :style="`color: ${COLORS[tooltip.slice.color].bg}`"
       class="p-2 border-2 border-blue-200 bg-zinc-900 font-bold"
     >
       {{

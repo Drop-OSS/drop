@@ -28,19 +28,19 @@
         </th>
         <th
           scope="col"
-          class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
+          class="px-3 py-3.5 text-sm text-left uppercase font-bold font-display text-zinc-700"
         >
           {{ $t("library.admin.sources.totalSpace") }}
         </th>
         <th
           scope="col"
-          class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
+          class="px-3 py-3.5 text-sm text-left uppercase font-bold font-display text-zinc-700"
         >
           {{ $t("library.admin.sources.freeSpace") }}
         </th>
         <th
           scope="col"
-          class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
+          class="px-3 py-3.5 text-sm text-left uppercase font-bold font-display text-zinc-700"
         >
           {{ $t("library.admin.sources.utilizationPercentage") }}
         </th>
@@ -108,7 +108,7 @@
               "
             />
           </div>
-          <div class="flex-1">
+          <div class="flex-1 ml-2">
             {{
               source.fsStats &&
               $t("library.admin.sources.percentage", {

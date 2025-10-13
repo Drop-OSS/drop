@@ -1,15 +1,48 @@
 export const COLORS = {
-  red: "#c92525",
-  blue: "#3b3bc7",
-  green: "#209420",
-  yellow: "yellow",
-  purple: "purple",
-  brown: "brown",
-  pink: "pink",
-  orange: "orange",
-  lime: "lime",
-  beige: "beige",
-  lightgray: "#a1a1a1",
+  red: {
+    fill: "fill-red-800",
+    bg: "bg-red-800",
+  },
+  blue: {
+    fill: "fill-blue-800",
+    bg: "bg-blue-800",
+  },
+  green: {
+    fill: "fill-green-800",
+    bg: "bg-green-800",
+  },
+  yellow: {
+    fill: "fill-yellow-800",
+    bg: "bg-yellow-800",
+  },
+  purple: {
+    fill: "fill-purple-800",
+    bg: "bg-purple-800",
+  },
+  zinc: {
+    fill: "fill-zinc-800",
+    bg: "bg-zinc-800",
+  },
+  pink: {
+    fill: "fill-pink-800",
+    bg: "bg-pink-800",
+  },
+  orange: {
+    fill: "fill-orange-800",
+    bg: "bg-orange-800",
+  },
+  lime: {
+    fill: "fill-lime-800",
+    bg: "bg-lime-800",
+  },
+  emerald: {
+    fill: "fill-emerald-800",
+    bg: "bg-emerald-800",
+  },
+  slate: {
+    fill: "fill-slate-400",
+    bg: "bg-slate-400",
+  },
 };
 
 export type COLOR = keyof typeof COLORS;

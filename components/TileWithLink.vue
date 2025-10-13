@@ -1,8 +1,11 @@
 <template>
   <div
-    :class="`border-2 border-zinc-100 rounded-xl p-4 relative ${link ? 'min-h-50 pb-8' : ''}`"
+    :class="[
+      'border-2 border-gray-800 rounded-xl h-full p-4 relative bg-gray-900',
+      { 'min-h-50 pb-8': link },
+    ]"
   >
-    <h1 :class="`font-bold text-xl w-full ${link ? 'mb-3' : ''}`">
+    <h1 :class="['font-bold text-lg w-full', { 'mb-3': link }]">
       {{ props.title }}
       <div v-if="rightTitle" class="float-right">{{ props.rightTitle }}</div>
     </h1>

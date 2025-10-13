@@ -14,7 +14,7 @@
       class="mx-auto max-w-md lg:max-w-none w-full px-6 py-2 lg:px-8 text-zinc-100"
     >
       <div class="grid grid-cols-3 gap-4">
-        <div class="col-span-1">
+        <div class="col-span-1 h-full">
           <TileWithLink title="Drop version" :right-title="version" />
         </div>
         <div class="col-span-1">

@@ -1,7 +1,7 @@
 <template>
   <path
     v-if="slice.percentage !== 0 && slice.percentage !== 100"
-    :fill="COLORS[slice.color]"
+    :class="COLORS[slice.color].fill"
     :d="`
       M ${slice.start}
       A ${slice.radius},${slice.radius} 0 ${getFlags(slice.percentage)} ${polarToCartesian(slice.center, slice.radius, percent2Degrees(slice.totalPercentage))}
@@ -22,7 +22,7 @@
     :r="slice.radius"
     :cx="slice.center.x"
     :cy="slice.center.y"
-    :fill="COLORS[slice.color]"
+    :class="COLORS[slice.color].fill"
     stroke="white"
     stroke-width="2"
     @mousemove="

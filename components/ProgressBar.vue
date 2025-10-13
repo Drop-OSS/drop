@@ -1,11 +1,8 @@
 <template>
-  <div
-    :style="`background-color: ${COLORS.lightgray}`"
-    class="h-3 w-full rounded-sm inline-block"
-  >
+  <div :class="['h-3 w-full rounded-sm inline-block', COLORS.slate.bg]">
     <div
-      :style="`width: ${percentage}%; background-color: ${COLORS[color]}`"
-      class="h-full rounded-sm"
+      :style="`width: ${percentage}%`"
+      :class="['h-full rounded-sm', COLORS[color].bg]"
     ></div>
   </div>
 </template>
