@@ -8,6 +8,7 @@ import authManager, {
   checkHashBcrypt,
 } from "~/server/internal/auth";
 import { logger } from "~/server/internal/logging";
+import adminHomeManager from "~/server/internal/adminhome";
 
 const signinValidator = type({
   username: "string",
@@ -102,6 +103,7 @@ export default defineEventHandler<{
       statusMessage: t("errors.auth.invalidUserOrPass"),
     });
 
+  adminHomeManager.invalidateCache("userStats");
   await sessionHandler.signin(h3, authMek.userId, body.rememberMe);
   return { result: true, userId: authMek.userId };
 });

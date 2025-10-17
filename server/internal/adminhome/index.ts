@@ -39,6 +39,10 @@ class AdminHomeManager {
 
     return userStats;
   }
+
+  async invalidateCache(key: string) {
+    await this.userStatsCache.remove(key);
+  }
 }
 
 export const manager = new AdminHomeManager();
