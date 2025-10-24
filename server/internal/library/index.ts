@@ -16,6 +16,18 @@ import { logger } from "../logging";
 import type { GameModel } from "~/prisma/client/models";
 import { createHash } from "node:crypto";
 import type { WorkingLibrarySource } from "~/server/api/v1/admin/library/sources/index.get";
+import type {
+  DropChunk,
+  DropManifest,
+} from "~/server/internal/downloads/manifest";
+import { sum, replaceItem } from "~/utils/array";
+import { Game, GameVersion } from "~/prisma/client/client";
+
+export type GameWithSize = {
+  id: string;
+  size: number;
+  mName: string;
+};
 
 export function createGameImportTaskId(libraryId: string, libraryPath: string) {
   return createHash("md5")
@@ -368,6 +380,118 @@ class LibraryManager {
     const library = this.libraries.get(libraryId);
     if (!library) return undefined;
     return await library.readFile(game, version, filename, options);
+  }
+
+  async getGameSize(
+    gameId: string,
+    versionName?: string,
+  ): Promise<number | null> {
+    let gameVersion;
+    if (!versionName) {
+      gameVersion = await prisma.gameVersion.findFirst({
+        where: { gameId },
+        orderBy: {
+          versionIndex: "desc",
+        },
+      });
+    } else {
+      gameVersion = await prisma.gameVersion.findFirst({
+        where: { gameId, versionName },
+      });
+    }
+
+    if (!gameVersion) {
+      return null;
+    }
+    const manifest = JSON.parse(
+      gameVersion.dropletManifest as string,
+    ) as DropManifest;
+
+    return sum(
+      (Object.values(manifest) as DropChunk[])
+        .map((chunk) => chunk.lengths)
+        .flat(),
+    );
+  }
+
+  async getBiggestGamesAllVersions(top: number): Promise<GameWithSize[]> {
+    const addGameVersionsSizes = async (
+      versions: GameWithSize[],
+    ): Promise<GameWithSize[]> => {
+      return versions.reduce(
+        (
+          accumulator: GameWithSize[],
+          currentValue: GameWithSize,
+        ): GameWithSize[] => {
+          const gameWithSize = accumulator.find(
+            (game) => game.id === currentValue.id,
+          );
+          const accumulatedGameWithSize = {
+            ...currentValue,
+            size: gameWithSize
+              ? gameWithSize.size + currentValue.size
+              : currentValue.size,
+          };
+          return gameWithSize
+            ? replaceItem(
+                accumulator,
+                accumulatedGameWithSize,
+                accumulator.indexOf(gameWithSize),
+              )
+            : [...accumulator, accumulatedGameWithSize];
+        },
+        [],
+      );
+    };
+
+    const games = await prisma.game.findMany({
+      include: { versions: true },
+    });
+    const gameVersions = games
+      .map(async (game) => {
+        const allVersionsWithSize = await Promise.all(
+          game.versions.map(async (version) => ({
+            mName: game.mName,
+            id: game.id,
+            size: (await this.getGameSize(game.id, version.versionName)) || 0,
+          })),
+        );
+        return allVersionsWithSize;
+      })
+      .flat();
+    const allGameVersions = (await Promise.all(gameVersions)).flat();
+
+    return (await addGameVersionsSizes(allGameVersions)).slice(0, top);
+  }
+
+  async getBiggestGamesLatestVersions(top: number): Promise<GameWithSize[]> {
+    const games = await prisma.game.findMany({
+      include: {
+        versions: {
+          orderBy: {
+            versionIndex: "desc",
+          },
+          take: 1,
+        },
+      },
+    });
+    return await Promise.all(
+      games
+        .filter((game) => game.versions.length === 1)
+        .map(async (game) => {
+          const size = await this.getGameSize(
+            game.id,
+            game.versions[0].versionName,
+          );
+
+          return {
+            mName: game.mName,
+            size: size || 0,
+            id: game.id,
+          };
+        })
+        .slice(0, top),
+    );
   }
 }
 

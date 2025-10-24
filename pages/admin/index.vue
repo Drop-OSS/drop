@@ -57,12 +57,29 @@
             <SourceTable :sources="sources" />
           </TileWithLink>
         </div>
+        <div class="col-span-1">
+          <TileWithLink
+            title="Top 5 Biggest Games to download. Latest version only"
+          >
+            <RankingList :items="biggestGamesLatest.map(gameToRankItem)" />
+          </TileWithLink>
+        </div>
+        <div class="col-span-1">
+          <TileWithLink
+            title="Top 5 biggest games on server. All versions combined"
+          >
+            <RankingList :items="biggestGamesAll.map(gameToRankItem)" />
+          </TileWithLink>
+        </div>
       </div>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
+import { formatBytes } from "~/server/internal/utils/files";
+import type { GameWithSize } from "~/server/internal/library";
+import type { RankItem } from "~/components/RankingList.vue";
 definePageMeta({
   layout: "admin",
 });
@@ -71,8 +88,20 @@ useHead({
   title: "Home",
 });
 
-const { version, gameCount, sources, userStats } =
-  await $dropFetch("/api/v1/admin/home");
+const {
+  version,
+  gameCount,
+  sources,
+  userStats,
+  biggestGamesLatest,
+  biggestGamesAll,
+} = await $dropFetch("/api/v1/admin/home");
+
+const gameToRankItem = (game: GameWithSize, rank: number): RankItem => ({
+  rank: rank + 1,
+  name: game.mName,
+  value: formatBytes(game.size),
+});
 
 const pieChartData = [
   {

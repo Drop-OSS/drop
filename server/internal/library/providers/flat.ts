@@ -6,7 +6,8 @@ import fs from "fs";
 import path from "path";
 import droplet from "@drop-oss/droplet";
 import { DROPLET_HANDLER } from "./filesystem";
-import { fsStats } from "../../utils/files";
+import { fsStats } from "~/server/internal/utils/files";
+import { Game, GameVersion } from "~/prisma/client/client";
 
 export const FlatFilesystemProviderConfig = type({
   baseDir: "string",

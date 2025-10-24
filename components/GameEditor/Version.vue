@@ -51,13 +51,18 @@
               @update="() => updateVersionOrder()"
             >
               <template
-                #item="{ element: item }: { element: GameVersionModel }"
+                #item="{ element: item }: { element: GameVersionModelWithSize }"
               >
                 <div
-                  class="w-full inline-flex items-center px-4 py-2 bg-zinc-800 rounded justify-between"
+                  class="w-full inline-flex items-center px-4 py-2 bg-zinc-800 rounded justify-between w-full flex"
                 >
-                  <div class="text-zinc-100 font-semibold">
+                  <div class="text-zinc-100 font-semibold flex-none">
                     {{ item.versionName }}
+                  </div>
+                  <div
+                    class="text-right text-zinc-400 text-xs font-normal flex-auto pr-4"
+                  >
+                    {{ item.size && formatBytes(item.size) }}
                   </div>
                   <div class="text-zinc-400">
                     {{ item.delta ? $t("library.admin.version.delta") : "" }}
@@ -117,6 +122,7 @@ import { Bars3Icon, TrashIcon } from "@heroicons/vue/24/solid";
 import type { SerializeObject } from "nitropack";
 import type { H3Error } from "h3";
 import { ExclamationCircleIcon } from "@heroicons/vue/24/outline";
+import { formatBytes } from "~/server/internal/utils/files";
 
 // TODO implement UI for this page
 
@@ -130,7 +136,11 @@ const canImport = computed(
   () => hasDeleted.value || props.unimportedVersions.length > 0,
 );
 
-type GameAndVersions = GameModel & { versions: GameVersionModel[] };
+type GameVersionModelWithSize = GameVersionModel & { size: number };
+
+type GameAndVersions = GameModel & {
+  versions: GameVersionModelWithSize[];
+};
 const game = defineModel<SerializeObject<GameAndVersions>>() as Ref<
   SerializeObject<GameAndVersions>
 >;

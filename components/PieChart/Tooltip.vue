@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import { useTooltip } from "../../composables/piechart";
-import { COLORS } from "~/utils/const";
+import { COLORS } from "~/utils/colors";
 
 const tooltip = useTooltip();
 </script>

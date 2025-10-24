@@ -11,10 +11,16 @@ export default defineEventHandler(async (h3) => {
   const sources = await libraryManager.fetchLibraries();
   const userStats = await adminHomeManager.getUserStats();
 
+  const biggestGamesAll = await libraryManager.getBiggestGamesAllVersions(5);
+  const biggestGamesLatest =
+    await libraryManager.getBiggestGamesLatestVersions(5);
+
   return {
     gameCount: await prisma.game.count(),
     version: systemConfig.getDropVersion(),
     userStats,
     sources,
+    biggestGamesLatest,
+    biggestGamesAll,
   };
 });

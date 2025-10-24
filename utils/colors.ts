@@ -46,3 +46,13 @@ export const COLORS = {
 };
 
 export type COLOR = keyof typeof COLORS;
+
+export function getColor(percentage: number) {
+  if (percentage <= 70) {
+    return "blue";
+  }
+  if (percentage > 70 && percentage <= 90) {
+    return "orange";
+  }
+  return "red";
+}

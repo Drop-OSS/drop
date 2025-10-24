@@ -1,7 +1,7 @@
 import Tuple from "~/utils/tuple";
 import type { Slice, SliceData } from "~/components/PieChart/types";
 import { sum, lastItem } from "~/utils/array";
-import { type COLOR, COLORS } from "~/utils/const";
+import { type COLOR, COLORS } from "~/utils/colors";
 
 export const START = new Tuple(50, 10);
 export const CENTER = new Tuple(50, 50);

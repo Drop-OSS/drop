@@ -42,7 +42,7 @@ import {
   polarToCartesian,
 } from "~/components/PieChart/utils";
 import { hideTooltip, setTooltipCoordinates } from "~/composables/piechart";
-import { COLORS } from "~/utils/const";
+import { COLORS } from "~/utils/colors";
 
 const { slice, parentRef } = defineProps<{
   slice: Slice;

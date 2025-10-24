@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { type COLOR, COLORS } from "~/utils/const";
+import { type COLOR, COLORS } from "~/utils/colors";
 const { percentage, color } = defineProps<{
   percentage: number;
   color: COLOR;

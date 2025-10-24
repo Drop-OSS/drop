@@ -1,5 +1,6 @@
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
+import libraryManager from "~/server/internal/library";
 
 export default defineEventHandler(async (h3) => {
   const userId = await aclManager.getUserIdACL(h3, ["store:read"]);
@@ -51,5 +52,7 @@ export default defineEventHandler(async (h3) => {
     },
   });
 
-  return { game, rating };
+  const size = await libraryManager.getGameSize(game.id);
+
+  return { game, rating, size };
 });

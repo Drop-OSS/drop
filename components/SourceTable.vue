@@ -81,10 +81,10 @@
           {{ source.options }}
         </td>
         <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
-          {{ source.fsStats && getSize(source.fsStats.totalSpace) }}
+          {{ source.fsStats && formatBytes(source.fsStats.totalSpace) }}
         </td>
         <td class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400">
-          {{ source.fsStats && getSize(source.fsStats.freeSpace) }}
+          {{ source.fsStats && formatBytes(source.fsStats.freeSpace) }}
         </td>
         <td
           class="align-middle flex flex-cols-5 whitespace-nowrap px-3 py-4 text-sm text-zinc-400"
@@ -156,6 +156,8 @@ import type { WorkingLibrarySource } from "~/server/api/v1/admin/library/sources
 import type { LibraryBackend } from "~/prisma/client/enums";
 import { BackwardIcon, CheckIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 import { DropLogo } from "#components";
+import { formatBytes } from "~/server/internal/utils/files";
+import { getColor } from "~/utils/colors";
 
 const {
   sources,
@@ -192,32 +194,6 @@ const optionsMetadata: {
   },
 };
 
-const getColor = (percentage: number) => {
-  if (percentage <= 70) {
-    return "blue";
-  }
-  if (percentage > 70 && percentage <= 90) {
-    return "orange";
-  }
-  return "red";
-};
-
 const getPercentage = (value: number, total: number) =>
   ((total - value) * 100) / total;
-
-const getSize = (bytes: number) => {
-  if (bytes < 1024) {
-    return `${bytes} B`;
-  }
-  if (bytes >= 1024 && bytes < Math.pow(1024, 2)) {
-    return `${(bytes / 1024).toFixed(2)} KiB`;
-  }
-  if (bytes >= Math.pow(1024, 2) && bytes < Math.pow(1024, 3)) {
-    return `${(bytes / 1024).toFixed(2)} MiB`;
-  }
-  if (bytes >= Math.pow(1024, 3) && bytes < Math.pow(1024, 4)) {
-    return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GiB`;
-  }
-  return `${(bytes / Math.pow(1024, 4)).toFixed(2)} TiB`;
-};
 </script>

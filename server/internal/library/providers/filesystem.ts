@@ -8,7 +8,7 @@ import { LibraryBackend } from "~/prisma/client/enums";
 import fs from "fs";
 import path from "path";
 import droplet, { DropletHandler } from "@drop-oss/droplet";
-import { fsStats } from "../../utils/files";
+import { fsStats } from "~/server/internal/utils/files";
 
 export const FilesystemProviderConfig = type({
   baseDir: "string",

@@ -88,6 +88,20 @@
               </tr>
               <tr>
                 <td
+                  v-if="size"
+                  class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
+                >
+                  {{ $t("store.size") }}
+                </td>
+                <td
+                  v-if="size"
+                  class="whitespace-nowrap inline-flex gap-x-4 px-3 py-4 text-sm text-zinc-400"
+                >
+                  {{ formatBytes(size) }}
+                </td>
+              </tr>
+              <tr>
+                <td
                   class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
                 >
                   {{ $t("store.rating") }}
@@ -246,13 +260,14 @@ import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
 import { StarIcon } from "@heroicons/vue/24/solid";
 import { micromark } from "micromark";
 import type { PlatformClient } from "~/composables/types";
+import { formatBytes } from "~/server/internal/utils/files";
 
 const route = useRoute();
 const gameId = route.params.id.toString();
 
 const user = useUser();
 
-const { game, rating } = await $dropFetch(`/api/v1/games/${gameId}`);
+const { game, rating, size } = await $dropFetch(`/api/v1/games/${gameId}`);
 
 // Preview description (first 30 lines)
 const showPreview = ref(true);

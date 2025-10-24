@@ -1,5 +1,5 @@
 import type Tuple from "~/utils/tuple";
-import type { COLOR } from "~/utils/const";
+import type { COLOR } from "~/utils/colors";
 
 export type Slice = {
   start: Tuple;
