@@ -19,7 +19,7 @@ export default withNuxt([
         },
       ],
       "@intlify/vue-i18n/no-missing-keys": "error",
-      "vue/multi-word-component-names": "ignore",
+      "vue/multi-word-component-names": "off",
     },
     settings: {
       "vue-i18n": {

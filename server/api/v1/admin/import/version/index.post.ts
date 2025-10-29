@@ -1,9 +1,7 @@
 import { type } from "arktype";
 import { readDropValidatedBody, throwingArktype } from "~~/server/arktype";
 import aclManager from "~~/server/internal/acls";
-import prisma from "~~/server/internal/db/database";
 import libraryManager from "~~/server/internal/library";
-import { convertIDToLink } from "~~/server/internal/platform/link";
 
 export const LaunchCommands = type({
   name: "string > 0",

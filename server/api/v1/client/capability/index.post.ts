@@ -1,9 +1,7 @@
 import { type } from "arktype";
 import { ClientCapabilities } from "~~/prisma/client/enums";
 import { readDropValidatedBody, throwingArktype } from "~~/server/arktype";
-import capabilityManager, {
-  validCapabilities,
-} from "~~/server/internal/clients/capabilities";
+import capabilityManager from "~~/server/internal/clients/capabilities";
 import { defineClientEventHandler } from "~~/server/internal/clients/event-handler";
 import notificationSystem from "~~/server/internal/notifications";
 

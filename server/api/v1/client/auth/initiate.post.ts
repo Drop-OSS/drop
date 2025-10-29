@@ -1,5 +1,5 @@
 import { type } from "arktype";
-import { ClientCapabilities } from "~~/prisma/client/enums";
+import type { ClientCapabilities } from "~~/prisma/client/enums";
 import { readDropValidatedBody, throwingArktype } from "~~/server/arktype";
 import type {
   CapabilityConfiguration,
@@ -7,7 +7,7 @@ import type {
 import capabilityManager, {
   validCapabilities,
 } from "~~/server/internal/clients/capabilities";
-import clientHandler, { AuthMode, AuthModes } from "~~/server/internal/clients/handler";
+import clientHandler, { AuthModes } from "~~/server/internal/clients/handler";
 import { parsePlatform } from "~~/server/internal/utils/parseplatform";
 
 const ClientAuthInitiate = type({

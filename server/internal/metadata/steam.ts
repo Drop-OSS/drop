@@ -10,7 +10,7 @@ import type {
 } from "./types";
 import axios from "axios";
 import * as jdenticon from "jdenticon";
-import { TaskRunContext } from "../tasks/utils";
+import type { TaskRunContext } from "../tasks/utils";
 
 /**
  * Note: The Steam API is largely undocumented.

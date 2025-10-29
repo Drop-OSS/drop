@@ -20,8 +20,7 @@ import type {
   VersionCreateArgs,
   VersionWhereInput,
 } from "~~/prisma/client/models";
-import { PlatformLink } from "~~/prisma/client/client";
-import { StringifiablePrefixOperator } from "arktype/internal/parser/reduce/shared.ts";
+import type { PlatformLink } from "~~/prisma/client/client";
 import { convertIDToLink } from "../platform/link";
 
 export const VersionImportModes = ["game", "redist"] as const;
@@ -258,7 +257,7 @@ class LibraryManager {
     metadata: typeof ImportVersion.infer,
   ): Partial<VersionCreateArgs["data"]> {
     switch (metadata.mode) {
-      case "game":
+      case "game": {
         const installCreator = {
           install: {
             create: {
@@ -316,6 +315,7 @@ class LibraryManager {
             },
           },
         };
+      }
       case "redist":
         return {};
     }

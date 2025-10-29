@@ -2,7 +2,7 @@ import { type } from "arktype";
 import { readDropValidatedBody, throwingArktype } from "~~/server/arktype";
 import aclManager from "~~/server/internal/acls";
 import taskHandler from "~~/server/internal/tasks";
-import { TASK_GROUPS, type TaskGroup } from "~~/server/internal/tasks/group";
+import { TASK_GROUPS } from "~~/server/internal/tasks/group";
 
 const StartTask = type({
   taskGroup: type.enumerated(...TASK_GROUPS),
