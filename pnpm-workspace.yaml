@@ -1,4 +1,8 @@
 onlyBuiltDependencies:
+  - '@prisma/client'
+  - '@prisma/engines'
+  - '@tailwindcss/oxide'
   - esbuild
+  - prisma
 
 shamefullyHoist: true

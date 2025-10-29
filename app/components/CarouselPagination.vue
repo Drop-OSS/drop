@@ -4,9 +4,10 @@
       v-for="(_, i) in amount"
       :key="i"
       :class="[
-        carousel.currentSlide == i ? 'bg-blue-600 w-6' : 'bg-zinc-700 w-3',
+        carousel.currentSlide === i ? 'bg-blue-600 w-6' : 'bg-zinc-700 w-3',
         'transition-all cursor-pointer h-2 rounded-full',
       ]"
+      @click="slideTo(i)"
     />
   </div>
 </template>
@@ -18,8 +19,8 @@ const carousel = inject(injectCarousel)!;
 
 const amount = carousel.maxSlide - carousel.minSlide + 1;
 
-// function slideTo(index: number) {
-//   const offsetIndex = index + carousel.minSlide;
-//   carousel.nav.slideTo(offsetIndex);
-// }
+function slideTo(index: number) {
+  const offsetIndex = index + carousel.minSlide;
+  carousel.nav.slideTo(offsetIndex);
+}
 </script>
