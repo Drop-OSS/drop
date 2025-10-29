@@ -72,7 +72,7 @@ interface IGDBCompanyWebsite extends IGDBItem {
 }
 
 interface IGDBCover extends IGDBItem {
-  url: string;
+  image_id: string;
 }
 
 interface IGDBSearchStub extends IGDBItem {
@@ -179,7 +179,7 @@ export class IGDBProvider implements MetadataProvider {
 
     if (response.status !== 200)
       throw new Error(
-        `Error in IDGB \nStatus Code: ${response.status}\n${response.data}`,
+        `Error in IGDB \nStatus Code: ${response.status}\n${response.data}`,
       );
 
     this.accessToken = response.data.access_token;
@@ -187,7 +187,7 @@ export class IGDBProvider implements MetadataProvider {
       seconds: response.data.expires_in,
     });
 
-    logger.info("IDGB done authorizing with twitch");
+    logger.info("IGDB done authorizing with twitch");
   }
 
   private async refreshCredentials() {
@@ -246,39 +246,47 @@ export class IGDBProvider implements MetadataProvider {
     return <T[]>response.data;
   }
 
-  private async _getMediaInternal(mediaID: IGDBID, type: string) {
+  private async _getMediaInternal(
+    mediaID: IGDBID,
+    type: string,
+    size: string = "t_thumb",
+  ) {
     if (mediaID === undefined)
       throw new Error(
         `IGDB mediaID when getting item of type ${type} was undefined`,
       );
 
-    const body = `where id = ${mediaID}; fields url;`;
+    const body = `where id = ${mediaID}; fields image_id;`;
     const response = await this.request<IGDBCover>(type, body);
 
-    let result = "";
+    if (!response.length || !response[0].image_id) {
+      throw new Error(`No image_id found for ${type} with id ${mediaID}`);
+    }
 
-    response.forEach((cover) => {
-      if (cover.url.startsWith("https:")) {
-        result = cover.url;
-      } else {
-        // twitch *sometimes* provides it in the format "//images.igdb.com"
-        result = `https:${cover.url}`;
-      }
-    });
+    const imageId = response[0].image_id;
+    const result = `https://images.igdb.com/igdb/image/upload/${size}/${imageId}.jpg`;
 
     return result;
   }
 
   private async getCoverURL(id: IGDBID) {
-    return await this._getMediaInternal(id, "covers");
+    return await this._getMediaInternal(id, "covers", "t_cover_big");
   }
 
   private async getArtworkURL(id: IGDBID) {
-    return await this._getMediaInternal(id, "artworks");
+    return await this._getMediaInternal(id, "artworks", "t_1080p");
+  }
+
+  private async getScreenshotURL(id: IGDBID) {
+    return await this._getMediaInternal(id, "screenshots", "t_1080p");
+  }
+
+  private async getIconURL(id: IGDBID) {
+    return await this._getMediaInternal(id, "covers", "t_thumb");
   }
 
   private async getCompanyLogoURl(id: IGDBID) {
-    return await this._getMediaInternal(id, "company_logos");
+    return await this._getMediaInternal(id, "company_logos", "t_original");
   }
 
   private trimMessage(msg: string, len: number) {
@@ -327,7 +335,7 @@ export class IGDBProvider implements MetadataProvider {
       let icon = "";
       const cover = response[i].cover;
       if (cover !== undefined) {
-        icon = await this.getCoverURL(cover);
+        icon = await this.getIconURL(cover);
       } else {
         icon = "";
       }
@@ -355,23 +363,26 @@ export class IGDBProvider implements MetadataProvider {
     const currentGame = (await this.request<IGDBGameFull>("games", body)).at(0);
     if (!currentGame) throw new Error("No game found on IGDB with that id");
 
-    context?.logger.info("Using IDGB provider.");
+    context?.logger.info("Using IGDB provider.");
 
-    let iconRaw;
+    let iconRaw, coverRaw;
     const cover = currentGame.cover;
 
     if (cover !== undefined) {
       context?.logger.info("Found cover URL, using...");
-      iconRaw = await this.getCoverURL(cover);
+      iconRaw = await this.getIconURL(cover);
+      coverRaw = await this.getCoverURL(cover);
     } else {
       context?.logger.info("Missing cover URL, using fallback...");
       iconRaw = jdenticon.toPng(id, 512);
+      coverRaw = iconRaw;
     }
 
     const icon = createObject(iconRaw);
+    const coverID = createObject(coverRaw);
     let banner;
 
-    const images = [icon];
+    const images = [coverID];
     for (const art of currentGame.artworks ?? []) {
       const objectId = createObject(await this.getArtworkURL(art));
       if (!banner) {
@@ -382,6 +393,11 @@ export class IGDBProvider implements MetadataProvider {
 
     if (!banner) {
       banner = createObject(jdenticon.toPng(id, 512));
+    }
+
+    for (const screenshot of currentGame.screenshots ?? []) {
+      const objectId = createObject(await this.getScreenshotURL(screenshot));
+      images.push(objectId);
     }
 
     context?.progress(20);
@@ -452,13 +468,25 @@ export class IGDBProvider implements MetadataProvider {
 
     const genres = await this.getGenres(currentGame.genres);
 
-    const deck = this.trimMessage(currentGame.summary, 280);
+    let description = "";
+    let shortDescription = "";
+
+    if (currentGame.summary.length > (currentGame.storyline?.length ?? 0)) {
+      description = currentGame.summary;
+      shortDescription = this.trimMessage(
+        currentGame.storyline ?? currentGame.summary,
+        280,
+      );
+    } else {
+      description = currentGame.storyline ?? currentGame.summary;
+      shortDescription = this.trimMessage(currentGame.summary, 280);
+    }
 
     const metadata = {
       id: currentGame.id.toString(),
       name: currentGame.name,
-      shortDescription: deck,
-      description: currentGame.summary,
+      shortDescription,
+      description,
       released,
 
       genres,
@@ -471,7 +499,7 @@ export class IGDBProvider implements MetadataProvider {
 
       icon,
       bannerId: banner,
-      coverId: icon,
+      coverId: coverID,
       images,
     };
 

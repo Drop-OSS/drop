@@ -1,3 +1,12 @@
+<i18n>
+{
+  "en": {
+    "↓": "↓",
+    "↑": "↑"
+  }
+}
+</i18n>
+
 <template>
   <div>
     <div>
@@ -180,7 +189,7 @@
                       >
                         {{ option.name }}
                         <span v-if="currentSort === option.param">
-                          {{ sortOrder === 'asc' ? '↑' : '↓' }}
+                          {{ sortOrder === "asc" ? $t("↑") : $t("↓") }}
                         </span>
                       </button>
                     </MenuItem>
@@ -508,11 +517,10 @@ await updateGames(filterQuery.value, true);
 function handleSortClick(option: StoreSortOption, event: MouseEvent) {
   event.stopPropagation();
   if (currentSort.value === option.param) {
-    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
+    sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
   } else {
     currentSort.value = option.param;
-    sortOrder.value = option.param === 'name' ? 'asc' : 'desc';
+    sortOrder.value = option.param === "name" ? "asc" : "desc";
   }
 }
-
 </script>
