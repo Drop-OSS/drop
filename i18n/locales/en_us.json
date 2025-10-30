@@ -282,7 +282,19 @@
   "home": {
     "admin": {
       "title": "Home",
-      "subheader": "Instance summary"
+      "subheader": "Instance summary",
+      "games": "Games",
+      "librarySources": "Library sources",
+      "version": "Version",
+      "activeInactiveUsers": "Active/inactive users",
+      "activeUsers": "Active users",
+      "inactiveUsers": "Inactive users",
+      "goToUsers": "Go to users",
+      "users": "Users",
+      "biggestGamesToDownload": "Biggest games to download",
+      "latestVersionOnly": "Latest version only",
+      "biggestGamesOnServer": "Biggest games on server",
+      "allVersionsCombined": "All versions combined"
     }
   },
   "library": {
@@ -435,9 +447,7 @@
         "freeSpace": "Free space",
         "totalSpace": "Total space",
         "utilizationPercentage": "Utilization percentage",
-        "percentage": "{number}%",
-        "totalGameCount": "Total games: {gameCount}",
-        "totalUserCount": "Total users: {userCount}"
+        "percentage": "{number}%"
       },
       "subheader": "As you add folders to your library sources, Drop will detect it and prompt you to import it. Each game needs to be imported before you can import a version.",
       "title": "Libraries",

@@ -49,8 +49,8 @@ export default defineEventHandler<{ body: typeof UpdateLibrarySource.infer }>(
         },
       });
 
-      await libraryManager.removeLibrary(source.id);
-      await libraryManager.addLibrary(newLibrary);
+      libraryManager.removeLibrary(source.id);
+      libraryManager.addLibrary(newLibrary);
 
       const workingSource: WorkingLibrarySource = {
         ...updatedSource,

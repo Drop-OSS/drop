@@ -106,18 +106,8 @@
                   ),
                 )
               "
+              background-color="slate"
             />
-          </div>
-          <div class="flex-1 ml-2">
-            {{
-              source.fsStats &&
-              $t("library.admin.sources.percentage", {
-                number: getPercentage(
-                  source.fsStats.freeSpace,
-                  source.fsStats.totalSpace,
-                ).toFixed(2),
-              })
-            }}
           </div>
         </td>
         <td

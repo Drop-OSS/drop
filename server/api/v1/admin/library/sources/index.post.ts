@@ -52,11 +52,12 @@ export default defineEventHandler<{ body: typeof CreateLibrarySource.infer }>(
         },
       });
 
-      await libraryManager.addLibrary(library);
+      libraryManager.addLibrary(library);
 
       const workingSource: WorkingLibrarySource = {
         ...source,
         working: true,
+        fsStats: library.fsStats(),
       };
 
       return workingSource;

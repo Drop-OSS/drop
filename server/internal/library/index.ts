@@ -21,7 +21,6 @@ import type {
   DropManifest,
 } from "~/server/internal/downloads/manifest";
 import { sum, replaceItem } from "~/utils/array";
-import { Game, GameVersion } from "~/prisma/client/client";
 
 export type GameWithSize = {
   id: string;
@@ -55,15 +54,16 @@ class LibraryManager {
   async fetchLibraries(): Promise<WorkingLibrarySource[]> {
     const libraries = await prisma.library.findMany({});
 
-    const libraryWithMetadata = libraries.map((library) => {
+    const libraryWithMetadata = libraries.map(async (library) => {
       const theLibrary = this.libraries.get(library.id);
+      const working = this.libraries.has(library.id);
       return {
         ...library,
-        working: this.libraries.has(library.id),
-        fsStats: theLibrary?.fsStats(),
+        working,
+        fsStats: working ? theLibrary?.fsStats() : undefined,
       };
     });
-    return libraryWithMetadata;
+    return await Promise.all(libraryWithMetadata);
   }
 
   async fetchGamesByLibrary() {

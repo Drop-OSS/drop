@@ -4,8 +4,8 @@ export const COLORS = {
     bg: "bg-red-800",
   },
   blue: {
-    fill: "fill-blue-800",
-    bg: "bg-blue-800",
+    fill: "fill-blue-600",
+    bg: "bg-blue-600",
   },
   green: {
     fill: "fill-green-800",
@@ -20,8 +20,8 @@ export const COLORS = {
     bg: "bg-purple-800",
   },
   zinc: {
-    fill: "fill-zinc-800",
-    bg: "bg-zinc-800",
+    fill: "fill-zinc-950",
+    bg: "bg-zinc-950",
   },
   pink: {
     fill: "fill-pink-800",
@@ -40,8 +40,8 @@ export const COLORS = {
     bg: "bg-emerald-800",
   },
   slate: {
-    fill: "fill-slate-400",
-    bg: "bg-slate-400",
+    fill: "fill-slate-800",
+    bg: "bg-slate-800",
   },
 };
 

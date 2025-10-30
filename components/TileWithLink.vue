@@ -1,14 +1,21 @@
 <template>
   <div
     :class="[
-      'border-2 border-gray-800 rounded-xl h-full p-4 relative bg-gray-900',
-      { 'min-h-50 pb-8': link },
+      'border-2 border-zinc-950/30 rounded-xl h-full p-4 relative bg-zinc-950/30',
+      { 'min-h-50 pb-15': link },
     ]"
   >
-    <h1 :class="['font-bold text-lg w-full', { 'mb-3': link }]">
+    <h1
+      v-if="props.title"
+      :class="['font-bold text-lg w-full', { 'mb-3': !props.subtitle && link }]"
+    >
       {{ props.title }}
       <div v-if="rightTitle" class="float-right">{{ props.rightTitle }}</div>
     </h1>
+    <h2 v-if="props.subtitle" :class="['text-medium w-full', { 'mb-3': link }]">
+      {{ props.subtitle }}
+      <div v-if="rightTitle" class="float-right">{{ props.rightTitle }}</div>
+    </h2>
 
     <slot />
 
@@ -28,7 +35,8 @@
 import { ArrowRightIcon } from "@heroicons/vue/20/solid";
 
 const props = defineProps<{
-  title: string;
+  title?: string;
+  subtitle?: string;
   rightTitle?: string;
   link?: {
     url: string;

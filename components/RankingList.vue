@@ -1,14 +1,10 @@
 <template>
-  <table class="w-full m-2 border-none border-collapse">
+  <table class="w-full m-2 border-spacing-4 border-separate">
     <tbody>
-      <tr
-        v-for="item in items"
-        :key="`${item.rank}-${item.name}`"
-        class="border-solid border-b-2 last:border-none"
-      >
-        <td>{{ item.rank }}</td>
+      <tr v-for="item in items" :key="`${item.rank}-${item.name}`">
+        <td class="italic text-right">{{ item.rank }}</td>
         <td class="font-bold">{{ item.name }}</td>
-        <td>{{ item.value }}</td>
+        <td class="text-right">{{ item.value }}</td>
       </tr>
     </tbody>
   </table>

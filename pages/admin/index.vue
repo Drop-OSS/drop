@@ -3,70 +3,124 @@
     <div class="sm:flex sm:items-center">
       <div class="sm:flex-auto">
         <h1 class="text-2xl font-semibold text-zinc-100">
-          {{ $t("home.admin.title") }}
+          {{ t("home.admin.title") }}
         </h1>
         <p class="mt-2 text-base text-zinc-400">
-          {{ $t("home.admin.subheader") }}
+          {{ t("home.admin.subheader") }}
         </p>
       </div>
     </div>
     <main
       class="mx-auto max-w-md lg:max-w-none w-full px-6 py-2 lg:px-8 text-zinc-100"
     >
-      <div class="grid grid-cols-3 gap-4">
-        <div class="col-span-1 h-full">
-          <TileWithLink title="Drop version" :right-title="version" />
-        </div>
-        <div class="col-span-1">
-          <TileWithLink
-            title="Users"
-            :link="{ url: '/admin/users', label: 'Go to users' }"
-            :right-title="
-              $t('library.admin.sources.totalUserCount', {
-                userCount: userStats.userCount,
-              })
-            "
-          >
-            <div class="text-center">
-              <div>
-                <PieChart :data="pieChartData" title="Active/inactive users" />
-              </div>
-              <ul class="my-4">
-                <li v-for="slice in pieChartData" :key="slice.value">
-                  {{
-                    $t("common.labelValueColon", {
-                      label: slice.label,
-                      value: slice.value,
-                    })
-                  }}
-                </li>
-              </ul>
+      <div class="grid grid-cols-6 gap-4">
+        <div class="col-span-6">
+          <div class="grid grid-flow-col grid-rows-2 grid-cols-6 gap-4">
+            <div class="row-span-1 col-span-1">
+              <TileWithLink>
+                <div class="h-full flex">
+                  <div class="flex-1 my-auto">
+                    <DropLogo />
+                  </div>
+                  <div class="flex-auto my-auto text-center">
+                    <div>{{ t("home.admin.version") }}</div>
+                    <div class="font-bold">{{ version }}</div>
+                  </div>
+                </div>
+              </TileWithLink>
             </div>
-          </TileWithLink>
+
+            <div class="row-span-1 col-span-1">
+              <TileWithLink>
+                <div class="h-full flex">
+                  <div class="flex-1 my-auto">
+                    <GamepadIcon />
+                  </div>
+                  <div class="flex-auto my-auto text-center">
+                    <div>{{ t("home.admin.games") }}</div>
+                    <div class="font-bold">{{ gameCount }}</div>
+                  </div>
+                </div>
+              </TileWithLink>
+            </div>
+
+            <div class="row-span-1 col-span-1">
+              <TileWithLink>
+                <div class="h-full flex">
+                  <div class="flex-1 my-auto">
+                    <ServerStackIcon />
+                  </div>
+                  <div class="flex-auto my-auto text-center">
+                    <div>{{ t("home.admin.librarySources") }}</div>
+                    <div class="font-bold">{{ sources.length }}</div>
+                  </div>
+                </div>
+              </TileWithLink>
+            </div>
+
+            <div class="row-span-1 col-span-1">
+              <TileWithLink>
+                <div class="h-full flex">
+                  <div class="flex-1 my-auto">
+                    <UserGroupIcon />
+                  </div>
+                  <div class="flex-auto my-auto text-center">
+                    <div>{{ t("home.admin.users") }}</div>
+                    <div class="font-bold">{{ userStats.userCount }}</div>
+                  </div>
+                </div>
+              </TileWithLink>
+            </div>
+
+            <div class="col-span-2 row-span-2">
+              <TileWithLink
+                :link="{
+                  url: '/admin/users',
+                  label: t('home.admin.goToUsers'),
+                }"
+              >
+                <div class="text-center">
+                  <div class="py-2">
+                    <PieChart
+                      :data="pieChartData"
+                      :title="t('home.admin.activeInactiveUsers')"
+                    />
+                  </div>
+                  <ul>
+                    <li v-for="slice in pieChartData" :key="slice.value">
+                      {{
+                        t("common.labelValueColon", {
+                          label: slice.label,
+                          value: slice.value,
+                        })
+                      }}
+                    </li>
+                  </ul>
+                </div>
+              </TileWithLink>
+            </div>
+          </div>
         </div>
-        <div class="col-span-3">
+        <div class="col-span-6">
           <TileWithLink
             title="Library"
             :link="{ url: '/admin/library', label: 'Go to library' }"
-            :right-title="
-              $t('library.admin.sources.totalGameCount', {
-                gameCount: gameCount,
-              })
-            "
           >
             <SourceTable :sources="sources" />
           </TileWithLink>
         </div>
-        <div class="col-span-1">
+        <div class="col-span-2">
           <TileWithLink
-            title="Top 5 Biggest Games to download. Latest version only"
+            :title="t('home.admin.biggestGamesToDownload')"
+            :subtitle="t('home.admin.latestVersionOnly')"
           >
             <RankingList :items="biggestGamesLatest.map(gameToRankItem)" />
           </TileWithLink>
         </div>
-        <div class="col-span-1">
+        <div class="col-span-2">
           <TileWithLink
-            title="Top 5 biggest games on server. All versions combined"
+            :title="t('home.admin.biggestGamesOnServer')"
+            :subtitle="t('home.admin.allVersionsCombined')"
           >
             <RankingList :items="biggestGamesAll.map(gameToRankItem)" />
           </TileWithLink>
@@ -78,8 +132,12 @@
 
 <script setup lang="ts">
 import { formatBytes } from "~/server/internal/utils/files";
+import GamepadIcon from "~/components/Icons/GamepadIcon.vue";
+import DropLogo from "~/components/DropLogo.vue";
+import { ServerStackIcon, UserGroupIcon } from "@heroicons/vue/24/outline";
 import type { GameWithSize } from "~/server/internal/library";
 import type { RankItem } from "~/components/RankingList.vue";
+
 definePageMeta({
   layout: "admin",
 });
@@ -87,6 +145,8 @@ definePageMeta({
 useHead({
   title: "Home",
 });
+
+const { t } = useI18n();
 
 const {
   version,
@@ -105,9 +165,9 @@ const gameToRankItem = (game: GameWithSize, rank: number): RankItem => ({
 
 const pieChartData = [
   {
-    label: "Inactive users",
+    label: t("home.admin.inactiveUsers"),
     value: userStats.userCount - userStats.activeSessions,
   },
-  { label: "Active users", value: userStats.activeSessions },
+  { label: t("home.admin.activeUsers"), value: userStats.activeSessions },
 ];
 </script>
