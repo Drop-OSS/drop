@@ -16,10 +16,8 @@ import { logger } from "../logging";
 import type { GameModel } from "~/prisma/client/models";
 import { createHash } from "node:crypto";
 import type { WorkingLibrarySource } from "~/server/api/v1/admin/library/sources/index.get";
-import type {
-  DropChunk,
-  DropManifest,
-} from "~/server/internal/downloads/manifest";
+import type { DropChunk } from "~/server/internal/downloads/manifest";
+import manifestGenerator from "~/server/internal/downloads/manifest";
 import { sum, replaceItem } from "~/utils/array";
 
 export type GameWithSize = {
@@ -386,26 +384,29 @@ class LibraryManager {
     gameId: string,
     versionName?: string,
   ): Promise<number | null> {
-    let gameVersion;
     if (!versionName) {
-      gameVersion = await prisma.gameVersion.findFirst({
+      const version = await prisma.gameVersion.findFirst({
         where: { gameId },
         orderBy: {
           versionIndex: "desc",
         },
       });
-    } else {
-      gameVersion = await prisma.gameVersion.findFirst({
-        where: { gameId, versionName },
-      });
+      if (!version) {
+        return null;
+      }
+      versionName = version.versionName;
     }
-
-    if (!gameVersion) {
+    const game = await prisma.game.findFirst({ where: { id: gameId } });
+    if (!game) {
       return null;
     }
-    const manifest = JSON.parse(
-      gameVersion.dropletManifest as string,
-    ) as DropManifest;
+    const manifest = await manifestGenerator.generateManifest(
+      gameId,
+      versionName,
+    );
+    if (!manifest) {
+      return null;
+    }
 
     return sum(
       (Object.values(manifest) as DropChunk[])
