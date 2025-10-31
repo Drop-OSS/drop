@@ -1,8 +1,8 @@
 <template>
   <div
     :class="[
-      'border-2 border-zinc-950/30 rounded-xl h-full p-4 relative bg-zinc-950/30',
-      { 'min-h-50 pb-15': link },
+      'border-2 border-zinc-950/30 rounded-xl h-full p-2  relative bg-zinc-950/30',
+      { 'min-h-50 pb-15': link, 'lg:pb-4': !link },
     ]"
   >
     <h1
