@@ -2,7 +2,7 @@ import cacheHandler from "../cache";
 import prisma from "../db/database";
 import manifestGenerator from "../downloads/manifest";
 import { replaceItem, sum } from "../../../utils/array";
-import type { DropChunk, DropManifest } from "../downloads/manifest";
+import type { DropChunk } from "../downloads/manifest";
 import type { GameVersion } from "~/prisma/client/client";
 
 export type GameSize = {
