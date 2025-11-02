@@ -141,7 +141,7 @@ import { formatBytes } from "~/server/internal/utils/files";
 import GamepadIcon from "~/components/Icons/GamepadIcon.vue";
 import DropLogo from "~/components/DropLogo.vue";
 import { ServerStackIcon, UserGroupIcon } from "@heroicons/vue/24/outline";
-import type { GameWithSize } from "~/server/internal/library";
+import type { GameSize } from "~/server/internal/gamesize";
 import type { RankItem } from "~/components/RankingList.vue";
 
 definePageMeta({
@@ -163,9 +163,9 @@ const {
   biggestGamesAll,
 } = await $dropFetch("/api/v1/admin/home");
 
-const gameToRankItem = (game: GameWithSize, rank: number): RankItem => ({
+const gameToRankItem = (game: GameSize, rank: number): RankItem => ({
   rank: rank + 1,
-  name: game.mName,
+  name: game.gameName,
   value: formatBytes(game.size),
 });
 

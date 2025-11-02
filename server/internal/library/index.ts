@@ -16,15 +16,7 @@ import { logger } from "../logging";
 import type { GameModel } from "~/prisma/client/models";
 import { createHash } from "node:crypto";
 import type { WorkingLibrarySource } from "~/server/api/v1/admin/library/sources/index.get";
-import type { DropChunk } from "~/server/internal/downloads/manifest";
-import manifestGenerator from "~/server/internal/downloads/manifest";
-import { sum, replaceItem } from "~/utils/array";
-
-export type GameWithSize = {
-  id: string;
-  size: number;
-  mName: string;
-};
+import gameSizeManager from "~/server/internal/gamesize";
 
 export function createGameImportTaskId(libraryId: string, libraryPath: string) {
   return createHash("md5")
@@ -384,115 +376,14 @@ class LibraryManager {
     gameId: string,
     versionName?: string,
   ): Promise<number | null> {
-    if (!versionName) {
-      const version = await prisma.gameVersion.findFirst({
-        where: { gameId },
-        orderBy: {
-          versionIndex: "desc",
-        },
-      });
-      if (!version) {
-        return null;
-      }
-      versionName = version.versionName;
-    }
-    const game = await prisma.game.findFirst({ where: { id: gameId } });
-    if (!game) {
-      return null;
-    }
-    const manifest = await manifestGenerator.generateManifest(
-      gameId,
-      versionName,
-    );
-    if (!manifest) {
-      return null;
-    }
-
-    return sum(
-      (Object.values(manifest) as DropChunk[])
-        .map((chunk) => chunk.lengths)
-        .flat(),
-    );
+    return gameSizeManager.getGameSize(gameId, versionName);
+  }
+  async getBiggestGamesAllVersions(top: number) {
+    return gameSizeManager.getBiggestGamesAllVersions(top);
   }
 
-  async getBiggestGamesAllVersions(top: number): Promise<GameWithSize[]> {
-    const addGameVersionsSizes = async (
-      versions: GameWithSize[],
-    ): Promise<GameWithSize[]> => {
-      return versions.reduce(
-        (
-          accumulator: GameWithSize[],
-          currentValue: GameWithSize,
-        ): GameWithSize[] => {
-          const gameWithSize = accumulator.find(
-            (game) => game.id === currentValue.id,
-          );
-          const accumulatedGameWithSize = {
-            ...currentValue,
-            size: gameWithSize
-              ? gameWithSize.size + currentValue.size
-              : currentValue.size,
-          };
-          return gameWithSize
-            ? replaceItem(
-                accumulator,
-                accumulatedGameWithSize,
-                accumulator.indexOf(gameWithSize),
-              )
-            : [...accumulator, accumulatedGameWithSize];
-        },
-        [],
-      );
-    };
-
-    const games = await prisma.game.findMany({
-      include: { versions: true },
-    });
-    const gameVersions = games
-      .map(async (game) => {
-        const allVersionsWithSize = await Promise.all(
-          game.versions.map(async (version) => ({
-            mName: game.mName,
-            id: game.id,
-            size: (await this.getGameSize(game.id, version.versionName)) || 0,
-          })),
-        );
-        return allVersionsWithSize;
-      })
-      .flat();
-    const allGameVersions = (await Promise.all(gameVersions)).flat();
-
-    return (await addGameVersionsSizes(allGameVersions)).slice(0, top);
-  }
-
-  async getBiggestGamesLatestVersions(top: number): Promise<GameWithSize[]> {
-    const games = await prisma.game.findMany({
-      include: {
-        versions: {
-          orderBy: {
-            versionIndex: "desc",
-          },
-          take: 1,
-        },
-      },
-    });
-    return await Promise.all(
-      games
-        .filter((game) => game.versions.length === 1)
-        .map(async (game) => {
-          const size = await this.getGameSize(
-            game.id,
-            game.versions[0].versionName,
-          );
-
-          return {
-            mName: game.mName,
-            size: size || 0,
-            id: game.id,
-          };
-        })
-        .slice(0, top),
-    );
+  async getBiggestGamesLatestVersions(top: number) {
+    return gameSizeManager.getBiggestGamesLatestVersion(top);
   }
 }
 

@@ -88,7 +88,6 @@
               </tr>
               <tr>
                 <td
-                  v-if="size"
                   class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
                 >
                   {{ $t("store.size") }}
@@ -98,6 +97,12 @@
                   class="whitespace-nowrap inline-flex gap-x-4 px-3 py-4 text-sm text-zinc-400"
                 >
                   {{ formatBytes(size) }}
+                </td>
+                <td
+                  v-else
+                  class="whitespace-nowrap inline-flex gap-x-4 px-3 py-4 text-sm text-zinc-400 italic"
+                >
+                  {{ $t("store.noVersions") }}
                 </td>
               </tr>
               <tr>
