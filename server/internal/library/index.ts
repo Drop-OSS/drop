@@ -17,7 +17,6 @@ import type { GameModel } from "~/prisma/client/models";
 import { createHash } from "node:crypto";
 import type { WorkingLibrarySource } from "~/server/api/v1/admin/library/sources/index.get";
 import gameSizeManager from "~/server/internal/gamesize";
-import type { Game, GameVersion } from "~/prisma/client/client";
 
 export function createGameImportTaskId(libraryId: string, libraryPath: string) {
   return createHash("md5")
