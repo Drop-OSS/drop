@@ -11,7 +11,8 @@ export default defineEventHandler(async (h3) => {
   const sources = await libraryManager.fetchLibraries();
   const userStats = await adminHomeManager.getUserStats();
 
-  const biggestGamesAll = await libraryManager.getBiggestGamesAllVersions(5);
+  const biggestGamesCombined =
+    await libraryManager.getBiggestGamesCombinedVersions(5);
   const biggestGamesLatest =
     await libraryManager.getBiggestGamesLatestVersions(5);
 
@@ -21,6 +22,6 @@ export default defineEventHandler(async (h3) => {
     userStats,
     sources,
     biggestGamesLatest,
-    biggestGamesAll,
+    biggestGamesCombined,
   };
 });

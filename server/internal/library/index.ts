@@ -342,12 +342,11 @@ class LibraryManager {
           acls: ["system:import:version:read"],
         });
 
+        await libraryManager.cacheCombinedGameSize(gameId);
+        await libraryManager.cacheGameVersionSize(gameId, versionName);
         progress(100);
       },
     });
-
-    await libraryManager.cacheCombinedGameSize(gameId);
-    await libraryManager.cacheGameVersionSize(gameId, versionName);
 
     return taskId;
   }
@@ -404,9 +403,9 @@ class LibraryManager {
     return gameSizeManager.getGameVersionSize(gameId, versionName);
   }
 
-  async getBiggestGamesAllVersions(top: number) {
+  async getBiggestGamesCombinedVersions(top: number) {
     if (await gameSizeManager.isGameSizesCacheEmpty()) {
-      await gameSizeManager.cacheAllGames();
+      await gameSizeManager.cacheAllCombinedGames();
     }
     return gameSizeManager.getBiggestGamesAllVersions(top);
   }
@@ -416,14 +415,6 @@ class LibraryManager {
       await gameSizeManager.cacheAllGameVersions();
     }
     return gameSizeManager.getBiggestGamesLatestVersion(top);
-  }
-
-  async cacheAllGameVersionsSizes() {
-    await gameSizeManager.cacheAllGameVersions();
-  }
-
-  async cacheAllCombinedGameVersionsSizes() {
-    await gameSizeManager.cacheAllGameVersions();
   }
 
   async cacheCombinedGameSize(gameId: string) {

@@ -128,7 +128,7 @@
             :title="t('home.admin.biggestGamesOnServer')"
             :subtitle="t('home.admin.allVersionsCombined')"
           >
-            <RankingList :items="biggestGamesAll.map(gameToRankItem)" />
+            <RankingList :items="biggestGamesCombined.map(gameToRankItem)" />
           </TileWithLink>
         </div>
       </div>
@@ -160,7 +160,7 @@ const {
   sources,
   userStats,
   biggestGamesLatest,
-  biggestGamesAll,
+  biggestGamesCombined,
 } = await $dropFetch("/api/v1/admin/home");
 
 const gameToRankItem = (game: GameSize, rank: number): RankItem => ({

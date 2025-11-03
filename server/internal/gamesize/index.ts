@@ -28,6 +28,18 @@ class GameSizeManager {
   // All versions sizes combined
   private gameSizesCache = cacheHandler.createCache<GameSize>("gameSizes");
 
+  private async clearGameVersionsSizesCache() {
+    (await this.gameVersionsSizesCache.getKeys()).map((key) =>
+      this.gameVersionsSizesCache.remove(key),
+    );
+  }
+
+  private async clearGameSizesCache() {
+    (await this.gameSizesCache.getKeys()).map((key) =>
+      this.gameSizesCache.remove(key),
+    );
+  }
+
   // All versions of a game combined
   async getCombinedGameSize(gameId: string) {
     const versions = await prisma.gameVersion.findMany({
@@ -111,11 +123,11 @@ class GameSizeManager {
     return (await this.gameSizesCache.getKeys()).length === 0;
   }
 
-  async cacheAllGames() {
-    await this.gameSizesCache.clear();
+  async cacheAllCombinedGames() {
+    await this.clearGameSizesCache();
     const games = await prisma.game.findMany({ include: { versions: true } });
 
-    await Promise.all(games.map(this.cacheCombinedGame));
+    await Promise.all(games.map((game) => this.cacheCombinedGame(game)));
   }
 
   async cacheCombinedGame(game: Game) {
@@ -132,7 +144,7 @@ class GameSizeManager {
   }
 
   async cacheAllGameVersions() {
-    await this.gameVersionsSizesCache.clear();
+    await this.clearGameVersionsSizesCache();
     const games = await prisma.game.findMany({
       include: {
         versions: {
