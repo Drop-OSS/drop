@@ -10,7 +10,7 @@ class UserStatsManager {
   // Caches the user's core library
   private userStatsCache = cacheHandler.createCache<number>("userStats");
 
-  private async cacheUserSessions() {
+  async cacheUserSessions() {
     const activeSessions =
       (
         await prisma.client.groupBy({
@@ -44,7 +44,7 @@ class UserStatsManager {
     let userCount = await this.userStatsCache.get("userCount");
 
     if (activeSessions === null || userCount === null) {
-      this.cacheUserStats();
+      await this.cacheUserStats();
       activeSessions = (await this.userStatsCache.get("activeSessions")) || 0;
       userCount = (await this.userStatsCache.get("userCount")) || 0;
     }

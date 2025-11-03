@@ -28,6 +28,6 @@ export default defineEventHandler(async (h3) => {
     throw createError({ statusCode: 404, statusMessage: "User not found." });
 
   await prisma.user.delete({ where: { id: userId } });
-  userStatsManager.deleteUser();
+  await userStatsManager.deleteUser();
   return { success: true };
 });

@@ -87,6 +87,6 @@ export default defineEventHandler<{
     prisma.invitation.delete({ where: { id: user.invitation } }),
   ]);
 
-  userStatsManager.addUser();
+  await userStatsManager.addUser();
   return linkMec.user;
 });
