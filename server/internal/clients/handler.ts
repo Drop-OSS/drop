@@ -8,6 +8,7 @@ import type {
 } from "./capabilities";
 import capabilityManager from "./capabilities";
 import type { PeerImpl } from "../tasks";
+import userStatsManager from "~/server/internal/userstats";
 
 export enum AuthMode {
   Callback = "callback",
@@ -191,6 +192,7 @@ export class ClientHandler {
         id,
       },
     });
+    userStatsManager.cacheUserStats();
   }
 }
 

@@ -6,7 +6,7 @@ import objectHandler from "~/server/internal/objects";
 import { type } from "arktype";
 import { randomUUID } from "node:crypto";
 import { throwingArktype } from "~/server/arktype";
-import adminHomeManager from "~/server/internal/adminhome";
+import userStatsManager from "~/server/internal/userstats";
 
 export const SharedRegisterValidator = type({
   username: "string >= 5",
@@ -87,6 +87,6 @@ export default defineEventHandler<{
     prisma.invitation.delete({ where: { id: user.invitation } }),
   ]);
 
-  adminHomeManager.cacheUserStats();
+  userStatsManager.addUser();
   return linkMec.user;
 });

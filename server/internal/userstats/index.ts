@@ -10,7 +10,7 @@ class UserStatsManager {
   // Caches the user's core library
   private userStatsCache = cacheHandler.createCache<number>("userStats");
 
-  async cacheUserStats() {
+  private async cacheUserSessions() {
     const activeSessions =
       (
         await prisma.client.groupBy({
@@ -24,11 +24,19 @@ class UserStatsManager {
         })
       ).length || 0;
     await this.userStatsCache.set("activeSessions", activeSessions);
+  }
+
+  private async cacheUserCount() {
     const userCount =
       (await prisma.user.count({
         where: { id: { not: "system" } },
       })) || 0;
     await this.userStatsCache.set("userCount", userCount);
+  }
+
+  async cacheUserStats() {
+    await this.cacheUserSessions();
+    await this.cacheUserCount();
   }
 
   async getUserStats() {
@@ -42,6 +50,17 @@ class UserStatsManager {
     }
 
     return { activeSessions, userCount };
+  }
+
+  async addUser() {
+    const userCount = (await this.userStatsCache.get("userCount")) || 0;
+    await this.userStatsCache.set("userCount", userCount + 1);
+  }
+
+  async deleteUser() {
+    const userCount = (await this.userStatsCache.get("userCount")) || 1;
+    await this.userStatsCache.set("userCount", userCount - 1);
+    await this.cacheUserSessions();
   }
 }
 
