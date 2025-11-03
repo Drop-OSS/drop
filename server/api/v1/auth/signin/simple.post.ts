@@ -103,7 +103,6 @@ export default defineEventHandler<{
       statusMessage: t("errors.auth.invalidUserOrPass"),
     });
 
-  adminHomeManager.invalidateCache("userStats");
   await sessionHandler.signin(h3, authMek.userId, body.rememberMe);
   return { result: true, userId: authMek.userId };
 });

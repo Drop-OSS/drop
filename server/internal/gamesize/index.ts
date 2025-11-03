@@ -45,6 +45,7 @@ class GameSizeManager {
     const versions = await prisma.gameVersion.findMany({
       where: { gameId },
     });
+    console.log(versions);
     const sizes = await Promise.all(
       versions.map((version) =>
         manifestGenerator.calculateManifestSize(
@@ -133,6 +134,7 @@ class GameSizeManager {
   async cacheCombinedGame(game: Game) {
     const size = await this.getCombinedGameSize(game.id);
     if (!size) {
+      this.gameSizesCache.remove(game.id);
       return;
     }
     const gameSize = {

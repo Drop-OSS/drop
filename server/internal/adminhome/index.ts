@@ -6,44 +6,44 @@ import cacheHandler from "../cache";
 import prisma from "../db/database";
 import { DateTime } from "luxon";
 
-type UserStats = {
-  activeSessions: number;
-  userCount: number;
-};
-
-class AdminHomeManager {
+class UserStatsManager {
   // Caches the user's core library
-  private userStatsCache = cacheHandler.createCache<UserStats>("adminHome");
+  private userStatsCache = cacheHandler.createCache<number>("userStats");
 
-  async getUserStats() {
-    const cached = await this.userStatsCache.get("userStats");
-    if (cached !== null) return cached;
-
-    const activeSessions = (
-      await prisma.client.groupBy({
-        by: ["userId"],
-        where: {
-          id: { not: "system" },
-          lastConnected: {
-            gt: DateTime.now().minus({ months: 1 }).toISO(),
+  async cacheUserStats() {
+    const activeSessions =
+      (
+        await prisma.client.groupBy({
+          by: ["userId"],
+          where: {
+            id: { not: "system" },
+            lastConnected: {
+              gt: DateTime.now().minus({ months: 1 }).toISO(),
+            },
           },
-        },
-      })
-    ).length;
-    const userCount = await prisma.user.count({
-      where: { id: { not: "system" } },
-    });
-    const userStats = { activeSessions, userCount };
-
-    await this.userStatsCache.set("userStats", userStats);
-
-    return userStats;
+        })
+      ).length || 0;
+    await this.userStatsCache.set("activeSessions", activeSessions);
+    const userCount =
+      (await prisma.user.count({
+        where: { id: { not: "system" } },
+      })) || 0;
+    await this.userStatsCache.set("userCount", userCount);
   }
 
-  async invalidateCache(key: string) {
-    await this.userStatsCache.remove(key);
+  async getUserStats() {
+    let activeSessions = await this.userStatsCache.get("activeSessions");
+    let userCount = await this.userStatsCache.get("userCount");
+
+    if (activeSessions === null || userCount === null) {
+      this.cacheUserStats();
+      activeSessions = (await this.userStatsCache.get("activeSessions")) || 0;
+      userCount = (await this.userStatsCache.get("userCount")) || 0;
+    }
+
+    return { activeSessions, userCount };
   }
 }
 
-export const manager = new AdminHomeManager();
+export const manager = new UserStatsManager();
 export default manager;

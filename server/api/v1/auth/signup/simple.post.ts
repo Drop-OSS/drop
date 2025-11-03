@@ -87,6 +87,6 @@ export default defineEventHandler<{
     prisma.invitation.delete({ where: { id: user.invitation } }),
   ]);
 
-  adminHomeManager.invalidateCache("userStats");
+  adminHomeManager.cacheUserStats();
   return linkMec.user;
 });

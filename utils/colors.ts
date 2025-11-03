@@ -1,11 +1,11 @@
 export const COLORS = {
   red: {
-    fill: "fill-red-800",
-    bg: "bg-red-800",
+    fill: "fill-red-900",
+    bg: "bg-red-900",
   },
   blue: {
-    fill: "fill-blue-600",
-    bg: "bg-blue-600",
+    fill: "fill-blue-900",
+    bg: "bg-blue-900",
   },
   green: {
     fill: "fill-green-800",
