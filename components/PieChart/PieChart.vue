@@ -3,22 +3,24 @@
   <div class="flex">
     <div class="flex-auto mx-auto">
       <svg
-        ref="parentRef"
         width="100"
         height="100"
         class="relative inline"
         viewbox="0 0 100 100"
       >
         <PieChartPieSlice
-          v-for="slice in generateSlices(data)"
+          v-for="slice in slices"
           :key="`${slice.percentage}-${slice.totalPercentage}`"
           :slice="slice"
-          :parent-ref="parentRef"
         />
       </svg>
     </div>
-    <ul class="flex-auto m-auto">
-      <li v-for="slice in data" :key="slice.value">
+    <ul class="flex-auto m-auto text-left">
+      <li v-for="slice in slices" :key="slice.value">
+        <span
+          class="w-3 h-3 inline-block border-slate-100 border-solid border-1"
+          :class="COLORS[slice.color].bg"
+        />
         {{
           $t("common.labelValueColon", {
             label: slice.label,
@@ -28,7 +30,6 @@
       </li>
     </ul>
   </div>
-  <PieChartTooltip />
 </template>
 
 <script setup lang="ts">
@@ -40,5 +41,5 @@ const { data, title = undefined } = defineProps<{
   title?: string | undefined;
 }>();
 
-const parentRef = ref<HTMLDivElement>();
+const slices = generateSlices(data);
 </script>

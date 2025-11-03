@@ -10,12 +10,6 @@
     `"
     stroke="white"
     stroke-width="2"
-    @mousemove="
-      (event) => {
-        setTooltipCoordinates(parentRef, event.clientX, event.clientY, slice);
-      }
-    "
-    @mouseleave="hideTooltip"
   />
   <circle
     v-if="slice.percentage === 100"
@@ -25,12 +19,6 @@
     :class="COLORS[slice.color].fill"
     stroke="white"
     stroke-width="2"
-    @mousemove="
-      (event) => {
-        setTooltipCoordinates(parentRef, event.clientX, event.clientY, slice);
-      }
-    "
-    @mouseleave="hideTooltip"
   />
 </template>
 
@@ -41,11 +29,9 @@ import {
   percent2Degrees,
   polarToCartesian,
 } from "~/components/PieChart/utils";
-import { hideTooltip, setTooltipCoordinates } from "~/composables/piechart";
 import { COLORS } from "~/utils/colors";
 
-const { slice, parentRef } = defineProps<{
+const { slice } = defineProps<{
   slice: Slice;
-  parentRef: HTMLDivElement | undefined;
 }>();
 </script>
