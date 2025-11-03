@@ -17,6 +17,7 @@ import type { GameModel } from "~/prisma/client/models";
 import { createHash } from "node:crypto";
 import type { WorkingLibrarySource } from "~/server/api/v1/admin/library/sources/index.get";
 import gameSizeManager from "~/server/internal/gamesize";
+import type { Game, GameVersion } from "~/prisma/client/client";
 
 export function createGameImportTaskId(libraryId: string, libraryPath: string) {
   return createHash("md5")
@@ -346,6 +347,9 @@ class LibraryManager {
       },
     });
 
+    await libraryManager.cacheCombinedGameSize(gameId);
+    await libraryManager.cacheGameVersionSize(gameId, versionName);
+
     return taskId;
   }
 
@@ -372,18 +376,74 @@ class LibraryManager {
     return await library.readFile(game, version, filename, options);
   }
 
-  async getGameSize(
+  async deleteGameVersion(gameId: string, version: string) {
+    await prisma.gameVersion.delete({
+      where: {
+        gameId_versionName: {
+          gameId: gameId,
+          versionName: version,
+        },
+      },
+    });
+
+    await gameSizeManager.deleteGameVersion(gameId, version);
+  }
+
+  async deleteGame(gameId: string) {
+    await prisma.game.delete({
+      where: {
+        id: gameId,
+      },
+    });
+    gameSizeManager.deleteGame(gameId);
+  }
+
+  async getGameVersionSize(
     gameId: string,
     versionName?: string,
   ): Promise<number | null> {
-    return gameSizeManager.getGameSize(gameId, versionName);
+    return gameSizeManager.getGameVersionSize(gameId, versionName);
   }
+
   async getBiggestGamesAllVersions(top: number) {
+    if (await gameSizeManager.isGameSizesCacheEmpty()) {
+      await gameSizeManager.cacheAllGames();
+    }
     return gameSizeManager.getBiggestGamesAllVersions(top);
   }
 
   async getBiggestGamesLatestVersions(top: number) {
+    if (await gameSizeManager.isGameVersionsSizesCacheEmpty()) {
+      await gameSizeManager.cacheAllGameVersions();
+    }
     return gameSizeManager.getBiggestGamesLatestVersion(top);
+  }
+
+  async cacheAllGameVersionsSizes() {
+    await gameSizeManager.cacheAllGameVersions();
+  }
+
+  async cacheAllCombinedGameVersionsSizes() {
+    await gameSizeManager.cacheAllGameVersions();
+  }
+
+  async cacheCombinedGameSize(gameId: string) {
+    const game = await prisma.game.findFirst({ where: { id: gameId } });
+    if (!game) {
+      return;
+    }
+    await gameSizeManager.cacheCombinedGame(game);
+  }
+
+  async cacheGameVersionSize(gameId: string, versionName: string) {
+    const game = await prisma.game.findFirst({
+      where: { id: gameId },
+      include: { versions: true },
+    });
+    if (!game) {
+      return;
+    }
+    await gameSizeManager.cacheGameVersion(game, versionName);
   }
 }
 

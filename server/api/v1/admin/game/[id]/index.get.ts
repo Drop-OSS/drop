@@ -1,4 +1,4 @@
-import { GameVersion } from "~/prisma/client/client";
+import type { GameVersion } from "~/prisma/client/client";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import libraryManager from "~/server/internal/library";
@@ -29,13 +29,16 @@ export default defineEventHandler(async (h3) => {
   if (!game || !game.libraryId)
     throw createError({ statusCode: 404, statusMessage: "Game ID not found" });
 
-  const getGameSize = async (version: GameVersion) => {
-    const size = await libraryManager.getGameSize(gameId, version.versionName);
+  const getGameVersionSize = async (version: GameVersion) => {
+    const size = await libraryManager.getGameVersionSize(
+      gameId,
+      version.versionName,
+    );
     return { ...version, size };
   };
   const gameWithVersionSize = {
     ...game,
-    versions: await Promise.all(game.versions.map(getGameSize)),
+    versions: await Promise.all(game.versions.map(getGameVersionSize)),
   };
 
   const unimportedVersions = await libraryManager.fetchUnimportedGameVersions(

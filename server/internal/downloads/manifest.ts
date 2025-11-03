@@ -104,9 +104,9 @@ class ManifestGenerator {
     return manifest;
   }
 
-  calculateManifestSize(manifest: string) {
+  calculateManifestSize(manifest: DropManifest) {
     return sum(
-      Object.values(JSON.parse(manifest) as DropManifest)
+      Object.values(manifest)
         .map((chunk) => chunk.lengths)
         .flat(),
     );

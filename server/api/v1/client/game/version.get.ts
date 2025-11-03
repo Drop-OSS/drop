@@ -27,5 +27,8 @@ export default defineClientEventHandler(async (h3) => {
       statusMessage: "Game version not found",
     });
 
-  return { ...gameVersion, size: libraryManager.getGameSize(id, version) };
+  return {
+    ...gameVersion,
+    size: libraryManager.getGameVersionSize(id, version),
+  };
 });

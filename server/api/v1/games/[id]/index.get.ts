@@ -52,7 +52,7 @@ export default defineEventHandler(async (h3) => {
     },
   });
 
-  const size = await libraryManager.getGameSize(game.id);
+  const size = await libraryManager.getGameVersionSize(game.id);
 
   return { game, rating, size };
 });
