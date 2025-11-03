@@ -256,30 +256,30 @@ class LibraryManager {
     currentIndex: number,
     metadata: typeof ImportVersion.infer,
   ): Partial<VersionCreateArgs["data"]> {
+    const installCreator = {
+      install: {
+        create: {
+          name: "",
+          description: "",
+          command: metadata.install!,
+          args: metadata.installArgs || "",
+        },
+      },
+    } satisfies Partial<GameVersionCreateInput>;
+
+    const uninstallCreator = {
+      uninstall: {
+        create: {
+          name: "",
+          description: "",
+          command: metadata.uninstall!,
+          args: metadata.uninstallArgs || "",
+        },
+      },
+    } satisfies Partial<GameVersionCreateInput>;
+
     switch (metadata.mode) {
       case "game": {
-        const installCreator = {
-          install: {
-            create: {
-              name: "",
-              description: "",
-              command: metadata.install!,
-              args: metadata.installArgs || "",
-            },
-          },
-        } satisfies Partial<GameVersionCreateInput>;
-
-        const uninstallCreator = {
-          uninstall: {
-            create: {
-              name: "",
-              description: "",
-              command: metadata.uninstall!,
-              args: metadata.uninstallArgs || "",
-            },
-          },
-        } satisfies Partial<GameVersionCreateInput>;
-
         return {
           gameId: id,
           gameVersions: {
@@ -317,7 +317,38 @@ class LibraryManager {
         };
       }
       case "redist":
-        return {};
+        return {
+          redistId: id,
+          redistVersions: {
+            create: {
+              versionIndex: currentIndex,
+              delta: metadata.delta,
+
+              launches: {
+                createMany: {
+                  data: metadata.launches.map(
+                    (v) =>
+                      ({
+                        name: v.name,
+                        description: v.description,
+                        command: v.launchCommand,
+                        args: v.launchArgs,
+                      }) satisfies LaunchOptionCreateManyInput,
+                  ),
+                },
+              },
+
+              ...(metadata.install ? installCreator : undefined),
+              ...(metadata.uninstall ? uninstallCreator : undefined),
+
+              platform: {
+                connect: {
+                  id: metadata.platform,
+                },
+              },
+            },
+          },
+        };
     }
   }
 

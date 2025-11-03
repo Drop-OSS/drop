@@ -487,7 +487,7 @@ const { t } = useI18n();
 const route = useRoute();
 const gameId = route.params.id.toString();
 const versions = await $dropFetch(
-  `/api/v1/admin/import/version?id=${encodeURIComponent(gameId)}`,
+  `/api/v1/admin/import/version?id=${encodeURIComponent(gameId)}&mode=game`,
 );
 const userPlatforms = await useAdminPlatforms();
 const allPlatforms = renderPlatforms(userPlatforms);

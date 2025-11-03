@@ -1,29 +1,33 @@
+import { ArkErrors, type } from "arktype";
 import aclManager from "~~/server/internal/acls";
 import prisma from "~~/server/internal/db/database";
-import libraryManager from "~~/server/internal/library";
+import libraryManager, { VersionImportModes } from "~~/server/internal/library";
+
+export const PreloadQuery = type({
+  id: "string",
+  mode: type.enumerated(...VersionImportModes),
+});
 
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["import:version:read"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
-  const query = await getQuery(h3);
-  const gameId = query.id?.toString();
-  if (!gameId)
-    throw createError({
-      statusCode: 400,
-      message: "Missing id in request params",
-    });
+  const rawQuery = await getQuery(h3);
+  const query = PreloadQuery(rawQuery);
+  if (query instanceof ArkErrors)
+    throw createError({ statusCode: 400, message: query.summary });
 
-  const game = await prisma.game.findUnique({
-    where: { id: gameId },
-    select: { libraryId: true, libraryPath: true },
-  });
-  if (!game || !game.libraryId)
-    throw createError({ statusCode: 404, message: "Game not found" });
+  const value: { libraryId: string; libraryPath: string } | undefined =
+    await // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (prisma[query.mode] as any).findUnique({
+      where: { id: query.id },
+      select: { libraryId: true, libraryPath: true },
+    });
+  if (!value) throw createError({ statusCode: 404, message: "Not found" });
 
   const unimportedVersions = await libraryManager.fetchUnimportedGameVersions(
-    game.libraryId,
-    game.libraryPath,
+    value.libraryId,
+    value.libraryPath,
   );
   if (!unimportedVersions)
     throw createError({ statusCode: 400, message: "Invalid game ID" });

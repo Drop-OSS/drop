@@ -158,7 +158,7 @@
             </dl>
             <div class="mt-4 flex flex-col gap-y-1">
               <NuxtLink
-                :href="`/admin/library/g/${entry.id}`"
+                :href="`/admin/library/${entry.urlPrefix}/${entry.id}`"
                 class="w-fit rounded-md bg-zinc-800 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               >
                 <i18n-t
@@ -221,7 +221,7 @@
             </dl>
             <div class="mt-4 flex flex-col gap-y-1">
               <NuxtLink
-                :href="`/admin/library/r/${entry.id}`"
+                :href="`/admin/library/${entry.urlPrefix}/${entry.id}`"
                 class="w-fit rounded-md bg-zinc-800 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               >
                 <i18n-t
@@ -261,7 +261,7 @@
                 </p>
                 <p class="mt-3 text-sm md:ml-6 md:mt-0">
                   <NuxtLink
-                    :href="`/admin/library/g/${entry.id}/import`"
+                    :href="`/admin/library/${entry.urlPrefix}/${entry.id}/import`"
                     class="whitespace-nowrap font-medium text-blue-400 hover:text-blue-500"
                   >
                     <i18n-t
@@ -406,6 +406,7 @@ function clientSideTransformation<T, V extends keyof T, K extends string>(
       toImport?: boolean;
       offline?: boolean;
     };
+    urlPrefix: string,
   }
 > {
   return values.map((e) => {
@@ -418,6 +419,7 @@ function clientSideTransformation<T, V extends keyof T, K extends string>(
         notifications: {
           offline: true,
         },
+        urlPrefix: type[0],
       };
     }
 
@@ -433,6 +435,7 @@ function clientSideTransformation<T, V extends keyof T, K extends string>(
       },
       hasNotifications: noVersions || toImport,
       status: "online" as const,
+      urlPrefix: type[0],
     };
   });
 }
