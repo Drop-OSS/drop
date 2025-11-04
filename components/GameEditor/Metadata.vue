@@ -30,7 +30,10 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-8">
           <MultiItemSelector v-model="currentTags" :items="tags" />
           <div class="flex flex-col">
-            <label for="releaseDate" class="text-sm/6 font-medium text-zinc-100">
+            <label
+              for="releaseDate"
+              class="text-sm/6 font-medium text-zinc-100"
+            >
               {{ $t("library.admin.game.editReleaseDate") }}
             </label>
             <div class="mt-2">
@@ -508,7 +511,7 @@ watch(
 const releaseDate = ref(
   game.value.mReleased
     ? new Date(game.value.mReleased).toISOString().substring(0, 10)
-    : ""
+    : "",
 );
 
 watch(releaseDate, async (newDate) => {
