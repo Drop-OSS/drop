@@ -7,12 +7,18 @@
   >
     <h1
       v-if="props.title"
-      :class="['font-semibold text-lg w-full', { 'mb-3': !props.subtitle && link }]"
+      :class="[
+        'font-semibold text-lg w-full',
+        { 'mb-3': !props.subtitle && link },
+      ]"
     >
       {{ props.title }}
       <div v-if="rightTitle" class="float-right">{{ props.rightTitle }}</div>
     </h1>
-    <h2 v-if="props.subtitle" :class="['text-zinc-400 text-sm w-full', { 'mb-3': link }]">
+    <h2
+      v-if="props.subtitle"
+      :class="['text-zinc-400 text-sm w-full', { 'mb-3': link }]"
+    >
       {{ props.subtitle }}
       <div v-if="rightTitle" class="float-right">{{ props.rightTitle }}</div>
     </h2>

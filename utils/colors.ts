@@ -56,7 +56,12 @@ export const CHART_COLOURS = {
     bg: "bg-slate-800",
   },
 };
-export const PIE_COLOURS: ChartColour[] = ["lightblue", "dropblue", "purple", "emerald"];
+export const PIE_COLOURS: ChartColour[] = [
+  "lightblue",
+  "dropblue",
+  "purple",
+  "emerald",
+];
 
 export type ChartColour = keyof typeof CHART_COLOURS;
 
