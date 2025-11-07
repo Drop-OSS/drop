@@ -1,7 +1,7 @@
 import { type } from "arktype";
 import { readDropValidatedBody, throwingArktype } from "~~/server/arktype";
 import aclManager from "~~/server/internal/acls";
-import prisma from "~~/server/internal/db/database";
+import libraryManager from "~~/server/internal/library";
 
 const DeleteVersion = type({
   id: "string",
@@ -16,11 +16,7 @@ export default defineEventHandler<{ body: typeof DeleteVersion }>(
 
     const body = await readDropValidatedBody(h3, DeleteVersion);
 
-    await prisma.version.delete({
-      where: {
-        versionId: body.id,
-      },
-    });
+    await libraryManager.deleteGameVersion(body.id);
 
     return {};
   },

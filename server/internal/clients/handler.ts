@@ -7,6 +7,7 @@ import type {
 } from "./capabilities";
 import capabilityManager from "./capabilities";
 import type { PeerImpl } from "../tasks";
+import userStatsManager from "~~/server/internal/userstats";
 
 export const AuthModes = ["callback", "code"] as const;
 export type AuthMode = (typeof AuthModes)[number];
@@ -133,7 +134,7 @@ export class ClientHandler {
         statusCode: 400,
         message: "Client has not connected yet. Please try again later.",
       });
-    await client.peer.send(
+    client.peer.send(
       JSON.stringify({ type: "token", value: `${clientId}/${token}` }),
     );
   }
@@ -163,6 +164,7 @@ export class ClientHandler {
         lastConnected: new Date(),
       },
     });
+    await userStatsManager.cacheUserSessions();
 
     for (const [capability, configuration] of Object.entries(
       metadata.data.capabilities,
@@ -188,6 +190,7 @@ export class ClientHandler {
         id,
       },
     });
+    await userStatsManager.cacheUserStats();
   }
 }
 

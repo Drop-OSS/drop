@@ -53,18 +53,7 @@
           :log="parseTaskLog(task.log.at(-(idx + 1)))"
         />
       </div>
-      <div class="relative h-5 rounded-xl bg-zinc-950 overflow-hidden">
-        <div
-          :style="{ width: `${task.progress}%` }"
-          class="transition-all bg-blue-600 h-full"
-        />
-        <span
-          class="absolute inset-0 flex items-center justify-center text-blue-200 text-sm font-bold font-display"
-          >{{
-            $t("tasks.admin.progress", [Math.round(task.progress * 10) / 10])
-          }}</span
-        >
-      </div>
+      <ProgressBar :percentage="task.progress" />
     </div>
     <div v-else role="status" class="w-full flex items-center justify-center">
       <svg

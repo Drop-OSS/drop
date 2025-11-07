@@ -1,4 +1,5 @@
 import prisma from "../db/database";
+import { sum } from "~/utils/array";
 
 export type DropChunk = {
   permissions: number;
@@ -70,6 +71,7 @@ class ManifestGenerator {
           select: {
             gameId: true,
             dropletManifest: true,
+            versionIndex: true,
           },
         },
       },
@@ -82,16 +84,16 @@ class ManifestGenerator {
       // Start at the same index minus one, and keep grabbing them
       // until we run out or we hit something that isn't a delta
       // eslint-disable-next-line no-constant-condition
-      for (let i = baseVersion.versionIndex - 1; true; i--) {
+      for (let i = baseVersion.version.versionIndex - 1; true; i--) {
         const currentVersion = await prisma.gameVersion.findFirst({
           where: {
             version: {
               gameId: baseVersion.version.gameId!,
+              versionIndex: i,
             },
             platform: {
               id: baseVersion.platform.id,
             },
-            versionIndex: i,
           },
           include: {
             version: {
@@ -122,6 +124,14 @@ class ManifestGenerator {
     );
 
     return manifest;
+  }
+
+  calculateManifestSize(manifest: DropManifest) {
+    return sum(
+      Object.values(manifest)
+        .map((chunk) => chunk.lengths)
+        .flat(),
+    );
   }
 }
 

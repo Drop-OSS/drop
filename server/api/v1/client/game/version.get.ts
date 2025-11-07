@@ -1,5 +1,6 @@
 import { defineClientEventHandler } from "~~/server/internal/clients/event-handler";
 import prisma from "~~/server/internal/db/database";
+import libraryManager from "~~/server/internal/library";
 
 export default defineClientEventHandler(async (h3) => {
   const query = getQuery(h3);
@@ -23,5 +24,8 @@ export default defineClientEventHandler(async (h3) => {
       message: "Game version not found",
     });
 
-  return gameVersion;
+  return {
+    ...gameVersion,
+    size: libraryManager.getGameVersionSize(id, version),
+  };
 });

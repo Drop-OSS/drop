@@ -117,7 +117,9 @@
     "servers": "Servers",
     "srLoading": "Loading…",
     "tags": "Tags",
-    "today": "Today"
+    "today": "Today",
+    "labelValueColon": "{label}: {value}",
+    "noData": "No data"
   },
   "delete": "Delete",
   "drop": {
@@ -268,6 +270,8 @@
         "store": "Store",
         "tokens": "API tokens"
       },
+      "home": "Home",
+      "library": "Library",
       "tasks": "Tasks",
       "users": "Users"
     },
@@ -276,7 +280,24 @@
   },
   "helpUsTranslate": "Help us translate Drop {arrow}",
   "highest": "highest",
-  "home": "Home",
+  "home": {
+    "admin": {
+      "title": "Home",
+      "subheader": "Instance summary",
+      "games": "Games",
+      "librarySources": "Library sources",
+      "version": "Version",
+      "activeInactiveUsers": "Active/inactive users",
+      "activeUsers": "Active users",
+      "inactiveUsers": "Inactive users",
+      "goToUsers": "Go to users",
+      "users": "Users",
+      "biggestGamesToDownload": "Biggest games to download",
+      "latestVersionOnly": "Latest version only",
+      "biggestGamesOnServer": "Biggest games on server",
+      "allVersionsCombined": "All versions combined"
+    }
+  },
   "library": {
     "addGames": "All Games",
     "addToLib": "Add to Library",
@@ -292,6 +313,7 @@
         "deleteImage": "Delete image",
         "editGameDescription": "Game Description",
         "editGameName": "Game Name",
+        "editReleaseDate": "Release Date",
         "imageCarousel": "Image Carousel",
         "imageCarouselDescription": "Customise what images and what order are shown on the store page.",
         "imageCarouselEmpty": "No images added to the carousel yet.",
@@ -423,7 +445,11 @@
         "namePlaceholder": "My New Source",
         "sources": "Library Sources",
         "typeDesc": "The type of your source. Changes the required options.",
-        "working": "Working?"
+        "working": "Working?",
+        "freeSpace": "Free space",
+        "totalSpace": "Total space",
+        "utilizationPercentage": "Utilization percentage",
+        "percentage": "{number}%"
       },
       "subheader": "As you add folders to your library sources, Drop will detect it and prompt you to import it. Each game needs to be imported before you can import a version.",
       "title": "Libraries",
@@ -553,6 +579,7 @@
     "openFeatured": "Star games in Admin Library {arrow}",
     "platform": "Platform | Platform | Platforms",
     "publishers": "Publishers | Publisher | Publishers",
+    "size": "Size",
     "rating": "Rating",
     "readLess": "Click to read less",
     "readMore": "Click to read more",

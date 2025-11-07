@@ -3,8 +3,8 @@ import { readDropValidatedBody, throwingArktype } from "~~/server/arktype";
 import aclManager from "~~/server/internal/acls";
 import prisma from "~~/server/internal/db/database";
 import libraryManager from "~~/server/internal/library";
+import type { WorkingLibrarySource } from "~~/server/api/v1/admin/library/sources/index.get";
 import { libraryConstructors } from "~~/server/plugins/05.library-init";
-import type { WorkingLibrarySource } from "./index.get";
 
 const UpdateLibrarySource = type({
   id: "string",
@@ -49,8 +49,8 @@ export default defineEventHandler<{ body: typeof UpdateLibrarySource.infer }>(
         },
       });
 
-      await libraryManager.removeLibrary(source.id);
-      await libraryManager.addLibrary(newLibrary);
+      libraryManager.removeLibrary(source.id);
+      libraryManager.addLibrary(newLibrary);
 
       const workingSource: WorkingLibrarySource = {
         ...updatedSource,

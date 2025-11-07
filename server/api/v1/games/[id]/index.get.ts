@@ -1,6 +1,7 @@
 import aclManager from "~~/server/internal/acls";
 import prisma from "~~/server/internal/db/database";
 import { convertIDsToPlatforms } from "~~/server/internal/platform/link";
+import libraryManager from "~~/server/internal/library";
 
 export default defineEventHandler(async (h3) => {
   const userId = await aclManager.getUserIdACL(h3, ["store:read"]);
@@ -72,5 +73,7 @@ export default defineEventHandler(async (h3) => {
 
   const noVersionsGame = { ...game, versions: undefined };
 
-  return { game: noVersionsGame, rating, platforms };
+  const size = await libraryManager.getGameVersionSize(game.id);
+
+  return { game: noVersionsGame, rating, platforms, size };
 });

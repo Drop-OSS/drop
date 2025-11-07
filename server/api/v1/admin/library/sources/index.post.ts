@@ -6,7 +6,7 @@ import aclManager from "~~/server/internal/acls";
 import prisma from "~~/server/internal/db/database";
 import libraryManager from "~~/server/internal/library";
 import { libraryConstructors } from "~~/server/plugins/05.library-init";
-import type { WorkingLibrarySource } from "./index.get";
+import type { WorkingLibrarySource } from "~~/server/api/v1/admin/library/sources/index.get";
 
 const CreateLibrarySource = type({
   name: "string",
@@ -52,11 +52,12 @@ export default defineEventHandler<{ body: typeof CreateLibrarySource.infer }>(
         },
       });
 
-      await libraryManager.addLibrary(library);
+      libraryManager.addLibrary(library);
 
       const workingSource: WorkingLibrarySource = {
         ...source,
         working: true,
+        fsStats: library.fsStats(),
       };
 
       return workingSource;

@@ -21,7 +21,7 @@ export default defineEventHandler<{ body: typeof UpdateVersionOrder }>(
 
     await prisma.$transaction(
       versions.map((versionId, versionIndex) =>
-        prisma.gameVersion.update({
+        prisma.version.update({
           where: {
             versionId,
           },

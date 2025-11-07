@@ -67,8 +67,10 @@ model Version {
 
     versionPath String
 
-    versionName String
-    created     DateTime @default(now())
+    versionName  String
+    versionIndex Int
+    created      DateTime @default(now())
+    hidden       Boolean  @default(false)
 
     gameId       String?
     game         Game?         @relation(fields: [gameId], references: [id], map: "game_link", onDelete: Cascade, onUpdate: Cascade)
@@ -106,9 +108,7 @@ model GameVersion {
 
     umuIdOverride String?
 
-    versionIndex Int
-    delta        Boolean @default(false)
-    hidden       Boolean @default(false)
+    delta Boolean @default(false)
 
     platformId String
     platform   PlatformLink @relation(fields: [platformId], references: [id])

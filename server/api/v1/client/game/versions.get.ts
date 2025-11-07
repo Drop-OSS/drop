@@ -10,15 +10,16 @@ export default defineClientEventHandler(async (h3) => {
       message: "No ID in request query",
     });
 
-  const versions = await prisma.gameVersion.findMany({
+  const versions = await prisma.version.findMany({
     where: {
-      version: {
-        gameId: id,
-      },
+      gameId: id,
       hidden: false,
     },
     orderBy: {
       versionIndex: "desc", // Latest one first
+    },
+    include: {
+      gameVersions: true,
     },
   });
 

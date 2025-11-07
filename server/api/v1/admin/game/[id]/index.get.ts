@@ -23,7 +23,7 @@ export default defineEventHandler(async (h3) => {
               install: true,
               uninstall: true,
               launches: true,
-            }
+            },
           },
         },
       },
@@ -34,10 +34,24 @@ export default defineEventHandler(async (h3) => {
   if (!game || !game.libraryId)
     throw createError({ statusCode: 404, message: "Game ID not found" });
 
+  const getGameVersionSize = async (
+    version: Omit<(typeof game)["versions"][number], "dropletManifest">,
+  ) => {
+    const size = await libraryManager.getGameVersionSize(
+      gameId,
+      version.versionId,
+    );
+    return { ...version, size };
+  };
+  const gameWithVersionSize = {
+    ...game,
+    versions: await Promise.all(game.versions.map(getGameVersionSize)),
+  };
+
   const unimportedVersions = await libraryManager.fetchUnimportedGameVersions(
     game.libraryId,
     game.libraryPath,
   );
 
-  return { game, unimportedVersions };
+  return { game: gameWithVersionSize, unimportedVersions };
 });

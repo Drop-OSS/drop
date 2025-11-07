@@ -5,8 +5,8 @@ on:
   release:
     types: [published]
   # This can be used to automatically publish nightlies at UTC nighttime
-  schedule:
-    - cron: "0 2 * * *" # run at 2 AM UTC
+  #schedule:
+  #  - cron: "0 2 * * *" # run at 2 AM UTC
 
 jobs:
   web:

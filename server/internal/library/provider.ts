@@ -57,6 +57,8 @@ export abstract class LibraryProvider<CFG> {
     filename: string,
     options?: { start?: number; end?: number },
   ): Promise<ReadableStream | undefined>;
+
+  abstract fsStats(): { freeSpace: number; totalSpace: number } | undefined;
 }
 
 export class GameNotFoundError extends Error {}
