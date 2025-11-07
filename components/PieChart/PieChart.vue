@@ -1,12 +1,10 @@
 <template>
   <h2 v-if="title" class="text-lg mb-4 w-full">{{ title }}</h2>
-  <div class="flex">
-    <div class="flex-auto mx-auto">
+  <div class="flex flex-col xl:flex-row gap-4">
+    <div class="relative flex grow max-w-[12rem]">
       <svg
-        width="100"
-        height="100"
-        class="relative inline"
-        viewbox="0 0 100 100"
+        class="aspect-square grow relative inline"
+        viewBox="0 0 100 100"
       >
         <PieChartPieSlice
           v-for="slice in slices"
@@ -14,12 +12,13 @@
           :slice="slice"
         />
       </svg>
+      <div class="absolute inset-0 bg-zinc-900 rounded-full m-12" />
     </div>
-    <ul class="flex-auto m-auto text-left">
-      <li v-for="slice in slices" :key="slice.value">
+    <ul class="flex flex-col gap-y-1 justify-center text-left">
+      <li v-for="slice in slices" :key="slice.value" class="text-sm inline-flex items-center gap-x-1">
         <span
-          class="w-3 h-3 inline-block border-slate-100 border-solid border-1"
-          :class="COLORS[slice.color].bg"
+          class="size-3 inline-block rounded-sm"
+          :class="CHART_COLOURS[slice.color].bg"
         />
         {{
           $t("common.labelValueColon", {

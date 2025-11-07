@@ -1,18 +1,18 @@
 <template>
   <div
     :class="[
-      'border-2 border-zinc-950/30 rounded-xl h-full p-2  relative bg-zinc-950/30',
+      'border border-zinc-800 rounded-xl h-full px-6 py-4 relative bg-zinc-950/30',
       { 'min-h-50 pb-15': link, 'lg:pb-4': !link },
     ]"
   >
     <h1
       v-if="props.title"
-      :class="['font-bold text-lg w-full', { 'mb-3': !props.subtitle && link }]"
+      :class="['font-semibold text-lg w-full', { 'mb-3': !props.subtitle && link }]"
     >
       {{ props.title }}
       <div v-if="rightTitle" class="float-right">{{ props.rightTitle }}</div>
     </h1>
-    <h2 v-if="props.subtitle" :class="['text-medium w-full', { 'mb-3': link }]">
+    <h2 v-if="props.subtitle" :class="['text-zinc-400 text-sm w-full', { 'mb-3': link }]">
       {{ props.subtitle }}
       <div v-if="rightTitle" class="float-right">{{ props.rightTitle }}</div>
     </h2>

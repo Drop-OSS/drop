@@ -1,7 +1,7 @@
 <template>
   <path
     v-if="slice.percentage !== 0 && slice.percentage !== 100"
-    :class="['stroke-slate-100', COLORS[slice.color].fill]"
+    :class="[CHART_COLOURS[slice.color].fill]"
     :d="`
       M ${slice.start}
       A ${slice.radius},${slice.radius} 0 ${getFlags(slice.percentage)} ${polarToCartesian(slice.center, slice.radius, percent2Degrees(slice.totalPercentage))}
@@ -15,7 +15,7 @@
     :r="slice.radius"
     :cx="slice.center.x"
     :cy="slice.center.y"
-    :class="['stroke-slate-100', COLORS[slice.color].fill]"
+    :class="[CHART_COLOURS[slice.color].fill]"
     stroke-width="2"
   />
 </template>
@@ -27,7 +27,7 @@ import {
   percent2Degrees,
   polarToCartesian,
 } from "~/components/PieChart/utils";
-import { COLORS } from "~/utils/colors";
+import { CHART_COLOURS } from "~/utils/colors";
 
 const { slice } = defineProps<{
   slice: Slice;

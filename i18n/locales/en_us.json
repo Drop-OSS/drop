@@ -118,7 +118,8 @@
     "srLoading": "Loading…",
     "tags": "Tags",
     "today": "Today",
-    "labelValueColon": "{label}: {value}"
+    "labelValueColon": "{label}: {value}",
+    "noData": "No data"
   },
   "delete": "Delete",
   "drop": {

@@ -45,7 +45,6 @@ class GameSizeManager {
     const versions = await prisma.gameVersion.findMany({
       where: { gameId },
     });
-    console.log(versions);
     const sizes = await Promise.all(
       versions.map((version) =>
         manifestGenerator.calculateManifestSize(

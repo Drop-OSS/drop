@@ -30,19 +30,19 @@
             </th>
             <th
               scope="col"
-              class="px-3 py-3.5 text-sm text-left uppercase font-bold font-display text-zinc-700"
+              class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
             >
               {{ $t("library.admin.sources.totalSpace") }}
             </th>
             <th
               scope="col"
-              class="px-3 py-3.5 text-sm text-left uppercase font-bold font-display text-zinc-700"
+              class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
             >
               {{ $t("library.admin.sources.freeSpace") }}
             </th>
             <th
               scope="col"
-              class="px-3 py-3.5 text-sm text-left uppercase font-bold font-display text-zinc-700"
+              class="px-3 py-3.5 text-left text-sm font-semibold text-zinc-100"
             >
               {{ $t("library.admin.sources.utilizationPercentage") }}
             </th>
@@ -101,7 +101,7 @@
                     )
                   "
                   :color="
-                    getColor(
+                    getBarColor(
                       getPercentage(
                         source.fsStats.freeSpace,
                         source.fsStats.totalSpace,
@@ -151,7 +151,7 @@ import type { LibraryBackend } from "~/prisma/client/enums";
 import { BackwardIcon, CheckIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 import { DropLogo } from "#components";
 import { formatBytes } from "~/server/internal/utils/files";
-import { getColor } from "~/utils/colors";
+import { getBarColor } from "~/utils/colors";
 
 const {
   sources,

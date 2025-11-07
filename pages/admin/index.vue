@@ -11,7 +11,7 @@
       </div>
     </div>
     <main
-      class="mx-auto max-w-md lg:max-w-none md:max-w-none w-full px-6 py-2 lg:px-8 text-zinc-100"
+      class="mx-auto max-w-md lg:max-w-none md:max-w-none w-full py-2 text-zinc-100"
     >
       <div class="grid grid-cols-6 gap-4">
         <div class="col-span-6 lg:col-span-1 md:col-span-3 row-span-1">
@@ -23,10 +23,10 @@
               <div
                 class="flex-6 lg:flex-2 my-auto text-center flex lg:inline mx-4"
               >
-                <div class="flex-1 text-left lg:text-center">
+                <div class="text-2xl flex-1 font-bold">{{ version }}</div>
+                <div class="text-xs flex-1 text-left lg:text-center">
                   {{ t("home.admin.version") }}
                 </div>
-                <div class="flex-1 font-bold">{{ version }}</div>
               </div>
             </div>
           </TileWithLink>
@@ -41,10 +41,10 @@
               <div
                 class="flex-6 lg:flex-2 my-auto text-center flex lg:inline mx-4"
               >
-                <div class="flex-1 text-left lg:text-center">
+                <div class="text-3xl flex-1 font-bold">{{ gameCount }}</div>
+                <div class="text-xs flex-1 text-left lg:text-center">
                   {{ t("home.admin.games") }}
                 </div>
-                <div class="flex-1 font-bold">{{ gameCount }}</div>
               </div>
             </div>
           </TileWithLink>
@@ -61,10 +61,12 @@
               <div
                 class="flex-6 lg:flex-2 my-auto text-center flex lg:inline mx-4"
               >
-                <div class="flex-1 text-left lg:text-center">
+                <div class="text-3xl flex-1 font-bold">
+                  {{ sources.length }}
+                </div>
+                <div class="text-xs flex-1 text-left lg:text-center">
                   {{ t("home.admin.librarySources") }}
                 </div>
-                <div class="flex-1 font-bold">{{ sources.length }}</div>
               </div>
             </div>
           </TileWithLink>
@@ -81,11 +83,11 @@
               <div
                 class="flex-6 lg:flex-2 my-auto text-center flex lg:inline mx-4"
               >
-                <div class="flex-1 text-left lg:text-center">
-                  {{ t("home.admin.users") }}
-                </div>
-                <div class="flex-1 font-bold">
+                <div class="text-3xl flex-1 font-bold">
                   {{ userStats.userCount }}
+                </div>
+                <div class="text-xs flex-1 text-left lg:text-center">
+                  {{ t("home.admin.users") }}
                 </div>
               </div>
             </div>
@@ -100,11 +102,7 @@
             }"
             :title="t('home.admin.activeInactiveUsers')"
           >
-            <div class="text-center flex lg:block">
-              <div class="flex-1 py-2">
-                <PieChart :data="pieChartData" />
-              </div>
-            </div>
+            <PieChart :data="pieChartData" />
           </TileWithLink>
         </div>
         <div class="col-span-6">

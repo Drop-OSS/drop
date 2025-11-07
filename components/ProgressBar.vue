@@ -2,12 +2,12 @@
   <div
     :class="[
       'relative h-5 rounded-xl overflow-hidden',
-      COLORS[backgroundColor].bg,
+      CHART_COLOURS[backgroundColor].bg,
     ]"
   >
     <div
       :style="{ width: `${percentage}%` }"
-      :class="['transition-all h-full', COLORS[color].bg]"
+      :class="['transition-all h-full', CHART_COLOURS[color].bg]"
     />
     <span
       class="absolute inset-0 flex items-center justify-center text-blue-200 text-sm font-bold font-display"
@@ -18,14 +18,14 @@
 </template>
 
 <script setup lang="ts">
-import { type COLOR, COLORS } from "~/utils/colors";
+import { type ChartColour, CHART_COLOURS } from "~/utils/colors";
 const {
   percentage,
   color = "blue",
   backgroundColor = "zinc",
 } = defineProps<{
   percentage: number;
-  color?: COLOR;
-  backgroundColor?: COLOR;
+  color?: ChartColour;
+  backgroundColor?: ChartColour;
 }>();
 </script>

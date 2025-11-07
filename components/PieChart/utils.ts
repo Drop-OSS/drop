@@ -1,7 +1,6 @@
 import Tuple from "~/utils/tuple";
 import type { Slice, SliceData } from "~/components/PieChart/types";
 import { sum, lastItem } from "~/utils/array";
-import { type COLOR, COLORS } from "~/utils/colors";
 
 export const START = new Tuple(50, 10);
 export const CENTER = new Tuple(50, 50);
@@ -39,7 +38,7 @@ export function generateSlices(data: SliceData[]): Slice[] {
         totalPercentage:
           sum(accumulator.map((element) => element.percentage)) + percentage,
         center: CENTER,
-        color: Object.keys(COLORS)[index] as COLOR,
+        color: PIE_COLOURS[index % PIE_COLOURS.length],
         label: currentValue.label,
         value: currentValue.value,
       },

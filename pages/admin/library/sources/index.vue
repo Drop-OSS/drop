@@ -18,7 +18,7 @@
         </button>
       </div>
     </div>
-    <div class="mt-8 flow-root">
+    <div class="mt-4 flow-root">
       <SourceTable
         :sources="sources"
         :edit-source="edit"

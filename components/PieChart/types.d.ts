@@ -1,5 +1,5 @@
 import type Tuple from "~/utils/tuple";
-import type { COLOR } from "~/utils/colors";
+import type { ChartColour } from "~/utils/colors";
 
 export type Slice = {
   start: Tuple;
@@ -7,13 +7,13 @@ export type Slice = {
   percentage: number;
   totalPercentage: number;
   radius: number;
-  color: COLOR;
+  color: ChartColour;
   label: string;
   value: number;
 };
 
 export type SliceData = {
   value: number;
-  color?: COLOR;
+  color?: ChartColour;
   label: string;
 };
