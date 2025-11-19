@@ -1,5 +1,5 @@
-import fs from "fs";
-import nodePath from "path";
+import fs from "node:fs";
+import nodePath from "node:path";
 
 export function fsStats(folderPath: string) {
   const stats = fs.statfsSync(folderPath);

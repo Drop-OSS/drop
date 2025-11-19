@@ -47,7 +47,7 @@
     "nuxt-security": "2.2.0",
     "pino": "^9.7.0",
     "pino-pretty": "^13.0.0",
-    "prisma": "^6.11.1",
+    "prisma": "6.11.1",
     "sanitize-filename": "^1.6.3",
     "semver": "^7.7.1",
     "stream-mime-type": "^2.0.0",
@@ -86,9 +86,6 @@
     "vue3-carousel-nuxt": {
       "vue3-carousel": "^0.16.0"
     }
-  },
-  "prisma": {
-    "schema": "./prisma"
   },
   "packageManager": "pnpm@10.15.0+sha512.486ebc259d3e999a4e8691ce03b5cac4a71cbeca39372a9b762cb500cfdf0873e2cb16abe3d951b1ee2cf012503f027b98b6584e4df22524e0c7450d9ec7aa7b"
 }
