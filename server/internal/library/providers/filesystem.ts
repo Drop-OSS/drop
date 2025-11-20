@@ -54,12 +54,15 @@ export class FilesystemProvider
     return folderDirs;
   }
 
-  async listVersions(game: string, ignoredVersions?: string[]): Promise<string[]> {
+  async listVersions(
+    game: string,
+    ignoredVersions?: string[],
+  ): Promise<string[]> {
     const gameDir = path.join(this.config.baseDir, game);
     if (!fs.existsSync(gameDir)) throw new GameNotFoundError();
     const versionDirs = fs.readdirSync(gameDir);
     const validVersionDirs = versionDirs.filter((e) => {
-      if(ignoredVersions && ignoredVersions.includes(e)) return false
+      if (ignoredVersions && ignoredVersions.includes(e)) return false;
       const fullDir = path.join(this.config.baseDir, game, e);
       return DROPLET_HANDLER.hasBackendForPath(fullDir);
     });
@@ -110,17 +113,12 @@ export class FilesystemProvider
   ) {
     const filepath = path.join(this.config.baseDir, game, version);
     if (!fs.existsSync(filepath)) return undefined;
-    let stream;
-    while (!(stream instanceof ReadableStream)) {
-      const v = DROPLET_HANDLER.readFile(
-        filepath,
-        filename,
-        options?.start ? BigInt(options.start) : undefined,
-        options?.end ? BigInt(options.end) : undefined,
-      );
-      if (!v) return undefined;
-      stream = v.getStream() as ReadableStream<unknown>;
-    }
+    const stream = DROPLET_HANDLER.readFile(
+      filepath,
+      filename,
+      options?.start ? BigInt(options.start) : undefined,
+      options?.end ? BigInt(options.end) : undefined,
+    );
 
     return stream;
   }

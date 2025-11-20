@@ -105,7 +105,10 @@ class LibraryManager {
     if (!game) return undefined;
 
     try {
-      const versions = await provider.listVersions(libraryPath, game.versions.map((v) => v.versionName));
+      const versions = await provider.listVersions(
+        libraryPath,
+        game.versions.map((v) => v.versionName),
+      );
       const unimportedVersions = versions.filter(
         (e) =>
           game.versions.findIndex((v) => v.versionName == e) == -1 &&

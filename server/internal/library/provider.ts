@@ -24,7 +24,10 @@ export abstract class LibraryProvider<CFG> {
    * @param game folder name of the game to list versions for
    * @returns list of version folder names
    */
-  abstract listVersions(game: string, existingPaths?: string[]): Promise<string[]>;
+  abstract listVersions(
+    game: string,
+    existingPaths?: string[],
+  ): Promise<string[]>;
 
   /**
    * @param game folder name of the game

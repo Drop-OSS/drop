@@ -112,7 +112,7 @@ export class FlatFilesystemProvider
     );
     if (!stream) return undefined;
 
-    return stream.getStream();
+    return stream;
   }
 
   fsStats() {

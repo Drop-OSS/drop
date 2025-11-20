@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@discordapp/twemoji": "^16.0.1",
-    "@drop-oss/droplet": "3.2.0",
+    "@drop-oss/droplet": "3.4.0",
     "@headlessui/vue": "^1.7.23",
     "@heroicons/vue": "^2.1.5",
     "@lobomfz/prismark": "0.0.3",
