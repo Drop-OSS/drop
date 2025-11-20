@@ -31,7 +31,7 @@ class SystemConfig {
   }
 
   getMetadataTimeout() {
-    return this.metadataTimeout
+    return this.metadataTimeout;
   }
 
   getDropVersion() {

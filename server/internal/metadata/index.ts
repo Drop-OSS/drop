@@ -82,7 +82,10 @@ export class MetadataHandler {
         // TODO: fix eslint error
         // eslint-disable-next-line no-async-promise-executor
       >(async (resolve, reject) => {
-        setTimeout(() => reject(new Error("Timeout while fetching results")), systemConfig.getMetadataTimeout());
+        setTimeout(
+          () => reject(new Error("Timeout while fetching results")),
+          systemConfig.getMetadataTimeout(),
+        );
         try {
           const results = await provider.search(query);
           const mappedResults: InternalGameMetadataResult[] = results.map(
