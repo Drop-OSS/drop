@@ -4,6 +4,8 @@ class SystemConfig {
   private libraryFolder = process.env.LIBRARY ?? "./.data/library";
   private dataFolder = process.env.DATA ?? "./.data/data";
 
+  private metadataTimeout = parseInt(process.env.METADATA_TIMEOUT ?? "5000");
+
   private externalUrl = normalizeUrl(
     process.env.EXTERNAL_URL ?? "http://localhost:3000",
     { stripWWW: false },
@@ -26,6 +28,10 @@ class SystemConfig {
 
   getDataFolder() {
     return this.dataFolder;
+  }
+
+  getMetadataTimeout() {
+    return this.metadataTimeout
   }
 
   getDropVersion() {

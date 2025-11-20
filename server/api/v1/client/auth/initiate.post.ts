@@ -42,7 +42,7 @@ export default defineEventHandler(async (h3) => {
   )
     throw createError({
       statusCode: 400,
-      statusMessage: "Invalid capabilities.",
+      message: "Invalid capabilities.",
     });
 
   if (

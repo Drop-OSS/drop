@@ -1,4 +1,3 @@
-import type { RouteLocationNormalized } from "vue-router";
 import type { NavigationItem } from "./types";
 
 export const useCurrentNavigationIndex = (
@@ -9,7 +8,7 @@ export const useCurrentNavigationIndex = (
 
   const currentNavigation = ref(-1);
 
-  function calculateCurrentNavIndex(to: RouteLocationNormalized) {
+  function calculateCurrentNavIndex(to: typeof route) {
     const validOptions = navigation
       .map((e, i) => ({ ...e, index: i }))
       .filter((e) => to.fullPath.startsWith(e.prefix));

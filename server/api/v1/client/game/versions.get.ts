@@ -17,21 +17,10 @@ export default defineClientEventHandler(async (h3) => {
     orderBy: {
       versionIndex: "desc", // Latest one first
     },
+    omit: {
+      dropletManifest: true,
+    },
   });
 
-  const mappedVersions = versions
-    .map((version) => {
-      if (!version.dropletManifest) return undefined;
-
-      const newVersion = { ...version, dropletManifest: undefined };
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore idk why we delete an undefined object
-      delete newVersion.dropletManifest;
-      return {
-        ...newVersion,
-      };
-    })
-    .filter((e) => e);
-
-  return mappedVersions;
+  return versions;
 });
