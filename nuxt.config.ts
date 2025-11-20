@@ -175,6 +175,9 @@ export default defineNuxtConfig({
   },
 
   i18n: {
+    bundle: {
+      optimizeTranslationDirective: false,
+    },
     defaultLocale: "en-us",
     strategy: "no_prefix",
     experimental: {

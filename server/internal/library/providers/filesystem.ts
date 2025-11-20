@@ -54,11 +54,12 @@ export class FilesystemProvider
     return folderDirs;
   }
 
-  async listVersions(game: string): Promise<string[]> {
+  async listVersions(game: string, ignoredVersions?: string[]): Promise<string[]> {
     const gameDir = path.join(this.config.baseDir, game);
     if (!fs.existsSync(gameDir)) throw new GameNotFoundError();
     const versionDirs = fs.readdirSync(gameDir);
     const validVersionDirs = versionDirs.filter((e) => {
+      if(ignoredVersions && ignoredVersions.includes(e)) return false
       const fullDir = path.join(this.config.baseDir, game, e);
       return DROPLET_HANDLER.hasBackendForPath(fullDir);
     });
