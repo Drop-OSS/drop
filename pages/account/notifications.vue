@@ -26,7 +26,6 @@
             <TrashIcon class="size-4" />
             {{ $t("account.notifications.clear") }}
           </button>
-          
         </div>
       </div>
       <p

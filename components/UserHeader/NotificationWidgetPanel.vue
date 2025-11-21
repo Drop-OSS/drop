@@ -49,5 +49,7 @@
 import type { SerializeObject } from "nitropack";
 import type { NotificationModel } from "~/prisma/client/models";
 
-const props = defineProps<{ notifications: Array<SerializeObject<NotificationModel>> }>();
+const props = defineProps<{
+  notifications: Array<SerializeObject<NotificationModel>>;
+}>();
 </script>
