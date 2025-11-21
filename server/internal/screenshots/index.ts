@@ -53,12 +53,16 @@ class ScreenshotManager {
    * @param id
    */
   async delete(id: string) {
-    const deletedScreenshot = await prisma.screenshot.delete({
+    const screenshot = await prisma.screenshot.findUnique({ where: { id } });
+    if (!screenshot) return false;
+    // eslint-disable-next-line drop/no-prisma-delete
+    await prisma.screenshot.delete({
       where: {
         id,
       },
     });
-    await objectHandler.deleteAsSystem(deletedScreenshot.objectId);
+    await objectHandler.deleteAsSystem(screenshot.objectId);
+    return true;
   }
 
   /**

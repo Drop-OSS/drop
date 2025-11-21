@@ -101,19 +101,16 @@ class UserLibraryManager {
 
   async collectionRemove(gameId: string, collectionId: string, userId: string) {
     // Delete if exists
-    return (
-      (
-        await prisma.collectionEntry.deleteMany({
-          where: {
-            collectionId,
-            gameId,
-            collection: {
-              userId,
-            },
-          },
-        })
-      ).count > 0
-    );
+    const { count } = await prisma.collectionEntry.deleteMany({
+      where: {
+        collectionId,
+        gameId,
+        collection: {
+          userId,
+        },
+      },
+    });
+    return count > 0;
   }
 
   async collectionCreate(name: string, userId: string) {
@@ -133,12 +130,13 @@ class UserLibraryManager {
   }
 
   async deleteCollection(collectionId: string) {
-    await prisma.collection.delete({
+    const { count } = await prisma.collection.deleteMany({
       where: {
         id: collectionId,
         isDefault: false,
       },
     });
+    return count > 0;
   }
 }
 

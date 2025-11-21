@@ -124,7 +124,10 @@ class NewsManager {
   }
 
   async delete(id: string) {
-    const article = await prisma.article.delete({
+    const article = await prisma.article.findUnique({ where: { id } });
+    if (!article) return false;
+    // eslint-disable-next-line drop/no-prisma-delete
+    await prisma.article.delete({
       where: { id },
     });
     if (article.imageObjectId) {

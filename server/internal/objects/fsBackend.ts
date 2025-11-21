@@ -259,16 +259,10 @@ class FsHashStore {
    */
   async delete(id: ObjectReference) {
     await this.cache.remove(id);
-
-    try {
-      // need to catch in case the object doesn't exist
-      await prisma.objectHash.delete({
-        where: {
-          id,
-        },
-      });
-    } catch {
-      /* empty */
-    }
+    await prisma.objectHash.deleteMany({
+      where: {
+        id,
+      },
+    });
   }
 }

@@ -38,16 +38,14 @@ export default defineClientEventHandler(
     if (!game)
       throw createError({ statusCode: 400, statusMessage: "Invalid game ID" });
 
-    const save = await prisma.saveSlot.delete({
+    const { count } = await prisma.saveSlot.deleteMany({
       where: {
-        id: {
-          userId: user.id,
-          gameId: gameId,
-          index: slotIndex,
-        },
+        userId: user.id,
+        gameId: gameId,
+        index: slotIndex,
       },
     });
-    if (!save)
+    if (count == 0)
       throw createError({ statusCode: 404, statusMessage: "Save not found" });
   },
 );

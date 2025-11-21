@@ -2,6 +2,7 @@
 import withNuxt from "./.nuxt/eslint.config.mjs";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
 import vueI18n from "@intlify/eslint-plugin-vue-i18n";
+import noPrismaDelete from "./rules/no-prisma-delete.mts";
 
 export default withNuxt([
   eslintConfigPrettier,
@@ -19,6 +20,7 @@ export default withNuxt([
         },
       ],
       "@intlify/vue-i18n/no-missing-keys": "error",
+      "drop/no-prisma-delete": "error",
     },
     settings: {
       "vue-i18n": {
@@ -28,6 +30,9 @@ export default withNuxt([
         // If not specified, the message will be parsed twice.
         messageSyntaxVersion: "^11.0.0",
       },
+    },
+    plugins: {
+      drop: { rules: { "no-prisma-delete": noPrismaDelete } },
     },
   },
 ]);

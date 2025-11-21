@@ -378,12 +378,10 @@ class LibraryManager {
   }
 
   async deleteGameVersion(gameId: string, version: string) {
-    await prisma.gameVersion.delete({
+    await prisma.gameVersion.deleteMany({
       where: {
-        gameId_versionName: {
-          gameId: gameId,
-          versionName: version,
-        },
+        gameId: gameId,
+        versionName: version,
       },
     });
 
@@ -391,12 +389,12 @@ class LibraryManager {
   }
 
   async deleteGame(gameId: string) {
-    await prisma.game.delete({
+    await prisma.game.deleteMany({
       where: {
         id: gameId,
       },
     });
-    gameSizeManager.deleteGame(gameId);
+    await gameSizeManager.deleteGame(gameId);
   }
 
   async getGameVersionSize(

@@ -84,7 +84,7 @@ export default defineEventHandler<{
         user: true,
       },
     }),
-    prisma.invitation.delete({ where: { id: user.invitation } }),
+    prisma.invitation.deleteMany({ where: { id: user.invitation } }),
   ]);
 
   await userStatsManager.addUser();

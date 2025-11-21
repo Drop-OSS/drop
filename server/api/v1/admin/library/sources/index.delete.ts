@@ -18,11 +18,13 @@ export default defineEventHandler<{ body: typeof DeleteLibrarySource.infer }>(
 
     const body = await readDropValidatedBody(h3, DeleteLibrarySource);
 
-    await prisma.library.delete({
+    const { count } = await prisma.library.deleteMany({
       where: {
         id: body.id,
       },
     });
+    if (count == 0)
+      throw createError({ statusCode: 404, message: "Library not found." });
 
     libraryManager.removeLibrary(body.id);
   },

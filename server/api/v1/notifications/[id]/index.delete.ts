@@ -20,14 +20,14 @@ export default defineEventHandler(async (h3) => {
     userIds.push("system");
   }
 
-  const notification = await prisma.notification.delete({
+  const { count } = await prisma.notification.deleteMany({
     where: {
       id: notificationId,
       userId: { in: userIds },
     },
   });
 
-  if (!notification)
+  if (count == 0)
     throw createError({
       statusCode: 400,
       statusMessage: "Invalid notification ID",

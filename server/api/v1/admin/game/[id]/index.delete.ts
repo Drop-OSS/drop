@@ -7,7 +7,7 @@ export default defineEventHandler(async (h3) => {
 
   const gameId = getRouterParam(h3, "id")!;
 
-  libraryManager.deleteGame(gameId);
+  await libraryManager.deleteGame(gameId);
 
   return {};
 });

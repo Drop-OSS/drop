@@ -43,12 +43,12 @@ export default function createDBSessionHandler(): SessionProvider {
     },
     async removeSession(token) {
       await cache.remove(token);
-      await prisma.session.delete({
+      const { count } = await prisma.session.deleteMany({
         where: {
           token,
         },
       });
-      return true;
+      return count > 0;
     },
     async cleanupSessions() {
       const now = new Date();

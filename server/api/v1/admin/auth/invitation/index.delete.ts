@@ -17,6 +17,10 @@ export default defineEventHandler<{
 
   const body = await readDropValidatedBody(h3, DeleteInvite);
 
-  await prisma.invitation.delete({ where: { id: body.id } });
+  const { count } = await prisma.invitation.deleteMany({
+    where: { id: body.id },
+  });
+  if (count == 0)
+    throw createError({ statusCode: 404, message: "Invitation not found." });
   return {};
 });

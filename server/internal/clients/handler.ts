@@ -185,15 +185,19 @@ export class ClientHandler {
   }
 
   async removeClient(id: string) {
+    const client = await prisma.client.findUnique({ where: { id } });
+    if (!client) return false;
     const ca = useCertificateAuthority();
     await ca.blacklistClient(id);
 
+    // eslint-disable-next-line drop/no-prisma-delete
     await prisma.client.delete({
       where: {
         id,
       },
     });
     await userStatsManager.cacheUserStats();
+    return true;
   }
 }
 

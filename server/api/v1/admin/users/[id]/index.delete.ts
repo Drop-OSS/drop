@@ -27,6 +27,7 @@ export default defineEventHandler(async (h3) => {
   if (!user)
     throw createError({ statusCode: 404, statusMessage: "User not found." });
 
+  // eslint-disable-next-line drop/no-prisma-delete
   await prisma.user.delete({ where: { id: userId } });
   await userStatsManager.deleteUser();
   return { success: true };
