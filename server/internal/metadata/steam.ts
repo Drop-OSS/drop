@@ -117,6 +117,10 @@ interface SteamAppDetailsLarge extends SteamAppDetailsSmall {
       filename: string;
       ordinal: number;
     }[];
+    mature_content_screenshots: {
+      filename: string;
+      ordinal: number;
+    }[];
   };
   full_description: string;
 }
@@ -689,16 +693,20 @@ export class SteamProvider implements MetadataProvider {
     context?.progress(40);
 
     const images = [cover, banner];
-    const screenshotCount = game.screenshots?.all_ages_screenshots?.length || 0;
-    context?.logger.info(`Processing ${screenshotCount} screenshots...`);
 
-    for (const image of game.screenshots?.all_ages_screenshots || []) {
+    const screenshots = game.screenshots?.all_ages_screenshots || [];
+    screenshots.push(...(game.screenshots?.mature_content_screenshots || []));
+    screenshots.sort((a, b) => a.ordinal - b.ordinal);
+
+    context?.logger.info(`Processing ${screenshots.length} screenshots...`);
+
+    for (const image of screenshots) {
       const imageUrl = this._getImageUrl(image.filename);
       images.push(createObject(imageUrl));
     }
 
     context?.logger.info(
-      `Image processing complete: icon, cover, banner and ${screenshotCount} screenshots`,
+      `Image processing complete: icon, cover, banner and ${screenshots.length} screenshots`,
     );
     context?.progress(50);
 
