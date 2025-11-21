@@ -46,7 +46,8 @@
 </template>
 
 <script setup lang="ts">
+import type { SerializeObject } from "nitropack";
 import type { NotificationModel } from "~/prisma/client/models";
 
-const props = defineProps<{ notifications: Array<NotificationModel> }>();
+const props = defineProps<{ notifications: Array<SerializeObject<NotificationModel>> }>();
 </script>

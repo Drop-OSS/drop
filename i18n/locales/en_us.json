@@ -13,6 +13,7 @@
       "all": "View all {arrow}",
       "desc": "View and manage your notifications.",
       "markAllAsRead": "Mark all as read",
+      "clear": "Clear notifications",
       "markAsRead": "Mark as read",
       "none": "No notifications",
       "notifications": "Notifications",
