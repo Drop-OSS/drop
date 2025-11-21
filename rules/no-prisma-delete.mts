@@ -15,8 +15,10 @@ export default {
   create(context) {
     return {
       CallExpression: function (node) {
+        // @ts-expect-error It ain't typing properly
         const funcId = node.callee.property;
         if (!funcId || funcId.name !== "delete") return;
+        // @ts-expect-error It ain't typing properly
         const tableExpr = node.callee.object;
         if (!tableExpr) return;
         const prismaExpr = tableExpr.object;
