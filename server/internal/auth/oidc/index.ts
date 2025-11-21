@@ -66,6 +66,7 @@ export class OIDCManager {
 
   async create() {
     const wellKnownUrl = process.env.OIDC_WELLKNOWN as string | undefined;
+    const scopes = process.env.OIDC_SCOPES as string | undefined;
     let configuration: OIDCWellKnown;
     if (wellKnownUrl) {
       const response: OIDCWellKnown = await $fetch<OIDCWellKnown>(wellKnownUrl);
@@ -77,6 +78,9 @@ export class OIDCManager {
       ) {
         throw new Error("Well known response was invalid");
       }
+      if (scopes) {
+        response.scopes_supported = scopes.split(",");
+      }
 
       configuration = response;
     } else {
@@ -85,7 +89,6 @@ export class OIDCManager {
         | undefined;
       const tokenEndpoint = process.env.OIDC_TOKEN as string | undefined;
       const userinfoEndpoint = process.env.OIDC_USERINFO as string | undefined;
-      const scopes = process.env.OIDC_SCOPES as string | undefined;
 
       if (
         !authorizationEndpoint ||
