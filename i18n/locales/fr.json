@@ -106,7 +106,9 @@
     "friends": "Amis",
     "groups": "Groupes",
     "insert": "Insérer",
+    "labelValueColon": "{label} : {value}",
     "name": "Nom",
+    "noData": "Pas de donnée",
     "noResults": "Pas de résultat",
     "noSelected": "Pas d'élément sélectionné.",
     "remove": "Retirer",
@@ -260,6 +262,8 @@
   "header": {
     "admin": {
       "admin": "Administration",
+      "home": "Accueil",
+      "library": "Bibliothèque",
       "metadata": "Méta",
       "settings": {
         "store": "Store",
@@ -274,7 +278,24 @@
   },
   "helpUsTranslate": "Aidez nous à traduire Drop {arrow}",
   "highest": "le plus haut",
-  "home": "Accueil",
+  "home": {
+    "admin": {
+      "activeInactiveUsers": "Utilisateurs actifs/inactifs",
+      "activeUsers": "Utilisateurs actifs",
+      "allVersionsCombined": "Toutes les versions combinées",
+      "biggestGamesOnServer": "Les plus gros jeux sur le serveur",
+      "biggestGamesToDownload": "Les plus gros jeux à télécharger",
+      "games": "Jeux",
+      "goToUsers": "Aller aux utilisateurs",
+      "inactiveUsers": "Utilisateurs inactifs",
+      "latestVersionOnly": "Dernière version seulement",
+      "librarySources": "Sources de bibliothèques",
+      "subheader": "Résumé de l'instance",
+      "title": "Accueil",
+      "users": "Utilisateurs",
+      "version": "Version"
+    }
+  },
   "library": {
     "addGames": "Tous les jeux",
     "addToLib": "Ajouter à la bibliothèque",
@@ -290,6 +311,7 @@
         "deleteImage": "Supprimer l'image",
         "editGameDescription": "Description du jeu",
         "editGameName": "Nom du jeu",
+        "editReleaseDate": "Date de sortie",
         "imageCarousel": "Carrousel d'images",
         "imageCarouselDescription": "Personnaliser quelles images et dans quel ordre elles sont affichées sur la page du Store.",
         "imageCarouselEmpty": "Aucune image n'a encore été ajoutée au carousel.",
@@ -409,6 +431,7 @@
         "desc": "Configurer vos sources de bibliothèques où Drop va regarder pour les nouveaux jeux et versions à importer.",
         "documentationLink": "Documentation {arrow}",
         "edit": "Éditer la source",
+        "freeSpace": "Espace disponible",
         "fsDesc": "Importe les jeux à partir d'un chemin d'accès sur le disque. Cela requière une structure des dossiers basées sur la version, et qui supporte les jeux archivés.",
         "fsFlatDesc": "Importe les jeux à partir d'un chemin d’accès sur le disque, mais sans le sous-dossier version séparé. Utile pour migrer une bibliothèque vers Drop.",
         "fsFlatTitle": "Compatibilité",
@@ -419,8 +442,11 @@
         "link": "Sources {arrow}",
         "nameDesc": "Le nom de votre source, pour référence.",
         "namePlaceholder": "Mes Nouvelle Source",
+        "percentage": "{number}%",
         "sources": "Sources de Bibliothèques",
+        "totalSpace": "Espace total",
         "typeDesc": "Le type de source. Affecte les options requises.",
+        "utilizationPercentage": "Pourcentage d'utilisation",
         "working": "Marche ?"
       },
       "subheader": "Lorsque que vous rajoutez des dossiers à vos sources de bibliothèques, Drop le détectera et vous demandera de les importer. Chaque jeu a besoin d’être importé avant que vous puissiez importer une version.",
@@ -559,6 +585,7 @@
     "recentlyUpdated": "Récemment Mis à Jour",
     "released": "Publié",
     "reviews": "({0} Avis)",
+    "size": "Taille",
     "tags": "Tags",
     "title": "Store",
     "view": {
@@ -577,7 +604,7 @@
       "dailyScheduledTitle": "Tâches quotidiennes planifiées",
       "execute": "{arrow} Exécuter",
       "noTasksRunning": "Pas de tâche en cours",
-      "progress": "{0]%",
+      "progress": "{0}%",
       "runningTasksTitle": "Tâches en cours d'exécution",
       "scheduled": {
         "checkUpdateDescription": "Vérifier si Drop a une mise à jour.",

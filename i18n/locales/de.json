@@ -106,7 +106,9 @@
     "friends": "Freunde",
     "groups": "Gruppen",
     "insert": "Einfügen",
+    "labelValueColon": "{label}: {value}",
     "name": "Name",
+    "noData": "Keine Daten",
     "noResults": "Keine Ergebnisse",
     "noSelected": "Keine Elemente ausgewählt.",
     "remove": "Entfernen",
@@ -249,7 +251,7 @@
     "documentation": "Dokumentation",
     "findGame": "Finde ein Spiel",
     "footer": "Fußzeile",
-    "games": "Spiels",
+    "games": "Spiele",
     "social": {
       "discord": "Discord",
       "github": "GitHub"
@@ -260,6 +262,8 @@
   "header": {
     "admin": {
       "admin": "Admin",
+      "home": "Startseite",
+      "library": "Bibliothek",
       "metadata": "Metadaten",
       "settings": {
         "store": "Store",
@@ -274,7 +278,24 @@
   },
   "helpUsTranslate": "Hilf uns Drop zu übersetzen {arrow}",
   "highest": "Höchste",
-  "home": "Startseite",
+  "home": {
+    "admin": {
+      "activeInactiveUsers": "Aktive/inaktive Benutzer",
+      "activeUsers": "Aktive Benutzer",
+      "allVersionsCombined": "Alle Versionen zusammen",
+      "biggestGamesOnServer": "Größte Spiele auf dem Server",
+      "biggestGamesToDownload": "Die größten Spiele zum Herunterladen",
+      "games": "Spiele",
+      "goToUsers": "Zu den Benutzern",
+      "inactiveUsers": "Inaktive Benutzer",
+      "latestVersionOnly": "Nur die neueste Version",
+      "librarySources": "Bibliotheksquellen",
+      "subheader": "Übersicht",
+      "title": "Startseite",
+      "users": "Benutzer",
+      "version": "Version"
+    }
+  },
   "library": {
     "addGames": "Alle Spiele",
     "addToLib": "Zur Bibliothek hinzufügen",
@@ -290,6 +311,7 @@
         "deleteImage": "Bild löschen",
         "editGameDescription": "Spielbeschreibung",
         "editGameName": "Spielname",
+        "editReleaseDate": "Veröffentlichungsdatum",
         "imageCarousel": "Bilderkarussell",
         "imageCarouselDescription": "Anpassen, welche Bilder und in welcher Reihenfolge sie auf der Shop-Seite angezeigt werden.",
         "imageCarouselEmpty": "Es wurden noch keine Bilder zum Karussell hinzugefügt.",
@@ -409,6 +431,7 @@
         "desc": "Konfiguriere deine Bibliotheksquellen, wo Drop nach neuen Spielen und Versionen zum Import suchen wird.",
         "documentationLink": "Dokumentation {arrow}",
         "edit": "Quelle bearbeiten",
+        "freeSpace": "Freier Speicher",
         "fsDesc": "Importiert Spiele von einem Pfad auf der Festplatte. Benötigt eine versionsbasierte Ordnerstruktur und unterstützt archivierte Spiele.",
         "fsFlatDesc": "Importiert Spiele von einem Pfad auf der Festplatte, jedoch ohne separate Unterordner für Versionen. Nützlich beim Migrieren einer bestehenden Bibliothek zu Drop.",
         "fsFlatTitle": "Kompatibilität",
@@ -419,8 +442,11 @@
         "link": "Quellen {arrow}",
         "nameDesc": "Der Name deiner Quelle, als Referenz.",
         "namePlaceholder": "Meine neue Quelle",
+        "percentage": "{number}%",
         "sources": "Bibliotheksquellen",
+        "totalSpace": "Gesamtspeicherplatz",
         "typeDesc": "Der Typ deiner Quelle. Ändert die erforderlichen Optionen.",
+        "utilizationPercentage": "Nutzungsgrad",
         "working": "Funktioniert es?"
       },
       "subheader": "Wenn du Ordner zu deinen Bibliotheksquellen hinzufügst, erkennt Drop diese und fordert dich auf, sie zu importieren. Jedes Spiel muss importiert werden, bevor du eine Version importieren kannst.",
@@ -559,6 +585,7 @@
     "recentlyUpdated": "Kürzlich aktualisiert",
     "released": "Veröffentlicht",
     "reviews": "({0} Bewertungen)",
+    "size": "Größe",
     "tags": "Tags",
     "title": "Store",
     "view": {
