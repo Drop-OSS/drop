@@ -11,6 +11,7 @@ export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, [
     "library:sources:read",
     "setup",
+    "depot"
   ]);
   if (!allowed) throw createError({ statusCode: 403 });
 

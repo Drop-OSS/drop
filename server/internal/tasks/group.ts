@@ -17,6 +17,9 @@ export const taskGroups = {
   debug: {
     concurrency: true,
   },
+  "export:game": {
+    concurrency: true,
+  },
 } as const;
 
 export type TaskGroup = keyof typeof taskGroups;

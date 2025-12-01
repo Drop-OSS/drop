@@ -46,6 +46,7 @@ export const userACLDescriptions: ObjectFromList<typeof userACLs> = {
 export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
   setup:
     "All permissions required to setup a new Drop instance (setup wizard).",
+  depot: "All permissions required to use a download depot with Drop.",
 
   "auth:read":
     "Fetch the list of enabled authentication mechanisms configured.",

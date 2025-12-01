@@ -53,7 +53,6 @@ class TaskHandler {
     "cleanup:invitations",
     "cleanup:sessions",
     "check:update",
-    "debug",
   ];
   private weeklyScheduledTasks: TaskGroup[] = ["cleanup:objects"];
 

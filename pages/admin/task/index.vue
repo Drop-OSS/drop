@@ -164,9 +164,13 @@ const scheduledTasks: {
     description: "",
   },
   debug: {
-    name: "Debug Task",
-    description: "Does debugging things.",
+    name: "",
+    description: "",
   },
+  "export:game": {
+    name: "",
+    description: ""
+  }
 };
 
 async function startTask(taskGroup: string) {

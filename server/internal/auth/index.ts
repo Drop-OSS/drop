@@ -34,7 +34,7 @@ class AuthManager {
         (this.authProviders as any)[key] = object;
         logger.info(`enabled auth: ${key}`);
       } catch (e) {
-        logger.warn(e);
+        logger.warn((e as string).toString());
       }
     }
 

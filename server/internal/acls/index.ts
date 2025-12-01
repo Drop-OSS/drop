@@ -42,6 +42,7 @@ export type UserACL = Array<(typeof userACLs)[number]>;
 
 export const systemACLs = [
   "setup",
+  "depot",
 
   "auth:read",
   "auth:simple:invitation:read",
