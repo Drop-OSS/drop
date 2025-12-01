@@ -1,5 +1,6 @@
 name: Release Workflow
 
+
 on:
   workflow_dispatch: {}
   release:
@@ -10,8 +11,8 @@ on:
 
 jobs:
   web:
-    name: Push website Docker image to registry
-    runs-on: ubuntu-latest
+    name: Build Docker image
+    runs-on: self-hosted
     permissions:
       packages: write
       contents: read
