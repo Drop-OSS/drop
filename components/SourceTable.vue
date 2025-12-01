@@ -56,10 +56,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="(source, sourceIdx) in sources"
-            :key="source.id"
-          >
+          <tr v-for="(source, sourceIdx) in sources" :key="source.id">
             <td
               class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
             >

@@ -70,21 +70,22 @@ definePageMeta({
 
 const services = await $dropFetch("/api/v1/admin/services");
 
-const serviceMetadata = {
+const { t } = useI18n();
+
+const serviceMetadata = computed(() => ({
   torrential: {
-    title: "Torrential",
-    description: "The internal download server for Drop.",
+    title: t("services.torrential.title"),
+    description: t("services.torrential.description"),
     iconForeground: "text-blue-400",
     iconBackground: "bg-blue-500/10",
     icon: ArrowDownTrayIcon,
   },
   nginx: {
-    title: "NGINX",
-    description:
-      "Built-in simple reverse proxy to connect all the Drop components together.",
+    title: t("services.nginx.title"),
+    description: t("services.nginx.description"),
     iconForeground: "text-green-400",
     iconBackground: "bg-green-500/10",
     icon: ArrowDownTrayIcon,
   },
-};
+}));
 </script>

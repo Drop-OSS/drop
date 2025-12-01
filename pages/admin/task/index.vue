@@ -169,8 +169,8 @@ const scheduledTasks: {
   },
   "export:game": {
     name: "",
-    description: ""
-  }
+    description: "",
+  },
 };
 
 async function startTask(taskGroup: string) {

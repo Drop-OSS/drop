@@ -11,39 +11,37 @@
     },
     "notifications": {
       "all": "View all {arrow}",
+      "clear": "Clear notifications",
       "desc": "View and manage your notifications.",
       "markAllAsRead": "Mark all as read",
-      "clear": "Clear notifications",
       "markAsRead": "Mark as read",
       "none": "No notifications",
       "notifications": "Notifications",
       "title": "Notifications",
       "unread": "Unread Notifications"
     },
+    "settings": "Settings",
+    "title": "Account Settings",
     "token": {
-      "title": "API Tokens",
-      "subheader": "Manage your API tokens, and what they can access.",
-      "name": "API token name",
-      "nameDesc": "The name of the token, for reference.",
-      "namePlaceholder": "My New Token",
       "acls": "ACLs/scopes",
       "aclsDesc": "Defines what this token has the authority to do. You should avoid selecting all ACLs, if they are not necessary.",
       "expiry": "Expiry",
-      "noExpiry": "No expiry",
-      "revoke": "Revoke",
-      "noTokens": "No tokens connected to your account.",
-
-      "expiryMonth": "A month",
       "expiry3Month": "3 months",
-      "expiry6Month": "6 months",
-      "expiryYear": "A year",
       "expiry5Year": "5 years",
-
+      "expiry6Month": "6 months",
+      "expiryMonth": "A month",
+      "expiryYear": "A year",
+      "name": "API token name",
+      "nameDesc": "The name of the token, for reference.",
+      "namePlaceholder": "My New Token",
+      "noExpiry": "No expiry",
+      "noTokens": "No tokens connected to your account.",
+      "revoke": "Revoke",
+      "subheader": "Manage your API tokens, and what they can access.",
       "success": "Successfully created token.",
-      "successNote": "Make sure to copy it now, as it won't be shown again."
-    },
-    "settings": "Settings",
-    "title": "Account Settings"
+      "successNote": "Make sure to copy it now, as it won't be shown again.",
+      "title": "API Tokens"
+    }
   },
   "actions": "Actions",
   "add": "Add",
@@ -109,7 +107,9 @@
     "friends": "Friends",
     "groups": "Groups",
     "insert": "Insert",
+    "labelValueColon": "{label}: {value}",
     "name": "Name",
+    "noData": "No data",
     "noResults": "No results",
     "noSelected": "No items selected.",
     "remove": "Remove",
@@ -118,9 +118,7 @@
     "servers": "Servers",
     "srLoading": "Loading…",
     "tags": "Tags",
-    "today": "Today",
-    "labelValueColon": "{label}: {value}",
-    "noData": "No data"
+    "today": "Today"
   },
   "delete": "Delete",
   "drop": {
@@ -265,14 +263,14 @@
   "header": {
     "admin": {
       "admin": "Admin",
-      "metadata": "Meta",
-      "settings": {
-        "title": "Settings",
-        "store": "Store",
-        "tokens": "API tokens"
-      },
       "home": "Home",
       "library": "Library",
+      "metadata": "Meta",
+      "settings": {
+        "store": "Store",
+        "title": "Settings",
+        "tokens": "API tokens"
+      },
       "tasks": "Tasks",
       "users": "Users"
     },
@@ -283,20 +281,20 @@
   "highest": "highest",
   "home": {
     "admin": {
-      "title": "Home",
-      "subheader": "Instance summary",
-      "games": "Games",
-      "librarySources": "Library sources",
-      "version": "Version",
       "activeInactiveUsers": "Active/inactive users",
       "activeUsers": "Active users",
-      "inactiveUsers": "Inactive users",
-      "goToUsers": "Go to users",
-      "users": "Users",
-      "biggestGamesToDownload": "Biggest games to download",
-      "latestVersionOnly": "Latest version only",
+      "allVersionsCombined": "All versions combined",
       "biggestGamesOnServer": "Biggest games on server",
-      "allVersionsCombined": "All versions combined"
+      "biggestGamesToDownload": "Biggest games to download",
+      "games": "Games",
+      "goToUsers": "Go to users",
+      "inactiveUsers": "Inactive users",
+      "latestVersionOnly": "Latest version only",
+      "librarySources": "Library sources",
+      "subheader": "Instance summary",
+      "title": "Home",
+      "users": "Users",
+      "version": "Version"
     }
   },
   "library": {
@@ -363,6 +361,8 @@
         },
         "withoutMetadata": "Import without metadata"
       },
+      "libraryHint": "No libraries configured.",
+      "libraryHintDocsLink": "What does this mean? {arrow}",
       "metadata": {
         "companies": {
           "action": "Manage {arrow}",
@@ -421,8 +421,6 @@
       },
       "metadataProvider": "Metadata provider",
       "noGames": "No games imported",
-      "libraryHint": "No libraries configured.",
-      "libraryHintDocsLink": "What does this mean? {arrow}",
       "offline": "Drop couldn't access this game.",
       "offlineTitle": "Game offline",
       "openEditor": "Open in Editor {arrow}",
@@ -434,6 +432,7 @@
         "desc": "Configure your library sources, where Drop will look for new games and versions to import.",
         "documentationLink": "Documentation {arrow}",
         "edit": "Edit source",
+        "freeSpace": "Free space",
         "fsDesc": "Imports games from a path on disk. Requires version-based folder structure, and supports archived games.",
         "fsFlatDesc": "Imports games from a path on disk, but without a separate version subfolder. Useful when migrating an existing library to Drop.",
         "fsFlatTitle": "Compatibility",
@@ -444,13 +443,12 @@
         "link": "Sources {arrow}",
         "nameDesc": "The name of your source, for reference.",
         "namePlaceholder": "My New Source",
+        "percentage": "{number}%",
         "sources": "Library Sources",
-        "typeDesc": "The type of your source. Changes the required options.",
-        "working": "Working?",
-        "freeSpace": "Free space",
         "totalSpace": "Total space",
+        "typeDesc": "The type of your source. Changes the required options.",
         "utilizationPercentage": "Utilization percentage",
-        "percentage": "{number}%"
+        "working": "Working?"
       },
       "subheader": "As you add folders to your library sources, Drop will detect it and prompt you to import it. Each game needs to be imported before you can import a version.",
       "title": "Libraries",
@@ -517,6 +515,16 @@
   "options": "Options",
   "security": "Security",
   "selectLanguage": "Select language",
+  "services": {
+    "nginx": {
+      "description": "Built-in simple reverse proxy to connect all the Drop components together.",
+      "title": "NGINX"
+    },
+    "torrential": {
+      "description": "The internal download server for Drop.",
+      "title": "Torrential"
+    }
+  },
   "settings": {
     "admin": {
       "description": "Configure Drop settings",
@@ -580,7 +588,6 @@
     "openFeatured": "Star games in Admin Library {arrow}",
     "platform": "Platform | Platform | Platforms",
     "publishers": "Publishers | Publisher | Publishers",
-    "size": "Size",
     "rating": "Rating",
     "readLess": "Click to read less",
     "readMore": "Click to read more",
@@ -589,6 +596,7 @@
     "recentlyUpdated": "Recently Updated",
     "released": "Released",
     "reviews": "({0} Reviews)",
+    "size": "Size",
     "tags": "Tags",
     "title": "Store",
     "view": {
@@ -605,7 +613,9 @@
       "back": "{arrow} Back to Tasks",
       "completedTasksTitle": "Completed tasks",
       "dailyScheduledTitle": "Daily scheduled tasks",
+      "execute": "{arrow} Execute",
       "noTasksRunning": "No tasks currently running",
+      "progress": "{0}%",
       "runningTasksTitle": "Running tasks",
       "scheduled": {
         "checkUpdateDescription": "Check if Drop has an update.",
@@ -618,9 +628,7 @@
         "cleanupSessionsName": "Clean up sessions."
       },
       "viewTask": "View {arrow}",
-      "weeklyScheduledTitle": "Weekly scheduled tasks",
-      "progress": "{0}%",
-      "execute": "{arrow} Execute"
+      "weeklyScheduledTitle": "Weekly scheduled tasks"
     }
   },
   "title": "Drop",
