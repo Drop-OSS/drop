@@ -3,9 +3,9 @@ import { logger } from "../logging";
 import type { Logger } from "pino";
 
 class ServiceManager {
-  private services: Map<string, Service> = new Map();
+  private services: Map<string, Service<unknown>> = new Map();
 
-  register(name: string, service: Service) {
+  register(name: string, service: Service<unknown>) {
     this.services.set(name, service);
   }
 
@@ -32,8 +32,8 @@ class ServiceManager {
 export type Executor = () => ChildProcess;
 export type Setup = () => Promise<boolean>;
 export type Healthcheck = () => Promise<boolean>;
-export class Service {
-  private name: string;
+export class Service<T> {
+  name: string;
   private executor: Executor;
   private setup: Setup | undefined;
   private healthcheck: Healthcheck | undefined;
@@ -46,11 +46,14 @@ export class Service {
   private healthy: boolean = true;
   private spun: boolean = false;
 
+  private uutils: T;
+
   constructor(
     name: string,
     executor: Executor,
     setup?: Setup,
     healthcheck?: Healthcheck,
+    utils?: T,
   ) {
     this.name = name;
     const serviceLogger = logger.child({ name: `service-${name}` });
@@ -58,6 +61,7 @@ export class Service {
     this.executor = executor;
     this.setup = setup;
     this.healthcheck = healthcheck;
+    this.uutils = utils!;
   }
 
   spin() {
@@ -82,24 +86,28 @@ export class Service {
 
   private async launch() {
     if (this.currentProcess) return;
-    const process = this.executor();
-    this.logger.info("service launched");
-    process.on("close", async (code, signal) => {
-      process.kill();
-      this.currentProcess = undefined;
-      this.logger.warn(
-        `service exited with code ${code} (${signal}), restarting...`,
+    const disableEnv = `DISABLE_SERVICE_${this.name.toUpperCase()}`;
+    if (!process.env[disableEnv]) {
+      const serviceProcess = this.executor();
+      this.logger.info("service launched");
+      serviceProcess.on("close", async (code, signal) => {
+        serviceProcess.kill();
+        this.currentProcess = undefined;
+        this.logger.warn(
+          `service exited with code ${code} (${signal}), restarting...`,
+        );
+        await new Promise((r) => setTimeout(r, 5000));
+        if (this.spun) this.launch();
+      });
+      serviceProcess.stdout?.on("data", (data) =>
+        this.logger.info(data.toString().trim()),
       );
-      await new Promise((r) => setTimeout(r, 5000));
-      if (this.spun) this.launch();
-    });
-    process.stdout?.on("data", (data) =>
-      this.logger.info(data.toString().trim()),
-    );
-    process.stderr?.on("data", (data) =>
-      this.logger.error(data.toString().trim()),
-    );
-    this.currentProcess = process;
+      serviceProcess.stderr?.on("data", (data) =>
+        this.logger.error(data.toString().trim()),
+      );
+      this.currentProcess = serviceProcess;
+    }
+
     if (this.setup) {
       while (true) {
         try {
@@ -143,6 +151,10 @@ export class Service {
 
   serviceHealthy() {
     return this.healthy;
+  }
+
+  utils() {
+    return this.uutils
   }
 }
 

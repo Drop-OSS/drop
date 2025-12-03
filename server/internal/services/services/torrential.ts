@@ -45,4 +45,12 @@ export const TORRENTIAL_SERVICE = new Service(
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   async () => await $fetch(`${INTERNAL_DEPOT_URL.toString()}healthcheck`),
+  {
+    async invalidate(gameId: string, versionName: string) {
+      await $fetch(`${INTERNAL_DEPOT_URL.toString()}invalidate`, {method: "POST", body: {
+        game_id: gameId,
+        version_name: versionName
+      }});
+    }
+  }
 );

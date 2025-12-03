@@ -17,6 +17,7 @@ import type { GameModel } from "~/prisma/client/models";
 import { createHash } from "node:crypto";
 import type { WorkingLibrarySource } from "~/server/api/v1/admin/library/sources/index.get";
 import gameSizeManager from "~/server/internal/gamesize";
+import { TORRENTIAL_SERVICE } from "../services/services/torrential";
 
 export function createGameImportTaskId(libraryId: string, libraryPath: string) {
   return createHash("md5")
@@ -347,6 +348,8 @@ class LibraryManager {
 
         await libraryManager.cacheCombinedGameSize(gameId);
         await libraryManager.cacheGameVersionSize(gameId, versionName);
+
+        await TORRENTIAL_SERVICE.utils().invalidate(gameId, versionName);
         progress(100);
       },
     });
