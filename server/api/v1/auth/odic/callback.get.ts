@@ -1,6 +1,7 @@
 import sessionHandler from "~/server/internal/session";
 import authManager from "~/server/internal/auth";
 import type { Session } from "~/server/internal/session/types";
+import userStatsManager from "~/server/internal/userstats";
 
 defineRouteMeta({
   openAPI: {
@@ -61,6 +62,8 @@ export default defineEventHandler(async (h3) => {
       `/auth/mfa?redirect=${result.options.redirect ? encodeURIComponent(result.options.redirect) : "/"}`,
     );
   }
+  await sessionHandler.signin(h3, result.user.id, true);
+  await userStatsManager.cacheUserSessions();
 
   if (result.options.redirect) {
     return sendRedirect(h3, result.options.redirect);

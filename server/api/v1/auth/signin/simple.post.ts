@@ -8,6 +8,7 @@ import authManager, {
   checkHashBcrypt,
 } from "~/server/internal/auth";
 import { logger } from "~/server/internal/logging";
+import userStatsManager from "~/server/internal/userstats";
 
 const signinValidator = type({
   username: "string",
