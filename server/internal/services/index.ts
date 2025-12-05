@@ -154,7 +154,7 @@ export class Service<T> {
   }
 
   utils() {
-    return this.uutils
+    return this.uutils;
   }
 }
 

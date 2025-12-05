@@ -1,6 +1,5 @@
 name: Release Workflow
 
-
 on:
   workflow_dispatch: {}
   release:

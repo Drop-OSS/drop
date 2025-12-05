@@ -12,7 +12,7 @@ export const taskGroups = {
     concurrency: false,
   },
   "check:integrity": {
-    concurrency: false
+    concurrency: false,
   },
   "import:game": {
     concurrency: true,
