@@ -11,7 +11,7 @@
       </svg>
       <div class="absolute inset-0 bg-zinc-900 rounded-full m-12" />
     </div>
-    <ul class="flex flex-col gap-y-1 justify-center text-left">
+    <ul class="flex flex-col gap-y-1 my-auto text-left">
       <li
         v-for="slice in slices"
         :key="slice.value"

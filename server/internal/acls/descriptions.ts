@@ -43,6 +43,8 @@ export const userACLDescriptions: ObjectFromList<typeof userACLs> = {
   "emoji:read": "Read built in emojis",
 
   "settings:read": "Read system settings.",
+  "system-data:listen":
+    "Connect to a websocket to receive system data updates.",
 };
 
 export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
@@ -108,4 +110,7 @@ export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
 
   "depot:new": "Create a new download depot",
   "depot:delete": "Remove a download depot",
+
+  "system-data:listen":
+    "Connect to a websocket to receive system data updates.",
 };

@@ -56,7 +56,7 @@ class NotificationSystem {
       },
     });
     for (const notification of notifications) {
-      await listener.callback(notification);
+      listener.callback(notification);
     }
   }
 
@@ -69,7 +69,7 @@ class NotificationSystem {
         notification.acls.findIndex(
           (e) => listener.acls.findIndex((v) => v === e) != -1,
         ) != -1;
-      if (hasSome) await listener.callback(notification);
+      if (hasSome) listener.callback(notification);
     }
   }
 

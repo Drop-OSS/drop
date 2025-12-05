@@ -13,12 +13,11 @@ class UserStatsManager {
   async cacheUserSessions() {
     const activeSessions =
       (
-        await prisma.client.groupBy({
+        await prisma.session.groupBy({
           by: ["userId"],
           where: {
-            id: { not: "system" },
-            lastConnected: {
-              gt: DateTime.now().minus({ months: 1 }).toISO(),
+            expiresAt: {
+              gt: DateTime.now().toJSDate(),
             },
           },
         })
