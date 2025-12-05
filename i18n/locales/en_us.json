@@ -289,7 +289,7 @@
       "inactiveUsers": "Inactive users",
       "latestVersionOnly": "Latest version only",
       "librarySources": "Library sources",
-      "numberCores": "{count} cores | {count} core | {count} cores",
+      "numberCores": "({count} cores) | ({count} core) | ({count} cores)",
       "ramUsage": "RAM usage",
       "subheader": "Instance summary",
       "title": "Home",
