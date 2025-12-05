@@ -3,6 +3,7 @@ import { Service } from "..";
 import fs from "fs";
 import prisma from "../../db/database";
 import { APITokenMode } from "~/prisma/client/enums";
+import { logger } from "../../logging";
 
 const INTERNAL_DEPOT_URL = new URL(
   process.env.INTERNAL_DEPOT_URL ?? "http://localhost:5000",
@@ -47,10 +48,17 @@ export const TORRENTIAL_SERVICE = new Service(
   async () => await $fetch(`${INTERNAL_DEPOT_URL.toString()}healthcheck`),
   {
     async invalidate(gameId: string, versionName: string) {
-      await $fetch(`${INTERNAL_DEPOT_URL.toString()}invalidate`, {method: "POST", body: {
-        game_id: gameId,
-        version_name: versionName
-      }});
-    }
-  }
+      try {
+        await $fetch(`${INTERNAL_DEPOT_URL.toString()}invalidate`, {
+          method: "POST",
+          body: {
+            game_id: gameId,
+            version_name: versionName,
+          },
+        });
+      } catch (e) {
+        logger.warn("invalidate torrential cache failed with error: " + e);
+      }
+    },
+  },
 );

@@ -42,6 +42,10 @@ class LibraryManager {
     this.libraries.delete(id);
   }
 
+  getLibrary(libraryId: string): LibraryProvider<unknown> | undefined {
+    return this.libraries.get(libraryId);
+  }
+
   async fetchLibraries(): Promise<WorkingLibrarySource[]> {
     const libraries = await prisma.library.findMany({});
 
