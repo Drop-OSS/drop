@@ -1,11 +1,9 @@
-import { LibraryBackend } from "~/prisma/client/enums";
+import type { LibraryBackend } from "~/prisma/client/enums";
 import prisma from "../internal/db/database";
 import type { JsonValue } from "@prisma/client/runtime/library";
 import type { LibraryProvider } from "../internal/library/provider";
-import type { FilesystemProviderConfig } from "../internal/library/providers/filesystem";
 import { FilesystemProvider } from "../internal/library/providers/filesystem";
 import libraryManager from "../internal/library";
-import path from "path";
 import { FlatFilesystemProvider } from "../internal/library/providers/flat";
 import { logger } from "~/server/internal/logging";
 
@@ -32,42 +30,6 @@ export const libraryConstructors: {
 export default defineNitroPlugin(async () => {
   let successes = 0;
   const libraries = await prisma.library.findMany({});
-
-  // Add migration handler
-  const legacyPath = process.env.LIBRARY;
-  if (legacyPath && libraries.length == 0) {
-    const options: typeof FilesystemProviderConfig.infer = {
-      baseDir: path.resolve(legacyPath),
-    };
-
-    const library = await prisma.library.create({
-      data: {
-        name: "Auto-created",
-        backend: LibraryBackend.Filesystem,
-        options,
-      },
-    });
-
-    libraries.push(library);
-
-    // Update all existing games
-    await prisma.game.updateMany({
-      where: {
-        libraryId: null,
-      },
-      data: {
-        libraryId: library.id,
-      },
-    });
-  }
-
-  // Delete all games that don't have a library provider after the legacy handler
-  // (leftover from a bug)
-  await prisma.game.deleteMany({
-    where: {
-      libraryId: null,
-    },
-  });
 
   for (const library of libraries) {
     const constructor = libraryConstructors[library.backend];

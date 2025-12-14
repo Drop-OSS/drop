@@ -20,10 +20,10 @@ export default defineEventHandler<{ body: typeof UpdateVersionOrder }>(
     // We expect an array of the version names for this game
     const unsortedVersions = await prisma.gameVersion.findMany({
       where: {
-        versionName: { in: body.versions },
+        versionId: { in: body.versions },
       },
       select: {
-        versionName: true,
+        versionId: true,
         versionIndex: true,
         delta: true,
         platform: true,
@@ -31,7 +31,7 @@ export default defineEventHandler<{ body: typeof UpdateVersionOrder }>(
     });
 
     const versions = body.versions
-      .map((e) => unsortedVersions.find((v) => v.versionName === e))
+      .map((e) => unsortedVersions.find((v) => v.versionId === e))
       .filter((e) => e !== undefined);
 
     if (versions.length !== unsortedVersions.length)
@@ -46,7 +46,7 @@ export default defineEventHandler<{ body: typeof UpdateVersionOrder }>(
       if (version.delta && !has[version.platform])
         throw createError({
           statusCode: 400,
-          statusMessage: `"${version.versionName}" requires a base version to apply the delta to.`,
+          statusMessage: `"${version.versionId}" requires a base version to apply the delta to.`,
         });
       has[version.platform] = true;
     }
@@ -55,9 +55,9 @@ export default defineEventHandler<{ body: typeof UpdateVersionOrder }>(
       versions.map((version, versionIndex) =>
         prisma.gameVersion.update({
           where: {
-            gameId_versionName: {
+            gameId_versionId: {
               gameId: gameId,
-              versionName: version.versionName,
+              versionId: version.versionId,
             },
           },
           data: {

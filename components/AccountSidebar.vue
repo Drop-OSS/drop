@@ -54,9 +54,9 @@ const notifications = useNotifications();
 const { t } = useI18n();
 
 const navigation: (NavigationItem & { icon: Component; count?: number })[] = [
-  { label: t("home"), route: "/account", icon: HomeIcon, prefix: "/account" },
+  { label: t("account.home.title"), route: "/account", icon: HomeIcon, prefix: "/account" },
   {
-    label: t("security"),
+    label: t("account.security.title"),
     route: "/account/security",
     prefix: "/account/security",
     icon: LockClosedIcon,

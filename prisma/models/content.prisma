@@ -36,8 +36,8 @@ model Game {
 
   // These fields will not be optional in the next version
   // Any game without a library ID will be assigned one at startup, based on the defaults
-  libraryId   String?
-  library     Library? @relation(fields: [libraryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  libraryId   String
+  library     Library @relation(fields: [libraryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   libraryPath String
 
   collections CollectionEntry[]
@@ -57,11 +57,10 @@ model GameTag {
   id   String @id @default(uuid())
   name String @unique
 
-  games    Game[]
+  games Game[]
 
   @@index([name(ops: raw("gist_trgm_ops(siglen=32)"))], type: Gist)
 }
-
 
 model GameRating {
   id String @id @default(uuid())
@@ -83,9 +82,12 @@ model GameRating {
 
 // A particular set of files that relate to the version
 model GameVersion {
-  gameId      String
-  game        Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  versionName String // Sub directory for the game files
+  gameId    String
+  game      Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  versionId String @default(uuid())
+
+  displayName String?
+  versionPath String
 
   created DateTime @default(now())
 
@@ -104,7 +106,7 @@ model GameVersion {
   versionIndex Int
   delta        Boolean @default(false)
 
-  @@id([gameId, versionName])
+  @@id([gameId, versionId])
 }
 
 // A save slot for a game

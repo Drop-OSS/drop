@@ -57,7 +57,7 @@
                   class="w-full inline-flex items-center px-4 py-2 bg-zinc-800 rounded justify-between w-full flex"
                 >
                   <div class="text-zinc-100 font-semibold flex-none">
-                    {{ item.versionName }}
+                    {{ item.displayName }}
                   </div>
                   <div
                     class="text-right text-zinc-400 text-xs font-normal flex-auto pr-4"
@@ -75,7 +75,7 @@
                     <Bars3Icon
                       class="cursor-move w-6 h-6 text-zinc-400 handle"
                     />
-                    <button @click="() => deleteVersion(item.versionName)">
+                    <button @click="() => deleteVersion(item.versionId)">
                       <TrashIcon class="w-5 h-5 text-red-600" />
                     </button>
                   </div>
@@ -156,7 +156,7 @@ async function updateVersionOrder() {
       method: "PATCH",
       body: {
         id: game.value.id,
-        versions: game.value.versions.map((e) => e.versionName),
+        versions: game.value.versions.map((e) => e.versionId),
       },
     });
     game.value.versions = newVersions;
@@ -175,17 +175,17 @@ async function updateVersionOrder() {
   }
 }
 
-async function deleteVersion(versionName: string) {
+async function deleteVersion(versionId: string) {
   try {
     await $dropFetch("/api/v1/admin/game/version", {
       method: "DELETE",
       body: {
         id: game.value.id,
-        versionName: versionName,
+        version: versionId,
       },
     });
     game.value.versions.splice(
-      game.value.versions.findIndex((e) => e.versionName === versionName),
+      game.value.versions.findIndex((e) => e.versionId === versionId),
       1,
     );
     hasDeleted.value = true;

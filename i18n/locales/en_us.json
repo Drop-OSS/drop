@@ -20,6 +20,12 @@
       "title": "Notifications",
       "unread": "Unread Notifications"
     },
+    "home": {
+      "title": "Home"
+    },
+    "security": {
+      "title": "Security"
+    },
     "settings": "Settings",
     "title": "Account Settings",
     "token": {

@@ -54,14 +54,14 @@ class ManifestGenerator {
   }
 
   // Local function because eventual caching
-  async generateManifest(gameId: string, versionName: string) {
+  async generateManifest(gameId: string, versionId: string) {
     const versions: GameVersionModel[] = [];
 
     const baseVersion = await prisma.gameVersion.findUnique({
       where: {
-        gameId_versionName: {
+        gameId_versionId: {
           gameId: gameId,
-          versionName: versionName,
+          versionId,
         },
       },
     });
@@ -92,7 +92,7 @@ class ManifestGenerator {
         manifest: JSON.parse(
           e.dropletManifest?.toString() ?? "{}",
         ) as DropManifest,
-        versionName: e.versionName,
+        versionName: e.versionId,
       };
     });
 

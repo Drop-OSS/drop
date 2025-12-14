@@ -22,7 +22,7 @@ export default defineDropTask({
       const progressBudget = maxProgress - minProgress;
       progress(minProgress);
       logger.info(
-        `starting integrity check for ${version.game.mName} ${version.versionName}`,
+        `starting integrity check for ${version.game.mName} ${version.versionId}`,
       );
 
       const manifest = JSON.parse(
@@ -40,7 +40,7 @@ export default defineDropTask({
           const fileStream = await libraryManager.readFile(
             version.game.libraryId!,
             version.game.libraryPath,
-            version.versionName,
+            version.versionId,
             filename,
             { start: offset, end: offset + length },
           );
@@ -84,7 +84,7 @@ export default defineDropTask({
 
       if (!valid) {
         logger.info(
-          `integrity check for ${version.game.mName} ${version.versionName} failed, reimporting...`,
+          `integrity check for ${version.game.mName} ${version.versionId} failed, reimporting...`,
         );
         progress(minProgress);
         const library = await libraryManager.getLibrary(
@@ -92,12 +92,12 @@ export default defineDropTask({
         );
         if (!library)
           throw new Error(
-            `Library doesn't exist for ${version.game.mName} ${version.versionName}`,
+            `Library doesn't exist for ${version.game.mName} ${version.versionId}`,
           );
 
         const manifest = await library.generateDropletManifest(
           version.game.libraryPath,
-          version.versionName,
+          version.versionPath,
           (_, manifestProgress) => {
             const currentManifestProgress =
               minProgress + progressBudget * (manifestProgress / 100);
@@ -110,9 +110,9 @@ export default defineDropTask({
 
         await prisma.gameVersion.update({
           where: {
-            gameId_versionName: {
+            gameId_versionId: {
               gameId: version.gameId,
-              versionName: version.versionName,
+              versionId: version.versionId,
             },
           },
           data: {
@@ -121,7 +121,7 @@ export default defineDropTask({
         });
       } else {
         logger.info(
-          `integrity check for ${version.game.mName} ${version.versionName} succeeded!`,
+          `integrity check for ${version.game.mName} ${version.versionId} succeeded!`,
         );
       }
 

@@ -112,11 +112,11 @@ class LibraryManager {
     try {
       const versions = await provider.listVersions(
         libraryPath,
-        game.versions.map((v) => v.versionName),
+        game.versions.map((v) => v.versionPath),
       );
       const unimportedVersions = versions.filter(
         (e) =>
-          game.versions.findIndex((v) => v.versionName == e) == -1 &&
+          game.versions.findIndex((v) => v.versionPath == e) == -1 &&
           !taskHandler.hasTask(createVersionImportTaskId(game.id, e)),
       );
       return unimportedVersions;
@@ -132,11 +132,6 @@ class LibraryManager {
   async fetchGamesWithStatus() {
     const games = await prisma.game.findMany({
       include: {
-        versions: {
-          select: {
-            versionName: true,
-          },
-        },
         library: true,
       },
       orderBy: {
@@ -154,7 +149,7 @@ class LibraryManager {
           game: e,
           status: versions
             ? {
-                noVersions: e.versions.length == 0,
+                noVersions: versions.length == 0,
                 unimportedVersions: versions,
               }
             : ("offline" as const),
@@ -248,7 +243,7 @@ class LibraryManager {
 
   async importVersion(
     gameId: string,
-    versionName: string,
+    versionPath: string,
     metadata: {
       platform: string;
       onlySetup: boolean;
@@ -262,7 +257,7 @@ class LibraryManager {
       umuId: string;
     },
   ) {
-    const taskId = createVersionImportTaskId(gameId, versionName);
+    const taskId = createVersionImportTaskId(gameId, versionPath);
 
     const platform = parsePlatform(metadata.platform);
     if (!platform) return undefined;
@@ -279,14 +274,14 @@ class LibraryManager {
     taskHandler.create({
       id: taskId,
       taskGroup: "import:game",
-      name: `Importing version ${versionName} for ${game.mName}`,
+      name: `Importing version ${versionPath} for ${game.mName}`,
       acls: ["system:import:version:read"],
       async run({ progress, logger }) {
         // First, create the manifest via droplet.
         // This takes up 90% of our progress, so we wrap it in a *0.9
         const manifest = await library.generateDropletManifest(
           game.libraryPath,
-          versionName,
+          versionPath,
           (err, value) => {
             if (err) throw err;
             progress(value * 0.9);
@@ -308,7 +303,7 @@ class LibraryManager {
           await prisma.gameVersion.create({
             data: {
               gameId: gameId,
-              versionName: versionName,
+              versionPath,
               dropletManifest: manifest,
               versionIndex: currentIndex,
               delta: metadata.delta,
@@ -324,7 +319,7 @@ class LibraryManager {
           await prisma.gameVersion.create({
             data: {
               gameId: gameId,
-              versionName: versionName,
+              versionPath,
               dropletManifest: manifest,
               versionIndex: currentIndex,
               delta: metadata.delta,
@@ -343,17 +338,17 @@ class LibraryManager {
         logger.info("Successfully created version!");
 
         notificationSystem.systemPush({
-          nonce: `version-create-${gameId}-${versionName}`,
-          title: `'${game.mName}' ('${versionName}') finished importing.`,
-          description: `Drop finished importing version ${versionName} for ${game.mName}.`,
+          nonce: `version-create-${gameId}-${versionPath}`,
+          title: `'${game.mName}' ('${versionPath}') finished importing.`,
+          description: `Drop finished importing version ${versionPath} for ${game.mName}.`,
           actions: [`View|/admin/library/${gameId}`],
           acls: ["system:import:version:read"],
         });
 
         await libraryManager.cacheCombinedGameSize(gameId);
-        await libraryManager.cacheGameVersionSize(gameId, versionName);
+        await libraryManager.cacheGameVersionSize(gameId, versionPath);
 
-        await TORRENTIAL_SERVICE.utils().invalidate(gameId, versionName);
+        await TORRENTIAL_SERVICE.utils().invalidate(gameId, versionPath);
         progress(100);
       },
     });
@@ -388,7 +383,7 @@ class LibraryManager {
     await prisma.gameVersion.deleteMany({
       where: {
         gameId: gameId,
-        versionName: version,
+        versionId: version,
       },
     });
 

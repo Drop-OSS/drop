@@ -57,9 +57,9 @@ class GameSizeManager {
 
   async getGameVersionSize(
     gameId: string,
-    versionName?: string,
+    versionId?: string,
   ): Promise<number | null> {
-    if (!versionName) {
+    if (!versionId) {
       const version = await prisma.gameVersion.findFirst({
         where: { gameId },
         orderBy: {
@@ -69,12 +69,12 @@ class GameSizeManager {
       if (!version) {
         return null;
       }
-      versionName = version.versionName;
+      versionId = version.versionId;
     }
 
     const manifest = await manifestGenerator.generateManifest(
       gameId,
-      versionName,
+      versionId,
     );
     if (!manifest) {
       return null;
@@ -88,7 +88,7 @@ class GameSizeManager {
     version: GameVersion,
   ): Promise<boolean> {
     return gameVersions.length > 0
-      ? gameVersions[0].versionName === version.versionName
+      ? gameVersions[0].versionId === version.versionId
       : false;
   }
 
@@ -162,16 +162,16 @@ class GameSizeManager {
 
   async cacheGameVersion(
     game: Game & { versions: GameVersion[] },
-    versionName?: string,
+    versionId?: string,
   ) {
     const cacheVersion = async (version: GameVersion) => {
-      const size = await this.getGameVersionSize(game.id, version.versionName);
-      if (!version.versionName || !size) {
+      const size = await this.getGameVersionSize(game.id, version.versionId);
+      if (!version.versionId || !size) {
         return;
       }
 
       const versionsSizes = {
-        [version.versionName]: {
+        [version.versionId]: {
           size,
           gameName: game.mName,
           gameId: game.id,
@@ -186,9 +186,9 @@ class GameSizeManager {
       });
     };
 
-    if (versionName) {
+    if (versionId) {
       const version = await prisma.gameVersion.findFirst({
-        where: { gameId: game.id, versionName },
+        where: { gameId: game.id, versionId },
       });
       if (!version) {
         return;

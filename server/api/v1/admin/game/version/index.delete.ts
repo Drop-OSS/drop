@@ -5,7 +5,7 @@ import libraryManager from "~/server/internal/library";
 
 const DeleteVersion = type({
   id: "string",
-  versionName: "string",
+  version: "string",
 }).configure(throwingArktype);
 
 export default defineEventHandler<{ body: typeof DeleteVersion }>(
@@ -18,7 +18,7 @@ export default defineEventHandler<{ body: typeof DeleteVersion }>(
     const body = await readDropValidatedBody(h3, DeleteVersion);
 
     const gameId = body.id.toString();
-    const version = body.versionName.toString();
+    const version = body.version.toString();
 
     await libraryManager.deleteGameVersion(gameId, version);
     return {};

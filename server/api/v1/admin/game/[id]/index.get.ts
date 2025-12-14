@@ -32,7 +32,7 @@ export default defineEventHandler(async (h3) => {
   const getGameVersionSize = async (version: GameVersion) => {
     const size = await libraryManager.getGameVersionSize(
       gameId,
-      version.versionName,
+      version.versionId,
     );
     return { ...version, size };
   };
