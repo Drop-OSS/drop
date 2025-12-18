@@ -29,10 +29,11 @@ await updateUser();
 
 const user = useUser();
 const apiDetails = await $dropFetch("/api/v1");
+const clientMode = isClientRequest();
 
 const showExternalUrlWarning = ref(false);
 function checkExternalUrl() {
-  if (!import.meta.client) return;
+  if (!import.meta.client || clientMode) return;
   const realOrigin = window.location.origin.trim();
   const chosenOrigin = apiDetails.external.trim();
   const ignore = window.localStorage.getItem("ignoreExternalUrl");

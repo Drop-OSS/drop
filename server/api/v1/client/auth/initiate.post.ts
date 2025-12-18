@@ -31,19 +31,20 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Invalid or unsupported platform",
     });
 
-  const capabilityIterable = Object.entries(capabilities) as Array<
-    [InternalClientCapability, object]
-  >;
-  if (
-    capabilityIterable.length > 0 &&
-    capabilityIterable
-      .map(([capability]) => validCapabilities.find((v) => capability == v))
-      .filter((e) => e).length == 0
-  )
-    throw createError({
-      statusCode: 400,
-      message: "Invalid capabilities.",
-    });
+  const capabilityIterableRaw = Object.entries(capabilities);
+  const capabilityIterable = capabilityIterableRaw.map(
+    ([capability, value]) => {
+      const actualCapability = validCapabilities.find(
+        (v) => capability.toLowerCase() == v.toLowerCase(),
+      );
+      if (!actualCapability)
+        throw createError({
+          statusCode: 400,
+          message: "Invalid capabilities.",
+        });
+      return [actualCapability, value];
+    },
+  ) as Array<[InternalClientCapability, object]>;
 
   if (
     capabilityIterable.length > 0 &&
@@ -63,7 +64,7 @@ export default defineEventHandler(async (h3) => {
   const result = await clientHandler.initiate({
     name: body.name,
     platform,
-    capabilities,
+    capabilities: Object.fromEntries(capabilityIterable),
     mode: body.mode,
   });
 

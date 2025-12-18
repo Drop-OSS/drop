@@ -89,3 +89,15 @@ export const $dropFetch: DropFetch = async (rawRequest, opts) => {
   if (import.meta.server) state.value = data;
   return data;
 };
+
+export function isClientRequest() {
+  const existingState = useState("clientMode", () => false);
+  if (import.meta.server) {
+    const headers = useRequestHeaders(["User-Agent"]);
+    const calculatedClientRequest =
+      headers["user-agent"] == "Drop Desktop Client";
+    existingState.value = calculatedClientRequest;
+  }
+
+  return existingState.value;
+}
