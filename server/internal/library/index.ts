@@ -133,6 +133,7 @@ class LibraryManager {
     const games = await prisma.game.findMany({
       include: {
         library: true,
+        versions: true
       },
       orderBy: {
         mName: "asc",
@@ -149,7 +150,7 @@ class LibraryManager {
           game: e,
           status: versions
             ? {
-                noVersions: versions.length == 0,
+                noVersions: e.versions.length == 0,
                 unimportedVersions: versions,
               }
             : ("offline" as const),

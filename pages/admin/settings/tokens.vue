@@ -206,7 +206,6 @@ async function createToken(
       },
       failTitle: "Failed to create API token.",
     });
-    console.log(result);
     newToken.value = result.token;
     tokens.value.push(result);
   } catch {

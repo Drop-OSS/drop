@@ -639,15 +639,22 @@ async function updateCurrentlySelectedVersion(value: number) {
   if (currentlySelectedVersion.value == value) return;
   currentlySelectedVersion.value = value;
   const version = versions[currentlySelectedVersion.value];
-  const results = await $dropFetch(
-    `/api/v1/admin/import/version/preload?id=${encodeURIComponent(
-      gameId,
-    )}&version=${encodeURIComponent(version)}`,
-  );
-  versionGuesses.value = results.map((e) => ({
-    ...e,
-    platform: e.platform as PlatformClient,
-  }));
+  try {
+    const results = await $dropFetch(
+      `/api/v1/admin/import/version/preload?id=${encodeURIComponent(
+        gameId,
+      )}&version=${encodeURIComponent(version)}`,
+      {
+        failTitle: "Failed to fetch version information",
+      },
+    );
+    versionGuesses.value = results.map((e) => ({
+      ...e,
+      platform: e.platform as PlatformClient,
+    }));
+  } catch {
+    currentlySelectedVersion.value = -1;
+  }
 }
 
 async function startImport() {

@@ -86,7 +86,7 @@ export class Service<T> {
 
   private async launch() {
     if (this.currentProcess) return;
-    const disableEnv = `DISABLE_SERVICE_${this.name.toUpperCase()}`;
+    const disableEnv = `EXTERNAL_SERVICE_${this.name.toUpperCase()}`;
     if (!process.env[disableEnv]) {
       const serviceProcess = this.executor();
       this.logger.info("service launched");

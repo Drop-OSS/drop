@@ -1,5 +1,5 @@
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
-import manifestGenerator from "~/server/internal/downloads/manifest";
+import prisma from "~/server/internal/db/database";
 
 export default defineClientEventHandler(async (h3) => {
   const query = getQuery(h3);
@@ -11,11 +11,14 @@ export default defineClientEventHandler(async (h3) => {
       statusMessage: "Missing id or version in query",
     });
 
-  const manifest = await manifestGenerator.generateManifest(id, version);
+  const manifest = await prisma.gameVersion.findUnique({
+    where: { gameId_versionId: { gameId: id, versionId: version } },
+    select: { dropletManifest: true },
+  });
   if (!manifest)
     throw createError({
       statusCode: 400,
       statusMessage: "Invalid game or version, or no versions added.",
     });
-  return manifest;
+  return manifest.dropletManifest;
 });

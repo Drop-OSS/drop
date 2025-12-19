@@ -1,8 +1,8 @@
 import cacheHandler from "../cache";
 import prisma from "../db/database";
-import manifestGenerator from "../downloads/manifest";
 import { sum } from "../../../utils/array";
 import type { Game, GameVersion } from "~/prisma/client/client";
+import { castManifest } from "../library/manifest";
 
 export type GameSize = {
   gameName: string;
@@ -46,11 +46,7 @@ class GameSizeManager {
       where: { gameId },
     });
     const sizes = await Promise.all(
-      versions.map((version) =>
-        manifestGenerator.calculateManifestSize(
-          JSON.parse(version.dropletManifest as string),
-        ),
-      ),
+      versions.map((version) => castManifest(version.dropletManifest).size),
     );
     return sum(sizes);
   }
@@ -72,15 +68,11 @@ class GameSizeManager {
       versionId = version.versionId;
     }
 
-    const manifest = await manifestGenerator.generateManifest(
-      gameId,
-      versionId,
-    );
-    if (!manifest) {
-      return null;
-    }
+    const { dropletManifest } = (await prisma.gameVersion.findUnique({
+      where: { gameId_versionId: { versionId, gameId } },
+    }))!;
 
-    return manifestGenerator.calculateManifestSize(manifest);
+    return castManifest(dropletManifest).size;
   }
 
   private async isLatestVersion(

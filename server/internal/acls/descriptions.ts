@@ -46,7 +46,6 @@ export const userACLDescriptions: ObjectFromList<typeof userACLs> = {
 export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
   setup:
     "All permissions required to setup a new Drop instance (setup wizard).",
-  depot: "All permissions required to use a download depot with Drop.",
 
   "auth:read":
     "Fetch the list of enabled authentication mechanisms configured.",
@@ -104,4 +103,7 @@ export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
     "Read tasks and maintenance information, like updates available and cleanup.",
 
   "settings:update": "Update system settings.",
+  
+  "depot:new": "Create a new download depot",
+  "depot:delete": "Remove a download depot"
 };

@@ -2,8 +2,8 @@ import { spawn } from "child_process";
 import { Service } from "..";
 import fs from "fs";
 import prisma from "../../db/database";
-import { APITokenMode } from "~/prisma/client/enums";
 import { logger } from "../../logging";
+import { systemConfig } from "../../config/sys-conf";
 
 const INTERNAL_DEPOT_URL = new URL(
   process.env.INTERNAL_DEPOT_URL ?? "http://localhost:5000",
@@ -21,25 +21,23 @@ export const TORRENTIAL_SERVICE = new Service(
     return spawn("torrential", [], {});
   },
   async () => {
-    const token = await prisma.aPIToken.upsert({
+    const externalUrl = systemConfig.getExternalUrl();
+    const depot = await prisma.depot.upsert({
       where: {
         id: "torrential",
       },
       update: {
-        name: "Torrential token",
-        acls: ["depot"],
+        endpoint: `${externalUrl}/api/v1/depot`,
       },
       create: {
         id: "torrential",
-        name: "Torrential token",
-        acls: ["depot"],
-        mode: APITokenMode.System,
+        endpoint: `${externalUrl}/api/v1/depot`,
       },
     });
 
-    await $fetch(`${INTERNAL_DEPOT_URL.toString()}token`, {
+    await $fetch(`${INTERNAL_DEPOT_URL.toString()}key`, {
       method: "POST",
-      body: { token: token.token },
+      body: { key: depot.key },
     });
     return true;
   },
@@ -47,13 +45,13 @@ export const TORRENTIAL_SERVICE = new Service(
   // @ts-ignore
   async () => await $fetch(`${INTERNAL_DEPOT_URL.toString()}healthcheck`),
   {
-    async invalidate(gameId: string, versionName: string) {
+    async invalidate(gameId: string, versionId: string) {
       try {
         await $fetch(`${INTERNAL_DEPOT_URL.toString()}invalidate`, {
           method: "POST",
           body: {
-            game_id: gameId,
-            version_name: versionName,
+            game: gameId,
+            version: versionId,
           },
         });
       } catch (e) {

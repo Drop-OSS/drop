@@ -3,13 +3,12 @@ import prisma from "~/server/internal/db/database";
 import libraryManager from "~/server/internal/library";
 
 export default defineClientEventHandler(async (h3) => {
-  const query = getQuery(h3);
-  const id = query.id?.toString();
-  const version = query.version?.toString();
+  const id = getRouterParam(h3, "id");
+  const version = getRouterParam(h3, "versionid");
   if (!id || !version)
     throw createError({
       statusCode: 400,
-      statusMessage: "Missing id or version in query",
+      statusMessage: "Missing id or version in route params",
     });
 
   const gameVersion = await prisma.gameVersion.findUnique({

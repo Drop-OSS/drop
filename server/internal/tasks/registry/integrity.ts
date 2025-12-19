@@ -1,6 +1,5 @@
 import prisma from "~/server/internal/db/database";
 import { defineDropTask } from "..";
-import type { DropManifest } from "../../downloads/manifest";
 import libraryManager from "../../library";
 import crypto from "crypto";
 
@@ -27,60 +26,10 @@ export default defineDropTask({
 
       const manifest = JSON.parse(
         version.dropletManifest as string,
-      ) as DropManifest;
+      );
       const manifestChunks = Object.entries(manifest);
       let valid = true;
-      let manifestProgress = 0;
-      manifest_loop: for (const [filename, chunk] of manifestChunks) {
-        let offset = 0;
-        for (let i = 0; i < chunk.lengths.length; i++) {
-          const length = chunk.lengths[i];
-          const checksum = chunk.checksums[i];
 
-          const fileStream = await libraryManager.readFile(
-            version.game.libraryId!,
-            version.game.libraryPath,
-            version.versionId,
-            filename,
-            { start: offset, end: offset + length },
-          );
-          if (!fileStream) {
-            logger.warn("couldn't create file stream");
-            valid = false;
-            break manifest_loop;
-          }
-          let realLength = 0;
-          const hash = crypto.createHash("md5");
-          await fileStream.pipeTo(
-            new WritableStream({
-              write(chunk) {
-                hash.update(chunk);
-                realLength += chunk.length;
-              },
-            }),
-          );
-          if (realLength != length) {
-            logger.warn("real length doesn't match");
-
-            valid = false;
-            break manifest_loop;
-          }
-          const hashHex = hash.digest("hex");
-          if (hashHex != checksum) {
-            logger.warn("hash doesn't match");
-
-            valid = false;
-            break manifest_loop;
-          }
-
-          offset += length;
-        }
-        const currentManifestProgress =
-          minProgress +
-          progressBudget * (manifestProgress / manifestChunks.length);
-        progress(currentManifestProgress);
-        manifestProgress++;
-      }
 
       if (!valid) {
         logger.info(

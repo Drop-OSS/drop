@@ -15,8 +15,8 @@ importers:
         specifier: ^16.0.1
         version: 16.0.1
       '@drop-oss/droplet':
-        specifier: 4.0.0
-        version: 4.0.0
+        specifier: 5.1.1
+        version: 5.1.1
       '@headlessui/vue':
         specifier: ^1.7.23
         version: 1.7.23(vue@3.5.22(typescript@5.8.3))
@@ -408,67 +408,67 @@ packages:
   '@discordapp/twemoji@16.0.1':
     resolution: {integrity: sha512-figLiBWzjS5cyrAjLaGjM8AAaowO3qvK8rg5bA2dElB4qsaPMvBVlFDMO2d3x+nC1igt7kgWH4dvNmvvUHUF8w==}
 
-  '@drop-oss/droplet-darwin-arm64@4.0.0':
-    resolution: {integrity: sha512-SQMfBsALuObZxbT2lQCmZBLd9WlP9USukxRUSa9BleZMaWsHBi7d/VD8unUGxBxROPIEPTWFRl0ItgewOqaumw==}
+  '@drop-oss/droplet-darwin-arm64@5.1.1':
+    resolution: {integrity: sha512-gPOoEdmEg6zzqgysSM6i+i/ATRjw2dKtvKqy3h2FAUGQNjYoxZBsxy/PgvHW46IuAge4XWLN1ERrqk+CZLoqcA==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [darwin]
 
-  '@drop-oss/droplet-darwin-universal@4.0.0':
-    resolution: {integrity: sha512-awmjFlc1lP0KfucrkwNEKEyByJTUDWLkAqhdM2Dzk4e0l1SVRJcfk0P6LSImFekQp3zY7s0FjDeOfx8SmWWvIA==}
+  '@drop-oss/droplet-darwin-universal@5.1.1':
+    resolution: {integrity: sha512-5qEirLWhbIDsWShRQcLQosjiRftn89EiX+Z7VeK7hpm5ADD4Bflgi1K1iIJfjVRfOTzeeHnT2QcUPejGy0XULg==}
     engines: {node: '>= 10'}
     os: [darwin]
 
-  '@drop-oss/droplet-darwin-x64@4.0.0':
-    resolution: {integrity: sha512-OHPSe8u73cd/UbhP6hf9wfKktZqZOwC+2h8+e1Ln5fFMZ1WU3JGLZFaI/uk1oy/dRWjVM8EIzdtgC4gN1WtMOw==}
+  '@drop-oss/droplet-darwin-x64@5.1.1':
+    resolution: {integrity: sha512-dxmHg573erA5vCnZ5JjsBs5nWMio+q1p5yTjtsUCDZrhc+FeE0/WfQ6RzPS3FzDjYrPkHrPjsN+ehrmYkPLcJA==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [darwin]
 
-  '@drop-oss/droplet-linux-arm64-gnu@4.0.0':
-    resolution: {integrity: sha512-F563kZRwWHPJ8OrbTiy8mjTcPKkm2ij5fr9dVQVGOEePr1gtvSeV1SbKEhMhOxVUoEBmnv46KgVHi5FL5m19Dg==}
+  '@drop-oss/droplet-linux-arm64-gnu@5.1.1':
+    resolution: {integrity: sha512-UgBaIiwEi6kz4hsAI7Z0wjn1m0ZNaDffgIwlr4Zo1w9Xd6aZHCxeDvKXbwW/VqMW7soUY+VfJsZCflxCHj6L5A==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
 
-  '@drop-oss/droplet-linux-arm64-musl@4.0.0':
-    resolution: {integrity: sha512-WbRkkLiEzbMt6FhCPXVOIpfAmKsa1RkUFjyrqMzGt64a5JeNUHrs58iMQwPN/Vllm1IcB73BL8aUfXge0DhJ1A==}
+  '@drop-oss/droplet-linux-arm64-musl@5.1.1':
+    resolution: {integrity: sha512-gswNRjRLrveHOx+tx7DS3gPPyO9VjNHAhSIn3dRQVqvaA5xXbHYAESO0jzl4rgseTnu83gWOcJBWZKsCr9nkFw==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
 
-  '@drop-oss/droplet-linux-riscv64-gnu@4.0.0':
-    resolution: {integrity: sha512-xOIEyE+fxbRsOzKQV5l9UISIo250BwmCZXGxy2Ch98xx2G3VttsrDqoUuwxKZtD6DjeEGeYLM15tuzf0sTlZbg==}
+  '@drop-oss/droplet-linux-riscv64-gnu@5.1.1':
+    resolution: {integrity: sha512-/4gczpKe0+VyL7/pYZWFEs7kCyx2QwcEQaPf0I3QK/3jfw9I9s6UGC3ukTazDrPHEmXWe5Q3IONFfFWMM88d4Q==}
     engines: {node: '>= 10'}
     cpu: [riscv64]
     os: [linux]
 
-  '@drop-oss/droplet-linux-x64-gnu@4.0.0':
-    resolution: {integrity: sha512-igvUuj8GzPzGWTPe0saSyx1ujkmv3W6yDdcqbh0UBR0BMN90nVVNMwPvmwmtdWtfjPRDG7M9S2Reftv6qk2VwA==}
+  '@drop-oss/droplet-linux-x64-gnu@5.1.1':
+    resolution: {integrity: sha512-iddV2q/JSIxUEgNNncz5vOy1NNnOyHi09WpEm1/Q1/EOXVcQwBMchnqRCJdw980MT4YiB3qJlx3toKMADBomQg==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
 
-  '@drop-oss/droplet-linux-x64-musl@4.0.0':
-    resolution: {integrity: sha512-Q1Fl09TgX69faMbKEoPUuVzCXoNs+01t/jn8FrK6mx5ThU24JYz43f17UIUzhoGHEsnzFQHQDZa4ApztfwjVGQ==}
+  '@drop-oss/droplet-linux-x64-musl@5.1.1':
+    resolution: {integrity: sha512-nZrm3rFgX0UvpvqQvvoJSvFqRKOUvSV0N7CbMhEitCoMVMvoBCBoHw66H7Nq8pcj1uUuwcBMVBS5M2wtmvSFHA==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
 
-  '@drop-oss/droplet-win32-arm64-msvc@4.0.0':
-    resolution: {integrity: sha512-3gq2NCDCY7Sm7WdZMPSvD3GXN8oU+FayK6xhFA4i8o8QPVWBGD3imkwt2xzkutXTyTQludZE8Qh5iEFm39Nlrw==}
+  '@drop-oss/droplet-win32-arm64-msvc@5.1.1':
+    resolution: {integrity: sha512-I9YnRazsP+L32Za4ISPC0EXPA3nMoz296CGOleH4LyeDSsg+QSqwQ3OchNBUyvGWESGfLWJcdjtfZQU2FPdfYg==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [win32]
 
-  '@drop-oss/droplet-win32-x64-msvc@4.0.0':
-    resolution: {integrity: sha512-gikZlcL9xJY7BpWb+fw+zcWq1cnQNLm+cba2u0YOwa1B/ggzQ/xtyttPeY6s0KDxBD9qsgOIe/SDqCtH19FbcQ==}
+  '@drop-oss/droplet-win32-x64-msvc@5.1.1':
+    resolution: {integrity: sha512-xfwcEnaSY0lYpTj/L0+OW9zSZLBlTYVb0JNmue3ezgB1IRqAsLpPUAeS8wGhdnG0m0r2qh+lpwNCc9RNpfJX9w==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [win32]
 
-  '@drop-oss/droplet@4.0.0':
-    resolution: {integrity: sha512-A/f77qppaMmHj0q2A0Mv3yqPecZnaxauncJgVABAbKEYvHun9vrrC6IaZ16OoFOWdirACU33Odv62dhZcrnz0A==}
+  '@drop-oss/droplet@5.1.1':
+    resolution: {integrity: sha512-JW8IhfVFkcM/ldUUDv9WRsyJrLy7rZXh6mTb9tjQ1Nk0G6JBfxJiA0veBUdjQl1DmGOujFEamNoPEiQLZAPcFA==}
     engines: {node: '>= 10'}
 
   '@dxup/nuxt@0.2.2':
@@ -7110,48 +7110,48 @@ snapshots:
       jsonfile: 5.0.0
       universalify: 0.1.2
 
-  '@drop-oss/droplet-darwin-arm64@4.0.0':
+  '@drop-oss/droplet-darwin-arm64@5.1.1':
     optional: true
 
-  '@drop-oss/droplet-darwin-universal@4.0.0':
+  '@drop-oss/droplet-darwin-universal@5.1.1':
     optional: true
 
-  '@drop-oss/droplet-darwin-x64@4.0.0':
+  '@drop-oss/droplet-darwin-x64@5.1.1':
     optional: true
 
-  '@drop-oss/droplet-linux-arm64-gnu@4.0.0':
+  '@drop-oss/droplet-linux-arm64-gnu@5.1.1':
     optional: true
 
-  '@drop-oss/droplet-linux-arm64-musl@4.0.0':
+  '@drop-oss/droplet-linux-arm64-musl@5.1.1':
     optional: true
 
-  '@drop-oss/droplet-linux-riscv64-gnu@4.0.0':
+  '@drop-oss/droplet-linux-riscv64-gnu@5.1.1':
     optional: true
 
-  '@drop-oss/droplet-linux-x64-gnu@4.0.0':
+  '@drop-oss/droplet-linux-x64-gnu@5.1.1':
     optional: true
 
-  '@drop-oss/droplet-linux-x64-musl@4.0.0':
+  '@drop-oss/droplet-linux-x64-musl@5.1.1':
     optional: true
 
-  '@drop-oss/droplet-win32-arm64-msvc@4.0.0':
+  '@drop-oss/droplet-win32-arm64-msvc@5.1.1':
     optional: true
 
-  '@drop-oss/droplet-win32-x64-msvc@4.0.0':
+  '@drop-oss/droplet-win32-x64-msvc@5.1.1':
     optional: true
 
-  '@drop-oss/droplet@4.0.0':
+  '@drop-oss/droplet@5.1.1':
     optionalDependencies:
-      '@drop-oss/droplet-darwin-arm64': 4.0.0
-      '@drop-oss/droplet-darwin-universal': 4.0.0
-      '@drop-oss/droplet-darwin-x64': 4.0.0
-      '@drop-oss/droplet-linux-arm64-gnu': 4.0.0
-      '@drop-oss/droplet-linux-arm64-musl': 4.0.0
-      '@drop-oss/droplet-linux-riscv64-gnu': 4.0.0
-      '@drop-oss/droplet-linux-x64-gnu': 4.0.0
-      '@drop-oss/droplet-linux-x64-musl': 4.0.0
-      '@drop-oss/droplet-win32-arm64-msvc': 4.0.0
-      '@drop-oss/droplet-win32-x64-msvc': 4.0.0
+      '@drop-oss/droplet-darwin-arm64': 5.1.1
+      '@drop-oss/droplet-darwin-universal': 5.1.1
+      '@drop-oss/droplet-darwin-x64': 5.1.1
+      '@drop-oss/droplet-linux-arm64-gnu': 5.1.1
+      '@drop-oss/droplet-linux-arm64-musl': 5.1.1
+      '@drop-oss/droplet-linux-riscv64-gnu': 5.1.1
+      '@drop-oss/droplet-linux-x64-gnu': 5.1.1
+      '@drop-oss/droplet-linux-x64-musl': 5.1.1
+      '@drop-oss/droplet-win32-arm64-msvc': 5.1.1
+      '@drop-oss/droplet-win32-x64-msvc': 5.1.1
 
   '@dxup/nuxt@0.2.2(magicast@0.5.1)':
     dependencies:

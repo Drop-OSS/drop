@@ -57,7 +57,7 @@
                   class="w-full inline-flex items-center px-4 py-2 bg-zinc-800 rounded justify-between w-full flex"
                 >
                   <div class="text-zinc-100 font-semibold flex-none">
-                    {{ item.displayName }}
+                    {{ item.displayName || item.versionPath }}
                   </div>
                   <div
                     class="text-right text-zinc-400 text-xs font-normal flex-auto pr-4"
