@@ -60,7 +60,9 @@
                     <div class="text-zinc-100 font-semibold flex-none">
                       {{ item.displayName || item.versionPath }}
                     </div>
-                    <span class="text-xs tracking-tighter ">{{ item.versionId }}</span>
+                    <span class="text-xs tracking-tighter">{{
+                      item.versionId
+                    }}</span>
                   </div>
                   <div
                     class="text-right text-zinc-400 text-xs font-normal flex-auto pr-4"

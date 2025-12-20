@@ -1,6 +1,6 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
-const blacklistedFunctions = ["delete", "update"]
+const blacklistedFunctions = ["delete", "update"];
 
 export default {
   meta: {

@@ -22,7 +22,9 @@ export default defineClientEventHandler(
         statusMessage: "configuration must be an object",
       });
 
-    const capability = validCapabilities.find((v) => v.toLowerCase() === rawCapability.toLowerCase());
+    const capability = validCapabilities.find(
+      (v) => v.toLowerCase() === rawCapability.toLowerCase(),
+    );
 
     if (!capability)
       throw createError({

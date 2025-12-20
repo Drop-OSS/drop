@@ -54,9 +54,7 @@ class TaskHandler {
     "cleanup:sessions",
     "check:update",
   ];
-  private weeklyScheduledTasks: TaskGroup[] = [
-    "cleanup:objects",
-  ];
+  private weeklyScheduledTasks: TaskGroup[] = ["cleanup:objects"];
 
   constructor() {
     // register the cleanup invitations task

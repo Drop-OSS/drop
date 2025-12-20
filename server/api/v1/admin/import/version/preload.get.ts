@@ -29,7 +29,7 @@ export default defineEventHandler(async (h3) => {
   } catch (e) {
     throw createError({
       statusCode: 500,
-      message: `Failed to fetch preload information for ${gameId}: ${e}`
+      message: `Failed to fetch preload information for ${gameId}: ${e}`,
     });
   }
 });

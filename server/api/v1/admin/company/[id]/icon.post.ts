@@ -45,7 +45,7 @@ export default defineEventHandler(async (h3) => {
     await dump();
     throw createError({ statusCode: 404, message: "Company not found" });
   }
-  
+
   await pull();
 
   return { id: id };

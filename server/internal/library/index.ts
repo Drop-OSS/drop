@@ -133,7 +133,7 @@ class LibraryManager {
     const games = await prisma.game.findMany({
       include: {
         library: true,
-        versions: true
+        versions: true,
       },
       orderBy: {
         mName: "asc",

@@ -23,5 +23,5 @@ export type V2FileEntry = {
 };
 
 export function castManifest(manifest: JsonValue): Manifest {
-    return JSON.parse(manifest as string) as Manifest;
+  return JSON.parse(manifest as string) as Manifest;
 }
