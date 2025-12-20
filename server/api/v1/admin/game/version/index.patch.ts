@@ -26,7 +26,7 @@ export default defineEventHandler<{ body: typeof UpdateVersionOrder }>(
         versionId: true,
         versionIndex: true,
         delta: true,
-        platform: true,
+        launches: { select: { platform: true } },
       },
     });
 
@@ -43,12 +43,14 @@ export default defineEventHandler<{ body: typeof UpdateVersionOrder }>(
     // Validate the new order
     const has: { [key: string]: boolean } = {};
     for (const version of versions) {
-      if (version.delta && !has[version.platform])
-        throw createError({
-          statusCode: 400,
-          statusMessage: `"${version.versionId}" requires a base version to apply the delta to.`,
-        });
-      has[version.platform] = true;
+      for (const versionPlatform of version.launches.map((v) => v.platform)) {
+        if (version.delta && !has[versionPlatform])
+          throw createError({
+            statusCode: 400,
+            statusMessage: `"${version.versionId}" requires a base version to apply the delta to for platform ${versionPlatform}.`,
+          });
+        has[versionPlatform] = true;
+      }
     }
 
     await prisma.$transaction(

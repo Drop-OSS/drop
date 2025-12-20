@@ -18,6 +18,7 @@ import { createHash } from "node:crypto";
 import type { WorkingLibrarySource } from "~/server/api/v1/admin/library/sources/index.get";
 import gameSizeManager from "~/server/internal/gamesize";
 import { TORRENTIAL_SERVICE } from "../services/services/torrential";
+import type { ImportVersion } from "~/server/api/v1/admin/import/version/index.post";
 
 export function createGameImportTaskId(libraryId: string, libraryPath: string) {
   return createHash("md5")
@@ -245,18 +246,7 @@ class LibraryManager {
   async importVersion(
     gameId: string,
     versionPath: string,
-    metadata: {
-      platform: string;
-      onlySetup: boolean;
-
-      setup: string;
-      setupArgs: string;
-      launch: string;
-      launchArgs: string;
-      delta: boolean;
-
-      umuId: string;
-    },
+    metadata: typeof ImportVersion.infer,
   ) {
     const taskId = createVersionImportTaskId(gameId, versionPath);
 
@@ -300,42 +290,53 @@ class LibraryManager {
         });
 
         // Then, create the database object
-        if (metadata.onlySetup) {
-          await prisma.gameVersion.create({
-            data: {
-              gameId: gameId,
-              versionPath,
-              dropletManifest: manifest,
-              versionIndex: currentIndex,
-              delta: metadata.delta,
-              umuIdOverride: metadata.umuId,
-              platform: platform,
-
-              onlySetup: true,
-              setupCommand: metadata.setup,
-              setupArgs: metadata.setupArgs.split(" "),
+        await prisma.gameVersion.create({
+          data: {
+            game: {
+              connect: {
+                id: gameId,
+              },
             },
-          });
-        } else {
-          await prisma.gameVersion.create({
-            data: {
-              gameId: gameId,
-              versionPath,
-              dropletManifest: manifest,
-              versionIndex: currentIndex,
-              delta: metadata.delta,
-              umuIdOverride: metadata.umuId,
-              platform: platform,
 
-              onlySetup: false,
-              setupCommand: metadata.setup,
-              setupArgs: metadata.setupArgs.split(" "),
-              launchCommand: metadata.launch,
-              launchArgs: metadata.launchArgs.split(" "),
+            displayName: metadata.displayName ?? null,
+
+            versionPath,
+            dropletManifest: manifest,
+            versionIndex: currentIndex,
+            delta: metadata.delta,
+
+            onlySetup: true,
+            setups: {
+              createMany: metadata.setup
+                ? {
+                    data: [
+                      {
+                        command: metadata.setup,
+                        args: metadata.launchArgs?.split(" ") ?? [],
+                        platform: platform,
+                      },
+                    ],
+                  }
+                : { data: [] },
             },
-          });
-        }
 
+            launches: {
+              createMany:
+                !metadata.onlySetup && metadata.launch
+                  ? {
+                      data: [
+                        {
+                          name: "default",
+                          command: metadata.launch,
+                          args: metadata.launchArgs?.split(" ") ?? [],
+                          platform: platform,
+                        },
+                      ],
+                    }
+                  : { data: [] },
+            },
+          },
+        });
         logger.info("Successfully created version!");
 
         notificationSystem.systemPush({

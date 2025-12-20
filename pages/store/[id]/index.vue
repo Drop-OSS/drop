@@ -301,7 +301,8 @@ const descriptionHTML = micromark(game.mDescription);
 
 const showReadMore = previewHTML != descriptionHTML;
 const platforms = game.versions
-  .map((e) => e.platform as PlatformClient)
+  .map((e) => e.launches.map((v) => v.platform as PlatformClient))
+  .flat()
   .flat()
   .filter((e, i, u) => u.indexOf(e) === i);
 

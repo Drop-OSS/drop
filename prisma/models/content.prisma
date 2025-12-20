@@ -91,15 +91,10 @@ model GameVersion {
 
   created DateTime @default(now())
 
-  platform Platform
+  launches LaunchConfiguration[]
+  setups   SetupConfiguration[]
 
-  launchCommand String   @default("") // Command to run to start. Platform-specific. Windows games on Linux will wrap this command in Proton/Wine
-  launchArgs    String[]
-  setupCommand  String   @default("") // Command to setup game (dependencies and such)
-  setupArgs     String[]
-  onlySetup     Boolean  @default(false)
-
-  umuIdOverride String?
+  onlySetup Boolean @default(false)
 
   dropletManifest Json // Results from droplet
 
@@ -107,6 +102,42 @@ model GameVersion {
   delta        Boolean @default(false)
 
   @@id([gameId, versionId])
+}
+
+model SetupConfiguration {
+  setupId String @id @default(uuid())
+
+  command String
+  args    String[]
+
+  platform Platform
+
+  gameId      String
+  versionId   String
+  gameVersion GameVersion @relation(fields: [gameId, versionId], references: [gameId, versionId])
+}
+
+model LaunchConfiguration {
+  launchId String @id @default(uuid())
+
+  name String
+
+  command String
+  args    String[]
+
+  platform Platform
+
+  // For emulation targets
+  executorId String?
+  executor   LaunchConfiguration? @relation(fields: [executorId], references: [launchId], name: "executor")
+
+  umuIdOverride String?
+
+  gameId      String
+  versionId   String
+  gameVersion GameVersion @relation(fields: [gameId, versionId], references: [gameId, versionId])
+
+  executions LaunchConfiguration[] @relation("executor")
 }
 
 // A save slot for a game

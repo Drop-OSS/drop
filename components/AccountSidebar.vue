@@ -53,7 +53,9 @@ import type { Component } from "vue";
 const notifications = useNotifications();
 const { t } = useI18n();
 
-const navigation: (NavigationItem & { icon: Component; count?: number })[] = [
+const navigation: Ref<
+  (NavigationItem & { icon: Component; count?: number })[]
+> = computed(() => [
   {
     label: t("account.home.title"),
     route: "/account",
@@ -73,6 +75,12 @@ const navigation: (NavigationItem & { icon: Component; count?: number })[] = [
     icon: DevicePhoneMobileIcon,
   },
   {
+    label: t("account.token.title"),
+    route: "/account/tokens",
+    prefix: "/account/tokens",
+    icon: CodeBracketIcon,
+  },
+  {
     label: t("account.notifications.notifications"),
     route: "/account/notifications",
     prefix: "/account/notifications",
@@ -80,18 +88,12 @@ const navigation: (NavigationItem & { icon: Component; count?: number })[] = [
     count: notifications.value.length,
   },
   {
-    label: t("account.token.title"),
-    route: "/account/tokens",
-    prefix: "/account/tokens",
-    icon: CodeBracketIcon,
-  },
-  {
     label: t("account.settings"),
     route: "/account/settings",
     prefix: "/account/settings",
     icon: WrenchScrewdriverIcon,
   },
-];
+]);
 
-const currentPageIndex = useCurrentNavigationIndex(navigation);
+const currentPageIndex = useCurrentNavigationIndex(navigation.value);
 </script>

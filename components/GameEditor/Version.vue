@@ -74,7 +74,9 @@
                   </div>
                   <div class="inline-flex items-center gap-x-2">
                     <component
-                      :is="PLATFORM_ICONS[item.platform]"
+                      :is="PLATFORM_ICONS[launch.platform]"
+                      v-for="launch in item.launches"
+                      :key="launch.launchId"
                       class="size-6 text-blue-600"
                     />
                     <Bars3Icon
@@ -128,6 +130,10 @@ import type { SerializeObject } from "nitropack";
 import type { H3Error } from "h3";
 import { ExclamationCircleIcon } from "@heroicons/vue/24/outline";
 import { formatBytes } from "~/server/internal/utils/files";
+import type {
+  LaunchConfiguration,
+  SetupConfiguration,
+} from "~/prisma/client/client";
 
 // TODO implement UI for this page
 
@@ -141,7 +147,10 @@ const canImport = computed(
   () => hasDeleted.value || props.unimportedVersions.length > 0,
 );
 
-type GameVersionModelWithSize = GameVersionModel & { size: number };
+type GameVersionModelWithSize = GameVersionModel & { size: number } & {
+  launches: LaunchConfiguration[];
+  setup: SetupConfiguration;
+};
 
 type GameAndVersions = GameModel & {
   versions: GameVersionModelWithSize[];
