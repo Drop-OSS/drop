@@ -21,7 +21,7 @@ export default defineClientEventHandler(async (h3) => {
     include: {
       launches: true,
       setups: true,
-    }
+    },
   });
 
   if (!gameVersion)

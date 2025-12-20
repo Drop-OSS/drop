@@ -3,7 +3,9 @@ import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import libraryManager from "~/server/internal/library";
 
-async function getGameVersionSize<T extends Omit<GameVersion, "dropletManifest">>(gameId: string, version: T) {
+async function getGameVersionSize<
+  T extends Omit<GameVersion, "dropletManifest">,
+>(gameId: string, version: T) {
   const size = await libraryManager.getGameVersionSize(
     gameId,
     version.versionId,
@@ -43,7 +45,9 @@ export default defineEventHandler(async (h3) => {
 
   const gameWithVersionSize = {
     ...game,
-    versions: await Promise.all(game.versions.map((v) => getGameVersionSize(gameId, v))),
+    versions: await Promise.all(
+      game.versions.map((v) => getGameVersionSize(gameId, v)),
+    ),
   };
 
   const unimportedVersions = await libraryManager.fetchUnimportedGameVersions(
