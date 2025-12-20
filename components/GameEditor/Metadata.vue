@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
   <div v-if="game!">
-    <div class="grow flex flex-row gap-y-8">
+    <div class="grow flex flex-col xl:flex-row gap-y-8">
       <div class="grow w-full h-full px-6 py-4 flex flex-col">
         <div
           class="flex flex-col lg:flex-row lg:justify-between items-start lg:items-center gap-2"
@@ -10,10 +10,10 @@
             <!-- icon image -->
             <img :src="coreMetadataIconUrl" class="size-20" />
             <div>
-              <h1 class="text-5xl font-bold font-display text-zinc-100">
+              <h1 class="text-2xl xl:text-5xl font-bold font-display text-zinc-100">
                 {{ game.mName }}
               </h1>
-              <p class="mt-1 text-lg text-zinc-400">
+              <p class="mt-1 text-sm xl:text-lg text-zinc-400">
                 {{ game.mShortDescription }}
               </p>
             </div>

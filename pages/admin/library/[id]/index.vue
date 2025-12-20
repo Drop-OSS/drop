@@ -3,7 +3,7 @@
     class="pt-8 lg:pt-0 lg:pl-20 fixed inset-0 flex flex-col overflow-auto bg-zinc-900"
   >
     <div
-      class="bg-zinc-950 w-full flex flex-col sm:flex-row items-center gap-2 justify-between pr-2"
+      class="bg-zinc-950 w-full flex flex-row items-center gap-2 justify-between px-2 pt-6 lg:pt-0"
     >
       <!--start-->
       <div>
