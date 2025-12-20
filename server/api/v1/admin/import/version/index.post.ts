@@ -8,6 +8,7 @@ import { parsePlatform } from "~/server/internal/utils/parseplatform";
 const ImportVersion = type({
   id: "string",
   version: "string",
+  displayName: "string?",
 
   platform: "string",
   launch: "string = ''",

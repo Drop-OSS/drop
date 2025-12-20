@@ -52,12 +52,17 @@ export default defineEventHandler(async (h3) => {
     }
   }
 
-  const newObject = await prisma.game.update({
-    where: {
-      id: gameId,
-    },
-    data: updateModel,
-  });
+  const newObject = (
+    await prisma.game.updateManyAndReturn({
+      where: {
+        id: gameId,
+      },
+      data: updateModel,
+    })
+  ).at(0);
+
+  if (!newObject)
+    throw createError({ statusCode: 404, message: "Game not found" });
 
   return newObject;
 });

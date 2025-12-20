@@ -167,11 +167,6 @@ const scheduledTasks: {
     name: "",
     description: "",
   },
-  "check:integrity": {
-    name: "Integrity check",
-    description:
-      "Checks that all versions match their internal download manifest. Run this task if clients are having issues validating their downloads.",
-  },
 };
 
 async function startTask(taskGroup: string) {

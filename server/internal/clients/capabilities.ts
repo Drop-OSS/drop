@@ -102,8 +102,6 @@ class CapabilityManager {
       () => Promise<void> | void
     > = {
       [InternalClientCapability.PeerAPI]: async function () {
-        // const configuration =rawCapability as CapabilityConfiguration[InternalClientCapability.PeerAPI];
-
         const currentClient = await prisma.client.findUnique({
           where: { id: clientId },
           select: {
@@ -111,26 +109,10 @@ class CapabilityManager {
           },
         });
         if (!currentClient) throw new Error("Invalid client ID");
-        /*
-        if (currentClient.capabilities.includes(ClientCapabilities.PeerAPI)) {
-          await prisma.clientPeerAPIConfiguration.update({
-            where: { clientId },
-            data: {
-              endpoints: configuration.endpoints,
-            },
-          });
+        if (currentClient.capabilities.includes(ClientCapabilities.PeerAPI))
           return;
-        }
 
-        await prisma.clientPeerAPIConfiguration.create({
-          data: {
-            clientId: clientId,
-            endpoints: configuration.endpoints,
-          },
-        });
-        */
-
-        await prisma.client.update({
+        await prisma.client.updateMany({
           where: { id: clientId },
           data: {
             capabilities: {
@@ -153,7 +135,7 @@ class CapabilityManager {
         if (currentClient.capabilities.includes(ClientCapabilities.CloudSaves))
           return;
 
-        await prisma.client.update({
+        await prisma.client.updateMany({
           where: { id: clientId },
           data: {
             capabilities: {
@@ -175,7 +157,7 @@ class CapabilityManager {
         )
           return;
 
-        await prisma.client.update({
+        await prisma.client.updateMany({
           where: { id: clientId },
           data: {
             capabilities: {

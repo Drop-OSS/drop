@@ -11,9 +11,6 @@ export const taskGroups = {
   "check:update": {
     concurrency: false,
   },
-  "check:integrity": {
-    concurrency: false,
-  },
   "import:game": {
     concurrency: true,
   },

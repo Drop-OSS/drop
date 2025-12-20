@@ -11,13 +11,17 @@ export default defineEventHandler(async (h3) => {
   const restOfTheBody = { ...body };
   delete restOfTheBody["id"];
 
-  const newObj = await prisma.company.update({
-    where: {
-      id: id,
-    },
-    data: restOfTheBody,
-    // I would put a select here, but it would be based on the body, and muck up the types
-  });
+  const newObj = (
+    await prisma.company.updateManyAndReturn({
+      where: {
+        id: id,
+      },
+      data: restOfTheBody,
+      // I would put a select here, but it would be based on the body, and muck up the types
+    })
+  ).at(0);
+  if (!newObj)
+    throw createError({ statusCode: 404, message: "Company not found" });
 
   return newObj;
 });

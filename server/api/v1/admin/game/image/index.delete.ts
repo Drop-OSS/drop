@@ -48,21 +48,23 @@ export default defineEventHandler<{
     game.mCoverObjectId = game.mImageLibraryObjectIds[0];
   }
 
-  const result = await prisma.game.update({
-    where: {
-      id: gameId,
-    },
-    data: {
-      mBannerObjectId: game.mBannerObjectId,
-      mImageLibraryObjectIds: game.mImageLibraryObjectIds,
-      mCoverObjectId: game.mCoverObjectId,
-    },
-    select: {
-      mBannerObjectId: true,
-      mImageLibraryObjectIds: true,
-      mCoverObjectId: true,
-    },
-  });
+  const result = (
+    await prisma.game.updateManyAndReturn({
+      where: {
+        id: gameId,
+      },
+      data: {
+        mBannerObjectId: game.mBannerObjectId,
+        mImageLibraryObjectIds: game.mImageLibraryObjectIds,
+        mCoverObjectId: game.mCoverObjectId,
+      },
+      select: {
+        mBannerObjectId: true,
+        mImageLibraryObjectIds: true,
+        mCoverObjectId: true,
+      },
+    })
+  ).at(0);
 
   return result;
 });

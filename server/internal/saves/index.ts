@@ -68,13 +68,11 @@ class SaveManager {
       });
     }
 
-    const newSave = await prisma.saveSlot.update({
+    const newSaves = await prisma.saveSlot.updateManyAndReturn({
       where: {
-        id: {
-          userId,
-          gameId,
-          index,
-        },
+        userId,
+        gameId,
+        index,
       },
       data: {
         historyObjectIds: {
@@ -86,6 +84,9 @@ class SaveManager {
         ...(clientId && { lastUsedClientId: clientId }),
       },
     });
+    const newSave = newSaves.at(0);
+    if (!newSave)
+      throw createError({ statusCode: 404, message: "Save not found" });
 
     const historyLimit = await applicationSettings.get("saveSlotHistoryLimit");
     if (newSave.historyObjectIds.length > historyLimit) {
@@ -101,19 +102,20 @@ class SaveManager {
         await this.deleteObjectFromSave(gameId, userId, index, objectId);
       }
 
-      await prisma.saveSlot.update({
+      const { count } = await prisma.saveSlot.updateMany({
         where: {
-          id: {
-            userId,
-            gameId,
-            index,
-          },
+          userId,
+          gameId,
+          index,
         },
         data: {
           historyObjectIds: toKeepObjects,
           historyChecksums: toKeepHashes,
         },
       });
+      if (count == 0) {
+        throw createError({ statusCode: 404, message: "Save not found" });
+      }
     }
   }
 }

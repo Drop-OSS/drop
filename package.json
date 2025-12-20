@@ -1,6 +1,6 @@
 {
   "name": "drop",
-  "version": "0.3.5",
+  "version": "0.4.0",
   "private": true,
   "type": "module",
   "license": "AGPL-3.0-or-later",
@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@discordapp/twemoji": "^16.0.1",
-    "@drop-oss/droplet": "5.1.1",
+    "@drop-oss/droplet": "5.3.1",
     "@headlessui/vue": "^1.7.23",
     "@heroicons/vue": "^2.1.5",
     "@lobomfz/prismark": "0.0.3",
@@ -70,6 +70,7 @@
     "@types/node": "^22.13.16",
     "@types/semver": "^7.7.0",
     "@types/turndown": "^5.0.5",
+    "@typescript-eslint/utils": "^8.50.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.24.0",
     "eslint-config-prettier": "^10.1.1",

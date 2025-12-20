@@ -53,12 +53,10 @@ export default defineEventHandler<{ body: typeof UpdateVersionOrder }>(
 
     await prisma.$transaction(
       versions.map((version, versionIndex) =>
-        prisma.gameVersion.update({
+        prisma.gameVersion.updateMany({
           where: {
-            gameId_versionId: {
-              gameId: gameId,
-              versionId: version.versionId,
-            },
+            gameId: gameId,
+            versionId: version.versionId,
           },
           data: {
             versionIndex: versionIndex,

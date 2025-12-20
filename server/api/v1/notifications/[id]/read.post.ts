@@ -20,15 +20,17 @@ export default defineEventHandler(async (h3) => {
     userIds.push("system");
   }
 
-  const notification = await prisma.notification.update({
-    where: {
-      id: notificationId,
-      userId: { in: userIds },
-    },
-    data: {
-      read: true,
-    },
-  });
+  const notification = (
+    await prisma.notification.updateManyAndReturn({
+      where: {
+        id: notificationId,
+        userId: { in: userIds },
+      },
+      data: {
+        read: true,
+      },
+    })
+  ).at(0);
 
   if (!notification)
     throw createError({

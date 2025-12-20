@@ -4,7 +4,7 @@
     <div class="grow flex flex-row gap-y-8">
       <div class="grow w-full h-full px-6 py-4 flex flex-col"></div>
       <div
-        class="lg:overflow-y-auto lg:border-l lg:border-zinc-800 lg:block lg:inset-y-0 lg:z-50 lg:w-[30vw] flex flex-col gap-y-8 px-6 py-4"
+        class="lg:overflow-y-auto lg:border-l lg:border-zinc-800 lg:block lg:inset-y-0 lg:z-50 lg:w-[50vw] flex flex-col gap-y-8 px-6 py-4"
       >
         <!-- version manager -->
         <div>
@@ -56,8 +56,11 @@
                 <div
                   class="w-full inline-flex items-center px-4 py-2 bg-zinc-800 rounded justify-between w-full flex"
                 >
-                  <div class="text-zinc-100 font-semibold flex-none">
-                    {{ item.displayName || item.versionPath }}
+                  <div class="truncate text-zinc-400">
+                    <div class="text-zinc-100 font-semibold flex-none">
+                      {{ item.displayName || item.versionPath }}
+                    </div>
+                    <span class="text-xs tracking-tighter ">{{ item.versionId }}</span>
                   </div>
                   <div
                     class="text-right text-zinc-400 text-xs font-normal flex-auto pr-4"

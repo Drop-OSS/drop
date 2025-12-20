@@ -7,7 +7,6 @@ import cleanupInvites from "./registry/invitations";
 import cleanupSessions from "./registry/sessions";
 import checkUpdate from "./registry/update";
 import cleanupObjects from "./registry/objects";
-import checkIntegrity from "./registry/integrity";
 import { taskGroups, type TaskGroup } from "./group";
 import prisma from "../db/database";
 import { type } from "arktype";
@@ -57,7 +56,6 @@ class TaskHandler {
   ];
   private weeklyScheduledTasks: TaskGroup[] = [
     "cleanup:objects",
-    "check:integrity",
   ];
 
   constructor() {
@@ -66,7 +64,6 @@ class TaskHandler {
     this.saveScheduledTask(cleanupSessions);
     this.saveScheduledTask(checkUpdate);
     this.saveScheduledTask(cleanupObjects);
-    this.saveScheduledTask(checkIntegrity);
     //this.saveScheduledTask(debug);
   }
 
