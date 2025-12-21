@@ -373,6 +373,7 @@ import {
 import type { SerializeObject } from "nitropack";
 import type { GameModel, GameTagModel } from "~/prisma/client/models";
 import MultiItemSelector from "./MultiItemSelector.vue";
+import { Platform } from "~/prisma/client/enums";
 const { showGamePanelTextDecoration } = await $dropFetch(`/api/v1/settings`);
 
 const mobileFiltersOpen = ref(false);
@@ -424,7 +425,7 @@ const options: Array<StoreFilterOption> = [
     name: "Platform",
     param: "platform",
     multiple: true,
-    options: Object.values(PlatformClient).map((e) => ({ name: e, param: e })),
+    options: Object.values(Platform).map((e) => ({ name: e, param: e })),
   },
   ...(props.extraOptions ?? []),
 ];

@@ -9,7 +9,6 @@ import path from "path";
 import prisma from "../db/database";
 import { fuzzy } from "fast-fuzzy";
 import taskHandler from "../tasks";
-import { parsePlatform } from "../utils/parseplatform";
 import notificationSystem from "../notifications";
 import { GameNotFoundError, type LibraryProvider } from "./provider";
 import { logger } from "../logging";
@@ -250,9 +249,6 @@ class LibraryManager {
   ) {
     const taskId = createVersionImportTaskId(gameId, versionPath);
 
-    const platform = parsePlatform(metadata.platform);
-    if (!platform) return undefined;
-
     const game = await prisma.game.findUnique({
       where: { id: gameId },
       select: { mName: true, libraryId: true, libraryPath: true },
@@ -307,33 +303,26 @@ class LibraryManager {
 
             onlySetup: true,
             setups: {
-              createMany: metadata.setup
-                ? {
-                    data: [
-                      {
-                        command: metadata.setup,
-                        args: metadata.launchArgs?.split(" ") ?? [],
-                        platform: platform,
-                      },
-                    ],
-                  }
-                : { data: [] },
+              createMany: {
+                data: metadata.setups.map((v) => ({
+                  command: v.launch,
+                  args: v.launchArgs.split(" "),
+                  platform: v.platform,
+                })),
+              },
             },
 
             launches: {
-              createMany:
-                !metadata.onlySetup && metadata.launch
-                  ? {
-                      data: [
-                        {
-                          name: "default",
-                          command: metadata.launch,
-                          args: metadata.launchArgs?.split(" ") ?? [],
-                          platform: platform,
-                        },
-                      ],
-                    }
-                  : { data: [] },
+              createMany: !metadata.onlySetup
+                ? {
+                    data: metadata.launches.map((v) => ({
+                      name: v.name,
+                      command: v.launch,
+                      args: v.launchArgs.split(" "),
+                      platform: v.platform,
+                    })),
+                  }
+                : { data: [] },
             },
           },
         });

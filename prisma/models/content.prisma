@@ -114,7 +114,7 @@ model SetupConfiguration {
 
   gameId      String
   versionId   String
-  gameVersion GameVersion @relation(fields: [gameId, versionId], references: [gameId, versionId])
+  gameVersion GameVersion @relation(fields: [gameId, versionId], references: [gameId, versionId], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model LaunchConfiguration {
@@ -129,13 +129,13 @@ model LaunchConfiguration {
 
   // For emulation targets
   executorId String?
-  executor   LaunchConfiguration? @relation(fields: [executorId], references: [launchId], name: "executor")
+  executor   LaunchConfiguration? @relation(fields: [executorId], references: [launchId], name: "executor", onDelete: Cascade, onUpdate: Cascade)
 
   umuIdOverride String?
 
   gameId      String
   versionId   String
-  gameVersion GameVersion @relation(fields: [gameId, versionId], references: [gameId, versionId])
+  gameVersion GameVersion @relation(fields: [gameId, versionId], references: [gameId, versionId], onDelete: Cascade, onUpdate: Cascade)
 
   executions LaunchConfiguration[] @relation("executor")
 }
