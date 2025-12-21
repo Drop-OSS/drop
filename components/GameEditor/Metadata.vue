@@ -10,7 +10,9 @@
             <!-- icon image -->
             <img :src="coreMetadataIconUrl" class="size-20" />
             <div>
-              <h1 class="text-2xl xl:text-5xl font-bold font-display text-zinc-100">
+              <h1
+                class="text-2xl xl:text-5xl font-bold font-display text-zinc-100"
+              >
                 {{ game.mName }}
               </h1>
               <p class="mt-1 text-sm xl:text-lg text-zinc-400">

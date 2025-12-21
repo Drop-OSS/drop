@@ -154,7 +154,9 @@ import type { ImportVersion } from "~/server/api/v1/admin/import/version/index.p
 const launchProcessQuery = ref("");
 
 const launchConfiguration = defineModel<
-  (typeof ImportVersion.infer)["launches"][number]
+  Omit<(typeof ImportVersion.infer)["launches"][number], "name"> & {
+    name?: string;
+  }
 >({ required: true });
 
 const props = defineProps<{

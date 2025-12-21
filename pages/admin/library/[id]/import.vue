@@ -95,7 +95,7 @@
             class="py-2"
           >
             <ImportVersionLaunchRow
-              v-model="versionSettings.launches[launchIdx]"
+              v-model="versionSettings.setups[launchIdx]"
               :version-guesses="versionGuesses"
               :needs-name="false"
             />
@@ -104,12 +104,12 @@
         <span
           v-else
           class="text-sm text-zinc-700 uppercase font-display font-bold"
-          >No setup configurations added.</span
+          >{{ $t("library.admin.import.version.noSetups") }}</span
         >
         <LoadingButton
           :loading="false"
           class="w-fit"
-          @click="() => versionSettings.setups.push({})"
+          @click="() => versionSettings.setups.push({} as any)"
           >{{ $t("common.add") }}</LoadingButton
         >
       </div>
@@ -170,12 +170,12 @@
         <span
           v-else
           class="text-sm text-zinc-700 uppercase font-display font-bold"
-          >No launch configurations added.</span
+          >{{ $t("library.admin.import.version.noLaunches") }}</span
         >
         <LoadingButton
           :loading="false"
           class="w-fit"
-          @click="() => versionSettings.launches.push({})"
+          @click="() => versionSettings.launches.push({} as any)"
           >{{ $t("common.add") }}</LoadingButton
         >
 
@@ -272,11 +272,6 @@ import {
   SwitchDescription,
   SwitchGroup,
   SwitchLabel,
-  Combobox,
-  ComboboxButton,
-  ComboboxInput,
-  ComboboxOption,
-  ComboboxOptions,
 } from "@headlessui/vue";
 import { XCircleIcon } from "@heroicons/vue/16/solid";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
@@ -305,13 +300,6 @@ const versionSettings = ref<typeof ImportVersion.infer>({
 });
 
 const versionGuesses = ref<Array<{ platform: Platform; filename: string }>>();
-const setupProcessQuery = ref("");
-
-const setupFilteredVersionGuesses = computed(() =>
-  versionGuesses.value?.filter((e) =>
-    e.filename.toLowerCase().includes(setupProcessQuery.value.toLowerCase()),
-  ),
-);
 
 const importLoading = ref(false);
 const importError = ref<string | undefined>();
