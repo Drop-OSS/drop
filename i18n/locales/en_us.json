@@ -629,6 +629,14 @@
   "type": "Type",
   "upload": "Upload",
   "uploadFile": "Upload file",
+  "user": {
+    "unknown": "Unknown user",
+    "editProfile": "Edit profile",
+    "recent": "Recent activity (TODO)",
+    "recentSub": "Recent activity by this user",
+    "notFound": "User not found",
+    "noActivity": "No recent activity"
+  },
   "userHeader": {
     "closeSidebar": "Close sidebar",
     "links": {
