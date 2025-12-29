@@ -9,6 +9,7 @@ import { systemConfig } from "../../config/sys-conf";
 import { logger } from "~/server/internal/logging";
 
 interface OIDCWellKnown {
+  issuer: string;
   authorization_endpoint: string;
   token_endpoint: string;
   userinfo_endpoint: string;
@@ -36,6 +37,7 @@ interface OIDCUserInfo {
 }
 
 export interface OIDCAuthMekCredentialsV1 {
+  iss: string;
   sub: string;
 }
 
@@ -65,7 +67,7 @@ export class OIDCManager {
     this.externalUrl = externalUrl;
   }
 
-  async create() {
+  static async create() {
     const wellKnownUrl = process.env.OIDC_WELLKNOWN as string | undefined;
     const scopes = process.env.OIDC_SCOPES as string | undefined;
     let configuration: OIDCWellKnown;
@@ -75,7 +77,8 @@ export class OIDCManager {
         !response.authorization_endpoint ||
         !response.scopes_supported ||
         !response.token_endpoint ||
-        !response.userinfo_endpoint
+        !response.userinfo_endpoint ||
+        !response.issuer
       ) {
         throw new Error("Well known response was invalid");
       }
@@ -90,18 +93,21 @@ export class OIDCManager {
         | undefined;
       const tokenEndpoint = process.env.OIDC_TOKEN as string | undefined;
       const userinfoEndpoint = process.env.OIDC_USERINFO as string | undefined;
+      const issuer = process.env.OIDC_ISSUER as string | undefined;
 
       if (
         !authorizationEndpoint ||
         !tokenEndpoint ||
         !userinfoEndpoint ||
-        !scopes
+        !scopes ||
+        !issuer
       ) {
         const debugObject = {
           OIDC_AUTHORIZATION: authorizationEndpoint,
           OIDC_TOKEN: tokenEndpoint,
           OIDC_USERINFO: userinfoEndpoint,
           OIDC_SCOPES: scopes,
+          OIDC_ISSUER: issuer,
         };
         throw new Error(
           "Missing all necessary OIDC configuration: \n" +
@@ -116,6 +122,7 @@ export class OIDCManager {
         token_endpoint: tokenEndpoint,
         userinfo_endpoint: userinfoEndpoint,
         scopes_supported: scopes.split(","),
+        issuer: issuer,
       };
     }
 
@@ -262,6 +269,7 @@ export class OIDCManager {
     */
 
     const creds: OIDCAuthMekCredentialsV1 = {
+      iss: this.oidcConfiguration.issuer,
       sub: userinfo.sub,
     };
 
