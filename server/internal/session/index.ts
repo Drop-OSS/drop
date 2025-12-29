@@ -94,10 +94,17 @@ export class SessionHandler {
     const token = this.getSessionToken(request);
     if (!token) return undefined;
 
-    const data = await this.sessionProvider.getSession<T>(token);
-    if (!data) return undefined;
-    if (new Date(data.expiresAt).getTime() < Date.now()) return undefined; // Expired
-    return data;
+    const session = await this.sessionProvider.getSession<T>(token);
+    if (!session) return undefined;
+
+    // if expired session
+    if (new Date(session.expiresAt).getTime() < Date.now()) {
+      await this.sessionProvider.removeSession(token);
+      // TODO: should probably call signout to clear the cookie
+      // session expired
+      return undefined;
+    }
+    return session;
   }
 
   async getSessionDataKey<T>(

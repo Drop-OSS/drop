@@ -44,6 +44,10 @@ export default function createDBSessionHandler(): SessionProvider {
       });
       if (result === null) return undefined;
 
+      // add to cache
+      // need to cast to Session since prisma returns a more specific type
+      await cache.set(token, result as Session);
+
       // i hate casting
       // need to cast to unknown since result.data can be an N deep json object technically
       // ts doesn't like that be cast down to the more constraining session type
