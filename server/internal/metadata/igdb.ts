@@ -9,12 +9,11 @@ import type {
   _FetchCompanyMetadataParams,
   CompanyMetadata,
 } from "./types";
-import type { AxiosRequestConfig } from "axios";
-import axios from "axios";
 import { DateTime } from "luxon";
 import * as jdenticon from "jdenticon";
 import type { TaskRunContext } from "../tasks";
 import { logger } from "~/server/internal/logging";
+import { NitroFetchOptions, NitroFetchRequest } from "nitropack";
 
 type IGDBID = number;
 
@@ -171,20 +170,16 @@ export class IGDBProvider implements MetadataProvider {
       grant_type: "client_credentials",
     });
 
-    const response = await axios.request<TwitchAuthResponse>({
-      url: `https://id.twitch.tv/oauth2/token?${params.toString()}`,
-      baseURL: "",
-      method: "POST",
-    });
+    const response = await $fetch<TwitchAuthResponse>(
+      `https://id.twitch.tv/oauth2/token?${params.toString()}`,
+      {
+        method: "POST",
+      },
+    );
 
-    if (response.status !== 200)
-      throw new Error(
-        `Error in IGDB \nStatus Code: ${response.status}\n${response.data}`,
-      );
-
-    this.accessToken = response.data.access_token;
+    this.accessToken = response.access_token;
     this.accessTokenExpiry = DateTime.now().plus({
-      seconds: response.data.expires_in,
+      seconds: response.expires_in,
     });
 
     logger.info("IGDB done authorizing with twitch");
@@ -202,7 +197,7 @@ export class IGDBProvider implements MetadataProvider {
   private async request<T extends object>(
     resource: string,
     body: string,
-    options?: AxiosRequestConfig,
+    options?: NitroFetchOptions<NitroFetchRequest, "post">,
   ) {
     await this.refreshCredentials();
 
@@ -214,11 +209,10 @@ export class IGDBProvider implements MetadataProvider {
 
     const finalURL = `https://api.igdb.com/v4/${resource}`;
 
-    const overlay: AxiosRequestConfig = {
-      url: finalURL,
+    const overlay: NitroFetchOptions<NitroFetchRequest, "post"> = {
       baseURL: "",
       method: "POST",
-      data: body,
+      body,
       headers: {
         Accept: "application/json",
         "Client-ID": this.clientId,
@@ -226,24 +220,12 @@ export class IGDBProvider implements MetadataProvider {
         "content-type": "text/plain",
       },
     };
-    const response = await axios.request<T[] | IGDBErrorResponse[]>(
-      Object.assign({}, options, overlay),
+    const response = await $fetch<T[] | IGDBErrorResponse[]>(
+      finalURL, Object.assign({}, options, overlay),
     );
 
-    if (response.status !== 200) {
-      let cause = "";
-
-      response.data.forEach((item) => {
-        if ("cause" in item) cause = item.cause;
-      });
-
-      throw new Error(
-        `Error in igdb \nStatus Code: ${response.status} \nCause: ${cause}`,
-      );
-    }
-
     // should not have an error object if the status code is 200
-    return <T[]>response.data;
+    return <T[]>response;
   }
 
   private async _getMediaInternal(

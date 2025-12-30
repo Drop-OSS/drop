@@ -10,10 +10,10 @@ import type {
   CompanyMetadata,
   GameMetadataRating,
 } from "./types";
-import axios, { type AxiosRequestConfig } from "axios";
 import TurndownService from "turndown";
 import { DateTime } from "luxon";
 import type { TaskRunContext } from "../tasks";
+import { NitroFetchOptions, NitroFetchRequest } from "nitropack";
 
 interface GiantBombResponseType<T> {
   error: "OK" | string;
@@ -120,7 +120,7 @@ export class GiantBombProvider implements MetadataProvider {
     resource: string,
     url: string,
     query: { [key: string]: string },
-    options?: AxiosRequestConfig,
+    options?: NitroFetchOptions<NitroFetchRequest, "post">,
   ) {
     const queryString = new URLSearchParams({
       ...query,
@@ -130,12 +130,9 @@ export class GiantBombProvider implements MetadataProvider {
 
     const finalURL = `https://www.giantbomb.com/api/${resource}/${url}?${queryString}`;
 
-    const overlay: AxiosRequestConfig = {
-      url: finalURL,
-      baseURL: "",
-    };
-    const response = await axios.request<GiantBombResponseType<T>>(
-      Object.assign({}, options, overlay),
+    const response = await $fetch<GiantBombResponseType<T>>(
+      finalURL,
+      options,
     );
     return response;
   }
@@ -152,7 +149,7 @@ export class GiantBombProvider implements MetadataProvider {
       query: query,
       resources: ["game"].join(","),
     });
-    const mapped = results.data.results.map((result) => {
+    const mapped = results.results.map((result) => {
       const date =
         (result.original_release_date
           ? DateTime.fromISO(result.original_release_date).year
@@ -178,7 +175,7 @@ export class GiantBombProvider implements MetadataProvider {
     context?.logger.info("Using GiantBomb provider");
 
     const result = await this.request<GameResult>("game", id, {});
-    const gameData = result.data.results;
+    const gameData = result.results;
 
     const longDescription = gameData.description
       ? this.turndown.turndown(gameData.description)
@@ -244,8 +241,8 @@ export class GiantBombProvider implements MetadataProvider {
           metadataSource: MetadataSource.GiantBomb,
           metadataId: reviewId,
           mReviewCount: 1,
-          mReviewRating: review.data.results.score / 5,
-          mReviewHref: review.data.results.site_detail_url,
+          mReviewRating: review.results.score / 5,
+          mReviewHref: review.results.site_detail_url,
         });
       }
     }
@@ -289,8 +286,8 @@ export class GiantBombProvider implements MetadataProvider {
 
     // Find the right entry
     const company =
-      results.data.results.find((e) => e.name == query) ??
-      results.data.results.at(0);
+      results.results.find((e) => e.name == query) ??
+      results.results.at(0);
     if (!company) return undefined;
 
     const longDescription = company.description
