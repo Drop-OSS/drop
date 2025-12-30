@@ -100,7 +100,7 @@
                 </td>
                 <td
                   v-else
-                  class="whitespace-nowrap inline-flex gap-x-4 px-3 py-4 text-sm text-zinc-400 italic"
+                  class="whitespace-nowrap inline-flex gap-x-4 px-3 py-4 text-sm text-zinc-400"
                 >
                   <span class="font-semibold text-blue-600">{{
                     $t("store.commingSoon")
