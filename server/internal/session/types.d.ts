@@ -5,6 +5,9 @@ export type Session = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
   };
+  level: number,
+  requiredLevel: number,
+  superleveledExpiry: Date | undefined,
 };
 
 export interface SessionProvider {

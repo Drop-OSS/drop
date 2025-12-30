@@ -8,7 +8,9 @@ model User {
     displayName            String
     profilePictureObjectId String // Object
 
-    authMecs      LinkedAuthMec[]
+    authMecs LinkedAuthMec[]
+    mfas     LinkedMFAMec[]
+
     clients       Client[]
     notifications Notification[]
     collections   Collection[]

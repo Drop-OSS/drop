@@ -126,8 +126,11 @@ class ACLManager {
     if (!request)
       throw new Error("Native web requests not available - weird deployment?");
     // Sessions automatically have all ACLs
-    const user = await sessionHandler.getSession(request);
-    if (user) return user.userId;
+    const session = await sessionHandler.getSession(request);
+    if (session) {
+      if (session.level >= session.requiredLevel) return session.userId;
+      return undefined;
+    }
 
     const authorizationToken = this.getAuthorizationToken(request);
     if (!authorizationToken) return undefined;
@@ -161,6 +164,16 @@ class ACLManager {
     return undefined;
   }
 
+  async allowUserSuperlevel(request: MinimumRequestObject | undefined) {
+    if (!request)
+      throw new Error("Native web requests not available - weird deployment?");
+    const session = await sessionHandler.getSession(request);
+    if (!session) return undefined;
+    if (session.level < session.requiredLevel) return undefined;
+    if (session.superleveledExpiry === undefined) return undefined;
+    return session.userId;
+  }
+
   async allowSystemACL(
     request: MinimumRequestObject | undefined,
     acls: SystemACL,
@@ -174,8 +187,9 @@ class ACLManager {
       });
       if (user) {
         if (!user) return false;
-        if (user.admin) return true;
-        return false;
+        if (!user.admin) return false;
+        if (userSession.level >= userSession.requiredLevel) return false;
+        return true;
       }
     }
 

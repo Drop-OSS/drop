@@ -6,12 +6,16 @@ import type { MinimumRequestObject } from "~/server/h3";
 import type { DurationLike } from "luxon";
 import { DateTime } from "luxon";
 import createDBSessionHandler from "./db";
+import prisma from "../db/database";
 
 /*
 This implementation may need work.
 
 It exposes an API that should stay static, but there are plenty of opportunities for optimisation/organisation under the hood
 */
+
+// 10 minutes
+const SUPERLEVEL_LENGTH = 10 * 60 * 1000;
 
 const dropTokenCookieName = "drop-token";
 const normalSessionLength: DurationLike = {
@@ -32,13 +36,36 @@ export class SessionHandler {
   }
 
   async signin(h3: H3Event, userId: string, rememberMe: boolean = false) {
+    const mfaCount = await prisma.linkedMFAMec.count({
+      where: { userId, enabled: true },
+    });
+
     const expiresAt = this.createExipreAt(rememberMe);
-    const token = this.createSessionCookie(h3, expiresAt);
-    return await this.sessionProvider.setSession(token, {
+
+    const token =
+      this.getSessionToken(h3) ?? this.createSessionCookie(h3, expiresAt);
+    const session = (await this.sessionProvider.getSession(token)) ?? {
       userId,
       expiresAt,
       data: {},
-    });
+      level: 10,
+      requiredLevel: mfaCount > 0 ? 20 : 10,
+      superleveledExpiry: undefined,
+    };
+    session.superleveledExpiry = new Date(Date.now() + SUPERLEVEL_LENGTH);
+    return await this.sessionProvider.setSession(token, session);
+  }
+
+  async mfa(h3: H3Event, amount: number) {
+    const token = this.getSessionToken(h3);
+    if (!token)
+      throw createError({ statusCode: 403, message: "User not signed in" });
+    const session = await this.sessionProvider.getSession(token);
+    if (!session)
+      throw createError({ statusCode: 403, message: "User not signed in" });
+
+    session.level += amount;
+    await this.sessionProvider.setSession(token, session);
   }
 
   /**

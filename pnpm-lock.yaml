@@ -86,6 +86,9 @@ importers:
       nuxt-security:
         specifier: 2.2.0
         version: 2.2.0(magicast@0.5.1)(rollup@4.53.3)
+      otp-io:
+        specifier: ^1.2.7
+        version: 1.2.7
       pino:
         specifier: ^9.7.0
         version: 9.7.0
@@ -5117,6 +5120,10 @@ packages:
   optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
     engines: {node: '>= 0.8.0'}
+
+  otp-io@1.2.7:
+    resolution: {integrity: sha512-UhIZfOtlMBSWGSN/v1i1eY5qsW07V/ZgaSq8bZXK0nfZEcoEitRKmn1dY8Sed8rafai3Ju8BwuxttuC2DJm6sA==}
+    engines: {node: '>=14'}
 
   oxc-minify@0.96.0:
     resolution: {integrity: sha512-dXeeGrfPJJ4rMdw+NrqiCRtbzVX2ogq//R0Xns08zql2HjV3Zi2SBJ65saqfDaJzd2bcHqvGWH+M44EQCHPAcA==}
@@ -12499,6 +12506,8 @@ snapshots:
       prelude-ls: 1.2.1
       type-check: 0.4.0
       word-wrap: 1.2.5
+
+  otp-io@1.2.7: {}
 
   oxc-minify@0.96.0:
     optionalDependencies:
