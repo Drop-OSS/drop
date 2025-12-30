@@ -10,6 +10,7 @@ import type {
 } from "./types";
 import type { TaskRunContext } from "../tasks";
 import * as jdenticon from "jdenticon";
+import { load } from "cheerio";
 
 /**
  * Note: The Steam API is largely undocumented.
@@ -230,7 +231,7 @@ export class SteamProvider implements MetadataProvider {
   }
 
   async fetchGame(
-    { id, publisher, developer, createObject }: _FetchGameMetadataParams,
+    { id, company, createObject }: _FetchGameMetadataParams,
     context?: TaskRunContext,
   ): Promise<GameMetadata> {
     context?.logger.info(`Starting Steam metadata fetch for game ID: ${id}`);
@@ -289,38 +290,62 @@ export class SteamProvider implements MetadataProvider {
     context?.progress(70);
 
     context?.logger.info("Processing publishers and developers...");
+    const storePage = await $fetch<string>(
+      `https://store.steampowered.com/app/${id}/`,
+    );
+    const $ = load(storePage);
+
+    const companyLinks = $("a")
+      .toArray()
+      .filter(
+        (v) =>
+          v.attribs["href"]?.startsWith(
+            "https://store.steampowered.com/developer/",
+          ) ||
+          v.attribs["href"]?.startsWith(
+            "https://store.steampowered.com/publisher/",
+          ),
+      )
+      .map((v) => v.attribs.href);
+
+    const companies: {
+      [key: string]: {
+        pub: boolean;
+        dev: boolean;
+      };
+    } = {};
+
+    companyLinks.forEach((v) => {
+      const [type, name] = v
+        .substring("https://store.steampowered.com/".length, v.indexOf("?"))
+        .split("/");
+
+      companies[name] ??= { pub: false, dev: false };
+      switch (type) {
+        case "publisher":
+          companies[name].pub = true;
+          break;
+        case "developer":
+          companies[name].dev = true;
+          break;
+      }
+    });
+
     const publishers = [];
-    const publisherNames = currentGame.basic_info.publishers || [];
-    context?.logger.info(
-      `Found ${publisherNames.length} publisher(s) to process`,
-    );
-
-    for (const pub of publisherNames) {
-      context?.logger.info(`Processing publisher: "${pub.name}"`);
-      const comp = await publisher(pub.name);
-      if (!comp) {
-        context?.logger.warn(`Failed to import publisher "${pub.name}"`);
-        continue;
-      }
-      publishers.push(comp);
-      context?.logger.info(`Successfully imported publisher: "${pub.name}"`);
-    }
-
     const developers = [];
-    const developerNames = currentGame.basic_info.developers || [];
-    context?.logger.info(
-      `Found ${developerNames.length} developer(s) to process`,
-    );
 
-    for (const dev of developerNames) {
-      context?.logger.info(`Processing developer: "${dev.name}"`);
-      const comp = await developer(dev.name);
-      if (!comp) {
-        context?.logger.warn(`Failed to import developer "${dev.name}"`);
-        continue;
+    for (const [companyName, types] of Object.entries(companies)) {
+      context?.logger.info(`Processing company: "${companyName}"`);
+      const comp = await company(companyName);
+
+      if (types.dev) {
+        developers.push(comp);
+        context?.logger.info(`Successfully imported developer: "${companyName}"`);
       }
-      developers.push(comp);
-      context?.logger.info(`Successfully imported developer: "${dev.name}"`);
+      if (types.pub) {
+        publishers.push(comp);
+        context?.logger.info(`Successfully imported publisher: "${companyName}"`);
+      }
     }
 
     context?.logger.info(
@@ -420,9 +445,8 @@ export class SteamProvider implements MetadataProvider {
       l: "english",
     });
 
-    const response = await $fetch<string>(
-      `https://store.steampowered.com/developer/${query.replaceAll(" ", "")}/?${searchParams.toString()}`,
-    );
+    const url = `https://store.steampowered.com/developer/${encodeURIComponent(query)}/?${searchParams.toString()}`;
+    const response = await $fetch<string>(url);
 
     if (!response) {
       return undefined;

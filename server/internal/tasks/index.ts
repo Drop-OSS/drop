@@ -18,6 +18,7 @@ import { Writable } from "node:stream";
 type FinishedTask = {
   success: boolean;
   progress: number;
+  key: string | undefined;
   log: string[];
   error: { title: string; description: string } | undefined;
   name: string;
@@ -73,8 +74,12 @@ class TaskHandler {
     this.taskCreators.set(task.taskGroup, task.build);
   }
 
-  async create(task: Task) {
-    if (this.hasTask(task.id)) throw new Error("Task with ID already exists.");
+  async create(iTask: Omit<Task, "id">) {
+    const task: Task = { ...iTask, id: crypto.randomUUID() };
+    if (this.hasTaskID(task.id))
+      throw new Error("Task with ID already exists.");
+    if (task.key && this.hasTaskKey(task.key))
+      throw new Error("Task with key already exists");
 
     let updateCollectTimeout: NodeJS.Timeout | undefined;
     let updateCollectResolves: Array<(value: unknown) => void> = [];
@@ -188,6 +193,7 @@ class TaskHandler {
 
     this.taskPool.set(task.id, {
       name: task.name,
+      key: task.key,
       taskGroup: task.taskGroup,
       success: false,
       progress: 0,
@@ -245,6 +251,8 @@ class TaskHandler {
 
       this.taskPool.delete(task.id);
     });
+
+    return task.id;
   }
 
   async connect(
@@ -335,8 +343,14 @@ class TaskHandler {
       .toArray();
   }
 
-  hasTask(id: string) {
+  hasTaskID(id: string) {
     return this.taskPool.has(id);
+  }
+
+  hasTaskKey(key: string) {
+    return (
+      this.taskPool.values().find((v) => v.key && v.key == key) != undefined
+    );
   }
 
   dailyTasks() {
@@ -443,6 +457,7 @@ export function wrapTaskContext(
 
 export interface Task {
   id: string;
+  key?: string;
   taskGroup: TaskGroup;
   name: string;
   run: (context: TaskRunContext) => Promise<void>;

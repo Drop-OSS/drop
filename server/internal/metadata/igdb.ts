@@ -221,7 +221,8 @@ export class IGDBProvider implements MetadataProvider {
       },
     };
     const response = await $fetch<T[] | IGDBErrorResponse[]>(
-      finalURL, Object.assign({}, options, overlay),
+      finalURL,
+      Object.assign({}, options, overlay),
     );
 
     // should not have an error object if the status code is 200
@@ -338,7 +339,7 @@ export class IGDBProvider implements MetadataProvider {
     return results;
   }
   async fetchGame(
-    { id, publisher, developer, createObject }: _FetchGameMetadataParams,
+    { id, company, createObject }: _FetchGameMetadataParams,
     context?: TaskRunContext,
   ): Promise<GameMetadata> {
     const body = `where id = ${id}; fields *;`;
@@ -398,34 +399,28 @@ export class IGDBProvider implements MetadataProvider {
           { name: string } & IGDBItem
         >("companies", `where id = ${foundInvolved.company}; fields name;`);
 
-        for (const company of findCompanyResponse) {
+        for (const companyData of findCompanyResponse) {
           context?.logger.info(
             `Found involved company "${company.name}" as: ${foundInvolved.developer ? "developer, " : ""}${foundInvolved.publisher ? "publisher" : ""}`,
           );
 
+          const res = await company(companyData.name);
+          if (res === undefined) {
+            context?.logger.warn(
+              `Failed to import company "${companyData.name}"`,
+            );
+            continue;
+          }
+
           // if company was a dev or publisher
           // CANNOT use else since a company can be both
           if (foundInvolved.developer) {
-            const res = await developer(company.name);
-            if (res === undefined) {
-              context?.logger.warn(
-                `Failed to import developer "${company.name}"`,
-              );
-              continue;
-            }
-            context?.logger.info(`Imported developer "${company.name}"`);
+            context?.logger.info(`Imported developer "${companyData.name}"`);
             developers.push(res);
           }
 
           if (foundInvolved.publisher) {
-            const res = await publisher(company.name);
-            if (res === undefined) {
-              context?.logger.warn(
-                `Failed to import publisher "${company.name}"`,
-              );
-              continue;
-            }
-            context?.logger.info(`Imported publisher "${company.name}"`);
+            context?.logger.info(`Imported publisher "${companyData.name}"`);
             publishers.push(res);
           }
         }

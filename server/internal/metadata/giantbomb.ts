@@ -169,7 +169,7 @@ export class GiantBombProvider implements MetadataProvider {
     return mapped;
   }
   async fetchGame(
-    { id, publisher, developer, createObject }: _FetchGameMetadataParams,
+    { id, company, createObject }: _FetchGameMetadataParams,
     context?: TaskRunContext,
   ): Promise<GameMetadata> {
     context?.logger.info("Using GiantBomb provider");
@@ -186,7 +186,7 @@ export class GiantBombProvider implements MetadataProvider {
       for (const pub of gameData.publishers) {
         context?.logger.info(`Importing publisher "${pub.name}"`);
 
-        const res = await publisher(pub.name);
+        const res = await company(pub.name);
         if (res === undefined) {
           context?.logger.warn(`Failed to import publisher "${pub.name}"`);
           continue;
@@ -203,7 +203,7 @@ export class GiantBombProvider implements MetadataProvider {
       for (const dev of gameData.developers) {
         context?.logger.info(`Importing developer "${dev.name}"`);
 
-        const res = await developer(dev.name);
+        const res = await company(dev.name);
         if (res === undefined) {
           context?.logger.warn(`Failed to import developer "${dev.name}"`);
           continue;

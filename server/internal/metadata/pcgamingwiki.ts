@@ -360,7 +360,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
   }
 
   async fetchGame(
-    { id, name, publisher, developer, createObject }: _FetchGameMetadataParams,
+    { id, name, company, createObject }: _FetchGameMetadataParams,
     context?: TaskRunContext,
   ): Promise<GameMetadata> {
     context?.logger.info("Using PCGamingWiki provider");
@@ -391,7 +391,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
       for (const pub of pubListClean) {
         context?.logger.info(`Importing publisher "${pub}"...`);
 
-        const res = await publisher(pub);
+        const res = await company(pub);
         if (res === undefined) {
           context?.logger.warn(`Failed to import publisher "${pub}"`);
           continue;
@@ -410,7 +410,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
       const devListClean = this.parseWikiStringArray(game.Developers);
       for (const dev of devListClean) {
         context?.logger.info(`Importing developer "${dev}"...`);
-        const res = await developer(dev);
+        const res = await company(dev);
         if (res === undefined) {
           context?.logger.warn(`Failed to import developer "${dev}"`);
           continue;

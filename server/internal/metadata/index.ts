@@ -191,10 +191,10 @@ export class MetadataHandler {
 
     const gameId = randomUUID();
 
-    const taskId = createGameImportTaskId(libraryId, libraryPath);
-    await taskHandler.create({
+    const key = createGameImportTaskId(libraryId, libraryPath);
+    return await taskHandler.create({
       name: `Import game "${result.name}" (${libraryPath})`,
-      id: taskId,
+      key,
       taskGroup: "import:game",
       acls: ["system:import:game:read"],
       async run(context) {
@@ -213,6 +213,8 @@ export class MetadataHandler {
             }),
           );
 
+        let companyLookupCache: { [key: string]: Awaited<ReturnType<typeof metadataHandler.fetchCompany>> } =
+          {};
         let metadata: GameMetadata | undefined = undefined;
         try {
           metadata = await provider.fetchGame(
@@ -220,8 +222,13 @@ export class MetadataHandler {
               id: result.id,
               name: result.name,
               // wrap in anonymous functions to keep references to this
-              publisher: (name: string) => metadataHandler.fetchCompany(name),
-              developer: (name: string) => metadataHandler.fetchCompany(name),
+              company: async (name: string) => {
+                if (companyLookupCache[name]) return companyLookupCache[name];
+
+                const companyData = await metadataHandler.fetchCompany(name);
+                companyLookupCache[name] = companyData;
+                return companyData;
+              },
               createObject,
             },
             wrapTaskContext(context, {
@@ -283,8 +290,6 @@ export class MetadataHandler {
         progress(100);
       },
     });
-
-    return taskId;
   }
 
   // Careful with this function, it has no typechecking

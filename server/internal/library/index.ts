@@ -25,7 +25,7 @@ export function createGameImportTaskId(libraryId: string, libraryPath: string) {
     .digest("hex");
 }
 
-export function createVersionImportTaskId(gameId: string, versionName: string) {
+export function createVersionImportTaskKey(gameId: string, versionName: string) {
   return createHash("md5")
     .update(`import:${gameId}:${versionName}`)
     .digest("hex");
@@ -84,7 +84,7 @@ class LibraryManager {
       const providerUnimportedGames = providerGames.filter(
         (libraryPath) =>
           !instanceGames[id]?.[libraryPath] &&
-          !taskHandler.hasTask(createGameImportTaskId(id, libraryPath)),
+          !taskHandler.hasTaskKey(createGameImportTaskId(id, libraryPath)),
       );
       unimportedGames[id] = providerUnimportedGames;
     }
@@ -117,7 +117,7 @@ class LibraryManager {
       const unimportedVersions = versions.filter(
         (e) =>
           game.versions.findIndex((v) => v.versionPath == e) == -1 &&
-          !taskHandler.hasTask(createVersionImportTaskId(game.id, e)),
+          !taskHandler.hasTaskKey(createVersionImportTaskKey(game.id, e)),
       );
       return unimportedVersions;
     } catch (e) {
@@ -247,7 +247,7 @@ class LibraryManager {
     versionPath: string,
     metadata: typeof ImportVersion.infer,
   ) {
-    const taskId = createVersionImportTaskId(gameId, versionPath);
+    const taskKey = createVersionImportTaskKey(gameId, versionPath);
 
     const game = await prisma.game.findUnique({
       where: { id: gameId },
@@ -258,8 +258,8 @@ class LibraryManager {
     const library = this.libraries.get(game.libraryId);
     if (!library) return undefined;
 
-    taskHandler.create({
-      id: taskId,
+    return await taskHandler.create({
+      key: taskKey,
       taskGroup: "import:game",
       name: `Importing version ${versionPath} for ${game.mName}`,
       acls: ["system:import:version:read"],
@@ -343,8 +343,6 @@ class LibraryManager {
         progress(100);
       },
     });
-
-    return taskId;
   }
 
   async peekFile(

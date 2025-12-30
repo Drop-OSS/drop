@@ -174,7 +174,7 @@ import {
 import type { GameMetadataSearchResult } from "~/server/internal/metadata/types";
 import { FetchError } from "ofetch";
 import type { SerializeObject } from "nitropack";
-import { XCircleIcon } from "@heroicons/vue/24/solid";
+import { ChevronUpDownIcon, XCircleIcon } from "@heroicons/vue/24/solid";
 
 const props = defineProps<{
   companyId: string;

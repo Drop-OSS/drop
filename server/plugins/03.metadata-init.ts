@@ -10,7 +10,7 @@ import { logger } from "~/server/internal/logging";
 
 export default defineNitroPlugin(async (_nitro) => {
   const metadataProviders = [
-    GiantBombProvider,
+    //GiantBombProvider, // GiantBomb changed their API
     SteamProvider,
     PCGamingWikiProvider,
     IGDBProvider,
