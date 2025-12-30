@@ -12,14 +12,14 @@ export default function createCacheSessionProvider() {
   const memoryProvider: SessionProvider = {
     async setSession(token, data) {
       await sessions.set(token, data);
-      return true;
+      return data;
     },
     async getSession<T extends Session>(token: string): Promise<T | undefined> {
       const session = await sessions.get(token);
       return session ? (session as T) : undefined; // Ensure undefined is returned if session is not found
     },
     async updateSession(token, data) {
-      return await this.setSession(token, data);
+      return (await this.setSession(token, data)) !== undefined;
     },
     async removeSession(token) {
       await sessions.remove(token);

@@ -9,8 +9,7 @@ export default function createDBSessionHandler(): SessionProvider {
     async setSession(token, session) {
       await cache.set(token, session);
 
-      //   const strData = JSON.stringify(data);
-      await prisma.session.upsert({
+      const result = await prisma.session.upsert({
         where: {
           token,
         },
@@ -28,10 +27,12 @@ export default function createDBSessionHandler(): SessionProvider {
           data: session as object,
         },
       });
-      return true;
+
+      // need to cast to Session since prisma returns different json types
+      return result as Session;
     },
     async updateSession(token, data) {
-      return await this.setSession(token, data);
+      return (await this.setSession(token, data)) !== undefined;
     },
     async getSession<T extends Session>(token: string) {
       const cached = await cache.get(token);
