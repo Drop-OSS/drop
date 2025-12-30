@@ -213,8 +213,11 @@ export class MetadataHandler {
             }),
           );
 
-        let companyLookupCache: { [key: string]: Awaited<ReturnType<typeof metadataHandler.fetchCompany>> } =
-          {};
+        const companyLookupCache: {
+          [key: string]: Awaited<
+            ReturnType<typeof metadataHandler.fetchCompany>
+          >;
+        } = {};
         let metadata: GameMetadata | undefined = undefined;
         try {
           metadata = await provider.fetchGame(

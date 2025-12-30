@@ -340,11 +340,15 @@ export class SteamProvider implements MetadataProvider {
 
       if (types.dev) {
         developers.push(comp);
-        context?.logger.info(`Successfully imported developer: "${companyName}"`);
+        context?.logger.info(
+          `Successfully imported developer: "${companyName}"`,
+        );
       }
       if (types.pub) {
         publishers.push(comp);
-        context?.logger.info(`Successfully imported publisher: "${companyName}"`);
+        context?.logger.info(
+          `Successfully imported publisher: "${companyName}"`,
+        );
       }
     }
 

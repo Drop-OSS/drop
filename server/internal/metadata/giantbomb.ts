@@ -13,7 +13,7 @@ import type {
 import TurndownService from "turndown";
 import { DateTime } from "luxon";
 import type { TaskRunContext } from "../tasks";
-import { NitroFetchOptions, NitroFetchRequest } from "nitropack";
+import type { NitroFetchOptions, NitroFetchRequest } from "nitropack";
 
 interface GiantBombResponseType<T> {
   error: "OK" | string;
@@ -130,10 +130,7 @@ export class GiantBombProvider implements MetadataProvider {
 
     const finalURL = `https://www.giantbomb.com/api/${resource}/${url}?${queryString}`;
 
-    const response = await $fetch<GiantBombResponseType<T>>(
-      finalURL,
-      options,
-    );
+    const response = await $fetch<GiantBombResponseType<T>>(finalURL, options);
     return response;
   }
 
@@ -286,8 +283,7 @@ export class GiantBombProvider implements MetadataProvider {
 
     // Find the right entry
     const company =
-      results.results.find((e) => e.name == query) ??
-      results.results.at(0);
+      results.results.find((e) => e.name == query) ?? results.results.at(0);
     if (!company) return undefined;
 
     const longDescription = company.description

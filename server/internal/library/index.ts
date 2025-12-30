@@ -25,7 +25,10 @@ export function createGameImportTaskId(libraryId: string, libraryPath: string) {
     .digest("hex");
 }
 
-export function createVersionImportTaskKey(gameId: string, versionName: string) {
+export function createVersionImportTaskKey(
+  gameId: string,
+  versionName: string,
+) {
   return createHash("md5")
     .update(`import:${gameId}:${versionName}`)
     .digest("hex");

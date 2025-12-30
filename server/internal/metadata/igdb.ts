@@ -13,7 +13,7 @@ import { DateTime } from "luxon";
 import * as jdenticon from "jdenticon";
 import type { TaskRunContext } from "../tasks";
 import { logger } from "~/server/internal/logging";
-import { NitroFetchOptions, NitroFetchRequest } from "nitropack";
+import type { NitroFetchOptions, NitroFetchRequest } from "nitropack";
 
 type IGDBID = number;
 

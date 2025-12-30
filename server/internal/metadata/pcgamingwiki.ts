@@ -15,7 +15,7 @@ import * as cheerio from "cheerio";
 import { type } from "arktype";
 import type { TaskRunContext } from "../tasks";
 import { logger } from "~/server/internal/logging";
-import { NitroFetchOptions, NitroFetchRequest } from "nitropack";
+import type { NitroFetchOptions, NitroFetchRequest } from "nitropack";
 
 interface PCGamingWikiParseRawPage {
   parse: {

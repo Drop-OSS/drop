@@ -29,14 +29,14 @@
       <div class="mt-2 bg-zinc-950 px-2 pb-1 rounded-sm">
         <LogLine :short="true" :log="parseTaskLog(task.log.at(-1))" />
       </div>
-      <ul class="mt-1 flex flex-row gap-x-2" v-if="task.actions">
+      <ul v-if="task.actions" class="mt-1 flex flex-row gap-x-2">
         <NuxtLink
           v-for="[name, link] in task.actions.map((v) => v.split(':'))"
           :key="link"
           :href="link"
-          v-html="name"
           class="text-xs text-zinc-100 bg-blue-900 p-1 rounded"
-        />
+          >{{ name }}</NuxtLink
+        >
       </ul>
       <NuxtLink
         type="button"

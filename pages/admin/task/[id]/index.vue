@@ -50,7 +50,7 @@
           :key="link"
         >
           <NuxtLink :href="link">
-            <LoadingButton :loading="false" v-html="name"> </LoadingButton>
+            <LoadingButton :loading="false"> {{ name }} </LoadingButton>
           </NuxtLink>
         </li>
         <li
