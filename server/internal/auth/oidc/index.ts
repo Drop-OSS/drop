@@ -7,12 +7,17 @@ import type { Readable } from "stream";
 import * as jdenticon from "jdenticon";
 import { systemConfig } from "../../config/sys-conf";
 import { logger } from "~/server/internal/logging";
+import { type } from "arktype";
+import * as jose from "jose";
+
+// TODO: monitor https://github.com/goauthentik/authentik/issues/8751 for easier?? OIDC setup by end users
 
 interface OIDCWellKnown {
-  issuer: string;
-  authorization_endpoint: string;
-  token_endpoint: string;
-  userinfo_endpoint: string;
+  issuer: URL;
+  authorization_endpoint: URL;
+  token_endpoint: URL;
+  userinfo_endpoint: URL;
+  jwks_uri: URL;
   scopes_supported: string[];
 }
 
@@ -36,8 +41,43 @@ interface OIDCUserInfo {
   groups?: Array<string>;
 }
 
+/**
+ * @see https://openid.net/specs/openid-connect-core-1_0.html#TokenResponse
+ * @see https://www.rfc-editor.org/rfc/rfc6749.html#section-5.1
+ */
+const OIDCTokenResponseV1 = type({
+  access_token: "string",
+  token_type: "string",
+  expires_in: "number?",
+  refresh_token: "string?",
+  scope: "string?",
+  id_token: "string",
+});
+
+/**
+ * @see https://openid.net/specs/openid-connect-core-1_0.html#IDToken
+ */
+const OIDCIDTokenV1 = type({
+  iss: "string",
+  sub: "string",
+  aud: "string | string[]",
+  exp: "number",
+  iat: "number",
+
+  auth_time: "number?",
+  nonce: "string?",
+  acr: "string?",
+  amr: "string[]?",
+  azp: "string?",
+
+  // see: https://openid.net/specs/openid-connect-backchannel-1_0.html#BCSupport
+  // and: https://openid.net/specs/openid-connect-rpinitiated-1_0.html#RPLogout
+  sid: "string?", // session ID
+});
+
 export interface OIDCAuthMekCredentialsV1 {
-  iss: string;
+  // only optional for compatibility with older versions
+  iss?: string;
   sub: string;
 }
 
@@ -55,6 +95,12 @@ export class OIDCManager {
 
   private signinStateTable: { [key: string]: OIDCAuthSession } = {};
 
+  /**
+   * Util to fetch JWKS for verifying tokens
+   * @see https://github.com/panva/jose/blob/main/docs/jwks/remote/functions/createRemoteJWKSet.md
+   */
+  private JWKS: ReturnType<typeof jose.createRemoteJWKSet>;
+
   constructor(
     oidcConfiguration: OIDCWellKnown,
     clientId: string,
@@ -65,6 +111,8 @@ export class OIDCManager {
     this.clientId = clientId;
     this.clientSecret = clientSecret;
     this.externalUrl = externalUrl;
+
+    this.JWKS = jose.createRemoteJWKSet(this.oidcConfiguration.jwks_uri);
   }
 
   static async create() {
@@ -78,7 +126,8 @@ export class OIDCManager {
         !response.scopes_supported ||
         !response.token_endpoint ||
         !response.userinfo_endpoint ||
-        !response.issuer
+        !response.issuer ||
+        !response.jwks_uri
       ) {
         throw new Error("Well known response was invalid");
       }
@@ -94,13 +143,15 @@ export class OIDCManager {
       const tokenEndpoint = process.env.OIDC_TOKEN as string | undefined;
       const userinfoEndpoint = process.env.OIDC_USERINFO as string | undefined;
       const issuer = process.env.OIDC_ISSUER as string | undefined;
+      const jwksEndpoint = process.env.OIDC_JWKS as string | undefined;
 
       if (
         !authorizationEndpoint ||
         !tokenEndpoint ||
         !userinfoEndpoint ||
         !scopes ||
-        !issuer
+        !issuer ||
+        !jwksEndpoint
       ) {
         const debugObject = {
           OIDC_AUTHORIZATION: authorizationEndpoint,
@@ -108,6 +159,7 @@ export class OIDCManager {
           OIDC_USERINFO: userinfoEndpoint,
           OIDC_SCOPES: scopes,
           OIDC_ISSUER: issuer,
+          OIDC_JWKS: jwksEndpoint,
         };
         throw new Error(
           "Missing all necessary OIDC configuration: \n" +
@@ -118,11 +170,12 @@ export class OIDCManager {
       }
 
       configuration = {
-        authorization_endpoint: authorizationEndpoint,
-        token_endpoint: tokenEndpoint,
-        userinfo_endpoint: userinfoEndpoint,
+        authorization_endpoint: new URL(authorizationEndpoint),
+        token_endpoint: new URL(tokenEndpoint),
+        userinfo_endpoint: new URL(userinfoEndpoint),
         scopes_supported: scopes.split(","),
-        issuer: issuer,
+        issuer: new URL(issuer),
+        jwks_uri: new URL(jwksEndpoint),
       };
     }
 
@@ -180,12 +233,9 @@ export class OIDCManager {
     const session = this.signinStateTable[state];
     if (!session) return "Invalid state parameter";
 
-    const tokenEndpoint = new URL(
-      this.oidcConfiguration.token_endpoint,
-    ).toString();
-    const userinfoEndpoint = new URL(
-      this.oidcConfiguration.userinfo_endpoint,
-    ).toString();
+    const tokenEndpoint = this.oidcConfiguration.token_endpoint.toString();
+    const userinfoEndpoint =
+      this.oidcConfiguration.userinfo_endpoint.toString();
 
     const requestBody = new URLSearchParams({
       client_id: this.clientId,
@@ -197,18 +247,37 @@ export class OIDCManager {
     });
 
     try {
-      const { access_token, token_type } = await $fetch<{
-        access_token: string;
-        token_type: string;
-        id_token: string;
-      }>(tokenEndpoint, {
+      const rawTokenResponse = await $fetch<unknown>(tokenEndpoint, {
         body: requestBody,
         method: "POST",
       });
+      const tokenResponse = OIDCTokenResponseV1(rawTokenResponse);
+      if (tokenResponse instanceof type.errors) {
+        logger.error(`Invalid OIDC token response: ${tokenResponse.summary}`);
+        return "Invalid token response from identity provider.";
+      }
+
+      // TODO: handle refresh tokens?
+
+      const idTokenRaw = await jose.jwtVerify(
+        tokenResponse.id_token,
+        this.JWKS,
+        {
+          audience: this.clientId,
+          issuer: this.oidcConfiguration.issuer.toString(),
+        },
+      );
+      const idToken = OIDCIDTokenV1(idTokenRaw.payload);
+      if (idToken instanceof type.errors) {
+        logger.error(`Invalid OIDC ID token: ${idToken.summary}`);
+        return "Invalid ID token from identity provider.";
+      }
+
+      // TOOD: add sid, sub, & iss to session for logout handling
 
       const userinfo = await $fetch<OIDCUserInfo>(userinfoEndpoint, {
         headers: {
-          Authorization: `${token_type} ${access_token}`,
+          Authorization: `${tokenResponse.token_type} ${tokenResponse.access_token}`,
         },
       });
 
@@ -269,7 +338,7 @@ export class OIDCManager {
     */
 
     const creds: OIDCAuthMekCredentialsV1 = {
-      iss: this.oidcConfiguration.issuer,
+      iss: this.oidcConfiguration.issuer.toString(),
       sub: userinfo.sub,
     };
 
