@@ -457,7 +457,7 @@ export class SteamProvider implements MetadataProvider {
     // Extract metadata from HTML meta tags
     const metadata = this._extractMetaTagsFromHtml(html);
 
-    if (!metadata.title) {
+    if (!metadata.title || metadata.title == "Steam Search") {
       return undefined;
     }
 

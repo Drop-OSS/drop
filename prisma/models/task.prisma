@@ -11,6 +11,8 @@ model Task {
     progress Float
     log      String[]
 
+    actions String[]
+
     acls String[]
 
     @@id([id, started])

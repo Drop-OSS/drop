@@ -52,6 +52,7 @@ websocketHandler.listen((message) => {
           progress: 0,
           error: undefined,
           log: [],
+          actions: [],
         };
         state.value.error = { title, description };
         break;

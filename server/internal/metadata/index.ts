@@ -288,6 +288,8 @@ export class MetadataHandler {
 
         logger.info(`Finished game import.`);
         progress(100);
+
+        context.addAction(`View Game:/admin/library/${gameId}`);
       },
     });
   }
