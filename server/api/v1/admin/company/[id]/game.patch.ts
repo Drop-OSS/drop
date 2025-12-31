@@ -20,7 +20,10 @@ export default defineEventHandler(async (h3) => {
   const action = body.action === "developed" ? "developers" : "publishers";
   const actionType = body.enabled ? "connect" : "disconnect";
 
-  const { count } = await prisma.game.updateMany({
+  const game = await prisma.game.findUnique({ where: { id: body.id } });
+  if (!game) throw createError({ statusCode: 404, message: "Game not found" });
+
+  await prisma.game.update({
     where: {
       id: body.id,
     },
@@ -32,9 +35,6 @@ export default defineEventHandler(async (h3) => {
       },
     },
   });
-
-  if (count == 0)
-    throw createError({ statusCode: 404, message: "Company not found" });
 
   return;
 });

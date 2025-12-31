@@ -4,8 +4,8 @@ import { hmac, randomBytes } from "otp-io/crypto";
 import prisma from "~/server/internal/db/database";
 import { MFAMec } from "~/prisma/client/client";
 import {
-  dropDecodeArray,
-  dropEncodeArray,
+  dropDecodeArrayBase64,
+  dropEncodeArrayBase64,
   TOTPv1Credentials,
 } from "~/server/internal/auth/totp";
 import { createError } from "h3";
@@ -39,7 +39,7 @@ export default defineEventHandler(async (h3) => {
     throw createError({ statusCode: 400, message: "TOTP not started" });
 
   const secret = (existing.credentials as unknown as TOTPv1Credentials).secret;
-  const secretKeyBuffer = dropDecodeArray(secret);
+  const secretKeyBuffer = dropDecodeArrayBase64(secret);
   const secretKey = new SecretKey(secretKeyBuffer);
 
   const code = await totp(hmac, { secret: secretKey });

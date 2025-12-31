@@ -7,7 +7,7 @@ export type Session = {
   };
   level: number,
   requiredLevel: number,
-  superleveledExpiry: Date | undefined,
+  superleveledExpiry: number | undefined,
 };
 
 export interface SessionProvider {

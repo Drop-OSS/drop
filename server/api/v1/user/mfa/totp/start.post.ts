@@ -5,8 +5,9 @@ import prisma from "~/server/internal/db/database";
 import { MFAMec } from "~/prisma/client/client";
 import {
   TOTPv1Credentials,
-  dropEncodeArray,
+  dropEncodeArrayBase64,
 } from "~/server/internal/auth/totp";
+import { b32e } from "~/server/internal/auth/base32";
 
 export default defineEventHandler(async (h3) => {
   const userId = await aclManager.allowUserSuperlevel(h3); // No ACLs only allows session authentication
@@ -24,11 +25,19 @@ export default defineEventHandler(async (h3) => {
       },
     },
   });
-  if (existing)
-    throw createError({
-      statusCode: 400,
-      message: "Cannot add TOTP authentication if already exists.",
-    });
+
+  if (existing) {
+    if (!existing.enabled) {
+      await prisma.linkedMFAMec.delete({
+        where: { userId_mec: { userId: existing.userId, mec: existing.mec } },
+      });
+    } else {
+      throw createError({
+        statusCode: 400,
+        message: "Cannot set up TOTP authentication if already exists.",
+      });
+    }
+  }
 
   const secret = generateKey(randomBytes, /* bytes: */ 20); // 5-20 good for Google Authenticator
   const url = getKeyUri({
@@ -44,11 +53,11 @@ export default defineEventHandler(async (h3) => {
       mec: MFAMec.TOTP,
       version: 1,
       credentials: {
-        secret: dropEncodeArray(secret.bytes),
+        secret: dropEncodeArrayBase64(secret.bytes),
       } satisfies TOTPv1Credentials,
       enabled: false,
     },
   });
 
-  return { url, secret };
+  return { url, secret: b32e(secret.bytes) };
 });

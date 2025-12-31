@@ -171,6 +171,7 @@ class ACLManager {
     if (!session) return undefined;
     if (session.level < session.requiredLevel) return undefined;
     if (session.superleveledExpiry === undefined) return undefined;
+    if (session.superleveledExpiry < Date.now()) return undefined;
     return session.userId;
   }
 
@@ -188,7 +189,7 @@ class ACLManager {
       if (user) {
         if (!user) return false;
         if (!user.admin) return false;
-        if (userSession.level >= userSession.requiredLevel) return false;
+        if (userSession.level < userSession.requiredLevel) return false;
         return true;
       }
     }

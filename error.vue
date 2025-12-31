@@ -10,10 +10,10 @@ const props = defineProps({
 
 const { t } = useI18n();
 const route = useRoute();
-const user = useUser();
 const statusCode = props.error?.statusCode;
-const message =
-  props.error?.message || props.error?.statusMessage || t("errors.unknown");
+const message = props.error?.data
+  ? JSON.parse(props.error.data as string).message
+  : props.error.cause || props.error?.statusMessage || t("errors.unknown");
 const showSignIn = statusCode ? statusCode == 403 || statusCode == 401 : false;
 
 async function signIn() {
@@ -49,7 +49,7 @@ if (import.meta.client) {
       class="mx-auto w-full max-w-7xl px-6 py-24 sm:py-32 lg:col-span-2 lg:col-start-1 lg:row-start-2 lg:px-8"
     >
       <div class="max-w-lg">
-        <p class="text-base font-semibold leading-8 text-blue-600">
+        <p class="text-base font-semibold leading-8 text-red-600">
           {{ error?.statusCode }}
         </p>
         <h1
@@ -63,15 +63,16 @@ if (import.meta.client) {
         >
           {{ message }}
         </p>
+
         <p class="mt-6 text-base leading-7 text-zinc-400">
           {{ $t("errors.occurred") }}
         </p>
         <!-- <p>{{ error. }}</p> -->
         <div class="mt-10">
-          <!-- full app reload to fix errors -->
-          <NuxtLink
-            v-if="user && !showSignIn"
-            to="/"
+          <!-- clearError is inconsistent so reload app to clear erro -->
+          <a
+            v-if="!showSignIn"
+            href="/"
             class="text-sm font-semibold leading-7 text-blue-600"
           >
             <i18n-t keypath="errors.backHome" tag="span" scope="global">
@@ -79,7 +80,7 @@ if (import.meta.client) {
                 <span aria-hidden="true">{{ $t("chars.arrowBack") }}</span>
               </template>
             </i18n-t>
-          </NuxtLink>
+          </a>
           <button
             v-else
             class="text-sm font-semibold leading-7 text-blue-600"

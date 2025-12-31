@@ -18,7 +18,7 @@
   },
   // prioritize ArkType's "type" for autoimports
   "typescript.preferences.autoImportSpecifierExcludeRegexes": ["^(node:)?os$"],
-  "typescript.experimental.useTsgo": true,
+  "typescript.experimental.useTsgo": false,
   // i18n Ally settings
   "i18n-ally.sortKeys": true,
   "i18n-ally.keepFulfilled": true,

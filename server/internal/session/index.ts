@@ -52,7 +52,8 @@ export class SessionHandler {
       requiredLevel: mfaCount > 0 ? 20 : 10,
       superleveledExpiry: undefined,
     };
-    session.superleveledExpiry = new Date(Date.now() + SUPERLEVEL_LENGTH);
+    if (session.level >= session.requiredLevel)
+      session.superleveledExpiry = Date.now() + SUPERLEVEL_LENGTH;
     return await this.sessionProvider.setSession(token, session);
   }
 
@@ -79,6 +80,30 @@ export class SessionHandler {
 
     const data = await this.sessionProvider.getSession<T>(token);
     return data;
+  }
+
+  async getSessionDataKey<T>(request: MinimumRequestObject, key: string) {
+    const token = this.getSessionToken(request);
+    if (!token) return undefined;
+
+    const session = await this.sessionProvider.getSession(token);
+    if (!session) return undefined;
+    return session.data[key] as T;
+  }
+
+  async setSessionDataKey<T>(
+    request: MinimumRequestObject,
+    key: string,
+    value: T,
+  ) {
+    const token = this.getSessionToken(request);
+    if (!token) return false;
+
+    const session = await this.sessionProvider.getSession(token);
+    if (!session) return false;
+    session.data[key] = value;
+    await this.sessionProvider.setSession(token, session);
+    return true;
   }
 
   /**
