@@ -25,6 +25,9 @@ const extendedSessionLength: DurationLike = {
   year: 1,
 };
 
+const signinResult = ["signin", "2fa", "fail"] as const;
+type SigninResult = (typeof signinResult)[number];
+
 export class SessionHandler {
   private sessionProvider: SessionProvider;
 
@@ -35,7 +38,7 @@ export class SessionHandler {
     // this.sessionProvider = createMemorySessionProvider();
   }
 
-  async signin(h3: H3Event, userId: string, rememberMe: boolean = false) {
+  async signin(h3: H3Event, userId: string, rememberMe: boolean = false): Promise<SigninResult> {
     const mfaCount = await prisma.linkedMFAMec.count({
       where: { userId, enabled: true },
     });
@@ -54,7 +57,11 @@ export class SessionHandler {
     };
     if (session.level >= session.requiredLevel)
       session.superleveledExpiry = Date.now() + SUPERLEVEL_LENGTH;
-    return await this.sessionProvider.setSession(token, session);
+    const success = await this.sessionProvider.setSession(token, session);
+    if(!success) return "fail";
+
+    if(session.level < session.requiredLevel) return "2fa";
+    return "signin";
   }
 
   async mfa(h3: H3Event, amount: number) {
@@ -76,9 +83,10 @@ export class SessionHandler {
   async getSession<T extends Session>(request: MinimumRequestObject) {
     const token = this.getSessionToken(request);
     if (!token) return undefined;
-    // TODO: should validate if session is expired or not here, not in application code
 
     const data = await this.sessionProvider.getSession<T>(token);
+    if(!data) return undefined;
+    if(new Date(data.expiresAt).getTime() < Date.now()) return undefined; // Expired
     return data;
   }
 

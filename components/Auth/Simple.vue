@@ -102,9 +102,6 @@ const { t } = useI18n();
 function signin_wrapper() {
   loading.value = true;
   signin()
-    .then(() => {
-      router.push(route.query.redirect?.toString() ?? "/");
-    })
     .catch((response) => {
       const message = response.statusMessage || t("errors.unknown");
       error.value = message;
@@ -115,7 +112,7 @@ function signin_wrapper() {
 }
 
 async function signin() {
-  await $dropFetch("/api/v1/auth/signin/simple", {
+  const { result } = await $dropFetch("/api/v1/auth/signin/simple", {
     method: "POST",
     body: {
       username: username.value,
@@ -123,7 +120,12 @@ async function signin() {
       rememberMe: rememberMe.value,
     },
   });
+  if (result == "2fa") {
+    router.push({ query: route.query, path: "/auth/mfa" });
+    return;
+  }
   const user = useUser();
   user.value = await $dropFetch<UserModel | null>("/api/v1/user");
+  router.push(route.query.redirect?.toString() ?? "/");
 }
 </script>

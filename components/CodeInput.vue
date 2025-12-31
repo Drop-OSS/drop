@@ -73,14 +73,14 @@ function paste(index: number, event: ClipboardEvent) {
   for (let i = 0; i < newCode.length && i < length; i++) {
     code.value[i] = newCode[i];
     codeElements.value![i].focus();
-    if(i + 1 == length) {
+    if (i + 1 == length) {
       complete(code.value.join(""));
     }
   }
   event.preventDefault();
 }
 
-async function complete(code: string) {
-  emit("complete", code);
+async function complete(completedCode: string) {
+  emit("complete", completedCode);
 }
 </script>
