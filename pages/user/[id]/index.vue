@@ -28,7 +28,7 @@
       <p class="mt-2 text-zinc-400">{{ $t('user.recentSub') }}</p>
 
       <div class="mt-6">
-        <div v-if="loading" class="text-zinc-500">{{ $t('common.loading') }}</div>
+        <div v-if="loading" class="text-zinc-500">{{ $t('common.srLoading') }}</div>
         <div v-else-if="!profile">
           <div class="text-zinc-400">{{ $t('user.notFound') }}</div>
         </div>
