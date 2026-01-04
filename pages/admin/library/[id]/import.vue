@@ -140,7 +140,7 @@
         <Switch
           v-model="versionSettings.onlySetup"
           :class="[
-            versionSettings.onlySetup ? 'bg-blue-600' : 'bg-zinc-800',
+            versionSettings.onlySetup ? 'bg-blue-600' : 'bg-zinc-900',
             'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2',
           ]"
         >
@@ -224,7 +224,7 @@
         <Switch
           v-model="versionSettings.delta"
           :class="[
-            versionSettings.delta ? 'bg-blue-600' : 'bg-zinc-800',
+            versionSettings.delta ? 'bg-blue-600' : 'bg-zinc-900',
             'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2',
           ]"
         >

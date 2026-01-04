@@ -2,6 +2,7 @@ import type {
   ComponentCustomOptions as _ComponentCustomOptions,
   ComponentCustomProperties as _ComponentCustomProperties,
 } from "vue";
+import { Platform } from "~/prisma/client/enums";
 
 declare module "@vue/runtime-core" {
   interface ComponentCustomProperties extends _ComponentCustomProperties {
@@ -16,4 +17,5 @@ export interface ExecutorLaunchObject {
   gameIcon: string;
   versionName: string;
   launchName: string;
+  platform: Platform,
 }

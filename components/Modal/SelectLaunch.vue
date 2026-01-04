@@ -8,6 +8,19 @@
         <p class="mt-1 text-zinc-400 text-sm">
           Select a launch option as an executor for your new launch option.
         </p>
+        <div v-if="props.filterPlatform" class="inline-flex items-center mt-2 gap-x-4">
+          <h1 class="block text-sm font-medium leading-6 text-zinc-100">
+            Only showing launches for:
+          </h1>
+          <span class="flex items-center">
+            <component
+              :is="PLATFORM_ICONS[props.filterPlatform]"
+              alt=""
+              class="size-5 flex-shrink-0 text-blue-600"
+            />
+            <span class="ml-2 block truncate text-zinc-100 text-sm font-bold">{{ props.filterPlatform }}</span>
+          </span>
+        </div>
       </div>
       <div class="mt-2 space-y-4">
         <div
@@ -65,12 +78,19 @@
             :search="
               (v) =>
                 versions![version!.id].launches
-                  .filter((k) =>
-                    (k.name || k.command)
-                      .toLowerCase()
-                      .includes(v.toLowerCase()),
+                  .filter(
+                    (k) =>
+                      (k.name || k.command)
+                        .toLowerCase()
+                        .includes(v.toLowerCase()) &&
+                      (props.filterPlatform
+                        ? k.platform == props.filterPlatform
+                        : true),
                   )
-                  .map((v) => ({ id: v.launchId, name: v.name, command: v.command }))
+                  .map((v) => ({
+                    id: v.launchId,
+                    ...v,
+                  }))
             "
             :display="(v) => v.name"
             :model-value="launchId"
@@ -103,7 +123,7 @@
       </div>
     </template>
     <template #buttons>
-      <LoadingButton :loading="false" :disabled="!launchId" @click="">
+      <LoadingButton :loading="false" :disabled="!launchId" @click="submit">
         Select
       </LoadingButton>
       <button
@@ -118,15 +138,21 @@
 
 <script setup lang="ts">
 import { XCircleIcon } from "@heroicons/vue/24/outline";
+import { SerializeObject } from "nitropack";
 import { ExecutorLaunchObject } from "~/composables/frontend";
+import { Platform } from "~/prisma/client/enums";
 import { GameMetadataSearchResult } from "~/server/internal/metadata/types";
+
+const props = defineProps<{ filterPlatform?: Platform }>();
 
 const open = defineModel<boolean>({ required: true });
 
 const error = ref<string | undefined>();
 const game = ref<GameMetadataSearchResult | undefined>(undefined);
 const version = ref<{ id: string; name: string } | undefined>(undefined);
-const launchId = ref<{ id: string; name: string; command: string } | undefined>(undefined);
+const launchId = ref<
+  { id: string; name: string; command: string; platform: Platform } | undefined
+>(undefined);
 
 const versions = ref<
   | {
@@ -136,6 +162,7 @@ const versions = ref<
           launchId: string;
           command: string;
           name: string;
+          platform: Platform;
         }[];
         versionId: string;
         versionPath: string;
@@ -153,7 +180,7 @@ async function search(query: string) {
 }
 
 function updateGame(value: GameMetadataSearchResult | undefined) {
-  if (game.value !== value) {
+  if (game.value !== value || value == undefined) {
     version.value = undefined;
     versions.value = undefined;
     launchId.value = undefined;
@@ -161,7 +188,7 @@ function updateGame(value: GameMetadataSearchResult | undefined) {
 
   game.value = value;
 
-  fetchVersions();
+  if (game.value) fetchVersions();
 }
 
 async function fetchVersions() {
@@ -172,10 +199,27 @@ async function fetchVersions() {
   versions.value = Object.fromEntries(newVersions.map((v) => [v.versionId, v]));
 }
 
-function updateVersion(v: typeof version.value){
-    if(version.value !== v) {
-        launchId.value = undefined;
-    }
-    version.value = v;
-} 
+function updateVersion(v: typeof version.value) {
+  if (version.value !== v || v == undefined) {
+    launchId.value = undefined;
+  }
+  version.value = v;
+}
+
+function submit() {
+  emit("select", {
+    launchId: launchId.value!.id,
+    gameName: game.value!.name,
+    gameIcon: game.value!.icon,
+    versionName: version.value!.name,
+    launchName: launchId.value!.name,
+    platform: launchId.value!.platform,
+  });
+  open.value = false;
+}
+
+watch(open, () => {
+  game.value = undefined;
+  updateGame(game.value);
+});
 </script>

@@ -22,6 +22,7 @@ export default defineEventHandler(async (h3) => {
               launchId: true,
               command: true,
               name: true,
+              platform: true,
             },
           },
         },
