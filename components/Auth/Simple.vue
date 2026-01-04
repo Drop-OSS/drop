@@ -12,7 +12,7 @@
           v-model="username"
           name="username"
           type="username"
-          autocomplete="username"
+          autocomplete="username webauthn"
           required
           class="block w-full rounded-md border-0 py-1.5 px-3 shadow-sm bg-zinc-950/20 text-zinc-300 ring-1 ring-inset ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
         />
@@ -86,6 +86,11 @@
 
 <script setup lang="ts">
 import { XCircleIcon } from "@heroicons/vue/20/solid";
+import {
+  startAuthentication,
+  browserSupportsWebAuthn,
+} from "@simplewebauthn/browser";
+import { FetchError } from "ofetch";
 import type { UserModel } from "~/prisma/client/models";
 
 const username = ref("");
@@ -93,10 +98,43 @@ const password = ref("");
 const rememberMe = ref(false);
 const loading = ref(false);
 
+async function passkeyAutofill() {
+  const silentWebauthnOptions = await $dropFetch("/api/v1/auth/passkey/start", {
+    method: "POST",
+  });
+
+  const result = await startAuthentication({
+    optionsJSON: silentWebauthnOptions,
+    useBrowserAutofill: true,
+  });
+
+  loading.value = true;
+
+  await $dropFetch("/api/v1/auth/passkey/finish", {
+    method: "POST",
+    body: result,
+  });
+
+  await completeSignin();
+}
+
+onMounted(async () => {
+  if (browserSupportsWebAuthn()) {
+    try {
+      await passkeyAutofill();
+    } catch (response) {
+      const message = (response as FetchError).statusMessage || t("errors.unknown");
+      error.value = message;
+    } finally {
+      loading.value = false;
+    }
+  }
+});
+
 const error = ref<string | undefined>();
 
-const route = useRoute();
 const router = useRouter();
+const route = useRoute();
 const { t } = useI18n();
 
 function signin_wrapper() {
@@ -124,8 +162,7 @@ async function signin() {
     router.push({ query: route.query, path: "/auth/mfa" });
     return;
   }
-  const user = useUser();
-  user.value = await $dropFetch<UserModel | null>("/api/v1/user");
-  router.push(route.query.redirect?.toString() ?? "/");
+
+  await completeSignin();
 }
 </script>

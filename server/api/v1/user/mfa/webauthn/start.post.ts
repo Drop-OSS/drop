@@ -1,8 +1,18 @@
 import aclManager from "~/server/internal/acls";
-import { getRpId } from "~/server/internal/auth/webauthn";
-import { systemConfig } from "~/server/internal/config/sys-conf";
 import prisma from "~/server/internal/db/database";
 import sessionHandler from "~/server/internal/session";
+import {
+  generateRegistrationOptions,
+  verifyRegistrationResponse,
+} from "@simplewebauthn/server";
+import { getRpId } from "~/server/internal/auth/webauthn";
+import { MFAMec } from "~/prisma/client/enums";
+import { type } from "arktype";
+import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
+
+const CreatePasskey = type({
+  name: "string",
+}).configure(throwingArktype);
 
 export default defineEventHandler(async (h3) => {
   const userId = await aclManager.allowUserSuperlevel(h3); // No ACLs only allows session authentication
@@ -11,6 +21,8 @@ export default defineEventHandler(async (h3) => {
       statusCode: 403,
       message: "Not signed in or superlevelled.",
     });
+
+  const body = await readDropValidatedBody(h3, CreatePasskey);
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -22,15 +34,27 @@ export default defineEventHandler(async (h3) => {
       message: "Session refers to non-existed user.",
     });
 
-  const challenge = crypto.randomUUID().replaceAll("-", "");
+  const rpID = await getRpId();
 
-  await sessionHandler.setSessionDataKey(h3, "webauthn/challenge", challenge);
+  const registrationOptions = await generateRegistrationOptions({
+    rpID,
+    rpName: "Drop",
+    userName: user.username,
+    attestationType: "none",
+    authenticatorSelection: {
+      requireResidentKey: true,
+      residentKey: "required",
+      userVerification: "preferred",
+    },
+  });
 
-  const rpId = await getRpId();
+  await sessionHandler.setSessionDataKey(
+    h3,
+    "webauthn/options",
+    JSON.stringify(registrationOptions),
+  );
 
-  return {
-    challenge,
-    rp: { name: "Drop", id: rpId },
-    user: { userId, ...user },
-  };
+  await sessionHandler.setSessionDataKey(h3, "webauthn/passkeyname", body.name);
+
+  return registrationOptions;
 });

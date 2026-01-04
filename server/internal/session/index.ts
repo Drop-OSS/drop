@@ -38,7 +38,11 @@ export class SessionHandler {
     // this.sessionProvider = createMemorySessionProvider();
   }
 
-  async signin(h3: H3Event, userId: string, rememberMe: boolean = false): Promise<SigninResult> {
+  async signin(
+    h3: H3Event,
+    userId: string,
+    rememberMe: boolean = false,
+  ): Promise<SigninResult> {
     const mfaCount = await prisma.linkedMFAMec.count({
       where: { userId, enabled: true },
     });
@@ -48,19 +52,26 @@ export class SessionHandler {
     const token =
       this.getSessionToken(h3) ?? this.createSessionCookie(h3, expiresAt);
     const session = (await this.sessionProvider.getSession(token)) ?? {
-      userId,
       expiresAt,
       data: {},
-      level: 10,
+    };
+    const wasAuthenticated = !!session.authenticated;
+    session.authenticated = {
+      userId,
+      level: session.authenticated?.level ?? 10,
       requiredLevel: mfaCount > 0 ? 20 : 10,
       superleveledExpiry: undefined,
     };
-    if (session.level >= session.requiredLevel)
-      session.superleveledExpiry = Date.now() + SUPERLEVEL_LENGTH;
+    if (
+      !wasAuthenticated &&
+      session.authenticated.level >= session.authenticated.requiredLevel
+    )
+      session.authenticated.superleveledExpiry = Date.now() + SUPERLEVEL_LENGTH;
     const success = await this.sessionProvider.setSession(token, session);
-    if(!success) return "fail";
+    if (!success) return "fail";
 
-    if(session.level < session.requiredLevel) return "2fa";
+    if (session.authenticated.level < session.authenticated.requiredLevel)
+      return "2fa";
     return "signin";
   }
 
@@ -69,10 +80,10 @@ export class SessionHandler {
     if (!token)
       throw createError({ statusCode: 403, message: "User not signed in" });
     const session = await this.sessionProvider.getSession(token);
-    if (!session)
+    if (!session || !session.authenticated)
       throw createError({ statusCode: 403, message: "User not signed in" });
 
-    session.level += amount;
+    session.authenticated.level += amount;
     await this.sessionProvider.setSession(token, session);
   }
 
@@ -85,12 +96,15 @@ export class SessionHandler {
     if (!token) return undefined;
 
     const data = await this.sessionProvider.getSession<T>(token);
-    if(!data) return undefined;
-    if(new Date(data.expiresAt).getTime() < Date.now()) return undefined; // Expired
+    if (!data) return undefined;
+    if (new Date(data.expiresAt).getTime() < Date.now()) return undefined; // Expired
     return data;
   }
 
-  async getSessionDataKey<T>(request: MinimumRequestObject, key: string) {
+  async getSessionDataKey<T>(
+    request: MinimumRequestObject,
+    key: string,
+  ): Promise<T | undefined> {
     const token = this.getSessionToken(request);
     if (!token) return undefined;
 
@@ -99,17 +113,29 @@ export class SessionHandler {
     return session.data[key] as T;
   }
 
-  async setSessionDataKey<T>(
-    request: MinimumRequestObject,
-    key: string,
-    value: T,
-  ) {
+  async setSessionDataKey<T>(request: H3Event, key: string, value: T) {
+    const expiresAt = this.createExipreAt(true);
+
+    const token =
+      this.getSessionToken(request) ??
+      this.createSessionCookie(request, expiresAt);
+
+    const session = (await this.sessionProvider.getSession(token)) ?? {
+      expiresAt,
+      data: {},
+    };
+    session.data[key] = value;
+    await this.sessionProvider.setSession(token, session);
+    return true;
+  }
+
+  async deleteSessionDataKey(request: MinimumRequestObject, key: string) {
     const token = this.getSessionToken(request);
     if (!token) return false;
 
     const session = await this.sessionProvider.getSession(token);
     if (!session) return false;
-    session.data[key] = value;
+    delete session.data[key];
     await this.sessionProvider.setSession(token, session);
     return true;
   }

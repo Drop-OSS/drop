@@ -81,7 +81,7 @@ model Session {
     token     String   @id
     expiresAt DateTime
 
-    userId String
+    userId String?
     user   User?  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     data Json // misc extra data

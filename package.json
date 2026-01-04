@@ -29,6 +29,8 @@
     "@nuxt/image": "^1.10.0",
     "@nuxtjs/i18n": "^9.5.5",
     "@prisma/client": "^6.11.1",
+    "@simplewebauthn/browser": "^13.2.2",
+    "@simplewebauthn/server": "^13.2.2",
     "@tailwindcss/vite": "^4.0.6",
     "@vueuse/nuxt": "13.6.0",
     "argon2": "^0.43.0",

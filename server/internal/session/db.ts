@@ -16,18 +16,16 @@ export default function createDBSessionHandler(): SessionProvider {
         },
         create: {
           token,
-          user: {
-            connect: {
-              id: session.userId,
-            },
-          },
+          ...(session.authenticated?.userId
+            ? { userId: session.authenticated?.userId }
+            : undefined),
           expiresAt: session.expiresAt,
-          data: session,
+          data: session as object,
         },
 
         update: {
           expiresAt: session.expiresAt,
-          data: session,
+          data: session as object,
         },
       });
       return true;

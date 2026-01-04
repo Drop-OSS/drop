@@ -22,7 +22,7 @@ export default defineEventHandler(async (h3) => {
         case MFAMec.WebAuthn:
           const newCredentials = (
             v.credentials as unknown as WebAuthNv1Credentials
-          ).credentials.map((v) => ({ name: v.name, id: v.id, created: v.created }));
+          ).passkeys.map((v) => ({ name: v.name, id: v.id, created: v.created }));
           v.credentials = newCredentials;
           break;
       }

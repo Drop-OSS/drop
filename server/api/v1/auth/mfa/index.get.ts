@@ -5,7 +5,7 @@ import { MFAMec } from "~/prisma/client/client";
 
 export default defineEventHandler(async (h3) => {
   const session = await sessionHandler.getSession(h3);
-  if (!session || session.level == 0)
+  if (!session || !session.authenticated || session.authenticated.level == 0)
     throw createError({
       statusCode: 403,
       message: "Sign in before completing MFA",
@@ -13,7 +13,7 @@ export default defineEventHandler(async (h3) => {
 
   const linkedMFAMec = await prisma.linkedMFAMec.findMany({
     where: {
-      userId: session.userId,
+      userId: session.authenticated.userId,
     },
     select: {
       mec: true,

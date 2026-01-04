@@ -60,8 +60,8 @@
 import { FetchError } from "ofetch";
 
 useHead({
-  title: "Set up TOTP"
-})
+  title: "Set up TOTP",
+});
 
 const totpSecrets = await $dropFetch("/api/v1/user/mfa/totp/start", {
   method: "POST",
@@ -82,7 +82,7 @@ async function complete(code: string) {
       method: "POST",
       body: { code },
     });
-    router.push("/account/security");
+    router.push("/mfa/setup/successful");
   } catch (e) {
     error.value =
       (e as FetchError).data?.message ?? (e as FetchError).statusMessage;

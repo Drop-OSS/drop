@@ -66,15 +66,9 @@
 </template>
 
 <script setup lang="ts">
-import { KeyIcon } from "@heroicons/vue/24/outline";
+import { KeyIcon, XCircleIcon } from "@heroicons/vue/24/outline";
 import { FetchError } from "ofetch";
-
-const { challenge, rp, user } = await $dropFetch(
-  "/api/v1/user/mfa/webauthn/start",
-  {
-    method: "POST",
-  },
-);
+import { startRegistration } from "@simplewebauthn/browser";
 
 const router = useRouter();
 
@@ -106,62 +100,34 @@ async function attemptPasskey() {
       fatal: true,
     });
 
-  const encoder = new TextEncoder();
-  const publicKey = {
-    challenge: encoder.encode(challenge),
-    rp,
-    user: {
-      id: encoder.encode(user.userId),
-      displayName: user.displayName,
-      name: user.username,
+  const optionsJSON = await $dropFetch("/api/v1/user/mfa/webauthn/start", {
+    method: "POST",
+    body: {
+      name: name.value,
     },
-    pubKeyCredParams: [
-      {
-        type: "public-key",
-        alg: -8, // "EdDSA" as registered in the IANA COSE Algorithms registry
-      },
-      {
-        type: "public-key",
-        alg: -7, // "ES256" as registered in the IANA COSE Algorithms registry
-      },
-      {
-        type: "public-key",
-        alg: -257, // Value registered by this specification for "RS256"
-      },
-    ],
-  } satisfies CredentialCreationOptions["publicKey"];
+  });
 
-  let cred: Credential | null;
+  let attResp;
   try {
-    cred = await navigator.credentials.create({ publicKey });
+    // Pass the options to the authenticator and wait for a response
+    attResp = await startRegistration({ optionsJSON });
   } catch {
     throw createError({
       statusCode: 400,
       message: "WebAuthn request cancelled.",
     });
   }
-  if (!cred)
+  if (!attResp)
     throw createError({
       statusCode: 400,
       message: "WebAuthn request cancelled.",
     });
 
-  const response = (cred as PublicKeyCredential)
-    .response as AuthenticatorAttestationResponse;
-
   await $dropFetch("/api/v1/user/mfa/webauthn/finish", {
     method: "POST",
-    body: {
-      name: name.value,
-      clientData: btoa(
-        String.fromCharCode(...new Uint8Array(response.clientDataJSON)),
-      ),
-      attestationObject: btoa(
-        String.fromCharCode(...new Uint8Array(response.attestationObject)),
-      ),
-    },
+    body: attResp,
   });
 
-  router.push("/account/security");
+  router.push("/mfa/setup/successful");
 }
 </script>

@@ -59,9 +59,6 @@ const loading = ref<boolean>(false);
 const success = ref(false);
 const error = ref<undefined | string>(undefined);
 
-const route = useRoute();
-const router = useRouter();
-
 async function signin(code: string) {
   loading.value = true;
   error.value = undefined;
@@ -76,8 +73,7 @@ async function signin(code: string) {
     return;
   }
   success.value = true;
-  const user = useUser();
-  user.value = await $dropFetch<UserModel | null>("/api/v1/user");
-  router.push(route.query.redirect?.toString() ?? "/");
+  
+  await completeSignin();
 }
 </script>
