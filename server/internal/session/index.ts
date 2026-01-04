@@ -26,6 +26,13 @@ const extendedSessionLength: DurationLike = {
 };
 
 type SigninResult = ["signin", "2fa", "fail"][number];
+export interface SigninOptions {
+  // default value: false
+  rememberMe?: boolean;
+
+  // set default session data
+  data?: Session["data"];
+}
 
 export class SessionHandler {
   private sessionProvider: SessionProvider;
@@ -37,14 +44,23 @@ export class SessionHandler {
     // this.sessionProvider = createMemorySessionProvider();
   }
 
+  // async signin(
+  //   h3: H3Event,
+  //   userId: string,
+  //   rememberMe: boolean = false,
+  // ): Promise<SigninResult> {
+
   async signin(
     h3: H3Event,
     userId: string,
-    rememberMe: boolean = false,
+    options?: SigninOptions,
   ): Promise<SigninResult> {
     const mfaCount = await prisma.linkedMFAMec.count({
       where: { userId, enabled: true },
     });
+
+    const rememberMe = options?.rememberMe ?? false;
+    const data = options?.data ?? {};
 
     const expiresAt = this.createExipreAt(rememberMe);
 
@@ -52,7 +68,7 @@ export class SessionHandler {
       this.getSessionToken(h3) ?? this.createSessionCookie(h3, expiresAt);
     const session = (await this.sessionProvider.getSession(token)) ?? {
       expiresAt,
-      data: {},
+      data: data,
     };
     const wasAuthenticated = !!session.authenticated;
     session.authenticated = {
@@ -156,10 +172,20 @@ export class SessionHandler {
   async signout(h3: H3Event) {
     const token = this.getSessionToken(h3);
     if (!token) return false;
-    const res = await this.sessionProvider.removeSession(token);
-    if (!res) return false;
+    if (!this.signoutByToken(token)) return false;
     deleteCookie(h3, dropTokenCookieName);
     return true;
+  }
+
+  /**
+   * Signout session by token
+   * @Note Should only be used in special cases (eg OIDC logout)
+   * @param token
+   * @returns
+   */
+  async signoutByToken(token: string) {
+    const res = await this.sessionProvider.removeSession(token);
+    return res;
   }
 
   async cleanupSessions() {

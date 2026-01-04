@@ -9,10 +9,23 @@ import { systemConfig } from "../../config/sys-conf";
 import { logger } from "~/server/internal/logging";
 import { type } from "arktype";
 import * as jose from "jose";
+// import { inspect } from "util";
+import sessionHandler from "../../session";
 
 // TODO: monitor https://github.com/goauthentik/authentik/issues/8751 for easier?? OIDC setup by end users
 
-interface OIDCWellKnown {
+// Schema for OIDC well-known configuration
+const OIDCWellKnownV1 = type({
+  issuer: "string.url.parse",
+  authorization_endpoint: "string.url.parse",
+  token_endpoint: "string.url.parse",
+  userinfo_endpoint: "string.url.parse?",
+  jwks_uri: "string.url.parse",
+  scopes_supported: "string[]?",
+});
+
+// Represents required OIDC configuration
+interface OIDCConfiguration {
   issuer: URL;
   authorization_endpoint: URL;
   token_endpoint: URL;
@@ -25,11 +38,18 @@ interface OIDCAuthSessionOptions {
   redirect: string | undefined;
 }
 
+interface OIDCAuthSessionClaims {
+  iss: string;
+  sub?: string;
+  sid?: string;
+}
+
 interface OIDCAuthSession {
   redirectUrl: string;
   callbackUrl: string;
   state: string;
   options: OIDCAuthSessionOptions;
+  claims: OIDCAuthSessionClaims;
 }
 
 interface OIDCUserInfo {
@@ -75,6 +95,21 @@ const OIDCIDTokenV1 = type({
   sid: "string?", // session ID
 });
 
+/**
+ * @see https://openid.net/specs/openid-connect-backchannel-1_0-final.html#LogoutToken
+ */
+const OIDCLogoutTokenV1 = type({
+  iss: "string",
+  sub: "string?",
+  aud: "string | string[]",
+  iat: "number",
+  jti: "string",
+  events: type({
+    "http://schemas.openid.net/event/backchannel-logout": "object",
+  }),
+  sid: "string?", // session ID
+});
+
 export interface OIDCAuthMekCredentialsV1 {
   // only optional for compatibility with older versions
   iss?: string;
@@ -82,7 +117,7 @@ export interface OIDCAuthMekCredentialsV1 {
 }
 
 export class OIDCManager {
-  private oidcConfiguration: OIDCWellKnown;
+  private oidcConfiguration: OIDCConfiguration;
   private clientId: string;
   private clientSecret: string;
   private externalUrl: string;
@@ -102,7 +137,7 @@ export class OIDCManager {
   private JWKS: ReturnType<typeof jose.createRemoteJWKSet>;
 
   constructor(
-    oidcConfiguration: OIDCWellKnown,
+    oidcConfiguration: OIDCConfiguration,
     clientId: string,
     clientSecret: string,
     externalUrl: string,
@@ -118,24 +153,38 @@ export class OIDCManager {
   static async create() {
     const wellKnownUrl = process.env.OIDC_WELLKNOWN as string | undefined;
     const scopes = process.env.OIDC_SCOPES as string | undefined;
-    let configuration: OIDCWellKnown;
+    let configuration: OIDCConfiguration;
     if (wellKnownUrl) {
-      const response: OIDCWellKnown = await $fetch<OIDCWellKnown>(wellKnownUrl);
-      if (
-        !response.authorization_endpoint ||
-        !response.scopes_supported ||
-        !response.token_endpoint ||
-        !response.userinfo_endpoint ||
-        !response.issuer ||
-        !response.jwks_uri
-      ) {
-        throw new Error("Well known response was invalid");
-      }
-      if (scopes) {
-        response.scopes_supported = scopes.split(",");
+      const response = await $fetch<unknown>(wellKnownUrl);
+      const wellKnown = OIDCWellKnownV1(response);
+      if (wellKnown instanceof type.errors) {
+        throw new Error(
+          `Failed to parse OIDC well-known configuration: ${wellKnown.summary}`,
+        );
       }
 
-      configuration = response;
+      if (scopes) {
+        wellKnown.scopes_supported = scopes.split(",");
+      } else if (!wellKnown.scopes_supported) {
+        throw new Error(
+          "OIDC_SCOPES environment variable required if not provided by well-known configuration",
+        );
+      }
+
+      if (!wellKnown.userinfo_endpoint) {
+        throw new Error(
+          "OIDC_USERINFO environment variable required if not provided by well-known configuration",
+        );
+      }
+
+      configuration = {
+        authorization_endpoint: wellKnown.authorization_endpoint,
+        token_endpoint: wellKnown.token_endpoint,
+        userinfo_endpoint: wellKnown.userinfo_endpoint,
+        scopes_supported: wellKnown.scopes_supported,
+        issuer: wellKnown.issuer,
+        jwks_uri: wellKnown.jwks_uri,
+      };
     } else {
       const authorizationEndpoint = process.env.OIDC_AUTHORIZATION as
         | string
@@ -221,6 +270,9 @@ export class OIDCManager {
       callbackUrl: redirectUrl,
       state: stateKey,
       options: options ?? { redirect: undefined },
+      claims: {
+        iss: this.oidcConfiguration.issuer.toString(),
+      },
     };
     this.signinStateTable[stateKey] = session;
     return session;
@@ -229,7 +281,14 @@ export class OIDCManager {
   async authorize(
     code: string,
     state: string,
-  ): Promise<{ user: UserModel; options: OIDCAuthSessionOptions } | string> {
+  ): Promise<
+    | {
+        user: UserModel;
+        options: OIDCAuthSessionOptions;
+        claims: OIDCAuthSessionClaims;
+      }
+    | string
+  > {
     const session = this.signinStateTable[state];
     if (!session) return "Invalid state parameter";
 
@@ -273,8 +332,6 @@ export class OIDCManager {
         return "Invalid ID token from identity provider.";
       }
 
-      // TOOD: add sid, sub, & iss to session for logout handling
-
       const userinfo = await $fetch<OIDCUserInfo>(userinfoEndpoint, {
         headers: {
           Authorization: `${tokenResponse.token_type} ${tokenResponse.access_token}`,
@@ -285,7 +342,17 @@ export class OIDCManager {
 
       if (typeof userOrError === "string") return userOrError;
 
-      return { user: userOrError, options: session.options };
+      const claims: OIDCAuthSessionClaims = {
+        iss: idToken.iss,
+      };
+      if (idToken.sub) claims.sub = idToken.sub;
+      if (idToken.sid) claims.sid = idToken.sid;
+
+      return {
+        user: userOrError,
+        options: session.options,
+        claims,
+      };
     } catch (e) {
       logger.error(e);
       return `Request to identity provider failed: ${e}`;
@@ -393,5 +460,85 @@ export class OIDCManager {
     });
 
     return created.user;
+  }
+
+  /**
+   * Handle OIDC backchannel logout token
+   * @param logout_token
+   * @returns
+   *
+   * @see https://openid.net/specs/openid-connect-backchannel-1_0-final.html#Validation
+   */
+  async handleLogout(logout_token: string): Promise<boolean> {
+    let jwt: jose.JWTVerifyResult<jose.JWTPayload> & jose.ResolvedKey;
+    try {
+      jwt = await jose.jwtVerify(logout_token, this.JWKS, {
+        audience: this.clientId,
+        issuer: this.oidcConfiguration.issuer.toString(),
+      });
+    } catch (e) {
+      console.error("Failed to verify OIDC logout token:", e);
+      return false;
+    }
+
+    const token = OIDCLogoutTokenV1(jwt.payload);
+    if (token instanceof type.errors) {
+      console.error("Invalid OIDC logout token structure:", token.summary);
+      return false;
+    } else if (!token.sid && !token.sub) {
+      console.error(
+        "Invalid OIDC logout token: missing both 'sid' and 'sub' claims",
+      );
+      return false;
+    }
+
+    const query = [
+      {
+        data: {
+          path: ["odic", "iss"],
+          equals: token.iss,
+        },
+      },
+    ];
+
+    if (token.sub) {
+      query.push({
+        data: {
+          path: ["odic", "sub"],
+          equals: token.sub,
+        },
+      });
+    }
+
+    if (token.sid) {
+      query.push({
+        data: {
+          path: ["odic", "sid"],
+          equals: token.sid,
+        },
+      });
+    }
+
+    // console.log(
+    //   "OIDC logout, deleting sessions with query:",
+    //   inspect(query, {
+    //     depth: 5,
+    //   }),
+    // );
+
+    // Find all sessions matching the claims iss/sub/sid
+    const sessions = await prisma.session.findMany({
+      where: {
+        AND: query,
+      },
+    });
+
+    const taskQueue = [];
+    for (const session of sessions) {
+      taskQueue.push(sessionHandler.signoutByToken(session.token));
+    }
+    await Promise.all(taskQueue);
+
+    return true;
   }
 }

@@ -5,6 +5,13 @@ export type Session = {
   data: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
+
+    // OIDC specific session data
+    odic?: {
+      sid?: string;
+      sub?: string;
+      iss: string;
+    };
   };
 };
 
