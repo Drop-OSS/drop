@@ -11,66 +11,7 @@
       </div>
       <div class="mt-2">
         <form @submit.prevent="() => addGame()">
-          <Listbox v-model="currentGame" as="div">
-            <ListboxLabel
-              class="block text-sm font-medium leading-6 text-zinc-100"
-              >{{ $t("library.admin.import.selectGameSearch") }}</ListboxLabel
-            >
-            <div class="relative mt-2">
-              <ListboxButton
-                class="relative w-full cursor-default rounded-md bg-zinc-950 py-1.5 pl-3 pr-10 text-left text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6"
-              >
-                <GameSearchResultWidget
-                  v-if="currentGame"
-                  :game="currentGame"
-                />
-                <span v-else class="block truncate text-zinc-600">
-                  {{ $t("library.admin.import.selectGamePlaceholder") }}
-                </span>
-                <span
-                  class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
-                >
-                  <ChevronUpDownIcon
-                    class="h-5 w-5 text-gray-400"
-                    aria-hidden="true"
-                  />
-                </span>
-              </ListboxButton>
-
-              <transition
-                leave-active-class="transition ease-in duration-100"
-                leave-from-class="opacity-100"
-                leave-to-class="opacity-0"
-              >
-                <ListboxOptions
-                  class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-                >
-                  <ListboxOption
-                    v-for="result in metadataGames"
-                    :key="result.id"
-                    v-slot="{ active }"
-                    as="template"
-                    :value="result"
-                  >
-                    <li
-                      :class="[
-                        active ? 'bg-blue-600 text-white' : 'text-zinc-100',
-                        'relative cursor-default select-none py-2 pl-3 pr-9',
-                      ]"
-                    >
-                      <GameSearchResultWidget :game="result" />
-                    </li>
-                  </ListboxOption>
-                  <p
-                    v-if="metadataGames.length == 0"
-                    class="w-full text-center p-2 uppercase font-display text-zinc-700 font-bold"
-                  >
-                    {{ $t("library.admin.metadata.companies.addGame.noGames") }}
-                  </p>
-                </ListboxOptions>
-              </transition>
-            </div>
-          </Listbox>
+          <SelectorGame v-model="currentGame" :search="search" />
           <div class="mt-6 flex items-center justify-between gap-3">
             <label
               id="published-label"
@@ -200,7 +141,8 @@ const metadataGames = computed(() =>
           name: e.mName,
           icon: useObject(e.mIconObjectId),
           description: e.mShortDescription,
-        }) satisfies Omit<GameMetadataSearchResult, "year">,
+          year: 0,
+        }) satisfies GameMetadataSearchResult,
     ),
 );
 
@@ -242,5 +184,9 @@ async function addGame() {
     addGameLoading.value = false;
     open.value = false;
   }
+}
+
+async function search(query: string) {
+  return await $dropFetch("/api/v1/admin/search/game", { query: { q: query } });
 }
 </script>
