@@ -379,8 +379,8 @@ class TaskHandler {
       return;
     }
     const task = taskConstructor();
-    await this.create(task);
-    return task.id;
+    const id = await this.create(task);
+    return id;
   }
 
   /**
