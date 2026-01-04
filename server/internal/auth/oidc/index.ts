@@ -231,6 +231,29 @@ export class OIDCManager {
     if (!configuration)
       throw new Error("OIDC try to init without configuration");
 
+    const dontRequireHttps = process.env.OIDC_DONT_REQUIRE_HTTPS as
+      | string
+      | undefined;
+    if (
+      dontRequireHttps !== undefined &&
+      dontRequireHttps.toLocaleLowerCase() === "true"
+    ) {
+      console.warn(
+        "Disabling HTTPS requirement for ODIC provider, not recommened in production enviroments",
+      );
+    } else {
+      if (!isHttps(configuration.authorization_endpoint))
+        throw new Error("ODIC authorization_endpoint is not using HTTPS");
+      else if (!isHttps(configuration.token_endpoint))
+        throw new Error("ODIC token_endpoint is not using HTTPS");
+      else if (!isHttps(configuration.userinfo_endpoint))
+        throw new Error("ODIC userinfo_endpoint is not using HTTPS");
+      else if (!isHttps(configuration.issuer))
+        throw new Error("ODIC issuer is not using HTTPS");
+      else if (!isHttps(configuration.jwks_uri))
+        throw new Error("ODIC jwks_uri is not using HTTPS");
+    }
+
     const clientId = process.env.OIDC_CLIENT_ID as string | undefined;
     const clientSecret = process.env.OIDC_CLIENT_SECRET as string | undefined;
     const externalUrl = systemConfig.getExternalUrl();
@@ -541,4 +564,9 @@ export class OIDCManager {
 
     return true;
   }
+}
+
+function isHttps(url: URL): boolean {
+  if (url.protocol === "https:") return true;
+  else return false;
 }
