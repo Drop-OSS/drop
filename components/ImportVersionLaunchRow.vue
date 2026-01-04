@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-2 space-y-2">
+  <div class="space-y-2">
     <div v-if="needsName">
       <div
         class="flex w-full rounded-md shadow-sm bg-zinc-950 ring-1 ring-inset ring-zinc-800 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600"
@@ -19,9 +19,19 @@
         class="flex w-full rounded-md shadow-sm bg-zinc-950 ring-1 ring-inset ring-zinc-800 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600"
       >
         <span
-          class="flex select-none items-center pl-3 text-zinc-500 sm:text-sm"
-          >{{ $t("library.admin.import.version.installDir") }}</span
+          class="flex select-none items-center gap-x-0.5 pl-3 text-zinc-500 sm:text-sm"
         >
+          <div class="relative">
+            <InformationCircleIcon class="peer size-4" />
+            <div
+              class="z-50 w-64 transition duration-100 opacity-0 shadow peer-hover:opacity-100 absolute left-0 p-2 bg-zinc-900 rounded text-xs text-zinc-300"
+            >
+              The string you provide is just run in the install directory, not
+              actually appended to the path.
+            </div>
+          </div>
+          {{ $t("library.admin.import.version.installDir") }}
+        </span>
         <Combobox
           as="div"
           :value="launchConfiguration.launch"
@@ -105,7 +115,7 @@
                   <span
                     :class="['block truncate', selected && 'font-semibold']"
                   >
-                    {{ $t("chars.quoted", { text: launchProcessQuery }) }}
+                    {{ launchProcessQuery }}
                   </span>
 
                   <span
@@ -132,9 +142,11 @@
         />
       </div>
     </div>
-    <PlatformSelector v-model="launchConfiguration.platform">
+    <SelectorPlatform v-model="launchConfiguration.platform">
       {{ $t("library.admin.import.version.platform") }}
-    </PlatformSelector>
+    </SelectorPlatform>
+    <button @click="() => (selectLaunchOpen = true)">Select launch</button>
+    <SelectLaunch v-model="selectLaunchOpen" @select="console.log" />
   </div>
 </template>
 
@@ -147,9 +159,11 @@ import {
   ComboboxOptions,
 } from "@headlessui/vue";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
+import { InformationCircleIcon } from "@heroicons/vue/24/outline";
 import type { Platform } from "~/prisma/client/enums";
 
 import type { ImportVersion } from "~/server/api/v1/admin/import/version/index.post";
+import SelectLaunch from "./Modal/SelectLaunch.vue";
 
 const launchProcessQuery = ref("");
 
@@ -163,6 +177,8 @@ const props = defineProps<{
   versionGuesses: Array<{ platform: Platform; filename: string }> | undefined;
   needsName: boolean;
 }>();
+
+const selectLaunchOpen = ref(false);
 
 const launchFilteredVersionGuesses = computed(() =>
   props.versionGuesses?.filter((e) =>

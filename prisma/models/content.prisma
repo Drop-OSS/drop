@@ -17,7 +17,8 @@ model Game {
 
   // Any field prefixed with m is filled in from metadata
   // Acts as a cache so we can search and filter it
-  mName             String // Name of game
+  mName String // Name of game
+
   mShortDescription String // Short description
   mDescription      String // Supports markdown
   mReleased         DateTime // When the game was released
@@ -51,6 +52,7 @@ model Game {
 
   @@unique([metadataSource, metadataId], name: "metadataKey")
   @@unique([libraryId, libraryPath], name: "libraryKey")
+  @@index([mName(ops: raw("gist_trgm_ops(siglen=32)"))], type: Gist)
 }
 
 model GameTag {

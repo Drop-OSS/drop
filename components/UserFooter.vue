@@ -10,7 +10,7 @@
             {{ $t("drop.desc") }}
           </p>
 
-          <LanguageSelector />
+          <SelectorLanguage />
 
           <div class="flex space-x-6">
             <NuxtLink

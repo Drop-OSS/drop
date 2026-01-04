@@ -1,1 +1,1 @@
-declare module 'kjua';
+declare module "kjua";

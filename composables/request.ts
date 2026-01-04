@@ -16,7 +16,7 @@ interface DropFetch<
     O extends NitroFetchOptions<R> = NitroFetchOptions<R>,
   >(
     request: R,
-    opts?: O & { failTitle?: string },
+    opts?: O & { failTitle?: string; params?: { [key: string]: string } },
   ): Promise<
     // sometimes there is an error, other times there isn't
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-y-4 max-w-[30vw]">
+  <div class="flex flex-col gap-y-4 max-w-[35vw]">
     <Listbox
       as="div"
       :model-value="currentlySelectedVersion"
@@ -73,10 +73,10 @@
       </div>
     </Listbox>
 
-    <div v-if="versionGuesses" class="flex flex-col gap-8">
+    <div v-if="versionGuesses" class="flex flex-col gap-4">
       <!-- setup executable -->
 
-      <div class="relative flex flex-col gap-y-2">
+      <div class="bg-zinc-800 p-4 rounded-xl relative flex flex-col gap-y-2">
         <div>
           <label class="block text-sm font-medium leading-6 text-zinc-100">{{
             $t("library.admin.import.version.setupCmd")
@@ -92,13 +92,21 @@
           <li
             v-for="(launch, launchIdx) in versionSettings.setups"
             :key="launchIdx"
-            class="py-2"
+            class="py-2 inline-flex items-start gap-x-1"
           >
             <ImportVersionLaunchRow
               v-model="versionSettings.setups[launchIdx]"
               :version-guesses="versionGuesses"
               :needs-name="false"
             />
+            <button
+              @click="() => versionSettings.setups.splice(launchIdx, 1)"
+              class="transition rounded p-1 bg-zinc-900/30 group hover:bg-red-600/30"
+            >
+              <TrashIcon
+                class="transition size-5 text-zinc-700 group-hover:text-red-700"
+              />
+            </button>
           </li>
         </ol>
         <span
@@ -114,7 +122,10 @@
         >
       </div>
       <!-- setup mode -->
-      <SwitchGroup as="div" class="flex items-center justify-between">
+      <SwitchGroup
+        as="div"
+        class="bg-zinc-800 p-4 rounded-xl flex items-center justify-between gap-4"
+      >
         <span class="flex flex-grow flex-col">
           <SwitchLabel
             as="span"
@@ -142,7 +153,8 @@
           />
         </Switch>
       </SwitchGroup>
-      <div class="relative flex flex-col gap-y-2">
+      <!-- launch executables -->
+      <div class="relative flex flex-col gap-y-2 bg-zinc-800 p-4 rounded-xl">
         <div>
           <label class="block text-sm font-medium leading-6 text-zinc-100">{{
             $t("library.admin.import.version.launchCmd")
@@ -158,13 +170,21 @@
           <li
             v-for="(launch, launchIdx) in versionSettings.launches"
             :key="launchIdx"
-            class="py-2"
+            class="py-2 inline-flex items-start gap-x-1"
           >
             <ImportVersionLaunchRow
               v-model="versionSettings.launches[launchIdx]"
               :version-guesses="versionGuesses"
               :needs-name="true"
             />
+            <button
+              @click="() => versionSettings.launches.splice(launchIdx, 1)"
+              class="transition rounded p-1 bg-zinc-900/30 group hover:bg-red-600/30"
+            >
+              <TrashIcon
+                class="transition size-5 text-zinc-700 group-hover:text-red-700"
+              />
+            </button>
           </li>
         </ol>
         <span
@@ -185,7 +205,10 @@
         />
       </div>
 
-      <SwitchGroup as="div" class="flex items-center justify-between">
+      <SwitchGroup
+        as="div"
+        class="bg-zinc-800 p-4 rounded-xl flex items-center gap-4 justify-between"
+      >
         <span class="flex flex-grow flex-col">
           <SwitchLabel
             as="span"
@@ -216,7 +239,7 @@
       </SwitchGroup>
 
       <LoadingButton
-        class="w-fit"
+        class="w-fit ml-auto"
         :loading="importLoading"
         @click="startImport_wrapper"
       >
@@ -274,7 +297,11 @@ import {
   SwitchLabel,
 } from "@headlessui/vue";
 import { XCircleIcon } from "@heroicons/vue/16/solid";
-import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
+import {
+  CheckIcon,
+  ChevronUpDownIcon,
+  TrashIcon,
+} from "@heroicons/vue/20/solid";
 import type { Platform } from "~/prisma/client/enums";
 import type { ImportVersion } from "~/server/api/v1/admin/import/version/index.post";
 

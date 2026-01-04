@@ -323,6 +323,9 @@ class LibraryManager {
                       command: v.launch,
                       args: v.launchArgs.split(" "),
                       platform: v.platform,
+                      ...(v.executorId
+                        ? { executorId: v.executorId }
+                        : undefined),
                     })),
                   }
                 : { data: [] },

@@ -14,7 +14,7 @@
             <h1 class="text-4xl font-display font-bold text-zinc-100">
               {{ $t("setup.welcome") }}
             </h1>
-            <LanguageSelectorListbox :show-text="false" class="mt-4 max-w-sm" />
+            <SelectorLanguageListbox :show-text="false" class="mt-4 max-w-sm" />
             <p class="mt-6 text-zinc-400 max-w-xl">
               {{ $t("setup.welcomeDescription") }}
             </p>

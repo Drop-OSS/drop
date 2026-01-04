@@ -1,6 +1,6 @@
 <template>
   <div>
-    <LanguageSelectorListbox />
+    <SelectorLanguageListbox />
     <NuxtLink
       class="mt-1 transition text-blue-500 hover:text-blue-600 text-sm"
       to="https://translate.droposs.org/engage/drop/"

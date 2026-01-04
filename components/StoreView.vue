@@ -127,7 +127,7 @@
                           >
                         </div>
                       </div>
-                      <MultiItemSelector
+                      <SelectorMultiItem
                         v-else
                         v-model="[optionValues[section.param] as any][0]"
                         :items="section.options"
@@ -291,7 +291,7 @@
                       >
                     </div>
                   </div>
-                  <MultiItemSelector
+                  <SelectorMultiItem
                     v-else
                     v-model="[optionValues[section.param] as any][0]"
                     :items="section.options"
@@ -372,7 +372,6 @@ import {
 } from "@heroicons/vue/20/solid";
 import type { SerializeObject } from "nitropack";
 import type { GameModel, GameTagModel } from "~/prisma/client/models";
-import MultiItemSelector from "./MultiItemSelector.vue";
 import { Platform } from "~/prisma/client/enums";
 const { showGamePanelTextDecoration } = await $dropFetch(`/api/v1/settings`);
 

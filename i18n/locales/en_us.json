@@ -98,7 +98,7 @@
   "chars": {
     "arrow": "→",
     "arrowBack": "←",
-    "quoted": "\"\"",
+    "quoted": "\"{0}\"",
     "srComma": ", {0}"
   },
   "common": {
