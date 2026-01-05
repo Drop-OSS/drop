@@ -20,7 +20,7 @@ FROM base AS deps
 RUN pnpm install --frozen-lockfile --ignore-scripts
 
 ### BUILD TORRENTIAL
-FROM rust:1.91.1-alpine AS torrential-build
+FROM rustlang/rust:nightly-alpine AS torrential-build
 RUN apk add musl-dev
 WORKDIR /build
 COPY torrential .
