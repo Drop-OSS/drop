@@ -10,8 +10,9 @@ class SystemConfig {
     process.env.EXTERNAL_URL ?? "http://localhost:3000",
     { stripWWW: false },
   );
-  private dropVersion;
-  private gitRef;
+  private dropVersion: string;
+  private gitRef: string;
+  private odicRequireHttps;
 
   private checkForUpdates = getUpdateCheckConfig();
 
@@ -20,6 +21,17 @@ class SystemConfig {
     const config = useRuntimeConfig();
     this.dropVersion = config.dropVersion;
     this.gitRef = config.gitRef;
+
+    const odicRequireHttps = process.env.OIDC_REQUIRE_HTTPS as
+      | string
+      | undefined;
+
+    // default to true if not set
+    this.odicRequireHttps =
+      odicRequireHttps !== undefined &&
+      odicRequireHttps.toLocaleLowerCase() === "false"
+        ? false
+        : true;
   }
 
   getLibraryFolder() {
@@ -48,6 +60,11 @@ class SystemConfig {
 
   getExternalUrl() {
     return this.externalUrl;
+  }
+
+  // if oidc should require https for endpoints
+  shouldOidcRequireHttps() {
+    return this.odicRequireHttps;
   }
 }
 

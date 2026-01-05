@@ -151,11 +151,22 @@ export class OIDCManager {
   }
 
   static async create() {
-    const wellKnownUrl = process.env.OIDC_WELLKNOWN as string | undefined;
+    if (!systemConfig.shouldOidcRequireHttps()) {
+      console.warn(
+        "Disabling HTTPS requirement for ODIC provider, not recommened in production enviroments",
+      );
+    }
+
+    const wellKnownUrlString = process.env.OIDC_WELLKNOWN as string | undefined;
     const scopes = process.env.OIDC_SCOPES as string | undefined;
     let configuration: OIDCConfiguration;
-    if (wellKnownUrl) {
-      const response = await $fetch<unknown>(wellKnownUrl);
+    if (wellKnownUrlString) {
+      const wellKnownUrl = new URL(wellKnownUrlString);
+      if (systemConfig.shouldOidcRequireHttps() && !isHttps(wellKnownUrl)) {
+        throw new Error("OIDC_WELLKNOWN URL must use HTTPS");
+      }
+
+      const response = await $fetch<unknown>(wellKnownUrl.toString());
       const wellKnown = OIDCWellKnownV1(response);
       if (wellKnown instanceof type.errors) {
         throw new Error(
@@ -231,17 +242,7 @@ export class OIDCManager {
     if (!configuration)
       throw new Error("OIDC try to init without configuration");
 
-    const dontRequireHttps = process.env.OIDC_DONT_REQUIRE_HTTPS as
-      | string
-      | undefined;
-    if (
-      dontRequireHttps !== undefined &&
-      dontRequireHttps.toLocaleLowerCase() === "true"
-    ) {
-      console.warn(
-        "Disabling HTTPS requirement for ODIC provider, not recommened in production enviroments",
-      );
-    } else {
+    if (systemConfig.shouldOidcRequireHttps()) {
       if (!isHttps(configuration.authorization_endpoint))
         throw new Error("ODIC authorization_endpoint is not using HTTPS");
       else if (!isHttps(configuration.token_endpoint))
