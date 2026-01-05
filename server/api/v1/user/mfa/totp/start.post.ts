@@ -1,12 +1,10 @@
 import aclManager from "~/server/internal/acls";
-import { totp, generateKey, getKeyUri } from "otp-io";
-import { hmac, randomBytes } from "otp-io/crypto";
+import { generateKey, getKeyUri } from "otp-io";
+import { randomBytes } from "otp-io/crypto";
 import prisma from "~/server/internal/db/database";
 import { MFAMec } from "~/prisma/client/client";
-import {
-  TOTPv1Credentials,
-  dropEncodeArrayBase64,
-} from "~/server/internal/auth/totp";
+import type { TOTPv1Credentials } from "~/server/internal/auth/totp";
+import { dropEncodeArrayBase64 } from "~/server/internal/auth/totp";
 import { b32e } from "~/server/internal/auth/base32";
 
 export default defineEventHandler(async (h3) => {
@@ -28,6 +26,8 @@ export default defineEventHandler(async (h3) => {
 
   if (existing) {
     if (!existing.enabled) {
+      // Safe because we're updating something we just queried
+      // eslint-disable-next-line drop/no-prisma-delete
       await prisma.linkedMFAMec.delete({
         where: { userId_mec: { userId: existing.userId, mec: existing.mec } },
       });

@@ -25,8 +25,7 @@ const extendedSessionLength: DurationLike = {
   year: 1,
 };
 
-const signinResult = ["signin", "2fa", "fail"] as const;
-type SigninResult = (typeof signinResult)[number];
+type SigninResult = ["signin", "2fa", "fail"][number];
 
 export class SessionHandler {
   private sessionProvider: SessionProvider;
@@ -135,6 +134,7 @@ export class SessionHandler {
 
     const session = await this.sessionProvider.getSession(token);
     if (!session) return false;
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     delete session.data[key];
     await this.sessionProvider.setSession(token, session);
     return true;

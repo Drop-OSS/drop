@@ -57,7 +57,7 @@
 </template>
 
 <script setup lang="ts">
-import { FetchError } from "ofetch";
+import type { FetchError } from "ofetch";
 
 useHead({
   title: "Set up TOTP",

@@ -3,7 +3,8 @@ import sessionHandler from "~/server/internal/session";
 
 export default defineEventHandler(async (h3) => {
   const session = await sessionHandler.getSession(h3);
-  if (!session || !session.authenticated) throw createError({ statusCode: 403 });
+  if (!session || !session.authenticated)
+    throw createError({ statusCode: 403 });
 
   const query = getQuery(h3);
   const providedClientId = query.id?.toString();
@@ -26,7 +27,10 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Client already claimed.",
     });
 
-  await clientHandler.attachUserId(providedClientId, session.authenticated.userId);
+  await clientHandler.attachUserId(
+    providedClientId,
+    session.authenticated.userId,
+  );
 
   return client.data;
 });

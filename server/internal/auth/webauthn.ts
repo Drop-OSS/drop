@@ -4,7 +4,7 @@ import { dropDecodeArrayBase64 } from "./totp";
 import { decode } from "cbor2";
 import { createHash } from "node:crypto";
 import cosekey from "parse-cosekey";
-import { AuthenticatorTransportFuture } from "@simplewebauthn/server";
+import type { AuthenticatorTransportFuture } from "@simplewebauthn/server";
 
 export async function getRpId() {
   const externalUrl =
@@ -15,8 +15,8 @@ export async function getRpId() {
 }
 
 export interface Passkey {
-  name: string,
-  created: number,
+  name: string;
+  created: number;
   userId: string;
   webAuthnUserId: string;
   id: string;
@@ -94,7 +94,7 @@ export async function parseAndValidatePasskeyCreation(
       message:
         "Attested credential data is missing AAGUID and/or credentialIdLength",
     });
-  const aaguid = attestedCredentialData.slice(0, 16);
+  // const aaguid = attestedCredentialData.slice(0, 16);
   const credentialIdLengthBuffer = attestedCredentialData.slice(16, 18);
   const credentialIdLength = Buffer.from(credentialIdLengthBuffer).readUintBE(
     0,

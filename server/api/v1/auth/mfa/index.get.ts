@@ -1,7 +1,5 @@
 import sessionHandler from "~/server/internal/session";
-import { type } from "arktype";
 import prisma from "~/server/internal/db/database";
-import { MFAMec } from "~/prisma/client/client";
 
 export default defineEventHandler(async (h3) => {
   const session = await sessionHandler.getSession(h3);

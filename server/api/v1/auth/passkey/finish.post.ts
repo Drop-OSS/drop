@@ -1,11 +1,8 @@
 import { verifyAuthenticationResponse } from "@simplewebauthn/server";
-import { type } from "arktype";
 import { MFAMec } from "~/prisma/client/enums";
 import { dropDecodeArrayBase64 } from "~/server/internal/auth/totp";
-import {
-  getRpId,
-  WebAuthNv1Credentials,
-} from "~/server/internal/auth/webauthn";
+import type { WebAuthNv1Credentials } from "~/server/internal/auth/webauthn";
+import { getRpId } from "~/server/internal/auth/webauthn";
 import { systemConfig } from "~/server/internal/config/sys-conf";
 import prisma from "~/server/internal/db/database";
 import sessionHandler from "~/server/internal/session";
@@ -87,6 +84,8 @@ export default defineEventHandler(async (h3) => {
   passkeys[passkeyIndex].counter = newCounter;
   (mfaMec.credentials as unknown as WebAuthNv1Credentials).passkeys = passkeys;
 
+  // Safe because we query it before
+  // eslint-disable-next-line drop/no-prisma-delete
   await prisma.linkedMFAMec.update({
     where: {
       userId_mec: {

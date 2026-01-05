@@ -1,12 +1,5 @@
 import { generateAuthenticationOptions } from "@simplewebauthn/server";
-import { MFAMec } from "~/prisma/client/enums";
-import aclManager from "~/server/internal/acls";
-import {
-  getRpId,
-  WebAuthNv1Credentials,
-} from "~/server/internal/auth/webauthn";
-import { systemConfig } from "~/server/internal/config/sys-conf";
-import prisma from "~/server/internal/db/database";
+import { getRpId } from "~/server/internal/auth/webauthn";
 import sessionHandler from "~/server/internal/session";
 
 export default defineEventHandler(async (h3) => {

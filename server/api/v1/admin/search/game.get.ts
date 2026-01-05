@@ -1,7 +1,7 @@
 import { ArkErrors, type } from "arktype";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
-import { GameMetadataSearchResult } from "~/server/internal/metadata/types";
+import type { GameMetadataSearchResult } from "~/server/internal/metadata/types";
 
 const Query = type({
   q: "string",

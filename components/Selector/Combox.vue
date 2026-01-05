@@ -4,17 +4,17 @@
     nullable
     :immediate="true"
     :model-value="model"
-    @update:model-value="updateModelValue"
     class="bg-zinc-800 rounded"
+    @update:model-value="updateModelValue"
   >
     <div class="relative">
       <ComboboxInput
+        :key="model?.id ?? 'off'"
         class="block flex-1 border-0 py-1.5 pl-2 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
         placeholder="Start typing..."
+        :display-value="(v) => (v ? props.display(v as T) : '')"
         @change="query = $event.target.value"
         @blur="query = ''"
-        :display-value="(v) => (v ? props.display(v as T) : '')"
-        :key="model?.id ?? 'off'"
       />
       <ComboboxButton
         class="absolute inset-0 right-0 flex items-center justify-end rounded-r-md px-2 focus:outline-none"
@@ -32,8 +32,8 @@
           No results.
         </div>
         <ComboboxOption
-          v-else
           v-for="result in results"
+          v-else
           :key="result.id"
           v-slot="{ active, selected }"
           :value="result"

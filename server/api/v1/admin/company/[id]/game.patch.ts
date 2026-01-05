@@ -23,6 +23,8 @@ export default defineEventHandler(async (h3) => {
   const game = await prisma.game.findUnique({ where: { id: body.id } });
   if (!game) throw createError({ statusCode: 404, message: "Game not found" });
 
+  // Safe because we query the game above
+  // eslint-disable-next-line drop/no-prisma-delete
   await prisma.game.update({
     where: {
       id: body.id,

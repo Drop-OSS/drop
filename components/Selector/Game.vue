@@ -1,17 +1,17 @@
 <template>
   <Combobox
+    v-model="currentResult"
     as="div"
     nullable
-    v-model="currentResult"
     class="bg-zinc-800 rounded"
   >
     <div class="relative">
       <ComboboxInput
         class="block flex-1 border-0 py-1.5 pl-2 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
         placeholder="Start typing..."
+        :display-value="(game) => (game as GameMetadataSearchResult)?.name"
         @change="gameSearchQuery = $event.target.value"
         @blur="gameSearchQuery = ''"
-        :display-value="(game) => (game as GameMetadataSearchResult)?.name"
       />
       <ComboboxButton
         class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
@@ -56,8 +56,8 @@
           No results.
         </div>
         <ComboboxOption
-          v-else
           v-for="result in results"
+          v-else
           :key="result.id"
           v-slot="{ active, selected }"
           :value="result"
@@ -99,7 +99,7 @@ import {
 } from "@headlessui/vue";
 import { ChevronUpDownIcon } from "@heroicons/vue/24/outline";
 
-import { GameMetadataSearchResult } from "~/server/internal/metadata/types";
+import type { GameMetadataSearchResult } from "~/server/internal/metadata/types";
 
 const props = defineProps<{
   search: (query: string) => Promise<Array<GameMetadataSearchResult>>;

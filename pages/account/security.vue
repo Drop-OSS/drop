@@ -224,9 +224,8 @@ import {
   CheckCircleIcon,
 } from "@heroicons/vue/20/solid";
 import { CheckIcon, ClockIcon, KeyIcon } from "@heroicons/vue/24/outline";
-import { MFAMec } from "~/prisma/client/enums";
 const superlevel = await $dropFetch("/api/v1/user/superlevel");
-const auth = await $dropFetch("/api/v1/user/auth");
+//const auth = await $dropFetch("/api/v1/user/auth");
 const mfa = await $dropFetch("/api/v1/user/mfa");
 
 const webAuthnOpen = ref(false);

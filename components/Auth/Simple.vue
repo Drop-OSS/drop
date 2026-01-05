@@ -90,8 +90,7 @@ import {
   startAuthentication,
   browserSupportsWebAuthn,
 } from "@simplewebauthn/browser";
-import { FetchError } from "ofetch";
-import type { UserModel } from "~/prisma/client/models";
+import type { FetchError } from "ofetch";
 
 const username = ref("");
 const password = ref("");
@@ -123,7 +122,8 @@ onMounted(async () => {
     try {
       await passkeyAutofill();
     } catch (response) {
-      const message = (response as FetchError).statusMessage || t("errors.unknown");
+      const message =
+        (response as FetchError).statusMessage || t("errors.unknown");
       error.value = message;
     } finally {
       loading.value = false;

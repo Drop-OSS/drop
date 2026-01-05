@@ -51,7 +51,6 @@
 
 <script setup lang="ts">
 import {
-  CheckIcon,
   ChevronRightIcon,
   ClockIcon,
   KeyIcon,

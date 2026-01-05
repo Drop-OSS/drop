@@ -1,13 +1,10 @@
 import aclManager from "~/server/internal/acls";
-import { totp, generateKey, getKeyUri, SecretKey } from "otp-io";
-import { hmac, randomBytes } from "otp-io/crypto";
+import { totp, SecretKey } from "otp-io";
+import { hmac } from "otp-io/crypto";
 import prisma from "~/server/internal/db/database";
 import { MFAMec } from "~/prisma/client/client";
-import {
-  dropDecodeArrayBase64,
-  dropEncodeArrayBase64,
-  TOTPv1Credentials,
-} from "~/server/internal/auth/totp";
+import type { TOTPv1Credentials } from "~/server/internal/auth/totp";
+import { dropDecodeArrayBase64 } from "~/server/internal/auth/totp";
 import { createError } from "h3";
 import { type } from "arktype";
 import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
@@ -46,6 +43,8 @@ export default defineEventHandler(async (h3) => {
   if (body.code !== code)
     throw createError({ statusCode: 400, message: "Invalid TOTP code." });
 
+  // Safe because we're updating something we just queried
+  // eslint-disable-next-line drop/no-prisma-delete
   await prisma.linkedMFAMec.update({
     where: {
       userId_mec: {

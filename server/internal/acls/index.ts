@@ -128,7 +128,8 @@ class ACLManager {
     // Sessions automatically have all ACLs
     const session = await sessionHandler.getSession(request);
     if (session && session.authenticated) {
-      if (session.authenticated.level >= session.authenticated.requiredLevel) return session.authenticated.userId;
+      if (session.authenticated.level >= session.authenticated.requiredLevel)
+        return session.authenticated.userId;
       return undefined;
     }
 
@@ -169,8 +170,10 @@ class ACLManager {
       throw new Error("Native web requests not available - weird deployment?");
     const session = await sessionHandler.getSession(request);
     if (!session || !session.authenticated) return undefined;
-    if (session.authenticated.level < session.authenticated.requiredLevel) return undefined;
-    if (session.authenticated.superleveledExpiry === undefined) return undefined;
+    if (session.authenticated.level < session.authenticated.requiredLevel)
+      return undefined;
+    if (session.authenticated.superleveledExpiry === undefined)
+      return undefined;
     if (session.authenticated.superleveledExpiry < Date.now()) return undefined;
     return session.authenticated.userId;
   }
@@ -189,7 +192,11 @@ class ACLManager {
       if (user) {
         if (!user) return false;
         if (!user.admin) return false;
-        if (userSession.authenticated.level < userSession.authenticated.requiredLevel) return false;
+        if (
+          userSession.authenticated.level <
+          userSession.authenticated.requiredLevel
+        )
+          return false;
         return true;
       }
     }

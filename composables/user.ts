@@ -12,13 +12,11 @@ export const updateUser = async () => {
   user.value = await $dropFetch<UserModel | null>("/api/v1/user");
 };
 
-
 export async function completeSignin() {
   const route = useRoute();
   const router = useRouter();
 
-    const user = useUser();
+  const user = useUser();
   user.value = await $dropFetch<UserModel | null>("/api/v1/user");
   router.push(route.query.redirect?.toString() ?? "/");
-
 }

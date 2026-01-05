@@ -104,18 +104,11 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import type { GameModel } from "~/prisma/client/models";
-import {
-  DialogTitle,
-  Listbox,
-  ListboxButton,
-  ListboxLabel,
-  ListboxOption,
-  ListboxOptions,
-} from "@headlessui/vue";
-import type { GameMetadataSearchResult } from "~/server/internal/metadata/types";
+import { DialogTitle } from "@headlessui/vue";
 import { FetchError } from "ofetch";
 import type { SerializeObject } from "nitropack";
-import { ChevronUpDownIcon, XCircleIcon } from "@heroicons/vue/24/solid";
+import { XCircleIcon } from "@heroicons/vue/24/solid";
+import type { GameMetadataSearchResult } from "~/server/internal/metadata/types";
 
 const props = defineProps<{
   companyId: string;
@@ -130,27 +123,11 @@ const emit = defineEmits<{
   ];
 }>();
 
-const games = await $dropFetch("/api/v1/admin/game");
-const metadataGames = computed(() =>
-  games
-    .filter((e) => !(props.exclude ?? []).includes(e.id))
-    .map(
-      (e) =>
-        ({
-          id: e.id,
-          name: e.mName,
-          icon: useObject(e.mIconObjectId),
-          description: e.mShortDescription,
-          year: 0,
-        }) satisfies GameMetadataSearchResult,
-    ),
-);
-
 const { t } = useI18n();
 
 const open = defineModel<boolean>({ required: true });
 
-const currentGame = ref<(typeof metadataGames.value)[number]>();
+const currentGame = ref<GameMetadataSearchResult>();
 const developed = ref(false);
 const published = ref(false);
 const addGameLoading = ref(false);

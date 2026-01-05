@@ -2,10 +2,8 @@ import sessionHandler from "~/server/internal/session";
 import { type } from "arktype";
 import prisma from "~/server/internal/db/database";
 import { MFAMec } from "~/prisma/client/client";
-import {
-  dropDecodeArrayBase64,
-  TOTPv1Credentials,
-} from "~/server/internal/auth/totp";
+import type { TOTPv1Credentials } from "~/server/internal/auth/totp";
+import { dropDecodeArrayBase64 } from "~/server/internal/auth/totp";
 import { SecretKey, totp } from "otp-io";
 import { hmac } from "otp-io/crypto-web";
 import { readDropValidatedBody, throwingArktype } from "~/server/arktype";

@@ -1,7 +1,7 @@
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import { MFAMec } from "~/prisma/client/enums";
-import { WebAuthNv1Credentials } from "~/server/internal/auth/webauthn";
+import type { WebAuthNv1Credentials } from "~/server/internal/auth/webauthn";
 
 export default defineEventHandler(async (h3) => {
   const userId = await aclManager.getUserIdACL(h3, []); // No ACLs only allows session authentication
@@ -19,12 +19,17 @@ export default defineEventHandler(async (h3) => {
         case MFAMec.TOTP:
           v.credentials = {};
           break;
-        case MFAMec.WebAuthn:
+        case MFAMec.WebAuthn: {
           const newCredentials = (
             v.credentials as unknown as WebAuthNv1Credentials
-          ).passkeys.map((v) => ({ name: v.name, id: v.id, created: v.created }));
+          ).passkeys.map((v) => ({
+            name: v.name,
+            id: v.id,
+            created: v.created,
+          }));
           v.credentials = newCredentials;
           break;
+        }
       }
       return [v.mec, v];
     }),

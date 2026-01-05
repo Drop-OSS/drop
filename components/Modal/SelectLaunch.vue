@@ -8,7 +8,10 @@
         <p class="mt-1 text-zinc-400 text-sm">
           Select a launch option as an executor for your new launch option.
         </p>
-        <div v-if="props.filterPlatform" class="inline-flex items-center mt-2 gap-x-4">
+        <div
+          v-if="props.filterPlatform"
+          class="inline-flex items-center mt-2 gap-x-4"
+        >
           <h1 class="block text-sm font-medium leading-6 text-zinc-100">
             Only showing launches for:
           </h1>
@@ -18,7 +21,9 @@
               alt=""
               class="size-5 flex-shrink-0 text-blue-600"
             />
-            <span class="ml-2 block truncate text-zinc-100 text-sm font-bold">{{ props.filterPlatform }}</span>
+            <span class="ml-2 block truncate text-zinc-100 text-sm font-bold">{{
+              props.filterPlatform
+            }}</span>
           </span>
         </div>
       </div>
@@ -30,8 +35,8 @@
           <SelectorGame
             :search="search"
             :model-value="game"
-            @update:model-value="(value) => updateGame(value)"
             class="w-full"
+            @update:model-value="(value) => updateGame(value)"
           />
         </div>
         <div
@@ -61,8 +66,8 @@
             "
             :display="(v) => v.name"
             :model-value="version"
-            @update:model-value="updateVersion"
             class="w-full"
+            @update:model-value="updateVersion"
           >
             <template #default="{ value }">
               {{ value.name }}
@@ -94,8 +99,8 @@
             "
             :display="(v) => v.name"
             :model-value="launchId"
-            @update:model-value="(v) => (launchId = v)"
             class="w-full"
+            @update:model-value="(v) => (launchId = v)"
           >
             <template #default="{ value }">
               <div class="flex flex-col">

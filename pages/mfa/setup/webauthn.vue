@@ -17,10 +17,10 @@
 
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
       <form
-        @submit.prevent="attemptPasskeyWrapper"
         class="space-y-6"
         action="#"
         method="POST"
+        @submit.prevent="attemptPasskeyWrapper"
       >
         <div>
           <label for="name" class="block text-sm/6 font-medium text-gray-100"
@@ -28,13 +28,13 @@
           >
           <div class="mt-2">
             <input
+              id="name"
+              v-model="name"
               type="text"
               name="name"
-              id="name"
               required
               placeholder="My New Passkey"
               class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-500 sm:text-sm/6"
-              v-model="name"
             />
           </div>
         </div>
@@ -67,7 +67,7 @@
 
 <script setup lang="ts">
 import { KeyIcon, XCircleIcon } from "@heroicons/vue/24/outline";
-import { FetchError } from "ofetch";
+import type { FetchError } from "ofetch";
 import { startRegistration } from "@simplewebauthn/browser";
 
 const router = useRouter();

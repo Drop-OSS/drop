@@ -23,7 +23,7 @@
     </div>
 
     <div v-else class="inline-flex gap-x-2">
-      <LoadingButton :loading="false" @click="() => tryAuth()">
+      <LoadingButton :loading="false" @click="() => tryAuthWrapper()">
         Sign in with WebAuthn</LoadingButton
       >
     </div>
@@ -45,8 +45,7 @@
 
 <script setup lang="ts">
 import { startAuthentication } from "@simplewebauthn/browser";
-import { FetchError } from "ofetch";
-import { UserModel } from "~/prisma/client/models";
+import type { FetchError } from "ofetch";
 
 const loading = ref<boolean>(false);
 const success = ref(false);

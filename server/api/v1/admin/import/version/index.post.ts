@@ -16,7 +16,7 @@ export const ImportVersion = type({
     launch: "string",
     launchArgs: "string = ''",
     umuId: "string?",
-    executorId: 'string?'
+    executorId: "string?",
   }).array(),
 
   setups: type({

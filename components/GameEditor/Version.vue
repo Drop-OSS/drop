@@ -108,7 +108,7 @@
                     <div v-if="version.onlySetup">
                       Version configured as in setup-only mode.
                     </div>
-                    <ul class="space-y-2" v-else>
+                    <ul v-else class="space-y-2">
                       <GameEditorVersionConfig
                         v-for="config in version.launches"
                         :key="config.launchId"

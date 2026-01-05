@@ -65,6 +65,8 @@ definePageMeta({
 });
 
 useHead({
-  title: superlevel ? "Sign in to access protected action": t("auth.signin.pageTitle"),
+  title: superlevel
+    ? "Sign in to access protected action"
+    : t("auth.signin.pageTitle"),
 });
 </script>

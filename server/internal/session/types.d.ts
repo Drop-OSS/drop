@@ -1,5 +1,5 @@
 export type Session = {
-  authenticated?: AuthenticatedSession,
+  authenticated?: AuthenticatedSession;
 
   expiresAt: Date;
   data: {

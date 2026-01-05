@@ -1,12 +1,8 @@
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import sessionHandler from "~/server/internal/session";
-import {
-  generateRegistrationOptions,
-  verifyRegistrationResponse,
-} from "@simplewebauthn/server";
+import { generateRegistrationOptions } from "@simplewebauthn/server";
 import { getRpId } from "~/server/internal/auth/webauthn";
-import { MFAMec } from "~/prisma/client/enums";
 import { type } from "arktype";
 import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 

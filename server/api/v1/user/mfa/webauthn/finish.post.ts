@@ -1,24 +1,12 @@
-import { ArkErrors, type } from "arktype";
-import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 import aclManager from "~/server/internal/acls";
-import { decode } from "cbor2";
-import {
-  dropDecodeArrayBase64,
-  dropEncodeArrayBase64,
-} from "~/server/internal/auth/totp";
-import {
-  getRpId,
-  parseAndValidatePasskeyCreation,
-  WebAuthNv1Credentials,
-} from "~/server/internal/auth/webauthn";
-import { createHash } from "node:crypto";
+import { dropEncodeArrayBase64 } from "~/server/internal/auth/totp";
+import type { WebAuthNv1Credentials } from "~/server/internal/auth/webauthn";
+import { getRpId } from "~/server/internal/auth/webauthn";
 import prisma from "~/server/internal/db/database";
 import { MFAMec } from "~/prisma/client/enums";
 import sessionHandler from "~/server/internal/session";
-import {
-  PublicKeyCredentialCreationOptionsJSON,
-  verifyRegistrationResponse,
-} from "@simplewebauthn/server";
+import type { PublicKeyCredentialCreationOptionsJSON } from "@simplewebauthn/server";
+import { verifyRegistrationResponse } from "@simplewebauthn/server";
 import { systemConfig } from "~/server/internal/config/sys-conf";
 
 export default defineEventHandler(async (h3) => {
@@ -104,6 +92,8 @@ export default defineEventHandler(async (h3) => {
     backedUp: credentialBackedUp,
   });
 
+  // Safe because we're updating something we just queried
+  // eslint-disable-next-line drop/no-prisma-delete
   await prisma.linkedMFAMec.update({
     where: {
       userId_mec: {

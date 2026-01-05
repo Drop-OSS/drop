@@ -48,8 +48,7 @@
 <script setup lang="ts">
 import { XCircleIcon } from "@heroicons/vue/20/solid";
 import { CheckIcon } from "@heroicons/vue/24/outline";
-import { FetchError } from "ofetch";
-import { UserModel } from "~/prisma/client/models";
+import type { FetchError } from "ofetch";
 
 definePageMeta({
   layout: false,
@@ -73,7 +72,7 @@ async function signin(code: string) {
     return;
   }
   success.value = true;
-  
+
   await completeSignin();
 }
 </script>

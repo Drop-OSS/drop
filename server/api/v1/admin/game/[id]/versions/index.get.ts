@@ -29,7 +29,7 @@ export default defineEventHandler(async (h3) => {
       },
     },
   });
-  if(!game) throw createError({statusCode: 404, message: "Game not found"});
+  if (!game) throw createError({ statusCode: 404, message: "Game not found" });
 
   return game.versions;
 });

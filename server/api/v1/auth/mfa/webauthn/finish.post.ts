@@ -1,15 +1,8 @@
 import { verifyAuthenticationResponse } from "@simplewebauthn/server";
-import { type } from "arktype";
-import crypto, { createHash } from "crypto";
-import { createRouteRulesHandler } from "nitropack/runtime/internal/route-rules";
 import { MFAMec } from "~/prisma/client/enums";
-import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 import { dropDecodeArrayBase64 } from "~/server/internal/auth/totp";
-import {
-  getRpId,
-  parseAndValidatePasskeyCreation,
-  WebAuthNv1Credentials,
-} from "~/server/internal/auth/webauthn";
+import type { WebAuthNv1Credentials } from "~/server/internal/auth/webauthn";
+import { getRpId } from "~/server/internal/auth/webauthn";
 import { systemConfig } from "~/server/internal/config/sys-conf";
 import prisma from "~/server/internal/db/database";
 import sessionHandler from "~/server/internal/session";
@@ -43,7 +36,12 @@ export default defineEventHandler(async (h3) => {
   await sessionHandler.deleteSessionDataKey(h3, "webauthn/challenge");
 
   const mfaMec = await prisma.linkedMFAMec.findUnique({
-    where: { userId_mec: { userId: session.authenticated.userId, mec: MFAMec.WebAuthn } },
+    where: {
+      userId_mec: {
+        userId: session.authenticated.userId,
+        mec: MFAMec.WebAuthn,
+      },
+    },
   });
   if (!mfaMec)
     throw createError({ statusCode: 400, message: "WebAuthn not enabled" });
@@ -90,6 +88,8 @@ export default defineEventHandler(async (h3) => {
   passkeys[passkeyIndex].counter = newCounter;
   (mfaMec.credentials as unknown as WebAuthNv1Credentials).passkeys = passkeys;
 
+  // Safe because we query it at the start of the route
+  // eslint-disable-next-line drop/no-prisma-delete
   await prisma.linkedMFAMec.update({
     where: {
       userId_mec: {
