@@ -4,11 +4,10 @@ import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 
 const UpdateVersionOrder = type({
-  id: "string",
   versions: "string[]",
 }).configure(throwingArktype);
 
-export default defineEventHandler<{ body: typeof UpdateVersionOrder }>(
+export default defineEventHandler(
   async (h3) => {
     const allowed = await aclManager.allowSystemACL(h3, [
       "game:version:update",
@@ -16,7 +15,7 @@ export default defineEventHandler<{ body: typeof UpdateVersionOrder }>(
     if (!allowed) throw createError({ statusCode: 403 });
 
     const body = await readDropValidatedBody(h3, UpdateVersionOrder);
-    const gameId = body.id;
+    const gameId = getRouterParam(h3, "id")!;
     // We expect an array of the version names for this game
     const unsortedVersions = await prisma.gameVersion.findMany({
       where: {
@@ -67,6 +66,6 @@ export default defineEventHandler<{ body: typeof UpdateVersionOrder }>(
       ),
     );
 
-    return versions;
+    return versions.map((v) => v.versionId);
   },
 );

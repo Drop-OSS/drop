@@ -138,10 +138,9 @@
 
 <script setup lang="ts">
 import { XCircleIcon } from "@heroicons/vue/24/outline";
-import { SerializeObject } from "nitropack";
-import { ExecutorLaunchObject } from "~/composables/frontend";
-import { Platform } from "~/prisma/client/enums";
-import { GameMetadataSearchResult } from "~/server/internal/metadata/types";
+import type { ExecutorLaunchObject } from "~/composables/frontend";
+import type { Platform } from "~/prisma/client/enums";
+import type { GameMetadataSearchResult } from "~/server/internal/metadata/types";
 
 const props = defineProps<{ filterPlatform?: Platform }>();
 

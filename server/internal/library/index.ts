@@ -304,7 +304,7 @@ class LibraryManager {
             versionIndex: currentIndex,
             delta: metadata.delta,
 
-            onlySetup: true,
+            onlySetup: metadata.onlySetup,
             setups: {
               createMany: {
                 data: metadata.setups.map((v) => ({

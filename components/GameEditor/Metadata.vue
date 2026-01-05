@@ -463,7 +463,7 @@
 </template>
 
 <script setup lang="ts">
-import type { GameModel, GameTagModel } from "~/prisma/client/models";
+import type { GameModel } from "~/prisma/client/models";
 import { micromark } from "micromark";
 import {
   CheckIcon,
@@ -473,6 +473,7 @@ import {
 } from "@heroicons/vue/24/solid";
 import type { SerializeObject } from "nitropack";
 import type { H3Error } from "h3";
+import type { AdminFetchGameType } from "~/server/api/v1/admin/game/[id]/index.get";
 
 const showUploadModal = ref(false);
 const showAddCarouselModal = ref(false);
@@ -480,8 +481,9 @@ const showAddImageDescriptionModal = ref(false);
 const showEditCoreMetadata = ref(false);
 const mobileShowFinalDescription = ref(true);
 
-type ModelType = SerializeObject<GameModel & { tags: Array<GameTagModel> }>;
-const game = defineModel<ModelType>() as Ref<ModelType>;
+const game = defineModel<SerializeObject<AdminFetchGameType>>({
+  required: true,
+});
 if (!game.value)
   throw createError({
     statusCode: 500,

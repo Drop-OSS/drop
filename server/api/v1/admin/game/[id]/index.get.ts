@@ -1,4 +1,4 @@
-import type { GameVersion } from "~/prisma/client/client";
+import type { GameVersion, Prisma } from "~/prisma/client/client";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import libraryManager from "~/server/internal/library";
@@ -13,7 +13,50 @@ async function getGameVersionSize<
   return { ...version, size };
 }
 
-export default defineEventHandler(async (h3) => {
+export type AdminFetchGameType = Prisma.GameGetPayload<{
+  include: {
+    versions: {
+      include: {
+        setups: true;
+        launches: {
+          include: {
+            executor: {
+              include: {
+                gameVersion: {
+                  select: {
+                    versionId: true;
+                    displayName: true;
+                    versionPath: true;
+                    game: {
+                      select: {
+                        id: true;
+                        mName: true;
+                        mIconObjectId: true;
+                      };
+                    };
+                  };
+                };
+              };
+            };
+          };
+        };
+      };
+      omit: {
+        dropletManifest: true;
+      };
+    };
+    tags: true;
+  };
+}>;
+
+// Types in the route ensure we actually return the value as defined above
+export default defineEventHandler<
+  { body: never },
+  Promise<{
+    game: AdminFetchGameType;
+    unimportedVersions: string[] | undefined;
+  }>
+>(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["game:read"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
@@ -25,15 +68,36 @@ export default defineEventHandler(async (h3) => {
     },
     include: {
       versions: {
-        orderBy: {
-          versionIndex: "asc",
+        include: {
+          setups: true,
+          launches: {
+            include: {
+              executor: {
+                include: {
+                  gameVersion: {
+                    select: {
+                      versionId: true,
+                      displayName: true,
+                      versionPath: true,
+                      game: {
+                        select: {
+                          id: true,
+                          mName: true,
+                          mIconObjectId: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
         omit: {
           dropletManifest: true,
         },
-        include: {
-          launches: true,
-          setups: true,
+        orderBy: {
+          versionIndex: "asc",
         },
       },
       tags: true,

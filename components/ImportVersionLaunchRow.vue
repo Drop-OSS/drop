@@ -144,8 +144,8 @@
     </div>
     <SelectorPlatform
       :model-value="launchConfiguration.platform"
-      @update:model-value="updatePlatform"
       class="mb-2"
+      @update:model-value="updatePlatform"
     >
       {{ $t("library.admin.import.version.platform") }}
     </SelectorPlatform>
@@ -153,40 +153,8 @@
       <h1 class="block text-sm font-medium leading-6 text-zinc-100">
         Executor
       </h1>
-      <div class="relative mt-2 space-x-3 inline-flex items-center w-full">
-        <div
-          v-if="executor"
-          class="flex space-x-4 rounded-md bg-zinc-900/50 px-6 outline -outline-offset-1 outline-white/10 w-fit text-xs font-bold text-zinc-100"
-        >
-          <div class="inline-flex gap-x-2 items-center">
-            <img :src="executor.gameIcon" class="size-6" />
-            <span>{{ executor.gameName }}</span>
-          </div>
-          <div class="flex items-center">
-            <svg
-              class="h-full w-6 shrink-0 text-white/10"
-              viewBox="0 0 24 44"
-              preserveAspectRatio="none"
-              fill="currentColor"
-              aria-hidden="true"
-            >
-              <path d="M.293 0l22 22-22 22h1.414l22-22-22-22H.293z" />
-            </svg>
-            <span class="ml-4">{{ executor.versionName }}</span>
-          </div>
-          <div class="flex items-center">
-            <svg
-              class="h-full w-6 shrink-0 text-white/10"
-              viewBox="0 0 24 44"
-              preserveAspectRatio="none"
-              fill="currentColor"
-              aria-hidden="true"
-            >
-              <path d="M.293 0l22 22-22 22h1.414l22-22-22-22H.293z" />
-            </svg>
-            <span class="ml-4">{{ executor.launchName }}</span>
-          </div>
-        </div>
+      <div class="relative mt-2 space-x-1 inline-flex items-center w-full">
+        <ExecutorWidget v-if="executor" :executor="executor" />
         <div
           v-else
           class="font-bold uppercase font-display text-zinc-500 text-sm"
@@ -198,9 +166,9 @@
           >Select new executor</LoadingButton
         >
         <button
-          @click="() => (executor = undefined)"
-          class="transition rounded p-2 bg-zinc-900/30 group hover:enabled:bg-red-600/10 text-zinc-400 hover:enabled:text-red-600 disabled:bg-zinc-900/80 disabled:text-zinc-700"
           :disabled="!executor"
+          class="transition rounded p-2 bg-zinc-900/30 group hover:enabled:bg-red-600/10 text-zinc-400 hover:enabled:text-red-600 disabled:bg-zinc-900/80 disabled:text-zinc-700"
+          @click="() => (executor = undefined)"
         >
           <TrashIcon class="transition size-5" />
         </button>
@@ -208,9 +176,9 @@
     </div>
     <ModalSelectLaunch
       v-model="selectLaunchOpen"
-      @select="(v) => (executor = v)"
       class="-mt-2"
       :filter-platform="launchConfiguration.platform"
+      @select="(v) => (executor = v)"
     />
   </div>
 </template>
@@ -225,7 +193,7 @@ import {
 } from "@headlessui/vue";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 import { InformationCircleIcon, TrashIcon } from "@heroicons/vue/24/outline";
-import { ExecutorLaunchObject } from "~/composables/frontend";
+import type { ExecutorLaunchObject } from "~/composables/frontend";
 import type { Platform } from "~/prisma/client/enums";
 
 import type { ImportVersion } from "~/server/api/v1/admin/import/version/index.post";
@@ -253,7 +221,7 @@ const executor = computed({
 });
 
 function updatePlatform(v: Platform | undefined) {
-  if(!v) return;
+  if (!v) return;
   launchConfiguration.value.platform = v;
   if (executor.value) {
     if (executor.value.platform !== v) {

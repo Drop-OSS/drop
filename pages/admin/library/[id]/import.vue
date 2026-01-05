@@ -178,8 +178,8 @@
               :needs-name="true"
             />
             <button
-              @click="() => versionSettings.launches.splice(launchIdx, 1)"
               class="transition rounded p-1 bg-zinc-900/30 group hover:bg-red-600/30"
+              @click="() => versionSettings.launches.splice(launchIdx, 1)"
             >
               <TrashIcon
                 class="transition size-5 text-zinc-700 group-hover:text-red-700"
