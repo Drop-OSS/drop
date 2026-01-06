@@ -98,7 +98,8 @@
   "chars": {
     "arrow": "→",
     "arrowBack": "←",
-    "quoted": "\"{0}\"",
+    "arrowUp": "↑",
+    "arrowDown": "↓",
     "srComma": ", {0}"
   },
   "common": {
@@ -248,6 +249,7 @@
     }
   },
   "footer": {
+    "api": "API documentation",
     "about": "About",
     "aboutDrop": "About Drop",
     "comparison": "Comparison",
@@ -488,7 +490,6 @@
     "search": "Search library…",
     "subheader": "Organize your games into collections for easy access, and access all your games."
   },
-  "lowest": "lowest",
   "news": {
     "article": {
       "add": "Add",
@@ -521,7 +522,6 @@
     "title": "Latest News"
   },
   "options": "Options",
-  "security": "Security",
   "selectLanguage": "Select language",
   "services": {
     "nginx": {

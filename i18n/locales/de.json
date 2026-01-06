@@ -479,7 +479,6 @@
     "search": "Durchsuche Bibliothek…",
     "subheader": "Verwalte deine Spiele in Sammlungen für einen einfacheren Zugriff auf alle deine Spiele."
   },
-  "lowest": "Niedrigste",
   "news": {
     "article": {
       "add": "Hinzufügen",
@@ -512,7 +511,6 @@
     "title": "Neueste Neuigkeiten"
   },
   "options": "Einstellungen",
-  "security": "Sicherheit",
   "selectLanguage": "Sprache auswählen",
   "settings": {
     "admin": {

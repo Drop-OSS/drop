@@ -83,6 +83,7 @@
     "nitropack": "^2.11.12",
     "ofetch": "^1.4.1",
     "prettier": "^3.5.3",
+    "prettier-plugin-sort-json": "^4.1.1",
     "sass": "^1.79.4",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.8.3",
