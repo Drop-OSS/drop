@@ -34,6 +34,28 @@ export default function createCacheSessionProvider() {
         if (session.expiresAt < now) await this.removeSession(token);
       }
     },
+    async findSessions(options) {
+      const results: Session[] = [];
+      for (const token of await sessions.getKeys()) {
+        const session = await sessions.get(token);
+        if (!session) continue;
+        let match = true;
+        if (options.userId && session.userId !== options.userId) {
+          match = false;
+        }
+        for (const [key, value] of Object.entries(options.data || {})) {
+          // stringify to do deep comparison
+          if (JSON.stringify(session.data[key]) !== JSON.stringify(value)) {
+            match = false;
+            break;
+          }
+        }
+        if (match) {
+          results.push(session);
+        }
+      }
+      return results;
+    },
   };
 
   return memoryProvider;

@@ -1,5 +1,5 @@
 import type { H3Event } from "h3";
-import type { Session, SessionProvider } from "./types";
+import type { Session, SessionFindOptions, SessionProvider } from "./types";
 import { randomUUID } from "node:crypto";
 import { parse as parseCookies } from "cookie-es";
 import type { MinimumRequestObject } from "~/server/h3";
@@ -188,8 +188,15 @@ export class SessionHandler {
     return res;
   }
 
+  /**
+   * Clean up expired sessions
+   */
   async cleanupSessions() {
     await this.sessionProvider.cleanupSessions();
+  }
+
+  async findSessions(options: SessionFindOptions) {
+    return await this.sessionProvider.findSessions(options);
   }
 
   /**
