@@ -6,7 +6,7 @@ const prettierConfig = JSON.parse(
 );
 
 const paths = ["./components", "./layouts", "./pages", "./server"];
-const constPaths = ["./error.vue", "./app.vue"];
+const constPaths = ["error.vue", "app.vue"];
 const extensions = [".vue", ".ts"];
 
 function recursiveFindFiles(root: string): string[] {
@@ -88,6 +88,23 @@ export function deleteLocalisation(localisation: Localisation, key: string) {
   delete current[parts.at(-1)!];
 }
 
+export function fetchLocalisation(
+  localisation: Localisation,
+  key: string,
+): string {
+  const parts = key.split(".");
+  let current: Localisation | string = localisation;
+  for (const part of parts.slice(0, -1)) {
+    if (typeof current === "string")
+      throw new Error(`${key} not found in localisation`);
+    current = current[part];
+  }
+  if (typeof current === "string")
+    throw new Error(`${key} not found in localisation`);
+
+  return current[parts.at(-1)!] as string;
+}
+
 export async function writeJSON<T>(path: string, object: T) {
   const flatStr = JSON.stringify(object);
   const formatted = await prettier.format(flatStr, {
@@ -95,4 +112,11 @@ export async function writeJSON<T>(path: string, object: T) {
     ...prettierConfig,
   });
   fs.writeFileSync(path, formatted);
+}
+
+/**
+ * Strips some sort of English language string down to something that can be compared to be basically equivalent
+ */
+export function stripEquivalence(value: string): string {
+  return value.replaceAll(/[.,\s]/g, "").toLowerCase();
 }

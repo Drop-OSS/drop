@@ -1,10 +1,9 @@
 import type { Localisation } from "./utils";
 import {
   allLocalisableFiles,
-  deleteLocalisation,
   flattenLocalisation,
   keysFromContent,
-writeJSON,
+  stripEquivalence,
 } from "./utils";
 import fs from "node:fs";
 
@@ -24,11 +23,10 @@ const localeFile: Localisation = JSON.parse(
 const flattenedLocalisation = flattenLocalisation(localeFile);
 
 for (const [key, file] of keySet.entries()) {
-    if(!flattenedLocalisation.delete(key)) throw new Error(`Found key "${key}" in file ${file} that doesn't exist in localisation`);
-}
+  console.log(stripEquivalence(flattenedLocalisation.get(key)!));
 
-for(const key of flattenedLocalisation.keys()) {
-    deleteLocalisation(localeFile, key);
+  if (!flattenedLocalisation.delete(key))
+    throw new Error(
+      `Found key "${key}" in file ${file} that doesn't exist in localisation`,
+    );
 }
-
-writeJSON("./i18n/locales/en_us.json", localeFile);
