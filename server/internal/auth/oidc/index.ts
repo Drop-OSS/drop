@@ -11,6 +11,7 @@ import { type } from "arktype";
 import * as jose from "jose";
 // import { inspect } from "util";
 import sessionHandler from "../../session";
+import type { SessionSearchTerms } from "../../session/types";
 
 // TODO: monitor https://github.com/goauthentik/authentik/issues/8751 for easier?? OIDC setup by end users
 
@@ -516,46 +517,21 @@ export class OIDCManager {
       return false;
     }
 
-    const query = [
-      {
-        data: {
-          path: ["odic", "iss"],
-          equals: token.iss,
+    const searchTerm: SessionSearchTerms = {
+      data: {
+        odic: {
+          iss: token.iss,
         },
       },
-    ];
-
+    };
     if (token.sub) {
-      query.push({
-        data: {
-          path: ["odic", "sub"],
-          equals: token.sub,
-        },
-      });
+      searchTerm.data.odic!.sub = token.sub;
     }
-
     if (token.sid) {
-      query.push({
-        data: {
-          path: ["odic", "sid"],
-          equals: token.sid,
-        },
-      });
+      searchTerm.data.odic!.sid = token.sid;
     }
 
-    // console.log(
-    //   "OIDC logout, deleting sessions with query:",
-    //   inspect(query, {
-    //     depth: 5,
-    //   }),
-    // );
-
-    // Find all sessions matching the claims iss/sub/sid
-    const sessions = await prisma.session.findMany({
-      where: {
-        AND: query,
-      },
-    });
+    const sessions = await sessionHandler.searchSessions(searchTerm);
 
     const taskQueue = [];
     for (const session of sessions) {

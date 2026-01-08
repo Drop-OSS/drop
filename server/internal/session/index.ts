@@ -1,7 +1,7 @@
 import type { H3Event } from "h3";
 import type {
   Session,
-  SessionFindTerms,
+  SessionSearchTerms,
   SessionProvider,
   SessionWithToken,
 } from "./types";
@@ -200,8 +200,13 @@ export class SessionHandler {
     await this.sessionProvider.cleanupSessions();
   }
 
-  async findSessions(options: SessionFindTerms) {
-    return await this.sessionProvider.findSessions(options);
+  /**
+   * Search sessions
+   * @param terms search terms
+   * @returns found sessions
+   */
+  async searchSessions(terms: SessionSearchTerms) {
+    return await this.sessionProvider.findSessions(terms);
   }
 
   /**
