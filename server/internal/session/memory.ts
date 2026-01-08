@@ -1,14 +1,17 @@
-import type { Session, SessionProvider } from "./types";
+import type { SessionProvider, SessionWithToken } from "./types";
 
 export default function createMemorySessionHandler() {
-  const sessions = new Map<string, Session>();
+  const sessions = new Map<string, SessionWithToken>();
 
   const memoryProvider: SessionProvider = {
     async setSession(token, data) {
-      sessions.set(token, data);
-      return data;
+      const session = { ...data, token };
+      sessions.set(token, session);
+      return session;
     },
-    async getSession<T extends Session>(token: string): Promise<T | undefined> {
+    async getSession<T extends SessionWithToken>(
+      token: string,
+    ): Promise<T | undefined> {
       const session = sessions.get(token);
       return session ? (session as T) : undefined; // Ensure undefined is returned if session is not found
     },
@@ -27,7 +30,7 @@ export default function createMemorySessionHandler() {
       }
     },
     async findSessions(options) {
-      const results: Session[] = [];
+      const results: SessionWithToken[] = [];
       for (const session of sessions.values()) {
         let match = true;
         if (options.userId && session.userId !== options.userId) {

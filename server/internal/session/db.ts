@@ -1,13 +1,13 @@
 import prisma from "../db/database";
-import type { Session, SessionProvider } from "./types";
+import type { SessionProvider, SessionWithToken } from "./types";
 import cacheHandler from "../cache";
 
 export default function createDBSessionHandler(): SessionProvider {
-  const cache = cacheHandler.createCache<Session>("DBSession");
+  const cache = cacheHandler.createCache<SessionWithToken>("DBSession");
 
   return {
     async setSession(token, session) {
-      await cache.set(token, session);
+      await cache.set(token, { ...session, token });
 
       const result = await prisma.session.upsert({
         where: {
@@ -29,12 +29,12 @@ export default function createDBSessionHandler(): SessionProvider {
       });
 
       // need to cast to Session since prisma returns different json types
-      return result as Session;
+      return result as SessionWithToken;
     },
     async updateSession(token, data) {
       return (await this.setSession(token, data)) !== undefined;
     },
-    async getSession<T extends Session>(token: string) {
+    async getSession<T extends SessionWithToken>(token: string) {
       const cached = await cache.get(token);
       if (cached !== null) return cached as T;
 
@@ -47,7 +47,7 @@ export default function createDBSessionHandler(): SessionProvider {
 
       // add to cache
       // need to cast to Session since prisma returns a more specific type
-      await cache.set(token, result as Session);
+      await cache.set(token, result as SessionWithToken);
 
       // i hate casting
       // need to cast to unknown since result.data can be an N deep json object technically

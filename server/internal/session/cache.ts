@@ -1,5 +1,5 @@
 import cacheHandler from "../cache";
-import type { Session, SessionProvider } from "./types";
+import type { SessionProvider, SessionWithToken } from "./types";
 
 /**
  * DO NOT USE THIS. THE CACHE EVICTS SESSIONS.
@@ -7,14 +7,19 @@ import type { Session, SessionProvider } from "./types";
  * This needs work. TODO.
  */
 export default function createCacheSessionProvider() {
-  const sessions = cacheHandler.createCache<Session>("cacheSessionProvider");
+  const sessions = cacheHandler.createCache<SessionWithToken>(
+    "cacheSessionProvider",
+  );
 
   const memoryProvider: SessionProvider = {
     async setSession(token, data) {
-      await sessions.set(token, data);
-      return data;
+      const session = { ...data, token };
+      await sessions.set(token, session);
+      return session;
     },
-    async getSession<T extends Session>(token: string): Promise<T | undefined> {
+    async getSession<T extends SessionWithToken>(
+      token: string,
+    ): Promise<T | undefined> {
       const session = await sessions.get(token);
       return session ? (session as T) : undefined; // Ensure undefined is returned if session is not found
     },
@@ -35,7 +40,7 @@ export default function createCacheSessionProvider() {
       }
     },
     async findSessions(options) {
-      const results: Session[] = [];
+      const results: SessionWithToken[] = [];
       for (const token of await sessions.getKeys()) {
         const session = await sessions.get(token);
         if (!session) continue;
