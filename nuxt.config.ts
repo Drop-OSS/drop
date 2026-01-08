@@ -1,9 +1,8 @@
 import tailwindcss from "@tailwindcss/vite";
 import { execSync } from "node:child_process";
-import { cpSync, readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import module from "module";
-import { viteStaticCopy } from "vite-plugin-static-copy";
 import { type } from "arktype";
 
 const packageJsonSchema = type({
@@ -76,30 +75,7 @@ export default defineNuxtConfig({
     plugins: [
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tailwindcss() as any,
-      // only used in dev server, not build because nitro sucks
-      // see build hook below
-      viteStaticCopy({
-        targets: [
-          {
-            src: "node_modules/@discordapp/twemoji/dist/svg/*",
-            dest: "twemoji",
-          },
-        ],
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      }) as any,
     ],
-  },
-
-  hooks: {
-    "nitro:build:public-assets": (nitro) => {
-      // this is only run during build, not dev server
-      // https://github.com/nuxt/nuxt/issues/18918#issuecomment-1925774964
-      // copy emojis to .output/public/twemoji
-      const targetDir = path.join(nitro.options.output.publicDir, "twemoji");
-      cpSync(path.join(path.dirname(twemojiJson), "dist", "svg"), targetDir, {
-        recursive: true,
-      });
-    },
   },
 
   runtimeConfig: {
@@ -156,6 +132,14 @@ export default defineNuxtConfig({
         base: "./.data/appCache",
       },
     },
+
+    serverAssets: [
+      {
+        baseName: "twemoji",
+        // get path to twemoji svg assets
+        dir: path.join(path.dirname(twemojiJson), "dist", "svg"),
+      },
+    ],
   },
 
   typescript: {
