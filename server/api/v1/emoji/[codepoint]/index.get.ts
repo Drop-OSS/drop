@@ -1,4 +1,16 @@
+import aclManager from "~/server/internal/acls";
+
 export default defineEventHandler(async (h3) => {
+  const allowed = await aclManager.hasACL(h3, [
+    "system:setup",
+    "user:emoji:read",
+  ]);
+  if (!allowed)
+    throw createError({
+      statusCode: 403,
+      statusMessage: "Requires authentication",
+    });
+
   const codepoint = getRouterParam(h3, "codepoint");
   if (!codepoint) {
     throw createError({

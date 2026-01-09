@@ -40,6 +40,8 @@ export const userACLDescriptions: ObjectFromList<typeof userACLs> = {
 
   "news:read": "Read the server's news articles.",
 
+  "emoji:read": "Read built in emojis",
+
   "settings:read": "Read system settings.",
 };
 
