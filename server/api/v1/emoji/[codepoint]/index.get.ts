@@ -33,7 +33,7 @@ export default defineEventHandler(async (h3) => {
 
   // Set proper content type for SVG
   setResponseHeader(h3, "Content-Type", "image/svg+xml");
-  setResponseHeader(h3, "Cache-Control", "public, max-age=31536000");
+  setResponseHeader(h3, "Cache-Control", "private, max-age=31536000");
 
   return asset;
 });
