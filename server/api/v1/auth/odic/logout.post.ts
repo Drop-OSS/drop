@@ -17,20 +17,20 @@ export default defineEventHandler(async (h3) => {
   if (!enabledAuthManagers.OpenID)
     throw createError({
       statusCode: 400,
-      statusMessage: "OIDC not enabled.",
+      message: "OIDC not enabled.",
     });
 
   const logout_token = (await readFormData(h3)).get("logout_token");
   if (typeof logout_token !== "string")
     throw createError({
       statusCode: 400,
-      statusMessage: "Invalid OIDC logout notification.",
+      message: "Invalid OIDC logout notification.",
     });
   const okay = await enabledAuthManagers.OpenID.handleLogout(logout_token);
   if (!okay) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Invalid OIDC logout notification.",
+      message: "Invalid OIDC logout notification.",
     });
   }
 
