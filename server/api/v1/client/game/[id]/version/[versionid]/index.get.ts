@@ -19,7 +19,11 @@ export default defineClientEventHandler(async (h3) => {
       },
     },
     include: {
-      launches: true,
+      launches: {
+        include: {
+          executor: true,
+        },
+      },
       setups: true,
     },
   });

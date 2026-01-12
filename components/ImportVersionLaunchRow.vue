@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="w-full">
     <div v-if="needsName" class="mb-2">
       <div
         class="flex w-full rounded-md shadow-sm bg-zinc-950 ring-1 ring-inset ring-zinc-800 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600"
@@ -26,8 +26,8 @@
             <div
               class="z-50 w-64 transition duration-100 opacity-0 shadow peer-hover:opacity-100 absolute left-0 p-2 bg-zinc-900 rounded text-xs text-zinc-300"
             >
-              The string you provide is just run in the install directory, not
-              actually appended to the path.
+              The installation directory is set as the current directory when
+              launching. It is not prepended to your command.
             </div>
           </div>
           {{ $t("library.admin.import.version.installDir") }}
@@ -36,11 +36,12 @@
           as="div"
           :value="launchConfiguration.launch"
           nullable
+          class="w-full"
           @update:model-value="(v) => updateLaunchCommand(v)"
         >
           <div class="relative">
             <ComboboxInput
-              class="block flex-1 border-0 py-1.5 pl-1 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
+              class="block flex-1 border-0 py-1.5 pl-1 w-full bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
               :placeholder="
                 $t('library.admin.import.version.launchPlaceholder')
               "
@@ -100,7 +101,10 @@
                 </li>
               </ComboboxOption>
               <ComboboxOption
-                v-if="launchProcessQuery"
+                v-if="
+                  launchProcessQuery &&
+                  launchConfiguration.launch !== launchProcessQuery
+                "
                 v-slot="{ active, selected }"
                 :value="launchProcessQuery"
               >
@@ -132,14 +136,6 @@
             </ComboboxOptions>
           </div>
         </Combobox>
-        <input
-          id="startup"
-          v-model="launchConfiguration.launchArgs"
-          type="text"
-          name="startup"
-          class="border-l border-zinc-700 block flex-1 border-0 py-1.5 pl-2 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
-          placeholder="--launch"
-        />
       </div>
     </div>
     <SelectorPlatform

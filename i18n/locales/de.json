@@ -341,7 +341,7 @@
           "installDir": "(Installationsverzeichnis)/",
           "launchCmd": "Programm/Befehl starten",
           "launchDesc": "Ausführbare Datei zum starten des Spiels",
-          "launchPlaceholder": "spiel.exe",
+          "launchPlaceholder": "spiel.exe --args",
           "loadingVersion": "Lade Versionsmetadaten…",
           "noAdv": "Keine erweiterten Optionen für diese Konfiguration.",
           "noVersions": "Keine Version zum importieren",

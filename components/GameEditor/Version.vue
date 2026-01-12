@@ -229,12 +229,14 @@ async function updateVersionOrder() {
 
 async function deleteVersion(versionId: string) {
   try {
-    await $dropFetch("/api/v1/admin/game/version", {
+    await $dropFetch("/api/v1/admin/game/:id/versions", {
       method: "DELETE",
       body: {
-        id: game.value.id,
         version: versionId,
       },
+      params: {
+        id: game.value.id,
+      }
     });
     game.value.versions.splice(
       game.value.versions.findIndex((e) => e.versionId === versionId),

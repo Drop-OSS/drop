@@ -38,6 +38,11 @@ export type AdminFetchGameType = Prisma.GameGetPayload<{
                 };
               };
             };
+            executions: {
+              select: {
+                launchId: true;
+              };
+            };
           };
         };
       };
@@ -88,6 +93,11 @@ export default defineEventHandler<
                       },
                     },
                   },
+                },
+              },
+              executions: {
+                select: {
+                  launchId: true,
                 },
               },
             },

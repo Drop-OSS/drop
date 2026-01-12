@@ -110,7 +110,6 @@ model SetupConfiguration {
   setupId String @id @default(uuid())
 
   command String
-  args    String[]
 
   platform Platform
 
@@ -125,7 +124,6 @@ model LaunchConfiguration {
   name String
 
   command String
-  args    String[]
 
   platform Platform
 

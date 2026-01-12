@@ -291,7 +291,7 @@
           "installDir": "(install_dir)/",
           "launchCmd": "Launch executable/command, argh!",
           "launchDesc": "Executable to launch the game, matey!",
-          "launchPlaceholder": "game.exe, aye!",
+          "launchPlaceholder": "game.exe --args",
           "loadingVersion": "Loading version charts…",
           "noAdv": "No advanced options for this rig, argh.",
           "noVersions": "No versions to import, savvy!",

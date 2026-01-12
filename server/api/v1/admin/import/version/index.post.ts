@@ -14,7 +14,6 @@ export const ImportVersion = type({
     platform: type.valueOf(Platform),
     name: "string",
     launch: "string",
-    launchArgs: "string = ''",
     umuId: "string?",
     executorId: "string?",
   }).array(),
@@ -22,7 +21,6 @@ export const ImportVersion = type({
   setups: type({
     platform: type.valueOf(Platform),
     launch: "string",
-    launchArgs: "string = ''",
   }).array(),
 
   onlySetup: "boolean = false",

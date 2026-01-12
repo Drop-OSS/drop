@@ -213,7 +213,7 @@ class LibraryManager {
           if (checkExt != ext) continue;
           const fuzzyValue = fuzzy(basename, game.mName);
           options.push({
-            filename,
+            filename: filename.replaceAll(" ", "\\ "),
             platform,
             match: fuzzyValue,
           });
@@ -309,7 +309,6 @@ class LibraryManager {
               createMany: {
                 data: metadata.setups.map((v) => ({
                   command: v.launch,
-                  args: v.launchArgs.split(" "),
                   platform: v.platform,
                 })),
               },
@@ -321,7 +320,6 @@ class LibraryManager {
                     data: metadata.launches.map((v) => ({
                       name: v.name,
                       command: v.launch,
-                      args: v.launchArgs.split(" "),
                       platform: v.platform,
                       ...(v.executorId
                         ? { executorId: v.executorId }

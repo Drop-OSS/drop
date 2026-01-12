@@ -336,7 +336,7 @@
           "installDir": "(install_dir)/",
           "launchCmd": "Launch executable/command",
           "launchDesc": "Executable to launch the game",
-          "launchPlaceholder": "game.exe",
+          "launchPlaceholder": "game.exe --args",
           "loadingVersion": "Loading version metadata…",
           "noLaunches": "No launch configurations added.",
           "noSetups": "No setup configurations added.",

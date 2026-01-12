@@ -123,6 +123,7 @@ export class SessionHandler {
       expiresAt,
       data: {},
     };
+    console.log(session);
     session.data[key] = value;
     await this.sessionProvider.setSession(token, session);
     return true;

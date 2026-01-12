@@ -4,7 +4,6 @@ import aclManager from "~/server/internal/acls";
 import libraryManager from "~/server/internal/library";
 
 const DeleteVersion = type({
-  id: "string",
   version: "string",
 }).configure(throwingArktype);
 
@@ -17,7 +16,7 @@ export default defineEventHandler<{ body: typeof DeleteVersion }>(
 
     const body = await readDropValidatedBody(h3, DeleteVersion);
 
-    const gameId = body.id.toString();
+    const gameId = getRouterParam(h3, "id")!;
     const version = body.version.toString();
 
     await libraryManager.deleteGameVersion(gameId, version);

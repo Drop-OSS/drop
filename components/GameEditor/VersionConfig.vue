@@ -22,10 +22,6 @@
       class="inline-flex gap-x-1 items-center bg-zinc-950 text-zinc-400 mono rounded-md p-2"
     >
       <p>{{ props.config.command }}</p>
-      <p v-if="props.config.args.length > 0 && props.config.args[0]">
-        {{ props.config.args.join(" ") }}
-      </p>
-      <p v-else class="text-zinc-700 italic">[no args]</p>
     </div>
     <ExecutorWidget
       v-if="!isSetup(props.config) && props.config.executor"

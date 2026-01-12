@@ -170,7 +170,7 @@
           <li
             v-for="(launch, launchIdx) in versionSettings.launches"
             :key="launchIdx"
-            class="py-2 inline-flex items-start gap-x-1"
+            class="py-2 inline-flex items-start gap-x-1 w-full"
           >
             <ImportVersionLaunchRow
               v-model="versionSettings.launches[launchIdx]"

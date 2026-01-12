@@ -341,7 +341,7 @@
           "installDir": "(install_dir)/",
           "launchCmd": "Lancer l'exécutable/commande",
           "launchDesc": "Exécutable pour lancer le jeu",
-          "launchPlaceholder": "jeu.exe",
+          "launchPlaceholder": "jeu.exe --args",
           "loadingVersion": "Chargement des métadonnées de la version…",
           "noAdv": "Pas d'option avancée pour cette configuration.",
           "noVersions": "Pas de version à importer",
