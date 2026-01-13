@@ -236,7 +236,7 @@ async function deleteVersion(versionId: string) {
       },
       params: {
         id: game.value.id,
-      }
+      },
     });
     game.value.versions.splice(
       game.value.versions.findIndex((e) => e.versionId === versionId),

@@ -189,7 +189,11 @@
                       >
                         {{ option.name }}
                         <span v-if="currentSort === option.param">
-                          {{ sortOrder === "asc" ? $t("chars.arrowUp") : $t("chars.arrowDown") }}
+                          {{
+                            sortOrder === "asc"
+                              ? $t("chars.arrowUp")
+                              : $t("chars.arrowDown")
+                          }}
                         </span>
                       </button>
                     </MenuItem>

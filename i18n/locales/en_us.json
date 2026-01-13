@@ -614,12 +614,12 @@
   "upload": "Upload",
   "uploadFile": "Upload file",
   "user": {
-    "unknown": "Unknown user",
     "editProfile": "Edit profile",
+    "noActivity": "No recent activity",
+    "notFound": "User not found",
     "recent": "Recent activity (TODO)",
     "recentSub": "Recent activity by this user",
-    "notFound": "User not found",
-    "noActivity": "No recent activity"
+    "unknown": "Unknown user"
   },
   "userHeader": {
     "closeSidebar": "Close sidebar",

@@ -4,9 +4,7 @@ import {
   allLocalisableFiles,
   fetchLocalisation,
   keysFromContent,
-  stripEquivalence,
 } from "./utils";
-import path, { join } from "node:path";
 
 const files = allLocalisableFiles();
 const localeFile: Localisation = JSON.parse(
@@ -23,9 +21,9 @@ for (const file of files) {
   const fileNoExtension = file.slice(0, file.lastIndexOf("."));
 
   for (const key of keys) {
-    const value = fetchLocalisation(localeFile, key);
+    const _value = fetchLocalisation(localeFile, key);
 
-    const newKeySuffix = key.split(".").slice(-1);/*value
+    const newKeySuffix = key.split(".").slice(-1); /*value
       .replaceAll(/[^a-zA-Z\s]/g, "")
       .toLowerCase()
       .split(" ")
@@ -40,16 +38,17 @@ for (const file of files) {
       .join("");*/
 
     const newKey = [
-      ...fileNoExtension.replaceAll(/[^a-zA-Z0-9/]/g, "").toLowerCase().split("/"),
+      ...fileNoExtension
+        .replaceAll(/[^a-zA-Z0-9/]/g, "")
+        .toLowerCase()
+        .split("/"),
       newKeySuffix,
     ].join(".");
 
     const finalKey = keepPrefixes.some((v) => key.startsWith(v)) ? key : newKey;
 
-    
     keyMap.set(key, finalKey);
   }
 }
-
 
 console.log(keyMap);
