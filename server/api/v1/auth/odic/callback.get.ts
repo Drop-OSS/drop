@@ -4,7 +4,7 @@ import type { Session } from "~/server/internal/session/types";
 
 defineRouteMeta({
   openAPI: {
-    tags: ["Auth"],
+    tags: ["Auth", "OIDC"],
     description: "OIDC Signin callback",
     parameters: [],
   },

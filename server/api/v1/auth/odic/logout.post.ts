@@ -3,7 +3,7 @@ import authManager from "~/server/internal/auth";
 
 defineRouteMeta({
   openAPI: {
-    tags: ["Auth"],
+    tags: ["Auth", "OIDC"],
     description: "OIDC logout back-channel",
     parameters: [],
   },
