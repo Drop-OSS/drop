@@ -11,6 +11,7 @@
     },
     "notifications": {
       "all": "Voir tout {arrow}",
+      "clear": "Effacer les notifications",
       "desc": "Voir et gérer vos notifications.",
       "markAllAsRead": "Marquer tout comme lu",
       "markAsRead": "Marquer comme lu",
@@ -624,6 +625,14 @@
   "type": "Type",
   "upload": "Uploader",
   "uploadFile": "Uploader fichier",
+  "user": {
+    "editProfile": "Éditer profil",
+    "noActivity": "Pas d'activité récente",
+    "notFound": "Utilisateur introuvable",
+    "recent": "Activité récente (À faire)",
+    "recentSub": "Activité récente de cet utilisateur",
+    "unknown": "Utilisateur inconnu"
+  },
   "userHeader": {
     "closeSidebar": "Fermer la barre latérale",
     "links": {

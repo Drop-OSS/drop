@@ -11,6 +11,7 @@
     },
     "notifications": {
       "all": "Alles anzeigen {arrow}",
+      "clear": "Benachrichtigungen entfernen",
       "desc": "Anzeigen und Verwalten deiner Benachrichtigung.",
       "markAllAsRead": "Markiere alle als gelesen",
       "markAsRead": "Als gelesen Markieren",
