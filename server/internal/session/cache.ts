@@ -45,7 +45,12 @@ export default function createCacheSessionProvider() {
         const session = await sessions.get(token);
         if (!session) continue;
         let match = true;
-        if (options.userId && session.userId !== options.userId) {
+
+        if (
+          options.userId &&
+          session.authenticated &&
+          session.authenticated.userId !== options.userId
+        ) {
           match = false;
         }
         for (const [key, value] of Object.entries(options.data || {})) {

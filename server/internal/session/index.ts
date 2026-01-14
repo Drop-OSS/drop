@@ -71,10 +71,12 @@ export class SessionHandler {
 
     const token =
       this.getSessionToken(h3) ?? this.createSessionCookie(h3, expiresAt);
-    const session = (await this.sessionProvider.getSession(token)) ?? {
+    const defaultSession: Session = {
       expiresAt,
-      data: data,
+      data,
     };
+    const session =
+      (await this.sessionProvider.getSession(token)) ?? defaultSession;
     const wasAuthenticated = !!session.authenticated;
     session.authenticated = {
       userId,
@@ -147,10 +149,12 @@ export class SessionHandler {
       this.getSessionToken(request) ??
       this.createSessionCookie(request, expiresAt);
 
-    const session = (await this.sessionProvider.getSession(token)) ?? {
+    const defaultSession: Session = {
       expiresAt,
       data: {},
     };
+    const session =
+      (await this.sessionProvider.getSession(token)) ?? defaultSession;
     console.log(session);
     session.data[key] = value;
     await this.sessionProvider.setSession(token, session);
