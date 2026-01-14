@@ -17,7 +17,9 @@ export const TORRENTIAL_SERVICE = new Service(
       const stat = fs.statSync("./torrential");
       if (stat.isDirectory()) {
         // in dev and we have the submodule
-        logger.info("torrential detected in development mode - building from source")
+        logger.info(
+          "torrential detected in development mode - building from source",
+        );
         return spawn(
           "cargo run --manifest-path ./torrential/Cargo.toml",
           [],
