@@ -1,9 +1,13 @@
 onlyBuiltDependencies:
+  - "@parcel/watcher"
   - "@prisma/client"
   - "@prisma/engines"
   - "@tailwindcss/oxide"
+  - argon2
   - esbuild
   - prisma
+  - sharp
+  - unrs-resolver
 
 overrides:
   droplet: link:../../.local/share/pnpm/global/5/node_modules/@drop-oss/droplet

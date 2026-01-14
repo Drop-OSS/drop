@@ -11,7 +11,25 @@ model LinkedAuthMec {
     version     Int  @default(1)
     credentials Json
 
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    @@id([userId, mec])
+}
+
+enum MFAMec {
+    WebAuthn
+    TOTP
+}
+
+model LinkedMFAMec {
+    userId  String
+    mec     MFAMec
+    enabled Boolean @default(true)
+
+    version     Int  @default(1)
+    credentials Json
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
     @@id([userId, mec])
 }
@@ -63,7 +81,7 @@ model Session {
     token     String   @id
     expiresAt DateTime
 
-    userId String
+    userId String?
     user   User?  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     data Json // misc extra data

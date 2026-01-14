@@ -42,16 +42,18 @@ export default defineEventHandler(async (h3) => {
     throw createError({ statusCode: 400, statusMessage: "Invalid game ID" });
   }
 
-  const result = await prisma.game.update({
-    where: {
-      id: gameId,
-    },
-    data: {
-      mImageLibraryObjectIds: {
-        push: ids,
+  const result = (
+    await prisma.game.updateManyAndReturn({
+      where: {
+        id: gameId,
       },
-    },
-  });
+      data: {
+        mImageLibraryObjectIds: {
+          push: ids,
+        },
+      },
+    })
+  ).at(0);
 
   await pull();
   return result;

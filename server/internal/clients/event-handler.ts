@@ -124,7 +124,8 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
       fetchUser,
     };
 
-    await prisma.client.update({
+    // Ignore response because we don't care if this fails
+    await prisma.client.updateMany({
       where: { id: clientId },
       data: { lastConnected: new Date() },
     });

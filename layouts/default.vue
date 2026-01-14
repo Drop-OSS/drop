@@ -1,5 +1,8 @@
 <template>
-  <div v-if="!noWrapper" class="flex flex-col w-full min-h-screen bg-zinc-900">
+  <div
+    v-if="!clientRequest"
+    class="flex flex-col w-full min-h-screen bg-zinc-900"
+  >
     <LazyUserHeader class="z-50" hydrate-on-idle />
     <div class="grow flex">
       <NuxtPage />
@@ -12,9 +15,8 @@
 </template>
 
 <script setup lang="ts">
-const route = useRoute();
+const clientRequest = isClientRequest();
 const i18nHead = useLocaleHead();
-const noWrapper = !!route.query.noWrapper;
 
 const { t } = useI18n();
 

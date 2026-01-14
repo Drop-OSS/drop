@@ -1,8 +1,8 @@
 import { IconsLinuxLogo, IconsWindowsLogo, IconsMacLogo } from "#components";
-import { PlatformClient } from "./types";
+import { Platform } from "~/prisma/client/enums";
 
 export const PLATFORM_ICONS = {
-  [PlatformClient.Linux]: IconsLinuxLogo,
-  [PlatformClient.Windows]: IconsWindowsLogo,
-  [PlatformClient.macOS]: IconsMacLogo,
+  [Platform.Linux]: IconsLinuxLogo,
+  [Platform.Windows]: IconsWindowsLogo,
+  [Platform.macOS]: IconsMacLogo,
 };

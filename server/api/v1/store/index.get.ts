@@ -49,11 +49,15 @@ export default defineEventHandler(async (h3) => {
     ? {
         versions: {
           some: {
-            platform: {
-              in: options.platform
-                .split(",")
-                .map(parsePlatform)
-                .filter((e) => e !== undefined),
+            launches: {
+              some: {
+                platform: {
+                  in: options.platform
+                    .split(",")
+                    .map(parsePlatform)
+                    .filter((e) => e !== undefined),
+                },
+              },
             },
           },
         },

@@ -3,11 +3,11 @@
     class="pt-8 lg:pt-0 lg:pl-20 fixed inset-0 flex flex-col overflow-auto bg-zinc-900"
   >
     <div
-      class="bg-zinc-950 w-full flex flex-col sm:flex-row items-center gap-2 justify-between pr-2"
+      class="bg-zinc-950 w-full flex flex-row items-center gap-2 justify-between px-2 pt-6 lg:pt-0"
     >
       <!--start-->
       <div>
-        <Listbox v-if="false" v-model="currentMode" as="div">
+        <Listbox v-model="currentMode" as="div" class="sm:hidden mb-2">
           <div class="relative mt-2">
             <ListboxButton
               class="min-w-[10vw] w-full cursor-default inline-flex items-center gap-x-2 rounded-md bg-zinc-900 py-1.5 pr-2 pl-3 text-left text-zinc-200 outline-1 -outline-offset-1 outline-zinc-700 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6"
@@ -68,7 +68,7 @@
           </div>
         </Listbox>
 
-        <div class="pt-4 inline-flex gap-x-2">
+        <div class="hidden sm:inline-flex pt-4 gap-x-2">
           <div
             v-for="[value, { icon }] in Object.entries(components)"
             :key="value"
@@ -93,7 +93,7 @@
         <NuxtLink
           :href="`/store/${game.id}`"
           type="button"
-          class="inline-flex w-fit items-center gap-x-2 rounded-md bg-zinc-800 px-3 py-1 text-sm font-semibold font-display text-white shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+          class="whitespace-nowrap inline-flex w-fit items-center gap-x-2 rounded-md bg-zinc-800 px-3 py-1 text-sm font-semibold font-display text-white shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
         >
           {{ $t("library.admin.openStore") }}
           <ArrowTopRightOnSquareIcon

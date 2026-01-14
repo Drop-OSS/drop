@@ -38,7 +38,16 @@ export default defineEventHandler(async (h3) => {
       statusMessage: `Failed to sign in: "${result}". Please try again.`,
     });
 
-  await sessionHandler.signin(h3, result.user.id, true);
+  const sessionResult = await sessionHandler.signin(h3, result.user.id, true);
+  if (sessionResult == "fail")
+    throw createError({ statusCode: 500, message: "Failed to set session" });
+
+  if (sessionResult == "2fa") {
+    return sendRedirect(
+      h3,
+      `/auth/mfa?redirect=${result.options.redirect ? encodeURIComponent(result.options.redirect) : "/"}`,
+    );
+  }
 
   if (result.options.redirect) {
     return sendRedirect(h3, result.options.redirect);

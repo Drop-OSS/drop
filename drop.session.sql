@@ -1,0 +1,1 @@
+DELETE FROM "Session" WHERE 1=1;

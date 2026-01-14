@@ -24,7 +24,6 @@
             >
               {{ name }}
             </NuxtLink>
-            <!-- todo -->
           </div>
         </div>
         <div class="ml-4 flex shrink-0">

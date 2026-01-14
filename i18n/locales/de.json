@@ -341,7 +341,7 @@
           "installDir": "(Installationsverzeichnis)/",
           "launchCmd": "Programm/Befehl starten",
           "launchDesc": "Ausführbare Datei zum starten des Spiels",
-          "launchPlaceholder": "spiel.exe",
+          "launchPlaceholder": "spiel.exe --args",
           "loadingVersion": "Lade Versionsmetadaten…",
           "noAdv": "Keine erweiterten Optionen für diese Konfiguration.",
           "noVersions": "Keine Version zum importieren",
@@ -479,7 +479,6 @@
     "search": "Durchsuche Bibliothek…",
     "subheader": "Verwalte deine Spiele in Sammlungen für einen einfacheren Zugriff auf alle deine Spiele."
   },
-  "lowest": "Niedrigste",
   "news": {
     "article": {
       "add": "Hinzufügen",
@@ -512,7 +511,6 @@
     "title": "Neueste Neuigkeiten"
   },
   "options": "Einstellungen",
-  "security": "Sicherheit",
   "selectLanguage": "Sprache auswählen",
   "settings": {
     "admin": {

@@ -1,11 +1,19 @@
 export type Session = {
-  userId: string;
+  authenticated?: AuthenticatedSession;
+
   expiresAt: Date;
   data: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
   };
 };
+
+export interface AuthenticatedSession {
+  userId: string;
+  level: number;
+  requiredLevel: number;
+  superleveledExpiry: number | undefined;
+}
 
 export interface SessionProvider {
   getSession: <T extends Session>(token: string) => Promise<T | undefined>;

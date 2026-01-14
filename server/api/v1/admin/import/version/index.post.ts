@@ -1,84 +1,77 @@
 import { type } from "arktype";
+import { Platform } from "~/prisma/client/enums";
 import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import libraryManager from "~/server/internal/library";
-import { parsePlatform } from "~/server/internal/utils/parseplatform";
 
-const ImportVersion = type({
+export const ImportVersion = type({
   id: "string",
   version: "string",
+  displayName: "string?",
 
-  platform: "string",
-  launch: "string = ''",
-  launchArgs: "string = ''",
-  setup: "string = ''",
-  setupArgs: "string = ''",
+  launches: type({
+    platform: type.valueOf(Platform),
+    name: "string",
+    launch: "string",
+    umuId: "string?",
+    executorId: "string?",
+  }).array(),
+
+  setups: type({
+    platform: type.valueOf(Platform),
+    launch: "string",
+  }).array(),
+
   onlySetup: "boolean = false",
   delta: "boolean = false",
-  umuId: "string = ''",
 }).configure(throwingArktype);
 
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["import:version:new"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
-  const {
-    id,
-    version,
-    platform,
-    launch,
-    launchArgs,
-    setup,
-    setupArgs,
-    onlySetup,
-    delta,
-    umuId,
-  } = await readDropValidatedBody(h3, ImportVersion);
+  const body = await readDropValidatedBody(h3, ImportVersion);
 
-  const platformParsed = parsePlatform(platform);
-  if (!platformParsed)
-    throw createError({ statusCode: 400, statusMessage: "Invalid platform." });
-
-  if (delta) {
-    const validOverlayVersions = await prisma.gameVersion.count({
-      where: { gameId: id, platform: platformParsed, delta: false },
-    });
-    if (validOverlayVersions == 0)
-      throw createError({
-        statusCode: 400,
-        statusMessage:
-          "Update mode requires a pre-existing version for this platform.",
+  if (body.delta) {
+    for (const platformObject of [...body.launches, ...body.setups].filter(
+      (v, i, a) => a.findIndex((k) => k.platform === v.platform) == i,
+    )) {
+      const validOverlayVersions = await prisma.gameVersion.count({
+        where: {
+          gameId: body.id,
+          delta: false,
+          launches: { some: { platform: platformObject.platform } },
+        },
       });
+      if (validOverlayVersions == 0)
+        throw createError({
+          statusCode: 400,
+          statusMessage: "Update mode requires a pre-existing version.",
+        });
+    }
   }
 
-  if (onlySetup) {
-    if (!setup)
+  if (body.onlySetup) {
+    if (body.setups.length == 0)
       throw createError({
         statusCode: 400,
         statusMessage: 'Setup required in "setup mode".',
       });
   } else {
-    if (!delta && !launch)
+    if (body.launches.length == 0)
       throw createError({
         statusCode: 400,
-        statusMessage: "Launch executable is required for non-update versions",
+        statusMessage: "Launch executable is required.",
       });
   }
 
   // startup & delta require more complex checking logic
-  const taskId = await libraryManager.importVersion(id, version, {
-    platform,
-    onlySetup,
-
-    launch,
-    launchArgs,
-    setup,
-    setupArgs,
-
-    umuId,
-    delta,
-  });
+  const taskId = await libraryManager.importVersion(
+    body.id,
+    body.version,
+    body,
+  );
   if (!taskId)
     throw createError({
       statusCode: 400,

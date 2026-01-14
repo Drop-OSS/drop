@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
   <div v-if="game!">
-    <div class="grow flex flex-row gap-y-8">
+    <div class="grow flex flex-col xl:flex-row gap-y-8">
       <div class="grow w-full h-full px-6 py-4 flex flex-col">
         <div
           class="flex flex-col lg:flex-row lg:justify-between items-start lg:items-center gap-2"
@@ -10,10 +10,12 @@
             <!-- icon image -->
             <img :src="coreMetadataIconUrl" class="size-20" />
             <div>
-              <h1 class="text-5xl font-bold font-display text-zinc-100">
+              <h1
+                class="text-2xl xl:text-5xl font-bold font-display text-zinc-100"
+              >
                 {{ game.mName }}
               </h1>
-              <p class="mt-1 text-lg text-zinc-400">
+              <p class="mt-1 text-sm xl:text-lg text-zinc-400">
                 {{ game.mShortDescription }}
               </p>
             </div>
@@ -28,7 +30,7 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-8">
-          <MultiItemSelector v-model="currentTags" :items="tags" />
+          <SelectorMultiItem v-model="currentTags" :items="tags" />
           <div class="flex flex-col">
             <label
               for="releaseDate"
@@ -461,7 +463,7 @@
 </template>
 
 <script setup lang="ts">
-import type { GameModel, GameTagModel } from "~/prisma/client/models";
+import type { GameModel } from "~/prisma/client/models";
 import { micromark } from "micromark";
 import {
   CheckIcon,
@@ -471,6 +473,7 @@ import {
 } from "@heroicons/vue/24/solid";
 import type { SerializeObject } from "nitropack";
 import type { H3Error } from "h3";
+import type { AdminFetchGameType } from "~/server/api/v1/admin/game/[id]/index.get";
 
 const showUploadModal = ref(false);
 const showAddCarouselModal = ref(false);
@@ -478,8 +481,9 @@ const showAddImageDescriptionModal = ref(false);
 const showEditCoreMetadata = ref(false);
 const mobileShowFinalDescription = ref(true);
 
-type ModelType = SerializeObject<GameModel & { tags: Array<GameTagModel> }>;
-const game = defineModel<ModelType>() as Ref<ModelType>;
+const game = defineModel<SerializeObject<AdminFetchGameType>>({
+  required: true,
+});
 if (!game.value)
   throw createError({
     statusCode: 500,

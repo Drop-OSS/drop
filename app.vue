@@ -29,10 +29,11 @@ await updateUser();
 
 const user = useUser();
 const apiDetails = await $dropFetch("/api/v1");
+const clientMode = isClientRequest();
 
 const showExternalUrlWarning = ref(false);
 function checkExternalUrl() {
-  if (!import.meta.client) return;
+  if (!import.meta.client || clientMode) return;
   const realOrigin = window.location.origin.trim();
   const chosenOrigin = apiDetails.external.trim();
   const ignore = window.localStorage.getItem("ignoreExternalUrl");
@@ -51,15 +52,3 @@ if (user.value?.admin) {
   });
 }
 </script>
-
-<style scoped>
-/* You can customise the default animation here. */
-
-::view-transition-old(root) {
-  animation: 90ms cubic-bezier(0.4, 0, 1, 1) both fade-out;
-}
-
-::view-transition-new(root) {
-  animation: 210ms cubic-bezier(0, 0, 0.2, 1) 90ms both fade-in;
-}
-</style>

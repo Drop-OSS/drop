@@ -1,97 +1,146 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <div v-if="game && unimportedVersions">
-    <div class="grow flex flex-row gap-y-8">
-      <div class="grow w-full h-full px-6 py-4 flex flex-col"></div>
-      <div
-        class="lg:overflow-y-auto lg:border-l lg:border-zinc-800 lg:block lg:inset-y-0 lg:z-50 lg:w-[30vw] flex flex-col gap-y-8 px-6 py-4"
-      >
-        <!-- version manager -->
-        <div>
-          <!-- version priority -->
-          <div>
-            <div class="border-b border-zinc-800 pb-3">
-              <div
-                class="flex flex-wrap items-center justify-between sm:flex-nowrap"
-              >
-                <h3
-                  class="text-base font-semibold font-display leading-6 text-zinc-100"
+  <div v-if="game && unimportedVersions" class="px-4 sm:px-6 lg:px-8 py-8">
+    <div class="sm:flex sm:items-center">
+      <div class="sm:flex-auto">
+        <h1 class="text-base font-semibold text-white">Versions</h1>
+        <p class="mt-2 text-sm text-gray-300">
+          Versions versions version, versions versions. Versions.
+        </p>
+      </div>
+      <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+        <NuxtLink
+          :href="canImport ? `/admin/library/${game.id}/import` : ''"
+          type="button"
+          :class="[
+            canImport ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-800/50',
+            'inline-flex w-fit items-center gap-x-2 rounded-md  px-3 py-1 text-sm font-semibold font-display text-white shadow-sm  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600',
+          ]"
+        >
+          {{
+            canImport
+              ? $t("library.admin.import.version.import")
+              : $t("library.admin.import.version.noVersions")
+          }}
+        </NuxtLink>
+      </div>
+    </div>
+    <div class="mt-8 flow-root">
+      <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+        <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+          <table class="relative min-w-full divide-y divide-white/15">
+            <thead>
+              <tr>
+                <th></th>
+                <th
+                  scope="col"
+                  class="py-3 pr-3 pl-4 text-left text-xs font-medium tracking-wide text-gray-400 uppercase sm:pl-0"
                 >
-                  {{ $t("library.admin.versionPriority") }}
-
-                  <!-- import games button -->
-
-                  <NuxtLink
-                    :href="canImport ? `/admin/library/${game.id}/import` : ''"
-                    type="button"
-                    :class="[
-                      canImport
-                        ? 'bg-blue-600 hover:bg-blue-700'
-                        : 'bg-blue-800/50',
-                      'inline-flex w-fit items-center gap-x-2 rounded-md  px-3 py-1 text-sm font-semibold font-display text-white shadow-sm  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600',
-                    ]"
-                  >
-                    {{
-                      canImport
-                        ? $t("library.admin.import.version.import")
-                        : $t("library.admin.import.version.noVersions")
-                    }}
-                  </NuxtLink>
-                </h3>
-              </div>
-            </div>
-
-            <div class="mt-4 text-center w-full text-sm text-zinc-600">
-              {{ $t("lowest") }}
-            </div>
+                  Name (ID)
+                </th>
+                <th
+                  scope="col"
+                  class="px-3 py-3 text-left text-xs font-medium tracking-wide text-gray-400 uppercase"
+                >
+                  Path
+                </th>
+                <th
+                  scope="col"
+                  class="px-3 py-3 text-left text-xs font-medium tracking-wide text-gray-400 uppercase"
+                >
+                  Setup Configurations
+                </th>
+                <th
+                  scope="col"
+                  class="px-3 py-3 text-left text-xs font-medium tracking-wide text-gray-400 uppercase"
+                >
+                  Launch Configurations
+                </th>
+                <th scope="col" class="py-3 pr-4 pl-3 sm:pr-0">
+                  <span class="sr-only">Edit</span>
+                </th>
+              </tr>
+            </thead>
             <draggable
               :list="game.versions"
               handle=".handle"
-              class="mt-2 space-y-4"
+              class="divide-y divide-white/10"
+              tag="tbody"
               @update="() => updateVersionOrder()"
             >
-              <template
-                #item="{ element: item }: { element: GameVersionModelWithSize }"
-              >
-                <div
-                  class="w-full inline-flex items-center px-4 py-2 bg-zinc-800 rounded justify-between w-full flex"
-                >
-                  <div class="text-zinc-100 font-semibold flex-none">
-                    {{ item.versionName }}
-                  </div>
-                  <div
-                    class="text-right text-zinc-400 text-xs font-normal flex-auto pr-4"
-                  >
-                    {{ item.size && formatBytes(item.size) }}
-                  </div>
-                  <div class="text-zinc-400">
-                    {{ item.delta ? $t("library.admin.version.delta") : "" }}
-                  </div>
-                  <div class="inline-flex items-center gap-x-2">
-                    <component
-                      :is="PLATFORM_ICONS[item.platform]"
-                      class="size-6 text-blue-600"
-                    />
+              <template #item="{ element: version }: { element: VersionType }">
+                <tr :key="version.versionId">
+                  <td>
                     <Bars3Icon
                       class="cursor-move w-6 h-6 text-zinc-400 handle"
                     />
-                    <button @click="() => deleteVersion(item.versionName)">
-                      <TrashIcon class="w-5 h-5 text-red-600" />
+                  </td>
+                  <td class="py-4 pr-3 pl-4 sm:pl-0">
+                    <div class="flex flex-col">
+                      <span
+                        class="text-sm font-medium whitespace-nowrap text-white"
+                        >{{ version.displayName ?? version.versionPath }}</span
+                      >
+                      <span class="text-xs text-zinc-500 mono">{{
+                        version.versionId
+                      }}</span>
+                    </div>
+                  </td>
+                  <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-400">
+                    {{ version.versionPath }}
+                  </td>
+                  <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-400">
+                    <ul class="space-y-2">
+                      <GameEditorVersionConfig
+                        v-for="config in version.setups"
+                        :key="config.setupId"
+                        :config="config"
+                      />
+                      <li
+                        v-if="version.setups.length == 0"
+                        class="text-xs uppercase font-display text-zinc-700 font-semibold"
+                      >
+                        No setups configured.
+                      </li>
+                    </ul>
+                  </td>
+                  <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-400">
+                    <div v-if="version.onlySetup">
+                      Version configured as in setup-only mode.
+                    </div>
+                    <ul v-else class="space-y-2">
+                      <GameEditorVersionConfig
+                        v-for="config in version.launches"
+                        :key="config.launchId"
+                        :config="config"
+                      />
+                    </ul>
+                  </td>
+                  <td
+                    class="py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-0 space-x-2"
+                  >
+                    <!--
+                    <button class="text-blue-400 hover:text-blue-300">
+                      Edit<span class="sr-only"
+                        >,
+                        {{ version.displayName ?? version.versionPath }}</span
+                      >
                     </button>
-                  </div>
-                </div>
-              </template>
+                    -->
+                    <button
+                      class="text-red-400 hover:text-red-300"
+                      @click="() => deleteVersion(version.versionId)"
+                    >
+                      Delete<span class="sr-only"
+                        >,
+                        {{ version.displayName ?? version.versionPath }}</span
+                      >
+                    </button>
+                  </td>
+                </tr></template
+              >
             </draggable>
-            <div
-              v-if="game.versions.length == 0"
-              class="text-center font-bold text-zinc-400 my-3"
-            >
-              {{ $t("library.admin.version.noVersionsAdded") }}
-            </div>
-            <div class="mt-2 text-center w-full text-sm text-zinc-600">
-              {{ $t("highest") }}
-            </div>
-          </div>
+          </table>
         </div>
       </div>
     </div>
@@ -117,12 +166,10 @@
 </template>
 
 <script setup lang="ts">
-import type { GameModel, GameVersionModel } from "~/prisma/client/models";
-import { Bars3Icon, TrashIcon } from "@heroicons/vue/24/solid";
 import type { SerializeObject } from "nitropack";
 import type { H3Error } from "h3";
-import { ExclamationCircleIcon } from "@heroicons/vue/24/outline";
-import { formatBytes } from "~/server/internal/utils/files";
+import { ExclamationCircleIcon, Bars3Icon } from "@heroicons/vue/24/outline";
+import type { AdminFetchGameType } from "~/server/api/v1/admin/game/[id]/index.get";
 
 // TODO implement UI for this page
 
@@ -136,29 +183,34 @@ const canImport = computed(
   () => hasDeleted.value || props.unimportedVersions.length > 0,
 );
 
-type GameVersionModelWithSize = GameVersionModel & { size: number };
-
-type GameAndVersions = GameModel & {
-  versions: GameVersionModelWithSize[];
-};
-const game = defineModel<SerializeObject<GameAndVersions>>() as Ref<
-  SerializeObject<GameAndVersions>
->;
+const game = defineModel<SerializeObject<AdminFetchGameType>>({
+  required: true,
+});
 if (!game.value)
   throw createError({
     statusCode: 500,
     statusMessage: "Game not provided to editor component",
   });
 
+type VersionType = (typeof game.value.versions)[number];
+
 async function updateVersionOrder() {
   try {
-    const newVersions = await $dropFetch("/api/v1/admin/game/version", {
-      method: "PATCH",
-      body: {
-        id: game.value.id,
-        versions: game.value.versions.map((e) => e.versionName),
+    const newVersionOrder = await $dropFetch(
+      "/api/v1/admin/game/:id/versions",
+      {
+        method: "PATCH",
+        body: {
+          versions: game.value.versions.map((e) => e.versionId),
+        },
+        params: {
+          id: game.value.id,
+        },
       },
-    });
+    );
+    const newVersions = newVersionOrder.map(
+      (id) => game.value.versions.find((k) => k.versionId == id)!,
+    );
     game.value.versions = newVersions;
   } catch (e) {
     createModal(
@@ -175,17 +227,19 @@ async function updateVersionOrder() {
   }
 }
 
-async function deleteVersion(versionName: string) {
+async function deleteVersion(versionId: string) {
   try {
-    await $dropFetch("/api/v1/admin/game/version", {
+    await $dropFetch("/api/v1/admin/game/:id/versions", {
       method: "DELETE",
       body: {
+        version: versionId,
+      },
+      params: {
         id: game.value.id,
-        versionName: versionName,
       },
     });
     game.value.versions.splice(
-      game.value.versions.findIndex((e) => e.versionName === versionName),
+      game.value.versions.findIndex((e) => e.versionId === versionId),
       1,
     );
     hasDeleted.value = true;

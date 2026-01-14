@@ -10,7 +10,7 @@ on:
 
 jobs:
   web:
-    name: Push website Docker image to registry
+    name: Build Docker image
     runs-on: ubuntu-latest
     permissions:
       packages: write

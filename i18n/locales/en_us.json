@@ -9,41 +9,41 @@
       "subheader": "Manage the devices authorized to access your Drop account.",
       "title": "Devices"
     },
+    "home": { "title": "Home" },
     "notifications": {
       "all": "View all {arrow}",
+      "clear": "Clear notifications",
       "desc": "View and manage your notifications.",
       "markAllAsRead": "Mark all as read",
-      "clear": "Clear notifications",
       "markAsRead": "Mark as read",
       "none": "No notifications",
       "notifications": "Notifications",
       "title": "Notifications",
       "unread": "Unread Notifications"
     },
+    "security": { "title": "Security" },
+    "settings": "Settings",
+    "title": "Account Settings",
     "token": {
-      "title": "API Tokens",
-      "subheader": "Manage your API tokens, and what they can access.",
-      "name": "API token name",
-      "nameDesc": "The name of the token, for reference.",
-      "namePlaceholder": "My New Token",
       "acls": "ACLs/scopes",
       "aclsDesc": "Defines what this token has the authority to do. You should avoid selecting all ACLs, if they are not necessary.",
       "expiry": "Expiry",
-      "noExpiry": "No expiry",
-      "revoke": "Revoke",
-      "noTokens": "No tokens connected to your account.",
-
-      "expiryMonth": "A month",
       "expiry3Month": "3 months",
-      "expiry6Month": "6 months",
-      "expiryYear": "A year",
       "expiry5Year": "5 years",
-
+      "expiry6Month": "6 months",
+      "expiryMonth": "A month",
+      "expiryYear": "A year",
+      "name": "API token name",
+      "nameDesc": "The name of the token, for reference.",
+      "namePlaceholder": "My New Token",
+      "noExpiry": "No expiry",
+      "noTokens": "No tokens connected to your account.",
+      "revoke": "Revoke",
+      "subheader": "Manage your API tokens, and what they can access.",
       "success": "Successfully created token.",
-      "successNote": "Make sure to copy it now, as it won't be shown again."
-    },
-    "settings": "Settings",
-    "title": "Account Settings"
+      "successNote": "Make sure to copy it now, as it won't be shown again.",
+      "title": "API Tokens"
+    }
   },
   "actions": "Actions",
   "add": "Add",
@@ -94,7 +94,8 @@
   "chars": {
     "arrow": "→",
     "arrowBack": "←",
-    "quoted": "\"\"",
+    "arrowDown": "↓",
+    "arrowUp": "↑",
     "srComma": ", {0}"
   },
   "common": {
@@ -109,7 +110,9 @@
     "friends": "Friends",
     "groups": "Groups",
     "insert": "Insert",
+    "labelValueColon": "{label}: {value}",
     "name": "Name",
+    "noData": "No data",
     "noResults": "No results",
     "noSelected": "No items selected.",
     "remove": "Remove",
@@ -118,9 +121,7 @@
     "servers": "Servers",
     "srLoading": "Loading…",
     "tags": "Tags",
-    "today": "Today",
-    "labelValueColon": "{label}: {value}",
-    "noData": "No data"
+    "today": "Today"
   },
   "delete": "Delete",
   "drop": {
@@ -156,9 +157,7 @@
       "invalidPassState": "Invalid password state. Please contact the server administrator.",
       "invalidUserOrPass": "Invalid username or password.",
       "inviteIdRequired": "id required in fetching invitation",
-      "method": {
-        "signinDisabled": "Sign in method not enabled"
-      },
+      "method": { "signinDisabled": "Sign in method not enabled" },
       "usernameTaken": "Username already taken."
     },
     "backHome": "{arrow} Back to home",
@@ -246,33 +245,28 @@
   "footer": {
     "about": "About",
     "aboutDrop": "About Drop",
+    "api": "API documentation",
     "comparison": "Comparison",
-    "docs": {
-      "client": "Client Docs",
-      "server": "Server Docs"
-    },
+    "docs": { "client": "Client Docs", "server": "Server Docs" },
     "documentation": "Documentation",
     "findGame": "Find a Game",
     "footer": "Footer",
     "games": "Games",
-    "social": {
-      "discord": "Discord",
-      "github": "GitHub"
-    },
+    "social": { "discord": "Discord", "github": "GitHub" },
     "topSellers": "Top Sellers",
     "version": "Drop {version} {gitRef}"
   },
   "header": {
     "admin": {
       "admin": "Admin",
-      "metadata": "Meta",
-      "settings": {
-        "title": "Settings",
-        "store": "Store",
-        "tokens": "API tokens"
-      },
       "home": "Home",
       "library": "Library",
+      "metadata": "Meta",
+      "settings": {
+        "store": "Store",
+        "title": "Settings",
+        "tokens": "API tokens"
+      },
       "tasks": "Tasks",
       "users": "Users"
     },
@@ -280,23 +274,22 @@
     "openSidebar": "Open sidebar"
   },
   "helpUsTranslate": "Help us translate Drop {arrow}",
-  "highest": "highest",
   "home": {
     "admin": {
-      "title": "Home",
-      "subheader": "Instance summary",
-      "games": "Games",
-      "librarySources": "Library sources",
-      "version": "Version",
       "activeInactiveUsers": "Active/inactive users",
       "activeUsers": "Active users",
-      "inactiveUsers": "Inactive users",
-      "goToUsers": "Go to users",
-      "users": "Users",
-      "biggestGamesToDownload": "Biggest games to download",
-      "latestVersionOnly": "Latest version only",
+      "allVersionsCombined": "All versions combined",
       "biggestGamesOnServer": "Biggest games on server",
-      "allVersionsCombined": "All versions combined"
+      "biggestGamesToDownload": "Biggest games to download",
+      "games": "Games",
+      "goToUsers": "Go to users",
+      "inactiveUsers": "Inactive users",
+      "latestVersionOnly": "Latest version only",
+      "librarySources": "Library sources",
+      "subheader": "Instance summary",
+      "title": "Home",
+      "users": "Users",
+      "version": "Version"
     }
   },
   "library": {
@@ -339,44 +332,40 @@
         "selectGameSearch": "Select game",
         "selectPlatform": "Please select a platform…",
         "version": {
-          "advancedOptions": "Advanced options",
           "import": "Import version",
           "installDir": "(install_dir)/",
           "launchCmd": "Launch executable/command",
           "launchDesc": "Executable to launch the game",
-          "launchPlaceholder": "game.exe",
+          "launchPlaceholder": "game.exe --args",
           "loadingVersion": "Loading version metadata…",
-          "noAdv": "No advanced options for this configuration.",
+          "noLaunches": "No launch configurations added.",
+          "noSetups": "No setup configurations added.",
           "noVersions": "No versions to import",
           "platform": "Version platform",
           "setupCmd": "Setup executable/command",
           "setupDesc": "Ran once when the game is installed",
           "setupMode": "Setup mode",
           "setupModeDesc": "When enabled, this version does not have a launch command, and simply runs the executable on the user's computer. Useful for games that only distribute installer and not portable files.",
-          "setupPlaceholder": "setup.exe",
-          "umuLauncherId": "UMU Launcher ID",
-          "umuOverride": "Override UMU Launcher Game ID",
-          "umuOverrideDesc": "By default, Drop uses a non-ID when launching with UMU Launcher. In order to get the right patches for some games, you may have to manually set this field.",
           "updateMode": "Update mode",
           "updateModeDesc": "When enabled, these files will be installed on top of (overwriting) the previous version's. If multiple \"update modes\" are chained together, they are applied in order.",
           "version": "Select version to import"
         },
         "withoutMetadata": "Import without metadata"
       },
+      "libraryHint": "No libraries configured.",
+      "libraryHintDocsLink": "What does this mean? {arrow}",
       "metadata": {
         "companies": {
           "action": "Manage {arrow}",
           "addGame": {
             "description": "Pick a game to add to the company, and whether it should be listed as a developer, publisher, or both.",
             "developer": "Developer?",
-            "noGames": "No games to add",
             "publisher": "Publisher?",
             "title": "Connect game to this company"
           },
           "description": "Companies organize games by who they were developed or published by.",
           "editor": {
             "action": "Add Game {plus}",
-            "descriptionPlaceholder": "{'<'}description{'>'}",
             "developed": "Developed",
             "libraryDescription": "Add, remove, or customise what this company has developed and/or published.",
             "libraryTitle": "Game Library",
@@ -421,8 +410,6 @@
       },
       "metadataProvider": "Metadata provider",
       "noGames": "No games imported",
-      "libraryHint": "No libraries configured.",
-      "libraryHintDocsLink": "What does this mean? {arrow}",
       "offline": "Drop couldn't access this game.",
       "offlineTitle": "Game offline",
       "openEditor": "Open in Editor {arrow}",
@@ -434,6 +421,7 @@
         "desc": "Configure your library sources, where Drop will look for new games and versions to import.",
         "documentationLink": "Documentation {arrow}",
         "edit": "Edit source",
+        "freeSpace": "Free space",
         "fsDesc": "Imports games from a path on disk. Requires version-based folder structure, and supports archived games.",
         "fsFlatDesc": "Imports games from a path on disk, but without a separate version subfolder. Useful when migrating an existing library to Drop.",
         "fsFlatTitle": "Compatibility",
@@ -445,21 +433,16 @@
         "nameDesc": "The name of your source, for reference.",
         "namePlaceholder": "My New Source",
         "sources": "Library Sources",
-        "typeDesc": "The type of your source. Changes the required options.",
-        "working": "Working?",
-        "freeSpace": "Free space",
         "totalSpace": "Total space",
+        "typeDesc": "The type of your source. Changes the required options.",
         "utilizationPercentage": "Utilization percentage",
-        "percentage": "{number}%"
+        "working": "Working?"
       },
       "subheader": "As you add folders to your library sources, Drop will detect it and prompt you to import it. Each game needs to be imported before you can import a version.",
       "title": "Libraries",
       "version": {
-        "delta": "Upgrade mode",
-        "noVersions": "You have no versions of this game available.",
-        "noVersionsAdded": "no versions added"
-      },
-      "versionPriority": "Version priority"
+        "noVersions": "You have no versions of this game available."
+      }
     },
     "back": "Back to Library",
     "collection": {
@@ -482,7 +465,6 @@
     "search": "Search library…",
     "subheader": "Organize your games into collections for easy access, and access all your games."
   },
-  "lowest": "lowest",
   "news": {
     "article": {
       "add": "Add",
@@ -515,11 +497,19 @@
     "title": "Latest News"
   },
   "options": "Options",
-  "security": "Security",
   "selectLanguage": "Select language",
+  "services": {
+    "nginx": {
+      "description": "Built-in simple reverse proxy to connect all the Drop components together.",
+      "title": "NGINX"
+    },
+    "torrential": {
+      "description": "The internal download server for Drop.",
+      "title": "Torrential"
+    }
+  },
   "settings": {
     "admin": {
-      "description": "Configure Drop settings",
       "store": {
         "dropGameAltPlaceholder": "Example Game icon",
         "dropGameDescriptionPlaceholder": "This is an example game. It will be replaced if you import a game.",
@@ -563,10 +553,8 @@
     "welcomeDescription": "Welcome to Drop setup wizard. It will walk you through configuring Drop for the first time, and how it works."
   },
   "store": {
-    "about": "About",
     "commingSoon": "coming soon",
     "developers": "Developers | Developer | Developers",
-    "exploreMore": "Explore more {arrow}",
     "featured": "Featured",
     "images": "Game Images",
     "lookAt": "Check it out",
@@ -580,15 +568,12 @@
     "openFeatured": "Star games in Admin Library {arrow}",
     "platform": "Platform | Platform | Platforms",
     "publishers": "Publishers | Publisher | Publishers",
-    "size": "Size",
     "rating": "Rating",
-    "readLess": "Click to read less",
-    "readMore": "Click to read more",
     "recentlyAdded": "Recently Added",
     "recentlyReleased": "Recently released",
-    "recentlyUpdated": "Recently Updated",
     "released": "Released",
     "reviews": "({0} Reviews)",
+    "size": "Size",
     "tags": "Tags",
     "title": "Store",
     "view": {
@@ -597,15 +582,16 @@
       "srGames": "Games",
       "srViewGrid": "View grid"
     },
-    "viewInStore": "View in Store",
-    "website": "Website"
+    "viewInStore": "View in Store"
   },
   "tasks": {
     "admin": {
       "back": "{arrow} Back to Tasks",
       "completedTasksTitle": "Completed tasks",
       "dailyScheduledTitle": "Daily scheduled tasks",
+      "execute": "{arrow} Execute",
       "noTasksRunning": "No tasks currently running",
+      "progress": "{0}%",
       "runningTasksTitle": "Running tasks",
       "scheduled": {
         "checkUpdateDescription": "Check if Drop has an update.",
@@ -618,9 +604,7 @@
         "cleanupSessionsName": "Clean up sessions."
       },
       "viewTask": "View {arrow}",
-      "weeklyScheduledTitle": "Weekly scheduled tasks",
-      "progress": "{0}%",
-      "execute": "{arrow} Execute"
+      "weeklyScheduledTitle": "Weekly scheduled tasks"
     }
   },
   "title": "Drop",
@@ -630,29 +614,23 @@
   "upload": "Upload",
   "uploadFile": "Upload file",
   "user": {
-    "unknown": "Unknown user",
     "editProfile": "Edit profile",
+    "noActivity": "No recent activity",
+    "notFound": "User not found",
     "recent": "Recent activity (TODO)",
     "recentSub": "Recent activity by this user",
-    "notFound": "User not found",
-    "noActivity": "No recent activity"
+    "unknown": "Unknown user"
   },
   "userHeader": {
     "closeSidebar": "Close sidebar",
-    "links": {
-      "community": "Community",
-      "library": "Library",
-      "news": "News"
-    },
-    "profile": {
-      "admin": "Admin Dashboard",
-      "settings": "Account settings"
-    }
+    "links": { "community": "Community", "library": "Library", "news": "News" },
+    "profile": { "admin": "Admin Dashboard", "settings": "Account settings" }
   },
   "users": {
     "admin": {
       "adminHeader": "Admin?",
       "adminUserLabel": "Admin user",
+      "authLink": "Authentication {arrow}",
       "authentication": {
         "configure": "Configure",
         "description": "Drop supports a variety of \"authentication mechanisms\". As you enable or disable them, they are shown on the sign in screen for users to select from. Click the dot menu to configure the authentication mechanism.",
@@ -664,7 +642,6 @@
         "srOpenOptions": "Open options",
         "title": "Authentication"
       },
-      "authLink": "Authentication {arrow}",
       "authoptionsHeader": "Auth Options",
       "delete": "Delete",
       "deleteUser": "Delete user {0}",

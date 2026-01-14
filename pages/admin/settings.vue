@@ -42,6 +42,7 @@
 import {
   BuildingStorefrontIcon,
   CodeBracketIcon,
+  ServerIcon,
 } from "@heroicons/vue/24/outline";
 
 const navigation: Array<NavigationItem & { icon: Component }> = [
@@ -56,6 +57,12 @@ const navigation: Array<NavigationItem & { icon: Component }> = [
     route: "/admin/settings/tokens",
     prefix: "/admin/settings/tokens",
     icon: CodeBracketIcon,
+  },
+  {
+    label: "Services",
+    route: "/admin/settings/services",
+    prefix: "/admin/settings/services",
+    icon: ServerIcon,
   },
 ];
 

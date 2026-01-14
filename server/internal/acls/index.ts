@@ -45,6 +45,9 @@ export type UserACL = Array<(typeof userACLs)[number]>;
 export const systemACLs = [
   "setup",
 
+  "depot:new",
+  "depot:delete",
+
   "auth:read",
   "auth:simple:invitation:read",
   "auth:simple:invitation:new",
@@ -125,8 +128,12 @@ class ACLManager {
     if (!request)
       throw new Error("Native web requests not available - weird deployment?");
     // Sessions automatically have all ACLs
-    const user = await sessionHandler.getSession(request);
-    if (user) return user.userId;
+    const session = await sessionHandler.getSession(request);
+    if (session && session.authenticated) {
+      if (session.authenticated.level >= session.authenticated.requiredLevel)
+        return session.authenticated.userId;
+      return undefined;
+    }
 
     const authorizationToken = this.getAuthorizationToken(request);
     if (!authorizationToken) return undefined;
@@ -160,6 +167,19 @@ class ACLManager {
     return undefined;
   }
 
+  async allowUserSuperlevel(request: MinimumRequestObject | undefined) {
+    if (!request)
+      throw new Error("Native web requests not available - weird deployment?");
+    const session = await sessionHandler.getSession(request);
+    if (!session || !session.authenticated) return undefined;
+    if (session.authenticated.level < session.authenticated.requiredLevel)
+      return undefined;
+    if (session.authenticated.superleveledExpiry === undefined)
+      return undefined;
+    if (session.authenticated.superleveledExpiry < Date.now()) return undefined;
+    return session.authenticated.userId;
+  }
+
   async allowSystemACL(
     request: MinimumRequestObject | undefined,
     acls: SystemACL,
@@ -167,14 +187,19 @@ class ACLManager {
     if (!request)
       throw new Error("Native web requests not available - weird deployment?");
     const userSession = await sessionHandler.getSession(request);
-    if (userSession) {
+    if (userSession && userSession.authenticated) {
       const user = await prisma.user.findUnique({
-        where: { id: userSession.userId },
+        where: { id: userSession.authenticated.userId },
       });
       if (user) {
         if (!user) return false;
-        if (user.admin) return true;
-        return false;
+        if (!user.admin) return false;
+        if (
+          userSession.authenticated.level <
+          userSession.authenticated.requiredLevel
+        )
+          return false;
+        return true;
       }
     }
 
@@ -223,7 +248,7 @@ class ACLManager {
     request: MinimumRequestObject,
   ): Promise<GlobalACL[] | undefined> {
     const userSession = await sessionHandler.getSession(request);
-    if (!userSession) {
+    if (!userSession || !userSession.authenticated) {
       const authorizationToken = this.getAuthorizationToken(request);
       if (!authorizationToken) return undefined;
       const token = await prisma.aPIToken.findUnique({
@@ -234,7 +259,7 @@ class ACLManager {
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: userSession.userId },
+      where: { id: userSession.authenticated.userId },
       select: {
         admin: true,
       },

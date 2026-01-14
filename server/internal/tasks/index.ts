@@ -14,15 +14,19 @@ import pino from "pino";
 import { logger } from "~/server/internal/logging";
 import { Writable } from "node:stream";
 
+type TaskActionLink = `${string}:${string}`;
+
 // a task that has been run
 type FinishedTask = {
   success: boolean;
   progress: number;
+  key: string | undefined;
   log: string[];
   error: { title: string; description: string } | undefined;
   name: string;
   taskGroup: TaskGroup;
   acls: string[];
+  actions: TaskActionLink[];
 
   // ISO timestamp of when the task started
   startTime: string;
@@ -53,7 +57,6 @@ class TaskHandler {
     "cleanup:invitations",
     "cleanup:sessions",
     "check:update",
-    "debug",
   ];
   private weeklyScheduledTasks: TaskGroup[] = ["cleanup:objects"];
 
@@ -74,8 +77,12 @@ class TaskHandler {
     this.taskCreators.set(task.taskGroup, task.build);
   }
 
-  async create(task: Task) {
-    if (this.hasTask(task.id)) throw new Error("Task with ID already exists.");
+  async create(iTask: Omit<Task, "id">) {
+    const task: Task = { ...iTask, id: crypto.randomUUID() };
+    if (this.hasTaskID(task.id))
+      throw new Error("Task with ID already exists.");
+    if (task.key && this.hasTaskKey(task.key))
+      throw new Error("Task with key already exists");
 
     let updateCollectTimeout: NodeJS.Timeout | undefined;
     let updateCollectResolves: Array<(value: unknown) => void> = [];
@@ -115,6 +122,7 @@ class TaskHandler {
             error: taskEntry.error,
             log: taskEntry.log.slice(logOffset),
             reset,
+            actions: taskEntry.actions,
           };
           logOffset = taskEntry.log.length;
 
@@ -189,6 +197,7 @@ class TaskHandler {
 
     this.taskPool.set(task.id, {
       name: task.name,
+      key: task.key,
       taskGroup: task.taskGroup,
       success: false,
       progress: 0,
@@ -198,6 +207,7 @@ class TaskHandler {
       acls: task.acls,
       startTime: new Date().toISOString(),
       endTime: undefined,
+      actions: task.initialActions ?? [],
     });
 
     await updateAllClients(true);
@@ -205,9 +215,13 @@ class TaskHandler {
     droplet.callAltThreadFunc(async () => {
       const taskEntry = this.taskPool.get(task.id);
       if (!taskEntry) throw new Error("No task entry");
+      const addAction = (action: TaskActionLink) => {
+        taskEntry.actions.push(action);
+        updateAllClients();
+      };
 
       try {
-        await task.run({ progress, logger: taskLogger });
+        await task.run({ progress, logger: taskLogger, addAction });
         taskEntry.success = true;
       } catch (error: unknown) {
         taskEntry.success = false;
@@ -239,6 +253,7 @@ class TaskHandler {
           log: taskEntry.log,
 
           acls: taskEntry.acls,
+          actions: taskEntry.actions,
 
           ...(taskEntry.error ? { error: taskEntry.error } : undefined),
         },
@@ -246,6 +261,8 @@ class TaskHandler {
 
       this.taskPool.delete(task.id);
     });
+
+    return task.id;
   }
 
   async connect(
@@ -291,6 +308,7 @@ class TaskHandler {
         | undefined,
       log: task.log,
       progress: task.progress,
+      actions: task.actions as TaskActionLink[],
     };
     peer.send(JSON.stringify(catchupMessage));
   }
@@ -337,8 +355,14 @@ class TaskHandler {
       .toArray();
   }
 
-  hasTask(id: string) {
+  hasTaskID(id: string) {
     return this.taskPool.has(id);
+  }
+
+  hasTaskKey(key: string) {
+    return (
+      this.taskPool.values().find((v) => v.key && v.key == key) != undefined
+    );
   }
 
   dailyTasks() {
@@ -356,8 +380,8 @@ class TaskHandler {
       return;
     }
     const task = taskConstructor();
-    await this.create(task);
-    return task.id;
+    const id = await this.create(task);
+    return id;
   }
 
   /**
@@ -416,6 +440,7 @@ class TaskHandler {
 export type TaskRunContext = {
   progress: (progress: number) => void;
   logger: typeof logger;
+  addAction: (link: TaskActionLink) => void;
 };
 
 export function wrapTaskContext(
@@ -427,6 +452,7 @@ export function wrapTaskContext(
   });
 
   return {
+    ...context,
     progress(progress) {
       if (progress > 100 || progress < 0) {
         logger.warn("[wrapTaskContext] progress must be between 0 and 100");
@@ -445,10 +471,12 @@ export function wrapTaskContext(
 
 export interface Task {
   id: string;
+  key?: string;
   taskGroup: TaskGroup;
   name: string;
   run: (context: TaskRunContext) => Promise<void>;
   acls: GlobalACL[];
+  initialActions?: TaskActionLink[];
 }
 
 export type TaskMessage = {
@@ -459,6 +487,7 @@ export type TaskMessage = {
   error: null | undefined | { title: string; description: string };
   log: string[];
   reset?: boolean;
+  actions: TaskActionLink[];
 };
 
 export type PeerImpl = {
@@ -472,6 +501,7 @@ export interface BuildTask {
   name: string;
   run: (context: TaskRunContext) => Promise<void>;
   acls: GlobalACL[];
+  initialActions?: TaskActionLink[];
 }
 
 interface DropTask {
@@ -520,6 +550,7 @@ export function defineDropTask(buildTask: BuildTask): DropTask {
       name: buildTask.name,
       run: buildTask.run,
       acls: buildTask.acls,
+      initialActions: buildTask.initialActions ?? [],
     }),
   };
 }

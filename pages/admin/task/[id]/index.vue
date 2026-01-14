@@ -44,8 +44,25 @@
         </div>
         {{ task.name }}
       </h1>
+      <ul class="flex flex-row items-center h-12 gap-x-3">
+        <li
+          v-for="[name, link] in task.actions.map((v) => v.split(':'))"
+          :key="link"
+        >
+          <NuxtLink :href="link">
+            <LoadingButton :loading="false"> {{ name }} </LoadingButton>
+          </NuxtLink>
+        </li>
+        <li
+          v-if="task.actions.length == 0"
+          class="text-md uppercase font-display font-bold text-zinc-700"
+        >
+          No actions
+        </li>
+      </ul>
+
       <div
-        class="bg-zinc-950 p-2 rounded-md h-[80vh] flex flex-col flex-col-reverse overflow-y-scroll gap-y-1"
+        class="bg-zinc-950 p-2 rounded-md h-[70vh] flex flex-col flex-col-reverse overflow-y-scroll gap-y-1"
       >
         <LogLine
           v-for="(_, idx) in task.log"

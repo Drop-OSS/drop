@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-y-4 max-w-lg">
+  <div class="flex flex-col gap-y-4 max-w-[35vw]">
     <Listbox
       as="div"
       :model-value="currentlySelectedVersion"
@@ -73,139 +73,59 @@
       </div>
     </Listbox>
 
-    <div v-if="versionGuesses" class="flex flex-col gap-8">
+    <div v-if="versionGuesses" class="flex flex-col gap-4">
       <!-- setup executable -->
-      <div>
-        <label
-          for="startup"
-          class="block text-sm font-medium leading-6 text-zinc-100"
-          >{{ $t("library.admin.import.version.setupCmd") }}</label
-        >
-        <p class="text-zinc-400 text-xs">
-          {{ $t("library.admin.import.version.setupDesc") }}
-        </p>
-        <div class="mt-2">
-          <div
-            class="flex w-fit rounded-md shadow-sm bg-zinc-950 ring-1 ring-inset ring-zinc-800 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600"
-          >
-            <span
-              class="flex select-none items-center pl-3 text-zinc-500 sm:text-sm"
-            >
-              {{ $t("library.admin.import.version.installDir") }}
-            </span>
-            <Combobox
-              as="div"
-              :value="versionSettings.setup"
-              nullable
-              @update:model-value="(v) => updateSetupCommand(v)"
-            >
-              <div class="relative">
-                <ComboboxInput
-                  class="block flex-1 border-0 py-1.5 pl-1 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
-                  :placeholder="
-                    $t('library.admin.import.version.setupPlaceholder')
-                  "
-                  @change="setupProcessQuery = $event.target.value"
-                  @blur="setupProcessQuery = ''"
-                />
-                <ComboboxButton
-                  v-if="setupFilteredVersionGuesses?.length ?? 0 > 0"
-                  class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
-                >
-                  <ChevronUpDownIcon
-                    class="size-5 text-gray-400"
-                    aria-hidden="true"
-                  />
-                </ComboboxButton>
 
-                <ComboboxOptions
-                  class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-white/5 focus:outline-none sm:text-sm"
-                >
-                  <ComboboxOption
-                    v-for="guess in setupFilteredVersionGuesses"
-                    :key="guess.filename"
-                    v-slot="{ active, selected }"
-                    :value="guess.filename"
-                    as="template"
-                  >
-                    <li
-                      :class="[
-                        'relative cursor-default select-none py-2 pl-3 pr-9',
-                        active
-                          ? 'bg-blue-600 text-white outline-none'
-                          : 'text-zinc-100',
-                      ]"
-                    >
-                      <span
-                        :class="[
-                          'inline-flex items-center gap-x-2 block truncate',
-                          selected && 'font-semibold',
-                        ]"
-                      >
-                        {{ guess.filename }}
-                        <component
-                          :is="PLATFORM_ICONS[guess.platform as PlatformClient]"
-                          class="size-5"
-                        />
-                      </span>
-
-                      <span
-                        v-if="selected"
-                        :class="[
-                          'absolute inset-y-0 right-0 flex items-center pr-4',
-                          active ? 'text-white' : 'text-blue-600',
-                        ]"
-                      >
-                        <CheckIcon class="size-5" aria-hidden="true" />
-                      </span>
-                    </li>
-                  </ComboboxOption>
-                  <ComboboxOption
-                    v-if="setupProcessQuery"
-                    v-slot="{ active, selected }"
-                    :value="setupProcessQuery"
-                  >
-                    <li
-                      :class="[
-                        'relative cursor-default select-none py-2 pl-3 pr-9',
-                        active
-                          ? 'bg-blue-600 text-white outline-none'
-                          : 'text-zinc-100',
-                      ]"
-                    >
-                      <span
-                        :class="['block truncate', selected && 'font-semibold']"
-                      >
-                        {{ $t("chars.quoted", { text: setupProcessQuery }) }}
-                      </span>
-
-                      <span
-                        v-if="selected"
-                        :class="[
-                          'absolute inset-y-0 right-0 flex items-center pr-4',
-                          active ? 'text-white' : 'text-blue-600',
-                        ]"
-                      >
-                        <CheckIcon class="size-5" aria-hidden="true" />
-                      </span>
-                    </li>
-                  </ComboboxOption>
-                </ComboboxOptions>
-              </div>
-            </Combobox>
-            <input
-              id="startup"
-              v-model="versionSettings.setupArgs"
-              type="text"
-              name="startup"
-              class="border-l border-zinc-700 block flex-1 border-0 py-1.5 pl-2 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
-              placeholder="--setup"
-            />
-          </div>
+      <div class="bg-zinc-800 p-4 rounded-xl relative flex flex-col gap-y-2">
+        <div>
+          <label class="block text-sm font-medium leading-6 text-zinc-100">{{
+            $t("library.admin.import.version.setupCmd")
+          }}</label>
+          <p class="text-zinc-400 text-xs">
+            {{ $t("library.admin.import.version.setupDesc") }}
+          </p>
         </div>
+        <ol
+          v-if="versionSettings.setups.length > 0"
+          class="divide-y-1 divide-zinc-700"
+        >
+          <li
+            v-for="(launch, launchIdx) in versionSettings.setups"
+            :key="launchIdx"
+            class="py-2 inline-flex items-start gap-x-1"
+          >
+            <ImportVersionLaunchRow
+              v-model="versionSettings.setups[launchIdx]"
+              :version-guesses="versionGuesses"
+              :needs-name="false"
+            />
+            <button
+              class="transition rounded p-1 bg-zinc-900/30 group hover:bg-red-600/30"
+              @click="() => versionSettings.setups.splice(launchIdx, 1)"
+            >
+              <TrashIcon
+                class="transition size-5 text-zinc-700 group-hover:text-red-700"
+              />
+            </button>
+          </li>
+        </ol>
+        <span
+          v-else
+          class="text-sm text-zinc-700 uppercase font-display font-bold"
+          >{{ $t("library.admin.import.version.noSetups") }}</span
+        >
+        <LoadingButton
+          :loading="false"
+          class="w-fit"
+          @click="() => versionSettings.setups.push({} as any)"
+          >{{ $t("common.add") }}</LoadingButton
+        >
       </div>
       <!-- setup mode -->
-      <SwitchGroup as="div" class="flex items-center justify-between">
+      <SwitchGroup
+        as="div"
+        class="bg-zinc-800 p-4 rounded-xl flex items-center justify-between gap-4"
+      >
         <span class="flex flex-grow flex-col">
           <SwitchLabel
             as="span"
@@ -220,7 +140,7 @@
         <Switch
           v-model="versionSettings.onlySetup"
           :class="[
-            versionSettings.onlySetup ? 'bg-blue-600' : 'bg-zinc-800',
+            versionSettings.onlySetup ? 'bg-blue-600' : 'bg-zinc-900',
             'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2',
           ]"
         >
@@ -233,143 +153,62 @@
           />
         </Switch>
       </SwitchGroup>
-      <div class="relative">
-        <label
-          for="startup"
-          class="block text-sm font-medium leading-6 text-zinc-100"
-          >{{ $t("library.admin.import.version.launchCmd") }}</label
-        >
-        <p class="text-zinc-400 text-xs">
-          {{ $t("library.admin.import.version.launchDesc") }}
-        </p>
-        <div class="mt-2">
-          <div
-            class="flex w-fit rounded-md shadow-sm bg-zinc-950 ring-1 ring-inset ring-zinc-800 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600"
-          >
-            <span
-              class="flex select-none items-center pl-3 text-zinc-500 sm:text-sm"
-              >{{ $t("library.admin.import.version.installDir") }}</span
-            >
-            <Combobox
-              as="div"
-              :value="versionSettings.launch"
-              nullable
-              @update:model-value="(v) => updateLaunchCommand(v)"
-            >
-              <div class="relative">
-                <ComboboxInput
-                  class="block flex-1 border-0 py-1.5 pl-1 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
-                  :placeholder="
-                    $t('library.admin.import.version.launchPlaceholder')
-                  "
-                  @change="launchProcessQuery = $event.target.value"
-                  @blur="launchProcessQuery = ''"
-                />
-                <ComboboxButton
-                  v-if="launchFilteredVersionGuesses?.length ?? 0 > 0"
-                  class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
-                >
-                  <ChevronUpDownIcon
-                    class="size-5 text-gray-400"
-                    aria-hidden="true"
-                  />
-                </ComboboxButton>
-
-                <ComboboxOptions
-                  class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-white/5 focus:outline-none sm:text-sm"
-                >
-                  <ComboboxOption
-                    v-for="guess in launchFilteredVersionGuesses"
-                    :key="guess.filename"
-                    v-slot="{ active, selected }"
-                    :value="guess.filename"
-                    as="template"
-                  >
-                    <li
-                      :class="[
-                        'relative cursor-default select-none py-2 pl-3 pr-9',
-                        active
-                          ? 'bg-blue-600 text-white outline-none'
-                          : 'text-zinc-100',
-                      ]"
-                    >
-                      <span
-                        :class="[
-                          'inline-flex items-center gap-x-2 block truncate',
-                          selected && 'font-semibold',
-                        ]"
-                      >
-                        {{ guess.filename }}
-                        <component
-                          :is="PLATFORM_ICONS[guess.platform as PlatformClient]"
-                          class="size-5"
-                        />
-                      </span>
-
-                      <span
-                        v-if="selected"
-                        :class="[
-                          'absolute inset-y-0 right-0 flex items-center pr-4',
-                          active ? 'text-white' : 'text-blue-600',
-                        ]"
-                      >
-                        <CheckIcon class="size-5" aria-hidden="true" />
-                      </span>
-                    </li>
-                  </ComboboxOption>
-                  <ComboboxOption
-                    v-if="launchProcessQuery"
-                    v-slot="{ active, selected }"
-                    :value="launchProcessQuery"
-                  >
-                    <li
-                      :class="[
-                        'relative cursor-default select-none py-2 pl-3 pr-9',
-                        active
-                          ? 'bg-blue-600 text-white outline-none'
-                          : 'text-zinc-100',
-                      ]"
-                    >
-                      <span
-                        :class="['block truncate', selected && 'font-semibold']"
-                      >
-                        {{ $t("chars.quoted", { text: launchProcessQuery }) }}
-                      </span>
-
-                      <span
-                        v-if="selected"
-                        :class="[
-                          'absolute inset-y-0 right-0 flex items-center pr-4',
-                          active ? 'text-white' : 'text-blue-600',
-                        ]"
-                      >
-                        <CheckIcon class="size-5" aria-hidden="true" />
-                      </span>
-                    </li>
-                  </ComboboxOption>
-                </ComboboxOptions>
-              </div>
-            </Combobox>
-            <input
-              id="startup"
-              v-model="versionSettings.launchArgs"
-              type="text"
-              name="startup"
-              class="border-l border-zinc-700 block flex-1 border-0 py-1.5 pl-2 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
-              placeholder="--launch"
-            />
-          </div>
+      <!-- launch executables -->
+      <div class="relative flex flex-col gap-y-2 bg-zinc-800 p-4 rounded-xl">
+        <div>
+          <label class="block text-sm font-medium leading-6 text-zinc-100">{{
+            $t("library.admin.import.version.launchCmd")
+          }}</label>
+          <p class="text-zinc-400 text-xs">
+            {{ $t("library.admin.import.version.launchDesc") }}
+          </p>
         </div>
+        <ol
+          v-if="versionSettings.launches.length > 0"
+          class="divide-y-1 divide-zinc-700"
+        >
+          <li
+            v-for="(launch, launchIdx) in versionSettings.launches"
+            :key="launchIdx"
+            class="py-2 inline-flex items-start gap-x-1 w-full"
+          >
+            <ImportVersionLaunchRow
+              v-model="versionSettings.launches[launchIdx]"
+              :version-guesses="versionGuesses"
+              :needs-name="true"
+            />
+            <button
+              class="transition rounded p-1 bg-zinc-900/30 group hover:bg-red-600/30"
+              @click="() => versionSettings.launches.splice(launchIdx, 1)"
+            >
+              <TrashIcon
+                class="transition size-5 text-zinc-700 group-hover:text-red-700"
+              />
+            </button>
+          </li>
+        </ol>
+        <span
+          v-else
+          class="text-sm text-zinc-700 uppercase font-display font-bold"
+          >{{ $t("library.admin.import.version.noLaunches") }}</span
+        >
+        <LoadingButton
+          :loading="false"
+          class="w-fit"
+          @click="() => versionSettings.launches.push({} as any)"
+          >{{ $t("common.add") }}</LoadingButton
+        >
+
         <div
           v-if="versionSettings.onlySetup"
           class="absolute inset-0 bg-zinc-900/50"
         />
       </div>
 
-      <PlatformSelector v-model="versionSettings.platform">
-        {{ $t("library.admin.import.version.platform") }}
-      </PlatformSelector>
-      <SwitchGroup as="div" class="flex items-center justify-between">
+      <SwitchGroup
+        as="div"
+        class="bg-zinc-800 p-4 rounded-xl flex items-center gap-4 justify-between"
+      >
         <span class="flex flex-grow flex-col">
           <SwitchLabel
             as="span"
@@ -385,7 +224,7 @@
         <Switch
           v-model="versionSettings.delta"
           :class="[
-            versionSettings.delta ? 'bg-blue-600' : 'bg-zinc-800',
+            versionSettings.delta ? 'bg-blue-600' : 'bg-zinc-900',
             'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2',
           ]"
         >
@@ -398,89 +237,9 @@
           />
         </Switch>
       </SwitchGroup>
-      <Disclosure v-slot="{ open }" as="div" class="py-2">
-        <dt>
-          <DisclosureButton
-            class="border-b border-zinc-600 pb-2 flex w-full items-start justify-between text-left text-zinc-100"
-          >
-            <span class="text-base/7 font-semibold">
-              {{ $t("library.admin.import.version.advancedOptions") }}
-            </span>
-            <span class="ml-6 flex h-7 items-center">
-              <ChevronUpIcon v-if="!open" class="size-6" aria-hidden="true" />
-              <ChevronDownIcon v-else class="size-6" aria-hidden="true" />
-            </span>
-          </DisclosureButton>
-        </dt>
-        <DisclosurePanel
-          as="dd"
-          class="bg-zinc-950/30 p-3 rounded-b-lg mt-2 flex flex-col gap-y-4"
-        >
-          <!-- UMU launcher configuration -->
-          <div
-            v-if="versionSettings.platform == PlatformClient.Windows"
-            class="flex flex-col gap-y-4"
-          >
-            <SwitchGroup as="div" class="flex items-center justify-between">
-              <span class="flex flex-grow flex-col">
-                <SwitchLabel
-                  as="span"
-                  class="text-sm font-medium leading-6 text-zinc-100"
-                  passive
-                >
-                  {{ $t("library.admin.import.version.umuOverride") }}
-                </SwitchLabel>
-                <SwitchDescription as="span" class="text-sm text-zinc-400">
-                  {{ $t("library.admin.import.version.umuOverrideDesc") }}
-                </SwitchDescription>
-              </span>
-              <Switch
-                v-model="umuIdEnabled"
-                :class="[
-                  umuIdEnabled ? 'bg-blue-600' : 'bg-zinc-800',
-                  'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2',
-                ]"
-              >
-                <span
-                  aria-hidden="true"
-                  :class="[
-                    umuIdEnabled ? 'translate-x-5' : 'translate-x-0',
-                    'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
-                  ]"
-                />
-              </Switch>
-            </SwitchGroup>
-            <div>
-              <label
-                for="umu-id"
-                class="block text-sm font-medium leading-6 text-zinc-100"
-              >
-                {{ $t("library.admin.import.version.umuLauncherId") }}
-              </label>
-              <div class="mt-2">
-                <input
-                  id="umu-id"
-                  v-model="umuId"
-                  name="umu-id"
-                  type="text"
-                  autocomplete="umu-id"
-                  required
-                  :disabled="!umuIdEnabled"
-                  placeholder="umu-starcitizen"
-                  class="block w-full rounded-md border-0 py-1.5 px-3 bg-zinc-950 disabled:bg-zinc-900/80 text-zinc-100 disabled:text-zinc-400 shadow-sm ring-1 ring-inset ring-zinc-700 disabled:ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div v-else class="text-zinc-400">
-            {{ $t("library.admin.import.version.noAdv") }}
-          </div>
-        </DisclosurePanel>
-      </Disclosure>
 
       <LoadingButton
-        class="w-fit"
+        class="w-fit ml-auto"
         :loading="importLoading"
         @click="startImport_wrapper"
       >
@@ -536,18 +295,15 @@ import {
   SwitchDescription,
   SwitchGroup,
   SwitchLabel,
-  Disclosure,
-  DisclosureButton,
-  DisclosurePanel,
-  Combobox,
-  ComboboxButton,
-  ComboboxInput,
-  ComboboxOption,
-  ComboboxOptions,
 } from "@headlessui/vue";
 import { XCircleIcon } from "@heroicons/vue/16/solid";
-import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
-import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/vue/24/solid";
+import {
+  CheckIcon,
+  ChevronUpDownIcon,
+  TrashIcon,
+} from "@heroicons/vue/20/solid";
+import type { Platform } from "~/prisma/client/enums";
+import type { ImportVersion } from "~/server/api/v1/admin/import/version/index.post";
 
 definePageMeta({
   layout: "admin",
@@ -561,76 +317,16 @@ const versions = await $dropFetch(
   `/api/v1/admin/import/version?id=${encodeURIComponent(gameId)}`,
 );
 const currentlySelectedVersion = ref(-1);
-const versionSettings = ref<{
-  platform: PlatformClient | undefined;
-
-  onlySetup: boolean;
-  launch: string;
-  launchArgs: string;
-  setup: string;
-  setupArgs: string;
-
-  delta: boolean;
-  umuId: string;
-}>({
-  platform: undefined,
-  launch: "",
-  launchArgs: "",
-  setup: "",
-  setupArgs: "",
+const versionSettings = ref<typeof ImportVersion.infer>({
+  id: gameId,
+  version: "",
   delta: false,
   onlySetup: false,
-  umuId: "",
+  launches: [],
+  setups: [],
 });
 
-const versionGuesses =
-  ref<Array<{ platform: PlatformClient; filename: string }>>();
-const launchProcessQuery = ref("");
-const setupProcessQuery = ref("");
-
-const launchFilteredVersionGuesses = computed(() =>
-  versionGuesses.value?.filter((e) =>
-    e.filename.toLowerCase().includes(launchProcessQuery.value.toLowerCase()),
-  ),
-);
-const setupFilteredVersionGuesses = computed(() =>
-  versionGuesses.value?.filter((e) =>
-    e.filename.toLowerCase().includes(setupProcessQuery.value.toLowerCase()),
-  ),
-);
-
-function updateLaunchCommand(value: string) {
-  versionSettings.value.launch = value;
-  autosetPlatform(value);
-}
-
-function updateSetupCommand(value: string) {
-  versionSettings.value.setup = value;
-  autosetPlatform(value);
-}
-
-function autosetPlatform(value: string) {
-  if (!versionGuesses.value) return;
-  if (versionSettings.value.platform) return;
-  const guessIndex = versionGuesses.value.findIndex(
-    (e) => e.filename === value,
-  );
-  if (guessIndex == -1) return;
-  versionSettings.value.platform = versionGuesses.value[guessIndex].platform;
-}
-
-const umuIdEnabled = ref(false);
-const umuId = computed({
-  get() {
-    if (umuIdEnabled.value) return versionSettings.value.umuId;
-    return undefined;
-  },
-  set(v) {
-    if (umuIdEnabled.value && v) {
-      versionSettings.value.umuId = v;
-    }
-  },
-});
+const versionGuesses = ref<Array<{ platform: Platform; filename: string }>>();
 
 const importLoading = ref(false);
 const importError = ref<string | undefined>();
@@ -639,15 +335,19 @@ async function updateCurrentlySelectedVersion(value: number) {
   if (currentlySelectedVersion.value == value) return;
   currentlySelectedVersion.value = value;
   const version = versions[currentlySelectedVersion.value];
-  const results = await $dropFetch(
-    `/api/v1/admin/import/version/preload?id=${encodeURIComponent(
-      gameId,
-    )}&version=${encodeURIComponent(version)}`,
-  );
-  versionGuesses.value = results.map((e) => ({
-    ...e,
-    platform: e.platform as PlatformClient,
-  }));
+  try {
+    const results = await $dropFetch(
+      `/api/v1/admin/import/version/preload?id=${encodeURIComponent(
+        gameId,
+      )}&version=${encodeURIComponent(version)}`,
+      {
+        failTitle: "Failed to fetch version information",
+      },
+    );
+    versionGuesses.value = results as typeof versionGuesses.value;
+  } catch {
+    currentlySelectedVersion.value = -1;
+  }
 }
 
 async function startImport() {
@@ -655,9 +355,9 @@ async function startImport() {
   const taskId = await $dropFetch("/api/v1/admin/import/version", {
     method: "POST",
     body: {
+      ...versionSettings.value,
       id: gameId,
       version: versions[currentlySelectedVersion.value],
-      ...versionSettings.value,
     },
   });
   router.push(`/admin/task/${taskId.taskId}`);

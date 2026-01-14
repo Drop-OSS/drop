@@ -20,6 +20,10 @@ export default defineClientEventHandler(async (h3) => {
     omit: {
       dropletManifest: true,
     },
+    include: {
+      launches: true,
+      setups: true,
+    },
   });
 
   return versions;

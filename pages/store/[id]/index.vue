@@ -100,7 +100,7 @@
                 </td>
                 <td
                   v-else
-                  class="whitespace-nowrap inline-flex gap-x-4 px-3 py-4 text-sm text-zinc-400 italic"
+                  class="whitespace-nowrap inline-flex gap-x-4 px-3 py-4 text-sm text-zinc-400"
                 >
                   <span class="font-semibold text-blue-600">{{
                     $t("store.commingSoon")
@@ -231,30 +231,9 @@
 
           <div>
             <div
-              v-if="showPreview"
-              class="mt-12 prose prose-invert prose-blue max-w-none"
-              v-html="previewHTML"
-            />
-            <div
-              v-else
               class="mt-12 prose prose-invert prose-blue max-w-none"
               v-html="descriptionHTML"
             />
-
-            <button
-              v-if="showReadMore"
-              class="mt-8 w-full inline-flex items-center gap-x-6"
-              @click="() => (showPreview = !showPreview)"
-            >
-              <div class="grow h-[1px] bg-zinc-700 rounded-full" />
-              <span
-                class="uppercase text-sm font-semibold font-display text-zinc-600"
-                >{{
-                  showPreview ? $t("store.readMore") : $t("store.readLess")
-                }}</span
-              >
-              <div class="grow h-[1px] bg-zinc-700 rounded-full" />
-            </button>
           </div>
         </div>
       </div>
@@ -266,7 +245,6 @@
 import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
 import { StarIcon } from "@heroicons/vue/24/solid";
 import { micromark } from "micromark";
-import type { PlatformClient } from "~/composables/types";
 import { formatBytes } from "~/server/internal/utils/files";
 
 const route = useRoute();
@@ -276,32 +254,11 @@ const user = useUser();
 
 const { game, rating, size } = await $dropFetch(`/api/v1/games/${gameId}`);
 
-// Preview description (first 30 lines)
-const showPreview = ref(true);
-const gameDescriptionCharacters = game.mDescription.split("");
-
-// First new line after x characters
-const descriptionSplitIndex = gameDescriptionCharacters.findIndex(
-  (v, i, arr) => {
-    // If we're at the last element, we return true.
-    // So we don't have to handle a -1 from this findIndex
-    if (i + 1 == arr.length) return true;
-    if (i < 500) return false;
-    if (v != "\n") return false;
-    return true;
-  },
-);
-
-const previewDescription = gameDescriptionCharacters
-  .slice(0, descriptionSplitIndex + 1) // Slice a character after
-  .join("");
-const previewHTML = micromark(previewDescription);
-
 const descriptionHTML = micromark(game.mDescription);
 
-const showReadMore = previewHTML != descriptionHTML;
 const platforms = game.versions
-  .map((e) => e.platform as PlatformClient)
+  .map((e) => e.launches.map((v) => v.platform))
+  .flat()
   .flat()
   .filter((e, i, u) => u.indexOf(e) === i);
 

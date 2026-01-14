@@ -164,8 +164,8 @@ const scheduledTasks: {
     description: "",
   },
   debug: {
-    name: "Debug Task",
-    description: "Does debugging things.",
+    name: "",
+    description: "",
   },
 };
 

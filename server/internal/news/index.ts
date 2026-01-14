@@ -117,10 +117,12 @@ class NewsManager {
       image?: string;
     },
   ) {
-    return await prisma.article.update({
-      where: { id },
-      data,
-    });
+    return (
+      await prisma.article.updateManyAndReturn({
+        where: { id },
+        data,
+      })
+    ).at(0);
   }
 
   async delete(id: string) {

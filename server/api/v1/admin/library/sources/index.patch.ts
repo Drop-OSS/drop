@@ -31,15 +31,15 @@ export default defineEventHandler<{ body: typeof UpdateLibrarySource.infer }>(
 
     const constructor = libraryConstructors[source.backend];
 
-    try {
-      const newLibrary = constructor(body.options, source.id);
+    const newLibrary = constructor(body.options, source.id);
 
-      // Test we can actually use it
-      if ((await newLibrary.listGames()) === undefined) {
-        throw "Library failed to fetch games.";
-      }
+    // Test we can actually use it
+    if ((await newLibrary.listGames()) === undefined) {
+      throw "Library failed to fetch games.";
+    }
 
-      const updatedSource = await prisma.library.update({
+    const updatedSource = (
+      await prisma.library.updateManyAndReturn({
         where: {
           id: source.id,
         },
@@ -47,22 +47,22 @@ export default defineEventHandler<{ body: typeof UpdateLibrarySource.infer }>(
           name: body.name,
           options: body.options,
         },
-      });
-
-      libraryManager.removeLibrary(source.id);
-      libraryManager.addLibrary(newLibrary);
-
-      const workingSource: WorkingLibrarySource = {
-        ...updatedSource,
-        working: true,
-      };
-
-      return workingSource;
-    } catch (e) {
+      })
+    ).at(0);
+    if (!updatedSource)
       throw createError({
-        statusCode: 400,
-        statusMessage: `Failed to create source: ${e}`,
+        statusCode: 404,
+        message: "Library source not found",
       });
-    }
+
+    libraryManager.removeLibrary(source.id);
+    libraryManager.addLibrary(newLibrary);
+
+    const workingSource: WorkingLibrarySource = {
+      ...updatedSource,
+      working: true,
+    };
+
+    return workingSource;
   },
 );

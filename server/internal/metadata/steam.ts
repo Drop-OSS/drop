@@ -9,8 +9,8 @@ import type {
   GameMetadataRating,
 } from "./types";
 import type { TaskRunContext } from "../tasks";
-import axios from "axios";
 import * as jdenticon from "jdenticon";
+import { load } from "cheerio";
 
 /**
  * Note: The Steam API is largely undocumented.
@@ -188,19 +188,15 @@ export class SteamProvider implements MetadataProvider {
   }
 
   async search(query: string): Promise<GameMetadataSearchResult[]> {
-    const response = await axios.get<SteamSearchStub[]>(
+    const response = await $fetch<SteamSearchStub[]>(
       `https://steamcommunity.com/actions/SearchApps/${query}`,
     );
 
-    if (
-      response.status !== 200 ||
-      !response.data ||
-      response.data.length === 0
-    ) {
+    if (!response || response.length === 0) {
       return [];
     }
 
-    const result: GameMetadataSearchResult[] = response.data.map((item) => ({
+    const result: GameMetadataSearchResult[] = response.map((item) => ({
       id: item.appid,
       name: item.name,
       icon: item.icon || "",
@@ -208,7 +204,7 @@ export class SteamProvider implements MetadataProvider {
       year: 0,
     }));
 
-    const ids = response.data.map((i) => i.appid);
+    const ids = response.map((i) => i.appid);
 
     const detailsResponse = await this._fetchGameDetails(ids, {
       include_basic_info: true,
@@ -235,7 +231,7 @@ export class SteamProvider implements MetadataProvider {
   }
 
   async fetchGame(
-    { id, publisher, developer, createObject }: _FetchGameMetadataParams,
+    { id, company, createObject }: _FetchGameMetadataParams,
     context?: TaskRunContext,
   ): Promise<GameMetadata> {
     context?.logger.info(`Starting Steam metadata fetch for game ID: ${id}`);
@@ -294,38 +290,66 @@ export class SteamProvider implements MetadataProvider {
     context?.progress(70);
 
     context?.logger.info("Processing publishers and developers...");
+    const storePage = await $fetch<string>(
+      `https://store.steampowered.com/app/${id}/`,
+    );
+    const $ = load(storePage);
+
+    const companyLinks = $("a")
+      .toArray()
+      .filter(
+        (v) =>
+          v.attribs["href"]?.startsWith(
+            "https://store.steampowered.com/developer/",
+          ) ||
+          v.attribs["href"]?.startsWith(
+            "https://store.steampowered.com/publisher/",
+          ),
+      )
+      .map((v) => v.attribs.href);
+
+    const companies: {
+      [key: string]: {
+        pub: boolean;
+        dev: boolean;
+      };
+    } = {};
+
+    companyLinks.forEach((v) => {
+      const [type, name] = v
+        .substring("https://store.steampowered.com/".length, v.indexOf("?"))
+        .split("/");
+
+      companies[name] ??= { pub: false, dev: false };
+      switch (type) {
+        case "publisher":
+          companies[name].pub = true;
+          break;
+        case "developer":
+          companies[name].dev = true;
+          break;
+      }
+    });
+
     const publishers = [];
-    const publisherNames = currentGame.basic_info.publishers || [];
-    context?.logger.info(
-      `Found ${publisherNames.length} publisher(s) to process`,
-    );
-
-    for (const pub of publisherNames) {
-      context?.logger.info(`Processing publisher: "${pub.name}"`);
-      const comp = await publisher(pub.name);
-      if (!comp) {
-        context?.logger.warn(`Failed to import publisher "${pub.name}"`);
-        continue;
-      }
-      publishers.push(comp);
-      context?.logger.info(`Successfully imported publisher: "${pub.name}"`);
-    }
-
     const developers = [];
-    const developerNames = currentGame.basic_info.developers || [];
-    context?.logger.info(
-      `Found ${developerNames.length} developer(s) to process`,
-    );
 
-    for (const dev of developerNames) {
-      context?.logger.info(`Processing developer: "${dev.name}"`);
-      const comp = await developer(dev.name);
-      if (!comp) {
-        context?.logger.warn(`Failed to import developer "${dev.name}"`);
-        continue;
+    for (const [companyName, types] of Object.entries(companies)) {
+      context?.logger.info(`Processing company: "${companyName}"`);
+      const comp = await company(companyName);
+
+      if (types.dev) {
+        developers.push(comp);
+        context?.logger.info(
+          `Successfully imported developer: "${companyName}"`,
+        );
       }
-      developers.push(comp);
-      context?.logger.info(`Successfully imported developer: "${dev.name}"`);
+      if (types.pub) {
+        publishers.push(comp);
+        context?.logger.info(
+          `Successfully imported publisher: "${companyName}"`,
+        );
+      }
     }
 
     context?.logger.info(
@@ -425,23 +449,19 @@ export class SteamProvider implements MetadataProvider {
       l: "english",
     });
 
-    const response = await axios.get(
-      `https://store.steampowered.com/developer/${query.replaceAll(" ", "")}/?${searchParams.toString()}`,
-      {
-        maxRedirects: 0,
-      },
-    );
+    const url = `https://store.steampowered.com/developer/${encodeURIComponent(query)}/?${searchParams.toString()}`;
+    const response = await $fetch<string>(url);
 
-    if (response.status !== 200 || !response.data) {
+    if (!response) {
       return undefined;
     }
 
-    const html = response.data;
+    const html = response;
 
     // Extract metadata from HTML meta tags
     const metadata = this._extractMetaTagsFromHtml(html);
 
-    if (!metadata.title) {
+    if (!metadata.title || metadata.title == "Steam Search") {
       return undefined;
     }
 
@@ -623,14 +643,12 @@ export class SteamProvider implements MetadataProvider {
       }),
     });
 
-    const request = await axios.get<SteamAppDetailsPackage>(
+    const request = await $fetch<SteamAppDetailsPackage>(
       `https://api.steampowered.com/IStoreBrowseService/GetItems/v1/?${searchParams.toString()}`,
     );
 
-    if (request.status !== 200) return [];
-
     const result = [];
-    const storeItems = request.data?.response?.store_items ?? [];
+    const storeItems = request.response?.store_items ?? [];
 
     for (const item of storeItems) {
       if (item.success !== 1) continue;
@@ -723,14 +741,14 @@ export class SteamProvider implements MetadataProvider {
       language,
     });
 
-    const request = await axios.get<SteamTagsPackage>(
+    const request = await $fetch<SteamTagsPackage>(
       `https://api.steampowered.com/IStoreService/GetTagList/v1/?${searchParams.toString()}`,
     );
 
-    if (request.status !== 200 || !request.data.response?.tags) return [];
+    if (!request.response?.tags) return [];
 
     const tagMap = new Map<number, string>();
-    for (const tag of request.data.response.tags) {
+    for (const tag of request.response.tags) {
       tagMap.set(tag.tagid, tag.name);
     }
 
@@ -756,15 +774,11 @@ export class SteamProvider implements MetadataProvider {
       l: language,
     });
 
-    const request = await axios.get<SteamWebAppDetailsPackage>(
+    const request = await $fetch<SteamWebAppDetailsPackage>(
       `https://store.steampowered.com/api/appdetails?${searchParams.toString()}`,
     );
 
-    if (request.status !== 200) {
-      return undefined;
-    }
-
-    const appData = request.data[appid]?.data;
+    const appData = request[appid]?.data;
     if (!appData) {
       return undefined;
     }

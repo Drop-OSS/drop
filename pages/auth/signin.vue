@@ -9,10 +9,18 @@
           <h2
             class="mt-8 text-2xl font-bold font-display leading-9 tracking-tight text-zinc-100"
           >
-            {{ $t("auth.signin.title") }}
+            {{
+              superlevel
+                ? "Sign in to access protected action"
+                : $t("auth.signin.title")
+            }}
           </h2>
           <p class="mt-2 text-sm leading-6 text-zinc-400">
-            {{ $t("auth.signin.noAccount") }}
+            {{
+              superlevel
+                ? "We need you to sign in again for security reasons while attempting to access more sensitive actions."
+                : $t("auth.signin.noAccount")
+            }}
           </p>
         </div>
 
@@ -49,11 +57,16 @@ import DropLogo from "~/components/DropLogo.vue";
 const { t } = useI18n();
 const enabledAuths = await $dropFetch("/api/v1/auth");
 
+const route = useRoute();
+const superlevel = route.query.superlevel;
+
 definePageMeta({
   layout: false,
 });
 
 useHead({
-  title: t("auth.signin.pageTitle"),
+  title: superlevel
+    ? "Sign in to access protected action"
+    : t("auth.signin.pageTitle"),
 });
 </script>

@@ -45,6 +45,7 @@ export class OIDCManager {
   private clientSecret: string;
   private externalUrl: string;
 
+  private userGroup?: string = process.env.OIDC_USER_GROUP;
   private adminGroup?: string = process.env.OIDC_ADMIN_GROUP;
   private usernameClaim: keyof OIDCUserInfo =
     (process.env.OIDC_USERNAME_CLAIM as keyof OIDCUserInfo) ??
@@ -204,11 +205,11 @@ export class OIDCManager {
         },
       });
 
-      const user = await this.fetchOrCreateUser(userinfo);
+      const userOrError = await this.fetchOrCreateUser(userinfo);
 
-      if (typeof user === "string") return user;
+      if (typeof userOrError === "string") return userOrError;
 
-      return { user, options: session.options };
+      return { user: userOrError, options: session.options };
     } catch (e) {
       logger.error(e);
       return `Request to identity provider failed: ${e}`;
@@ -235,6 +236,19 @@ export class OIDCManager {
     const username = userinfo[this.usernameClaim]?.toString();
     if (!username)
       return "Invalid username claim in OIDC response: " + this.usernameClaim;
+
+    const isAdmin =
+      userinfo.groups !== undefined &&
+      this.adminGroup !== undefined &&
+      userinfo.groups.includes(this.adminGroup);
+
+    const isUser = this.userGroup
+      ? userinfo.groups !== undefined &&
+        userinfo.groups.includes(this.userGroup)
+      : true;
+
+    if (!(isAdmin || isUser))
+      return "Not authorized to access this application.";
 
     /*
     const takenUsername = await prisma.user.count({
@@ -273,11 +287,6 @@ export class OIDCManager {
         [`internal:read`, `${userId}:read`],
       );
     }
-
-    const isAdmin =
-      userinfo.groups !== undefined &&
-      this.adminGroup !== undefined &&
-      userinfo.groups.includes(this.adminGroup);
 
     const created = await prisma.linkedAuthMec.create({
       data: {

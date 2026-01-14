@@ -30,3 +30,9 @@ model Library {
 
     games Game[]
 }
+
+model Depot {
+    id       String @id @default(uuid())
+    endpoint String
+    key      String @default(uuid())
+}

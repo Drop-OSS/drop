@@ -16,9 +16,17 @@ export default function createDBSessionHandler(): SessionProvider {
         },
         create: {
           token,
-          ...session,
+          ...(session.authenticated?.userId
+            ? { userId: session.authenticated?.userId }
+            : undefined),
+          expiresAt: session.expiresAt,
+          data: session as object,
         },
-        update: session,
+
+        update: {
+          expiresAt: session.expiresAt,
+          data: session as object,
+        },
       });
       return true;
     },
@@ -39,7 +47,7 @@ export default function createDBSessionHandler(): SessionProvider {
       // i hate casting
       // need to cast to unknown since result.data can be an N deep json object technically
       // ts doesn't like that be cast down to the more constraining session type
-      return result as unknown as T;
+      return result.data as unknown as T;
     },
     async removeSession(token) {
       await cache.remove(token);

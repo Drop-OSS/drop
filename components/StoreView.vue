@@ -127,7 +127,7 @@
                           >
                         </div>
                       </div>
-                      <MultiItemSelector
+                      <SelectorMultiItem
                         v-else
                         v-model="[optionValues[section.param] as any][0]"
                         :items="section.options"
@@ -189,7 +189,11 @@
                       >
                         {{ option.name }}
                         <span v-if="currentSort === option.param">
-                          {{ sortOrder === "asc" ? $t("↑") : $t("↓") }}
+                          {{
+                            sortOrder === "asc"
+                              ? $t("chars.arrowUp")
+                              : $t("chars.arrowDown")
+                          }}
                         </span>
                       </button>
                     </MenuItem>
@@ -291,7 +295,7 @@
                       >
                     </div>
                   </div>
-                  <MultiItemSelector
+                  <SelectorMultiItem
                     v-else
                     v-model="[optionValues[section.param] as any][0]"
                     :items="section.options"
@@ -304,7 +308,7 @@
             <div
               v-if="games?.length ?? 0 > 0"
               ref="product-grid"
-              class="relative lg:col-span-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4"
+              class="col-span-4 grid gap-5 grid-cols-[repeat(auto-fill,minmax(150px,auto))]"
             >
               <!-- Your content -->
               <GamePanel
@@ -372,7 +376,7 @@ import {
 } from "@heroicons/vue/20/solid";
 import type { SerializeObject } from "nitropack";
 import type { GameModel, GameTagModel } from "~/prisma/client/models";
-import MultiItemSelector from "./MultiItemSelector.vue";
+import { Platform } from "~/prisma/client/enums";
 const { showGamePanelTextDecoration } = await $dropFetch(`/api/v1/settings`);
 
 const mobileFiltersOpen = ref(false);
@@ -424,7 +428,7 @@ const options: Array<StoreFilterOption> = [
     name: "Platform",
     param: "platform",
     multiple: true,
-    options: Object.values(PlatformClient).map((e) => ({ name: e, param: e })),
+    options: Object.values(Platform).map((e) => ({ name: e, param: e })),
   },
   ...(props.extraOptions ?? []),
 ];

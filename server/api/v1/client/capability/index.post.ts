@@ -1,4 +1,3 @@
-import type { InternalClientCapability } from "~/server/internal/clients/capabilities";
 import capabilityManager, {
   validCapabilities,
 } from "~/server/internal/clients/capabilities";
@@ -23,9 +22,11 @@ export default defineClientEventHandler(
         statusMessage: "configuration must be an object",
       });
 
-    const capability = rawCapability as InternalClientCapability;
+    const capability = validCapabilities.find(
+      (v) => v.toLowerCase() === rawCapability.toLowerCase(),
+    );
 
-    if (!validCapabilities.includes(capability))
+    if (!capability)
       throw createError({
         statusCode: 400,
         statusMessage: "Invalid capability.",

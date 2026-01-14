@@ -1,7 +1,6 @@
 import { applicationSettings } from "../internal/config/application-configuration";
 import type { MetadataProvider } from "../internal/metadata";
 import metadataHandler from "../internal/metadata";
-import { GiantBombProvider } from "../internal/metadata/giantbomb";
 import { IGDBProvider } from "../internal/metadata/igdb";
 import { ManualMetadataProvider } from "../internal/metadata/manual";
 import { PCGamingWikiProvider } from "../internal/metadata/pcgamingwiki";
@@ -10,7 +9,7 @@ import { logger } from "~/server/internal/logging";
 
 export default defineNitroPlugin(async (_nitro) => {
   const metadataProviders = [
-    GiantBombProvider,
+    //GiantBombProvider, // GiantBomb changed their API
     SteamProvider,
     PCGamingWikiProvider,
     IGDBProvider,

@@ -56,18 +56,14 @@
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="(source, sourceIdx) in sources"
-            :key="source.id"
-            class="even:bg-zinc-800"
-          >
+          <tr v-for="(source, sourceIdx) in sources" :key="source.id">
             <td
               class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
             >
               {{ source.name }}
             </td>
             <td
-              class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400 inline-flex gap-x-1 items-center"
+              class="whitespace-nowrap px-3 py-4 text-sm text-zinc-400 flex gap-x-1 items-center"
             >
               <component
                 :is="optionsMetadata[source.backend].icon"

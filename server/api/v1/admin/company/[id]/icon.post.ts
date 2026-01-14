@@ -32,20 +32,21 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Upload at least one file.",
     });
 
-  try {
-    await objectHandler.deleteAsSystem(company.mLogoObjectId);
-    await prisma.company.update({
-      where: {
-        id: companyId,
-      },
-      data: {
-        mLogoObjectId: id,
-      },
-    });
-    await pull();
-  } catch {
+  await objectHandler.deleteAsSystem(company.mLogoObjectId);
+  const { count } = await prisma.company.updateMany({
+    where: {
+      id: companyId,
+    },
+    data: {
+      mLogoObjectId: id,
+    },
+  });
+  if (count == 0) {
     await dump();
+    throw createError({ statusCode: 404, message: "Company not found" });
   }
+
+  await pull();
 
   return { id: id };
 });

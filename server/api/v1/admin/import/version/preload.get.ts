@@ -14,15 +14,22 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Missing id or version in request params",
     });
 
-  const preload = await libraryManager.fetchUnimportedVersionInformation(
-    gameId,
-    versionName,
-  );
-  if (!preload)
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Invalid game or version id/name",
-    });
+  try {
+    const preload = await libraryManager.fetchUnimportedVersionInformation(
+      gameId,
+      versionName,
+    );
+    if (!preload)
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Invalid game or version id/name",
+      });
 
-  return preload;
+    return preload;
+  } catch (e) {
+    throw createError({
+      statusCode: 500,
+      message: `Failed to fetch preload information for ${gameId}: ${e}`,
+    });
+  }
 });

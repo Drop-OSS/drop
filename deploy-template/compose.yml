@@ -2,8 +2,6 @@ services:
   postgres:
     # using alpine image to reduce image size
     image: postgres:alpine
-    ports:
-      - 5432:5432
     healthcheck:
       test: pg_isready -d drop -U drop
       interval: 30s

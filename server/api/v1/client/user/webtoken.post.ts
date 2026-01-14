@@ -14,6 +14,7 @@ export default defineClientEventHandler(
       "store:read",
       "collections:read",
       "object:read",
+      "settings:read",
     ];
 
     const token = await prisma.aPIToken.create({

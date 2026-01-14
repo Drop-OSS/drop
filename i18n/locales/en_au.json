@@ -1,7 +1,4 @@
 {
-  "setup": {
-    "welcome": "G'day."
-  },
   "account": {
     "devices": {
       "subheader": "Manage the devices authorised to access your Drop account."
@@ -19,5 +16,8 @@
       "subheader": "Add a new collection to organise your games"
     },
     "subheader": "Organise your games into collections for easy access, and access all your games."
+  },
+  "setup": {
+    "welcome": "G'day."
   }
 }

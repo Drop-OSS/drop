@@ -1,14 +1,16 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
+const blacklistedFunctions = ["delete", "update"];
+
 export default {
   meta: {
     type: "problem",
     docs: {
-      description: "Don't use Prisma error-prone .delete function",
+      description: "Don't use Prisma error-prone .delete or .update function",
     },
     messages: {
       noPrismaDelete:
-        "Prisma .delete(...) function is used. Use .deleteMany(..) and check count instead.",
+        "Prisma .delete(...) or .update(...) function is used. Use .deleteMany(..) or .updateMany(...) and check count instead.",
     },
     schema: [],
   },
@@ -17,7 +19,7 @@ export default {
       CallExpression: function (node) {
         // @ts-expect-error It ain't typing properly
         const funcId = node.callee.property;
-        if (!funcId || funcId.name !== "delete") return;
+        if (!funcId || !blacklistedFunctions.includes(funcId.name)) return;
         // @ts-expect-error It ain't typing properly
         const tableExpr = node.callee.object;
         if (!tableExpr) return;

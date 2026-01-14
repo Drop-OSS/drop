@@ -9,14 +9,13 @@ import type {
   CompanyMetadata,
   GameMetadataRating,
 } from "./types";
-import type { AxiosRequestConfig } from "axios";
-import axios from "axios";
 import * as jdenticon from "jdenticon";
 import { DateTime } from "luxon";
 import * as cheerio from "cheerio";
 import { type } from "arktype";
 import type { TaskRunContext } from "../tasks";
 import { logger } from "~/server/internal/logging";
+import type { NitroFetchOptions, NitroFetchRequest } from "nitropack";
 
 interface PCGamingWikiParseRawPage {
   parse: {
@@ -104,35 +103,24 @@ export class PCGamingWikiProvider implements MetadataProvider {
 
   private async request<T>(
     query: URLSearchParams,
-    options?: AxiosRequestConfig,
+    options?: NitroFetchOptions<NitroFetchRequest, "get" | "post">,
   ) {
     const finalURL = `https://www.pcgamingwiki.com/w/api.php?${query.toString()}`;
 
-    const overlay: AxiosRequestConfig = {
-      url: finalURL,
-      baseURL: "",
-    };
-    const response = await axios.request<T>(
-      Object.assign({}, options, overlay),
-    );
-
-    if (response.status !== 200)
-      throw new Error(
-        `Error in pcgamingwiki \nStatus Code: ${response.status}\n${response.data}`,
-      );
+    const response = await $fetch<T>(finalURL, options);
 
     return response;
   }
 
   private async cargoQuery<T>(
     query: URLSearchParams,
-    options?: AxiosRequestConfig,
+    options?: NitroFetchOptions<NitroFetchRequest, "get" | "post">,
   ) {
     const response = await this.request<PCGamingWikiCargoResult<T>>(
       query,
       options,
     );
-    if (response.data.error !== undefined)
+    if (response.error !== undefined)
       throw new Error(`Error in pcgamingwiki cargo query`);
     return response;
   }
@@ -150,7 +138,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
       pageid: pageID,
     });
     const res = await this.request<PCGamingWikiParseRawPage>(searchParams);
-    const $ = cheerio.load(res.data.parse.text["*"]);
+    const $ = cheerio.load(res.parse.text["*"]);
     // get intro based on 'introduction' class
     const introductionEle = $(".introduction").first();
     // remove citations from intro
@@ -281,7 +269,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
       await this.cargoQuery<PCGamingWikiSearchStub>(searchParams);
 
     const results: GameMetadataSearchResult[] = [];
-    for (const result of response.data.cargoquery) {
+    for (const result of response.cargoquery) {
       const game = result.title;
       const pageContent = await this.getPageContent(game.PageID);
 
@@ -372,7 +360,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
   }
 
   async fetchGame(
-    { id, name, publisher, developer, createObject }: _FetchGameMetadataParams,
+    { id, name, company, createObject }: _FetchGameMetadataParams,
     context?: TaskRunContext,
   ): Promise<GameMetadata> {
     context?.logger.info("Using PCGamingWiki provider");
@@ -391,10 +379,10 @@ export class PCGamingWikiProvider implements MetadataProvider {
       this.cargoQuery<PCGamingWikiGame>(searchParams),
       this.getPageContent(id),
     ]);
-    if (res.data.cargoquery.length < 1)
+    if (res.cargoquery.length < 1)
       throw new Error("Error in pcgamingwiki, no game");
 
-    const game = res.data.cargoquery[0].title;
+    const game = res.cargoquery[0].title;
 
     const publishers: CompanyModel[] = [];
     if (game.Publishers !== null) {
@@ -403,7 +391,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
       for (const pub of pubListClean) {
         context?.logger.info(`Importing publisher "${pub}"...`);
 
-        const res = await publisher(pub);
+        const res = await company(pub);
         if (res === undefined) {
           context?.logger.warn(`Failed to import publisher "${pub}"`);
           continue;
@@ -422,7 +410,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
       const devListClean = this.parseWikiStringArray(game.Developers);
       for (const dev of devListClean) {
         context?.logger.info(`Importing developer "${dev}"...`);
-        const res = await developer(dev);
+        const res = await company(dev);
         if (res === undefined) {
           context?.logger.warn(`Failed to import developer "${dev}"`);
           continue;
@@ -487,8 +475,8 @@ export class PCGamingWikiProvider implements MetadataProvider {
     // TODO: replace with company logo
     const icon = createObject(jdenticon.toPng(query, 512));
 
-    for (let i = 0; i < res.data.cargoquery.length; i++) {
-      const company = res.data.cargoquery[i].title;
+    for (let i = 0; i < res.cargoquery.length; i++) {
+      const company = res.cargoquery[i].title;
 
       const fixedCompanyName =
         this.parseWikiStringArray(company.PageName)[0] ?? company.PageName;

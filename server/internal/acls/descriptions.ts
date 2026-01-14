@@ -105,4 +105,7 @@ export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
     "Read tasks and maintenance information, like updates available and cleanup.",
 
   "settings:update": "Update system settings.",
+
+  "depot:new": "Create a new download depot",
+  "depot:delete": "Remove a download depot",
 };

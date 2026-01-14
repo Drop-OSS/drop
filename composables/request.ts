@@ -16,7 +16,7 @@ interface DropFetch<
     O extends NitroFetchOptions<R> = NitroFetchOptions<R>,
   >(
     request: R,
-    opts?: O & { failTitle?: string },
+    opts?: O & { failTitle?: string; params?: { [key: string]: string } },
   ): Promise<
     // sometimes there is an error, other times there isn't
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -60,7 +60,7 @@ export const $dropFetch: DropFetch = async (rawRequest, opts) => {
           {
             title: opts.failTitle,
             description:
-              (e as FetchError)?.statusMessage ?? (e as string).toString(),
+              (e as FetchError)?.data?.message ?? (e as string).toString(),
             //buttonText: $t("common.close"),
           },
           (_, c) => c(),
@@ -89,3 +89,15 @@ export const $dropFetch: DropFetch = async (rawRequest, opts) => {
   if (import.meta.server) state.value = data;
   return data;
 };
+
+export function isClientRequest() {
+  const existingState = useState("clientMode", () => false);
+  if (import.meta.server) {
+    const headers = useRequestHeaders(["User-Agent"]);
+    const calculatedClientRequest =
+      headers["user-agent"] == "Drop Desktop Client";
+    existingState.value = calculatedClientRequest;
+  }
+
+  return existingState.value;
+}

@@ -291,7 +291,7 @@
           "installDir": "(install_dir)/",
           "launchCmd": "Launch executable/command, argh!",
           "launchDesc": "Executable to launch the game, matey!",
-          "launchPlaceholder": "game.exe, aye!",
+          "launchPlaceholder": "game.exe --args",
           "loadingVersion": "Loading version charts…",
           "noAdv": "No advanced options for this rig, argh.",
           "noVersions": "No versions to import, savvy!",
@@ -370,7 +370,6 @@
     "search": "Search treasure hoard, ye dog…",
     "subheader": "Sort yer plunder into collections for easy access, and get to all yer plunder, savvy!"
   },
-  "lowest": "lowest",
   "news": {
     "article": {
       "add": "Add, ye dog!",
@@ -403,7 +402,6 @@
     "title": "Latest News from the High Seas"
   },
   "options": "Options, matey!",
-  "security": "Safety",
   "selectLanguage": "Pick yer tongue",
   "settings": "Settings",
   "store": {

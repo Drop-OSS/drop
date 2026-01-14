@@ -113,16 +113,6 @@ useHead({
 
 <style scoped>
 /* Fade transition for main content */
-.fade-enter-active,
-.fade-leave-active {
-  transition: all 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-  transform: translateX(30px);
-}
 
 /* List transition animations */
 .list-enter-active,
