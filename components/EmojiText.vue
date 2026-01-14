@@ -10,6 +10,6 @@ const props = defineProps<{
 }>();
 
 const url = computed(() => {
-  return `/twemoji/${twemoji.convert.toCodePoint(props.emoji)}.svg`;
+  return `/api/v1/emoji/${twemoji.convert.toCodePoint(props.emoji)}`;
 });
 </script>

@@ -32,6 +32,8 @@ export const userACLs = [
   "clients:read",
   "clients:revoke",
 
+  "emoji:read",
+
   "news:read",
 
   "settings:read",
@@ -220,7 +222,7 @@ class ACLManager {
     return false;
   }
 
-  async hasACL(request: MinimumRequestObject | undefined, acls: string[]) {
+  async hasACL(request: MinimumRequestObject | undefined, acls: GlobalACL[]) {
     for (const acl of acls) {
       if (acl.startsWith(userACLPrefix)) {
         const rawACL = acl.substring(userACLPrefix.length);

@@ -13,7 +13,23 @@ export const TORRENTIAL_SERVICE = new Service(
   "torrential",
   () => {
     const localDir = fs.readdirSync(".");
-    if ("torrential" in localDir) return spawn("./torrential", [], {});
+    if ("torrential" in localDir) {
+      const stat = fs.statSync("./torrential");
+      if (stat.isDirectory()) {
+        // in dev and we have the submodule
+        logger.info(
+          "torrential detected in development mode - building from source",
+        );
+        return spawn(
+          "cargo run --manifest-path ./torrential/Cargo.toml",
+          [],
+          {},
+        );
+      } else {
+        // binary
+        return spawn("./torrential", [], {});
+      }
+    }
 
     const envPath = process.env.TORRENTIAL_PATH;
     if (envPath) return spawn(envPath, [], {});

@@ -284,7 +284,8 @@ class TaskHandler {
       return;
     }
 
-    const allowed = await aclManager.hasACL(request, task.acls);
+    // cast acls due to prisma types being less strict
+    const allowed = await aclManager.hasACL(request, task.acls as GlobalACL[]);
     if (!allowed) {
       // logger.warn("user does not have necessary ACLs");
       peer.send(
