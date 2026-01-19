@@ -56,7 +56,11 @@ export default function createCacheSessionProvider() {
         if (options.oidc && session.oidc) {
           for (const [key, value] of Object.entries(options.oidc)) {
             // stringify to do deep comparison
-            if (JSON.stringify((session.oidc as unknown as Record<string, unknown>)[key]) !== JSON.stringify(value)) {
+            if (
+              JSON.stringify(
+                (session.oidc as unknown as Record<string, unknown>)[key],
+              ) !== JSON.stringify(value)
+            ) {
               match = false;
               break;
             }
