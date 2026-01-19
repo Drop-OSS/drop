@@ -1,10 +1,13 @@
 // @ts-check
+import { globalIgnores } from "eslint/config";
 import withNuxt from "./.nuxt/eslint.config.mjs";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
 import vueI18n from "@intlify/eslint-plugin-vue-i18n";
 import noPrismaDelete from "./rules/no-prisma-delete.mts";
 
 export default withNuxt([
+  globalIgnores([".data/*"]),
+
   eslintConfigPrettier,
 
   // vue-i18n plugin
