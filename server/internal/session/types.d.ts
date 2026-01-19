@@ -1,19 +1,19 @@
 export type Session = {
   authenticated?: AuthenticatedSession;
+  oidc?: OIDCData;
 
   expiresAt: Date;
   data: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
-
-    // OIDC specific session data
-    odic?: {
-      sid?: string;
-      sub?: string;
-      iss: string;
-    };
   };
 };
+
+export interface OIDCData {
+  sid?: string;
+  sub?: string;
+  iss: string;
+}
 
 export interface AuthenticatedSession {
   userId: string;
@@ -31,7 +31,8 @@ export type SessionWithToken = Session & {
 
 export interface SessionSearchTerms {
   userId?: string;
-  data: {
+  oidc?: OIDCData;
+  data?: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
   };

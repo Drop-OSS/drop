@@ -519,17 +519,17 @@ export class OIDCManager {
     }
 
     const searchTerm: SessionSearchTerms = {
-      data: {
-        odic: {
-          iss: token.iss,
-        },
+      oidc: {
+        iss: token.iss,
       },
     };
-    if (token.sub) {
-      searchTerm.data.odic!.sub = token.sub;
-    }
-    if (token.sid) {
-      searchTerm.data.odic!.sid = token.sid;
+    if (searchTerm.oidc) {
+      if (token.sub) {
+        searchTerm.oidc.sub = token.sub;
+      }
+      if (token.sid) {
+        searchTerm.oidc.sid = token.sid;
+      }
     }
 
     const sessions = await sessionHandler.searchSessions(searchTerm);

@@ -43,15 +43,15 @@ export default defineEventHandler(async (h3) => {
     });
 
   // Attach OIDC session data
-  const odicData: Session["data"]["odic"] = {
+  const oidcData: Session["oidc"] = {
     iss: result.claims.iss,
   };
-  if (result.claims.sub) odicData.sub = result.claims.sub;
-  if (result.claims.sid) odicData.sid = result.claims.sid;
+  if (result.claims.sub) oidcData.sub = result.claims.sub;
+  if (result.claims.sid) oidcData.sid = result.claims.sid;
 
   const sessionResult = await sessionHandler.signin(h3, result.user.id, {
     rememberMe: true,
-    data: { odic: odicData },
+    oidc: oidcData,
   });
   if (sessionResult == "fail")
     throw createError({ statusCode: 500, message: "Failed to set session" });

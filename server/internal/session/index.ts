@@ -37,6 +37,9 @@ export interface SigninOptions {
 
   // set default session data
   data?: Session["data"];
+
+  // set oidc session data
+  oidc?: Session["oidc"];
 }
 
 export class SessionHandler {
@@ -66,6 +69,7 @@ export class SessionHandler {
 
     const rememberMe = options?.rememberMe ?? false;
     const data = options?.data ?? {};
+    const oidcData = options?.oidc;
 
     const expiresAt = this.createExipreAt(rememberMe);
 
@@ -78,12 +82,17 @@ export class SessionHandler {
     const session =
       (await this.sessionProvider.getSession(token)) ?? defaultSession;
     const wasAuthenticated = !!session.authenticated;
+
+    // set authenticated session data
     session.authenticated = {
       userId,
       level: session.authenticated?.level ?? 10,
       requiredLevel: mfaCount > 0 ? 20 : 10,
       superleveledExpiry: undefined,
     };
+    if (oidcData) session.oidc = oidcData;
+
+    // handle superlevel expiry
     if (
       !wasAuthenticated &&
       session.authenticated.level >= session.authenticated.requiredLevel

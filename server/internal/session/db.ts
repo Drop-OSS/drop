@@ -31,7 +31,7 @@ export default function createDBSessionHandler(): SessionProvider {
       });
 
       // need to cast to Session since prisma returns different json types
-      return result as SessionWithToken;
+      return result.data as unknown as SessionWithToken;
     },
     async updateSession(token, data) {
       return (await this.setSession(token, data)) !== undefined;
@@ -82,11 +82,26 @@ export default function createDBSessionHandler(): SessionProvider {
         search.push({ userId: options.userId });
       }
 
+      // NOTE: in the DB, the entire session subject is stored in the "data" field
+      // so we need to search within that JSON object for the items we want
+
       if (options.data && typeof options.data === "object") {
         const entries = walkJsonPath(options.data);
         for (const { path, value } of entries) {
           const filter: JsonFilter<"Session"> = {
-            path,
+            // set base path to data
+            path: ["data", ...path],
+            equals: value as InputJsonValue,
+          };
+          search.push({ data: filter });
+        }
+      }
+      if (options.oidc && typeof options.oidc === "object") {
+        const entries = walkJsonPath(options.oidc);
+        for (const { path, value } of entries) {
+          const filter: JsonFilter<"Session"> = {
+            // set base path to oidc
+            path: ["oidc", ...path],
             equals: value as InputJsonValue,
           };
           search.push({ data: filter });
@@ -97,13 +112,20 @@ export default function createDBSessionHandler(): SessionProvider {
         return [];
       }
 
-      const results = await prisma.session.findMany({
+      // console.log("Searching sessions with:", JSON.stringify(search, null, 2));
+
+      const sessions = await prisma.session.findMany({
         where: {
           AND: search,
         },
       });
+      const results: SessionWithToken[] = [];
+      for (const session of sessions) {
+        // need to cast to Session since prisma returns different json types
+        results.push(session.data as unknown as SessionWithToken);
+      }
 
-      return results as SessionWithToken[];
+      return results;
     },
   };
 }
