@@ -93,7 +93,7 @@ export default defineEventHandler<{
         message: "Failed to create session",
       });
 
-    return { result: true, userId: authMek.userId };
+    return { result: result, userId: authMek.userId };
   }
 
   // V2: argon2
