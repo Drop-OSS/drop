@@ -388,12 +388,13 @@ class LibraryManager {
                       name: v.name,
                       command: v.launch,
                       platform: v.platform,
-                      ...(v.executorId
+                      ...(v.executorId && game.type === "Game"
                         ? {
                             executorId: v.executorId,
                           }
                         : undefined),
-                      executorSuggestions: v.suggestions,
+                      executorSuggestions:
+                        game.type === "Executor" ? (v.suggestions ?? []) : [],
                     })),
                   }
                 : { data: [] },
