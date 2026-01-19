@@ -88,10 +88,11 @@ export class SessionHandler {
 
     // handle superlevel expiry
     if (
-      !wasAuthenticated &&
+      wasAuthenticated &&
       session.authenticated.level >= session.authenticated.requiredLevel
-    )
+    ) {
       session.authenticated.superleveledExpiry = Date.now() + SUPERLEVEL_LENGTH;
+    }
     const success = await this.sessionProvider.setSession(token, session);
     if (!success) return "fail";
 

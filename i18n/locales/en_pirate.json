@@ -11,6 +11,7 @@
     },
     "notifications": {
       "all": "Gaze upon all {arrow}",
+      "clear": "Notifications walk the plank, eh?",
       "desc": "View and manage yer messages from the crows' nest.",
       "markAllAsRead": "Mark all as read, aye!",
       "markAsRead": "Mark as read, matey!",
@@ -20,7 +21,13 @@
       "unread": "Unread Messages"
     },
     "settings": "Settings",
-    "title": "Yer Own Coffer"
+    "title": "Yer Own Coffer",
+    "token": {
+      "name": "Key engraving",
+      "nameDesc": "What here be inscribed on this key.",
+      "subheader": "Keep 'yer keys to your treasure close.",
+      "title": "Treasure keys"
+    }
   },
   "actions": "Deeds",
   "add": "Add",
@@ -446,7 +453,7 @@
     }
   },
   "title": "Drop",
-  "titleTemplate": "{0} | Drop",
+  "titleTemplate": "{0} - Drop",
   "todo": "Todo, argh!",
   "type": "Type",
   "upload": "Hoist!",

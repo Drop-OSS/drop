@@ -8,5 +8,5 @@ useHead({
 });
 
 const router = useRouter();
-router.replace("/store");
+router.push("/store");
 </script>
