@@ -51,9 +51,9 @@
         </div>
         <div
           v-else-if="results.length == 0"
-          class="text-zinc-300 uppercase font-display font-bold text-center p-4"
+          class="text-zinc-500 uppercase font-display font-bold text-center p-4"
         >
-          No results.
+          No results
         </div>
         <ComboboxOption
           v-for="result in results"
@@ -70,7 +70,7 @@
             ]"
           >
             <span>
-              <GameSearchResultWidget :game="result" />
+              <GameSearchResultWidget :game="result" :raw-icon="false" />
             </span>
 
             <span
@@ -123,8 +123,7 @@ watch(gameSearchQuery, async (v) => {
   if (timeout) clearTimeout(timeout);
   resultsLoading.value = true;
   timeout = setTimeout(async () => {
-    const newResults = await props.search(v);
-    results.value = newResults.map((v) => ({ ...v, icon: useObject(v.icon) }));
+    results.value = await props.search(v);
     resultsLoading.value = false;
     timeout = undefined;
   }, 600);

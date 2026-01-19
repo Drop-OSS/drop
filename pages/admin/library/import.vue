@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-y-6 w-full max-w-md">
+  <div class="flex flex-col gap-y-6 w-full max-w-lg">
     <Listbox
       as="div"
       :model="currentlySelectedGame"
@@ -114,6 +114,42 @@
     </div>
 
     <div v-if="currentlySelectedGame !== -1" class="flex flex-col gap-y-4">
+      <fieldset>
+        <legend class="text-sm/6 font-semibold text-white">
+          Import as
+        </legend>
+        <div class="mt-6 grid grid-cols-1 gap-y-6 sm:grid-cols-3 sm:gap-x-4">
+          <label
+            v-for="[type, meta] in Object.entries(importModes)"
+            :key="type"
+            :aria-label="meta.title"
+            :aria-description="`Import as ${meta.title}`"
+            class="cursor-pointer group relative flex rounded-lg border border-white/10 bg-gray-800/50 p-4 has-checked:bg-blue-500/10 has-checked:outline-2 has-checked:-outline-offset-2 has-checked:outline-blue-500 has-focus-visible:outline-3 has-focus-visible:-outline-offset-1 has-disabled:bg-gray-800 has-disabled:opacity-25"
+          >
+            <input
+              v-model="importMode"
+              type="radio"
+              name="mailing-list"
+              :value="type"
+              :checked="importMode === type"
+              class="absolute inset-0 opacity-0 focus:outline-none"
+            />
+            <div class="flex flex-col grow">
+              <span class="block text-sm font-medium text-white">{{
+                meta.title
+              }}</span>
+              <span class="mt-1 block text-xs text-gray-400">{{
+                meta.description
+              }}</span>
+            </div>
+            <CheckCircleIcon
+              class="invisible size-5 text-blue-500 group-has-checked:visible"
+              aria-hidden="true"
+            />
+          </label>
+        </div>
+      </fieldset>
+
       <!-- without metadata option -->
       <div>
         <LoadingButton
@@ -309,6 +345,7 @@ import {
 import { XCircleIcon } from "@heroicons/vue/16/solid";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
+import type { GameType } from "~/prisma/client/enums";
 import type { GameMetadataSearchResult } from "~/server/internal/metadata/types";
 
 definePageMeta({
@@ -325,6 +362,25 @@ const gameSearchResultsError = ref<string | undefined>();
 const gameSearchTerm = ref("");
 const gameSearchLoading = ref(false);
 const bulkImportMode = ref(false);
+
+const importModes: {
+  [key in GameType]: { title: string; description: string };
+} = {
+  Game: {
+    title: "Game",
+    description: "Games are shown in store, and are discoverable.",
+  },
+  Executor: {
+    title: "Executor",
+    description:
+      "Executors are used to launch games. Mainly emulators or wrappers.",
+  },
+  Redist: {
+    title: "Redistributable",
+    description:
+      "Additional content that must be downloaded and installed before running the game.",
+  },
+};
 
 async function updateSelectedGame(value: number) {
   if (currentlySelectedGame.value == value) return;
@@ -374,6 +430,7 @@ const router = useRouter();
 
 const importLoading = ref(false);
 const importError = ref<string | undefined>();
+const importMode = ref<GameType>("Game");
 async function importGame(useMetadata: boolean) {
   if (!metadataResults.value && useMetadata) return;
 
@@ -389,6 +446,7 @@ async function importGame(useMetadata: boolean) {
       path: option.game,
       library: option.library.id,
       metadata,
+      type: importMode.value,
     },
   });
 

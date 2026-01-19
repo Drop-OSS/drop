@@ -87,6 +87,11 @@
                       :is="PLATFORM_ICONS[guess.platform]"
                       class="size-5"
                     />
+                    <img
+                      v-if="guess.type === 'executor'"
+                      :src="useObject(guess.icon)"
+                      class="size-5"
+                    />
                   </span>
 
                   <span
@@ -119,7 +124,7 @@
                   <span
                     :class="['block truncate', selected && 'font-semibold']"
                   >
-                    {{ launchProcessQuery }}
+                    '{{ launchProcessQuery }}'
                   </span>
 
                   <span
@@ -137,6 +142,28 @@
           </div>
         </Combobox>
       </div>
+      <div
+        v-if="props.type && props.type === 'Executor'"
+        class="ml-1 mt-2 rounded-lg bg-blue-900/10 p-1 outline outline-blue-900"
+      >
+        <div class="flex items-center">
+          <div class="shrink-0">
+            <InformationCircleIcon
+              class="size-5 text-blue-500"
+              aria-hidden="true"
+            />
+          </div>
+          <div class="ml-2 inline-flex items-center">
+            <p class="text-sm text-blue-200">
+              <span
+                class="font-mono bg-zinc-950 text-zinc-100 py-1 px-0.5 rounded-xl"
+                >{executor}</span
+              >
+              is replaced with the game's launch command for executors.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
     <SelectorPlatform
       :model-value="launchConfiguration.platform"
@@ -145,7 +172,7 @@
     >
       {{ $t("library.admin.import.version.platform") }}
     </SelectorPlatform>
-    <div>
+    <div v-if="props.type && props.type === 'Game' && props.allowExecutor">
       <h1 class="block text-sm font-medium leading-6 text-zinc-100">
         Executor
       </h1>
@@ -170,6 +197,15 @@
         </button>
       </div>
     </div>
+    <div v-if="props.type && props.type === 'Executor'">
+      <p class="block text-sm font-medium leading-6 text-zinc-100">
+        Auto-suggest extensions
+      </p>
+      <SelectorFileExtension
+        v-model="launchConfiguration.suggestions!"
+        class="mt-2"
+      />
+    </div>
     <ModalSelectLaunch
       v-model="selectLaunchOpen"
       class="-mt-2"
@@ -190,9 +226,10 @@ import {
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 import { InformationCircleIcon, TrashIcon } from "@heroicons/vue/24/outline";
 import type { ExecutorLaunchObject } from "~/composables/frontend";
-import type { Platform } from "~/prisma/client/enums";
+import type { GameType, Platform } from "~/prisma/client/enums";
 
 import type { ImportVersion } from "~/server/api/v1/admin/import/version/index.post";
+import type { VersionGuess } from "~/server/internal/library";
 
 const launchProcessQuery = ref("");
 
@@ -227,9 +264,14 @@ function updatePlatform(v: Platform | undefined) {
 }
 
 const props = defineProps<{
-  versionGuesses: Array<{ platform: Platform; filename: string }> | undefined;
+  versionGuesses: Array<VersionGuess> | undefined;
   needsName: boolean;
+  allowExecutor?: boolean;
+  type?: GameType;
 }>();
+
+if (props.type && props.type === "Executor")
+  launchConfiguration.value.suggestions ??= [];
 
 const selectLaunchOpen = ref(false);
 
@@ -246,7 +288,20 @@ function updateLaunchCommand(command: string) {
       (v) => v.filename == command,
     );
     if (autosetGuess) {
-      launchConfiguration.value.platform = autosetGuess.platform;
+      if (autosetGuess.type === "platform") {
+        launchConfiguration.value.platform = autosetGuess.platform;
+      } else if (autosetGuess.type === "executor") {
+        console.log(autosetGuess.executorId);
+        executor.value = {
+          launchId: autosetGuess.executorId,
+          gameName: autosetGuess.gameName,
+          gameIcon: autosetGuess.icon,
+          versionName: autosetGuess.launchName,
+          launchName: autosetGuess.launchName,
+          platform: autosetGuess.platform,
+        } satisfies ExecutorLaunchObject;
+        launchConfiguration.value.platform = autosetGuess.platform;
+      }
     }
   }
 }

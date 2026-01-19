@@ -1,5 +1,6 @@
 import { ArkErrors, type } from "arktype";
 import type { Prisma } from "~/prisma/client/client";
+import { GameType } from "~/prisma/client/enums";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import { parsePlatform } from "~/server/internal/utils/parseplatform";
@@ -100,6 +101,7 @@ export default defineEventHandler(async (h3) => {
     ...tagFilter,
     ...platformFilter,
     ...companyFilter,
+    type: GameType.Game,
   };
 
   const sort: Prisma.GameOrderByWithRelationInput = {};

@@ -3,7 +3,7 @@
     <template #default>
       <div>
         <h1 as="h3" class="text-lg font-medium leading-6 text-white">
-          Pick a launch option
+          Select a launch option
         </h1>
         <p class="mt-1 text-zinc-400 text-sm">
           Select a launch option as an executor for your new launch option.
@@ -31,7 +31,7 @@
         <div
           class="inline-flex items-center w-full gap-x-2 text-zinc-100 font-bold"
         >
-          Game:
+          Executor:
           <SelectorGame
             :search="search"
             :model-value="game"
@@ -180,7 +180,9 @@ const emit = defineEmits<{
 }>();
 
 async function search(query: string) {
-  return await $dropFetch("/api/v1/admin/search/game", { query: { q: query } });
+  return await $dropFetch("/api/v1/admin/search/game", {
+    query: { q: query, type: "Executor" },
+  });
 }
 
 function updateGame(value: GameMetadataSearchResult | undefined) {

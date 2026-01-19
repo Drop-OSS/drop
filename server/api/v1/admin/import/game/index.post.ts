@@ -1,4 +1,5 @@
 import { type } from "arktype";
+import { GameType } from "~/prisma/client/enums";
 import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 import aclManager from "~/server/internal/acls";
 import libraryManager from "~/server/internal/library";
@@ -7,6 +8,7 @@ import metadataHandler from "~/server/internal/metadata";
 const ImportGameBody = type({
   library: "string",
   path: "string",
+  type: type.valueOf(GameType),
   ["metadata?"]: {
     id: "string",
     sourceId: "string",
@@ -19,7 +21,7 @@ export default defineEventHandler<{ body: typeof ImportGameBody.infer }>(
     const allowed = await aclManager.allowSystemACL(h3, ["import:game:new"]);
     if (!allowed) throw createError({ statusCode: 403 });
 
-    const { library, path, metadata } = await readDropValidatedBody(
+    const { library, path, metadata, type } = await readDropValidatedBody(
       h3,
       ImportGameBody,
     );
@@ -38,8 +40,8 @@ export default defineEventHandler<{ body: typeof ImportGameBody.infer }>(
       });
 
     const taskId = metadata
-      ? await metadataHandler.createGame(metadata, library, path)
-      : await metadataHandler.createGameWithoutMetadata(library, path);
+      ? await metadataHandler.createGame(metadata, library, path, type)
+      : await metadataHandler.createGameWithoutMetadata(library, path, type);
 
     if (!taskId)
       throw createError({

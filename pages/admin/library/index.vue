@@ -88,7 +88,7 @@
           />
           <div class="flex flex-col">
             <h3
-              class="gap-x-2 text-sm inline-flex items-center font-medium text-zinc-100 font-display"
+              class="gap-2 text-sm flex flex-wrap items-center font-medium text-zinc-100 font-display"
             >
               {{ game.mName }}
               <button
@@ -127,6 +127,10 @@
               <span
                 class="inline-flex items-center rounded-full bg-blue-600/10 px-2 py-1 text-xs font-medium text-blue-600 ring-1 ring-inset ring-blue-600/20"
                 >{{ game.library!.name }}</span
+              >
+              <span
+                class="inline-flex items-center rounded-full bg-green-600/10 px-2 py-1 text-xs font-medium text-green-600 ring-1 ring-inset ring-green-600/20"
+                >{{ game.type }}</span
               >
             </h3>
             <dl class="mt-1 flex flex-col justify-between">

@@ -18,6 +18,7 @@ import type { WorkingLibrarySource } from "~/server/api/v1/admin/library/sources
 import gameSizeManager from "~/server/internal/gamesize";
 import { TORRENTIAL_SERVICE } from "../services/services/torrential";
 import type { ImportVersion } from "~/server/api/v1/admin/import/version/index.post";
+import { GameType, type Platform } from "~/prisma/client/enums";
 
 export function createGameImportTaskId(libraryId: string, libraryPath: string) {
   return createHash("md5")
@@ -33,6 +34,24 @@ export function createVersionImportTaskKey(
     .update(`import:${gameId}:${versionName}`)
     .digest("hex");
 }
+
+export interface ExecutorVersionGuess {
+  type: "executor";
+  executorId: string;
+  icon: string;
+  gameName: string;
+  versionName: string;
+  launchName: string;
+  platform: Platform;
+}
+export interface PlatformVersionGuess {
+  platform: Platform;
+  type: "platform";
+}
+export type VersionGuess = {
+  filename: string;
+  match: number;
+} & (PlatformVersionGuess | ExecutorVersionGuess);
 
 class LibraryManager {
   private libraries: Map<string, LibraryProvider<unknown>> = new Map();
@@ -178,7 +197,7 @@ class LibraryManager {
     const library = this.libraries.get(game.libraryId);
     if (!library) return undefined;
 
-    const fileExts: { [key: string]: string[] } = {
+    const fileExts: { [key in Platform]: string[] } = {
       Linux: [
         // Ext for Unity games
         ".x86_64",
@@ -196,11 +215,38 @@ class LibraryManager {
       ],
     };
 
-    const options: Array<{
-      filename: string;
-      platform: string;
-      match: number;
-    }> = [];
+    const executorSuggestions = await prisma.launchConfiguration.findMany({
+      where: {
+        executorSuggestions: {
+          isEmpty: false,
+        },
+        gameVersion: {
+          game: {
+            type: GameType.Executor,
+          },
+        },
+      },
+      select: {
+        executorSuggestions: true,
+        gameVersion: {
+          select: {
+            game: {
+              select: {
+                mIconObjectId: true,
+                mName: true,
+              },
+            },
+            displayName: true,
+            versionPath: true,
+          },
+        },
+        name: true,
+        launchId: true,
+        platform: true,
+      },
+    });
+
+    const options: Array<VersionGuess> = [];
 
     const files = await library.versionReaddir(game.libraryPath, versionName);
     for (const filename of files) {
@@ -213,9 +259,30 @@ class LibraryManager {
           if (checkExt != ext) continue;
           const fuzzyValue = fuzzy(basename, game.mName);
           options.push({
+            type: "platform",
             filename: filename.replaceAll(" ", "\\ "),
-            platform,
+            platform: platform as Platform,
             match: fuzzyValue,
+          });
+        }
+      }
+      for (const executorSuggestion of executorSuggestions) {
+        for (const suggestion of executorSuggestion.executorSuggestions) {
+          if (suggestion != ext) continue;
+          const fuzzyValue = fuzzy(basename, game.mName);
+          options.push({
+            type: "executor",
+            filename: filename.replaceAll(" ", "\\ "),
+            match: fuzzyValue,
+            executorId: executorSuggestion.launchId,
+
+            icon: executorSuggestion.gameVersion.game.mIconObjectId,
+            gameName: executorSuggestion.gameVersion.game.mName,
+            versionName:
+              executorSuggestion.gameVersion.displayName ??
+              executorSuggestion.gameVersion.versionPath,
+            launchName: executorSuggestion.name,
+            platform: executorSuggestion.platform,
           });
         }
       }
@@ -254,7 +321,7 @@ class LibraryManager {
 
     const game = await prisma.game.findUnique({
       where: { id: gameId },
-      select: { mName: true, libraryId: true, libraryPath: true },
+      select: { mName: true, libraryId: true, libraryPath: true, type: true },
     });
     if (!game || !game.libraryId) return undefined;
 
@@ -322,8 +389,11 @@ class LibraryManager {
                       command: v.launch,
                       platform: v.platform,
                       ...(v.executorId
-                        ? { executorId: v.executorId }
+                        ? {
+                            executorId: v.executorId,
+                          }
                         : undefined),
+                      executorSuggestions: v.suggestions,
                     })),
                   }
                 : { data: [] },
@@ -390,6 +460,20 @@ class LibraryManager {
       },
     });
     await gameSizeManager.deleteGame(gameId);
+    // Delete all game versions that depended on this game
+    await prisma.gameVersion.deleteMany({
+      where: {
+        launches: {
+          some: {
+            executor: {
+              gameVersion: {
+                gameId,
+              },
+            },
+          },
+        },
+      },
+    });
   }
 
   async getGameVersionSize(

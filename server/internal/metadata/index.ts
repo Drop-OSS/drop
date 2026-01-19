@@ -1,4 +1,5 @@
 import type { Prisma } from "~/prisma/client/client";
+import type { GameType} from "~/prisma/client/enums";
 import { MetadataSource } from "~/prisma/client/enums";
 import prisma from "../db/database";
 import type {
@@ -118,7 +119,7 @@ export class MetadataHandler {
     return successfulResults;
   }
 
-  async createGameWithoutMetadata(libraryId: string, libraryPath: string) {
+  async createGameWithoutMetadata(libraryId: string, libraryPath: string, type: GameType) {
     return await this.createGame(
       {
         id: "",
@@ -127,6 +128,7 @@ export class MetadataHandler {
       },
       libraryId,
       libraryPath,
+      type,
     );
   }
 
@@ -174,6 +176,7 @@ export class MetadataHandler {
     result: { sourceId: string; id: string; name: string },
     libraryId: string,
     libraryPath: string,
+    type: GameType,
   ) {
     const provider = this.providers.get(result.sourceId);
     if (!provider)
@@ -286,6 +289,8 @@ export class MetadataHandler {
 
             libraryId,
             libraryPath,
+
+            type,
           },
         });
 

@@ -13,10 +13,7 @@ export default defineClientEventHandler(async (h3) => {
 
   const gameVersion = await prisma.gameVersion.findUnique({
     where: {
-      gameId_versionId: {
-        gameId: id,
-        versionId: version,
-      },
+      versionId: version,
     },
     include: {
       launches: {

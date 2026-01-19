@@ -6,7 +6,6 @@ import { castManifest } from "~/server/internal/library/manifest";
 const AUTHORIZATION_HEADER_PREFIX = "Bearer ";
 
 const Query = type({
-  game: "string",
   version: "string",
 });
 
@@ -31,10 +30,7 @@ export default defineEventHandler(async (h3) => {
 
   const version = await prisma.gameVersion.findUnique({
     where: {
-      gameId_versionId: {
-        gameId: query.game,
-        versionId: query.version,
-      },
+      versionId: query.version,
     },
     select: {
       dropletManifest: true,

@@ -69,7 +69,7 @@ class GameSizeManager {
     }
 
     const { dropletManifest } = (await prisma.gameVersion.findUnique({
-      where: { gameId_versionId: { versionId, gameId } },
+      where: { versionId },
     }))!;
 
     return castManifest(dropletManifest).size;

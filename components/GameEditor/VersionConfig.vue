@@ -28,9 +28,7 @@
       :executor="{
         launchId: props.config.launchId,
         gameName: props.config.executor.gameVersion.game.mName,
-        gameIcon: useObject(
-          props.config.executor.gameVersion.game.mIconObjectId,
-        ),
+        gameIcon: props.config.executor.gameVersion.game.mIconObjectId,
         versionName:
           props.config.executor.gameVersion.displayName ??
           props.config.executor.gameVersion.versionPath,

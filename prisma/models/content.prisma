@@ -8,12 +8,20 @@ enum MetadataSource {
   OpenCritic
 }
 
+enum GameType {
+  Game
+  Executor
+  Redist
+}
+
 model Game {
   id String @id @default(uuid())
 
   metadataSource MetadataSource
   metadataId     String
   created        DateTime       @default(now())
+
+  type GameType @default(Game)
 
   // Any field prefixed with m is filled in from metadata
   // Acts as a cache so we can search and filter it
@@ -86,7 +94,7 @@ model GameRating {
 model GameVersion {
   gameId    String
   game      Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  versionId String @default(uuid())
+  versionId String @id @default(uuid())
 
   displayName String?
   versionPath String
@@ -103,7 +111,8 @@ model GameVersion {
   versionIndex Int
   delta        Boolean @default(false)
 
-  @@id([gameId, versionId])
+  requiredContent  GameVersion[] @relation(name: "requiredContent")
+  requiringContent GameVersion[] @relation(name: "requiredContent")
 }
 
 model SetupConfiguration {
@@ -113,9 +122,8 @@ model SetupConfiguration {
 
   platform Platform
 
-  gameId      String
   versionId   String
-  gameVersion GameVersion @relation(fields: [gameId, versionId], references: [gameId, versionId], onDelete: Cascade, onUpdate: Cascade)
+  gameVersion GameVersion @relation(fields: [versionId], references: [versionId], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model LaunchConfiguration {
@@ -128,14 +136,14 @@ model LaunchConfiguration {
   platform Platform
 
   // For emulation targets
-  executorId String?
-  executor   LaunchConfiguration? @relation(fields: [executorId], references: [launchId], name: "executor", onDelete: Cascade, onUpdate: Cascade)
+  executorId          String?
+  executor            LaunchConfiguration? @relation(fields: [executorId], references: [launchId], name: "executor")
+  executorSuggestions String[]
 
   umuIdOverride String?
 
-  gameId      String
   versionId   String
-  gameVersion GameVersion @relation(fields: [gameId, versionId], references: [gameId, versionId], onDelete: Cascade, onUpdate: Cascade)
+  gameVersion GameVersion @relation(fields: [versionId], references: [versionId], onDelete: Cascade, onUpdate: Cascade)
 
   executions LaunchConfiguration[] @relation("executor")
 }

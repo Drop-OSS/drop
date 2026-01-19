@@ -1,10 +1,12 @@
 import { ArkErrors, type } from "arktype";
+import { GameType } from "~/prisma/client/enums";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import type { GameMetadataSearchResult } from "~/server/internal/metadata/types";
 
 const Query = type({
   q: "string",
+  type: type.valueOf(GameType).default(GameType.Game),
 });
 
 export default defineEventHandler(async (h3) => {
@@ -22,7 +24,7 @@ export default defineEventHandler(async (h3) => {
     mShortDescription: string;
     mReleased: string;
   }[] =
-    await prisma.$queryRaw`SELECT id, "mName", "mIconObjectId", "mShortDescription", "mReleased" FROM "Game" WHERE SIMILARITY("mName", ${query.q}) > 0.2 ORDER BY SIMILARITY("mName", ${query.q}) DESC;`;
+    await prisma.$queryRaw`SELECT id, "mName", "mIconObjectId", "mShortDescription", "mReleased" FROM "Game" WHERE SIMILARITY("mName", ${query.q}) > 0.2 AND type::text = ${query.type} ORDER BY SIMILARITY("mName", ${query.q}) DESC;`;
 
   const resultsMapped = results.map(
     (v) =>
