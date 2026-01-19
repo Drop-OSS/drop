@@ -185,18 +185,18 @@
                   <span v-if="launch.name" class="text-sm font-semibold">{{
                     launch.name
                   }}</span>
-                  <span v-else class="text-sm text-zinc-500 italic">No name provided.</span>
+                  <span v-else class="text-sm text-zinc-500 italic"
+                    >No name provided.</span
+                  >
                   <span class="ml-auto flex h-7 items-center">
-                    <PlusIcon
-                      v-if="!open"
-                      class="size-6"
-                      aria-hidden="true"
-                    />
+                    <PlusIcon v-if="!open" class="size-6" aria-hidden="true" />
                     <MinusIcon v-else class="size-6" aria-hidden="true" />
                   </span>
                   <button
                     class="ml-1 transition rounded p-1 bg-zinc-900/30 group hover:bg-red-600/30"
-                    @click.prevent="() => versionSettings.launches.splice(launchIdx, 1)"
+                    @click.prevent="
+                      () => versionSettings.launches.splice(launchIdx, 1)
+                    "
                   >
                     <TrashIcon
                       class="transition size-5 text-zinc-700 group-hover:text-red-700"

@@ -115,9 +115,7 @@
 
     <div v-if="currentlySelectedGame !== -1" class="flex flex-col gap-y-4">
       <fieldset>
-        <legend class="text-sm/6 font-semibold text-white">
-          Import as
-        </legend>
+        <legend class="text-sm/6 font-semibold text-white">Import as</legend>
         <div class="mt-6 grid grid-cols-1 gap-y-6 sm:grid-cols-3 sm:gap-x-4">
           <label
             v-for="[type, meta] in Object.entries(importModes)"
