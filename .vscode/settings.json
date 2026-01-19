@@ -33,7 +33,7 @@
       "username": "drop"
     }
   ],
-  "typescript.experimental.useTsgo": true,
+  "typescript.experimental.useTsgo": false,
   // prioritize ArkType's "type" for autoimports
   "typescript.preferences.autoImportSpecifierExcludeRegexes": ["^(node:)?os$"]
 }
