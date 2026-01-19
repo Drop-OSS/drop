@@ -52,12 +52,6 @@ export class SessionHandler {
     // this.sessionProvider = createMemorySessionProvider();
   }
 
-  // async signin(
-  //   h3: H3Event,
-  //   userId: string,
-  //   rememberMe: boolean = false,
-  // ): Promise<SigninResult> {
-
   async signin(
     h3: H3Event,
     userId: string,

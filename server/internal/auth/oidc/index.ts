@@ -62,6 +62,8 @@ interface OIDCUserInfo {
   groups?: Array<string>;
 }
 
+type OIDCUrlKey = Exclude<keyof OIDCConfiguration, "scopes_supported">;
+
 /**
  * @see https://openid.net/specs/openid-connect-core-1_0.html#TokenResponse
  * @see https://www.rfc-editor.org/rfc/rfc6749.html#section-5.1
@@ -248,16 +250,19 @@ export class OIDCManager {
       throw new Error("OIDC try to init without configuration");
 
     if (systemConfig.shouldOidcRequireHttps()) {
-      if (!isHttps(configuration.authorization_endpoint))
-        throw new Error("ODIC authorization_endpoint is not using HTTPS");
-      else if (!isHttps(configuration.token_endpoint))
-        throw new Error("ODIC token_endpoint is not using HTTPS");
-      else if (!isHttps(configuration.userinfo_endpoint))
-        throw new Error("ODIC userinfo_endpoint is not using HTTPS");
-      else if (!isHttps(configuration.issuer))
-        throw new Error("ODIC issuer is not using HTTPS");
-      else if (!isHttps(configuration.jwks_uri))
-        throw new Error("ODIC jwks_uri is not using HTTPS");
+      const endpoints: OIDCUrlKey[] = [
+        "authorization_endpoint",
+        "token_endpoint",
+        "userinfo_endpoint",
+        "issuer",
+        "jwks_uri",
+      ];
+
+      for (const endpoint of endpoints) {
+        if (!isHttps(configuration[endpoint])) {
+          throw new Error(`OIDC ${endpoint} is not using HTTPS`);
+        }
+      }
     }
 
     const clientId = process.env.OIDC_CLIENT_ID as string | undefined;
