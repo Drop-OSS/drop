@@ -98,9 +98,14 @@ const rememberMe = ref(false);
 const loading = ref(false);
 
 async function passkeyAutofill() {
-  const silentWebauthnOptions = await $dropFetch("/api/v1/auth/passkey/start", {
-    method: "POST",
-  });
+  let silentWebauthnOptions;
+  try {
+    silentWebauthnOptions = await $dropFetch("/api/v1/auth/passkey/start", {
+      method: "POST",
+    });
+  } catch {
+    return;
+  }
 
   const result = await startAuthentication({
     optionsJSON: silentWebauthnOptions,
@@ -122,8 +127,7 @@ onMounted(async () => {
     try {
       await passkeyAutofill();
     } catch (response) {
-      const message =
-        (response as FetchError).statusMessage || t("errors.unknown");
+      const message = (response as FetchError).message || t("errors.unknown");
       error.value = message;
     } finally {
       loading.value = false;
@@ -141,7 +145,7 @@ function signin_wrapper() {
   loading.value = true;
   signin()
     .catch((response) => {
-      const message = response.statusMessage || t("errors.unknown");
+      const message = response.message || t("errors.unknown");
       error.value = message;
     })
     .finally(() => {
