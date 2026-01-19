@@ -121,7 +121,8 @@ export class OIDCManager {
   private oidcConfiguration: OIDCConfiguration;
   private clientId: string;
   private clientSecret: string;
-  private externalUrl: string;
+  private externalUrl: URL;
+  private redirectUrl: URL;
 
   private userGroup?: string = process.env.OIDC_USER_GROUP;
   private adminGroup?: string = process.env.OIDC_ADMIN_GROUP;
@@ -137,11 +138,11 @@ export class OIDCManager {
    */
   private JWKS: ReturnType<typeof jose.createRemoteJWKSet>;
 
-  constructor(
+  private constructor(
     oidcConfiguration: OIDCConfiguration,
     clientId: string,
     clientSecret: string,
-    externalUrl: string,
+    externalUrl: URL,
   ) {
     this.oidcConfiguration = oidcConfiguration;
     this.clientId = clientId;
@@ -149,6 +150,9 @@ export class OIDCManager {
     this.externalUrl = externalUrl;
 
     this.JWKS = jose.createRemoteJWKSet(this.oidcConfiguration.jwks_uri);
+    this.redirectUrl = new URL(
+      `${this.externalUrl.toString()}api/v1/auth/odic/callback`,
+    );
   }
 
   static async create() {
@@ -258,7 +262,7 @@ export class OIDCManager {
 
     const clientId = process.env.OIDC_CLIENT_ID as string | undefined;
     const clientSecret = process.env.OIDC_CLIENT_SECRET as string | undefined;
-    const externalUrl = systemConfig.getExternalUrl();
+    const externalUrl = new URL(systemConfig.getExternalUrl());
 
     if (!clientId || !clientSecret)
       throw new Error("Missing client ID or secret for OIDC");
@@ -284,15 +288,12 @@ export class OIDCManager {
     const normalisedUrl = new URL(
       this.oidcConfiguration.authorization_endpoint,
     ).toString();
-    const redirectNormalisedUrl = new URL(this.externalUrl).toString();
 
-    const redirectUrl = `${redirectNormalisedUrl}auth/callback/oidc`;
-
-    const finalUrl = `${normalisedUrl}?client_id=${this.clientId}&redirect_uri=${encodeURIComponent(redirectUrl)}&state=${stateKey}&response_type=code&scope=${encodeURIComponent(this.oidcConfiguration.scopes_supported.join(" "))}`;
+    const finalUrl = `${normalisedUrl}?client_id=${this.clientId}&redirect_uri=${encodeURIComponent(this.redirectUrl.toString())}&state=${stateKey}&response_type=code&scope=${encodeURIComponent(this.oidcConfiguration.scopes_supported.join(" "))}`;
 
     const session: OIDCAuthSession = {
       redirectUrl: finalUrl,
-      callbackUrl: redirectUrl,
+      callbackUrl: this.redirectUrl.toString(),
       state: stateKey,
       options: options ?? { redirect: undefined },
       claims: {
