@@ -92,6 +92,11 @@ export default defineNuxtConfig({
 
   routeRules: {
     "/api/**": { cors: true },
+
+    // redirect old OIDC callback route
+    "/auth/callback/oidc": {
+      redirect: "/api/v1/auth/odic/callback",
+    },
   },
 
   nitro: {
