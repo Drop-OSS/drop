@@ -6,11 +6,11 @@ import type { GameMetadataSearchResult } from "~/server/internal/metadata/types"
 
 const Query = type({
   q: "string",
-  type: type.valueOf(GameType).default(GameType.Game),
+  type: type.valueOf(GameType).optional(),
 });
 
 export default defineEventHandler(async (h3) => {
-  const allowed = await aclManager.allowSystemACL(h3, ["game:read"]);
+  const allowed = await aclManager.allowSystemACL(h3, ["game:read", "depot:read"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
   const query = Query(getQuery(h3));
@@ -24,7 +24,7 @@ export default defineEventHandler(async (h3) => {
     mShortDescription: string;
     mReleased: string;
   }[] =
-    await prisma.$queryRaw`SELECT id, "mName", "mIconObjectId", "mShortDescription", "mReleased" FROM "Game" WHERE SIMILARITY("mName", ${query.q}) > 0.2 AND type::text = ${query.type} ORDER BY SIMILARITY("mName", ${query.q}) DESC;`;
+    await prisma.$queryRaw`SELECT id, "mName", "mIconObjectId", "mShortDescription", "mReleased" FROM "Game" WHERE SIMILARITY("mName", ${query.q}) > 0.2 AND (${query.type || "undefined"} = 'undefined' OR type::text = ${query.type}) ORDER BY SIMILARITY("mName", ${query.q}) DESC;`;
 
   const resultsMapped = results.map(
     (v) =>

@@ -106,6 +106,9 @@ export const systemACLDescriptions: ObjectFromList<typeof systemACLs> = {
 
   "settings:update": "Update system settings.",
 
+  "depot:read": "Read depot information, and search for games",
   "depot:new": "Create a new download depot",
   "depot:delete": "Remove a download depot",
+  "depot:upload:new": "Upload a new version to a depot",
+  "depot:upload:delete": "Remove a depot version",
 };

@@ -164,6 +164,6 @@ async function addGame() {
 }
 
 async function search(query: string) {
-  return await $dropFetch("/api/v1/admin/search/game", { query: { q: query } });
+  return await $dropFetch("/api/v1/admin/search/game?type=Game", { query: { q: query } });
 }
 </script>

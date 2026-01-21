@@ -18,7 +18,19 @@ export default defineClientEventHandler(async (h3) => {
     include: {
       launches: {
         include: {
-          executor: true,
+          executor: {
+            include: {
+              gameVersion: {
+                select: {
+                  game: {
+                    select: {
+                      id: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       },
       setups: true,
@@ -31,8 +43,22 @@ export default defineClientEventHandler(async (h3) => {
       statusMessage: "Game version not found",
     });
 
-  return {
+  const gameVersionMapped = {
     ...gameVersion,
+    launches: gameVersion.launches.map((launch) => ({
+      ...launch,
+      executor: launch.executor
+        ? {
+            ...launch.executor,
+            gameVersion: undefined,
+            gameId: launch.executor.gameVersion.game.id,
+          }
+        : undefined,
+    })),
+  };
+
+  return {
+    ...gameVersionMapped,
     size: libraryManager.getGameVersionSize(id, version),
   };
 });

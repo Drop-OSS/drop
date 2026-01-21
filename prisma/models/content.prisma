@@ -55,8 +55,8 @@ model Game {
   tags        GameTag[]
   playtime    Playtime[]
 
-  developers Company[] @relation(name: "developers")
-  publishers Company[] @relation(name: "publishers")
+  developers           Company[]             @relation(name: "developers")
+  publishers           Company[]             @relation(name: "publishers")
 
   @@unique([metadataSource, metadataId], name: "metadataKey")
   @@unique([libraryId, libraryPath], name: "libraryKey")
