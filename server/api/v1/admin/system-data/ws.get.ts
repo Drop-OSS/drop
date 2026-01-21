@@ -15,12 +15,6 @@ export default defineWebSocketHandler({
       return;
     }
 
-    const acls = await aclManager.fetchAllACLs(h3);
-    if (!acls) {
-      peer.send("unauthenticated");
-      return;
-    }
-
     socketSessions.set(peer.id, userId);
 
     systemManager.listen(userId, peer.id, (systemData) => {
