@@ -22,6 +22,15 @@ export default function createMemorySessionHandler() {
       sessions.delete(token);
       return true;
     },
+    async getNumberActiveSessions() {
+      let activeSessions = 0;
+      for (const [_key, session] of sessions) {
+        if (session.expiresAt.getDate() > Date.now()) {
+          activeSessions += 1;
+        }
+      }
+      return activeSessions;
+    },
     async cleanupSessions() {
       const now = new Date();
       for (const [token, session] of sessions) {

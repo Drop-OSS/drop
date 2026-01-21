@@ -10,8 +10,10 @@ import { parse as parseCookies } from "cookie-es";
 import type { MinimumRequestObject } from "~/server/h3";
 import type { DurationLike } from "luxon";
 import { DateTime } from "luxon";
-import createDBSessionHandler from "./db";
 import prisma from "../db/database";
+// import createMemorySessionHandler from "./memory";
+import createDBSessionHandler from "./db";
+// import createCacheSessionProvider from "./cache";
 
 /*
 This implementation may need work.
@@ -49,7 +51,7 @@ export class SessionHandler {
     // Create a new provider
     // this.sessionProvider = createCacheSessionProvider();
     this.sessionProvider = createDBSessionHandler();
-    // this.sessionProvider = createMemorySessionProvider();
+    // this.sessionProvider = createMemorySessionHandler();
   }
 
   async signin(
@@ -215,6 +217,10 @@ export class SessionHandler {
    */
   async searchSessions(terms: SessionSearchTerms) {
     return await this.sessionProvider.findSessions(terms);
+  }
+
+  async getNumberActiveSessions() {
+    return this.sessionProvider.getNumberActiveSessions();
   }
 
   /**

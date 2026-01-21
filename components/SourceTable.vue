@@ -92,14 +92,14 @@
                   v-if="source.fsStats"
                   :percentage="
                     getPercentage(
-                      source.fsStats.freeSpace,
+                      source.fsStats.totalSpace - source.fsStats.freeSpace,
                       source.fsStats.totalSpace,
                     )
                   "
                   :color="
                     getBarColor(
                       getPercentage(
-                        source.fsStats.freeSpace,
+                        source.fsStats.totalSpace - source.fsStats.freeSpace,
                         source.fsStats.totalSpace,
                       ),
                     )

@@ -62,7 +62,7 @@ export default defineEventHandler(async (h3) => {
       `/auth/mfa?redirect=${result.options.redirect ? encodeURIComponent(result.options.redirect) : "/"}`,
     );
   }
-  await sessionHandler.signin(h3, result.user.id, true);
+  await sessionHandler.signin(h3, result.user.id);
   await userStatsManager.cacheUserSessions();
 
   if (result.options.redirect) {

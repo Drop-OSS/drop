@@ -23,6 +23,11 @@ export default function createCacheSessionProvider() {
       const session = await sessions.get(token);
       return session ? (session as T) : undefined; // Ensure undefined is returned if session is not found
     },
+    async getNumberActiveSessions() {
+      const now = new Date();
+      const allSessions = await sessions.getItems(await sessions.getKeys());
+      return allSessions.filter(({ value }) => value.expiresAt > now).length;
+    },
     async updateSession(token, data) {
       return (await this.setSession(token, data)) !== undefined;
     },

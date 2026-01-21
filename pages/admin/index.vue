@@ -141,11 +141,17 @@
                   <ProgressBar
                     :color="
                       getBarColor(
-                        getPercentage(systemData.freeRam, systemData.totalRam),
+                        getPercentage(
+                          systemData.totalRam - systemData.freeRam,
+                          systemData.totalRam,
+                        ),
                       )
                     "
                     :percentage="
-                      getPercentage(systemData.freeRam, systemData.totalRam)
+                      getPercentage(
+                        systemData.totalRam - systemData.freeRam,
+                        systemData.totalRam,
+                      )
                     "
                   />
                 </div>

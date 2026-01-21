@@ -1,3 +1,5 @@
+import { DateTime } from "luxon";
+
 import prisma from "../db/database";
 import type { SessionProvider, SessionWithToken } from "./types";
 import cacheHandler from "../cache";
@@ -75,6 +77,20 @@ export default function createDBSessionHandler(): SessionProvider {
           },
         },
       });
+    },
+    async getNumberActiveSessions() {
+      return (
+        (
+          await prisma.session.groupBy({
+            by: ["userId"],
+            where: {
+              expiresAt: {
+                gt: DateTime.now().toJSDate(),
+              },
+            },
+          })
+        ).length || 0
+      );
     },
     async findSessions(options) {
       const search: SessionWhereInput[] = [];

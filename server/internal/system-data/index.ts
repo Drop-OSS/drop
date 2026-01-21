@@ -1,11 +1,3 @@
-/*
-The notification system handles the receiving, creation and sending of notifications in Drop
-
-Design goals:
-1. Nonce-based notifications; notifications should only be created once
-2. Real-time; use websocket listeners to keep clients up-to-date
-*/
-
 import os from "os";
 import type { GlobalACL } from "../acls";
 
@@ -40,7 +32,7 @@ class SystemManager {
     // eslint-disable-next-line @typescript-eslint/no-extra-non-null-assertion
     this.listeners.get(userId)!!.set(id, { callback, acls });
 
-    this.catchupListener(userId, id);
+    setInterval(() => this.catchupListener(userId, id), 10000);
   }
 
   unlisten(userId: string, id: string) {
@@ -48,17 +40,11 @@ class SystemManager {
   }
 
   private async catchupListener(userId: string, id: string) {
-    console.log("catchupListener");
     const listener = this.listeners.get(userId)?.get(id);
     if (!listener) {
-      console.log("===========================================");
-      console.log("userId: ", userId);
-      console.log("id: ", id);
-      console.log("listers: ", this.listeners);
       throw new Error("Failed to catch-up listener: callback does not exist");
     }
     listener.callback(this.getSystemData());
-    setTimeout(() => this.catchupListener(userId, id), 10000);
   }
 
   getSystemData(): SystemData {

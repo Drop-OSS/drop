@@ -50,4 +50,5 @@ export interface SessionProvider {
   removeSession: (token: string) => Promise<boolean>;
   cleanupSessions: () => Promise<void>;
   findSessions: (options: SessionSearchTerms) => Promise<SessionWithToken[]>;
+  getNumberActiveSessions: () => Promise<number>;
 }
