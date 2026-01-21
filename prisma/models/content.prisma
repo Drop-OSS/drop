@@ -55,8 +55,9 @@ model Game {
   tags        GameTag[]
   playtime    Playtime[]
 
-  developers           Company[]             @relation(name: "developers")
-  publishers           Company[]             @relation(name: "publishers")
+  developers             Company[]               @relation(name: "developers")
+  publishers             Company[]               @relation(name: "publishers")
+  unimportedGameVersions UnimportedGameVersion[]
 
   @@unique([metadataSource, metadataId], name: "metadataKey")
   @@unique([libraryId, libraryPath], name: "libraryKey")
@@ -90,6 +91,14 @@ model GameRating {
   @@unique([metadataSource, metadataId], name: "metadataKey")
 }
 
+model UnimportedGameVersion {
+  id     String @id @default(uuid())
+  gameId String
+  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  manifest Json
+}
+
 // A particular set of files that relate to the version
 model GameVersion {
   gameId    String
@@ -97,7 +106,7 @@ model GameVersion {
   versionId String @id @default(uuid())
 
   displayName String?
-  versionPath String
+  versionPath String?
 
   created DateTime @default(now())
 

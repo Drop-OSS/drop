@@ -3,3 +3,5 @@ drop-base/
 pnpm-lock.yaml
 
 torrential/
+.data/**
+**/.data/**

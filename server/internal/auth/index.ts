@@ -14,7 +14,7 @@ class AuthManager {
   private initFuncs: {
     [K in keyof typeof this.authProviders]: () => Promise<unknown>;
   } = {
-    [AuthMec.OpenID]: OIDCManager.prototype.create,
+    [AuthMec.OpenID]: OIDCManager.create,
     [AuthMec.Simple]: async () => {
       const disabled = process.env.DISABLE_SIMPLE_AUTH as string | undefined;
       return !disabled;

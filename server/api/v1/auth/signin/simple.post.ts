@@ -84,17 +84,16 @@ export default defineEventHandler<{
       });
 
     // TODO: send user to forgot password screen or something to force them to change their password to new system
-    const result = await sessionHandler.signin(
-      h3,
-      authMek.userId,
-      body.rememberMe,
-    );
+    const result = await sessionHandler.signin(h3, authMek.userId, {
+      rememberMe: body.rememberMe ?? false,
+    });
     if (result === "fail")
       throw createError({
         statusCode: 500,
         message: "Failed to create session",
       });
-    return { userId: authMek.userId, result };
+
+    return { result: result, userId: authMek.userId };
   }
 
   // V2: argon2
@@ -111,11 +110,9 @@ export default defineEventHandler<{
       statusMessage: t("errors.auth.invalidUserOrPass"),
     });
 
-  const result = await sessionHandler.signin(
-    h3,
-    authMek.userId,
-    body.rememberMe,
-  );
+  const result = await sessionHandler.signin(h3, authMek.userId, {
+    rememberMe: body.rememberMe ?? false,
+  });
   if (result == "fail")
     throw createError({ statusCode: 500, message: "Failed to create session" });
   return { userId: authMek.userId, result };

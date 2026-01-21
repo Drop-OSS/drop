@@ -4,25 +4,14 @@ Handles managing collections
 
 import cacheHandler from "../cache";
 import prisma from "../db/database";
-import { DateTime } from "luxon";
+import sessionHandler from "../session";
 
 class UserStatsManager {
   // Caches the user's core library
   private userStatsCache = cacheHandler.createCache<number>("userStats");
 
   async cacheUserSessions() {
-    const activeSessions =
-      (
-        await prisma.client.groupBy({
-          by: ["userId"],
-          where: {
-            id: { not: "system" },
-            lastConnected: {
-              gt: DateTime.now().minus({ months: 1 }).toISO(),
-            },
-          },
-        })
-      ).length || 0;
+    const activeSessions = await sessionHandler.getNumberActiveSessions();
     await this.userStatsCache.set("activeSessions", activeSessions);
   }
 

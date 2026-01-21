@@ -26,16 +26,21 @@
 
         <div class="mt-10">
           <div>
-            <AuthSimple v-if="enabledAuths.includes('Simple' as AuthMec)" />
+            <AuthSimple
+              v-if="enabledAuthProviders.includes('Simple' as AuthMec)"
+            />
             <div
-              v-if="enabledAuths.length > 1"
+              v-if="enabledAuthProviders.length > 1"
               class="py-4 flex flex-row items-center justify-center gap-x-4 font-bold text-sm text-zinc-600"
             >
               <span class="h-[1px] grow bg-zinc-600" />
               {{ $t("auth.signin.or") }}
               <span class="h-[1px] grow bg-zinc-600" />
             </div>
-            <AuthOpenID v-if="enabledAuths.includes('OpenID' as AuthMec)" />
+            <AuthOpenID
+              v-if="enabledAuthProviders.includes('OpenID' as AuthMec)"
+              :provider-name="oidcProviderName"
+            />
           </div>
         </div>
       </div>
@@ -55,7 +60,8 @@ import type { AuthMec } from "~/prisma/client/enums";
 import DropLogo from "~/components/DropLogo.vue";
 
 const { t } = useI18n();
-const enabledAuths = await $dropFetch("/api/v1/auth");
+const { enabledAuthProviders, oidcProviderName } =
+  await $dropFetch("/api/v1/auth");
 
 const route = useRoute();
 const superlevel = route.query.superlevel;

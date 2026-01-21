@@ -37,6 +37,8 @@ export const userACLs = [
   "news:read",
 
   "settings:read",
+
+  "system-data:listen",
 ] as const;
 const userACLPrefix = "user:";
 
@@ -103,6 +105,8 @@ export const systemACLs = [
   "maintenance:read",
 
   "settings:update",
+
+  "system-data:listen",
 ] as const;
 const systemACLPrefix = "system:";
 

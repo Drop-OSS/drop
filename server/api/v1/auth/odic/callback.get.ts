@@ -1,15 +1,20 @@
 import sessionHandler from "~/server/internal/session";
 import authManager from "~/server/internal/auth";
+import type { Session } from "~/server/internal/session/types";
+import userStatsManager from "~/server/internal/userstats";
 
 defineRouteMeta({
   openAPI: {
-    tags: ["Auth"],
+    tags: ["Auth", "OIDC"],
     description: "OIDC Signin callback",
     parameters: [],
   },
 });
 
 export default defineEventHandler(async (h3) => {
+  // dont cache login responses
+  setHeader(h3, "Cache-Control", "no-store");
+
   const enabledAuthManagers = authManager.getAuthProviders();
   if (!enabledAuthManagers.OpenID) return sendRedirect(h3, "/auth/signin");
 
@@ -38,16 +43,26 @@ export default defineEventHandler(async (h3) => {
       statusMessage: `Failed to sign in: "${result}". Please try again.`,
     });
 
-  const sessionResult = await sessionHandler.signin(h3, result.user.id, true);
+  // Attach OIDC session data
+  const oidcData: Session["oidc"] = {
+    iss: result.claims.iss,
+  };
+  if (result.claims.sub) oidcData.sub = result.claims.sub;
+  if (result.claims.sid) oidcData.sid = result.claims.sid;
+
+  const sessionResult = await sessionHandler.signin(h3, result.user.id, {
+    rememberMe: true,
+    oidc: oidcData,
+  });
   if (sessionResult == "fail")
     throw createError({ statusCode: 500, message: "Failed to set session" });
-
-  if (sessionResult == "2fa") {
+  else if (sessionResult == "2fa") {
     return sendRedirect(
       h3,
       `/auth/mfa?redirect=${result.options.redirect ? encodeURIComponent(result.options.redirect) : "/"}`,
     );
   }
+  await userStatsManager.cacheUserSessions();
 
   if (result.options.redirect) {
     return sendRedirect(h3, result.options.redirect);

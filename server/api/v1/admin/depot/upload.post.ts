@@ -4,6 +4,8 @@ import aclManager from "~/server/internal/acls";
 
 const UploadManifest = type({
   gameId: "string",
+  versionName: "string",
+  
   manifest: type({
     version: "'2'",
     size: "number",

@@ -98,7 +98,9 @@ export default defineEventHandler(async (h3) => {
     },
   });
 
-  await sessionHandler.signin(h3, mfaMec.userId, true);
+  await sessionHandler.signin(h3, mfaMec.userId, {
+    rememberMe: true,
+  });
   await sessionHandler.mfa(h3, 10);
 
   return {};

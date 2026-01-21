@@ -105,6 +105,61 @@
             <PieChart :data="pieChartData" />
           </TileWithLink>
         </div>
+
+        <div class="col-span-6 row-span-1 lg:col-span-2 lg:row-span-2">
+          <TileWithLink title="System">
+            <div class="h-full pb-15 content-center">
+              <div class="grid grid-cols-1 text-center gap-4">
+                <h3 class="col-span-1 text-lg font-semibold flex">
+                  <div class="flex-1 text-left">
+                    {{ $t("home.admin.cpuUsage") }}
+                  </div>
+                  <div class="flex-1 text-sm grow text-right self-center">
+                    {{ $t("home.admin.numberCores", systemData.cpuCores) }}
+                  </div>
+                </h3>
+                <div class="col-span-1">
+                  <ProgressBar
+                    :color="getBarColor(systemData.cpuLoad)"
+                    :percentage="systemData.cpuLoad"
+                  />
+                </div>
+                <h3 class="col-span-1 text-lg font-semibold my-2 flex">
+                  <div class="flex-none text-left">
+                    {{ $t("home.admin.ramUsage") }}
+                  </div>
+                  <div class="flex-1 text-sm grow text-right self-center">
+                    {{
+                      $t("home.admin.availableRam", {
+                        freeRam: formatBytes(systemData.freeRam),
+                        totalRam: formatBytes(systemData.totalRam),
+                      })
+                    }}
+                  </div>
+                </h3>
+                <div class="col-span-1">
+                  <ProgressBar
+                    :color="
+                      getBarColor(
+                        getPercentage(
+                          systemData.totalRam - systemData.freeRam,
+                          systemData.totalRam,
+                        ),
+                      )
+                    "
+                    :percentage="
+                      getPercentage(
+                        systemData.totalRam - systemData.freeRam,
+                        systemData.totalRam,
+                      )
+                    "
+                  />
+                </div>
+              </div>
+            </div>
+          </TileWithLink>
+        </div>
+
         <div class="col-span-6">
           <TileWithLink
             title="Library"
@@ -139,6 +194,8 @@ import { formatBytes } from "~/server/internal/utils/files";
 import GamepadIcon from "~/components/Icons/GamepadIcon.vue";
 import DropLogo from "~/components/DropLogo.vue";
 import { ServerStackIcon, UserGroupIcon } from "@heroicons/vue/24/outline";
+import { getPercentage } from "~/utils/utils";
+import { getBarColor } from "~/utils/colors";
 import type { GameSize } from "~/server/internal/gamesize";
 import type { RankItem } from "~/components/RankingList.vue";
 
@@ -151,6 +208,8 @@ useHead({
 });
 
 const { t } = useI18n();
+
+const systemData = useSystemData();
 
 const {
   version,

@@ -7,11 +7,31 @@ import type { Readable } from "stream";
 import * as jdenticon from "jdenticon";
 import { systemConfig } from "../../config/sys-conf";
 import { logger } from "~/server/internal/logging";
+import { type } from "arktype";
+import * as jose from "jose";
+// import { inspect } from "util";
+import sessionHandler from "../../session";
+import type { SessionSearchTerms } from "../../session/types";
 
-interface OIDCWellKnown {
-  authorization_endpoint: string;
-  token_endpoint: string;
-  userinfo_endpoint: string;
+// TODO: monitor https://github.com/goauthentik/authentik/issues/8751 for easier?? OIDC setup by end users
+
+// Schema for OIDC well-known configuration
+const OIDCWellKnownV1 = type({
+  issuer: "string.url.parse",
+  authorization_endpoint: "string.url.parse",
+  token_endpoint: "string.url.parse",
+  userinfo_endpoint: "string.url.parse?",
+  jwks_uri: "string.url.parse",
+  scopes_supported: "string[]?",
+});
+
+// Represents required OIDC configuration
+interface OIDCConfiguration {
+  issuer: URL;
+  authorization_endpoint: URL;
+  token_endpoint: URL;
+  userinfo_endpoint: URL;
+  jwks_uri: URL;
   scopes_supported: string[];
 }
 
@@ -19,11 +39,18 @@ interface OIDCAuthSessionOptions {
   redirect: string | undefined;
 }
 
+interface OIDCAuthSessionClaims {
+  iss: string;
+  sub?: string;
+  sid?: string;
+}
+
 interface OIDCAuthSession {
   redirectUrl: string;
   callbackUrl: string;
   state: string;
   options: OIDCAuthSessionOptions;
+  claims: OIDCAuthSessionClaims;
 }
 
 interface OIDCUserInfo {
@@ -35,15 +62,69 @@ interface OIDCUserInfo {
   groups?: Array<string>;
 }
 
+type OIDCUrlKey = Exclude<keyof OIDCConfiguration, "scopes_supported">;
+
+/**
+ * @see https://openid.net/specs/openid-connect-core-1_0.html#TokenResponse
+ * @see https://www.rfc-editor.org/rfc/rfc6749.html#section-5.1
+ */
+const OIDCTokenResponseV1 = type({
+  access_token: "string",
+  token_type: "string",
+  expires_in: "number?",
+  refresh_token: "string?",
+  scope: "string?",
+  id_token: "string",
+});
+
+/**
+ * @see https://openid.net/specs/openid-connect-core-1_0.html#IDToken
+ */
+const OIDCIDTokenV1 = type({
+  iss: "string",
+  sub: "string",
+  aud: "string | string[]",
+  exp: "number",
+  iat: "number",
+
+  auth_time: "number?",
+  nonce: "string?",
+  acr: "string?",
+  amr: "string[]?",
+  azp: "string?",
+
+  // see: https://openid.net/specs/openid-connect-backchannel-1_0.html#BCSupport
+  // and: https://openid.net/specs/openid-connect-rpinitiated-1_0.html#RPLogout
+  sid: "string?", // session ID
+});
+
+/**
+ * @see https://openid.net/specs/openid-connect-backchannel-1_0-final.html#LogoutToken
+ */
+const OIDCLogoutTokenV1 = type({
+  iss: "string",
+  sub: "string?",
+  aud: "string | string[]",
+  iat: "number",
+  jti: "string",
+  events: type({
+    "http://schemas.openid.net/event/backchannel-logout": "object",
+  }),
+  sid: "string?", // session ID
+});
+
 export interface OIDCAuthMekCredentialsV1 {
+  // only optional for compatibility with older versions
+  iss?: string;
   sub: string;
 }
 
 export class OIDCManager {
-  private oidcConfiguration: OIDCWellKnown;
+  private oidcConfiguration: OIDCConfiguration;
   private clientId: string;
   private clientSecret: string;
-  private externalUrl: string;
+  private externalUrl: URL;
+  private redirectUrl: URL;
 
   private userGroup?: string = process.env.OIDC_USER_GROUP;
   private adminGroup?: string = process.env.OIDC_ADMIN_GROUP;
@@ -53,55 +134,99 @@ export class OIDCManager {
 
   private signinStateTable: { [key: string]: OIDCAuthSession } = {};
 
-  constructor(
-    oidcConfiguration: OIDCWellKnown,
+  /**
+   * Util to fetch JWKS for verifying tokens
+   * @see https://github.com/panva/jose/blob/main/docs/jwks/remote/functions/createRemoteJWKSet.md
+   */
+  private JWKS: ReturnType<typeof jose.createRemoteJWKSet>;
+
+  private constructor(
+    oidcConfiguration: OIDCConfiguration,
     clientId: string,
     clientSecret: string,
-    externalUrl: string,
+    externalUrl: URL,
   ) {
     this.oidcConfiguration = oidcConfiguration;
     this.clientId = clientId;
     this.clientSecret = clientSecret;
     this.externalUrl = externalUrl;
+
+    this.JWKS = jose.createRemoteJWKSet(this.oidcConfiguration.jwks_uri);
+    this.redirectUrl = new URL(
+      `${this.externalUrl.toString()}api/v1/auth/odic/callback`,
+    );
   }
 
-  async create() {
-    const wellKnownUrl = process.env.OIDC_WELLKNOWN as string | undefined;
+  static async create() {
+    if (!systemConfig.shouldOidcRequireHttps()) {
+      console.warn(
+        "Disabling HTTPS requirement for ODIC provider, not recommened in production enviroments",
+      );
+    }
+
+    const wellKnownUrlString = process.env.OIDC_WELLKNOWN as string | undefined;
     const scopes = process.env.OIDC_SCOPES as string | undefined;
-    let configuration: OIDCWellKnown;
-    if (wellKnownUrl) {
-      const response: OIDCWellKnown = await $fetch<OIDCWellKnown>(wellKnownUrl);
-      if (
-        !response.authorization_endpoint ||
-        !response.scopes_supported ||
-        !response.token_endpoint ||
-        !response.userinfo_endpoint
-      ) {
-        throw new Error("Well known response was invalid");
-      }
-      if (scopes) {
-        response.scopes_supported = scopes.split(",");
+    let configuration: OIDCConfiguration;
+    if (wellKnownUrlString) {
+      const wellKnownUrl = new URL(wellKnownUrlString);
+      if (systemConfig.shouldOidcRequireHttps() && !isHttps(wellKnownUrl)) {
+        throw new Error("OIDC_WELLKNOWN URL must use HTTPS");
       }
 
-      configuration = response;
+      const response = await $fetch<unknown>(wellKnownUrl.toString());
+      const wellKnown = OIDCWellKnownV1(response);
+      if (wellKnown instanceof type.errors) {
+        throw new Error(
+          `Failed to parse OIDC well-known configuration: ${wellKnown.summary}`,
+        );
+      }
+
+      if (scopes) {
+        wellKnown.scopes_supported = scopes.split(",");
+      } else if (!wellKnown.scopes_supported) {
+        throw new Error(
+          "OIDC_SCOPES environment variable required if not provided by well-known configuration",
+        );
+      }
+
+      if (!wellKnown.userinfo_endpoint) {
+        throw new Error(
+          "OIDC_USERINFO environment variable required if not provided by well-known configuration",
+        );
+      }
+
+      configuration = {
+        authorization_endpoint: wellKnown.authorization_endpoint,
+        token_endpoint: wellKnown.token_endpoint,
+        userinfo_endpoint: wellKnown.userinfo_endpoint,
+        scopes_supported: wellKnown.scopes_supported,
+        issuer: wellKnown.issuer,
+        jwks_uri: wellKnown.jwks_uri,
+      };
     } else {
       const authorizationEndpoint = process.env.OIDC_AUTHORIZATION as
         | string
         | undefined;
       const tokenEndpoint = process.env.OIDC_TOKEN as string | undefined;
       const userinfoEndpoint = process.env.OIDC_USERINFO as string | undefined;
+      const issuer = process.env.OIDC_ISSUER as string | undefined;
+      const jwksEndpoint = process.env.OIDC_JWKS as string | undefined;
 
       if (
         !authorizationEndpoint ||
         !tokenEndpoint ||
         !userinfoEndpoint ||
-        !scopes
+        !scopes ||
+        !issuer ||
+        !jwksEndpoint
       ) {
         const debugObject = {
           OIDC_AUTHORIZATION: authorizationEndpoint,
           OIDC_TOKEN: tokenEndpoint,
           OIDC_USERINFO: userinfoEndpoint,
           OIDC_SCOPES: scopes,
+          OIDC_ISSUER: issuer,
+          OIDC_JWKS: jwksEndpoint,
         };
         throw new Error(
           "Missing all necessary OIDC configuration: \n" +
@@ -112,19 +237,37 @@ export class OIDCManager {
       }
 
       configuration = {
-        authorization_endpoint: authorizationEndpoint,
-        token_endpoint: tokenEndpoint,
-        userinfo_endpoint: userinfoEndpoint,
+        authorization_endpoint: new URL(authorizationEndpoint),
+        token_endpoint: new URL(tokenEndpoint),
+        userinfo_endpoint: new URL(userinfoEndpoint),
         scopes_supported: scopes.split(","),
+        issuer: new URL(issuer),
+        jwks_uri: new URL(jwksEndpoint),
       };
     }
 
     if (!configuration)
       throw new Error("OIDC try to init without configuration");
 
+    if (systemConfig.shouldOidcRequireHttps()) {
+      const endpoints: OIDCUrlKey[] = [
+        "authorization_endpoint",
+        "token_endpoint",
+        "userinfo_endpoint",
+        "issuer",
+        "jwks_uri",
+      ];
+
+      for (const endpoint of endpoints) {
+        if (!isHttps(configuration[endpoint])) {
+          throw new Error(`OIDC ${endpoint} is not using HTTPS`);
+        }
+      }
+    }
+
     const clientId = process.env.OIDC_CLIENT_ID as string | undefined;
     const clientSecret = process.env.OIDC_CLIENT_SECRET as string | undefined;
-    const externalUrl = systemConfig.getExternalUrl();
+    const externalUrl = new URL(systemConfig.getExternalUrl());
 
     if (!clientId || !clientSecret)
       throw new Error("Missing client ID or secret for OIDC");
@@ -150,17 +293,17 @@ export class OIDCManager {
     const normalisedUrl = new URL(
       this.oidcConfiguration.authorization_endpoint,
     ).toString();
-    const redirectNormalisedUrl = new URL(this.externalUrl).toString();
 
-    const redirectUrl = `${redirectNormalisedUrl}auth/callback/oidc`;
-
-    const finalUrl = `${normalisedUrl}?client_id=${this.clientId}&redirect_uri=${encodeURIComponent(redirectUrl)}&state=${stateKey}&response_type=code&scope=${encodeURIComponent(this.oidcConfiguration.scopes_supported.join(" "))}`;
+    const finalUrl = `${normalisedUrl}?client_id=${this.clientId}&redirect_uri=${encodeURIComponent(this.redirectUrl.toString())}&state=${stateKey}&response_type=code&scope=${encodeURIComponent(this.oidcConfiguration.scopes_supported.join(" "))}`;
 
     const session: OIDCAuthSession = {
       redirectUrl: finalUrl,
-      callbackUrl: redirectUrl,
+      callbackUrl: this.redirectUrl.toString(),
       state: stateKey,
       options: options ?? { redirect: undefined },
+      claims: {
+        iss: this.oidcConfiguration.issuer.toString(),
+      },
     };
     this.signinStateTable[stateKey] = session;
     return session;
@@ -169,16 +312,20 @@ export class OIDCManager {
   async authorize(
     code: string,
     state: string,
-  ): Promise<{ user: UserModel; options: OIDCAuthSessionOptions } | string> {
+  ): Promise<
+    | {
+        user: UserModel;
+        options: OIDCAuthSessionOptions;
+        claims: OIDCAuthSessionClaims;
+      }
+    | string
+  > {
     const session = this.signinStateTable[state];
     if (!session) return "Invalid state parameter";
 
-    const tokenEndpoint = new URL(
-      this.oidcConfiguration.token_endpoint,
-    ).toString();
-    const userinfoEndpoint = new URL(
-      this.oidcConfiguration.userinfo_endpoint,
-    ).toString();
+    const tokenEndpoint = this.oidcConfiguration.token_endpoint.toString();
+    const userinfoEndpoint =
+      this.oidcConfiguration.userinfo_endpoint.toString();
 
     const requestBody = new URLSearchParams({
       client_id: this.clientId,
@@ -190,18 +337,35 @@ export class OIDCManager {
     });
 
     try {
-      const { access_token, token_type } = await $fetch<{
-        access_token: string;
-        token_type: string;
-        id_token: string;
-      }>(tokenEndpoint, {
+      const rawTokenResponse = await $fetch<unknown>(tokenEndpoint, {
         body: requestBody,
         method: "POST",
       });
+      const tokenResponse = OIDCTokenResponseV1(rawTokenResponse);
+      if (tokenResponse instanceof type.errors) {
+        logger.error(`Invalid OIDC token response: ${tokenResponse.summary}`);
+        return "Invalid token response from identity provider.";
+      }
+
+      // TODO: handle refresh tokens?
+
+      const idTokenRaw = await jose.jwtVerify(
+        tokenResponse.id_token,
+        this.JWKS,
+        {
+          audience: this.clientId,
+          issuer: this.oidcConfiguration.issuer.toString(),
+        },
+      );
+      const idToken = OIDCIDTokenV1(idTokenRaw.payload);
+      if (idToken instanceof type.errors) {
+        logger.error(`Invalid OIDC ID token: ${idToken.summary}`);
+        return "Invalid ID token from identity provider.";
+      }
 
       const userinfo = await $fetch<OIDCUserInfo>(userinfoEndpoint, {
         headers: {
-          Authorization: `${token_type} ${access_token}`,
+          Authorization: `${tokenResponse.token_type} ${tokenResponse.access_token}`,
         },
       });
 
@@ -209,7 +373,17 @@ export class OIDCManager {
 
       if (typeof userOrError === "string") return userOrError;
 
-      return { user: userOrError, options: session.options };
+      const claims: OIDCAuthSessionClaims = {
+        iss: idToken.iss,
+      };
+      if (idToken.sub) claims.sub = idToken.sub;
+      if (idToken.sid) claims.sid = idToken.sid;
+
+      return {
+        user: userOrError,
+        options: session.options,
+        claims,
+      };
     } catch (e) {
       logger.error(e);
       return `Request to identity provider failed: ${e}`;
@@ -262,6 +436,7 @@ export class OIDCManager {
     */
 
     const creds: OIDCAuthMekCredentialsV1 = {
+      iss: this.oidcConfiguration.issuer.toString(),
       sub: userinfo.sub,
     };
 
@@ -317,4 +492,64 @@ export class OIDCManager {
 
     return created.user;
   }
+
+  /**
+   * Handle OIDC backchannel logout token
+   * @param logout_token
+   * @returns
+   *
+   * @see https://openid.net/specs/openid-connect-backchannel-1_0-final.html#Validation
+   */
+  async handleLogout(logout_token: string): Promise<boolean> {
+    let jwt: jose.JWTVerifyResult<jose.JWTPayload> & jose.ResolvedKey;
+    try {
+      jwt = await jose.jwtVerify(logout_token, this.JWKS, {
+        audience: this.clientId,
+        issuer: this.oidcConfiguration.issuer.toString(),
+      });
+    } catch (e) {
+      console.error("Failed to verify OIDC logout token:", e);
+      return false;
+    }
+
+    const token = OIDCLogoutTokenV1(jwt.payload);
+    if (token instanceof type.errors) {
+      console.error("Invalid OIDC logout token structure:", token.summary);
+      return false;
+    } else if (!token.sid && !token.sub) {
+      console.error(
+        "Invalid OIDC logout token: missing both 'sid' and 'sub' claims",
+      );
+      return false;
+    }
+
+    const searchTerm: SessionSearchTerms = {
+      oidc: {
+        iss: token.iss,
+      },
+    };
+    if (searchTerm.oidc) {
+      if (token.sub) {
+        searchTerm.oidc.sub = token.sub;
+      }
+      if (token.sid) {
+        searchTerm.oidc.sid = token.sid;
+      }
+    }
+
+    const sessions = await sessionHandler.searchSessions(searchTerm);
+
+    const taskQueue = [];
+    for (const session of sessions) {
+      taskQueue.push(sessionHandler.signoutByToken(session.token));
+    }
+    await Promise.all(taskQueue);
+
+    return true;
+  }
+}
+
+function isHttps(url: URL): boolean {
+  if (url.protocol === "https:") return true;
+  else return false;
 }

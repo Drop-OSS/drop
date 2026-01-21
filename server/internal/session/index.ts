@@ -1,12 +1,19 @@
 import type { H3Event } from "h3";
-import type { Session, SessionProvider } from "./types";
+import type {
+  Session,
+  SessionSearchTerms,
+  SessionProvider,
+  SessionWithToken,
+} from "./types";
 import { randomUUID } from "node:crypto";
 import { parse as parseCookies } from "cookie-es";
 import type { MinimumRequestObject } from "~/server/h3";
 import type { DurationLike } from "luxon";
 import { DateTime } from "luxon";
-import createDBSessionHandler from "./db";
 import prisma from "../db/database";
+// import createMemorySessionHandler from "./memory";
+import createDBSessionHandler from "./db";
+// import createCacheSessionProvider from "./cache";
 
 /*
 This implementation may need work.
@@ -26,6 +33,16 @@ const extendedSessionLength: DurationLike = {
 };
 
 type SigninResult = ["signin", "2fa", "fail"][number];
+export interface SigninOptions {
+  // default value: false
+  rememberMe?: boolean;
+
+  // set default session data
+  data?: Session["data"];
+
+  // set oidc session data
+  oidc?: Session["oidc"];
+}
 
 export class SessionHandler {
   private sessionProvider: SessionProvider;
@@ -34,35 +51,44 @@ export class SessionHandler {
     // Create a new provider
     // this.sessionProvider = createCacheSessionProvider();
     this.sessionProvider = createDBSessionHandler();
-    // this.sessionProvider = createMemorySessionProvider();
+    // this.sessionProvider = createMemorySessionHandler();
   }
 
   async signin(
     h3: H3Event,
     userId: string,
-    rememberMe: boolean = false,
+    options?: SigninOptions,
   ): Promise<SigninResult> {
     const mfaCount = await prisma.linkedMFAMec.count({
       where: { userId, enabled: true },
     });
 
+    const rememberMe = options?.rememberMe ?? false;
+    const data = options?.data ?? {};
+    const oidcData = options?.oidc;
+
     const expiresAt = this.createExipreAt(rememberMe);
 
     const token =
       this.getSessionToken(h3) ?? this.createSessionCookie(h3, expiresAt);
-    const session = (await this.sessionProvider.getSession(token)) ?? {
+    const defaultSession: Session = {
       expiresAt,
-      data: {},
+      data,
     };
+    const session =
+      (await this.sessionProvider.getSession(token)) ?? defaultSession;
     const wasAuthenticated = !!session.authenticated;
 
+    // set authenticated session data
     session.authenticated = {
       userId,
       level: session.authenticated?.level ?? 10,
       requiredLevel: mfaCount > 0 ? 20 : 10,
       superleveledExpiry: undefined,
     };
+    if (oidcData) session.oidc = oidcData;
 
+    // handle superlevel expiry
     if (
       wasAuthenticated &&
       session.authenticated.level >= session.authenticated.requiredLevel
@@ -93,14 +119,21 @@ export class SessionHandler {
    * Get a session associated with a request
    * @returns session
    */
-  async getSession<T extends Session>(request: MinimumRequestObject) {
+  async getSession<T extends SessionWithToken>(request: MinimumRequestObject) {
     const token = this.getSessionToken(request);
     if (!token) return undefined;
 
-    const data = await this.sessionProvider.getSession<T>(token);
-    if (!data) return undefined;
-    if (new Date(data.expiresAt).getTime() < Date.now()) return undefined; // Expired
-    return data;
+    const session = await this.sessionProvider.getSession<T>(token);
+    if (!session) return undefined;
+
+    // if expired session
+    if (new Date(session.expiresAt).getTime() < Date.now()) {
+      await this.sessionProvider.removeSession(token);
+      // TODO: should probably call signout to clear the cookie
+      // session expired
+      return undefined;
+    }
+    return session;
   }
 
   async getSessionDataKey<T>(
@@ -122,10 +155,13 @@ export class SessionHandler {
       this.getSessionToken(request) ??
       this.createSessionCookie(request, expiresAt);
 
-    const session = (await this.sessionProvider.getSession(token)) ?? {
+    const defaultSession: Session = {
       expiresAt,
       data: {},
     };
+    const session =
+      (await this.sessionProvider.getSession(token)) ?? defaultSession;
+    console.log(session);
     session.data[key] = value;
     await this.sessionProvider.setSession(token, session);
     return true;
@@ -151,14 +187,40 @@ export class SessionHandler {
   async signout(h3: H3Event) {
     const token = this.getSessionToken(h3);
     if (!token) return false;
-    const res = await this.sessionProvider.removeSession(token);
-    if (!res) return false;
+    if (!this.signoutByToken(token)) return false;
     deleteCookie(h3, dropTokenCookieName);
     return true;
   }
 
+  /**
+   * Signout session by token
+   * @Note Should only be used in special cases (eg OIDC logout)
+   * @param token
+   * @returns
+   */
+  async signoutByToken(token: string) {
+    const res = await this.sessionProvider.removeSession(token);
+    return res;
+  }
+
+  /**
+   * Clean up expired sessions
+   */
   async cleanupSessions() {
     await this.sessionProvider.cleanupSessions();
+  }
+
+  /**
+   * Search sessions
+   * @param terms search terms
+   * @returns found sessions
+   */
+  async searchSessions(terms: SessionSearchTerms) {
+    return await this.sessionProvider.findSessions(terms);
+  }
+
+  async getNumberActiveSessions() {
+    return this.sessionProvider.getNumberActiveSessions();
   }
 
   /**

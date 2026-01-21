@@ -92,14 +92,14 @@
                   v-if="source.fsStats"
                   :percentage="
                     getPercentage(
-                      source.fsStats.freeSpace,
+                      source.fsStats.totalSpace - source.fsStats.freeSpace,
                       source.fsStats.totalSpace,
                     )
                   "
                   :color="
                     getBarColor(
                       getPercentage(
-                        source.fsStats.freeSpace,
+                        source.fsStats.totalSpace - source.fsStats.freeSpace,
                         source.fsStats.totalSpace,
                       ),
                     )
@@ -148,6 +148,7 @@ import { BackwardIcon, CheckIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 import { DropLogo } from "#components";
 import { formatBytes } from "~/server/internal/utils/files";
 import { getBarColor } from "~/utils/colors";
+import { getPercentage } from "~/utils/utils";
 
 const {
   sources,
@@ -183,7 +184,4 @@ const optionsMetadata: {
     icon: BackwardIcon,
   },
 };
-
-const getPercentage = (value: number, total: number) =>
-  ((total - value) * 100) / total;
 </script>
