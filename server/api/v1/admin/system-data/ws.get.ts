@@ -23,7 +23,7 @@ export default defineWebSocketHandler({
 
     socketSessions.set(peer.id, userId);
 
-    systemManager.listen(userId, acls, peer.id, (systemData) => {
+    systemManager.listen(userId, peer.id, (systemData) => {
       peer.send(JSON.stringify(systemData));
     });
   },

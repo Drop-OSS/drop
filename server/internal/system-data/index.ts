@@ -1,7 +1,4 @@
 import os from "os";
-import type { GlobalACL } from "../acls";
-
-// type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 
 export type SystemData = {
   totalRam: number;
@@ -10,29 +7,23 @@ export type SystemData = {
   cpuCores: number;
 };
 
-export type SystemDataCreateArgs = SystemData & { acls: Array<GlobalACL> };
-
 class SystemManager {
   // userId to acl to listenerId
   private listeners = new Map<
     string,
-    Map<
-      string,
-      { callback: (systemData: SystemData) => void; acls: GlobalACL[] }
-    >
+    Map<string, { callback: (systemData: SystemData) => void }>
   >();
 
   listen(
     userId: string,
-    acls: Array<GlobalACL>,
     id: string,
     callback: (systemData: SystemData) => void,
   ) {
     if (!this.listeners.has(userId)) this.listeners.set(userId, new Map());
     // eslint-disable-next-line @typescript-eslint/no-extra-non-null-assertion
-    this.listeners.get(userId)!!.set(id, { callback, acls });
-
-    setInterval(() => this.pushUpdate(userId, id), 10000);
+    this.listeners.get(userId)!!.set(id, { callback });
+    this.pushUpdate(userId, id);
+    setInterval(() => this.pushUpdate(userId, id), 3000);
   }
 
   unlisten(userId: string, id: string) {
