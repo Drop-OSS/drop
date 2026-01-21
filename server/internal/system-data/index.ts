@@ -32,14 +32,14 @@ class SystemManager {
     // eslint-disable-next-line @typescript-eslint/no-extra-non-null-assertion
     this.listeners.get(userId)!!.set(id, { callback, acls });
 
-    setInterval(() => this.catchupListener(userId, id), 10000);
+    setInterval(() => this.pushUpdate(userId, id), 10000);
   }
 
   unlisten(userId: string, id: string) {
     this.listeners.get(userId)?.delete(id);
   }
 
-  private async catchupListener(userId: string, id: string) {
+  private async pushUpdate(userId: string, id: string) {
     const listener = this.listeners.get(userId)?.get(id);
     if (!listener) {
       throw new Error("Failed to catch-up listener: callback does not exist");
