@@ -78,13 +78,14 @@
       "usernameFormat": "Must be 5 or more characters, and lowercase"
     },
     "signin": {
-      "externalProvider": "Sign in with external provider {arrow}",
+      "externalProvider": "external provider",
       "forgot": "Forgot password?",
       "noAccount": "Don't have an account? Ask an admin to create one for you.",
       "or": "OR",
       "pageTitle": "Sign in to Drop",
       "rememberMe": "Remember me",
       "signin": "Sign in",
+      "signinWithExternalProvider": "Sign in with {externalProvider} {arrow}",
       "title": "Sign in to your account"
     },
     "signout": "Signout",
