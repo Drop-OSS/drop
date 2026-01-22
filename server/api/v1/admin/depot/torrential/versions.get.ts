@@ -11,6 +11,11 @@ export default defineEventHandler(async (h3) => {
         select: {
           versionId: true,
         },
+        where: {
+          versionPath: {
+            not: null
+          }
+        }
       },
     },
   });

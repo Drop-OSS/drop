@@ -1,11 +1,12 @@
 import { type } from "arktype";
 import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 import aclManager from "~/server/internal/acls";
+import prisma from "~/server/internal/db/database";
 
 const UploadManifest = type({
   gameId: "string",
   versionName: "string",
-  
+
   manifest: type({
     version: "'2'",
     size: "number",
@@ -29,5 +30,22 @@ export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["depot:upload:new"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
-  const { manifest } = await readDropValidatedBody(h3, UploadManifest);
+  const { gameId, versionName, manifest } = await readDropValidatedBody(
+    h3,
+    UploadManifest,
+  );
+
+  const version = await prisma.unimportedGameVersion.create({
+    data: {
+      game: {
+        connect: {
+          id: gameId,
+        },
+      },
+      versionName,
+      manifest,
+    },
+  });
+
+  return { id: version.id };
 });

@@ -92,9 +92,10 @@ model GameRating {
 }
 
 model UnimportedGameVersion {
-  id     String @id @default(uuid())
-  gameId String
-  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  id          String @id @default(uuid())
+  gameId      String
+  game        Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  versionName String
 
   manifest Json
 }
