@@ -351,9 +351,7 @@ const { versions, type } = await $dropFetch(
   `/api/v1/admin/import/version?id=${encodeURIComponent(gameId)}`,
 );
 const currentlySelectedVersion = ref(-1);
-const versionSettings = ref<typeof ImportVersion.infer>({
-  id: gameId,
-  version: "",
+const versionSettings = ref<Omit<typeof ImportVersion.infer, "version" | "id">>({
   delta: false,
   onlySetup: false,
   launches: [],
