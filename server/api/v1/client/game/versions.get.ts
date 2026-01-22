@@ -5,8 +5,8 @@ import gameSizeManager from "~/server/internal/gamesize";
 
 type VersionDownloadOption = {
   versionId: string;
-  displayName?: string;
-  versionPath: string;
+  displayName?: string | undefined;
+  versionPath?: string | undefined;
   platform: Platform;
   size: number;
   requiredContent: Array<{
@@ -106,7 +106,8 @@ export default defineClientEventHandler(async (h3) => {
             ([platform, requiredContent]) =>
               ({
                 versionId: v.versionId,
-                versionPath: v.versionPath,
+                displayName: v.displayName || undefined,
+                versionPath: v.versionPath || undefined,
                 platform,
                 requiredContent,
                 size: size!,

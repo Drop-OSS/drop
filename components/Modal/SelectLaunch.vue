@@ -55,13 +55,13 @@
               (v) =>
                 Object.values(versions!)
                   .filter((k) =>
-                    (k.displayName || k.versionPath)
+                    (k.displayName || k.versionPath)!
                       .toLowerCase()
                       .includes(v.toLowerCase()),
                   )
                   .map((v) => ({
                     id: v.versionId,
-                    name: v.displayName ?? v.versionPath,
+                    name: (v.displayName ?? v.versionPath)!,
                   }))
             "
             :display="(v) => v.name"
@@ -169,7 +169,7 @@ const versions = ref<
           platform: Platform;
         }[];
         versionId: string;
-        versionPath: string;
+        versionPath: string | null;
       };
     }
   | undefined

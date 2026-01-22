@@ -134,7 +134,7 @@ class LibraryManager {
     try {
       const versions = await provider.listVersions(
         libraryPath,
-        game.versions.map((v) => v.versionPath),
+        game.versions.map((v) => v.versionPath).filter((v) => v !== null),
       );
       const unimportedVersions = versions.filter(
         (e) =>
@@ -279,8 +279,8 @@ class LibraryManager {
             icon: executorSuggestion.gameVersion.game.mIconObjectId,
             gameName: executorSuggestion.gameVersion.game.mName,
             versionName:
-              executorSuggestion.gameVersion.displayName ??
-              executorSuggestion.gameVersion.versionPath,
+              (executorSuggestion.gameVersion.displayName ??
+              executorSuggestion.gameVersion.versionPath)!,
             launchName: executorSuggestion.name,
             platform: executorSuggestion.platform,
           });
