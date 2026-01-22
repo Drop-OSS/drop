@@ -13,7 +13,7 @@
           class="relative w-full cursor-default rounded-md bg-zinc-950 py-1.5 pl-3 pr-10 text-left text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6"
         >
           <span v-if="currentlySelectedVersion != -1" class="block truncate">{{
-            versions[currentlySelectedVersion]
+            versions[currentlySelectedVersion].name
           }}</span>
           <span v-else class="block truncate text-zinc-600">{{
             $t("library.admin.import.selectDir")
@@ -38,7 +38,7 @@
           >
             <ListboxOption
               v-for="(version, versionIdx) in versions"
-              :key="version"
+              :key="version.identifier"
               v-slot="{ active, selected }"
               as="template"
               :value="versionIdx"
@@ -54,7 +54,7 @@
                     selected ? 'font-semibold' : 'font-normal',
                     'block truncate',
                   ]"
-                  >{{ version }}</span
+                  >{{ version.name }}</span
                 >
 
                 <span
@@ -371,11 +371,14 @@ async function updateCurrentlySelectedVersion(value: number) {
   const version = versions[currentlySelectedVersion.value];
   try {
     const results = await $dropFetch(
-      `/api/v1/admin/import/version/preload?id=${encodeURIComponent(
-        gameId,
-      )}&version=${encodeURIComponent(version)}`,
+      `/api/v1/admin/import/version/preload`,
       {
         failTitle: "Failed to fetch version information",
+        query: {
+          id: gameId,
+          type: version.type,
+          version: version.identifier
+        }
       },
     );
     versionGuesses.value = results as typeof versionGuesses.value;

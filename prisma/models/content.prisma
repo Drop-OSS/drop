@@ -98,6 +98,7 @@ model UnimportedGameVersion {
   versionName String
 
   manifest Json
+  fileList String[]
 }
 
 // A particular set of files that relate to the version

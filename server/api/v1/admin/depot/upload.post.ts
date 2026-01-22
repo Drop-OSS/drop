@@ -24,13 +24,14 @@ const UploadManifest = type({
       },
     }),
   }),
+  fileList: "string[]",
 }).configure(throwingArktype);
 
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["depot:upload:new"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
-  const { gameId, versionName, manifest } = await readDropValidatedBody(
+  const { gameId, versionName, manifest, fileList } = await readDropValidatedBody(
     h3,
     UploadManifest,
   );
@@ -44,6 +45,7 @@ export default defineEventHandler(async (h3) => {
       },
       versionName,
       manifest,
+      fileList,
     },
   });
 

@@ -1,6 +1,7 @@
 import type { GameVersion, Prisma } from "~/prisma/client/client";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
+import type { UnimportedVersionInformation } from "~/server/internal/library";
 import libraryManager from "~/server/internal/library";
 
 async function getGameVersionSize<
@@ -59,7 +60,7 @@ export default defineEventHandler<
   { body: never },
   Promise<{
     game: AdminFetchGameType;
-    unimportedVersions: string[] | undefined;
+    unimportedVersions: UnimportedVersionInformation[] | undefined;
   }>
 >(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["game:read"]);

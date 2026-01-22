@@ -7,7 +7,11 @@ import libraryManager from "~/server/internal/library";
 
 export const ImportVersion = type({
   id: "string",
-  version: "string",
+  version: type({
+    type: "'depot' | 'local'",
+    identifier: "string",
+    name: "string",
+  }),
   displayName: "string?",
 
   launches: type({
