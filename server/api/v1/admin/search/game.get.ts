@@ -10,7 +10,10 @@ const Query = type({
 });
 
 export default defineEventHandler(async (h3) => {
-  const allowed = await aclManager.allowSystemACL(h3, ["game:read", "depot:read"]);
+  const allowed = await aclManager.allowSystemACL(h3, [
+    "game:read",
+    "depot:read",
+  ]);
   if (!allowed) throw createError({ statusCode: 403 });
 
   const query = Query(getQuery(h3));
