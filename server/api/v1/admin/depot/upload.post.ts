@@ -31,10 +31,8 @@ export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["depot:upload:new"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
-  const { gameId, versionName, manifest, fileList } = await readDropValidatedBody(
-    h3,
-    UploadManifest,
-  );
+  const { gameId, versionName, manifest, fileList } =
+    await readDropValidatedBody(h3, UploadManifest);
 
   const version = await prisma.unimportedGameVersion.create({
     data: {

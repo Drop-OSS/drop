@@ -370,17 +370,14 @@ async function updateCurrentlySelectedVersion(value: number) {
   currentlySelectedVersion.value = value;
   const version = versions[currentlySelectedVersion.value];
   try {
-    const results = await $dropFetch(
-      `/api/v1/admin/import/version/preload`,
-      {
-        failTitle: "Failed to fetch version information",
-        query: {
-          id: gameId,
-          type: version.type,
-          version: version.identifier
-        }
+    const results = await $dropFetch(`/api/v1/admin/import/version/preload`, {
+      failTitle: "Failed to fetch version information",
+      query: {
+        id: gameId,
+        type: version.type,
+        version: version.identifier,
       },
-    );
+    });
     versionGuesses.value = results as typeof versionGuesses.value;
   } catch {
     currentlySelectedVersion.value = -1;
