@@ -29,8 +29,7 @@
         launchId: props.config.launchId,
         gameName: props.config.executor.gameVersion.game.mName,
         gameIcon: props.config.executor.gameVersion.game.mIconObjectId,
-        versionName:
-          (props.config.executor.gameVersion.displayName ??
+        versionName: (props.config.executor.gameVersion.displayName ??
           props.config.executor.gameVersion.versionPath)!,
         launchName: props.config.executor.name,
         platform: props.config.executor.platform,

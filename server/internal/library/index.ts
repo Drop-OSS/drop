@@ -278,8 +278,7 @@ class LibraryManager {
 
             icon: executorSuggestion.gameVersion.game.mIconObjectId,
             gameName: executorSuggestion.gameVersion.game.mName,
-            versionName:
-              (executorSuggestion.gameVersion.displayName ??
+            versionName: (executorSuggestion.gameVersion.displayName ??
               executorSuggestion.gameVersion.versionPath)!,
             launchName: executorSuggestion.name,
             platform: executorSuggestion.platform,
