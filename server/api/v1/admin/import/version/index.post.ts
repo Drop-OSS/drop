@@ -30,6 +30,10 @@ export const ImportVersion = type({
 
   onlySetup: "boolean = false",
   delta: "boolean = false",
+
+  requiredContent: type("string")
+    .array()
+    .default(() => []),
 }).configure(throwingArktype);
 
 export default defineEventHandler(async (h3) => {
@@ -52,7 +56,7 @@ export default defineEventHandler(async (h3) => {
       if (validOverlayVersions == 0)
         throw createError({
           statusCode: 400,
-          statusMessage: "Update mode requires a pre-existing version.",
+          statusMessage: `Update mode requires a pre-existing version for platform: ${platformObject.platform}`,
         });
     }
   }

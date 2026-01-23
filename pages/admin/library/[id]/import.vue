@@ -122,7 +122,8 @@
         >
       </div>
       <!-- setup mode -->
-      <SwitchGroup
+      <div class="relative">
+        <SwitchGroup
         as="div"
         class="bg-zinc-800 p-4 rounded-xl flex items-center justify-between gap-4"
       >
@@ -153,6 +154,8 @@
           />
         </Switch>
       </SwitchGroup>
+      <div v-if="type === GameType.Redist" class="absolute inset-0 bg-zinc-900/50" />
+      </div>
       <!-- launch executables -->
       <div class="relative flex flex-col gap-y-2 bg-zinc-800 p-4 rounded-xl">
         <div>
@@ -336,6 +339,7 @@ import {
   MinusIcon,
   PlusIcon,
 } from "@heroicons/vue/20/solid";
+import { GameType } from "~/prisma/client/enums";
 import type { ImportVersion } from "~/server/api/v1/admin/import/version/index.post";
 import type { VersionGuess } from "~/server/internal/library";
 
@@ -354,9 +358,10 @@ const currentlySelectedVersion = ref(-1);
 const versionSettings = ref<Omit<typeof ImportVersion.infer, "version" | "id">>(
   {
     delta: false,
-    onlySetup: false,
+    onlySetup: type === GameType.Redist,
     launches: [],
     setups: [],
+    requiredContent: [],
   },
 );
 

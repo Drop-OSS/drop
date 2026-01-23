@@ -383,6 +383,12 @@ class LibraryManager {
     });
     if (!game || !game.libraryId) return undefined;
 
+    if (game.type === GameType.Redist && !metadata.onlySetup)
+      throw createError({
+        statusCode: 400,
+        message: "Redistributables can only be in setup-only mode.",
+      });
+
     const library = this.libraries.get(game.libraryId);
     if (!library) return undefined;
 
@@ -401,6 +407,7 @@ class LibraryManager {
       async run({ progress, logger }) {
         let versionPath: string | null = null;
         let manifest;
+        let fileList;
 
         if (version.type === "local") {
           versionPath = version.identifier;
@@ -419,9 +426,14 @@ class LibraryManager {
               logger.info(value);
             },
           );
+          fileList = await library.versionReaddir(
+            game.libraryPath,
+            versionPath,
+          );
           logger.info("Created manifest successfully!");
         } else if (version.type === "depot" && unimportedVersion) {
           manifest = castManifest(unimportedVersion.manifest);
+          fileList = unimportedVersion.fileList;
           progress(90);
         } else {
           throw "Could not find or create manifest for this version.";
@@ -444,6 +456,7 @@ class LibraryManager {
 
             versionPath,
             dropletManifest: manifest,
+            fileList,
             versionIndex: currentIndex,
             delta: metadata.delta,
 

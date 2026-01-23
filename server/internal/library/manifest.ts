@@ -1,12 +1,12 @@
 import type { JsonValue } from "@prisma/client/runtime/library";
 
-export type Manifest = V2Manifest;
+export type DropletManifest = V2Manifest;
 
 export type V2Manifest = {
   version: "2";
   size: number;
   key: number[];
-  chunks: { [key: string]: V2ChunkData[] };
+  chunks: { [key: string]: V2ChunkData };
 };
 
 export type V2ChunkData = {
@@ -22,6 +22,6 @@ export type V2FileEntry = {
   permissions: number;
 };
 
-export function castManifest(manifest: JsonValue): Manifest {
-  return JSON.parse(manifest as string) as Manifest;
+export function castManifest(manifest: JsonValue): DropletManifest {
+  return JSON.parse(manifest as string) as DropletManifest;
 }

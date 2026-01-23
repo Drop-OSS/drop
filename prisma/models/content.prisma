@@ -117,7 +117,9 @@ model GameVersion {
 
   onlySetup Boolean @default(false)
 
-  dropletManifest Json // Results from droplet
+  dropletManifest  Json // Results from droplet
+  fileList         String[] // List of all files, for delta updates
+  negativeFileList String[] // List of files to remove, for delta updates
 
   versionIndex Int
   delta        Boolean @default(false)
