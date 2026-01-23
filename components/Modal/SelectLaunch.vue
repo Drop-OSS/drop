@@ -28,14 +28,14 @@
         </div>
       </div>
       <div class="mt-2 space-y-4">
-        <div
-          class="inline-flex items-center w-full gap-x-2 text-zinc-100 font-bold"
-        >
-          Executor:
+        <div>
+          <h1 class="block text-sm font-medium leading-6 text-zinc-100">
+            Search for an executor
+          </h1>
           <SelectorGame
             :search="search"
             :model-value="game"
-            class="w-full"
+            class="w-full mt-2"
             @update:model-value="(value) => updateGame(value)"
           />
         </div>
@@ -45,11 +45,10 @@
         >
           No versions imported.
         </div>
-        <div
-          v-else-if="versions !== undefined"
-          class="inline-flex items-center w-full gap-x-2 text-zinc-100 font-bold"
-        >
-          Version:
+        <div v-else-if="versions !== undefined">
+          <h1 class="block text-sm font-medium leading-6 text-zinc-100">
+            Select a version
+          </h1>
           <SelectorCombox
             :search="
               (v) =>
@@ -66,7 +65,7 @@
             "
             :display="(v) => v.name"
             :model-value="version"
-            class="w-full"
+            class="w-full mt-2"
             @update:model-value="updateVersion"
           >
             <template #default="{ value }">
@@ -74,11 +73,10 @@
             </template>
           </SelectorCombox>
         </div>
-        <div
-          v-if="versions && version"
-          class="inline-flex items-center w-full gap-x-2 text-zinc-100 font-bold"
-        >
-          Launch:
+        <div v-if="versions && version">
+          <h1 class="block text-sm font-medium leading-6 text-zinc-100">
+            Select a launch command
+          </h1>
           <SelectorCombox
             :search="
               (v) =>
@@ -99,7 +97,7 @@
             "
             :display="(v) => v.name"
             :model-value="launchId"
-            class="w-full"
+            class="w-full mt-2"
             @update:model-value="(v) => (launchId = v)"
           >
             <template #default="{ value }">

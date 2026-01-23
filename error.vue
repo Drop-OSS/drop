@@ -21,11 +21,6 @@ async function signIn() {
     redirect: `/auth/signin?redirect=${encodeURIComponent(route.fullPath)}`,
   });
 }
-switch (statusCode) {
-  case 401:
-  case 403:
-    await signIn();
-}
 
 useHead({
   title: t("errors.pageTitle", [statusCode ?? message]),
