@@ -7,12 +7,53 @@ export type SystemData = {
   cpuCores: number;
 };
 
+// See https://github.com/oscmejia/os-utils/blob/master/lib/osutils.js
+function getCPUInfo() {
+  const cpus = os.cpus();
+
+  let user = 0;
+  let nice = 0;
+  let sys = 0;
+  let idle = 0;
+  let irq = 0;
+
+  for (const cpu in cpus) {
+    if (!Object.prototype.hasOwnProperty.call(cpus, cpu)) continue;
+    user += cpus[cpu].times.user;
+    nice += cpus[cpu].times.nice;
+    sys += cpus[cpu].times.sys;
+    irq += cpus[cpu].times.irq;
+    idle += cpus[cpu].times.idle;
+  }
+
+  const total = user + nice + sys + idle + irq;
+
+  return {
+    idle: idle,
+    total: total,
+  };
+}
+
 class SystemManager {
   // userId to acl to listenerId
   private listeners = new Map<
     string,
     Map<string, { callback: (systemData: SystemData) => void }>
   >();
+
+  private lastCPUUpdate: { idle: number; total: number } | undefined;
+
+  constructor() {
+    setInterval(() => {
+      const systemData = this.getSystemData();
+      if (!systemData) return;
+      for (const [, map] of this.listeners.entries()) {
+        for (const [, { callback }] of map.entries()) {
+          callback(systemData);
+        }
+      }
+    }, 3000);
+  }
 
   listen(
     userId: string,
@@ -22,26 +63,17 @@ class SystemManager {
     if (!this.listeners.has(userId)) this.listeners.set(userId, new Map());
     // eslint-disable-next-line @typescript-eslint/no-extra-non-null-assertion
     this.listeners.get(userId)!!.set(id, { callback });
-    this.pushUpdate(userId, id);
-    const interval = setInterval(() => this.pushUpdate(userId, id, interval), 3000);
   }
 
   unlisten(userId: string, id: string) {
     this.listeners.get(userId)?.delete(id);
   }
 
-  private async pushUpdate(userId: string, id: string, interval?: NodeJS.Timeout) {
-    const listener = this.listeners.get(userId)?.get(id);
-    if (!listener) {
-      if(interval) clearInterval(interval);
-      throw new Error("Failed to catch-up listener: callback does not exist");
-    }
-    listener.callback(this.getSystemData());
-  }
-
-  getSystemData(): SystemData {
+  getSystemData(): SystemData | undefined {
+    const cpu = this.cpuLoad();
+    if (!cpu) return undefined;
     return {
-      cpuLoad: this.cpuLoad(),
+      cpuLoad: cpu * 100,
       totalRam: os.totalmem(),
       freeRam: os.freemem(),
       cpuCores: os.cpus().length,
@@ -49,9 +81,15 @@ class SystemManager {
   }
 
   private cpuLoad() {
-    const [oneMinLoad, _fiveMinLoad, _fiftenMinLoad] = os.loadavg();
-    const numberCpus = os.cpus().length;
-    return 100 - ((numberCpus - oneMinLoad) / numberCpus) * 100;
+    const last = this.lastCPUUpdate;
+    this.lastCPUUpdate = getCPUInfo();
+    if (!last) return undefined;
+
+    const idle = this.lastCPUUpdate.idle - last.idle;
+    const total = this.lastCPUUpdate.total - last.total;
+
+    const perc = idle / total;
+    return 1 - perc;
   }
 }
 
