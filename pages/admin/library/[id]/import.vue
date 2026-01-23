@@ -124,37 +124,40 @@
       <!-- setup mode -->
       <div class="relative">
         <SwitchGroup
-        as="div"
-        class="bg-zinc-800 p-4 rounded-xl flex items-center justify-between gap-4"
-      >
-        <span class="flex flex-grow flex-col">
-          <SwitchLabel
-            as="span"
-            class="text-sm font-medium leading-6 text-zinc-100"
-            passive
-            >{{ $t("library.admin.import.version.setupMode") }}</SwitchLabel
-          >
-          <SwitchDescription as="span" class="text-sm text-zinc-400">{{
-            $t("library.admin.import.version.setupModeDesc")
-          }}</SwitchDescription>
-        </span>
-        <Switch
-          v-model="versionSettings.onlySetup"
-          :class="[
-            versionSettings.onlySetup ? 'bg-blue-600' : 'bg-zinc-900',
-            'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2',
-          ]"
+          as="div"
+          class="bg-zinc-800 p-4 rounded-xl flex items-center justify-between gap-4"
         >
-          <span
-            aria-hidden="true"
+          <span class="flex flex-grow flex-col">
+            <SwitchLabel
+              as="span"
+              class="text-sm font-medium leading-6 text-zinc-100"
+              passive
+              >{{ $t("library.admin.import.version.setupMode") }}</SwitchLabel
+            >
+            <SwitchDescription as="span" class="text-sm text-zinc-400">{{
+              $t("library.admin.import.version.setupModeDesc")
+            }}</SwitchDescription>
+          </span>
+          <Switch
+            v-model="versionSettings.onlySetup"
             :class="[
-              versionSettings.onlySetup ? 'translate-x-5' : 'translate-x-0',
-              'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+              versionSettings.onlySetup ? 'bg-blue-600' : 'bg-zinc-900',
+              'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2',
             ]"
-          />
-        </Switch>
-      </SwitchGroup>
-      <div v-if="type === GameType.Redist" class="absolute inset-0 bg-zinc-900/50" />
+          >
+            <span
+              aria-hidden="true"
+              :class="[
+                versionSettings.onlySetup ? 'translate-x-5' : 'translate-x-0',
+                'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+              ]"
+            />
+          </Switch>
+        </SwitchGroup>
+        <div
+          v-if="type === GameType.Redist"
+          class="absolute inset-0 bg-zinc-900/50"
+        />
       </div>
       <!-- launch executables -->
       <div class="relative flex flex-col gap-y-2 bg-zinc-800 p-4 rounded-xl">

@@ -2,11 +2,11 @@ import prisma from "../../db/database";
 import { castManifest, type DropletManifest } from "../manifest";
 
 export type DownloadManifestDetails = {
-  manifests: {[key: string]: DropletManifest};
-  fileList: {[key: string]: string};
+  manifests: { [key: string]: DropletManifest };
+  fileList: { [key: string]: string };
 };
 
-function convertMap<T>(map: Map<string, T>): {[key: string]: T} {
+function convertMap<T>(map: Map<string, T>): { [key: string]: T } {
   return Object.fromEntries(map.entries().toArray());
 }
 
