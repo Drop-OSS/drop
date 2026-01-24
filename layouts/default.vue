@@ -9,8 +9,9 @@
     </div>
     <LazyUserFooter class="z-50" hydrate-on-interaction />
   </div>
-  <div v-else class="flex w-full min-h-screen bg-zinc-900">
+  <div v-else class="flex flex-col w-full min-h-screen bg-zinc-900">
     <NuxtPage />
+    <LazyUserHeaderStoreNav />
   </div>
 </template>
 
