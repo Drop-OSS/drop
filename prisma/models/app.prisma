@@ -8,6 +8,8 @@ model ApplicationSettings {
     saveSlotHistoryLimit Int   @default(3)
 
     showGamePanelTextDecoration Boolean @default(true)
+    serverName String @default("Drop")
+    mLogoObjectId String?
 }
 
 enum Platform {

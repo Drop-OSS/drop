@@ -264,6 +264,7 @@
       "library": "Library",
       "metadata": "Meta",
       "settings": {
+        "general": "General Settings",
         "store": "Store",
         "title": "Settings",
         "tokens": "API tokens"
@@ -515,6 +516,17 @@
   },
   "settings": {
     "admin": {
+      "general": {
+        "applicationLogo": "Application logo",
+        "customLogo": "Custom logo",
+        "defaultLogo": "Default logo",
+        "logo": "Logo",
+        "serverName": "Server name",
+        "serverNameDescription": "The name of the server",
+        "serverNamePlaceholder": "My Drop Instance",
+        "title": "General settings",
+        "uploadLogo": "Upload logo"
+      },
       "store": {
         "dropGameAltPlaceholder": "Example Game icon",
         "dropGameDescriptionPlaceholder": "This is an example game. It will be replaced if you import a game.",

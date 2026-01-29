@@ -11,3 +11,13 @@ export type KeyOfType<T, V> = keyof {
 type EnumDictionary<T extends string | symbol | number, U> = {
   [K in T]: U;
 };
+
+export type Settings = {
+  store: {
+    showGamePanelTextDecoration: boolean;
+  };
+  generalSettings: {
+    serverName: string;
+    mLogoObjectId: string | null;
+  };
+};

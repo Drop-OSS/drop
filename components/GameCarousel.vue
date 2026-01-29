@@ -44,7 +44,9 @@ const props = defineProps<{
   width?: number;
 }>();
 
-const { showGamePanelTextDecoration } = await $dropFetch(`/api/v1/settings`);
+const {
+  store: { showGamePanelTextDecoration },
+} = await $dropFetch(`/api/v1/settings`);
 
 const currentComponent = ref<HTMLDivElement>();
 

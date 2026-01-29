@@ -43,13 +43,20 @@ import {
   BuildingStorefrontIcon,
   CodeBracketIcon,
   ServerIcon,
+  ServerStackIcon,
 } from "@heroicons/vue/24/outline";
 
 const navigation: Array<NavigationItem & { icon: Component }> = [
   {
-    label: $t("header.admin.settings.store"),
+    label: $t("header.admin.settings.general"),
     route: "/admin/settings",
     prefix: "/admin/settings",
+    icon: ServerIcon,
+  },
+  {
+    label: $t("header.admin.settings.store"),
+    route: "/admin/settings/store",
+    prefix: "/admin/settings/store",
     icon: BuildingStorefrontIcon,
   },
   {
@@ -62,7 +69,7 @@ const navigation: Array<NavigationItem & { icon: Component }> = [
     label: "Services",
     route: "/admin/settings/services",
     prefix: "/admin/settings/services",
-    icon: ServerIcon,
+    icon: ServerStackIcon,
   },
 ];
 

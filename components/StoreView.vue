@@ -377,7 +377,9 @@ import {
 import type { SerializeObject } from "nitropack";
 import type { GameModel, GameTagModel } from "~/prisma/client/models";
 import { Platform } from "~/prisma/client/enums";
-const { showGamePanelTextDecoration } = await $dropFetch(`/api/v1/settings`);
+const {
+  store: { showGamePanelTextDecoration },
+} = await $dropFetch(`/api/v1/settings`);
 
 const mobileFiltersOpen = ref(false);
 
