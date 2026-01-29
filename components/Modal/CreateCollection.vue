@@ -59,7 +59,6 @@ const emit = defineEmits<{
 
 const open = defineModel<boolean>({ required: true });
 
-const { t } = useI18n();
 const collectionName = ref("");
 const createCollectionLoading = ref(false);
 const collections = await useCollections();
@@ -74,6 +73,7 @@ async function createCollection() {
     const response = await $dropFetch("/api/v1/collection", {
       method: "POST",
       body: { name: collectionName.value },
+      failTitle: "Failed to create collection",
     });
 
     // Add the game if provided
@@ -83,6 +83,7 @@ async function createCollection() {
       >(`/api/v1/collection/${response.id}/entry`, {
         method: "POST",
         body: { id: props.gameId },
+        failTitle: "Failed to add game to collection",
       });
       response.entries.push(entry);
     }
@@ -94,20 +95,6 @@ async function createCollection() {
     open.value = false;
 
     emit("created", response.id);
-  } catch (error) {
-    console.error("Failed to create collection:", error);
-
-    const err = error as { statusMessage?: string };
-    createModal(
-      ModalType.Notification,
-      {
-        title: t("errors.library.collection.create.title"),
-        description: t("errors.library.collection.create.desc", [
-          err?.statusMessage ?? t("errors.unknown"),
-        ]),
-      },
-      (_, c) => c(),
-    );
   } finally {
     createCollectionLoading.value = false;
   }

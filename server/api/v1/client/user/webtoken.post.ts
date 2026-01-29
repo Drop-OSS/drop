@@ -12,9 +12,17 @@ export default defineClientEventHandler(
     const acls: UserACL = [
       "read",
       "store:read",
-      "collections:read",
       "object:read",
       "settings:read",
+
+      "collections:read",
+      "collections:new",
+      "collections:add",
+      "collections:remove",
+      "collections:delete",
+
+      "library:add",
+      "library:remove"
     ];
 
     const token = await prisma.aPIToken.create({

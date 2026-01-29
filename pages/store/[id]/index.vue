@@ -39,7 +39,7 @@
             <AddLibraryButton :game-id="game.id" />
           </div>
           <NuxtLink
-            v-if="user?.admin"
+            v-if="user?.admin && !isClient"
             :href="`/admin/library/${game.id}`"
             type="button"
             class="inline-flex items-center gap-x-2 rounded-md bg-zinc-800 px-3 py-1 text-sm font-semibold font-display text-white shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 duration-200 hover:scale-105 active:scale-95"
@@ -253,6 +253,8 @@ const gameId = route.params.id.toString();
 const user = useUser();
 
 const { game, rating, size } = await $dropFetch(`/api/v1/games/${gameId}`);
+
+const isClient = isClientRequest();
 
 const descriptionHTML = micromark(game.mDescription);
 
