@@ -72,7 +72,7 @@
     "register": {
       "confirmPasswordFormat": "Must be the same as above",
       "emailFormat": "Must be in the format user{'@'}example.com",
-      "passwordFormat": "Must be 14 or more characters",
+      "passwordFormat": "Must be 8 or more characters",
       "subheader": "Fill in your details below to create your account.",
       "title": "Create your Drop account",
       "usernameFormat": "Must be 5 or more characters, and lowercase"

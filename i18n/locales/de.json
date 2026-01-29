@@ -70,7 +70,7 @@
     "register": {
       "confirmPasswordFormat": "Muss mit oben genanntem übereinstimmen",
       "emailFormat": "Muss im Format nutzer{'@'}beispiel.de sein",
-      "passwordFormat": "Muss mindestens 14 Zeichen enthalten",
+      "passwordFormat": "Muss mindestens 8 Zeichen enthalten",
       "subheader": "Gebe unten deine Daten ein, um dein Konto zu erstellen.",
       "title": "Erstelle dein Drop Konto",
       "usernameFormat": "Muss mindestens 5 Zeichen enthalten und aus Kleinbuchstaben bestehen"

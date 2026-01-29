@@ -227,7 +227,7 @@ const validUsername = computed(
     !((usernameValidator(username.value) as unknown) instanceof type.errors),
 );
 
-const passwordValidator = type("string >= 14");
+const passwordValidator = type("string >= 8");
 const validPassword = computed(
   () =>
     !((passwordValidator(password.value) as unknown) instanceof type.errors),

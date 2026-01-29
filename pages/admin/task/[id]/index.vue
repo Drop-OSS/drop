@@ -11,39 +11,35 @@
       </i18n-t>
     </NuxtLink>
 
-    <div
-      v-if="task && task.error"
-      class="grow w-full flex items-center justify-center"
-    >
-      <div class="flex flex-col items-center">
-        <ExclamationCircleIcon
-          class="h-12 w-12 text-red-600"
-          aria-hidden="true"
-        />
-        <div class="mt-3 text-center sm:mt-5">
-          <h1
-            class="text-3xl font-semibold font-display leading-6 text-zinc-100"
-          >
-            {{ task.error.title }}
-          </h1>
-          <div class="mt-4">
-            <p class="text-sm text-zinc-400 max-w-md">
-              {{ task.error.description }}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div v-else-if="task" class="flex flex-col w-full gap-y-4">
+    <div v-if="task" class="flex flex-col w-full gap-y-4">
       <h1
         class="inline-flex items-center gap-x-3 text-3xl text-zinc-100 font-bold font-display"
       >
         <div>
-          <CheckCircleIcon v-if="task.success" class="size-5 text-green-600" />
+          <CheckCircleIcon v-if="task.success" class="size-8 text-green-600" />
+          <XMarkIcon v-else-if="task.error" class="size-8 text-red-600" />
           <div v-else class="size-4 bg-blue-600 rounded-full animate-pulse" />
         </div>
         {{ task.name }}
       </h1>
+      <div
+        v-if="task.error"
+        class="rounded-md bg-red-500/15 p-4 outline outline-red-500/25"
+      >
+        <div class="flex">
+          <div class="shrink-0">
+            <XCircleIcon class="size-5 text-red-400" aria-hidden="true" />
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-200">
+              {{ task.error.title }}
+            </h3>
+            <div class="mt-2 text-sm text-red-200/80">
+              {{ task.error.description }}
+            </div>
+          </div>
+        </div>
+      </div>
       <ul class="flex flex-row items-center h-12 gap-x-3">
         <li
           v-for="[name, link] in task.actions.map((v) => v.split(':'))"
@@ -95,8 +91,8 @@
 </template>
 
 <script setup lang="ts">
-import { CheckCircleIcon } from "@heroicons/vue/16/solid";
-import { ExclamationCircleIcon } from "@heroicons/vue/24/solid";
+import { CheckCircleIcon } from "@heroicons/vue/24/solid";
+import { XMarkIcon, XCircleIcon } from "@heroicons/vue/24/outline";
 
 const route = useRoute();
 const taskId = route.params.id.toString();

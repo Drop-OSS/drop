@@ -56,7 +56,7 @@
     "register": {
       "confirmPasswordFormat": "Must be the same as above, savvy?",
       "emailFormat": "Must be in the fashion of a true scallywag {'@'} example.com",
-      "passwordFormat": "Must be 14 or more marks, ye landlubber!",
+      "passwordFormat": "Must be 8 or more marks, ye landlubber!",
       "subheader": "Fill in yer details below to make yer mark.",
       "title": "Forge yer Drop Mark",
       "usernameFormat": "Must be 5 or more marks, and all lowercase, argh!"
