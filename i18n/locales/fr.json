@@ -9,6 +9,9 @@
       "subheader": "Gérer les appareils authorisés à accéder à votre compte Drop.",
       "title": "Appareils"
     },
+    "home": {
+      "title": "Accueil"
+    },
     "notifications": {
       "all": "Voir tout {arrow}",
       "clear": "Effacer les notifications",
@@ -19,6 +22,9 @@
       "notifications": "Notifications",
       "title": "Notifications",
       "unread": "Notifications Non Lues"
+    },
+    "security": {
+      "title": "Sécurité"
     },
     "settings": "Paramètres",
     "title": "Paramètres du Compte",
@@ -76,13 +82,14 @@
       "usernameFormat": "Doit être au moins 5 caractères et en minuscules"
     },
     "signin": {
-      "externalProvider": "Connectez vous avec un fournisseur externe {arrow}",
+      "externalProvider": "un fournisseur externe",
       "forgot": "Mot de passe oublié ?",
       "noAccount": "Pas de compte ? Demandez à un administrateur d'en créer un pour vous.",
       "or": "OU",
       "pageTitle": "Se connecter à Drop",
       "rememberMe": "Se souvenir de moi",
       "signin": "Se connecter",
+      "signinWithExternalProvider": "Connectez vous avec {externalProvider} {arrow}",
       "title": "Se connecter à votre compte"
     },
     "signout": "Déconnexion",
@@ -92,6 +99,8 @@
   "chars": {
     "arrow": "→",
     "arrowBack": "←",
+    "arrowDown": "↓",
+    "arrowUp": "↑",
     "quoted": "\"\"",
     "srComma": ", {0}"
   },
@@ -244,6 +253,7 @@
   "footer": {
     "about": "À propos",
     "aboutDrop": "À propos de Drop",
+    "api": "Documentation de l'API",
     "comparison": "Comparaison",
     "docs": {
       "client": "Documentation du client",
@@ -284,13 +294,17 @@
       "activeInactiveUsers": "Utilisateurs actifs/inactifs",
       "activeUsers": "Utilisateurs actifs",
       "allVersionsCombined": "Toutes les versions combinées",
+      "availableRam": "({freeRam} / {totalRam})",
       "biggestGamesOnServer": "Les plus gros jeux sur le serveur",
       "biggestGamesToDownload": "Les plus gros jeux à télécharger",
+      "cpuUsage": "Utilisation du processeur",
       "games": "Jeux",
       "goToUsers": "Aller aux utilisateurs",
       "inactiveUsers": "Utilisateurs inactifs",
       "latestVersionOnly": "Dernière version seulement",
       "librarySources": "Sources de bibliothèques",
+      "numberCores": "({count} cœur) | ({count} cœur) | ({count} cœurs)",
+      "ramUsage": "Utilisation de la mémoire vive",
       "subheader": "Résumé de l'instance",
       "title": "Accueil",
       "users": "Utilisateurs",
@@ -345,6 +359,8 @@
           "launchPlaceholder": "jeu.exe --args",
           "loadingVersion": "Chargement des métadonnées de la version…",
           "noAdv": "Pas d'option avancée pour cette configuration.",
+          "noLaunches": "Aucune configuration de lancement ajoutée.",
+          "noSetups": "Aucune configuration d'installation ajoutée.",
           "noVersions": "Pas de version à importer",
           "platform": "Version de la plateforme",
           "setupCmd": "Exécutable/commande d'installation",
@@ -513,6 +529,16 @@
   },
   "options": "Options",
   "selectLanguage": "Sélectionner la langue",
+  "services": {
+    "nginx": {
+      "description": "Proxy inverse simple intégré pour connecter tous les composants Drop.",
+      "title": "NGINX"
+    },
+    "torrential": {
+      "description": "Le server de téléchargement interne de Drop.",
+      "title": "Torrential"
+    }
+  },
   "settings": {
     "admin": {
       "description": "Configurer les paramètres de Drop",

@@ -9,6 +9,9 @@
       "subheader": "Geräte verwalten, die auf Ihr Drop Konto zugreifen dürfen.",
       "title": "Geräte"
     },
+    "home": {
+      "title": "Startseite"
+    },
     "notifications": {
       "all": "Alles anzeigen {arrow}",
       "clear": "Benachrichtigungen entfernen",
@@ -19,6 +22,9 @@
       "notifications": "Benachrichtigungen",
       "title": "Benachrichtigungen",
       "unread": "Ungelesene Benachrichtigungen"
+    },
+    "security": {
+      "title": "Sicherheit"
     },
     "settings": "Einstellungen",
     "title": "Kontoeinstellungen",
@@ -76,13 +82,14 @@
       "usernameFormat": "Muss mindestens 5 Zeichen enthalten und aus Kleinbuchstaben bestehen"
     },
     "signin": {
-      "externalProvider": "Bei externem Anbieter anmelden {arrow}",
+      "externalProvider": "Externer Anbieter",
       "forgot": "Passwort vergessen?",
       "noAccount": "Noch kein Konto? Bitte den Admin, eines für dich zu erstellen.",
       "or": "ODER",
       "pageTitle": "Bei Drop anmelden",
       "rememberMe": "Erinnere mich",
       "signin": "Anmelden",
+      "signinWithExternalProvider": "Bei externem Anbieter anmelden {arrow}",
       "title": "Melde dich bei deinem Konto an"
     },
     "signout": "Ausloggen",
@@ -92,6 +99,8 @@
   "chars": {
     "arrow": "→",
     "arrowBack": "←",
+    "arrowDown": "↓",
+    "arrowUp": "↑",
     "quoted": "\"\"",
     "srComma": ", {0}"
   },
@@ -244,6 +253,7 @@
   "footer": {
     "about": "Über",
     "aboutDrop": "Über Drop",
+    "api": "API Dokumentation",
     "comparison": "Vergleich",
     "docs": {
       "client": "Client Dokumentation",
@@ -284,13 +294,17 @@
       "activeInactiveUsers": "Aktive/inaktive Benutzer",
       "activeUsers": "Aktive Benutzer",
       "allVersionsCombined": "Alle Versionen zusammen",
+      "availableRam": "({freeRam} / {totalRam})",
       "biggestGamesOnServer": "Größte Spiele auf dem Server",
       "biggestGamesToDownload": "Die größten Spiele zum Herunterladen",
+      "cpuUsage": "CPU Nutzung",
       "games": "Spiele",
       "goToUsers": "Zu den Benutzern",
       "inactiveUsers": "Inaktive Benutzer",
       "latestVersionOnly": "Nur die neueste Version",
       "librarySources": "Bibliotheksquellen",
+      "numberCores": "({count} Kerne) | ({count} Kerne) | ({count} Kerne)",
+      "ramUsage": "RAM Nutzung",
       "subheader": "Übersicht",
       "title": "Startseite",
       "users": "Benutzer",
@@ -345,6 +359,8 @@
           "launchPlaceholder": "spiel.exe --args",
           "loadingVersion": "Lade Versionsmetadaten…",
           "noAdv": "Keine erweiterten Optionen für diese Konfiguration.",
+          "noLaunches": "Keine Startkonfigurationen hinzugefügt.",
+          "noSetups": "Keine Einrichtungskonfigurationen hinzugefügt.",
           "noVersions": "Keine Version zum importieren",
           "platform": "Plattformversion",
           "setupCmd": "Installationsprogramm oder Befehl ausführen",
@@ -513,6 +529,16 @@
   },
   "options": "Einstellungen",
   "selectLanguage": "Sprache auswählen",
+  "services": {
+    "nginx": {
+      "description": "Integrierter einfacher Reverse-Proxy, um alle Drop-Komponenten miteinander zu verbinden.",
+      "title": "NGINX"
+    },
+    "torrential": {
+      "description": "Der interne Download-Server für Drop.",
+      "title": "Torrential"
+    }
+  },
   "settings": {
     "admin": {
       "description": "Konfiguriere Drop Einstellungen",
@@ -625,6 +651,14 @@
   "type": "Typ",
   "upload": "Hochladen",
   "uploadFile": "Datei hochladen",
+  "user": {
+    "editProfile": "Profil bearbeiten",
+    "noActivity": "Keine aktuellen Ereignisse",
+    "notFound": "Nutzer nicht gefunden",
+    "recent": "Kürzliche Aktivitäten (TODO)",
+    "recentSub": "Kürzliche Aktivitäten von diesem Nutzer",
+    "unknown": "Unbekannter Nutzer"
+  },
   "userHeader": {
     "closeSidebar": "Seitenleiste schließen",
     "links": {
