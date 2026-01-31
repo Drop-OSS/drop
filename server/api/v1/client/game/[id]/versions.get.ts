@@ -20,12 +20,11 @@ type VersionDownloadOption = {
 };
 
 export default defineClientEventHandler(async (h3) => {
-  const query = getQuery(h3);
-  const id = query.id?.toString();
+  const id = getRouterParam(h3, "id")!;
   if (!id)
     throw createError({
       statusCode: 400,
-      statusMessage: "No ID in request query",
+      statusMessage: "No ID in router params",
     });
 
   const rawVersions = await prisma.gameVersion.findMany({
@@ -62,6 +61,7 @@ export default defineClientEventHandler(async (h3) => {
           },
         },
       },
+      setups: true,
     },
   });
 
@@ -73,11 +73,11 @@ export default defineClientEventHandler(async (h3) => {
           VersionDownloadOption["requiredContent"]
         > = new Map();
 
-        for (const launch of v.launches) {
+        for (const launch of [...v.launches, ...v.setups]) {
           if (!platformOptions.has(launch.platform))
             platformOptions.set(launch.platform, []);
 
-          if (launch.executor) {
+          if ("executor" in launch && launch.executor) {
             const old = platformOptions.get(launch.platform)!;
             old.push({
               gameId: launch.executor.gameVersion.game.id,
