@@ -35,7 +35,7 @@ export async function createDownloadManifestDetails(
 
   const collectedVersions = [];
   let versionIndex = mainVersion.versionIndex;
-  while (true) {
+  while (mainVersion.delta) {
     const nextVersion = await prisma.gameVersion.findFirst({
       where: { gameId: mainVersion.gameId, versionIndex: { lt: versionIndex } },
       orderBy: {
