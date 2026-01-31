@@ -259,7 +259,10 @@ const isClient = isClientRequest();
 const descriptionHTML = micromark(game.mDescription);
 
 const platforms = game.versions
-  .map((e) => e.launches.map((v) => v.platform))
+  .map((e) => [
+    ...e.launches.map((v) => v.platform),
+    ...e.setups.map((v) => v.platform),
+  ])
   .flat()
   .flat()
   .filter((e, i, u) => u.indexOf(e) === i);

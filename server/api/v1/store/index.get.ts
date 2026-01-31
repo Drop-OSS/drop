@@ -32,6 +32,11 @@ export default defineEventHandler(async (h3) => {
   if (options instanceof ArkErrors)
     throw createError({ statusCode: 400, statusMessage: options.summary });
 
+  const filterPlatforms = options.platform
+    ?.split(",")
+    .map(parsePlatform)
+    .filter((e) => e !== undefined);
+
   /**
    * Generic filters
    */
@@ -46,23 +51,27 @@ export default defineEventHandler(async (h3) => {
         },
       }
     : undefined;
-  const platformFilter = options.platform
-    ? {
+  const platformFilter = filterPlatforms
+    ? ({
         versions: {
           some: {
             launches: {
               some: {
                 platform: {
-                  in: options.platform
-                    .split(",")
-                    .map(parsePlatform)
-                    .filter((e) => e !== undefined),
+                  in: filterPlatforms,
+                },
+              },
+            },
+            setups: {
+              some: {
+                platform: {
+                  in: filterPlatforms,
                 },
               },
             },
           },
         },
-      }
+      } satisfies Prisma.GameWhereInput)
     : undefined;
 
   /**
