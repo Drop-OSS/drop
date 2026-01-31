@@ -64,7 +64,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ghcr.io/drop-OSS/drop
+            ghcr.io/billyoutlast/drop
           tags: |
             type=schedule,pattern=nightly
             type=schedule,pattern=nightly.${{ steps.get_final_ver.outputs.today }}
