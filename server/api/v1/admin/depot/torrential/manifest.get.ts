@@ -1,7 +1,7 @@
 import { ArkErrors, type } from "arktype";
 import prisma from "~/server/internal/db/database";
 import type { H3Event } from "h3";
-import { castManifest } from "~/server/internal/library/manifest";
+import { castManifest } from "~/server/internal/library/manifest/utils";
 
 const AUTHORIZATION_HEADER_PREFIX = "Bearer ";
 

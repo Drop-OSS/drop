@@ -1,228 +1,116 @@
 import cacheHandler from "../cache";
 import prisma from "../db/database";
 import { sum } from "../../../utils/array";
-import type { Game, GameVersion } from "~/prisma/client/client";
-import { castManifest } from "../library/manifest";
+import { createDownloadManifestDetails } from "../library/manifest";
+import { castManifest } from "../library/manifest/utils";
 
-export type GameSize = {
-  gameName: string;
-  size: number;
-  gameId: string;
+export type GameVersionSize = {
+  versionId: string;
+  installSize: number;
+  downloadSize: number;
 };
 
-export type VersionSize = GameSize & {
-  latest: boolean;
-};
-
-type VersionsSizes = {
-  [versionName: string]: VersionSize;
-};
-
-type GameVersionsSize = {
-  [gameId: string]: VersionsSizes;
+export type GameSizeBreakdown = {
+  diskSize: number;
+  versions: Array<GameVersionSize & { diskSize: number; name: string }>;
 };
 
 class GameSizeManager {
   private gameVersionsSizesCache =
-    cacheHandler.createCache<GameVersionsSize>("gameVersionsSizes");
-  // All versions sizes combined
-  private gameSizesCache = cacheHandler.createCache<GameSize>("gameSizes");
+    cacheHandler.createCache<GameVersionSize>("versionSizes");
+  private gameBreakdownCache =
+    cacheHandler.createCache<GameSizeBreakdown>("gameBreakdown");
 
-  private async clearGameVersionsSizesCache() {
-    (await this.gameVersionsSizesCache.getKeys()).map((key) =>
-      this.gameVersionsSizesCache.remove(key),
-    );
-  }
-
-  private async clearGameSizesCache() {
-    (await this.gameSizesCache.getKeys()).map((key) =>
-      this.gameSizesCache.remove(key),
-    );
-  }
-
-  // All versions of a game combined
-  async getCombinedGameSize(gameId: string) {
-    const versions = await prisma.gameVersion.findMany({
-      where: { gameId },
-    });
-    const sizes = await Promise.all(
-      versions.map((version) => castManifest(version.dropletManifest).size),
-    );
-    return sum(sizes);
-  }
-
-  async getGameVersionSize(
-    gameId: string,
-    versionId?: string,
-  ): Promise<number | null> {
-    if (!versionId) {
-      const version = await prisma.gameVersion.findFirst({
-        where: { gameId },
-        orderBy: {
-          versionIndex: "desc",
-        },
-      });
-      if (!version) {
-        return null;
-      }
-      versionId = version.versionId;
+  /***
+   * Gets the size of the game to the user:
+   * - installSize: size on disk after install
+   * - downloadSize: how many bytes are downloaded (but not necessarily stored)
+   */
+  async getVersionSize(versionId: string): Promise<GameVersionSize | null> {
+    if (await this.gameVersionsSizesCache.has(versionId))
+      return await this.gameVersionsSizesCache.get(versionId);
+    try {
+      const { downloadSize, installSize } =
+        await createDownloadManifestDetails(versionId);
+      const result = {
+        downloadSize,
+        installSize,
+        versionId,
+      } satisfies GameVersionSize;
+      await this.gameVersionsSizesCache.set(versionId, result);
+      return result;
+    } catch {
+      return null;
     }
-
-    const { dropletManifest } = (await prisma.gameVersion.findUnique({
-      where: { versionId },
-    }))!;
-
-    return castManifest(dropletManifest).size;
   }
 
-  private async isLatestVersion(
-    gameVersions: GameVersion[],
-    version: GameVersion,
-  ): Promise<boolean> {
-    return gameVersions.length > 0
-      ? gameVersions[0].versionId === version.versionId
-      : false;
-  }
-
-  async getBiggestGamesLatestVersion(top: number): Promise<VersionSize[]> {
-    const gameIds = await this.gameVersionsSizesCache.getKeys();
-    const latestGames = await Promise.all(
-      gameIds.map(async (gameId) => {
-        const versionsSizes = await this.gameVersionsSizesCache.get(gameId);
-        if (!versionsSizes) {
-          return null;
-        }
-        const latestVersionName = Object.keys(versionsSizes).find(
-          (versionName) => versionsSizes[versionName].latest,
-        );
-        if (!latestVersionName) {
-          return null;
-        }
-        return versionsSizes[latestVersionName] || null;
-      }),
-    );
-    return latestGames
-      .filter((game) => game !== null)
-      .sort((gameA, gameB) => gameB.size - gameA.size)
-      .slice(0, top);
-  }
-
-  async isGameVersionsSizesCacheEmpty() {
-    return (await this.gameVersionsSizesCache.getKeys()).length === 0;
-  }
-
-  async isGameSizesCacheEmpty() {
-    return (await this.gameSizesCache.getKeys()).length === 0;
-  }
-
-  async cacheAllCombinedGames() {
-    await this.clearGameSizesCache();
-    const games = await prisma.game.findMany({ include: { versions: true } });
-
-    await Promise.all(games.map((game) => this.cacheCombinedGame(game)));
-  }
-
-  async cacheCombinedGame(game: Game) {
-    const size = await this.getCombinedGameSize(game.id);
-    if (!size) {
-      this.gameSizesCache.remove(game.id);
-      return;
-    }
-    const gameSize = {
-      size,
-      gameName: game.mName,
-      gameId: game.id,
-    };
-    await this.gameSizesCache.set(game.id, gameSize);
-  }
-
-  async cacheAllGameVersions() {
-    await this.clearGameVersionsSizesCache();
-    const games = await prisma.game.findMany({
-      include: {
-        versions: {
-          orderBy: {
-            versionIndex: "desc",
-          },
-          take: 1,
-        },
+  /***
+   * Get the size of the game on disk
+   */
+  async getVersionDiskSize(versionId: string): Promise<number | null> {
+    const version = await prisma.gameVersion.findUnique({
+      where: {
+        versionId,
+      },
+      select: {
+        dropletManifest: true,
       },
     });
-
-    await Promise.all(games.map((game) => this.cacheGameVersion(game)));
+    if (!version) return null;
+    return castManifest(version.dropletManifest).size;
   }
 
-  async cacheGameVersion(
-    game: Game & { versions: GameVersion[] },
-    versionId?: string,
-  ) {
-    const cacheVersion = async (version: GameVersion) => {
-      const size = await this.getGameVersionSize(game.id, version.versionId);
-      if (!version.versionId || !size) {
-        return;
-      }
-
-      const versionsSizes = {
-        [version.versionId]: {
-          size,
-          gameName: game.mName,
-          gameId: game.id,
-          latest: await this.isLatestVersion(game.versions, version),
-        },
-      };
-      const allVersionsSizes =
-        (await this.gameVersionsSizesCache.get(game.id)) || {};
-      await this.gameVersionsSizesCache.set(game.id, {
-        ...allVersionsSizes,
-        ...versionsSizes,
-      });
-    };
-
-    if (versionId) {
-      const version = await prisma.gameVersion.findFirst({
-        where: { gameId: game.id, versionId },
-      });
-      if (!version) {
-        return;
-      }
-      cacheVersion(version);
-      return;
-    }
-    if ("versions" in game) {
-      await Promise.all(game.versions.map(cacheVersion));
-    }
-  }
-
-  async getBiggestGamesAllVersions(top: number): Promise<GameSize[]> {
-    const gameIds = await this.gameSizesCache.getKeys();
-    const allGames = await Promise.all(
-      gameIds.map(async (gameId) => await this.gameSizesCache.get(gameId)),
+  /**
+   * Calculate the total disk usage of a game
+   * @param gameId Game ID to calculate
+   * @returns Total **disk** size of the game
+   */
+  async getGameDiskSize(gameId: string): Promise<number> {
+    const versions = await prisma.gameVersion.findMany({
+      where: { gameId },
+      select: {
+        versionId: true,
+      },
+    });
+    const sizes = await Promise.all(
+      versions.map((version) => this.getVersionDiskSize(version.versionId)),
     );
-    return allGames
-      .filter((game) => game !== null)
-      .sort((gameA, gameB) => gameB.size - gameA.size)
-      .slice(0, top);
+    return sum(sizes.filter((v) => v !== null));
   }
 
-  async deleteGameVersion(gameId: string, version: string) {
-    const game = await prisma.game.findFirst({ where: { id: gameId } });
-    if (game) {
-      await this.cacheCombinedGame(game);
-    }
-    const versionsSizes = await this.gameVersionsSizesCache.get(gameId);
-    if (!versionsSizes) {
-      return;
-    }
-    // Remove the version from the VersionsSizes object
-    const { [version]: _, ...updatedVersionsSizes } = versionsSizes;
-    await this.gameVersionsSizesCache.set(gameId, updatedVersionsSizes);
-  }
+  async getGameBreakdown(gameId: string): Promise<GameSizeBreakdown | null> {
+    const versions = await prisma.gameVersion.findMany({
+      where: { gameId },
+      orderBy: { versionIndex: "desc" },
+      select: { versionId: true, displayName: true, versionPath: true },
+    });
+    if (!versions) return null;
 
-  async deleteGame(gameId: string) {
-    this.gameSizesCache.remove(gameId);
-    this.gameVersionsSizesCache.remove(gameId);
+    const breakdownKey = `${gameId} ${versions.map((v) => v.versionId).join(" ")}`;
+
+    if (await this.gameBreakdownCache.has(breakdownKey))
+      return (await this.gameBreakdownCache.get(breakdownKey))!;
+
+    let diskSize = 0;
+    const versionInformation = [];
+    for (const version of versions) {
+      const size = (await this.getVersionSize(version.versionId))!;
+      const vDiskSize = (await this.getVersionDiskSize(version.versionId))!;
+      diskSize += vDiskSize;
+      versionInformation.push({
+        ...size,
+        diskSize: vDiskSize,
+        name: (version.displayName ?? version.versionPath)!,
+      });
+    }
+    const result = {
+      diskSize,
+      versions: versionInformation,
+    };
+    await this.gameBreakdownCache.set(breakdownKey, result);
+    return result;
   }
 }
 
-export const manager = new GameSizeManager();
-export default manager;
+export const gameSizeManager = new GameSizeManager();
+export default gameSizeManager;

@@ -50,7 +50,12 @@ export default defineEventHandler(async (h3) => {
         where: {
           gameId: body.id,
           delta: false,
-          launches: { some: { platform: platformObject.platform } },
+          OR: [
+            { launches: { some: { platform: platformObject.platform } } },
+            {
+              setups: { some: { platform: platformObject.platform } },
+            },
+          ],
         },
       });
       if (validOverlayVersions == 0)

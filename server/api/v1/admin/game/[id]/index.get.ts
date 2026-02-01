@@ -1,17 +1,16 @@
 import type { GameVersion, Prisma } from "~/prisma/client/client";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
+import gameSizeManager from "~/server/internal/gamesize";
 import type { UnimportedVersionInformation } from "~/server/internal/library";
 import libraryManager from "~/server/internal/library";
 
 async function getGameVersionSize<
   T extends Omit<GameVersion, "dropletManifest">,
 >(gameId: string, version: T) {
-  const size = await libraryManager.getGameVersionSize(
-    gameId,
-    version.versionId,
-  );
-  return { ...version, size };
+  const clientSize = await gameSizeManager.getVersionSize(version.versionId);
+  const diskSize = await gameSizeManager.getVersionDiskSize(version.versionId);
+  return { ...version, diskSize, clientSize };
 }
 
 export type AdminFetchGameType = Prisma.GameGetPayload<{

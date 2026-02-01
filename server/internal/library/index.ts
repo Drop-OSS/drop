@@ -19,7 +19,7 @@ import gameSizeManager from "~/server/internal/gamesize";
 import { TORRENTIAL_SERVICE } from "../services/services/torrential";
 import type { ImportVersion } from "~/server/api/v1/admin/import/version/index.post";
 import { GameType, type Platform } from "~/prisma/client/enums";
-import { castManifest } from "./manifest";
+import { castManifest } from "./manifest/utils";
 
 export function createGameImportTaskId(libraryId: string, libraryPath: string) {
   return createHash("md5")
@@ -500,13 +500,17 @@ class LibraryManager {
           acls: ["system:import:version:read"],
         });
 
-        await libraryManager.cacheCombinedGameSize(gameId);
-        await libraryManager.cacheGameVersionSize(gameId, newVersion.versionId);
-
         await TORRENTIAL_SERVICE.utils().invalidate(
           gameId,
           newVersion.versionId,
         );
+
+        // Ensure cache is filled (also pre-caches the manifest)
+        try {
+          await gameSizeManager.getVersionSize(newVersion.versionId);
+        } catch (e) {
+          logger.warn(`Failed to pre-cache game size and manifest: ${e}`);
+        }
 
         if (version.type === "depot") {
           // SAFETY: we can only reach this if the type is depot and identifier is valid
@@ -552,8 +556,6 @@ class LibraryManager {
         versionId: version,
       },
     });
-
-    await gameSizeManager.deleteGameVersion(gameId, version);
   }
 
   async deleteGame(gameId: string) {
@@ -562,7 +564,6 @@ class LibraryManager {
         id: gameId,
       },
     });
-    await gameSizeManager.deleteGame(gameId);
     // Delete all game versions that depended on this game
     await prisma.gameVersion.deleteMany({
       where: {
@@ -577,46 +578,6 @@ class LibraryManager {
         },
       },
     });
-  }
-
-  async getGameVersionSize(
-    gameId: string,
-    versionName?: string,
-  ): Promise<number | null> {
-    return gameSizeManager.getGameVersionSize(gameId, versionName);
-  }
-
-  async getBiggestGamesCombinedVersions(top: number) {
-    if (await gameSizeManager.isGameSizesCacheEmpty()) {
-      await gameSizeManager.cacheAllCombinedGames();
-    }
-    return gameSizeManager.getBiggestGamesAllVersions(top);
-  }
-
-  async getBiggestGamesLatestVersions(top: number) {
-    if (await gameSizeManager.isGameVersionsSizesCacheEmpty()) {
-      await gameSizeManager.cacheAllGameVersions();
-    }
-    return gameSizeManager.getBiggestGamesLatestVersion(top);
-  }
-
-  async cacheCombinedGameSize(gameId: string) {
-    const game = await prisma.game.findFirst({ where: { id: gameId } });
-    if (!game) {
-      return;
-    }
-    await gameSizeManager.cacheCombinedGame(game);
-  }
-
-  async cacheGameVersionSize(gameId: string, versionId: string) {
-    const game = await prisma.game.findFirst({
-      where: { id: gameId },
-      include: { versions: true },
-    });
-    if (!game) {
-      return;
-    }
-    await gameSizeManager.cacheGameVersion(game, versionId);
   }
 }
 

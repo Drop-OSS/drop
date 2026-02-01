@@ -1,6 +1,6 @@
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
-import libraryManager from "~/server/internal/library";
+import gameSizeManager from "~/server/internal/gamesize";
 
 export default defineEventHandler(async (h3) => {
   const userId = await aclManager.getUserIdACL(h3, ["store:read"]);
@@ -57,7 +57,7 @@ export default defineEventHandler(async (h3) => {
     },
   });
 
-  const size = await libraryManager.getGameVersionSize(game.id);
+  const size = (await gameSizeManager.getGameBreakdown(gameId))!;
 
   return { game, rating, size };
 });

@@ -1,6 +1,5 @@
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import prisma from "~/server/internal/db/database";
-import libraryManager from "~/server/internal/library";
 
 export default defineClientEventHandler(async (h3) => {
   const id = getRouterParam(h3, "id");
@@ -57,8 +56,5 @@ export default defineClientEventHandler(async (h3) => {
     })),
   };
 
-  return {
-    ...gameVersionMapped,
-    size: libraryManager.getGameVersionSize(id, version),
-  };
+  return gameVersionMapped;
 });
