@@ -11,5 +11,6 @@ export default defineClientEventHandler(async (h3) => {
     });
 
   const result = await createDownloadManifestDetails(version);
+  console.log(result);
   return result;
 });

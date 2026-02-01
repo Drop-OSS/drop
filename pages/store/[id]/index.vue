@@ -93,10 +93,21 @@
                   {{ $t("store.size") }}
                 </td>
                 <td
-                  v-if="size"
+                  v-if="size.versions.length > 0"
                   class="whitespace-nowrap inline-flex gap-x-4 px-3 py-4 text-sm text-zinc-400"
                 >
-                  {{ formatBytes(size) }}
+                  <ul>
+                    <ol
+                      v-for="version in size.versions"
+                      :key="version.versionId"
+                    >
+                      {{
+                        formatBytes(version.installSize)
+                      }}
+                      - 
+                      {{ formatBytes(version.downloadSize) }}
+                    </ol>
+                  </ul>
                 </td>
                 <td
                   v-else
