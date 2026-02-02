@@ -1,6 +1,5 @@
 import type { Platform } from "~/prisma/client/enums";
 import prisma from "~/server/internal/db/database";
-import type { GameVersionSize } from "~/server/internal/gamesize";
 import gameSizeManager from "~/server/internal/gamesize";
 
 type VersionDownloadOption = {
@@ -8,14 +7,14 @@ type VersionDownloadOption = {
   displayName?: string | undefined;
   versionPath?: string | undefined;
   platform: Platform;
-  size: GameVersionSize;
+  size: number;
   requiredContent: Array<{
     gameId: string;
     versionId: string;
     name: string;
     iconObjectId: string;
     shortDescription: string;
-    size: GameVersionSize;
+    size: number;
   }>;
 };
 
@@ -90,12 +89,12 @@ export default defineEventHandler(async (h3) => {
               size:
                 (await gameSizeManager.getVersionSize(
                   launch.executor.gameVersion.versionId,
-                )) ?? { downloadSize: 0, installSize: 0, versionId: launch.executor.gameVersion.versionId },
+                ))?.downloadSize ?? 0,
             });
           }
         }
 
-        const size = await gameSizeManager.getVersionSize(v.versionId);
+        const versionSize = await gameSizeManager.getVersionSize(v.versionId);
 
         return platformOptions
           .entries()
@@ -107,7 +106,7 @@ export default defineEventHandler(async (h3) => {
                 versionPath: v.versionPath || undefined,
                 platform,
                 requiredContent,
-                size: size!,
+                size: versionSize?.downloadSize ?? 0,
               }) satisfies VersionDownloadOption,
           )
           .toArray();
