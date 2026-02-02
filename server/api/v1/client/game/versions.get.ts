@@ -1,5 +1,6 @@
 import type { Platform } from "~/prisma/client/enums";
 import prisma from "~/server/internal/db/database";
+import type { GameVersionSize } from "~/server/internal/gamesize";
 import gameSizeManager from "~/server/internal/gamesize";
 
 type VersionDownloadOption = {
@@ -7,14 +8,14 @@ type VersionDownloadOption = {
   displayName?: string | undefined;
   versionPath?: string | undefined;
   platform: Platform;
-  size: number;
+  size: GameVersionSize;
   requiredContent: Array<{
     gameId: string;
     versionId: string;
     name: string;
     iconObjectId: string;
     shortDescription: string;
-    size: number;
+    size: GameVersionSize;
   }>;
 };
 
