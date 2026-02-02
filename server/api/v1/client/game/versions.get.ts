@@ -62,6 +62,11 @@ export default defineEventHandler(async (h3) => {
           },
         },
       },
+      setups: {
+        select: {
+          platform: true,
+        },
+      },
     },
   });
 
@@ -92,6 +97,12 @@ export default defineEventHandler(async (h3) => {
                 ))?.downloadSize ?? 0,
             });
           }
+        }
+
+        // Also include setup-only platforms
+        for (const setup of v.setups) {
+          if (!platformOptions.has(setup.platform))
+            platformOptions.set(setup.platform, []);
         }
 
         const versionSize = await gameSizeManager.getVersionSize(v.versionId);
