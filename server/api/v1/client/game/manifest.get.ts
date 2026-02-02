@@ -1,7 +1,6 @@
-import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import { createDownloadManifestDetails } from "~/server/internal/library/manifest/index";
 
-export default defineClientEventHandler(async (h3) => {
+export default defineEventHandler(async (h3) => {
   const query = getQuery(h3);
   const version = query.version?.toString();
   if (!version)
