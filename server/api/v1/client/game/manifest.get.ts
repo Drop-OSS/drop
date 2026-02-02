@@ -11,9 +11,16 @@ export default defineEventHandler(async (h3) => {
     });
 
   const result = await createDownloadManifestDetails(version);
+  const manifest = result.manifests[version];
+  if (!manifest)
+    throw createError({
+      statusCode: 404,
+      statusMessage: "Manifest not found for version",
+    });
   console.log(result);
   return {
-    version: "2",
+    ...manifest,
     ...result,
+    version: "2",
   };
 });
