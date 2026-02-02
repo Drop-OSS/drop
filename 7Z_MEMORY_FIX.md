@@ -1,7 +1,12 @@
 # 7z Memory Exhaustion Fix Guide
 
 ## Problem
-The 7z extraction process (used during manifest generation) was spawning too many threads/processes concurrently, causing memory exhaustion in the container (OOM kill). The kernel logged multiple 7z processes (PIDs 18727-18848+) being killed.
+The 7z extraction process (used during manifest generation) was spawning too many threads/processes concurrently, causing memory exhaustion in the container (OOM kill). The kernel logged multiple 7z processes being killed with memory usage reaching 100MB-400MB+ per process.
+
+**Symptoms:**
+- `Out of memory: Killed process (7z)` messages in kernel logs
+- Container crashes during large game imports
+- Frequent restarts when processing compressed archives
 
 ## Solutions Implemented
 
@@ -49,25 +54,38 @@ Use this in future if you implement archive extraction in Drop that processes mu
 ```yaml
 mem_limit: 2g
 memswap_limit: 3g
+NODE_OPTIONS: "--max-old-space-size=1024"
 ```
 
 ### Small Production (< 10 games)
 ```yaml
-mem_limit: 2g
-memswap_limit: 3g
+mem_limit: 4g
+memswap_limit: 5g
+NODE_OPTIONS: "--max-old-space-size=2560"
 ```
 
 ### Medium Production (10-100 games)
 ```yaml
-mem_limit: 4g
-memswap_limit: 5g
-```
-
-### Large Production (100+ games, large files)
-```yaml
 mem_limit: 8g
 memswap_limit: 10g
+NODE_OPTIONS: "--max-old-space-size=5120"
 ```
+
+### Large Production (100+ games, large files, high concurrency)
+```yaml
+mem_limit: 12g
+memswap_limit: 16g
+NODE_OPTIONS: "--max-old-space-size=8192"
+```
+
+### Extra Large (500+ games, very large archives >2GB)
+```yaml
+mem_limit: 16g
+memswap_limit: 20g
+NODE_OPTIONS: "--max-old-space-size=11264"
+```
+
+**Guideline:** Set `NODE_OPTIONS` to roughly 65-70% of your `mem_limit`. This leaves room for system processes and 7z operations.
 
 ## Advanced Tuning Options
 
@@ -101,23 +119,46 @@ environment:
 
 ## Troubleshooting
 
-### Still getting OOM kills?
-1. **Increase memory limit further:**
-   ```yaml
-   mem_limit: 8g
-   memswap_limit: 10g
-   ```
+### Still getting OOM kills? (Repeated kernel messages)
 
-2. **Check what's consuming memory:**
-   ```bash
-   docker stats <container-name>
-   ```
+**Step 1: Immediately increase limits**
+```yaml
+# Start with this if you're experiencing crashes:
+mem_limit: 12g        # Much higher than before
+memswap_limit: 16g    # Allows temporary overflow
+NODE_OPTIONS: "--max-old-space-size=8192"
+```
 
-3. **Monitor during import:**
-   ```bash
-   docker logs -f <container-name>
-   # Look for large file processing messages
-   ```
+**Step 2: Verify your system has capacity**
+```bash
+# Check total system RAM
+free -h
+# OR on macOS/Docker Desktop
+docker stats --no-stream
+
+# You need: mem_limit + 2-3GB for host OS
+# Example: 16GB system → max 12-13GB for container
+```
+
+**Step 3: Monitor actual usage**
+```bash
+# Before import
+docker stats --no-stream drop
+
+# During import (in another terminal)
+watch -n 1 'docker stats --no-stream drop | tail -1'
+
+# After import
+docker logs drop | tail -20
+```
+
+**Step 4: Adjust based on observed usage**
+| Observed Usage | Recommendation |
+|---|---|
+| 95%+ of limit | Increase by 50% more |
+| 80-95% | Use slightly higher limit |
+| 60-80% | Current setting is good |
+| <60% | Can reduce by 2GB if desired |
 
 ### 7z specific (if external call):
 1. **Reduce 7z thread count:**

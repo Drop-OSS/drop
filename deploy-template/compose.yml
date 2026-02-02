@@ -29,12 +29,20 @@ services:
       - ./data:/data
     environment:
       - DATABASE_URL=postgres://drop:drop@postgres:5432/drop
+      # Limit Node.js heap to prevent uncontrolled memory growth
+      # Adjust based on your mem_limit: roughly 60-70% of container mem_limit
+      - NODE_OPTIONS=--max-old-space-size=8192
     # Memory limits to prevent OOM during large file imports
-    # Set to 50% of your system RAM (e.g., 8g for 16GB system, 4g for 8GB system)
-    mem_limit: 8g
-    memswap_limit: 9g
-    # CPU limit: Set to 50% of your CPU cores (e.g., "4.0" for 8-core system, "2.0" for 4-core system)
-    cpus: "4.0"
+    # For large compressed games, use higher limits or enable swap
+    # Options:
+    # - Smaller deployments: mem_limit: 4g, memswap_limit: 5g
+    # - Medium deployments: mem_limit: 8g, memswap_limit: 10g  
+    # - Large deployments: mem_limit: 16g, memswap_limit: 20g
+    # Set to 60-70% of available system RAM (leave room for host OS)
+    mem_limit: 12g
+    memswap_limit: 16g
+    # CPU limit: Set to 50-75% of your CPU cores (e.g., "4.0" for 8-core system)
+    cpus: "6.0"
     # System resource limits to prevent "WouldBlock" errors when spawning processes
     # These allow the container to create enough file descriptors and processes
     ulimits:
