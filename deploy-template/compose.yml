@@ -30,9 +30,11 @@ services:
     environment:
       - DATABASE_URL=postgres://drop:drop@postgres:5432/drop
     # Memory limits to prevent OOM during large file imports
-    # Adjust based on your system: typically 4GB recommended for Drop
-    mem_limit: 4g
-    memswap_limit: 5g
+    # Set to 50% of your system RAM (e.g., 8g for 16GB system, 4g for 8GB system)
+    mem_limit: 8g
+    memswap_limit: 9g
+    # CPU limit: Set to 50% of your CPU cores (e.g., "4.0" for 8-core system, "2.0" for 4-core system)
+    cpus: "4.0"
     # System resource limits to prevent "WouldBlock" errors when spawning processes
     # These allow the container to create enough file descriptors and processes
     ulimits:
