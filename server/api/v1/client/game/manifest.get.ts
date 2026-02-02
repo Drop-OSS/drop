@@ -3,6 +3,7 @@ import { createDownloadManifestDetails } from "~/server/internal/library/manifes
 export default defineEventHandler(async (h3) => {
   const query = getQuery(h3);
   const version = query.version?.toString();
+  console.log("[DEBUG] /api/v1/client/game/manifest called with version:", version);
   if (!version)
     throw createError({
       statusCode: 400,
