@@ -29,3 +29,7 @@ services:
       - ./data:/data
     environment:
       - DATABASE_URL=postgres://drop:drop@postgres:5432/drop
+    # Memory limits to prevent OOM during large file imports
+    # Adjust based on your system: typically 4GB recommended for Drop
+    mem_limit: 4g
+    memswap_limit: 5g
