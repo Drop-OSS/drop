@@ -87,18 +87,14 @@ export default defineEventHandler(async (h3) => {
               shortDescription:
                 launch.executor.gameVersion.game.mShortDescription,
               size:
-                (await gameSizeManager.getGameVersionSize(
-                  launch.executor.gameVersion.game.id,
+                (await gameSizeManager.getVersionSize(
                   launch.executor.gameVersion.versionId,
-                )) ?? 0,
+                )) ?? { downloadSize: 0, installSize: 0, versionId: launch.executor.gameVersion.versionId },
             });
           }
         }
 
-        const size = await gameSizeManager.getGameVersionSize(
-          v.gameId,
-          v.versionId,
-        );
+        const size = await gameSizeManager.getVersionSize(v.versionId);
 
         return platformOptions
           .entries()
