@@ -1,7 +1,6 @@
-import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import newsManager from "~/server/internal/news";
 
-export default defineClientEventHandler(async (h3) => {
+export default defineEventHandler(async (h3) => {
   const query = getQuery(h3);
 
   const orderBy = query.order as "asc" | "desc";
