@@ -1,7 +1,6 @@
-import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import prisma from "~/server/internal/db/database";
 
-export default defineClientEventHandler(async (h3) => {
+export default defineEventHandler(async (h3) => {
   const id = getRouterParam(h3, "id");
   const version = getRouterParam(h3, "versionid");
   if (!id || !version)

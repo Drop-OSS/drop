@@ -1,5 +1,4 @@
 import type { Platform } from "~/prisma/client/enums";
-import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import prisma from "~/server/internal/db/database";
 import type { GameVersionSize } from "~/server/internal/gamesize";
 import gameSizeManager from "~/server/internal/gamesize";
@@ -20,7 +19,7 @@ type VersionDownloadOption = {
   }>;
 };
 
-export default defineClientEventHandler(async (h3) => {
+export default defineEventHandler(async (h3) => {
   const id = getRouterParam(h3, "id")!;
   if (!id)
     throw createError({
