@@ -96,16 +96,21 @@
                   v-if="size.versions.length > 0"
                   class="whitespace-nowrap inline-flex gap-x-4 px-3 py-4 text-sm text-zinc-400"
                 >
-                  <ul>
+                  <ul class="flex flex-col">
                     <ol
                       v-for="version in size.versions"
                       :key="version.versionId"
+                      class="inline-flex items-center gap-x-1"
                     >
+                      <ServerIcon class="size-4" />
                       {{
                         formatBytes(version.installSize)
                       }}
-                      - 
-                      {{ formatBytes(version.downloadSize) }}
+
+                      <CloudIcon class="size-4 ml-3" />
+                      {{
+                        formatBytes(version.downloadSize)
+                      }}
                     </ol>
                   </ul>
                 </td>
@@ -254,7 +259,7 @@
 
 <script setup lang="ts">
 import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
-import { StarIcon } from "@heroicons/vue/24/solid";
+import { StarIcon, ServerIcon, CloudIcon } from "@heroicons/vue/24/solid";
 import { micromark } from "micromark";
 import { formatBytes } from "~/server/internal/utils/files";
 

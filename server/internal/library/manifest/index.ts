@@ -32,7 +32,8 @@ export async function createDownloadManifestDetails(
   versionId: string,
   refresh = false,
 ): Promise<DownloadManifestDetails> {
-  if(await manifestCache.has(versionId) && !refresh) return (await manifestCache.get(versionId))!;
+  if ((await manifestCache.has(versionId)) && !refresh)
+    return (await manifestCache.get(versionId))!;
   const mainVersion = await prisma.gameVersion.findUnique({
     where: { versionId },
     select: {
@@ -111,8 +112,13 @@ export async function createDownloadManifestDetails(
             flag = true;
             installSize += fileEntry.length;
           }
-          downloadSize += fileEntry.length;
         });
+        // If we have to download this chunk, add it's length
+        if (flag) {
+          downloadSize += chunkData.files
+            .map((v) => v.length)
+            .reduce((a, b) => a + b, 0);
+        }
         return flag;
       }),
     );

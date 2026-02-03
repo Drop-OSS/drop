@@ -90,7 +90,7 @@ import {
   startAuthentication,
   browserSupportsWebAuthn,
 } from "@simplewebauthn/browser";
-import type { FetchError } from "ofetch";
+import { FetchError } from "ofetch";
 
 const username = ref("");
 const password = ref("");
@@ -141,16 +141,19 @@ const router = useRouter();
 const route = useRoute();
 const { t } = useI18n();
 
-function signin_wrapper() {
+async function signin_wrapper() {
   loading.value = true;
-  signin()
-    .catch((response) => {
-      const message = response.message || t("errors.unknown");
-      error.value = message;
-    })
-    .finally(() => {
-      loading.value = false;
-    });
+  try {
+    await signin();
+  } catch (e) {
+    if (e instanceof FetchError) {
+      error.value = e.data.message || t("errors.unknown");
+    } else {
+      error.value = e as string;
+    }
+  } finally {
+    loading.value = false;
+  }
 }
 
 async function signin() {
