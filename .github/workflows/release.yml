@@ -31,7 +31,7 @@ jobs:
           fetch-tags: true
           ref: ${{ github.ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Prepare
         run: |
           platform=${{ matrix.platform }}
@@ -56,6 +56,24 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Determine final version
+        id: get_final_ver
+        run: |
+          BASE_VER=v$(jq -r '.version' package.json)
+          TODAY=$(date +'%Y.%m.%d')
+
+          echo "Today will be: $TODAY"
+          echo "today=$TODAY" >> $GITHUB_OUTPUT
+
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            FINAL_VER="$BASE_VER"
+          else
+            FINAL_VER="${BASE_VER}-nightly.$TODAY"
+          fi
+
+          echo "Drop's release tag will be: $FINAL_VER"
+          echo "final_ver=$FINAL_VER" >> $GITHUB_OUTPUT
+
       - name: Build and push by digest
         id: build
         uses: docker/build-push-action@v6
@@ -64,6 +82,10 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ env.REGISTRY_IMAGE }}
           outputs: type=image,push-by-digest=true,name-canonical=true,push=true
+          provenance: mode=max
+          sbom: true
+          build-args: |
+            BUILD_DROP_VERSION=${{ steps.get_final_ver.outputs.final_ver }}
 
       - name: Export digest
         run: |
