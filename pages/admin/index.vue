@@ -192,7 +192,6 @@
 <script setup lang="ts">
 import { formatBytes } from "~/server/internal/utils/files";
 import GamepadIcon from "~/components/Icons/GamepadIcon.vue";
-import DropLogo from "~/components/DropLogo.vue";
 import { ServerStackIcon, UserGroupIcon } from "@heroicons/vue/24/outline";
 import { getPercentage } from "~/utils/utils";
 import { getBarColor } from "~/utils/colors";
