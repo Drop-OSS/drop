@@ -9,7 +9,7 @@ on:
     - cron: "0 2 * * *" # run at 2 AM UTC
 
 env:
-  REGISTRY_IMAGE: ghcr.io/drop-OSS/drop
+  REGISTRY_IMAGE: ghcr.io/drop-oss/drop
 
 jobs:
   build:
