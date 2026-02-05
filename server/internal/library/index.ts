@@ -16,7 +16,6 @@ import type { GameModel } from "~/prisma/client/models";
 import { createHash } from "node:crypto";
 import type { WorkingLibrarySource } from "~/server/api/v1/admin/library/sources/index.get";
 import gameSizeManager from "~/server/internal/gamesize";
-import { TORRENTIAL_SERVICE } from "../services/services/torrential";
 import type { ImportVersion } from "~/server/api/v1/admin/import/version/index.post";
 import { GameType, type Platform } from "~/prisma/client/enums";
 import { castManifest } from "./manifest/utils";
@@ -417,12 +416,10 @@ class LibraryManager {
           manifest = await library.generateDropletManifest(
             game.libraryPath,
             versionPath,
-            (err, value) => {
-              if (err) throw err;
+            (value) => {
               progress(value * 0.9);
             },
-            (err, value) => {
-              if (err) throw err;
+            (value) => {
               logger.info(value);
             },
           );
@@ -499,11 +496,6 @@ class LibraryManager {
           actions: [`View|/admin/library/${gameId}`],
           acls: ["system:import:version:read"],
         });
-
-        await TORRENTIAL_SERVICE.utils().invalidate(
-          gameId,
-          newVersion.versionId,
-        );
 
         // Ensure cache is filled (also pre-caches the manifest)
         try {

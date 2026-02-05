@@ -4,7 +4,7 @@ import aclManager from "~/server/internal/acls";
 import userLibraryManager from "~/server/internal/userlibrary";
 
 const CreateCollection = type({
-  name: "string"
+  name: "string",
 }).configure(throwingArktype);
 
 export default defineEventHandler(async (h3) => {
@@ -17,6 +17,9 @@ export default defineEventHandler(async (h3) => {
   const body = await readDropValidatedBody(h3, CreateCollection);
 
   // Create the collection using the manager
-  const newCollection = await userLibraryManager.collectionCreate(body.name, userId);
+  const newCollection = await userLibraryManager.collectionCreate(
+    body.name,
+    userId,
+  );
   return newCollection;
 });

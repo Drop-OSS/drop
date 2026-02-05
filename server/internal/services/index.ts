@@ -38,7 +38,7 @@ export class Service<T> {
   private setup: Setup | undefined;
   private healthcheck: Healthcheck | undefined;
 
-  private logger: Logger<never>;
+  logger: Logger<never>;
 
   private currentProcess: ChildProcess | undefined;
 
@@ -90,6 +90,7 @@ export class Service<T> {
     if (!process.env[disableEnv]) {
       const serviceProcess = this.executor();
       this.logger.info("service launched");
+
       serviceProcess.on("close", async (code, signal) => {
         serviceProcess.kill();
         this.currentProcess = undefined;
@@ -99,12 +100,15 @@ export class Service<T> {
         await new Promise((r) => setTimeout(r, 5000));
         if (this.spun) this.launch();
       });
+
       serviceProcess.stdout?.on("data", (data) =>
         this.logger.info(data.toString().trim()),
       );
+
       serviceProcess.stderr?.on("data", (data) =>
         this.logger.error(data.toString().trim()),
       );
+
       this.currentProcess = serviceProcess;
     }
 

@@ -21,10 +21,6 @@ class AuthManager {
     },
   };
 
-  constructor() {
-    logger.info("AuthManager initialized");
-  }
-
   async init() {
     for (const [key, init] of Object.entries(this.initFuncs)) {
       try {
@@ -42,6 +38,8 @@ class AuthManager {
     if (!this.authProviders[AuthMec.OpenID]) {
       this.authProviders[AuthMec.Simple] = true;
     }
+
+    logger.info("AuthManager initialized");
   }
 
   getAuthProviders() {

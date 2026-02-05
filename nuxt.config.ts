@@ -250,7 +250,7 @@ export default defineNuxtConfig({
           "https://images.pcgamingwiki.com",
           "https://images.igdb.com",
           "https://*.steamstatic.com",
-        ]
+        ],
       },
       strictTransportSecurity: false,
     },

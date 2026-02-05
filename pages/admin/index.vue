@@ -173,7 +173,7 @@
             :title="t('home.admin.biggestGamesToDownload')"
             :subtitle="t('home.admin.latestVersionOnly')"
           >
-<!--            <RankingList :items="biggestGamesLatest.map(gameToRankItem)" />-->
+            <!--            <RankingList :items="biggestGamesLatest.map(gameToRankItem)" />-->
           </TileWithLink>
         </div>
         <div class="col-span-6 lg:col-span-2">
@@ -181,7 +181,7 @@
             :title="t('home.admin.biggestGamesOnServer')"
             :subtitle="t('home.admin.allVersionsCombined')"
           >
-<!--            <RankingList :items="biggestGamesCombined.map(gameToRankItem)" />-->
+            <!--            <RankingList :items="biggestGamesCombined.map(gameToRankItem)" />-->
           </TileWithLink>
         </div>
       </div>
@@ -196,7 +196,6 @@ import DropLogo from "~/components/DropLogo.vue";
 import { ServerStackIcon, UserGroupIcon } from "@heroicons/vue/24/outline";
 import { getPercentage } from "~/utils/utils";
 import { getBarColor } from "~/utils/colors";
-import type { RankItem } from "~/components/RankingList.vue";
 
 definePageMeta({
   layout: "admin",
@@ -210,12 +209,8 @@ const { t } = useI18n();
 
 const systemData = useSystemData();
 
-const {
-  version,
-  gameCount,
-  sources,
-  userStats,
-} = await $dropFetch("/api/v1/admin/home");
+const { version, gameCount, sources, userStats } =
+  await $dropFetch("/api/v1/admin/home");
 
 const pieChartData = [
   {

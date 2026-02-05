@@ -30,4 +30,10 @@ export default defineNitroPlugin(async () => {
       acls: CLIENT_WEBTOKEN_ACLS,
     },
   });
+
+  await prisma.aPIToken.deleteMany({
+    where: {
+      id: "torrential",
+    },
+  });
 });

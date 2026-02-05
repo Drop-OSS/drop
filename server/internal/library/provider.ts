@@ -44,8 +44,8 @@ export abstract class LibraryProvider<CFG> {
   abstract generateDropletManifest(
     game: string,
     version: string,
-    progress: (err: Error | null, v: number) => void,
-    log: (err: Error | null, v: string) => void,
+    progress: (v: number) => void,
+    log: (v: string) => void,
   ): Promise<string>;
 
   abstract peekFile(

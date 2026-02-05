@@ -12,7 +12,7 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare && prisma generate",
+    "postinstall": "nuxt prepare && prisma generate && buf generate",
     "typecheck": "nuxt typecheck",
     "lint": "pnpm run lint:eslint && pnpm run lint:prettier",
     "lint:eslint": "eslint .",
@@ -20,6 +20,7 @@
     "lint:fix": "eslint . --fix && prettier --write --list-different ."
   },
   "dependencies": {
+    "@bufbuild/protobuf": "^2.11.0",
     "@discordapp/twemoji": "^16.0.1",
     "@drop-oss/droplet": "5.3.1",
     "@headlessui/vue": "^1.7.23",
@@ -44,8 +45,8 @@
     "fast-fuzzy": "^1.12.0",
     "file-type-mime": "^0.4.3",
     "jdenticon": "^3.3.0",
-    "kjua": "^0.10.0",
     "jose": "^6.1.3",
+    "kjua": "^0.10.0",
     "luxon": "^3.6.1",
     "micromark": "^4.0.1",
     "normalize-url": "^8.0.2",
@@ -68,6 +69,8 @@
     "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
+    "@bufbuild/buf": "^1.65.0",
+    "@bufbuild/protoc-gen-es": "^2.11.0",
     "@intlify/eslint-plugin-vue-i18n": "^4.0.1",
     "@nuxt/eslint": "^1.3.0",
     "@tailwindcss/forms": "^0.5.9",

@@ -4,13 +4,14 @@ import { VersionNotFoundError } from "../provider";
 import { LibraryBackend } from "~/prisma/client/enums";
 import fs from "fs";
 import path from "path";
-import droplet, {
+import {
   hasBackendForPath,
   listFiles,
   peekFile,
   readFile,
 } from "@drop-oss/droplet";
 import { fsStats } from "~/server/internal/utils/files";
+import { dropletInterface } from "../../services/torrential/droplet-interface";
 
 export const FlatFilesystemProviderConfig = type({
   baseDir: "string",
@@ -75,12 +76,12 @@ export class FlatFilesystemProvider
   async generateDropletManifest(
     game: string,
     _version: string,
-    progress: (err: Error | null, v: number) => void,
-    log: (err: Error | null, v: string) => void,
+    progress: (v: number) => void,
+    log: (v: string) => void,
   ) {
     const versionDir = path.join(this.config.baseDir, game);
     if (!fs.existsSync(versionDir)) throw new VersionNotFoundError();
-    const manifest = await droplet.generateManifest(versionDir, progress, log);
+    const manifest = await dropletInterface.generateDropletManifest(versionDir, progress, log);
     return manifest;
   }
   async peekFile(game: string, _version: string, filename: string) {
