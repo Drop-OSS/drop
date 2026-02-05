@@ -11,18 +11,12 @@
 
       <div class="relative inline-flex items-center gap-4">
         <!-- icon image -->
-        <div class="relative group/iconupload rounded-xl overflow-hidden">
-          <img :src="useObject(company.mLogoObjectId)" class="size-20" />
-          <button
-            class="rounded-xl transition duration-200 absolute inset-0 opacity-0 group-hover/iconupload:opacity-100 focus-visible/iconupload:opacity-100 cursor-pointer bg-zinc-900/80 text-zinc-100 flex flex-col items-center justify-center text-center text-xs font-semibold ring-1 ring-inset ring-zinc-800 px-2"
-            @click="() => (uploadLogoOpen = true)"
-          >
-            <ArrowUpTrayIcon class="size-5" />
-            <span>{{
-              $t("library.admin.metadata.companies.editor.uploadIcon")
-            }}</span>
-          </button>
-        </div>
+        <ImageUpload
+          :object-id="company.mLogoObjectId"
+          :open-modal="() => (uploadLogoOpen = true)"
+          :hover-text="$t('library.admin.metadata.companies.editor.uploadIcon')"
+          :image-alt="`${company.mName} logo`"
+        />
         <div class="flex flex-col">
           <h1
             class="group/name inline-flex items-center gap-x-3 text-5xl font-bold font-display text-zinc-100"
