@@ -86,6 +86,7 @@ jobs:
           sbom: true
           build-args: |
             BUILD_DROP_VERSION=${{ steps.get_final_ver.outputs.final_ver }}
+            BUILD_GIT_REF=${{ github.sha }}
 
       - name: Export digest
         run: |
