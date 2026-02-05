@@ -1,8 +1,8 @@
 import type { ClientModel, UserModel } from "~/prisma/client/models";
 import type { EventHandlerRequest, H3Event } from "h3";
-import droplet from "@drop-oss/droplet";
 import prisma from "../db/database";
 import { useCertificateAuthority } from "~/server/plugins/ca";
+import jwt from "jsonwebtoken";
 
 export type EventHandlerFunction<T> = (
   h3: H3Event<EventHandlerRequest>,
@@ -15,7 +15,8 @@ type ClientUtils = {
   fetchUser: () => Promise<UserModel>;
 };
 
-const NONCE_LENIENCE = 30_000;
+// I forgot how to spell leniancne
+const JWT_TIME_WIGGLE = 30_000;
 
 export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
   return defineEventHandler(async (h3) => {
@@ -25,39 +26,11 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
 
     let clientId: string;
     switch (method) {
-      case "Debug": {
-        if (!import.meta.dev) throw createError({ statusCode: 403 });
-        const client = await prisma.client.findFirst({ select: { id: true } });
-        if (!client)
-          throw createError({
-            statusCode: 400,
-            statusMessage: "No clients created.",
-          });
-        clientId = client.id;
-        break;
-      }
-      case "Nonce": {
+      case "JWT": {
         clientId = parts[0];
-        const nonce = parts[1];
-        const signature = parts[2];
+        const jwtToken = parts[1];
 
-        if (!clientId || !nonce || !signature)
-          throw createError({ statusCode: 403 });
-
-        const nonceTime = parseInt(nonce);
-        const current = Date.now();
-        if (
-          // If it "will be generated" in thirty seconds
-          nonceTime > current + NONCE_LENIENCE ||
-          // Or more than thirty seconds ago
-          nonceTime < current - NONCE_LENIENCE
-        ) {
-          // We reject the request
-          throw createError({
-            statusCode: 403,
-            statusMessage: "Nonce expired",
-          });
-        }
+        if (!clientId || !jwtToken) throw createError({ statusCode: 403 });
 
         const certificateAuthority = useCertificateAuthority();
         const certBundle =
@@ -66,21 +39,24 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
         if (!certBundle)
           throw createError({
             statusCode: 403,
-            statusMessage: "Invalid client ID",
+            message: "Invalid client ID",
           });
 
-        const valid = droplet.verifyNonce(certBundle.cert, nonce, signature);
+        const valid = jwt.verify(jwtToken, certBundle.cert, {
+          clockTolerance: JWT_TIME_WIGGLE,
+          // algorithms: ["ES384"],
+        });
         if (!valid)
           throw createError({
             statusCode: 403,
-            statusMessage: "Invalid nonce signature.",
+            message: "Invalid nonce signature.",
           });
         break;
       }
       default: {
         throw createError({
           statusCode: 403,
-          statusMessage: "No authentication",
+          message: "No authentication",
         });
       }
     }
@@ -88,7 +64,7 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
     if (clientId === undefined)
       throw createError({
         statusCode: 500,
-        statusMessage: "Failed to execute authentication pipeline.",
+        message: "Failed to execute authentication pipeline.",
       });
 
     async function fetchClient() {

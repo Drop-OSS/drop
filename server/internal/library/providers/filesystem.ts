@@ -7,12 +7,6 @@ import {
 import { LibraryBackend } from "~/prisma/client/enums";
 import fs from "fs";
 import path from "path";
-import {
-  hasBackendForPath,
-  listFiles,
-  peekFile,
-  readFile,
-} from "@drop-oss/droplet";
 import { fsStats } from "~/server/internal/utils/files";
 import { dropletInterface } from "../../services/torrential/droplet-interface";
 
@@ -65,18 +59,24 @@ export class FilesystemProvider
     const gameDir = path.join(this.config.baseDir, game);
     if (!fs.existsSync(gameDir)) throw new GameNotFoundError();
     const versionDirs = fs.readdirSync(gameDir);
-    const validVersionDirs = versionDirs.filter((e) => {
-      if (ignoredVersions && ignoredVersions.includes(e)) return false;
-      const fullDir = path.join(this.config.baseDir, game, e);
-      return hasBackendForPath(fullDir);
-    });
+    const validVersionDirs = [];
+    
+    for(const versionDir of versionDirs) {
+      if (ignoredVersions && ignoredVersions.includes(versionDir)) continue;
+      const fullDir = path.join(this.config.baseDir, game, versionDir);
+      const valid = await dropletInterface.hasBackend(fullDir);
+      if(!valid) continue;
+
+      validVersionDirs.push(versionDir);
+    }
+
     return validVersionDirs;
   }
 
   async versionReaddir(game: string, version: string): Promise<string[]> {
     const versionDir = path.join(this.config.baseDir, game, version);
     if (!fs.existsSync(versionDir)) throw new VersionNotFoundError();
-    return await listFiles(versionDir);
+    return await dropletInterface.listFiles(versionDir);
   }
 
   async generateDropletManifest(
@@ -94,26 +94,8 @@ export class FilesystemProvider
   async peekFile(game: string, version: string, filename: string) {
     const filepath = path.join(this.config.baseDir, game, version);
     if (!fs.existsSync(filepath)) return undefined;
-    const stat = await peekFile(filepath, filename);
+    const stat = await dropletInterface.peekFile(filepath, filename);
     return { size: Number(stat) };
-  }
-
-  async readFile(
-    game: string,
-    version: string,
-    filename: string,
-    options?: { start?: number; end?: number },
-  ) {
-    const filepath = path.join(this.config.baseDir, game, version);
-    if (!fs.existsSync(filepath)) return undefined;
-    const stream = await readFile(
-      filepath,
-      filename,
-      options?.start ? BigInt(options.start) : undefined,
-      options?.end ? BigInt(options.end) : undefined,
-    );
-
-    return stream;
   }
 
   fsStats() {

@@ -1,4 +1,3 @@
-import droplet from "@drop-oss/droplet";
 import type { MinimumRequestObject } from "~/server/h3";
 import type { GlobalACL } from "../acls";
 import aclManager from "../acls";
@@ -212,7 +211,7 @@ class TaskHandler {
 
     await updateAllClients(true);
 
-    droplet.callAltThreadFunc(async () => {
+    const taskFunc = (async () => {
       const taskEntry = this.taskPool.get(task.id);
       if (!taskEntry) throw new Error("No task entry");
       const addAction = (action: TaskActionLink) => {
@@ -261,6 +260,8 @@ class TaskHandler {
 
       this.taskPool.delete(task.id);
     });
+
+    taskFunc();
 
     return task.id;
   }

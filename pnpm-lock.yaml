@@ -14,9 +14,6 @@ importers:
       '@discordapp/twemoji':
         specifier: ^16.0.1
         version: 16.0.1
-      '@drop-oss/droplet':
-        specifier: 5.3.1
-        version: 5.3.1
       '@headlessui/vue':
         specifier: ^1.7.23
         version: 1.7.23(vue@3.5.27(typescript@5.8.3))
@@ -86,6 +83,9 @@ importers:
       jose:
         specifier: ^6.1.3
         version: 6.1.3
+      jsonwebtoken:
+        specifier: ^9.0.3
+        version: 9.0.3
       kjua:
         specifier: ^0.10.0
         version: 0.10.0
@@ -168,6 +168,9 @@ importers:
       '@tailwindcss/typography':
         specifier: ^0.5.15
         version: 0.5.16(tailwindcss@4.1.11)
+      '@types/jsonwebtoken':
+        specifier: ^9.0.10
+        version: 9.0.10
       '@types/luxon':
         specifier: ^3.6.2
         version: 3.6.2
@@ -504,69 +507,6 @@ packages:
 
   '@discordapp/twemoji@16.0.1':
     resolution: {integrity: sha512-figLiBWzjS5cyrAjLaGjM8AAaowO3qvK8rg5bA2dElB4qsaPMvBVlFDMO2d3x+nC1igt7kgWH4dvNmvvUHUF8w==}
-
-  '@drop-oss/droplet-darwin-arm64@5.3.1':
-    resolution: {integrity: sha512-+MJXRmDNH/zTinW7C/ZR8l4f9NRKDOQnc2EQF+xifbjvuXOxP3L3CVgoq1eBk0qc/0VONQUEjpNzNw+IvlOKtw==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [darwin]
-
-  '@drop-oss/droplet-darwin-universal@5.3.1':
-    resolution: {integrity: sha512-ifvQGjoWtGfPssA9jYRb7hFjDIQSa4SUWYAdBpOWstan6hb36ak9Q7uxrMY+7cWuTayZrYOUd1O4IfRTGEojKg==}
-    engines: {node: '>= 10'}
-    os: [darwin]
-
-  '@drop-oss/droplet-darwin-x64@5.3.1':
-    resolution: {integrity: sha512-u9nbl/y7QpuIWEI5qurpoAdl8pUSXh8Gl2+Mu/UFXvLLqgR3UAhIsNwppTQvyBNANSJdzRRQSZzMhI45Ta2CUg==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [darwin]
-
-  '@drop-oss/droplet-linux-arm64-gnu@5.3.1':
-    resolution: {integrity: sha512-KhE+YUjMup6D42T2iclrf9pCAUqkUfK83lwlVTMo1WOd+DEY/03UuIpJe4Q2TKwCvtt10Catz8+QMmMfBqE4Ww==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [linux]
-
-  '@drop-oss/droplet-linux-arm64-musl@5.3.1':
-    resolution: {integrity: sha512-BNNqtcM+hNOYIHKvtzn7dT1A28+uAEHz7iXJztiHYJIk4AkwDQkyngtlvbciYOE8rJRSJJodNNTgQJWYjV8oOA==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [linux]
-
-  '@drop-oss/droplet-linux-riscv64-gnu@5.3.1':
-    resolution: {integrity: sha512-Lwf9elNVmboa6ktm4KaHsqYymOpBjpDS4W37+CG/m0u3krmPmnZDMPXHRx5f5920tG35UWsziH/DnYDAvs6QLg==}
-    engines: {node: '>= 10'}
-    cpu: [riscv64]
-    os: [linux]
-
-  '@drop-oss/droplet-linux-x64-gnu@5.3.1':
-    resolution: {integrity: sha512-NpR1i+bGSHFS7RbBz4RvGjhinUlZVg/Ne3hCzOqZ641XZgjlsdL7OD4DGeC0oYgOFpjazogAimNA7JTZi5LZcg==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [linux]
-
-  '@drop-oss/droplet-linux-x64-musl@5.3.1':
-    resolution: {integrity: sha512-LLH9U1q+rPFUTCHFNoGxmIC9YFsmYMes1F7RDvHTYoZdUGtEX3zd2AuTbQhh4XM/AbKU5Iu4N9hPxJZ/0v63SA==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [linux]
-
-  '@drop-oss/droplet-win32-arm64-msvc@5.3.1':
-    resolution: {integrity: sha512-j4fQ9/2emaxNENMha6Y4MhiSgb6iVyq7KttNIZOQeNsGxGfUdpuJOeUYJwPGPFJzBxPD7uYcWaqwMP9LdB7+vg==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [win32]
-
-  '@drop-oss/droplet-win32-x64-msvc@5.3.1':
-    resolution: {integrity: sha512-eN0WwtZcyb83O8eRpcHG3O9NMsTMaSPrgHWNLy0RU1TDbS+Sb52qtG9jIwE/Vv1IX3Pd5prgiLETtUK0Y8c5ag==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [win32]
-
-  '@drop-oss/droplet@5.3.1':
-    resolution: {integrity: sha512-8tHYSsAk5tFGkJ9FX3S0ikHlj/rnUvedWR9OpP7KC3sRQmH1zmTA8Z9QxeMFSRiWlK57JY+mcU/qQO9LMLqJ3g==}
-    engines: {node: '>= 10'}
 
   '@dxup/nuxt@0.2.2':
     resolution: {integrity: sha512-RNpJjDZs9+JcT9N87AnOuHsNM75DEd58itADNd/s1LIF6BZbTLZV0xxilJZb55lntn4TYvscTaXLCBX2fq9CXg==}
@@ -2531,6 +2471,9 @@ packages:
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
 
+  '@types/jsonwebtoken@9.0.10':
+    resolution: {integrity: sha512-asx5hIG9Qmf/1oStypjanR7iKTv0gXQ1Ov/jfrX6kS/EO0OFni8orbmGCn0672NHR3kXHwpAwR+B368ZGN/2rA==}
+
   '@types/luxon@3.6.2':
     resolution: {integrity: sha512-R/BdP7OxEMc44l2Ex5lSXHoIXTB2JLNa3y2QISIbr58U/YcsffyQrYW//hZSdrfxrjRZj3GcUoxMPGdO8gSYuw==}
 
@@ -3181,6 +3124,9 @@ packages:
     resolution: {integrity: sha512-Db1SbgBS/fg/392AblrMJk97KggmvYhr4pB5ZIMTWtaivCPMWLkmb7m21cJvpvgK+J3nsU2CmmixNBZx4vFj/w==}
     engines: {node: '>=8.0.0'}
 
+  buffer-equal-constant-time@1.0.1:
+    resolution: {integrity: sha512-zRpUiDwd/xk6ADqPMATG8vc9VPrkck7T07OIx0gnjmJAnHnTVXNQG3vfvWNuiZIkwu9KrKdA1iJKfsfTVxE6NA==}
+
   buffer-from@1.1.2:
     resolution: {integrity: sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==}
 
@@ -3734,6 +3680,9 @@ packages:
 
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
+
+  ecdsa-sig-formatter@1.0.11:
+    resolution: {integrity: sha512-nagl3RYrbNv6kQkeJIpt6NJZy8twLB/2vtz6yN9Z4vRKHN4/QZJIEbqohALSgwKdnksuY3k5Addp5lg8sVoVcQ==}
 
   ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
@@ -4603,9 +4552,19 @@ packages:
   jsonfile@5.0.0:
     resolution: {integrity: sha512-NQRZ5CRo74MhMMC3/3r5g2k4fjodJ/wh8MxjFbCViWKFjxrnudWSY5vomh+23ZaXzAS7J3fBZIR2dV6WbmfM0w==}
 
+  jsonwebtoken@9.0.3:
+    resolution: {integrity: sha512-MT/xP0CrubFRNLNKvxJ2BYfy53Zkm++5bX9dtuPbqAeQpTVe0MQTFhao8+Cp//EmJp244xt6Drw/GVEGCUj40g==}
+    engines: {node: '>=12', npm: '>=6'}
+
   junk@4.0.1:
     resolution: {integrity: sha512-Qush0uP+G8ZScpGMZvHUiRfI0YBWuB3gVBYlI0v0vvOJt5FLicco+IkP0a50LqTTQhmts/m6tP5SWE+USyIvcQ==}
     engines: {node: '>=12.20'}
+
+  jwa@2.0.1:
+    resolution: {integrity: sha512-hRF04fqJIP8Abbkq5NKGN0Bbr3JxlQ+qhZufXVr0DvujKy93ZCbXZMHDL4EOtodSbCWxOqR8MS1tXA5hwqCXDg==}
+
+  jws@4.0.1:
+    resolution: {integrity: sha512-EKI/M/yqPncGUUh44xz0PxSidXFr/+r0pA70+gIYhjv+et7yxM+s29Y+VGDkovRofQem0fs7Uvf4+YmAdyRduA==}
 
   jwt-decode@4.0.0:
     resolution: {integrity: sha512-+KJGIyHgkGuIq3IEBNftfhW/LfWhXUIY6OmyVWjliu5KH1y0fw7VQ8YndE2O4qZdMSd9SqbnC8GOcZEy0Om7sA==}
@@ -4755,17 +4714,35 @@ packages:
   lodash.defaults@4.2.0:
     resolution: {integrity: sha512-qjxPLHd3r5DnsdGacqOMU6pb/avJzdh9tFX2ymgoZE27BmjXrNy/y4LoaiTeAb+O3gL8AfpJGtqfX/ae2leYYQ==}
 
+  lodash.includes@4.3.0:
+    resolution: {integrity: sha512-W3Bx6mdkRTGtlJISOvVD/lbqjTlPPUDTMnlXZFnVwi9NKJ6tiAk6LVdlhZMm17VZisqhKcgzpO5Wz91PCt5b0w==}
+
   lodash.isarguments@3.1.0:
     resolution: {integrity: sha512-chi4NHZlZqZD18a0imDHnZPrDeBbTtVN7GXMwuGdRH9qotxAjYs3aVLKc7zNOG9eddR5Ksd8rvFEBc9SsggPpg==}
 
+  lodash.isboolean@3.0.3:
+    resolution: {integrity: sha512-Bz5mupy2SVbPHURB98VAcw+aHh4vRV5IPNhILUCsOzRmsTmSQ17jIuqopAentWoehktxGd9e/hbIXq980/1QJg==}
+
+  lodash.isinteger@4.0.4:
+    resolution: {integrity: sha512-DBwtEWN2caHQ9/imiNeEA5ys1JoRtRfY3d7V9wkqtbycnAmTvRRmbHKDV4a0EYc678/dia0jrte4tjYwVBaZUA==}
+
+  lodash.isnumber@3.0.3:
+    resolution: {integrity: sha512-QYqzpfwO3/CWf3XP+Z+tkQsfaLL/EnUlXWVkIk5FUPc4sBdTehEqZONuyRt2P67PXAk+NXmTBcc97zw9t1FQrw==}
+
   lodash.isplainobject@4.0.6:
     resolution: {integrity: sha512-oSXzaWypCMHkPC3NvBEaPHf0KsA5mvPrOPgQWDsbg8n7orZ290M0BmC/jgRZ4vcJ6DTAhjrsSYgdsW/F+MFOBA==}
+
+  lodash.isstring@4.0.1:
+    resolution: {integrity: sha512-0wJxfxH1wgO3GrbuP+dTTk7op+6L41QCXbGINEmD+ny/G/eCqGzxyCsh7159S+mgDDcoarnBw6PC1PS5+wUGgw==}
 
   lodash.memoize@4.1.2:
     resolution: {integrity: sha512-t7j+NzmgnQzTAYXcsHYLgimltOV1MXHtlOWf6GjL9Kj8GK5FInw5JotxvbOs+IvV1/Dzo04/fCGfLVs7aXb4Ag==}
 
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
+
+  lodash.once@4.1.1:
+    resolution: {integrity: sha512-Sb487aTOCr9drQVL8pIxOzVhafOjZN9UU54hiN8PU3uAiSV7lx1yYNpbNmex2PK6dSJoNTSJUUswT651yww3Mg==}
 
   lodash.uniq@4.5.0:
     resolution: {integrity: sha512-xfBaXQd9ryd9dlSDvnvI0lvxfLJlYAZzXomUYzLKtUeOQvOP5piqAWuGtrhWeqaXK9hhoM/iyJc5AV+XfsX3HQ==}
@@ -7303,49 +7280,6 @@ snapshots:
       jsonfile: 5.0.0
       universalify: 0.1.2
 
-  '@drop-oss/droplet-darwin-arm64@5.3.1':
-    optional: true
-
-  '@drop-oss/droplet-darwin-universal@5.3.1':
-    optional: true
-
-  '@drop-oss/droplet-darwin-x64@5.3.1':
-    optional: true
-
-  '@drop-oss/droplet-linux-arm64-gnu@5.3.1':
-    optional: true
-
-  '@drop-oss/droplet-linux-arm64-musl@5.3.1':
-    optional: true
-
-  '@drop-oss/droplet-linux-riscv64-gnu@5.3.1':
-    optional: true
-
-  '@drop-oss/droplet-linux-x64-gnu@5.3.1':
-    optional: true
-
-  '@drop-oss/droplet-linux-x64-musl@5.3.1':
-    optional: true
-
-  '@drop-oss/droplet-win32-arm64-msvc@5.3.1':
-    optional: true
-
-  '@drop-oss/droplet-win32-x64-msvc@5.3.1':
-    optional: true
-
-  '@drop-oss/droplet@5.3.1':
-    optionalDependencies:
-      '@drop-oss/droplet-darwin-arm64': 5.3.1
-      '@drop-oss/droplet-darwin-universal': 5.3.1
-      '@drop-oss/droplet-darwin-x64': 5.3.1
-      '@drop-oss/droplet-linux-arm64-gnu': 5.3.1
-      '@drop-oss/droplet-linux-arm64-musl': 5.3.1
-      '@drop-oss/droplet-linux-riscv64-gnu': 5.3.1
-      '@drop-oss/droplet-linux-x64-gnu': 5.3.1
-      '@drop-oss/droplet-linux-x64-musl': 5.3.1
-      '@drop-oss/droplet-win32-arm64-msvc': 5.3.1
-      '@drop-oss/droplet-win32-x64-msvc': 5.3.1
-
   '@dxup/nuxt@0.2.2(magicast@0.5.1)':
     dependencies:
       '@dxup/unimport': 0.1.2
@@ -9380,6 +9314,11 @@ snapshots:
 
   '@types/json-schema@7.0.15': {}
 
+  '@types/jsonwebtoken@9.0.10':
+    dependencies:
+      '@types/ms': 2.1.0
+      '@types/node': 22.16.5
+
   '@types/luxon@3.6.2': {}
 
   '@types/ms@2.1.0': {}
@@ -10166,6 +10105,8 @@ snapshots:
 
   buffer-crc32@1.0.0: {}
 
+  buffer-equal-constant-time@1.0.1: {}
+
   buffer-from@1.1.2: {}
 
   buffer@5.7.1:
@@ -10706,6 +10647,10 @@ snapshots:
   duplexer@0.1.2: {}
 
   eastasianwidth@0.2.0: {}
+
+  ecdsa-sig-formatter@1.0.11:
+    dependencies:
+      safe-buffer: 5.2.1
 
   ee-first@1.1.1: {}
 
@@ -11711,7 +11656,31 @@ snapshots:
     optionalDependencies:
       graceful-fs: 4.2.11
 
+  jsonwebtoken@9.0.3:
+    dependencies:
+      jws: 4.0.1
+      lodash.includes: 4.3.0
+      lodash.isboolean: 3.0.3
+      lodash.isinteger: 4.0.4
+      lodash.isnumber: 3.0.3
+      lodash.isplainobject: 4.0.6
+      lodash.isstring: 4.0.1
+      lodash.once: 4.1.1
+      ms: 2.1.3
+      semver: 7.7.3
+
   junk@4.0.1: {}
+
+  jwa@2.0.1:
+    dependencies:
+      buffer-equal-constant-time: 1.0.1
+      ecdsa-sig-formatter: 1.0.11
+      safe-buffer: 5.2.1
+
+  jws@4.0.1:
+    dependencies:
+      jwa: 2.0.1
+      safe-buffer: 5.2.1
 
   jwt-decode@4.0.0: {}
 
@@ -11849,13 +11818,25 @@ snapshots:
 
   lodash.defaults@4.2.0: {}
 
+  lodash.includes@4.3.0: {}
+
   lodash.isarguments@3.1.0: {}
 
+  lodash.isboolean@3.0.3: {}
+
+  lodash.isinteger@4.0.4: {}
+
+  lodash.isnumber@3.0.3: {}
+
   lodash.isplainobject@4.0.6: {}
+
+  lodash.isstring@4.0.1: {}
 
   lodash.memoize@4.1.2: {}
 
   lodash.merge@4.6.2: {}
+
+  lodash.once@4.1.1: {}
 
   lodash.uniq@4.5.0: {}
 

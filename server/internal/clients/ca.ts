@@ -1,5 +1,5 @@
-import droplet from "@drop-oss/droplet";
 import type { CertificateStore } from "./ca-store";
+import { dropletInterface } from "../services/torrential/droplet-interface";
 
 export type CertificateBundle = {
   priv: string;
@@ -23,8 +23,7 @@ export class CertificateAuthority {
     const root = await store.fetch("ca");
     let ca;
     if (root === undefined) {
-      const [cert, priv] = droplet.generateRootCa();
-      const bundle: CertificateBundle = { priv, cert };
+      const bundle: CertificateBundle = await dropletInterface.generateRootCa();
       await store.store("ca", bundle);
       ca = new CertificateAuthority(store, bundle);
     } else {
@@ -43,16 +42,13 @@ export class CertificateAuthority {
     const caCertificate = await this.certificateStore.fetch("ca");
     if (!caCertificate)
       throw new Error("Certificate authority not initialised");
-    const [cert, priv] = droplet.generateClientCertificate(
-      clientId,
-      clientName,
-      caCertificate.cert,
-      caCertificate.priv,
-    );
-    const certBundle: CertificateBundle = {
-      priv,
-      cert,
-    };
+
+    const certBundle: CertificateBundle =
+      await dropletInterface.generateClientCert(
+        clientId,
+        clientName,
+        caCertificate,
+      );
     return certBundle;
   }
 

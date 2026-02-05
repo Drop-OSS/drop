@@ -529,18 +529,6 @@ class LibraryManager {
     return await library.peekFile(game, version, filename);
   }
 
-  async readFile(
-    libraryId: string,
-    game: string,
-    version: string,
-    filename: string,
-    options?: { start?: number; end?: number },
-  ) {
-    const library = this.libraries.get(libraryId);
-    if (!library) return undefined;
-    return await library.readFile(game, version, filename, options);
-  }
-
   async deleteGameVersion(gameId: string, version: string) {
     await prisma.gameVersion.deleteMany({
       where: {

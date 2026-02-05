@@ -53,14 +53,7 @@ export abstract class LibraryProvider<CFG> {
     version: string,
     filename: string,
   ): Promise<{ size: number } | undefined>;
-
-  abstract readFile(
-    game: string,
-    version: string,
-    filename: string,
-    options?: { start?: number; end?: number },
-  ): Promise<ReadableStream | undefined>;
-
+  
   abstract fsStats(): { freeSpace: number; totalSpace: number } | undefined;
 }
 
