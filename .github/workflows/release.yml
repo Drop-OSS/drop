@@ -23,6 +23,15 @@ jobs:
           runner: ubuntu-24.04-arm
     runs-on: ${{ matrix.runner }}
     steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 3 # fix for when this gets triggered by tag
+          fetch-tags: true
+          ref: ${{ github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
       - name: Prepare
         run: |
           platform=${{ matrix.platform }}
