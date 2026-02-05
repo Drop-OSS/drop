@@ -1,6 +1,6 @@
 <template>
   <main class="mx-auto w-full max-w-7xl px-6 pt-10 pb-16 sm:pb-24 lg:px-8">
-    <DropLogo class="mx-auto h-10 w-auto sm:h-12" />
+    <ApplicationLogo class="mx-auto h-10 w-auto sm:h-12" />
     <div class="mx-auto mt-20 max-w-md text-center sm:mt-24">
       <h1
         class="mt-4 text-3xl font-semibold tracking-tight text-balance text-white sm:text-4xl"

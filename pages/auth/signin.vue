@@ -5,7 +5,7 @@
     >
       <div class="mx-auto w-full max-w-sm lg:w-96">
         <div>
-          <DropLogo class="h-10 w-auto" />
+          <ApplicationLogo class="h-10 w-auto" />
           <h2
             class="mt-8 text-2xl font-bold font-display leading-9 tracking-tight text-zinc-100"
           >
@@ -57,7 +57,6 @@
 
 <script setup lang="ts">
 import type { AuthMec } from "~/prisma/client/enums";
-import DropLogo from "~/components/DropLogo.vue";
 
 const { t } = useI18n();
 const { enabledAuthProviders, oidcProviderName } =

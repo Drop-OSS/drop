@@ -5,7 +5,7 @@ export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["settings:update"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
-  const result = await handleFileUpload(h3, {}, ["internal:read"], 1);
+  const result = await handleFileUpload(h3, {}, ["anonymous:read"], 1);
   if (!result)
     throw createError({
       statusCode: 400,

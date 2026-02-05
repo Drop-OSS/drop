@@ -18,7 +18,7 @@
           <TileWithLink>
             <div class="h-full flex">
               <div class="flex-1 my-auto">
-                <DropLogo />
+                <ApplicationLogo />
               </div>
               <div
                 class="flex-6 lg:flex-2 my-auto text-center flex lg:inline mx-4"

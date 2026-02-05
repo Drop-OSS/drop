@@ -17,52 +17,47 @@
               id="name"
               v-model="settings.generalSettings.serverName"
               type="text"
-              name="serverNname"
+              name="serverName"
               :placeholder="$t('settings.admin.general.serverNamePlaceholder')"
               class="block w-full rounded-md bg-zinc-800 px-3 py-1.5 text-base text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 placeholder:text-zinc-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6"
+              @input="(event) => updateServerName(event)"
             />
           </div>
         </div>
 
         <div class="mt-4">
-          <label for="logo" class="block text-sm/6 font-medium text-zinc-100">{{
-            $t("settings.admin.general.logo")
-          }}</label>
+          <p for="logo" class="block text-sm/6 font-medium text-zinc-100">
+            {{ $t("settings.admin.general.logo") }}
+          </p>
           <ul class="flex gap-3">
-            <li class="flex flex-col w-40">
-              <div class="flex grow max-w-25 p-2 mx-auto text-right">
-                <div class="grow flex items-center">
-                  <ImageUpload
-                    :hover-text="$t('settings.admin.general.uploadLogo')"
-                    :open-modal="openModal"
-                    :object-id="mCustomLogoObjectId"
-                    :image-alt="$t('settings.admin.general.applicationLogo')"
-                  />
-                </div>
+            <li class="w-40 flex flex-col items-center">
+              <div class="flex items-center max-w-25 mt-2 mb-2 h-full">
+                <ImageUpload
+                  :hover-text="$t('settings.admin.general.uploadLogo')"
+                  :open-modal="openModal"
+                  :object-id="mCustomLogoObjectId"
+                  :image-alt="$t('settings.admin.general.applicationLogo')"
+                />
               </div>
-              <label
-                class="text-zinc-100 mt-2 text-sm text-center mb-2 mx-auto"
-              >
+              <label class="flex flex-col text-zinc-100 text-sm items-center">
                 <div class="flex items-center">
                   <input
                     v-model="settings.generalSettings.mLogoObjectId"
                     class="mr-1"
                     type="radio"
                     name="mLogoObjectId"
-                    :checked="settings.generalSettings.mLogoObjectId !== null"
                     :value="mCustomLogoObjectId"
+                    @input="updateFormLogo"
                   />
                   {{ $t("settings.admin.general.customLogo") }}
                 </div>
               </label>
             </li>
-            <li class="flex flex-col w-35">
-              <div class="mx-auto w-25">
-                <DropLogo />
+            <li class="w-40 flex flex-col items-center">
+              <div class="flex w-25 mt-2 mb-2 h-full">
+                <DropLogo @click="() => updateFormLogo(null)" />
               </div>
-              <label
-                class="text-zinc-100 mt-2 text-sm text-center mb-2 mx-auto"
-              >
+              <label class="flex flex-col text-zinc-100 text-sm items-center">
                 <div class="flex items-center">
                   <input
                     v-model="settings.generalSettings.mLogoObjectId"
@@ -71,6 +66,7 @@
                     name="isDefaultLogo"
                     :checked="settings.generalSettings.mLogoObjectId === null"
                     :value="null"
+                    @input="() => updateFormLogo(null)"
                   />
                   {{ $t("settings.admin.general.defaultLogo") }}
                 </div>
@@ -91,8 +87,9 @@
         type="submit"
         class="inline-flex w-full shadow-sm sm:w-auto"
         :loading="saving"
+        :disabled="!allowSave"
       >
-        {{ $t("common.save") }}
+        {{ allowSave ? $t("common.save") : $t("common.saved") }}
       </LoadingButton>
     </form>
   </div>
@@ -117,9 +114,15 @@ const settings = ref<Settings>(await $dropFetch("/api/v1/settings"));
 const allowSave = ref<boolean>(false);
 const uploadLogoOpen = ref<boolean>(false);
 
-const mCustomLogoObjectId = ref<string | null>(
-  settings.value.generalSettings.mLogoObjectId,
+const mCustomLogoObjectId = ref<string>(
+  settings.value.generalSettings.mLogoObjectId || "",
 );
+
+const updateServerName = (event: InputEvent) => {
+  settings.value.generalSettings.serverName =
+    (event.target as HTMLInputElement)?.value || "";
+  allowSave.value = true;
+};
 
 const openModal = () => {
   uploadLogoOpen.value = true;
@@ -139,6 +142,7 @@ async function saveSettings() {
         },
       },
     });
+    window.location.reload();
   } catch (e) {
     createModal(
       ModalType.Notification,
@@ -159,5 +163,12 @@ async function saveSettings() {
 function updateLogo(response: { id: string }) {
   mCustomLogoObjectId.value = response.id;
   settings.value.generalSettings.mLogoObjectId = response.id;
+  allowSave.value = true;
 }
+
+const updateFormLogo = (event: InputEvent | null) => {
+  settings.value.generalSettings.mLogoObjectId =
+    (event?.target as HTMLInputElement)?.value || null;
+  allowSave.value = true;
+};
 </script>
