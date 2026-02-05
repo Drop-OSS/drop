@@ -9,7 +9,7 @@ on:
     - cron: "0 2 * * *" # run at 2 AM UTC
 
 env:
-  REGISTRY_IMAGE: user/app
+  REGISTRY_IMAGE: ghcr.io/drop-OSS/drop
 
 jobs:
   build:
@@ -108,7 +108,7 @@ jobs:
             type=sha
             # set latest tag for stable releases
             type=raw,value=latest,enable=${{ github.event_name == 'release' && github.event.release.prerelease == false }}
-            
+
       - name: Create manifest list and push
         working-directory: ${{ runner.temp }}/digests
         run: |
