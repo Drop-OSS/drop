@@ -8,9 +8,11 @@ on:
   schedule:
     - cron: "0 2 * * *" # run at 2 AM UTC
 
+env:
+  REGISTRY_IMAGE: user/app
+
 jobs:
   build:
-    name: Build Docker image
     strategy:
       fail-fast: false
       matrix:
@@ -20,74 +22,39 @@ jobs:
         - platform: linux/arm64
           runner: ubuntu-24.04-arm
     runs-on: ${{ matrix.runner }}
-    permissions:
-      packages: write
-      contents: read
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-          fetch-depth: 3 # fix for when this gets triggered by tag
-          fetch-tags: true
-          ref: ${{ github.ref }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set platform
+      - name: Prepare
         run: |
           platform=${{ matrix.platform }}
           echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
 
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
         with:
-          buildkitd-flags: --debug
+          images: ${{ env.REGISTRY_IMAGE }}
 
-      - name: Log in to the Container registry
+      - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Cache
-        uses: actions/cache@v4
-        id: cache
-        with:
-          path: cache-mount
-          key: cache-mount-${{ hashFiles('Dockerfile') }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
-      - name: Restore Docker cache mounts
-        uses: reproducible-containers/buildkit-cache-dance@v3
-        with:
-          builder: ${{ steps.setup-buildx.outputs.name }}
-          cache-dir: cache-mount
-          dockerfile: Dockerfile
-          skip-extraction: ${{ steps.cache.outputs.cache-hit }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: |
-            ghcr.io/drop-OSS/drop
-
-      - name: Build and push image
-        id: build-and-push
+      - name: Build and push by digest
+        id: build
         uses: docker/build-push-action@v6
         with:
-          context: .
-          push: true
-          provenance: mode=max
-          sbom: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
           platforms: ${{ matrix.platform }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          build-args: |
-            BUILD_DROP_VERSION=${{ steps.get_final_ver.outputs.final_ver }}
+          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ env.REGISTRY_IMAGE }}
+          outputs: type=image,push-by-digest=true,name-canonical=true,push=true
 
       - name: Export digest
         run: |
@@ -102,6 +69,7 @@ jobs:
           path: ${{ runner.temp }}/digests/*
           if-no-files-found: error
           retention-days: 1
+
   merge:
     runs-on: ubuntu-latest
     needs:
@@ -114,31 +82,15 @@ jobs:
           pattern: digests-*
           merge-multiple: true
 
-      - name: Determine final version
-        id: get_final_ver
-        run: |
-          BASE_VER=v$(jq -r '.version' package.json)
-          TODAY=$(date +'%Y.%m.%d')
-
-          echo "Today will be: $TODAY"
-          echo "today=$TODAY" >> $GITHUB_OUTPUT
-
-          if [[ "${{ github.event_name }}" == "release" ]]; then
-            FINAL_VER="$BASE_VER"
-          else
-            FINAL_VER="${BASE_VER}-nightly.$TODAY"
-          fi
-
-          echo "Drop's release tag will be: $FINAL_VER"
-          echo "final_ver=$FINAL_VER" >> $GITHUB_OUTPUT
-
-      - name: Log in to the Container registry
+      - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
@@ -156,7 +108,7 @@ jobs:
             type=sha
             # set latest tag for stable releases
             type=raw,value=latest,enable=${{ github.event_name == 'release' && github.event.release.prerelease == false }}
-
+            
       - name: Create manifest list and push
         working-directory: ${{ runner.temp }}/digests
         run: |
@@ -165,4 +117,4 @@ jobs:
 
       - name: Inspect image
         run: |
-          docker buildx imagetools inspect ghcr.io/drop-OSS/drop:${{ steps.meta.outputs.version }}
+          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ steps.meta.outputs.version }}
