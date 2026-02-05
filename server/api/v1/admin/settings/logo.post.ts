@@ -9,7 +9,7 @@ export default defineEventHandler(async (h3) => {
   if (!result)
     throw createError({
       statusCode: 400,
-      statusMessage: "File upload required (multipart form)",
+      message: "File upload required (multipart form)",
     });
 
   const [ids, , pull] = result;
