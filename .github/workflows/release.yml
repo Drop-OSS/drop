@@ -22,6 +22,9 @@ jobs:
         - platform: linux/arm64
           runner: ubuntu-24.04-arm
     runs-on: ${{ matrix.runner }}
+    permissions:
+      packages: write
+      contents: read
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
@@ -106,6 +109,9 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build
+    permissions:
+      packages: write
+      contents: read
     steps:
       - name: Download digests
         uses: actions/download-artifact@v4
