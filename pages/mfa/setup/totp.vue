@@ -7,15 +7,14 @@
         <h1
           class="mt-4 text-3xl font-bold font-display tracking-tight text-zinc-100 sm:text-5xl"
         >
-          Set up your authenticator
+          {{ $t("auth.2fa.totp.createTitle") }}
         </h1>
         <p class="mt-6 text-base leading-7 text-zinc-400">
-          Use your TOTP authenticator, like Google Authenticator, Aegis, or
-          Bitwarden, to add 2FA to your Drop account.
+          {{ $t("auth.2fa.totp.createDescription") }}
         </p>
         <div class="mt-8">
           <p class="text-xs leading-7 text-zinc-200">
-            Enter the generated code to enable TOTP
+            {{ $t("auth.2fa.totp.createHint") }}
           </p>
           <div class="mt-2 flex flex-row gap-2">
             <CodeInput

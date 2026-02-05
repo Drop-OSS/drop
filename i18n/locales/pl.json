@@ -101,6 +101,7 @@
     "close": "Zamknij",
     "create": "Utwórz",
     "date": "Data",
+    "delete": "Usuń",
     "deleteConfirm": "Czy jesteś pewny że chcesz usunąć \"{0}\"?",
     "divider": "{'|'}",
     "edit": "Edytuj",
@@ -120,7 +121,6 @@
     "tags": "Tagi",
     "today": "Dzisiaj"
   },
-  "delete": "Usuń",
   "drop": {
     "desc": "Platforma typu open source do dystrybucji gier, stworzona z myślą o szybkości, elastyczności i estetyce.",
     "drop": "Drop"

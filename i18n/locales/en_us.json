@@ -9,7 +9,9 @@
       "subheader": "Manage the devices authorized to access your Drop account.",
       "title": "Devices"
     },
-    "home": { "title": "Home" },
+    "home": {
+      "title": "Home"
+    },
     "notifications": {
       "all": "View all {arrow}",
       "clear": "Clear notifications",
@@ -21,7 +23,35 @@
       "title": "Notifications",
       "unread": "Unread Notifications"
     },
-    "security": { "title": "Security" },
+    "security": {
+      "2fa": {
+        "superlevelHint": {
+          "signin": "Sign in {arrow}",
+          "success": "You have access to these protected actions.",
+          "title": "Sign in again to access these settings."
+        },
+        "title": "Two-factor authentication",
+        "totp": {
+          "description": "TOTP generates one-time codes, completely offline. You can use any TOTP authenticator you like.",
+          "disableButton": "Disable",
+          "title": "TOTP"
+        },
+        "webauthn": {
+          "bypassHint": "Also lets you bypass signing in with compatible devices.",
+          "description": "Otherwise known as passkeys. Authenticate using biometrics, a device, YubiKeys, or any compatible FIDO2 device.",
+          "manage": "Manage",
+          "modal": {
+            "description": "Create new keys or remove existing keys from your account.",
+            "new": "New key",
+            "tableCreated": "Created",
+            "tableName": "Name",
+            "title": "WebAuthn Keys"
+          },
+          "title": "WebAuthn"
+        }
+      },
+      "title": "Security"
+    },
     "settings": "Settings",
     "title": "Account Settings",
     "token": {
@@ -50,6 +80,31 @@
   "adminTitle": "Admin Dashboard - Drop",
   "adminTitleTemplate": "{0} - Admin - Drop",
   "auth": {
+    "2fa": {
+      "backToOptions": "{arrow} Back to options",
+      "description": "Two-factor authentication is enabled on your account. Choose one of the options below to continue.",
+      "passkey": {
+        "createDescription": "WebAuthn, or passkeys, allow you to sign in or complete 2FA with biometrics or hardware security devices.",
+        "createTitle": "Create a passkey",
+        "description": "Use a passkey, like biometrics, a hardware security device, or other compatible device to sign in to your Drop account.",
+        "passkeyNameTag": "Name",
+        "signinButton": "Sign in with WebAuthn",
+        "title": "WebAuthn"
+      },
+      "success": {
+        "back": "{arrow} Back to account security",
+        "description": "Drop has successfully created and added your 2FA method. If this is your first time configuring 2FA, your account now requires it to sign in.",
+        "title": "Added your 2FA method!"
+      },
+      "title": "Two-factor authentication",
+      "totp": {
+        "createDescription": "Use your TOTP authenticator, like Google Authenticator, Aegis, or Bitwarden, to add 2FA to your Drop account.",
+        "createHint": "Enter the generated code to enable TOTP",
+        "createTitle": "Set up your authenticator",
+        "description": "Use a one-time code to sign in to your Drop account.",
+        "title": "TOTP"
+      }
+    },
     "callback": {
       "authClient": "Authorize client?",
       "authorize": "Authorize",
@@ -81,12 +136,14 @@
       "externalProvider": "external provider",
       "forgot": "Forgot password?",
       "noAccount": "Don't have an account? Ask an admin to create one for you.",
+      "noAccountProtected": "We need you to sign in again for security reasons while attempting to access more sensitive actions.",
       "or": "OR",
       "pageTitle": "Sign in to Drop",
       "rememberMe": "Remember me",
       "signin": "Sign in",
       "signinWithExternalProvider": "Sign in with {externalProvider} {arrow}",
-      "title": "Sign in to your account"
+      "title": "Sign in to your account",
+      "titleProtected": "Sign in to access protected action"
     },
     "signout": "Signout",
     "username": "Username"
@@ -105,6 +162,7 @@
     "close": "Close",
     "create": "Create",
     "date": "Date",
+    "delete": "Delete",
     "deleteConfirm": "Are you sure you want to delete \"{0}\"?",
     "divider": "{'|'}",
     "edit": "Edit",
@@ -119,12 +177,12 @@
     "remove": "Remove",
     "save": "Save",
     "saved": "Saved",
+    "select": "Select",
     "servers": "Servers",
     "srLoading": "Loading…",
     "tags": "Tags",
     "today": "Today"
   },
-  "delete": "Delete",
   "drop": {
     "desc": "An open-source game distribution platform built for speed, flexibility and beauty.",
     "drop": "Drop"
@@ -158,7 +216,9 @@
       "invalidPassState": "Invalid password state. Please contact the server administrator.",
       "invalidUserOrPass": "Invalid username or password.",
       "inviteIdRequired": "id required in fetching invitation",
-      "method": { "signinDisabled": "Sign in method not enabled" },
+      "method": {
+        "signinDisabled": "Sign in method not enabled"
+      },
       "usernameTaken": "Username already taken."
     },
     "backHome": "{arrow} Back to home",
@@ -248,12 +308,18 @@
     "aboutDrop": "About Drop",
     "api": "API documentation",
     "comparison": "Comparison",
-    "docs": { "client": "Client Docs", "server": "Server Docs" },
+    "docs": {
+      "client": "Client Docs",
+      "server": "Server Docs"
+    },
     "documentation": "Documentation",
     "findGame": "Find a Game",
     "footer": "Footer",
     "games": "Games",
-    "social": { "discord": "Discord", "github": "GitHub" },
+    "social": {
+      "discord": "Discord",
+      "github": "GitHub"
+    },
     "topSellers": "Top Sellers",
     "version": "Drop {version} {gitRef}"
   },
@@ -303,6 +369,10 @@
     "admin": {
       "detectedGame": "Drop has detected you have new games to import.",
       "detectedVersion": "Drop has detected you have new versions of this game to import.",
+      "fileExtSelector": {
+        "add": "Add \"{0}\"",
+        "noSelected": "No extensions selected."
+      },
       "game": {
         "addCarouselNoImages": "No images to add.",
         "addDescriptionNoImages": "No images to add.",
@@ -323,10 +393,14 @@
         "setCover": "Set as cover"
       },
       "gameLibrary": "Game Library",
+      "gameSelector": {
+        "hint": "Type at least 4 characters to get results"
+      },
       "import": {
         "bulkImportDescription": "When on this page, you won't be redirect to the import task, so you can import multiple games in succession.",
         "bulkImportTitle": "Bulk import mode",
         "import": "Import",
+        "importAs": "Import as",
         "link": "Import {arrow}",
         "loading": "Loading game results…",
         "search": "Search",
@@ -344,6 +418,7 @@
           "launchPlaceholder": "game.exe --args",
           "loadingVersion": "Loading version metadata…",
           "noLaunches": "No launch configurations added.",
+          "noNameProvided": "No name provided.",
           "noSetups": "No setup configurations added.",
           "noVersions": "No versions to import",
           "platform": "Version platform",
@@ -356,6 +431,23 @@
           "version": "Select version to import"
         },
         "withoutMetadata": "Import without metadata"
+      },
+      "launchRow": {
+        "autosuggestHint": "Auto-suggest extensions",
+        "currentDirHint": "The installation directory is set as the current directory when launching. It is not prepended to your command.",
+        "executorHint": "{executor} is replaced with the game's launch command for emulators.",
+        "executorSelect": "Select new executor",
+        "executorTitle": "Executor",
+        "noExecutorSelected": "No executor selected"
+      },
+      "launchSelector": {
+        "description": "Select a launch option as an executor for your new launch option.",
+        "noVersions": "No versions imported.",
+        "platformFilterHint": "Only showing launches for:",
+        "search": "Search for an executor",
+        "selectCommand": "Select a launch command",
+        "selectVersions": "Select a version",
+        "title": "Select a launch option"
       },
       "libraryHint": "No libraries configured.",
       "libraryHintDocsLink": "What does this mean? {arrow}",
@@ -446,7 +538,17 @@
       "subheader": "As you add folders to your library sources, Drop will detect it and prompt you to import it. Each game needs to be imported before you can import a version.",
       "title": "Libraries",
       "version": {
-        "noVersions": "You have no versions of this game available."
+        "description": "All versions imported for your game.",
+        "noSetups": "No setups configured.",
+        "noVersions": "You have no versions of this game available.",
+        "setupOnly": "Version configured as in setup-only mode.",
+        "table": {
+          "launch": "Launch Configurations",
+          "name": "Name (ID)",
+          "path": "Path",
+          "setup": "Setup Configurations"
+        },
+        "title": "Versions"
       }
     },
     "back": "Back to Library",
@@ -595,6 +697,7 @@
       "completedTasksTitle": "Completed tasks",
       "dailyScheduledTitle": "Daily scheduled tasks",
       "execute": "{arrow} Execute",
+      "noActions": "No actions",
       "noTasksRunning": "No tasks currently running",
       "progress": "{0}%",
       "runningTasksTitle": "Running tasks",
@@ -628,8 +731,15 @@
   },
   "userHeader": {
     "closeSidebar": "Close sidebar",
-    "links": { "community": "Community", "library": "Library", "news": "News" },
-    "profile": { "admin": "Admin Dashboard", "settings": "Account settings" }
+    "links": {
+      "community": "Community",
+      "library": "Library",
+      "news": "News"
+    },
+    "profile": {
+      "admin": "Admin Dashboard",
+      "settings": "Account settings"
+    }
   },
   "users": {
     "admin": {

@@ -53,7 +53,7 @@
           v-if="task.actions.length == 0"
           class="text-md uppercase font-display font-bold text-zinc-700"
         >
-          No actions
+          {{ $t("tasks.admin.noActions") }}
         </li>
       </ul>
 

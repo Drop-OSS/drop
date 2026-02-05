@@ -13,11 +13,11 @@
         <h3 class="text-sm/6 font-semibold text-white">
           <NuxtLink :to="{ path: '/auth/mfa/totp', query: route.query }">
             <span class="absolute inset-0" aria-hidden="true"></span>
-            TOTP
+            {{ $t("auth.2fa.totp.title") }}
           </NuxtLink>
         </h3>
         <p class="mt-2 text-sm/6 text-zinc-400">
-          Use a one-time code to sign in to your Drop account.
+          {{ $t("auth.2fa.totp.description") }}
         </p>
       </div>
       <div class="flex-none self-center">
@@ -34,12 +34,11 @@
         <h3 class="text-sm/6 font-semibold text-white">
           <NuxtLink :to="{ path: '/auth/mfa/webauthn', query: route.query }">
             <span class="absolute inset-0" aria-hidden="true"></span>
-            WebAuthn
+            {{ $t("auth.2fa.passkey.title") }}
           </NuxtLink>
         </h3>
         <p class="mt-2 text-sm/6 text-zinc-400">
-          Use a passkey, like biometrics, a hardware security device, or other
-          compatible device to sign in to your Drop account.
+          {{ $t("auth.2fa.passkey.description") }}
         </p>
       </div>
       <div class="flex-none self-center">

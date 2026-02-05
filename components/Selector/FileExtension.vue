@@ -12,7 +12,7 @@
           class="group relative -mr-1 size-3.5 rounded-xs hover:bg-blue-500/30"
           @click="() => removeFileExtension(extension)"
         >
-          <span class="sr-only">Remove</span>
+          <span class="sr-only">{{ $t("common.remove") }}</span>
           <svg
             viewBox="0 0 14 14"
             class="size-3.5 stroke-blue-400 group-hover:stroke-blue-300"
@@ -22,9 +22,9 @@
           <span class="absolute -inset-1"></span>
         </button>
       </span>
-      <span v-if="model.length == 0" class="text-zinc-500 text-xs"
-        >No extensions selected.</span
-      >
+      <span v-if="model.length == 0" class="text-zinc-500 text-xs">{{
+        $t("library.admin.fileExtSelector.noSelected")
+      }}</span>
     </div>
     <Combobox
       as="div"
@@ -65,7 +65,11 @@
                   : 'text-zinc-100',
               ]"
             >
-              <span> Add "{{ normalize(query) }}" </span>
+              <span>
+                {{
+                  $t("library.admin.fileExtSelector.add", [normalize(query)])
+                }}</span
+              >
 
               <span
                 v-if="selected"

@@ -26,8 +26,7 @@
             <div
               class="z-50 w-64 transition duration-100 opacity-0 shadow peer-hover:opacity-100 absolute left-0 p-2 bg-zinc-900 rounded text-xs text-zinc-300"
             >
-              The installation directory is set as the current directory when
-              launching. It is not prepended to your command.
+              {{ $t("library.admin.launchRow.currentDirHint") }}
             </div>
           </div>
           {{ $t("library.admin.import.version.installDir") }}
@@ -124,7 +123,7 @@
                   <span
                     :class="['block truncate', selected && 'font-semibold']"
                   >
-                    '{{ launchProcessQuery }}'
+                    {{ launchProcessQuery }}
                   </span>
 
                   <span
@@ -155,11 +154,21 @@
           </div>
           <div class="ml-2 inline-flex items-center">
             <p class="text-sm text-blue-200">
-              <span
-                class="font-mono bg-zinc-950 text-zinc-100 py-1 px-0.5 rounded-xl"
-                >{executor}</span
+              <i18n-t
+                keypath="library.admin.launchRow.executorHint"
+                tag="span"
+                scope="global"
               >
-              is replaced with the game's launch command for executors.
+                <template #executor>
+                  <span
+                    class="font-mono bg-zinc-950 text-zinc-100 py-1 px-0.5 rounded-xl"
+                    >{{
+                      // eslint-disable-next-line @intlify/vue-i18n/no-raw-text
+                      "{executor}"
+                    }}</span
+                  >
+                </template>
+              </i18n-t>
             </p>
           </div>
         </div>
@@ -174,7 +183,7 @@
     </SelectorPlatform>
     <div v-if="props.type && props.type === 'Game' && props.allowExecutor">
       <h1 class="block text-sm font-medium leading-6 text-zinc-100">
-        Executor
+        {{ $t("library.admin.launchRow.executorTitle") }}
       </h1>
       <div class="relative mt-2 space-x-1 inline-flex items-center w-full">
         <ExecutorWidget v-if="executor" :executor="executor" />
@@ -182,12 +191,12 @@
           v-else
           class="font-bold uppercase font-display text-zinc-500 text-sm"
         >
-          No executor selected
+          {{ $t("library.admin.launchRow.noExecutorSelected") }}
         </div>
         <div class="grow" />
-        <LoadingButton :loading="false" @click="selectLaunchOpen = true"
-          >Select new executor</LoadingButton
-        >
+        <LoadingButton :loading="false" @click="selectLaunchOpen = true">{{
+          $t("library.admin.launchRow.executorSelect")
+        }}</LoadingButton>
         <button
           :disabled="!executor"
           class="transition rounded p-2 bg-zinc-900/30 group hover:enabled:bg-red-600/10 text-zinc-400 hover:enabled:text-red-600 disabled:bg-zinc-900/80 disabled:text-zinc-700"
@@ -199,7 +208,7 @@
     </div>
     <div v-if="props.type && props.type === 'Executor'">
       <p class="block text-sm font-medium leading-6 text-zinc-100">
-        Auto-suggest extensions
+        {{ $t("library.admin.launchRow.autosuggestHint") }}
       </p>
       <SelectorFileExtension
         v-model="launchConfiguration.suggestions!"

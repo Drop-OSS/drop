@@ -13,13 +13,21 @@
         </div>
         <div class="ml-3">
           <p class="text-sm text-yellow-300">
-            Sign in again to access these settings.
-            {{ " " }}
+            {{ $t("account.security.2fa.superlevelHint.title") }}
             <NuxtLink
               href="/auth/signin?redirect=/account/security&superlevel=true"
               class="font-medium underline text-yellow-300 hover:text-yellow-200"
-              >Sign in &rarr;</NuxtLink
             >
+              <i18n-t
+                keypath="account.security.2fa.superlevelHint.signin"
+                tag="span"
+                scope="global"
+              >
+                <template #arrow>
+                  <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
+                </template>
+              </i18n-t>
+            </NuxtLink>
           </p>
         </div>
       </div>
@@ -31,7 +39,7 @@
         </div>
         <div class="ml-3">
           <p class="text-sm text-green-300">
-            You have access to these protected actions.
+            {{ $t("account.security.2fa.superlevelHint.success") }}
           </p>
         </div>
       </div>
@@ -40,7 +48,7 @@
       <div></div>
       <div class="mt-8 border-b border-white/10 pb-2">
         <h3 class="text-base font-semibold text-white">
-          Two-factor authentication
+          {{ $t("account.security.2fa.title") }}
         </h3>
       </div>
       <div class="mt-4 flex flex-wrap gap-8">
@@ -67,15 +75,16 @@
                   class="absolute inset-0"
                   aria-hidden="true"
                 ></span>
-                TOTP
+                {{ $t("account.security.2fa.totp.title") }}
               </NuxtLink>
             </h3>
             <p class="mt-2 text-sm text-gray-400">
-              TOTP generates one-time codes, completely offline. You can use any
-              TOTP authenticator you like.
+              {{ $t("account.security.2fa.totp.description") }}
             </p>
             <div v-if="mfa.mecs.TOTP?.enabled" class="mt-3">
-              <LoadingButton :loading="false">Disable</LoadingButton>
+              <LoadingButton :loading="false">{{
+                $t("account.security.2fa.totp.disableButton")
+              }}</LoadingButton>
             </div>
           </div>
           <span
@@ -107,20 +116,21 @@
             </span>
           </div>
           <div class="mt-8 max-w-sm">
-            <h3 class="text-base font-semibold text-white">WebAuthn</h3>
+            <h3 class="text-base font-semibold text-white">
+              {{ $t("account.security.2fa.webauthn.title") }}
+            </h3>
             <p class="mt-2 text-sm text-gray-400">
-              Otherwise known as passkeys. Authenticate using biometrics, a
-              device, YubiKeys, or any compatible FIDO2 device.
+              {{ $t("account.security.2fa.webauthn.description") }}
             </p>
             <p class="mt-1 text-xs font-bold text-zinc-300">
-              Also lets you bypass signing in with compatible devices.
+              {{ $t("account.security.2fa.webauthn.bypassHint") }}
             </p>
           </div>
           <LoadingButton
             class="mt-3"
             :loading="false"
             @click="() => (webAuthnOpen = true)"
-            >Manage</LoadingButton
+            >{{ $t("account.security.2fa.webauthn.manage") }}</LoadingButton
           >
         </div>
       </div>
@@ -130,9 +140,11 @@
       <template #default>
         <div class="sm:flex sm:items-center">
           <div class="sm:flex-auto">
-            <h1 class="text-base font-semibold text-white">WebAuthn Keys</h1>
+            <h1 class="text-base font-semibold text-white">
+              {{ $t("account.security.2fa.webauthn.modal.title") }}
+            </h1>
             <p class="mt-2 text-sm text-gray-300">
-              Create new keys or remove existing keys from your account.
+              {{ $t("account.security.2fa.webauthn.modal.description") }}
             </p>
           </div>
           <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
@@ -140,7 +152,7 @@
               to="/mfa/setup/webauthn"
               class="block rounded-md bg-blue-500 px-3 py-2 text-center text-sm font-semibold text-white shadow-xs hover:bg-blue-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
             >
-              New key
+              {{ $t("account.security.2fa.webauthn.modal.new") }}
             </NuxtLink>
           </div>
         </div>
@@ -156,17 +168,19 @@
                       scope="col"
                       class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-white sm:pl-0"
                     >
-                      Name
+                      {{ $t("account.security.2fa.webauthn.modal.tableName") }}
                     </th>
                     <th
                       scope="col"
                       class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-white sm:pl-0"
                     >
-                      Created
+                      {{
+                        $t("account.security.2fa.webauthn.modal.tableCreated")
+                      }}
                     </th>
 
                     <th scope="col" class="py-3.5 pr-4 pl-3 sm:pr-0">
-                      <span class="sr-only">Delete</span>
+                      <span class="sr-only">{{ $t("common.delete") }}</span>
                     </th>
                   </tr>
                 </thead>
@@ -193,9 +207,12 @@
                     <td
                       class="py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-0"
                     >
-                      <a href="#" class="text-blue-400 hover:text-blue-300"
-                        >Delete</a
+                      <button
+                        class="text-blue-400 hover:text-blue-300"
+                        @click="() => deletePasskey(mec.id)"
                       >
+                        {{ $t("common.delete") }}
+                      </button>
                     </td>
                   </tr>
                 </tbody>
@@ -229,4 +246,12 @@ const superlevel = await $dropFetch("/api/v1/user/superlevel");
 const mfa = await $dropFetch("/api/v1/user/mfa");
 
 const webAuthnOpen = ref(false);
+
+async function deletePasskey(id: string) {
+  await $dropFetch("/api/v1/user/mfa/webauthn", {
+    method: "DELETE",
+    body: { id },
+    failTitle: "Failed to delete passkey",
+  });
+}
 </script>

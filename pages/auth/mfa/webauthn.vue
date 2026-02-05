@@ -24,8 +24,8 @@
 
     <div v-else class="inline-flex gap-x-2">
       <LoadingButton :loading="false" @click="() => tryAuthWrapper()">
-        Sign in with WebAuthn</LoadingButton
-      >
+        {{ $t("auth.2fa.passkey.signinButton") }}
+      </LoadingButton>
     </div>
 
     <div v-if="error" class="mt-8 rounded-md bg-red-600/10 p-4">

@@ -22,7 +22,7 @@
         class="bg-red-600 text-white hover:bg-red-500"
         @click="() => deleteArticle()"
       >
-        {{ $t("delete") }}
+        {{ $t("common.delete") }}
       </LoadingButton>
       <button
         class="inline-flex items-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold font-display text-white hover:bg-zinc-700"

@@ -3,9 +3,11 @@
   <div v-if="game && unimportedVersions" class="px-4 sm:px-6 lg:px-8 py-8">
     <div class="sm:flex sm:items-center">
       <div class="sm:flex-auto">
-        <h1 class="text-base font-semibold text-white">Versions</h1>
+        <h1 class="text-base font-semibold text-white">
+          {{ $t("library.admin.version.title") }}
+        </h1>
         <p class="mt-2 text-sm text-gray-300">
-          Versions versions version, versions versions. Versions.
+          {{ $t("library.admin.version.description") }}
         </p>
       </div>
       <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
@@ -36,28 +38,28 @@
                   scope="col"
                   class="py-3 pr-3 pl-4 text-left text-xs font-medium tracking-wide text-gray-400 uppercase sm:pl-0"
                 >
-                  Name (ID)
+                  {{ $t("library.admin.version.table.name") }}
                 </th>
                 <th
                   scope="col"
                   class="px-3 py-3 text-left text-xs font-medium tracking-wide text-gray-400 uppercase"
                 >
-                  Path
+                  {{ $t("library.admin.version.table.path") }}
                 </th>
                 <th
                   scope="col"
                   class="px-3 py-3 text-left text-xs font-medium tracking-wide text-gray-400 uppercase"
                 >
-                  Setup Configurations
+                  {{ $t("library.admin.version.table.setup") }}
                 </th>
                 <th
                   scope="col"
                   class="px-3 py-3 text-left text-xs font-medium tracking-wide text-gray-400 uppercase"
                 >
-                  Launch Configurations
+                  {{ $t("library.admin.version.table.launch") }}
                 </th>
                 <th scope="col" class="py-3 pr-4 pl-3 sm:pr-0">
-                  <span class="sr-only">Edit</span>
+                  <span class="sr-only">{{ $t("common.edit") }}</span>
                 </th>
               </tr>
             </thead>
@@ -100,13 +102,13 @@
                         v-if="version.setups.length == 0"
                         class="text-xs uppercase font-display text-zinc-700 font-semibold"
                       >
-                        No setups configured.
+                        {{ $t("library.admin.version.noSetups") }}
                       </li>
                     </ul>
                   </td>
                   <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-400">
                     <div v-if="version.onlySetup">
-                      Version configured as in setup-only mode.
+                      {{ $t("library.admin.version.setupOnly") }}
                     </div>
                     <ul v-else class="space-y-2">
                       <GameEditorVersionConfig
@@ -131,10 +133,7 @@
                       class="text-red-400 hover:text-red-300"
                       @click="() => deleteVersion(version.versionId)"
                     >
-                      Delete<span class="sr-only"
-                        >,
-                        {{ version.displayName ?? version.versionPath }}</span
-                      >
+                      {{ $t("common.delete") }}
                     </button>
                   </td>
                 </tr></template

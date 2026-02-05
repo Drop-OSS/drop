@@ -26,7 +26,7 @@
           v-if="gameSearchQuery.length < 4"
           class="text-zinc-300 uppercase font-display font-bold text-center p-4"
         >
-          Type at least 4 characters to get results
+          {{ $t("library.admin.gameSelector.hint") }}
         </div>
         <div
           v-else-if="resultsLoading || results === undefined"
@@ -53,7 +53,7 @@
           v-else-if="results.length == 0"
           class="text-zinc-500 uppercase font-display font-bold text-center p-4"
         >
-          No results
+          {{ $t("common.noResults") }}
         </div>
         <ComboboxOption
           v-for="result in results"

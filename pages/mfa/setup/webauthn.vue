@@ -7,11 +7,10 @@
       <h2
         class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-white"
       >
-        Create a passkey
+        {{ $t("auth.2fa.passkey.createTitle") }}
       </h2>
       <p class="text-sm text-center text-zinc-400">
-        WebAuthn, or passkeys, allow you to sign in or complete 2FA with
-        biometrics or hardware security devices.
+        {{ $t("auth.2fa.passkey.createDescription") }}
       </p>
     </div>
 
@@ -23,9 +22,9 @@
         @submit.prevent="attemptPasskeyWrapper"
       >
         <div>
-          <label for="name" class="block text-sm/6 font-medium text-gray-100"
-            >Name</label
-          >
+          <label for="name" class="block text-sm/6 font-medium text-gray-100">{{
+            $t("auth.2fa.passkey.passkeyNameTag")
+          }}</label>
           <div class="mt-2">
             <input
               id="name"
@@ -41,7 +40,7 @@
 
         <div>
           <LoadingButton :disabled="disabled" :loading="loading" class="w-full">
-            Create
+            {{ $t("common.create") }}
           </LoadingButton>
         </div>
 

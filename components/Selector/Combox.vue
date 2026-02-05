@@ -29,7 +29,7 @@
           v-if="results.length == 0"
           class="text-zinc-300 uppercase font-display font-bold text-center p-4"
         >
-          No results.
+          {{ $t("common.noResults") }}
         </div>
         <ComboboxOption
           v-for="result in results"

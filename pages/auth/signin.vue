@@ -11,14 +11,14 @@
           >
             {{
               superlevel
-                ? "Sign in to access protected action"
+                ? $t("auth.signin.titleProtected")
                 : $t("auth.signin.title")
             }}
           </h2>
           <p class="mt-2 text-sm leading-6 text-zinc-400">
             {{
               superlevel
-                ? "We need you to sign in again for security reasons while attempting to access more sensitive actions."
+                ? $t("auth.signin.noAccountProtected")
                 : $t("auth.signin.noAccount")
             }}
           </p>

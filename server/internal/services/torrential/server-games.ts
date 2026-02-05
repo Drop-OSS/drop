@@ -4,7 +4,8 @@ import { create } from "@bufbuild/protobuf";
 import { defineQueryProcessor } from "./utils";
 import {
   DropBoundType,
-  TorrentialBoundType } from "../../proto/torrential/proto/core_pb";
+  TorrentialBoundType,
+} from "../../proto/torrential/proto/core_pb";
 
 export default defineQueryProcessor({
   queryType: DropBoundType.SERVER_GAMES_QUERY,
@@ -35,4 +36,3 @@ export default defineQueryProcessor({
     };
   },
 });
-

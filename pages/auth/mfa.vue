@@ -5,11 +5,10 @@
       <h1
         class="mt-4 text-3xl font-semibold tracking-tight text-balance text-white sm:text-4xl"
       >
-        Two-factor authentication
+        {{ $t("auth.2fa.title") }}
       </h1>
       <p class="mt-6 text-sm font-medium text-pretty text-zinc-400 sm:text-md">
-        Two-factor authentication is enabled on your account. Choose one of the
-        options below to continue.
+        {{ $t("auth.2fa.description") }}
       </p>
     </div>
     <div class="mx-auto mt-16 flow-root max-w-lg sm:mt-20">
@@ -18,7 +17,11 @@
         <NuxtLink
           :href="{ path: '/auth/mfa', query: route.query }"
           class="text-sm/6 font-semibold text-blue-400"
-          ><span aria-hidden="true">&larr;</span> Back to options</NuxtLink
+          ><i18n-t keypath="auth.2fa.backToOptions" tag="span" scope="global">
+            <template #arrow>
+              <span aria-hidden="true">{{ $t("chars.arrowBack") }}</span>
+            </template>
+          </i18n-t></NuxtLink
         >
       </div>
     </div>

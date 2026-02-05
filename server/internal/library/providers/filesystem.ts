@@ -60,12 +60,12 @@ export class FilesystemProvider
     if (!fs.existsSync(gameDir)) throw new GameNotFoundError();
     const versionDirs = fs.readdirSync(gameDir);
     const validVersionDirs = [];
-    
-    for(const versionDir of versionDirs) {
+
+    for (const versionDir of versionDirs) {
       if (ignoredVersions && ignoredVersions.includes(versionDir)) continue;
       const fullDir = path.join(this.config.baseDir, game, versionDir);
       const valid = await dropletInterface.hasBackend(fullDir);
-      if(!valid) continue;
+      if (!valid) continue;
 
       validVersionDirs.push(versionDir);
     }
@@ -87,7 +87,11 @@ export class FilesystemProvider
   ): Promise<string> {
     const versionDir = path.join(this.config.baseDir, game, version);
     if (!fs.existsSync(versionDir)) throw new VersionNotFoundError();
-    const manifest = await dropletInterface.generateDropletManifest(versionDir, progress, log);
+    const manifest = await dropletInterface.generateDropletManifest(
+      versionDir,
+      progress,
+      log,
+    );
     return manifest;
   }
 

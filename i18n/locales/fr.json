@@ -101,6 +101,7 @@
     "close": "Fermer",
     "create": "Créer",
     "date": "Date",
+    "delete": "Supprimer",
     "deleteConfirm": "Êtes vous sûr de vouloir supprimer \"{0}\" ?",
     "divider": "{'|'}",
     "edit": "Éditer",
@@ -120,7 +121,6 @@
     "tags": "Étiquettes",
     "today": "Aujourd'hui"
   },
-  "delete": "Supprimer",
   "drop": {
     "desc": "Une plateforme de distribution libre conçue pour être rapide, flexible et belle.",
     "drop": "Drop"

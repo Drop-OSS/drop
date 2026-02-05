@@ -191,9 +191,9 @@
                   <span v-if="launch.name" class="text-sm font-semibold">{{
                     launch.name
                   }}</span>
-                  <span v-else class="text-sm text-zinc-500 italic"
-                    >No name provided.</span
-                  >
+                  <span v-else class="text-sm text-zinc-500 italic">{{
+                    $t("library.admin.import.version.noNameProvided")
+                  }}</span>
                   <span class="ml-auto flex h-7 items-center">
                     <PlusIcon v-if="!open" class="size-6" aria-hidden="true" />
                     <MinusIcon v-else class="size-6" aria-hidden="true" />

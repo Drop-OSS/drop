@@ -9,12 +9,13 @@ import {
 } from "../../proto/torrential/proto/version_pb";
 import { castManifest } from "../../library/manifest/utils";
 import { LibraryBackend } from "~/prisma/client/client";
-import { create,
-fromBinary } from "@bufbuild/protobuf";
+import { create, fromBinary } from "@bufbuild/protobuf";
 import prisma from "../../db/database";
 import { defineQueryProcessor } from "./utils";
-import { DropBoundType,TorrentialBoundType } from "../../proto/torrential/proto/core_pb";
-
+import {
+  DropBoundType,
+  TorrentialBoundType,
+} from "../../proto/torrential/proto/core_pb";
 
 export default defineQueryProcessor({
   queryType: DropBoundType.VERSION_QUERY,

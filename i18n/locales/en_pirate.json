@@ -87,6 +87,7 @@
     "close": "Shut yer trap!",
     "create": "Forge!",
     "date": "Date",
+    "delete": "Scuttle!",
     "deleteConfirm": "Are ye sure ye want to scuttle \"{0}\", ye rogue?",
     "divider": "{'|'}",
     "edit": "Amend",
@@ -104,7 +105,6 @@
     "tags": "Marks",
     "today": "Today"
   },
-  "delete": "Scuttle!",
   "drop": {
     "desc": "An open-source game distribution platform built for speed, flexibility and beauty, like a swift brigantine!",
     "drop": "Drop"

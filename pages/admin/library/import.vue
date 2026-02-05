@@ -115,13 +115,14 @@
 
     <div v-if="currentlySelectedGame !== -1" class="flex flex-col gap-y-4">
       <fieldset>
-        <legend class="text-sm/6 font-semibold text-white">Import as</legend>
+        <legend class="text-sm/6 font-semibold text-white">
+          {{ $t("library.admin.import.importAs") }}
+        </legend>
         <div class="mt-6 grid grid-cols-1 gap-y-6 sm:grid-cols-3 sm:gap-x-4">
           <label
             v-for="[type, meta] in Object.entries(importModes)"
             :key="type"
             :aria-label="meta.title"
-            :aria-description="`Import as ${meta.title}`"
             class="cursor-pointer group relative flex rounded-lg border border-white/10 bg-gray-800/50 p-4 has-checked:bg-blue-500/10 has-checked:outline-2 has-checked:-outline-offset-2 has-checked:outline-blue-500 has-focus-visible:outline-3 has-focus-visible:-outline-offset-1 has-disabled:bg-gray-800 has-disabled:opacity-25"
           >
             <input

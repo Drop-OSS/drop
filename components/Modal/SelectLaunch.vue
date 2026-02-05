@@ -3,17 +3,17 @@
     <template #default>
       <div>
         <h1 as="h3" class="text-lg font-medium leading-6 text-white">
-          Select a launch option
+          {{ $t("library.admin.launchSelector.title") }}
         </h1>
         <p class="mt-1 text-zinc-400 text-sm">
-          Select a launch option as an executor for your new launch option.
+          {{ $t("library.admin.launchSelector.description") }}
         </p>
         <div
           v-if="props.filterPlatform"
           class="inline-flex items-center mt-2 gap-x-4"
         >
           <h1 class="block text-sm font-medium leading-6 text-zinc-100">
-            Only showing launches for:
+            {{ $t("library.admin.launchSelector.platformFilterHint") }}
           </h1>
           <span class="flex items-center">
             <component
@@ -30,7 +30,7 @@
       <div class="mt-2 space-y-4">
         <div>
           <h1 class="block text-sm font-medium leading-6 text-zinc-100">
-            Search for an executor
+            {{ $t("library.admin.launchSelector.search") }}
           </h1>
           <SelectorGame
             :search="search"
@@ -43,11 +43,11 @@
           v-if="versions !== undefined && Object.entries(versions).length == 0"
           class="text-zinc-300 text-sm font-bold font-display uppercase text-center w-full"
         >
-          No versions imported.
+          {{ $t("library.admin.launchSelector.noVersions") }}
         </div>
         <div v-else-if="versions !== undefined">
           <h1 class="block text-sm font-medium leading-6 text-zinc-100">
-            Select a version
+            {{ $t("library.admin.launchSelector.selectVersions") }}
           </h1>
           <SelectorCombox
             :search="
@@ -75,7 +75,7 @@
         </div>
         <div v-if="versions && version">
           <h1 class="block text-sm font-medium leading-6 text-zinc-100">
-            Select a launch command
+            {{ $t("library.admin.launchSelector.selectCommand") }}
           </h1>
           <SelectorCombox
             :search="
@@ -127,7 +127,7 @@
     </template>
     <template #buttons>
       <LoadingButton :loading="false" :disabled="!launchId" @click="submit">
-        Select
+        {{ $t("common.select") }}
       </LoadingButton>
       <button
         class="inline-flex items-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold font-display text-white hover:bg-zinc-700"

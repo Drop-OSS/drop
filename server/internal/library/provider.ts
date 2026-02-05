@@ -53,7 +53,7 @@ export abstract class LibraryProvider<CFG> {
     version: string,
     filename: string,
   ): Promise<{ size: number } | undefined>;
-  
+
   abstract fsStats(): { freeSpace: number; totalSpace: number } | undefined;
 }
 

@@ -85,7 +85,7 @@
                 @click="deleteNotification(notification.id)"
               >
                 <TrashIcon class="size-3" />
-                {{ $t("delete") }}
+                {{ $t("common.delete") }}
               </button>
             </div>
           </div>

@@ -128,7 +128,7 @@
                 class="text-red-500 hover:text-red-400"
                 @click="() => deleteSource(sourceIdx)"
               >
-                {{ $t("delete") }}
+                {{ $t("common.delete") }}
                 <span class="sr-only">
                   {{ $t("chars.srComma", [source.name]) }}
                 </span>
