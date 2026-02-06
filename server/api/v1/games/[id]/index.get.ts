@@ -21,6 +21,12 @@ export default defineEventHandler(async (h3) => {
           launches: true,
           setups: true,
         },
+        omit: {
+          dropletManifest: true,
+        },
+        orderBy: {
+          versionIndex: "desc",
+        },
       },
       publishers: {
         select: {
@@ -57,7 +63,30 @@ export default defineEventHandler(async (h3) => {
     },
   });
 
-  const size = (await gameSizeManager.getGameBreakdown(gameId))!;
+  const sizes = await Promise.all(
+    game.versions!.map(
+      async (v) => (await gameSizeManager.getVersionSize(v.versionId))!,
+    ),
+  );
 
-  return { game, rating, size };
+  const platforms = new Set(
+    game
+      .versions!.map((v) => [
+        ...v.setups.map((v) => v.platform),
+        ...v.launches.map((v) => v.platform),
+      ])
+      .flat(),
+  );
+
+  const gameV: Omit<typeof game, "versions"> = game;
+
+  // @ts-expect-error value exists at runtime
+  delete gameV.versions;
+
+  return {
+    game: gameV,
+    rating,
+    sizes,
+    platforms: platforms.values().toArray(),
+  };
 });

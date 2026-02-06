@@ -93,12 +93,12 @@
                   {{ $t("store.size") }}
                 </td>
                 <td
-                  v-if="size.versions.length > 0"
+                  v-if="sizes.length > 0"
                   class="whitespace-nowrap inline-flex gap-x-4 px-3 py-4 text-sm text-zinc-400"
                 >
                   <ul class="flex flex-col">
                     <ol
-                      v-for="version in size.versions"
+                      v-for="version in sizes"
                       :key="version.versionId"
                       class="inline-flex items-center gap-x-1"
                     >
@@ -268,20 +268,13 @@ const gameId = route.params.id.toString();
 
 const user = useUser();
 
-const { game, rating, size } = await $dropFetch(`/api/v1/games/${gameId}`);
+const { game, rating, sizes, platforms } = await $dropFetch(
+  `/api/v1/games/${gameId}`,
+);
 
 const isClient = isClientRequest();
 
 const descriptionHTML = micromark(game.mDescription);
-
-const platforms = game.versions
-  .map((e) => [
-    ...e.launches.map((v) => v.platform),
-    ...e.setups.map((v) => v.platform),
-  ])
-  .flat()
-  .flat()
-  .filter((e, i, u) => u.indexOf(e) === i);
 
 // const rating = Math.round(game.mReviewRating * 5);
 const averageRating = Math.round((rating._avg.mReviewRating ?? 0) * 5);
