@@ -138,7 +138,7 @@
             >
               <div class="flex shrink-0 h-16 items-center justify-between">
                 <NuxtLink :to="homepageURL">
-                  <DropLogo class="h-8 w-auto" />
+                  <ApplicationLogo class="h-8 w-auto" />
                 </NuxtLink>
 
                 <UserHeaderUserWidget />

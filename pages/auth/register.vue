@@ -5,7 +5,7 @@
     >
       <div class="mx-auto w-full max-w-sm lg:w-96">
         <div>
-          <DropLogo class="h-8 w-auto" />
+          <ApplicationLogo class="h-8 w-auto" />
           <h2
             class="mt-4 text-2xl font-bold font-display leading-9 tracking-tight text-zinc-100"
           >

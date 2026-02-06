@@ -1,5 +1,6 @@
 import type { ApplicationSettingsModel } from "~/prisma/client/models";
 import prisma from "../db/database";
+import type { Settings } from "../utils/types";
 
 class ApplicationConfiguration {
   // Reference to the currently selected application configuration
@@ -79,6 +80,20 @@ class ApplicationConfiguration {
       throw new Error("Somehow, failed to initialise application settings");
 
     return this.currentApplicationSettings[key];
+  }
+
+  async getSettings(): Promise<Settings> {
+    return {
+      store: {
+        showGamePanelTextDecoration: await applicationSettings.get(
+          "showGamePanelTextDecoration",
+        ),
+      },
+      generalSettings: {
+        serverName: await applicationSettings.get("serverName"),
+        mLogoObjectId: await applicationSettings.get("mLogoObjectId"),
+      },
+    };
   }
 }
 

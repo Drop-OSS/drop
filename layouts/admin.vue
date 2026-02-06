@@ -95,7 +95,7 @@
       class="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:block lg:w-20 lg:overflow-y-auto lg:bg-zinc-950 lg:pb-4"
     >
       <div class="flex flex-col h-24 shrink-0 items-center justify-center">
-        <DropLogo class="h-8 w-auto" />
+        <ApplicationLogo class="h-8 w-auto" />
         <span
           class="mt-1 bg-blue-400 px-1 py-0.5 rounded-md text-xs font-bold font-display"
           >{{ $t("header.admin.admin") }}</span
@@ -170,6 +170,7 @@ import type { NavigationItem } from "~/composables/types";
 import { useCurrentNavigationIndex } from "~/composables/current-page-engine";
 import { ArrowLeftIcon } from "@heroicons/vue/16/solid";
 import { XMarkIcon } from "@heroicons/vue/24/solid";
+import type { Settings } from "~/server/internal/utils/types";
 
 const i18nHead = useLocaleHead();
 
@@ -231,6 +232,15 @@ router.afterEach(() => {
   sidebarOpen.value = false;
 });
 
+const {
+  generalSettings: { serverName, mLogoObjectId },
+} = await $dropFetch<Settings>("/api/v1/settings");
+
+const favicon = mLogoObjectId ? useObject(mLogoObjectId) : "/favicon.ico";
+useFavicon(favicon, { rel: "icon" });
+
+const applicationName = serverName || $t("drop.drop");
+
 useHead({
   htmlAttrs: {
     lang: i18nHead.value.htmlAttrs.lang,
@@ -238,7 +248,9 @@ useHead({
     dir: i18nHead.value.htmlAttrs.dir,
   },
   titleTemplate(title) {
-    return title ? $t("adminTitleTemplate", [title]) : $t("adminTitle");
+    return title
+      ? $t("adminTitleTemplate", [title, applicationName])
+      : $t("adminTitle", [applicationName]);
   },
 });
 </script>

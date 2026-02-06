@@ -18,7 +18,7 @@
           <TileWithLink>
             <div class="h-full flex">
               <div class="flex-1 my-auto">
-                <DropLogo />
+                <ApplicationLogo />
               </div>
               <div
                 class="flex-6 lg:flex-2 my-auto text-center flex lg:inline mx-4"
@@ -131,7 +131,9 @@
                   <div class="flex-1 text-sm grow text-right self-center">
                     {{
                       $t("home.admin.availableRam", {
-                        freeRam: formatBytes(systemData.freeRam),
+                        usedRam: formatBytes(
+                          systemData.totalRam - systemData.freeRam,
+                        ),
                         totalRam: formatBytes(systemData.totalRam),
                       })
                     }}
@@ -192,7 +194,6 @@
 <script setup lang="ts">
 import { formatBytes } from "~/server/internal/utils/files";
 import GamepadIcon from "~/components/Icons/GamepadIcon.vue";
-import DropLogo from "~/components/DropLogo.vue";
 import { ServerStackIcon, UserGroupIcon } from "@heroicons/vue/24/outline";
 import { getPercentage } from "~/utils/utils";
 import { getBarColor } from "~/utils/colors";

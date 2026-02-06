@@ -42,7 +42,7 @@ export default defineEventHandler(async (h3) => {
     },
   });
   if (count == 0) {
-    await dump();
+    dump();
     throw createError({ statusCode: 404, message: "Company not found" });
   }
 

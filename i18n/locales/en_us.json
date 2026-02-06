@@ -77,8 +77,8 @@
   },
   "actions": "Actions",
   "add": "Add",
-  "adminTitle": "Admin Dashboard - Drop",
-  "adminTitleTemplate": "{0} - Admin - Drop",
+  "adminTitle": "Admin Dashboard - {0}",
+  "adminTitleTemplate": "{0} - Admin - {1}",
   "auth": {
     "2fa": {
       "backToOptions": "{arrow} Back to options",
@@ -330,6 +330,7 @@
       "library": "Library",
       "metadata": "Meta",
       "settings": {
+        "general": "General Settings",
         "store": "Store",
         "title": "Settings",
         "tokens": "API tokens"
@@ -346,7 +347,7 @@
       "activeInactiveUsers": "Active/inactive users",
       "activeUsers": "Active users",
       "allVersionsCombined": "All versions combined",
-      "availableRam": "({freeRam} / {totalRam})",
+      "availableRam": "({usedRam} / {totalRam})",
       "biggestGamesOnServer": "Biggest games on server",
       "biggestGamesToDownload": "Biggest games to download",
       "cpuUsage": "CPU usage",
@@ -617,6 +618,17 @@
   },
   "settings": {
     "admin": {
+      "general": {
+        "applicationLogo": "Application logo",
+        "customLogo": "Custom logo",
+        "defaultLogo": "Default logo",
+        "logo": "Logo",
+        "serverName": "Server name",
+        "serverNameDescription": "The name of the server",
+        "serverNamePlaceholder": "My Drop Instance",
+        "title": "General settings",
+        "uploadLogo": "Upload logo"
+      },
       "store": {
         "dropGameAltPlaceholder": "Example Game icon",
         "dropGameDescriptionPlaceholder": "This is an example game. It will be replaced if you import a game.",

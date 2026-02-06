@@ -34,4 +34,7 @@ useHead({
     return title ? t("titleTemplate", [title]) : t("title");
   },
 });
+const { mLogoObjectId } = await $dropFetch("/api/v1");
+const favicon = mLogoObjectId ? useObject(mLogoObjectId) : "/favicon.ico";
+useFavicon(favicon, { rel: "icon" });
 </script>
