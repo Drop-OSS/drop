@@ -294,7 +294,7 @@
       "activeInactiveUsers": "Aktive/inaktive Benutzer",
       "activeUsers": "Aktive Benutzer",
       "allVersionsCombined": "Alle Versionen zusammen",
-      "availableRam": "({freeRam} / {totalRam})",
+      "availableRam": "({usedRam} / {totalRam})",
       "biggestGamesOnServer": "Größte Spiele auf dem Server",
       "biggestGamesToDownload": "Die größten Spiele zum Herunterladen",
       "cpuUsage": "CPU Nutzung",

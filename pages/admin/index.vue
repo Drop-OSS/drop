@@ -131,7 +131,9 @@
                   <div class="flex-1 text-sm grow text-right self-center">
                     {{
                       $t("home.admin.availableRam", {
-                        freeRam: formatBytes(systemData.freeRam),
+                        usedRam: formatBytes(
+                          systemData.totalRam - systemData.freeRam,
+                        ),
                         totalRam: formatBytes(systemData.totalRam),
                       })
                     }}
