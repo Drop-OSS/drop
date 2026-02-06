@@ -17,7 +17,7 @@ export default defineClientEventHandler(async (h3) => {
     include: {
       launches: {
         include: {
-          executor: {
+          emulator: {
             include: {
               gameVersion: {
                 select: {
@@ -46,11 +46,11 @@ export default defineClientEventHandler(async (h3) => {
     ...gameVersion,
     launches: gameVersion.launches.map((launch) => ({
       ...launch,
-      executor: launch.executor
+      emulator: launch.emulator
         ? {
-            ...launch.executor,
+            ...launch.emulator,
             gameVersion: undefined,
-            gameId: launch.executor.gameVersion.game.id,
+            gameId: launch.emulator.gameVersion.game.id,
           }
         : undefined,
     })),

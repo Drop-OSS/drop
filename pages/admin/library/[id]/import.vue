@@ -75,7 +75,6 @@
 
     <div v-if="versionGuesses" class="flex flex-col gap-4">
       <!-- setup executable -->
-
       <div class="bg-zinc-800 p-4 rounded-xl relative flex flex-col gap-y-2">
         <div>
           <label class="block text-sm font-medium leading-6 text-zinc-100">{{
@@ -155,7 +154,7 @@
           </Switch>
         </SwitchGroup>
         <div
-          v-if="type === GameType.Redist"
+          v-if="type === GameType.Dependency"
           class="absolute inset-0 bg-zinc-900/50"
         />
       </div>
@@ -215,7 +214,7 @@
                   v-model="versionSettings.launches[launchIdx]"
                   :version-guesses="versionGuesses"
                   :needs-name="true"
-                  :allow-executor="true"
+                  :allow-emulator="true"
                   :type="type"
                 />
               </DisclosurePanel>
@@ -361,7 +360,7 @@ const currentlySelectedVersion = ref(-1);
 const versionSettings = ref<Omit<typeof ImportVersion.infer, "version" | "id">>(
   {
     delta: false,
-    onlySetup: type === GameType.Redist,
+    onlySetup: type === GameType.Dependency,
     launches: [],
     setups: [],
     requiredContent: [],

@@ -10,8 +10,8 @@ enum MetadataSource {
 
 enum GameType {
   Game
-  Executor
-  Redist
+  Emulator
+  Dependency
 }
 
 model Game {
@@ -149,16 +149,17 @@ model LaunchConfiguration {
   platform Platform
 
   // For emulation targets
-  executorId          String?
-  executor            LaunchConfiguration? @relation(fields: [executorId], references: [launchId], name: "executor")
-  executorSuggestions String[]
+  emulatorId          String?
+  emulator            LaunchConfiguration? @relation(fields: [emulatorId], references: [launchId], name: "emulator")
+  emulatorSuggestions String[]
 
-  umuIdOverride String?
+  umuIdOverride    String?
+  umuStoreOverride String?
 
   versionId   String
   gameVersion GameVersion @relation(fields: [versionId], references: [versionId], onDelete: Cascade, onUpdate: Cascade)
 
-  executions LaunchConfiguration[] @relation("executor")
+  emulations LaunchConfiguration[] @relation("emulator")
 }
 
 // A save slot for a game

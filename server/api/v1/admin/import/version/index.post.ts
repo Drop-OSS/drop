@@ -19,7 +19,7 @@ export const ImportVersion = type({
     name: "string",
     launch: "string",
     umuId: "string?",
-    executorId: "string?",
+    emulatorId: "string?",
     suggestions: "string[]?",
   }).array(),
 

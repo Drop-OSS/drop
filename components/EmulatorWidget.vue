@@ -1,11 +1,11 @@
 <template>
   <div
-    v-if="executor"
+    v-if="emulator"
     class="flex space-x-4 rounded-md bg-zinc-900/50 px-6 outline -outline-offset-1 outline-white/10 w-fit text-xs font-bold text-zinc-100"
   >
     <div class="inline-flex gap-x-2 items-center">
-      <img :src="useObject(executor.gameIcon)" class="size-6" />
-      <span>{{ executor.gameName }}</span>
+      <img :src="useObject(emulator.gameIcon)" class="size-6" />
+      <span>{{ emulator.gameName }}</span>
     </div>
     <div class="flex items-center">
       <svg
@@ -17,7 +17,7 @@
       >
         <path d="M.293 0l22 22-22 22h1.414l22-22-22-22H.293z" />
       </svg>
-      <span class="ml-4">{{ executor.versionName }}</span>
+      <span class="ml-4">{{ emulator.versionName }}</span>
     </div>
     <div class="flex items-center">
       <svg
@@ -29,13 +29,13 @@
       >
         <path d="M.293 0l22 22-22 22h1.414l22-22-22-22H.293z" />
       </svg>
-      <span class="ml-4 truncate">{{ executor.launchName }}</span>
+      <span class="ml-4 truncate">{{ emulator.launchName }}</span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { ExecutorLaunchObject } from "~/composables/frontend";
+import type { EmulatorLaunchObject } from "~/composables/frontend";
 
-defineProps<{ executor: ExecutorLaunchObject }>();
+defineProps<{ emulator: EmulatorLaunchObject }>();
 </script>

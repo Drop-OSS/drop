@@ -5,6 +5,7 @@ import type { GameVersionSize } from "~/server/internal/gamesize";
 import gameSizeManager from "~/server/internal/gamesize";
 
 type VersionDownloadOption = {
+  gameId: string;
   versionId: string;
   displayName?: string | undefined;
   versionPath?: string | undefined;
@@ -43,7 +44,7 @@ export default defineClientEventHandler(async (h3) => {
       launches: {
         select: {
           platform: true,
-          executor: {
+          emulator: {
             select: {
               gameVersion: {
                 select: {
@@ -78,18 +79,16 @@ export default defineClientEventHandler(async (h3) => {
           if (!platformOptions.has(launch.platform))
             platformOptions.set(launch.platform, []);
 
-          if ("executor" in launch && launch.executor) {
+          if ("emulator" in launch && launch.emulator) {
             const old = platformOptions.get(launch.platform)!;
+            const gv = launch.emulator.gameVersion;
             old.push({
-              gameId: launch.executor.gameVersion.game.id,
-              versionId: launch.executor.gameVersion.versionId,
-              name: launch.executor.gameVersion.game.mName,
-              iconObjectId: launch.executor.gameVersion.game.mIconObjectId,
-              shortDescription:
-                launch.executor.gameVersion.game.mShortDescription,
-              size: (await gameSizeManager.getVersionSize(
-                launch.executor.gameVersion.versionId,
-              ))!,
+              gameId: gv.game.id,
+              versionId: gv.versionId,
+              name: gv.game.mName,
+              iconObjectId: gv.game.mIconObjectId,
+              shortDescription: gv.game.mShortDescription,
+              size: (await gameSizeManager.getVersionSize(gv.versionId))!,
             });
           }
         }
@@ -101,6 +100,7 @@ export default defineClientEventHandler(async (h3) => {
           .map(
             ([platform, requiredContent]) =>
               ({
+                gameId: v.gameId,
                 versionId: v.versionId,
                 displayName: v.displayName || undefined,
                 versionPath: v.versionPath || undefined,

@@ -20,7 +20,7 @@ export type AdminFetchGameType = Prisma.GameGetPayload<{
         setups: true;
         launches: {
           include: {
-            executor: {
+            emulator: {
               include: {
                 gameVersion: {
                   select: {
@@ -38,7 +38,7 @@ export type AdminFetchGameType = Prisma.GameGetPayload<{
                 };
               };
             };
-            executions: {
+            emulations: {
               select: {
                 launchId: true;
               };
@@ -77,7 +77,7 @@ export default defineEventHandler<
           setups: true,
           launches: {
             include: {
-              executor: {
+              emulator: {
                 include: {
                   gameVersion: {
                     select: {
@@ -95,7 +95,7 @@ export default defineEventHandler<
                   },
                 },
               },
-              executions: {
+              emulations: {
                 select: {
                   launchId: true,
                 },

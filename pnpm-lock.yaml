@@ -125,6 +125,9 @@ importers:
       semver:
         specifier: ^7.7.1
         version: 7.7.2
+      shescape:
+        specifier: ^2.1.8
+        version: 2.1.8
       stream-mime-type:
         specifier: ^2.0.0
         version: 2.0.0
@@ -531,6 +534,10 @@ packages:
 
   '@emnapi/wasi-threads@1.1.0':
     resolution: {integrity: sha512-WI0DdZ8xFSbgMjR1sFsKABJ/C5OnRrjT06JXbZKexJGrDuPTzZdDYfFlsgcCXCyf+suG5QU2e/y1Wo2V/OapLQ==}
+
+  '@ericcornelissen/lregexp@1.0.7':
+    resolution: {integrity: sha512-1FFCOKq49eWRCinu3VuTfV1jv0kgeSET89OHDAUDaASzvIpwmh2/nFUayoEXB65mPT3atgECjlu3KVTIQU7jhw==}
+    engines: {node: ^12.20.0 || ^14.13.0 || ^15 || ^16 || ^17 || ^18 || ^19 || ^20 || ^21 || ^22 || ^23 || ^24 || ^25}
 
   '@es-joy/jsdoccomment@0.52.0':
     resolution: {integrity: sha512-BXuN7BII+8AyNtn57euU2Yxo9yA/KUDNzrpXyi3pfqKmBhhysR6ZWOebFh3vyPoqA3/j1SOvGgucElMGwlXing==}
@@ -4435,6 +4442,10 @@ packages:
     resolution: {integrity: sha512-Dnz92NInDqYckGEUJv689RbRiTSEHCQ7wOVeALbkOz999YpqT46yMRIGtSNl2iCL1waAZSx40+h59NV/EwzV/A==}
     engines: {node: '>=18'}
 
+  is-supported-regexp-flag@2.0.0:
+    resolution: {integrity: sha512-8i4+OYUjdUaJ88KAs1WojIThDFjIpeYNrSlYy1g/At2p9YjQ7HEmB1yn60un0jRFjM3TQbKPMAluTPEPncZfqA==}
+    engines: {node: '>=12.20'}
+
   is-url-superb@4.0.0:
     resolution: {integrity: sha512-GI+WjezhPPcbM+tqE9LnmsY5qqjwHzTvjJ36wxYX5ujNXefSUJ/T17r5bqDV8yLhcgB59KTPNOc9O9cmHTPWsA==}
     engines: {node: '>=10'}
@@ -5941,6 +5952,10 @@ packages:
     resolution: {integrity: sha512-ObmnIF4hXNg1BqhnHmgbDETF8dLPCggZWBjkQfhZpbszZnYur5DUljTcCHii5LC3J5E0yeO/1LIMyH+UvHQgyw==}
     engines: {node: '>= 0.4'}
 
+  shescape@2.1.8:
+    resolution: {integrity: sha512-owfw+5BB1A51KyNiCuUOyDSh1JOw+DrxgX0Uac7eORpF6YBEoLjbDlHn6tHQudnyi3pt3HeHl9jJ30YPmtEMHQ==}
+    engines: {node: ^14.18.0 || ^16.13.0 || ^18 || ^19 || ^20 || ^22 || ^24 || ^25}
+
   side-channel-list@1.0.0:
     resolution: {integrity: sha512-FCLHtRD/gnpCiCHEiJLOwdmFP+wzCmDEkc9y7NsYxeF4u7Btsn1ZuwgwJGxImImHicJArLP4R0yX4c2KCrMrTA==}
     engines: {node: '>= 0.4'}
@@ -7323,6 +7338,10 @@ snapshots:
     dependencies:
       tslib: 2.8.1
     optional: true
+
+  '@ericcornelissen/lregexp@1.0.7':
+    dependencies:
+      is-supported-regexp-flag: 2.0.0
 
   '@es-joy/jsdoccomment@0.52.0':
     dependencies:
@@ -11564,6 +11583,8 @@ snapshots:
 
   is-stream@4.0.1: {}
 
+  is-supported-regexp-flag@2.0.0: {}
+
   is-url-superb@4.0.0: {}
 
   is-url@1.2.4: {}
@@ -13483,6 +13504,11 @@ snapshots:
   shebang-regex@3.0.0: {}
 
   shell-quote@1.8.3: {}
+
+  shescape@2.1.8:
+    dependencies:
+      '@ericcornelissen/lregexp': 1.0.7
+      which: 5.0.0
 
   side-channel-list@1.0.0:
     dependencies:

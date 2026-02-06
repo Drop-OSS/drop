@@ -87,7 +87,7 @@
                       class="size-5"
                     />
                     <img
-                      v-if="guess.type === 'executor'"
+                      v-if="guess.type === 'emulator'"
                       :src="useObject(guess.icon)"
                       class="size-5"
                     />
@@ -142,7 +142,7 @@
         </Combobox>
       </div>
       <div
-        v-if="props.type && props.type === 'Executor'"
+        v-if="props.type && props.type === 'Emulator'"
         class="ml-1 mt-2 rounded-lg bg-blue-900/10 p-1 outline outline-blue-900"
       >
         <div class="flex items-center">
@@ -155,16 +155,16 @@
           <div class="ml-2 inline-flex items-center">
             <p class="text-sm text-blue-200">
               <i18n-t
-                keypath="library.admin.launchRow.executorHint"
+                keypath="library.admin.launchRow.emulatorHint"
                 tag="span"
                 scope="global"
               >
-                <template #executor>
+                <template #rom>
                   <span
                     class="font-mono bg-zinc-950 text-zinc-100 py-1 px-0.5 rounded-xl"
                     >{{
                       // eslint-disable-next-line @intlify/vue-i18n/no-raw-text
-                      "{executor}"
+                      "{rom}"
                     }}</span
                   >
                 </template>
@@ -181,32 +181,32 @@
     >
       {{ $t("library.admin.import.version.platform") }}
     </SelectorPlatform>
-    <div v-if="props.type && props.type === 'Game' && props.allowExecutor">
+    <div v-if="props.type && props.type === 'Game' && props.allowEmulator">
       <h1 class="block text-sm font-medium leading-6 text-zinc-100">
-        {{ $t("library.admin.launchRow.executorTitle") }}
+        {{ $t("library.admin.launchRow.emulatorTitle") }}
       </h1>
       <div class="relative mt-2 space-x-1 inline-flex items-center w-full">
-        <ExecutorWidget v-if="executor" :executor="executor" />
+        <EmulatorWidget v-if="emulator" :emulator="emulator" />
         <div
           v-else
           class="font-bold uppercase font-display text-zinc-500 text-sm"
         >
-          {{ $t("library.admin.launchRow.noExecutorSelected") }}
+          {{ $t("library.admin.launchRow.noEmulatorSelected") }}
         </div>
         <div class="grow" />
         <LoadingButton :loading="false" @click="selectLaunchOpen = true">{{
-          $t("library.admin.launchRow.executorSelect")
+          $t("library.admin.launchRow.emulatorSelect")
         }}</LoadingButton>
         <button
-          :disabled="!executor"
+          :disabled="!emulator"
           class="transition rounded p-2 bg-zinc-900/30 group hover:enabled:bg-red-600/10 text-zinc-400 hover:enabled:text-red-600 disabled:bg-zinc-900/80 disabled:text-zinc-700"
-          @click="() => (executor = undefined)"
+          @click="() => (emulator = undefined)"
         >
           <TrashIcon class="transition size-5" />
         </button>
       </div>
     </div>
-    <div v-if="props.type && props.type === 'Executor'">
+    <div v-if="props.type && props.type === 'Emulator'">
       <p class="block text-sm font-medium leading-6 text-zinc-100">
         {{ $t("library.admin.launchRow.autosuggestHint") }}
       </p>
@@ -219,7 +219,7 @@
       v-model="selectLaunchOpen"
       class="-mt-2"
       :filter-platform="launchConfiguration.platform"
-      @select="(v) => (executor = v)"
+      @select="(v) => (emulator = v)"
     />
   </div>
 </template>
@@ -234,7 +234,7 @@ import {
 } from "@headlessui/vue";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 import { InformationCircleIcon, TrashIcon } from "@heroicons/vue/24/outline";
-import type { ExecutorLaunchObject } from "~/composables/frontend";
+import type { EmulatorLaunchObject } from "~/composables/frontend";
 import type { GameType, Platform } from "~/prisma/client/enums";
 
 import type { ImportVersion } from "~/server/api/v1/admin/import/version/index.post";
@@ -247,17 +247,17 @@ const launchConfiguration = defineModel<
     name?: string;
   }
 >({ required: true });
-const _executorMetadata = ref<ExecutorLaunchObject | undefined>(undefined);
-const executor = computed({
+const _emulatorMetadata = ref<EmulatorLaunchObject | undefined>(undefined);
+const emulator = computed({
   get() {
-    return _executorMetadata.value;
+    return _emulatorMetadata.value;
   },
   set(v) {
-    _executorMetadata.value = v;
+    _emulatorMetadata.value = v;
     if (v) {
-      launchConfiguration.value.executorId = v.launchId;
+      launchConfiguration.value.emulatorId = v.launchId;
     } else {
-      launchConfiguration.value.executorId = undefined;
+      launchConfiguration.value.emulatorId = undefined;
     }
   },
 });
@@ -265,9 +265,9 @@ const executor = computed({
 function updatePlatform(v: Platform | undefined) {
   if (!v) return;
   launchConfiguration.value.platform = v;
-  if (executor.value) {
-    if (executor.value.platform !== v) {
-      executor.value = undefined;
+  if (emulator.value) {
+    if (emulator.value.platform !== v) {
+      emulator.value = undefined;
     }
   }
 }
@@ -275,11 +275,11 @@ function updatePlatform(v: Platform | undefined) {
 const props = defineProps<{
   versionGuesses: Array<VersionGuess> | undefined;
   needsName: boolean;
-  allowExecutor?: boolean;
+  allowEmulator?: boolean;
   type?: GameType;
 }>();
 
-if (props.type && props.type === "Executor")
+if (props.type && props.type === "Emulator")
   launchConfiguration.value.suggestions ??= [];
 
 const selectLaunchOpen = ref(false);
@@ -299,15 +299,15 @@ function updateLaunchCommand(command: string) {
     if (autosetGuess) {
       if (autosetGuess.type === "platform") {
         launchConfiguration.value.platform = autosetGuess.platform;
-      } else if (autosetGuess.type === "executor") {
-        executor.value = {
-          launchId: autosetGuess.executorId,
+      } else if (autosetGuess.type === "emulator") {
+        emulator.value = {
+          launchId: autosetGuess.emulatorId,
           gameName: autosetGuess.gameName,
           gameIcon: autosetGuess.icon,
           versionName: autosetGuess.launchName,
           launchName: autosetGuess.launchName,
           platform: autosetGuess.platform,
-        } satisfies ExecutorLaunchObject;
+        } satisfies EmulatorLaunchObject;
         launchConfiguration.value.platform = autosetGuess.platform;
       }
     }

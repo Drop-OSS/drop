@@ -141,7 +141,7 @@
 
 <script setup lang="ts">
 import { XCircleIcon } from "@heroicons/vue/24/outline";
-import type { ExecutorLaunchObject } from "~/composables/frontend";
+import type { EmulatorLaunchObject } from "~/composables/frontend";
 import type { Platform } from "~/prisma/client/enums";
 import type { GameMetadataSearchResult } from "~/server/internal/metadata/types";
 
@@ -174,12 +174,12 @@ const versions = ref<
 >(undefined);
 
 const emit = defineEmits<{
-  select: [data: ExecutorLaunchObject];
+  select: [data: EmulatorLaunchObject];
 }>();
 
 async function search(query: string) {
   return await $dropFetch("/api/v1/admin/search/game", {
-    query: { q: query, type: "Executor" },
+    query: { q: query, type: "Emulator" },
   });
 }
 

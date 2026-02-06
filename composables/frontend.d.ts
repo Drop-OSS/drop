@@ -12,7 +12,7 @@ declare module "@vue/runtime-core" {
   interface ComponentCustomOptions extends _ComponentCustomOptions {}
 }
 
-export interface ExecutorLaunchObject {
+export interface EmulatorLaunchObject {
   launchId: string;
   gameName: string;
   gameIcon: string;

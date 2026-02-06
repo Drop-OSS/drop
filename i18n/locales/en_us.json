@@ -436,16 +436,16 @@
       "launchRow": {
         "autosuggestHint": "Auto-suggest extensions",
         "currentDirHint": "The installation directory is set as the current directory when launching. It is not prepended to your command.",
-        "executorHint": "{executor} is replaced with the game's launch command for emulators.",
-        "executorSelect": "Select new executor",
-        "executorTitle": "Executor",
-        "noExecutorSelected": "No executor selected"
+        "emulatorHint": "{rom} is replaced with the game's launch command for emulators.",
+        "emulatorSelect": "Select new emulator",
+        "emulatorTitle": "Emulator",
+        "noEmulatorSelected": "No emulator selected"
       },
       "launchSelector": {
-        "description": "Select a launch option as an executor for your new launch option.",
+        "description": "Select a launch option as an emulator for your new launch option.",
         "noVersions": "No versions imported.",
         "platformFilterHint": "Only showing launches for:",
-        "search": "Search for an executor",
+        "search": "Search for an emulator",
         "selectCommand": "Select a launch command",
         "selectVersions": "Select a version",
         "title": "Select a launch option"

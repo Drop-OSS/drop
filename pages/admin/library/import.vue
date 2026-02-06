@@ -369,15 +369,15 @@ const importModes: {
     title: "Game",
     description: "Games are shown in store, and are discoverable.",
   },
-  Executor: {
-    title: "Executor",
+  Emulator: {
+    title: "Emulator",
     description:
-      "Executors are used to launch games. Mainly emulators or wrappers.",
+      "Emulators are used to launch other games, wrapping them in another executable.",
   },
-  Redist: {
-    title: "Redistributable",
+  Dependency: {
+    title: "Dependency",
     description:
-      "Additional content that must be downloaded and installed before running the game.",
+      "Dependencies are setup-only files that get installed before the game is launched.",
   },
 };
 

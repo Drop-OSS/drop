@@ -23,16 +23,16 @@
     >
       <p>{{ props.config.command }}</p>
     </div>
-    <ExecutorWidget
-      v-if="!isSetup(props.config) && props.config.executor"
-      :executor="{
+    <EmulatorWidget
+      v-if="!isSetup(props.config) && props.config.emulator"
+      :emulator="{
         launchId: props.config.launchId,
-        gameName: props.config.executor.gameVersion.game.mName,
-        gameIcon: props.config.executor.gameVersion.game.mIconObjectId,
-        versionName: (props.config.executor.gameVersion.displayName ??
-          props.config.executor.gameVersion.versionPath)!,
-        launchName: props.config.executor.name,
-        platform: props.config.executor.platform,
+        gameName: props.config.emulator.gameVersion.game.mName,
+        gameIcon: props.config.emulator.gameVersion.game.mIconObjectId,
+        versionName: (props.config.emulator.gameVersion.displayName ??
+          props.config.emulator.gameVersion.versionPath)!,
+        launchName: props.config.emulator.name,
+        platform: props.config.emulator.platform,
       }"
     />
   </li>

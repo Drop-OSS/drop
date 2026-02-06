@@ -19,6 +19,7 @@ import gameSizeManager from "~/server/internal/gamesize";
 import type { ImportVersion } from "~/server/api/v1/admin/import/version/index.post";
 import { GameType, type Platform } from "~/prisma/client/enums";
 import { castManifest } from "./manifest/utils";
+import { Shescape } from "shescape";
 
 export function createGameImportTaskId(libraryId: string, libraryPath: string) {
   return createHash("md5")
@@ -35,9 +36,9 @@ export function createVersionImportTaskKey(
     .digest("hex");
 }
 
-export interface ExecutorVersionGuess {
-  type: "executor";
-  executorId: string;
+export interface EmulatorVersionGuess {
+  type: "emulator";
+  emulatorId: string;
   icon: string;
   gameName: string;
   versionName: string;
@@ -51,7 +52,7 @@ export interface PlatformVersionGuess {
 export type VersionGuess = {
   filename: string;
   match: number;
-} & (PlatformVersionGuess | ExecutorVersionGuess);
+} & (PlatformVersionGuess | EmulatorVersionGuess);
 
 export interface UnimportedVersionInformation {
   type: "local" | "depot";
@@ -61,6 +62,7 @@ export interface UnimportedVersionInformation {
 
 class LibraryManager {
   private libraries: Map<string, LibraryProvider<unknown>> = new Map();
+  private shescape = new Shescape({});
 
   addLibrary(library: LibraryProvider<unknown>) {
     this.libraries.set(library.id(), library);
@@ -253,19 +255,19 @@ class LibraryManager {
       ],
     };
 
-    const executorSuggestions = await prisma.launchConfiguration.findMany({
+    const emulators = await prisma.launchConfiguration.findMany({
       where: {
-        executorSuggestions: {
+        emulatorSuggestions: {
           isEmpty: false,
         },
         gameVersion: {
           game: {
-            type: GameType.Executor,
+            type: GameType.Emulator,
           },
         },
       },
       select: {
-        executorSuggestions: true,
+        emulatorSuggestions: true,
         gameVersion: {
           select: {
             game: {
@@ -318,28 +320,28 @@ class LibraryManager {
           const fuzzyValue = fuzzy(basename, game.mName);
           options.push({
             type: "platform",
-            filename: filename.replaceAll(" ", "\\ "),
+            filename: this.shescape.escape(filename),
             platform: platform as Platform,
             match: fuzzyValue,
           });
         }
       }
-      for (const executorSuggestion of executorSuggestions) {
-        for (const suggestion of executorSuggestion.executorSuggestions) {
+      for (const emulator of emulators) {
+        for (const suggestion of emulator.emulatorSuggestions) {
           if (suggestion != ext) continue;
           const fuzzyValue = fuzzy(basename, game.mName);
           options.push({
-            type: "executor",
-            filename: filename.replaceAll(" ", "\\ "),
+            type: "emulator",
+            filename: this.shescape.escape(filename),
             match: fuzzyValue,
-            executorId: executorSuggestion.launchId,
+            emulatorId: emulator.launchId,
 
-            icon: executorSuggestion.gameVersion.game.mIconObjectId,
-            gameName: executorSuggestion.gameVersion.game.mName,
-            versionName: (executorSuggestion.gameVersion.displayName ??
-              executorSuggestion.gameVersion.versionPath)!,
-            launchName: executorSuggestion.name,
-            platform: executorSuggestion.platform,
+            icon: emulator.gameVersion.game.mIconObjectId,
+            gameName: emulator.gameVersion.game.mName,
+            versionName: (emulator.gameVersion.displayName ??
+              emulator.gameVersion.versionPath)!,
+            launchName: emulator.name,
+            platform: emulator.platform,
           });
         }
       }
@@ -382,10 +384,10 @@ class LibraryManager {
     });
     if (!game || !game.libraryId) return undefined;
 
-    if (game.type === GameType.Redist && !metadata.onlySetup)
+    if (game.type === GameType.Dependency && !metadata.onlySetup)
       throw createError({
         statusCode: 400,
-        message: "Redistributables can only be in setup-only mode.",
+        message: "Dependencies can only be in setup-only mode.",
       });
 
     const library = this.libraries.get(game.libraryId);
@@ -474,13 +476,13 @@ class LibraryManager {
                       name: v.name,
                       command: v.launch,
                       platform: v.platform,
-                      ...(v.executorId && game.type === "Game"
+                      ...(v.emulatorId && game.type === "Game"
                         ? {
-                            executorId: v.executorId,
+                            emulatorId: v.emulatorId,
                           }
                         : undefined),
-                      executorSuggestions:
-                        game.type === "Executor" ? (v.suggestions ?? []) : [],
+                      emulatorSuggestions:
+                        game.type === "Emulator" ? (v.suggestions ?? []) : [],
                     })),
                   }
                 : { data: [] },
@@ -549,7 +551,7 @@ class LibraryManager {
       where: {
         launches: {
           some: {
-            executor: {
+            emulator: {
               gameVersion: {
                 gameId,
               },
