@@ -233,8 +233,11 @@ router.afterEach(() => {
 });
 
 const {
-  generalSettings: { serverName },
+  generalSettings: { serverName, mLogoObjectId },
 } = await $dropFetch<Settings>("/api/v1/settings");
+
+const favicon = mLogoObjectId ? useObject(mLogoObjectId) : "/favicon.ico";
+useFavicon(favicon, { rel: "icon" });
 
 const applicationName = serverName || $t("drop.drop");
 
