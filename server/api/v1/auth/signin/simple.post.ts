@@ -1,5 +1,5 @@
 import { AuthMec } from "~/prisma/client/enums";
-import type { JsonArray } from "@prisma/client/runtime/library";
+import type { JsonArray } from "@prisma/client/runtime/client";
 import { type } from "arktype";
 import prisma from "~/server/internal/db/database";
 import sessionHandler from "~/server/internal/session";

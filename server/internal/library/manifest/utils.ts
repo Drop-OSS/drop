@@ -1,4 +1,4 @@
-import type { JsonValue } from "@prisma/client/runtime/library";
+import type { JsonValue } from "@prisma/client/runtime/client";
 
 export type DropletManifest = V2Manifest;
 

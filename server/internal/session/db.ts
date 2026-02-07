@@ -4,7 +4,7 @@ import prisma from "../db/database";
 import type { SessionProvider, SessionWithToken } from "./types";
 import cacheHandler from "../cache";
 import type { SessionWhereInput, JsonFilter } from "~/prisma/client/models";
-import type { InputJsonValue } from "@prisma/client/runtime/library";
+import type { InputJsonValue } from "@prisma/client/runtime/client";
 
 export default function createDBSessionHandler(): SessionProvider {
   const cache = cacheHandler.createCache<SessionWithToken>("DBSession");
