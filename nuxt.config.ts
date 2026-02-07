@@ -96,7 +96,7 @@ export default defineNuxtConfig({
 
     // redirect old OIDC callback route
     "/auth/callback/oidc": {
-      redirect: "/api/v1/auth/odic/callback",
+      redirect: "/api/v1/auth/oidc/callback",
     },
   },
 
