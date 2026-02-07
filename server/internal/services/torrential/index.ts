@@ -50,7 +50,7 @@ export class TorrentialService extends Service<unknown> {
       "torrential",
       () => {
         const localDir = fs.readdirSync(".");
-        if ("torrential" in localDir) {
+        if (localDir.includes("torrential")) {
           const stat = fs.statSync("./torrential");
           if (stat.isDirectory()) {
             // in dev and we have the submodule
