@@ -178,6 +178,7 @@ export default defineNuxtConfig({
       optimizeTranslationDirective: false,
     },
     defaultLocale: "en-us",
+    lazy: true,
     strategy: "no_prefix",
     experimental: {
       localeDetector: "localeDetector.ts",
