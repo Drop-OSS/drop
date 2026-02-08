@@ -105,6 +105,10 @@ export default defineNuxtConfig({
     },
   },
 
+  devServer: {
+    port: 4000,
+  },
+
   nitro: {
     minify: true,
     compressPublicAssets: true,
