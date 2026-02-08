@@ -41,7 +41,7 @@
               <div
                 class="flex-6 lg:flex-2 my-auto text-center flex lg:inline mx-4"
               >
-                <div class="text-3xl flex-1 font-bold">{{ gameCount }}</div>
+                <div class="text-3xl flex-1 font-bold">{{ $n(gameCount) }}</div>
                 <div class="text-xs flex-1 text-left lg:text-center">
                   {{ t("home.admin.games") }}
                 </div>
@@ -62,7 +62,7 @@
                 class="flex-6 lg:flex-2 my-auto text-center flex lg:inline mx-4"
               >
                 <div class="text-3xl flex-1 font-bold">
-                  {{ sources.length }}
+                  {{ $n(sources.length) }}
                 </div>
                 <div class="text-xs flex-1 text-left lg:text-center">
                   {{ t("home.admin.librarySources") }}
@@ -84,7 +84,7 @@
                 class="flex-6 lg:flex-2 my-auto text-center flex lg:inline mx-4"
               >
                 <div class="text-3xl flex-1 font-bold">
-                  {{ userStats.userCount }}
+                  {{ $n(userStats.userCount) }}
                 </div>
                 <div class="text-xs flex-1 text-left lg:text-center">
                   {{ t("home.admin.users") }}
