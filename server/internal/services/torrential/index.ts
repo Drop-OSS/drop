@@ -58,8 +58,8 @@ export class TorrentialService extends Service<unknown> {
               "torrential detected in development mode - building from source",
             );
             return spawn(
-              "cargo run --manifest-path ./torrential/Cargo.toml",
-              [],
+              "cargo",
+              ["run", "--manifest-path", "./torrential/Cargo.toml"],
               {},
             );
           } else {
