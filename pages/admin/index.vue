@@ -15,83 +15,42 @@
     >
       <div class="grid grid-cols-6 gap-4">
         <div class="col-span-6 lg:col-span-1 md:col-span-3 row-span-1">
-          <TileWithLink>
-            <div class="h-full flex">
-              <div class="flex-1 my-auto">
-                <ApplicationLogo />
-              </div>
-              <div
-                class="flex-6 lg:flex-2 my-auto text-center flex lg:inline mx-4"
-              >
-                <div class="text-2xl flex-1 font-bold">{{ version }}</div>
-                <div class="text-xs flex-1 text-left lg:text-center">
-                  {{ t("home.admin.version") }}
-                </div>
-              </div>
-            </div>
-          </TileWithLink>
+          <MiniTile :value="version" :label="t('home.admin.version')">
+            <template #icon>
+              <ApplicationLogo />
+            </template>
+          </MiniTile>
         </div>
 
         <div class="col-span-6 lg:col-span-1 md:col-span-3">
-          <TileWithLink>
-            <div class="h-full flex">
-              <div class="flex-1 my-auto">
-                <GamepadIcon />
-              </div>
-              <div
-                class="flex-6 lg:flex-2 my-auto text-center flex lg:inline mx-4"
-              >
-                <div class="text-3xl flex-1 font-bold">{{ gameCount }}</div>
-                <div class="text-xs flex-1 text-left lg:text-center">
-                  {{ t("home.admin.games") }}
-                </div>
-              </div>
-            </div>
-          </TileWithLink>
+          <MiniTile :label="t('home.admin.games')" :value="gameCount">
+            <template #icon>
+              <GamepadIcon />
+            </template>
+          </MiniTile>
         </div>
 
         <div
           class="col-span-6 lg:col-span-1 md:col-span-3 row-span-1 lg:col-start-1 lg:row-start-2"
         >
-          <TileWithLink>
-            <div class="h-full flex">
-              <div class="flex-1 my-auto">
-                <ServerStackIcon />
-              </div>
-              <div
-                class="flex-6 lg:flex-2 my-auto text-center flex lg:inline mx-4"
-              >
-                <div class="text-3xl flex-1 font-bold">
-                  {{ sources.length }}
-                </div>
-                <div class="text-xs flex-1 text-left lg:text-center">
-                  {{ t("home.admin.librarySources") }}
-                </div>
-              </div>
-            </div>
-          </TileWithLink>
+          <MiniTile
+            :value="sources.length"
+            :label="t('home.admin.librarySources')"
+          >
+            <template #icon>
+              <ServerStackIcon />
+            </template>
+          </MiniTile>
         </div>
 
         <div
           class="col-span-6 lg:col-span-1 md:col-span-3 row-span-1 lg:col-start-2 lg:row-start-2"
         >
-          <TileWithLink>
-            <div class="h-full flex">
-              <div class="flex-1 my-auto">
-                <UserGroupIcon />
-              </div>
-              <div
-                class="flex-6 lg:flex-2 my-auto text-center flex lg:inline mx-4"
-              >
-                <div class="text-3xl flex-1 font-bold">
-                  {{ userStats.userCount }}
-                </div>
-                <div class="text-xs flex-1 text-left lg:text-center">
-                  {{ t("home.admin.users") }}
-                </div>
-              </div>
-            </div>
-          </TileWithLink>
+          <MiniTile :value="userStats.userCount" :label="t('home.admin.users')">
+            <template #icon>
+              <UserGroupIcon />
+            </template>
+          </MiniTile>
         </div>
 
         <div class="col-span-6 row-span-1 lg:col-span-2 lg:row-span-2">
