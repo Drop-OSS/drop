@@ -15,39 +15,19 @@
     >
       <div class="grid grid-cols-6 gap-4">
         <div class="col-span-6 lg:col-span-1 md:col-span-3 row-span-1">
-          <TileWithLink>
-            <div class="h-full flex">
-              <div class="flex-1 my-auto">
-                <ApplicationLogo />
-              </div>
-              <div
-                class="flex-6 lg:flex-2 my-auto text-center flex lg:inline mx-4"
-              >
-                <div class="text-2xl flex-1 font-bold">{{ version }}</div>
-                <div class="text-xs flex-1 text-left lg:text-center">
-                  {{ t("home.admin.version") }}
-                </div>
-              </div>
-            </div>
-          </TileWithLink>
+          <MiniTile :value="version" :label="t('home.admin.version')">
+            <template #icon>
+              <ApplicationLogo />
+            </template>
+          </MiniTile>
         </div>
 
         <div class="col-span-6 lg:col-span-1 md:col-span-3">
-          <TileWithLink>
-            <div class="h-full flex">
-              <div class="flex-1 my-auto">
-                <GamepadIcon />
-              </div>
-              <div
-                class="flex-6 lg:flex-2 my-auto text-center flex lg:inline mx-4"
-              >
-                <div class="text-3xl flex-1 font-bold">{{ $n(gameCount) }}</div>
-                <div class="text-xs flex-1 text-left lg:text-center">
-                  {{ t("home.admin.games") }}
-                </div>
-              </div>
-            </div>
-          </TileWithLink>
+          <MiniTile :label="t('home.admin.games')" :value="$n(gameCount)">
+            <template #icon>
+              <GamepadIcon />
+            </template>
+          </MiniTile>
         </div>
 
         <div
