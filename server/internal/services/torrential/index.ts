@@ -50,7 +50,7 @@ export class TorrentialService extends Service<unknown> {
       "torrential",
       () => {
         const localDir = fs.readdirSync(".");
-        if ("torrential" in localDir) {
+        if (localDir.includes("torrential")) {
           const stat = fs.statSync("./torrential");
           if (stat.isDirectory()) {
             // in dev and we have the submodule
@@ -58,8 +58,8 @@ export class TorrentialService extends Service<unknown> {
               "torrential detected in development mode - building from source",
             );
             return spawn(
-              "cargo run --manifest-path ./torrential/Cargo.toml",
-              [],
+              "cargo",
+              ["run", "--manifest-path", "./torrential/Cargo.toml"],
               {},
             );
           } else {

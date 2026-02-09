@@ -1,5 +1,5 @@
-version: v1
+version: v2
 plugins:
-  - plugin: es
+  - local: protoc-gen-es
     out: server/internal/proto
     opt: target=ts

@@ -15,6 +15,13 @@ export default defineI18nConfig(() => {
     },
   } as const;
 
+  const defaultNumberFormat = {
+    percent: {
+      style: "percent",
+      useGrouping: false,
+    },
+  } as const;
+
   return {
     // https://i18n.nuxtjs.org/docs/guide/locale-fallback
     fallbackLocale: "en-us",
@@ -30,6 +37,18 @@ export default defineI18nConfig(() => {
       es: defaultDateTimeFormat,
       zh: defaultDateTimeFormat,
       "zh-tw": defaultDateTimeFormat,
+    },
+    numberFormats: {
+      "en-us": defaultNumberFormat,
+      "en-gb": defaultNumberFormat,
+      "en-au": defaultNumberFormat,
+      "en-pirate": defaultNumberFormat,
+      fr: defaultNumberFormat,
+      de: defaultNumberFormat,
+      it: defaultNumberFormat,
+      es: defaultNumberFormat,
+      zh: defaultNumberFormat,
+      "zh-tw": defaultNumberFormat,
     },
   };
 });

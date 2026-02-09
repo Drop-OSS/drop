@@ -141,7 +141,7 @@
                     ]"
                   />
                   <span class="text-zinc-600">{{
-                    $t("store.reviews", [rating._sum.mReviewCount ?? 0])
+                    $t("store.reviews", [$n(rating._sum.mReviewCount ?? 0)])
                   }}</span>
                 </td>
               </tr>

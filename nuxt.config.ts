@@ -11,13 +11,18 @@ const packageJsonSchema = type({
   version: "string",
 });
 
-const twemojiJson = module.findPackageJSON(
+const twemojiPackage = module.findPackageJSON(
   "@discordapp/twemoji",
   import.meta.url,
 );
-if (!twemojiJson) {
+if (!twemojiPackage) {
   throw new Error("Could not find @discordapp/twemoji package.");
 }
+const twemojiAssetsPath = path.join(
+  path.dirname(twemojiPackage),
+  "dist",
+  "svg",
+);
 
 // get drop version
 const dropVersion = getDropVersion();
@@ -96,8 +101,12 @@ export default defineNuxtConfig({
 
     // redirect old OIDC callback route
     "/auth/callback/oidc": {
-      redirect: "/api/v1/auth/odic/callback",
+      redirect: "/api/v1/auth/oidc/callback",
     },
+  },
+
+  devServer: {
+    port: 4000,
   },
 
   nitro: {
@@ -143,7 +152,7 @@ export default defineNuxtConfig({
       {
         baseName: "twemoji",
         // get path to twemoji svg assets
-        dir: path.join(path.dirname(twemojiJson), "dist", "svg"),
+        dir: twemojiAssetsPath,
       },
     ],
   },
@@ -169,6 +178,7 @@ export default defineNuxtConfig({
       optimizeTranslationDirective: false,
     },
     defaultLocale: "en-us",
+    lazy: true,
     strategy: "no_prefix",
     experimental: {
       localeDetector: "localeDetector.ts",

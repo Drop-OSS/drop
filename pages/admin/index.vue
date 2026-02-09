@@ -23,7 +23,7 @@
         </div>
 
         <div class="col-span-6 lg:col-span-1 md:col-span-3">
-          <MiniTile :label="t('home.admin.games')" :value="gameCount">
+          <MiniTile :label="t('home.admin.games')" :value="$n(gameCount)">
             <template #icon>
               <GamepadIcon />
             </template>
@@ -33,24 +33,45 @@
         <div
           class="col-span-6 lg:col-span-1 md:col-span-3 row-span-1 lg:col-start-1 lg:row-start-2"
         >
-          <MiniTile
-            :value="sources.length"
-            :label="t('home.admin.librarySources')"
-          >
-            <template #icon>
-              <ServerStackIcon />
-            </template>
-          </MiniTile>
+          <TileWithLink>
+            <div class="h-full flex">
+              <div class="flex-1 my-auto">
+                <ServerStackIcon />
+              </div>
+              <div
+                class="flex-6 lg:flex-2 my-auto text-center flex lg:inline mx-4"
+              >
+                <div class="text-3xl flex-1 font-bold">
+                  {{ $n(sources.length) }}
+                </div>
+                <div class="text-xs flex-1 text-left lg:text-center">
+                  {{ t("home.admin.librarySources") }}
+                </div>
+              </div>
+            </div>
+          </TileWithLink>
         </div>
 
         <div
           class="col-span-6 lg:col-span-1 md:col-span-3 row-span-1 lg:col-start-2 lg:row-start-2"
         >
-          <MiniTile :value="userStats.userCount" :label="t('home.admin.users')">
-            <template #icon>
-              <UserGroupIcon />
-            </template>
-          </MiniTile>
+          <TileWithLink>
+            <div class="h-full flex">
+              <div class="flex-1 my-auto">
+                <UserGroupIcon />
+              </div>
+              <div
+                class="flex-6 lg:flex-2 my-auto text-center flex lg:inline mx-4"
+              >
+                <div class="text-3xl flex-1 font-bold">
+                  {{ $n(userStats.userCount) }}
+                </div>
+                <div class="text-xs flex-1 text-left lg:text-center">
+                  {{ t("home.admin.users") }}
+                </div>
+              </div>
+            </div>
+          </TileWithLink>
         </div>
 
         <div class="col-span-6 row-span-1 lg:col-span-2 lg:row-span-2">

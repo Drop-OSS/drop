@@ -25,7 +25,7 @@
           {{
             $t("common.labelValueColon", {
               label: slice.label,
-              value: slice.value,
+              value: $n(slice.value),
             })
           }}
         </li>
