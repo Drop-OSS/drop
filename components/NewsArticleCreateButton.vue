@@ -217,6 +217,7 @@ import {
   XMarkIcon,
 } from "@heroicons/vue/24/solid";
 import { micromark } from "micromark";
+import { FetchError } from "ofetch";
 
 const news = useNews();
 if (!news.value) {
@@ -414,8 +415,11 @@ async function createArticle() {
 
     modalOpen.value = false;
   } catch (e) {
-    // @ts-expect-error attempt to get statusMessage on error
-    error.value = e?.statusMessage ?? t("errors.unknown");
+    if (e instanceof FetchError) {
+      error.value = e.data.message ?? t("errors.unknown");
+    } else {
+      error.value = e as string;
+    }
   } finally {
     loading.value = false;
   }

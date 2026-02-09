@@ -474,6 +474,8 @@ import {
 import type { SerializeObject } from "nitropack";
 import type { H3Error } from "h3";
 import type { AdminFetchGameType } from "~/server/api/v1/admin/game/[id]/index.get";
+import { FetchError } from "ofetch";
+import { isImageMimeType } from "~/server/internal/mimetypes";
 
 const showUploadModal = ref(false);
 const showAddCarouselModal = ref(false);
@@ -548,7 +550,7 @@ const coreMetadataIconUrl = ref(useObject(game.value.mIconObjectId));
 const coreMetadataIconFileUpload = ref<FileList | undefined>();
 const coreMetadataLoading = ref(false);
 
-function coreMetadataUploadFiles(e: InputEvent) {
+async function coreMetadataUploadFiles(e: InputEvent) {
   if (coreMetadataIconUrl.value.startsWith("blob")) {
     URL.revokeObjectURL(coreMetadataIconUrl.value);
   }
@@ -568,8 +570,10 @@ function coreMetadataUploadFiles(e: InputEvent) {
     );
     return;
   }
-  const objectUrl = URL.createObjectURL(file);
-  coreMetadataIconUrl.value = objectUrl;
+  if (isImageMimeType(await file.arrayBuffer())) {
+    const objectUrl = URL.createObjectURL(file);
+    coreMetadataIconUrl.value = objectUrl;
+  }
 }
 async function coreMetadataUpdate() {
   const formData = new FormData();
@@ -596,12 +600,18 @@ function coreMetadataUpdate_wrapper() {
   coreMetadataLoading.value = true;
   coreMetadataUpdate()
     .catch((e) => {
+      let errorMessage = "";
+      if (e instanceof FetchError) {
+        errorMessage = e.data.message;
+      } else {
+        errorMessage = e as string;
+      }
       createModal(
         ModalType.Notification,
         {
           title: t("errors.game.metadata.title"),
           description: t("errors.game.metadata.description", [
-            (e as H3Error)?.statusMessage ?? t("errors.unknown"),
+            errorMessage ?? t("errors.unknown"),
           ]),
           buttonText: t("common.close"),
         },

@@ -124,6 +124,7 @@ import {
 } from "@headlessui/vue";
 import { ArrowUpTrayIcon } from "@heroicons/vue/20/solid";
 import { XCircleIcon } from "@heroicons/vue/24/solid";
+import { FetchError } from "ofetch";
 
 const open = defineModel<boolean>({
   required: true,
@@ -177,7 +178,11 @@ function uploadFile_wrapper() {
   uploadLoading.value = true;
   uploadFile()
     .catch((error) => {
-      uploadError.value = error.statusMessage ?? t("errors.unknown");
+      if (error instanceof FetchError) {
+        uploadError.value = error.data.message ?? t("errors.unknown");
+      } else {
+        error.value = error as string;
+      }
     })
     .finally(() => {
       uploadLoading.value = false;

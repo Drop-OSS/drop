@@ -1,5 +1,6 @@
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
+import { IMAGE_EXTENSIONS, isImageMimeType } from "~/server/internal/mimetypes";
 import objectHandler from "~/server/internal/objects";
 import { handleFileUpload } from "~/server/internal/utils/handlefileupload";
 
@@ -15,13 +16,21 @@ export default defineEventHandler(async (h3) => {
   });
 
   if (!company)
-    throw createError({ statusCode: 400, statusMessage: "Invalid company id" });
+    throw createError({ statusCode: 400, message: "Invalid company id" });
+
+  const formData = await readMultipartFormData(h3);
+  if (!formData || !isImageMimeType(new Uint8Array(formData[0].data).buffer)) {
+    throw createError({
+      statusCode: 400,
+      message: `File is not an image. Supported file formats: ${IMAGE_EXTENSIONS.join(", ")}`,
+    });
+  }
 
   const result = await handleFileUpload(h3, {}, ["internal:read"], 1);
   if (!result)
     throw createError({
       statusCode: 400,
-      statusMessage: "File upload required (multipart form)",
+      message: "File upload required (multipart form)",
     });
 
   const [ids, , pull, dump] = result;
@@ -29,7 +38,7 @@ export default defineEventHandler(async (h3) => {
   if (!id)
     throw createError({
       statusCode: 400,
-      statusMessage: "Upload at least one file.",
+      message: "Upload at least one file.",
     });
 
   await objectHandler.deleteAsSystem(company.mLogoObjectId);

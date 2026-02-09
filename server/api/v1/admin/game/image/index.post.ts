@@ -1,17 +1,19 @@
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import { handleFileUpload } from "~/server/internal/utils/handlefileupload";
+import { IMAGE_EXTENSIONS, isImageMimeType } from "~/server/internal/mimetypes";
 
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["game:image:new"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
   const form = await readMultipartFormData(h3);
-  if (!form)
+  if (!form || !isImageMimeType(new Uint8Array(form[0].data).buffer)) {
     throw createError({
       statusCode: 400,
-      statusMessage: "This endpoint requires multipart form data.",
+      message: `File is not an image. Supported file formats: ${IMAGE_EXTENSIONS.join(", ")}`,
     });
+  }
 
   const uploadResult = await handleFileUpload(h3, {}, ["internal:read"]);
   if (!uploadResult)
