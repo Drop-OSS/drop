@@ -250,6 +250,7 @@ class DropletInterfaceManager {
     messageType: TorrentialBoundType,
     callbackType: KT,
   ): Promise<Parameters<Extract<K, { type: KT }>["resolve"]>[0]> {
+    await TORRENTIAL_SERVICE.waitServiceHealthy();
     const messageId = crypto.randomUUID();
 
     await TORRENTIAL_SERVICE.writeMessage(messageId, {

@@ -1,5 +1,6 @@
 import type { CertificateStore } from "./ca-store";
 import { dropletInterface } from "../services/torrential/droplet-interface";
+import { logger } from "../logging";
 
 export type CertificateBundle = {
   priv: string;
@@ -34,6 +35,8 @@ export class CertificateAuthority {
     if (!serverCertificate) {
       await ca.generateClientCertificate("server", "Drop Server");
     }
+
+    logger.info("initialised the ca");
 
     return ca;
   }

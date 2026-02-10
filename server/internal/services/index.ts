@@ -48,6 +48,9 @@ export class Service<T> {
 
   private uutils: T;
 
+  private readyPromise: Promise<void>;
+  private readyPromiseResolve: (() => void) | undefined;
+
   constructor(
     name: string,
     executor: Executor,
@@ -62,6 +65,9 @@ export class Service<T> {
     this.setup = setup;
     this.healthcheck = healthcheck;
     this.uutils = utils!;
+    this.readyPromise = new Promise((r) => {
+      this.readyPromiseResolve = r;
+    });
   }
 
   spin() {
@@ -124,6 +130,8 @@ export class Service<T> {
         }
       }
       this.healthy = true;
+      if (this.readyPromiseResolve) this.readyPromiseResolve();
+      this.logger.info("service healthy");
     }
   }
 
@@ -155,6 +163,10 @@ export class Service<T> {
 
   serviceHealthy() {
     return this.healthy;
+  }
+
+  async waitServiceHealthy() {
+    await this.readyPromise;
   }
 
   utils() {

@@ -59,7 +59,7 @@ export class TorrentialService extends Service<unknown> {
             );
             return spawn(
               "cargo",
-              ["run", "--manifest-path", "./torrential/Cargo.toml"],
+              ["run", "--manifest-path", "./torrential/Cargo.toml", "--release"],
               {},
             );
           } else {
@@ -74,14 +74,15 @@ export class TorrentialService extends Service<unknown> {
         return spawn("torrential", [], {});
       },
       async () => {
-        if (this.socket) return true;
-        this.socket = net.createConnection({ port: 33148, host: "127.0.0.1" });
-        await new Promise<void>((r) =>
-          this.socket!.on("connect", () => {
+        const socket = net.createConnection({ port: 33148, host: "127.0.0.1" });
+        await new Promise<void>((r, j) => {
+          socket.on("connect", () => {
             this.logger.info("connected to torrential socket");
+            this.socket = socket;
             r();
-          }),
-        );
+          });
+          socket.on("error", (err) => j(err));
+        });
 
         this.setupRead();
         return true;
@@ -129,6 +130,8 @@ export class TorrentialService extends Service<unknown> {
       data: T;
     },
   ) {
+    if (!this.socket) throw "Not connected to torrential";
+
     const response = create(TorrentialBoundSchema, {
       messageId: messageId,
       type: value.type,
@@ -146,6 +149,7 @@ export class TorrentialService extends Service<unknown> {
   }
 
   private async queueRead() {
+    if (!this.socket) throw "Not connected to torrential";
     if (this.readbuf.length < 8) return;
     const sizeBytes = this.readbuf.subarray(0, 8);
     const size = sizeBytes.readBigUInt64LE(0);
