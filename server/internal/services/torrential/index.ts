@@ -59,7 +59,12 @@ export class TorrentialService extends Service<unknown> {
             );
             return spawn(
               "cargo",
-              ["run", "--manifest-path", "./torrential/Cargo.toml", "--release"],
+              [
+                "run",
+                "--manifest-path",
+                "./torrential/Cargo.toml",
+                "--release",
+              ],
               {},
             );
           } else {
