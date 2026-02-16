@@ -14,6 +14,9 @@ export const taskGroups = {
   "import:game": {
     concurrency: true,
   },
+  "import:version": {
+    concurrency: true,
+  },
   debug: {
     concurrency: true,
   },

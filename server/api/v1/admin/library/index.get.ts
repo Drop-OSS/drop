@@ -1,15 +1,43 @@
+import { ArkErrors, type } from "arktype";
+import type { SerializeObject } from "nitropack";
 import aclManager from "~/server/internal/acls";
+import prisma from "~/server/internal/db/database";
 import libraryManager from "~/server/internal/library";
+
+const Query = type({
+  q: "string?",
+  s: "string.numeric.parse?",
+  l: "string.numeric.parse?",
+});
+
+type FetchArg = Parameters<typeof libraryManager.fetchGamesWithStatus>[0];
+
+export type AdminLibraryGame = SerializeObject<
+  Awaited<ReturnType<typeof libraryManager.fetchGamesWithStatus>>[number]
+>;
 
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["library:read"]);
   if (!allowed) throw createError({ statusCode: 403 });
 
-  const unimportedGames = await libraryManager.fetchUnimportedGames();
-  const games = await libraryManager.fetchGamesWithStatus();
-  const libraries = await libraryManager.fetchLibraries();
+  const query = Query(getQuery(h3));
+  if (query instanceof ArkErrors)
+    throw createError({ statusCode: 400, message: query.summary });
 
-  // Fetch other library data here
+  const skip = query.s
+    ? ({
+        skip: query.s,
+      } satisfies FetchArg)
+    : undefined;
 
-  return { unimportedGames, games, hasLibraries: libraries.length > 0 };
+  const limit = Math.min(query.l ?? 20, 20);
+
+  const results = await libraryManager.fetchGamesWithStatus({
+    ...skip,
+    take: limit,
+  });
+
+  const count = await prisma.game.count();
+
+  return { results, count };
 });

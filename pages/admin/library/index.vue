@@ -26,34 +26,66 @@
         </NuxtLink>
       </div>
     </div>
-    <div v-if="toImport" class="rounded-md bg-blue-600/10 p-4">
-      <div class="flex">
-        <div class="flex-shrink-0">
-          <InformationCircleIcon
-            class="h-5 w-5 text-blue-400"
-            aria-hidden="true"
-          />
-        </div>
-        <div class="ml-3 flex-1 md:flex md:justify-between">
-          <p class="text-sm text-blue-400">
-            {{ $t("library.admin.detectedGame") }}
-          </p>
-          <p class="mt-3 text-sm md:ml-6 md:mt-0">
-            <NuxtLink
-              href="/admin/library/import"
-              class="whitespace-nowrap font-medium text-blue-400 hover:text-blue-500"
-            >
-              <i18n-t
-                keypath="library.admin.import.link"
-                tag="span"
-                scope="global"
+    <div class="flex flex-row justify-between gap-x-5">
+      <div v-if="toImport" class="rounded-md bg-zinc-600/10 p-3">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <WrenchScrewdriverIcon
+              class="h-5 w-5 text-zinc-400"
+              aria-hidden="true"
+            />
+          </div>
+          <div class="ml-3 flex-1 md:flex md:justify-between">
+            <p class="text-sm text-zinc-400">Mass Import Tool</p>
+            <p class="mt-3 text-sm md:ml-6 md:mt-0">
+              <NuxtLink
+                href="/admin/library/mass-import"
+                class="whitespace-nowrap font-medium text-zinc-400 hover:text-zinc-500"
               >
-                <template #arrow>
-                  <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
-                </template>
-              </i18n-t>
-            </NuxtLink>
-          </p>
+                <i18n-t
+                  keypath="library.admin.import.link"
+                  tag="span"
+                  scope="global"
+                >
+                  <template #arrow>
+                    <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
+                  </template>
+                </i18n-t>
+              </NuxtLink>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="toImport" class="rounded-md bg-blue-600/10 p-3">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <InformationCircleIcon
+              class="h-5 w-5 text-blue-400"
+              aria-hidden="true"
+            />
+          </div>
+          <div class="ml-3 flex-1 md:flex md:justify-between">
+            <p class="text-sm text-blue-400">
+              {{ $t("library.admin.detectedGame") }}
+            </p>
+            <p class="mt-3 text-sm md:ml-6 md:mt-0">
+              <NuxtLink
+                href="/admin/library/import"
+                class="whitespace-nowrap font-medium text-blue-400 hover:text-blue-500"
+              >
+                <i18n-t
+                  keypath="library.admin.import.link"
+                  tag="span"
+                  scope="global"
+                >
+                  <template #arrow>
+                    <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
+                  </template>
+                </i18n-t>
+              </NuxtLink>
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -249,14 +281,14 @@
         v-if="
           filteredLibraryGames.length == 0 &&
           libraryGames.length == 0 &&
-          libraryState.hasLibraries
+          hasLibraries
         "
         class="text-zinc-600 text-sm font-display font-bold uppercase text-center col-span-4"
       >
         {{ $t("library.admin.noGames") }}
       </p>
       <p
-        v-else-if="!libraryState.hasLibraries"
+        v-else-if="!hasLibraries"
         class="flex flex-col gap-2 text-zinc-600 text-center col-span-4"
       >
         <span class="text-sm font-display font-bold uppercase">{{
@@ -293,8 +325,10 @@ import {
   ArrowTopRightOnSquareIcon,
   InformationCircleIcon,
   StarIcon,
+  WrenchScrewdriverIcon,
 } from "@heroicons/vue/20/solid";
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
+import type { AdminLibraryGame } from "~/server/api/v1/admin/library/index.get";
 
 const { t } = useI18n();
 
@@ -308,31 +342,39 @@ useHead({
 
 const searchQuery = ref("");
 
-const libraryState = await $dropFetch("/api/v1/admin/library");
-type LibraryStateGame = (typeof libraryState.games)[number]["game"];
-
-const toImport = ref(
-  Object.values(libraryState.unimportedGames).flat().length > 0,
+const { unimportedGames, hasLibraries } = await $dropFetch(
+  "/api/v1/admin/library/libraries",
 );
 
-const libraryGames = ref<
-  Array<
-    LibraryStateGame & {
-      status: "online" | "offline";
-      hasNotifications?: boolean;
-      notifications: {
-        noVersions?: boolean;
-        toImport?: boolean;
-        offline?: boolean;
-      };
-    }
-  >
->(
-  libraryState.games.map((e) => {
+// Hard limit on server
+const pageSize = 12;
+const currentIndex = ref(0);
+const maxIndex = ref(0);
+const maxPages = computed(() => maxIndex.value / pageSize);
+
+const games = ref<AdminLibraryGame[]>([]);
+
+async function fetchPage() {
+  const { results, count } = await $dropFetch("/api/v1/admin/library", {
+    query: {
+      s: currentIndex.value,
+      l: pageSize,
+    },
+  });
+  maxIndex.value = count;
+  games.value = results;
+}
+
+await fetchPage();
+
+const toImport = ref(Object.values(unimportedGames).flat().length > 0);
+
+const libraryGames = ref(
+  games.value.map((e) => {
     if (e.status == "offline") {
       return {
         ...e.game,
-        status: "offline" as const,
+        status: "offline",
         hasNotifications: true,
         notifications: {
           offline: true,

@@ -7,7 +7,6 @@
   "i18n-ally.extract.ignored": [
     "string >= 14",
     "string.alphanumeric >= 5",
-    "/api/v1/admin/import/version/preload?id=${encodeURIComponent(\n      gameId,\n    )}&version=${encodeURIComponent(version)}"
   ],
   "i18n-ally.extract.ignoredByFiles": {
     "components/NewsArticleCreateButton.vue": ["[", "`", "Enter"],

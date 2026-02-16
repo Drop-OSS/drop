@@ -1,6 +1,5 @@
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
-import type { TaskMessage } from "~/server/internal/tasks";
 import taskHandler from "~/server/internal/tasks";
 
 export default defineEventHandler(async (h3) => {
@@ -14,7 +13,7 @@ export default defineEventHandler(async (h3) => {
     });
 
   const runningTasks = (await taskHandler.runningTasks()).map((e) => e.id);
-  const historicalTasks = (await prisma.task.findMany({
+  const historicalTasks = await prisma.task.findMany({
     where: {
       OR: [
         {
@@ -28,8 +27,15 @@ export default defineEventHandler(async (h3) => {
     orderBy: {
       ended: "desc",
     },
-    take: 10,
-  })) as Array<TaskMessage>;
+    select: {
+      id: true,
+      name: true,
+      actions: true,
+      error: true,
+      success: true,
+    },
+    take: 32,
+  });
   const dailyTasks = await taskHandler.dailyTasks();
   const weeklyTasks = await taskHandler.weeklyTasks();
 

@@ -107,9 +107,12 @@ export class Service<T> {
         if (this.spun) this.launch();
       });
 
-      serviceProcess.stdout?.on("data", (data) =>
-        this.logger.info(data.toString().trim()),
-      );
+      serviceProcess.stdout?.on("data", (data) => {
+        const lines = data.toString().trim().split("\n");
+        for (const line of lines) {
+          this.logger.info(line);
+        }
+      });
 
       serviceProcess.stderr?.on("data", (data) =>
         this.logger.error(data.toString().trim()),

@@ -23,18 +23,66 @@
         {{ $t("tasks.admin.noTasksRunning") }}
       </div>
     </div>
-    <div class="mt-6 w-full grid lg:grid-cols-2 gap-8">
-      <div>
+    <div class="mt-6 w-full grid lg:grid-cols-3 gap-8">
+      <div class="col-span-2">
         <h2 class="text-sm font-medium text-zinc-400">
           {{ $t("tasks.admin.completedTasksTitle") }}
         </h2>
-        <ul role="list" class="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <ul role="list" class="mt-4 grid grid-cols-1 gap-2 lg:grid-cols-4 overflow-y-scroll max-h-[80vh]">
           <li
             v-for="task in historicalTasks"
             :key="task.id"
             class="col-span-1 divide-y divide-gray-200 rounded-lg bg-zinc-800 border border-zinc-700 shadow-sm"
           >
-            <TaskWidget :task="task" />
+            <div class="flex w-full items-center justify-between space-x-6 p-2">
+              <div class="flex-1 truncate">
+                <div class="flex items-center space-x-1">
+                  <div>
+                    <CheckCircleIcon
+                      v-if="task.success"
+                      class="size-5 text-green-600"
+                    />
+                    <XMarkIcon
+                      v-else-if="task.error"
+                      class="size-5 text-red-600"
+                    />
+                    <div
+                      v-else
+                      class="size-2 bg-blue-600 rounded-full animate-pulse m-1"
+                    />
+                  </div>
+                  <h3 class="truncate text-sm font-medium text-zinc-100">
+                    {{ task.name }}
+                  </h3>
+                </div>
+                <ul v-if="task.actions" class="mt-1 flex flex-row gap-x-2">
+                  <NuxtLink
+                    v-for="[name, link] in task.actions.map((v) =>
+                      v.split(':'),
+                    )"
+                    :key="link"
+                    :href="link"
+                    class="text-xs text-zinc-100 bg-blue-900 p-1 rounded"
+                    >{{ name }}</NuxtLink
+                  >
+                </ul>
+                <NuxtLink
+                  type="button"
+                  :href="`/admin/task/${task.id}`"
+                  class="mt-3 ml-1 rounded-md text-xs font-medium text-zinc-100 hover:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-100 focus:ring-offset-2"
+                >
+                  <i18n-t
+                    keypath="tasks.admin.viewTask"
+                    tag="span"
+                    scope="global"
+                  >
+                    <template #arrow>
+                      <span aria-hidden="true">{{ $t("chars.arrow") }}</span>
+                    </template>
+                  </i18n-t>
+                </NuxtLink>
+              </div>
+            </div>
           </li>
         </ul>
       </div>
@@ -120,6 +168,7 @@
   </div>
 </template>
 <script lang="ts" setup>
+import { CheckCircleIcon, XMarkIcon } from "@heroicons/vue/24/solid";
 import { PlayIcon } from "@heroicons/vue/24/outline";
 import type { TaskGroup } from "~/server/internal/tasks/group";
 

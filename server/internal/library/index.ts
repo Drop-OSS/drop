@@ -20,6 +20,7 @@ import type { ImportVersion } from "~/server/api/v1/admin/import/version/index.p
 import { GameType, type Platform } from "~/prisma/client/enums";
 import { castManifest } from "./manifest/utils";
 import { Shescape } from "shescape";
+import type { Prisma } from "~/prisma/client/client";
 
 export function createGameImportTaskId(libraryId: string, libraryPath: string) {
   return createHash("md5")
@@ -125,42 +126,33 @@ class LibraryManager {
   async fetchUnimportedGameVersions(
     libraryId: string,
     libraryPath: string,
+    noFetchParams?: {
+      gameId: string;
+      versions: string[];
+      depotVersions: { id: string; versionName: string }[];
+    },
   ): Promise<UnimportedVersionInformation[] | undefined> {
     const provider = this.libraries.get(libraryId);
     if (!provider) return undefined;
-    const game = await prisma.game.findUnique({
-      where: {
-        libraryKey: {
-          libraryId,
-          libraryPath,
+    let params = noFetchParams;
+    if (!params) {
+      const game = await prisma.game.findUnique({
+        where: {
+          libraryKey: {
+            libraryId,
+            libraryPath,
+          },
         },
-      },
-      select: {
-        id: true,
-        versions: true,
-      },
-    });
-    if (!game) return undefined;
-
-    try {
-      const versions = await provider.listVersions(
-        libraryPath,
-        game.versions.map((v) => v.versionPath).filter((v) => v !== null),
-      );
-      const unimportedVersions = versions
-        .filter(
-          (e) =>
-            game.versions.findIndex((v) => v.versionPath == e) == -1 &&
-            !taskHandler.hasTaskKey(createVersionImportTaskKey(game.id, e)),
-        )
-        .map(
-          (v) =>
-            ({
-              type: "local",
-              name: v,
-              identifier: v,
-            }) satisfies UnimportedVersionInformation,
-        );
+        select: {
+          id: true,
+          versions: {
+            select: {
+              versionPath: true,
+            },
+          },
+        },
+      });
+      if (!game) return undefined;
       const depotVersions = await prisma.unimportedGameVersion.findMany({
         where: {
           gameId: game.id,
@@ -170,7 +162,38 @@ class LibraryManager {
           id: true,
         },
       });
-      const mappedDepotVersions = depotVersions.map(
+
+      params = {
+        gameId: game.id,
+        versions: game.versions
+          .map((v) => v.versionPath)
+          .filter((v) => v !== null),
+        depotVersions: depotVersions,
+      };
+    }
+
+    try {
+      const versions = await provider.listVersions(
+        libraryPath,
+        params.versions,
+      );
+      const unimportedVersions = versions
+        .filter(
+          (e) =>
+            params.versions.findIndex((v) => v == e) == -1 &&
+            !taskHandler.hasTaskKey(
+              createVersionImportTaskKey(params.gameId, e),
+            ),
+        )
+        .map(
+          (v) =>
+            ({
+              type: "local",
+              name: v,
+              identifier: v,
+            }) satisfies UnimportedVersionInformation,
+        );
+      const mappedDepotVersions = params.depotVersions.map(
         (v) =>
           ({
             type: "depot",
@@ -188,29 +211,29 @@ class LibraryManager {
     }
   }
 
-  async fetchGamesWithStatus() {
+  async fetchGamesWithStatus(
+    where: Partial<Omit<Prisma.GameFindManyArgs, "include">>,
+  ) {
     const games = await prisma.game.findMany({
+      ...where,
       include: {
         library: true,
         versions: true,
-      },
-      orderBy: {
-        mName: "asc",
       },
     });
 
     return await Promise.all(
       games.map(async (e) => {
-        const versions = await this.fetchUnimportedGameVersions(
+        const unimportedVersions = await this.fetchUnimportedGameVersions(
           e.libraryId ?? "",
           e.libraryPath,
         );
         return {
           game: e,
-          status: versions
+          status: unimportedVersions
             ? {
                 noVersions: e.versions.length == 0,
-                unimportedVersions: versions,
+                unimportedVersions: unimportedVersions,
               }
             : ("offline" as const),
         };
@@ -378,6 +401,47 @@ class LibraryManager {
   ) {
     const taskKey = createVersionImportTaskKey(gameId, version.identifier);
 
+    if (metadata.delta) {
+      for (const platformObject of [
+        ...metadata.launches,
+        ...metadata.setups,
+      ].filter(
+        (v, i, a) => a.findIndex((k) => k.platform === v.platform) == i,
+      )) {
+        const validOverlayVersions = await prisma.gameVersion.count({
+          where: {
+            gameId: metadata.id,
+            delta: false,
+            OR: [
+              { launches: { some: { platform: platformObject.platform } } },
+              {
+                setups: { some: { platform: platformObject.platform } },
+              },
+            ],
+          },
+        });
+        if (validOverlayVersions == 0)
+          throw createError({
+            statusCode: 400,
+            message: `Update mode requires a pre-existing version for platform: ${platformObject.platform}`,
+          });
+      }
+    }
+
+    if (metadata.onlySetup) {
+      if (metadata.setups.length == 0)
+        throw createError({
+          statusCode: 400,
+          message: 'Setup required in "setup mode".',
+        });
+    } else {
+      if (metadata.launches.length == 0)
+        throw createError({
+          statusCode: 400,
+          message: "Launch executable is required.",
+        });
+    }
+
     const game = await prisma.game.findUnique({
       where: { id: gameId },
       select: { mName: true, libraryId: true, libraryPath: true, type: true },
@@ -402,7 +466,7 @@ class LibraryManager {
 
     return await taskHandler.create({
       key: taskKey,
-      taskGroup: "import:game",
+      taskGroup: "import:version",
       name: `Importing version ${version.name} for ${game.mName}`,
       acls: ["system:import:version:read"],
       async run({ progress, logger }) {

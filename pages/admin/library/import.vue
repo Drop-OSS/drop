@@ -344,6 +344,7 @@ import {
 import { XCircleIcon } from "@heroicons/vue/16/solid";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
+import { FetchError } from "ofetch";
 import type { GameType } from "~/prisma/client/enums";
 import type { GameMetadataSearchResult } from "~/server/internal/metadata/types";
 
@@ -406,6 +407,11 @@ async function searchGame() {
     gameSearchLoading.value = false;
   } catch (e) {
     gameSearchLoading.value = false;
+    if (e instanceof FetchError) {
+      gameSearchResultsError.value = e.data?.message ?? t("errors.unknown");
+    } else {
+      gameSearchResultsError.value = (e as string)?.toString();
+    }
 
     throw e;
   }
