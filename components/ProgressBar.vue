@@ -13,7 +13,7 @@
       class="absolute inset-0 flex items-center justify-center text-blue-200 text-sm font-bold font-display"
     >
       <!-- {{ $t("tasks.admin.progress", [Math.round(percentage * 10) / 10]) }} -->
-      {{ $n(Math.round(percentage) / 100, "percent") }}
+      {{ $n(Math.round(percentage * 100) / 10000, "percent") }}
     </span>
   </div>
 </template>

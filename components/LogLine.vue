@@ -1,6 +1,6 @@
 <template>
   <span class="text-xs font-mono text-zinc-400 inline-flex items-top gap-x-2"
-    ><span v-if="!short" class="text-zinc-500">{{ log.timestamp }}</span>
+    ><span v-if="!short" class="text-zinc-500">{{ log.time }}</span>
     <span
       :class="[
         colours[log.level] || 'text-green-400',
@@ -8,8 +8,9 @@
       ]"
       >{{ log.level }}</span
     >
+    <span v-if="log.prefix" class="text-zinc-200"> {{ log.prefix }}</span>
     <pre :class="[short ? 'line-clamp-1' : '', 'mt-[1px]']">{{
-      log.message
+      log.msg
     }}</pre>
   </span>
 </template>

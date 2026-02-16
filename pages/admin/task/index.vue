@@ -28,7 +28,10 @@
         <h2 class="text-sm font-medium text-zinc-400">
           {{ $t("tasks.admin.completedTasksTitle") }}
         </h2>
-        <ul role="list" class="mt-4 grid grid-cols-1 gap-2 lg:grid-cols-4 overflow-y-scroll max-h-[80vh]">
+        <ul
+          role="list"
+          class="mt-4 grid grid-cols-1 gap-2 lg:grid-cols-4 overflow-y-scroll max-h-[80vh]"
+        >
           <li
             v-for="task in historicalTasks"
             :key="task.id"
@@ -209,6 +212,10 @@ const scheduledTasks: {
     description: t("tasks.admin.scheduled.checkUpdateDescription"),
   },
   "import:game": {
+    name: "",
+    description: "",
+  },
+  "import:version": {
     name: "",
     description: "",
   },

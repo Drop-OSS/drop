@@ -8,6 +8,7 @@
 import path from "path";
 import prisma from "../db/database";
 import { fuzzy } from "fast-fuzzy";
+import type { TaskRunContext } from "../tasks";
 import taskHandler from "../tasks";
 import notificationSystem from "../notifications";
 import { GameNotFoundError, type LibraryProvider } from "./provider";
@@ -398,6 +399,7 @@ class LibraryManager {
     gameId: string,
     version: UnimportedVersionInformation,
     metadata: typeof ImportVersion.infer,
+    parentTask?: TaskRunContext,
   ) {
     const taskKey = createVersionImportTaskKey(gameId, version.identifier);
 
@@ -581,7 +583,7 @@ class LibraryManager {
         }
         progress(100);
       },
-    });
+    }, parentTask);
   }
 
   async peekFile(

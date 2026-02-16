@@ -40,7 +40,7 @@
           </div>
         </div>
       </div>
-      <ul class="flex flex-row items-center h-12 gap-x-3">
+      <ul class="flex flex-row flex-wrap items-center h-12 gap-x-3">
         <li
           v-for="[name, link] in task.actions.map((v) => v.split(':'))"
           :key="link"

@@ -14,7 +14,7 @@ const labelNumberMap = {
 export function parseTaskLog(
   logStr?: string | undefined,
 ): typeof TaskLog.infer {
-  if (!logStr) return { message: "", timestamp: "", level: "" };
+  if (!logStr) return { msg: "", time: "", level: "" };
   const log = JSON.parse(logStr);
 
   if (typeof log.level === "number") {
@@ -23,9 +23,5 @@ export function parseTaskLog(
     ] as string;
   }
 
-  return {
-    message: log.msg,
-    timestamp: log.time,
-    level: log.level,
-  };
+  return log;
 }

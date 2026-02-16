@@ -324,22 +324,28 @@ const globalState = computed({
   },
 });
 
+const router = useRouter();
 async function triggerImport() {
-  await $dropFetch("/api/v1/admin/import/massversion", {
+  const { taskId } = await $dropFetch("/api/v1/admin/import/massversion", {
     method: "POST",
     body: {
-      versions: massImport.value.map((game) =>
-        game.versions.map((version) => ({
-          id: game.id,
-          version: {
-            type: version.type,
-            identifier: version.identifier,
-            name: version.name,
-          },
-          ...version.settings,
-        })),
-      ),
+      versions: massImport.value
+        .map((game) =>
+          game.versions
+            .filter((version) => version.enabled)
+            .map((version) => ({
+              id: game.id,
+              version: {
+                type: version.type,
+                identifier: version.identifier,
+                name: version.name,
+              },
+              ...version.settings,
+            })),
+        )
+        .flat(),
     },
   });
+  router.push(`/admin/task/${taskId}`);
 }
 </script>

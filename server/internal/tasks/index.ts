@@ -8,7 +8,7 @@ import checkUpdate from "./registry/update";
 import cleanupObjects from "./registry/objects";
 import { taskGroups, type TaskGroup } from "./group";
 import prisma from "../db/database";
-import { type } from "arktype";
+import { ArkErrors, type } from "arktype";
 import pino from "pino";
 import { logger } from "~/server/internal/logging";
 import { Writable } from "node:stream";
@@ -76,7 +76,7 @@ class TaskHandler {
     this.taskCreators.set(task.taskGroup, task.build);
   }
 
-  async create(iTask: Omit<Task, "id">) {
+  async create(iTask: Omit<Task, "id">, parentTask?: TaskRunContext) {
     const task: Task = { ...iTask, id: crypto.randomUUID() };
     if (this.hasTaskID(task.id))
       throw new Error("Task with ID already exists.");
@@ -105,6 +105,7 @@ class TaskHandler {
 
     const updateAllClients = (reset = false) =>
       new Promise((r) => {
+        //if (parentTask) return; // NO-OP if we're a child task
         if (updateCollectTimeout) {
           updateCollectResolves.push(r);
           return;
@@ -148,7 +149,10 @@ class TaskHandler {
       write(chunk, encoding, callback) {
         try {
           // chunk is a stringified JSON log line
-          const logObj = JSON.parse(chunk.toString());
+          const logObj = TaskLog(JSON.parse(chunk.toString()));
+          if (logObj instanceof ArkErrors) {
+            throw logObj;
+          }
           const taskEntry = taskPool.get(task.id);
           if (taskEntry) {
             taskEntry.log.push(JSON.stringify(logObj));
@@ -156,43 +160,44 @@ class TaskHandler {
           }
         } catch (e) {
           // fallback: ignore or log error
-          logger.error("Failed to parse log chunk", {
-            error: e,
-            chunk: chunk,
-          });
+          logger.error(`Failed to parse log chunk: ${e}, ${chunk}`);
         }
         callback();
       },
     });
 
     // Use pino with the custom stream
-    const taskLogger = pino(
-      {
-        // You can configure timestamp, level, etc. here
-        timestamp: pino.stdTimeFunctions.isoTime,
-        base: null, // Remove pid/hostname if not needed
-        formatters: {
-          level(label) {
-            return {
-              level: label,
-            };
+    const taskLogger =
+      parentTask?.logger ??
+      pino(
+        {
+          // You can configure timestamp, level, etc. here
+          timestamp: pino.stdTimeFunctions.isoTime,
+          base: null, // Remove pid/hostname if not needed
+          formatters: {
+            level(label) {
+              return {
+                level: label,
+              };
+            },
           },
         },
-      },
-      logStream,
-    );
+        logStream,
+      );
 
-    const progress = (progress: number) => {
-      if (progress < 0 || progress > 100) {
-        logger.error("Progress must be between 0 and 100", { progress });
-        return;
-      }
-      const taskEntry = this.taskPool.get(task.id);
-      if (!taskEntry) return;
-      taskEntry.progress = progress;
-      // log(`Progress: ${progress}%`);
-      updateAllClients();
-    };
+    const progress =
+      parentTask?.progress ??
+      ((progress: number) => {
+        if (progress < 0 || progress > 100) {
+          logger.error("Progress must be between 0 and 100", { progress });
+          return;
+        }
+        const taskEntry = this.taskPool.get(task.id);
+        if (!taskEntry) return;
+        taskEntry.progress = progress;
+        // log(`Progress: ${progress}%`);
+        updateAllClients();
+      });
 
     this.taskPool.set(task.id, {
       name: task.name,
@@ -233,35 +238,37 @@ class TaskHandler {
       taskEntry.endTime = new Date().toISOString();
       await updateAllClients();
 
-      for (const clientId of taskEntry.clients.keys()) {
-        if (!this.clientRegistry.get(clientId)) continue;
-        this.disconnect(clientId, task.id);
+      if (!parentTask) {
+        for (const clientId of taskEntry.clients.keys()) {
+          if (!this.clientRegistry.get(clientId)) continue;
+          this.disconnect(clientId, task.id);
+        }
+
+        await prisma.task.create({
+          data: {
+            id: task.id,
+            taskGroup: taskEntry.taskGroup,
+            name: taskEntry.name,
+
+            started: taskEntry.startTime,
+            ended: taskEntry.endTime,
+
+            success: taskEntry.success,
+            progress: taskEntry.progress,
+            log: taskEntry.log,
+
+            acls: taskEntry.acls,
+            actions: taskEntry.actions,
+
+            ...(taskEntry.error ? { error: taskEntry.error } : undefined),
+          },
+        });
       }
-
-      await prisma.task.create({
-        data: {
-          id: task.id,
-          taskGroup: taskEntry.taskGroup,
-          name: taskEntry.name,
-
-          started: taskEntry.startTime,
-          ended: taskEntry.endTime,
-
-          success: taskEntry.success,
-          progress: taskEntry.progress,
-          log: taskEntry.log,
-
-          acls: taskEntry.acls,
-          actions: taskEntry.actions,
-
-          ...(taskEntry.error ? { error: taskEntry.error } : undefined),
-        },
-      });
-
       this.taskPool.delete(task.id);
     };
 
-    taskFunc();
+    const fnPromise = taskFunc();
+    if (parentTask) await fnPromise;
 
     return task.id;
   }
@@ -511,9 +518,10 @@ interface DropTask {
 }
 
 export const TaskLog = type({
-  timestamp: "string",
-  message: "string",
+  time: "string",
+  msg: "string",
   level: "string",
+  prefix: "string?",
 });
 
 // /**

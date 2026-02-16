@@ -2,7 +2,7 @@ import { type } from "arktype";
 import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 import { aclManager } from "~/server/internal/acls";
 import { libraryManager } from "~/server/internal/library";
-import { taskHandler } from "~/server/internal/tasks";
+import { taskHandler, wrapTaskContext } from "~/server/internal/tasks";
 import type { Platform } from "~/prisma/client/client";
 
 const MassImport = type({
@@ -74,7 +74,11 @@ export default defineEventHandler(async (h3) => {
           });
         }
 
-        const versionImportTaskId = await libraryManager.importVersion(
+        logger.info(`importing ${version.version.name}`);
+        const min = versionIndex / body.versions.length;
+        const max = (versionIndex + 1) / body.versions.length;
+
+        await libraryManager.importVersion(
           version.id,
           version.version,
           {
@@ -86,13 +90,23 @@ export default defineEventHandler(async (h3) => {
             delta: false,
             requiredContent: [],
           },
+          wrapTaskContext(
+            {
+              logger,
+              progress,
+              addAction,
+            },
+            {
+              min: min * 100,
+              max: max * 100,
+              prefix: `${version.version.name}`,
+            },
+          ),
         );
 
-        addAction(
-          `View ${version.version.name} import:/admin/task/${versionImportTaskId}`,
-        );
+        logger.info(`finished import for ${version.version.name}`);
 
-        progress((versionIndex / body.versions.length) * 100);
+        progress(max * 100);
       }
     },
   });
