@@ -95,7 +95,7 @@
         v-model="searchQuery"
         type="text"
         name="search"
-        class="col-start-1 row-start-1 block w-full rounded-md bg-zinc-900 py-1.5 pl-10 pr-3 text-base text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:pl-9 sm:text-sm/6"
+        class="col-start-1 row-start-1 block w-full rounded-md bg-zinc-900 py-1.5 pl-10 pr-3 text-base text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 placeholder:text-zinc-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:pl-9 sm:text-sm/6"
         :placeholder="$t('library.search')"
       />
       <MagnifyingGlassIcon
@@ -105,7 +105,7 @@
     </div>
     <ul
       role="list"
-      class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
+      class="relative grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
     >
       <li
         v-for="game in filteredLibraryGames"
@@ -312,7 +312,77 @@
           </i18n-t>
         </NuxtLink>
       </p>
+
+      <div
+        v-if="gamesLoading"
+        class="absolute inset-0 bg-zinc-950/10 flex items-center justify-center"
+      >
+        <div role="status">
+          <svg
+            aria-hidden="true"
+            class="size-8 text-transparent animate-spin fill-white"
+            viewBox="0 0 100 101"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+              fill="currentColor"
+            />
+            <path
+              d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+              fill="currentFill"
+            />
+          </svg>
+          <span class="sr-only">{{ $t("common.srLoading") }}</span>
+        </div>
+      </div>
     </ul>
+    <nav
+      class="flex items-center justify-between border-t border-white/10 px-4 sm:px-0"
+    >
+      <div class="-mt-px flex w-0 flex-1">
+        <button
+          class="group inline-flex items-center border-t-2 border-transparent pt-4 pr-1 text-sm font-medium text-zinc-400 disabled:text-zinc-700 hover:not-disabled:border-white/20 hover:not-disabled:text-zinc-200"
+          :disabled="currentIndex == 0"
+          @click="previousPage"
+        >
+          <ArrowLongLeftIcon
+            class="mr-3 size-5 text-zinc-500 group-disabled:text-zinc-700"
+            aria-hidden="true"
+          />
+          Previous
+        </button>
+      </div>
+      <div class="hidden md:-mt-px md:flex">
+        <button
+          v-for="page in maxPages"
+          :key="page"
+          :class="[
+            currentIndex == page - 1
+              ? 'border-blue-400 text-blue-400'
+              : 'border-transparent hover:not-disabled:text-zinc-white/20 text-zinc-400 hover:not-disabled:border-white/20',
+            'transition inline-flex items-center border-t-2 px-4 pt-4 text-sm font-medium',
+          ]"
+          @click="currentIndex = page - 1"
+        >
+          {{ page }}
+        </button>
+      </div>
+      <div class="-mt-px flex w-0 flex-1 justify-end">
+        <button
+          class="group inline-flex items-center border-t-2 border-transparent pt-4 pl-1 text-sm font-medium text-zinc-400 disabled:text-zinc-700 hover:not-disabled:border-white/20 hover:not-disabled:text-zinc-200"
+          :disabled="currentIndex == maxPages - 1"
+          @click="nextPage"
+        >
+          Next
+          <ArrowLongRightIcon
+            class="ml-3 size-5 text-zinc-500 group-disabled:text-zinc-700"
+            aria-hidden="true"
+          />
+        </button>
+      </div>
+    </nav>
   </div>
 </template>
 
@@ -326,6 +396,8 @@ import {
   InformationCircleIcon,
   StarIcon,
   WrenchScrewdriverIcon,
+  ArrowLongLeftIcon,
+  ArrowLongRightIcon,
 } from "@heroicons/vue/20/solid";
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
 import type { AdminLibraryGame } from "~/server/api/v1/admin/library/index.get";
@@ -346,30 +418,61 @@ const { unimportedGames, hasLibraries } = await $dropFetch(
   "/api/v1/admin/library/libraries",
 );
 
+const route = useRoute();
+const router = useRouter();
+
 // Hard limit on server
 const pageSize = 12;
-const currentIndex = ref(0);
+const currentIndex = ref(route.query.page ? parseInt(route.query.page.toString()) - 1 : 0);
 const maxIndex = ref(0);
-const maxPages = computed(() => maxIndex.value / pageSize);
+const maxPages = computed(() => Math.ceil(maxIndex.value / pageSize));
 
 const games = ref<AdminLibraryGame[]>([]);
+const gamesLoading = ref(false);
 
 async function fetchPage() {
+  gamesLoading.value = true;
   const { results, count } = await $dropFetch("/api/v1/admin/library", {
     query: {
-      s: currentIndex.value,
+      s: currentIndex.value * pageSize,
       l: pageSize,
     },
+    failTitle: "Failed to fetch game library",
   });
   maxIndex.value = count;
   games.value = results;
+  gamesLoading.value = false;
+  router.push({
+    path: route.path,
+    query: {
+      ...route.query,
+      page: currentIndex.value + 1,
+    },
+  });
+}
+
+function nextPage() {
+  if (currentIndex.value < maxPages.value - 1) {
+    currentIndex.value++;
+  }
+}
+
+function previousPage() {
+  if (currentIndex.value > 0) {
+    currentIndex.value--;
+  }
 }
 
 await fetchPage();
 
+watch(currentIndex, () => {
+  fetchPage();
+  document.body.scrollTop = document.documentElement.scrollTop = 0;
+});
+
 const toImport = ref(Object.values(unimportedGames).flat().length > 0);
 
-const libraryGames = ref(
+const libraryGames = computed(() =>
   games.value.map((e) => {
     if (e.status == "offline") {
       return {
