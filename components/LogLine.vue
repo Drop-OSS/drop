@@ -9,9 +9,7 @@
       >{{ log.level }}</span
     >
     <span v-if="log.prefix" class="text-zinc-200"> {{ log.prefix }}</span>
-    <pre :class="[short ? 'line-clamp-1' : '', 'mt-[1px]']">{{
-      log.msg
-    }}</pre>
+    <pre :class="[short ? 'line-clamp-1' : '', 'mt-[1px]']">{{ log.msg }}</pre>
   </span>
 </template>
 

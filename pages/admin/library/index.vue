@@ -315,7 +315,7 @@
 
       <div
         v-if="gamesLoading"
-        class="absolute inset-0 bg-zinc-950/10 flex items-center justify-center"
+        class="absolute inset-0 bg-zinc-900/50 flex items-center justify-center"
       >
         <div role="status">
           <svg
@@ -422,8 +422,10 @@ const route = useRoute();
 const router = useRouter();
 
 // Hard limit on server
-const pageSize = 12;
-const currentIndex = ref(route.query.page ? parseInt(route.query.page.toString()) - 1 : 0);
+const pageSize = 24;
+const currentIndex = ref(
+  route.query.page ? parseInt(route.query.page.toString()) - 1 : 0,
+);
 const maxIndex = ref(0);
 const maxPages = computed(() => Math.ceil(maxIndex.value / pageSize));
 

@@ -4,10 +4,7 @@
     "strings": "on"
   },
   "i18n-ally.extract.autoDetect": true,
-  "i18n-ally.extract.ignored": [
-    "string >= 14",
-    "string.alphanumeric >= 5",
-  ],
+  "i18n-ally.extract.ignored": ["string >= 14", "string.alphanumeric >= 5"],
   "i18n-ally.extract.ignoredByFiles": {
     "components/NewsArticleCreateButton.vue": ["[", "`", "Enter"],
     "pages/admin/library/sources/index.vue": ["Filesystem"],
@@ -32,7 +29,7 @@
       "username": "drop"
     }
   ],
-  "typescript.experimental.useTsgo": false,
+  "typescript.experimental.useTsgo": true,
   // prioritize ArkType's "type" for autoimports
   "typescript.preferences.autoImportSpecifierExcludeRegexes": ["^(node:)?os$"]
 }

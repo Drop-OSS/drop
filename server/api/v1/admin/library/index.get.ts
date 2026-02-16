@@ -30,7 +30,7 @@ export default defineEventHandler(async (h3) => {
       } satisfies FetchArg)
     : undefined;
 
-  const limit = Math.min(query.l ?? 20, 20);
+  const limit = Math.min(query.l ?? 24, 50);
 
   const results = await libraryManager.fetchGamesWithStatus({
     ...skip,
