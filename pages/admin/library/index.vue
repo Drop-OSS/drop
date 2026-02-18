@@ -12,7 +12,7 @@
       <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
         <NuxtLink
           to="/admin/library/sources"
-          class="block rounded-md bg-blue-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-500 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+          class="block rounded-md bg-blue-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-500 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
         >
           <i18n-t
             keypath="library.admin.sources.link"
@@ -36,7 +36,9 @@
             />
           </div>
           <div class="ml-3 flex-1 md:flex md:justify-between">
-            <p class="text-sm text-zinc-400">Mass Import Tool</p>
+            <p class="text-sm text-zinc-400">
+              {{ $t("library.admin.massImportTool") }}
+            </p>
             <p class="mt-3 text-sm md:ml-6 md:mt-0">
               <NuxtLink
                 href="/admin/library/mass-import"
@@ -89,26 +91,167 @@
         </div>
       </div>
     </div>
-    <div class="mt-2 grid grid-cols-1">
-      <input
-        id="search"
-        v-model="searchQuery"
-        type="text"
-        name="search"
-        class="col-start-1 row-start-1 block w-full rounded-md bg-zinc-900 py-1.5 pl-10 pr-3 text-base text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 placeholder:text-zinc-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:pl-9 sm:text-sm/6"
-        :placeholder="$t('library.search')"
-      />
-      <MagnifyingGlassIcon
-        class="pointer-events-none col-start-1 row-start-1 ml-3 size-5 self-center text-zinc-400 sm:size-4"
-        aria-hidden="true"
-      />
-    </div>
+    <!-- Search -->
+    <Disclosure
+      as="section"
+      aria-labelledby="filter-heading"
+      class="mt-2 relative flex items-center border-y border-zinc-800 gap-x-4"
+    >
+      <h2 id="filter-heading" class="sr-only">
+        {{ $t("library.admin.nav.filterLabel") }}
+      </h2>
+      <div class="relative col-start-1 row-start-1 py-4">
+        <div class="mx-auto flex max-w-7xl divide-x divide-zinc-700 text-sm">
+          <div class="pr-6">
+            <DisclosureButton
+              class="group flex items-center font-medium text-zinc-400"
+            >
+              <FunnelIcon
+                class="mr-2 size-5 flex-none text-gray-400 group-hover:text-gray-500"
+                aria-hidden="true"
+              />
+              {{
+                $t("library.admin.nav.filterCount", [
+                  Object.values(currentFilters).filter((v) => v).length,
+                ])
+              }}
+            </DisclosureButton>
+          </div>
+          <div class="pl-6">
+            <button type="button" class="text-zinc-400">
+              {{ $t("library.admin.nav.clearAllFilters") }}
+            </button>
+          </div>
+        </div>
+      </div>
+      <DisclosurePanel
+        class="absolute bottom-0 translate-y-full left-0 border border-zinc-800 py-4 bg-zinc-900 rounded-b-xl z-10 shadow"
+      >
+        <div
+          class="flex flex-wrap flex-col lg:flex-row max-w-7xl text-sm px-4 gap-4"
+        >
+          <fieldset v-for="filter in filterScaffold" :key="filter.value">
+            <legend class="block font-medium text-zinc-100">
+              {{ filter.title }}
+            </legend>
+            <div class="space-y-6 sm:space-y-4 pt-2">
+              <div
+                v-for="option in filter.values"
+                :key="option.value"
+                class="flex gap-3"
+              >
+                <div class="flex h-5 shrink-0 items-center">
+                  <div class="group grid size-4 grid-cols-1">
+                    <input
+                      :id="createFilterKey(filter, option)"
+                      v-model="currentFilters[createFilterKey(filter, option)]"
+                      :value="createFilterKey(filter, option)"
+                      type="checkbox"
+                      class="col-start-1 row-start-1 appearance-none rounded-sm border border-zinc-700 bg-zinc-950 checked:border-blue-600 checked:bg-blue-600 indeterminate:border-blue-600 indeterminate:bg-blue-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:checked:bg-gray-100 forced-colors:appearance-auto"
+                    />
+                    <svg
+                      class="pointer-events-none col-start-1 row-start-1 size-3.5 self-center justify-self-center stroke-white group-has-disabled:stroke-gray-950/25"
+                      viewBox="0 0 14 14"
+                      fill="none"
+                    >
+                      <path
+                        class="opacity-0 group-has-checked:opacity-100"
+                        d="M3 8L6 11L11 3.5"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        class="opacity-0 group-has-indeterminate:opacity-100"
+                        d="M3 7H11"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <label
+                  :for="createFilterKey(filter, option)"
+                  class="text-base text-zinc-300 sm:text-sm"
+                  >{{ option.label }}</label
+                >
+              </div>
+            </div>
+          </fieldset>
+        </div>
+      </DisclosurePanel>
+      <div class="grow grid grid-cols-1">
+        <input
+          id="search"
+          v-model="searchQuery"
+          type="text"
+          name="search"
+          class="col-start-1 row-start-1 block w-full rounded-md bg-zinc-900 py-1.5 pl-10 pr-3 text-base text-zinc-100 border-[0px] outline-[0px] placeholder:text-zinc-400 sm:pl-9 sm:text-sm/6"
+          :placeholder="$t('library.search')"
+        />
+        <MagnifyingGlassIcon
+          class="pointer-events-none col-start-1 row-start-1 ml-3 size-5 self-center text-zinc-400 sm:size-4"
+          aria-hidden="true"
+        />
+      </div>
+      <div class="col-start-1 row-start-1 py-4">
+        <div class="mx-auto flex max-w-7xl justify-end px-2">
+          <Menu as="div" class="relative inline-block">
+            <div class="flex">
+              <MenuButton
+                class="group inline-flex justify-center text-sm font-medium text-zinc-400 hover:text-zinc-500"
+              >
+                {{ $t("library.admin.nav.sortLabel") }}
+                <ChevronDownIcon
+                  class="-mr-1 ml-1 size-5 shrink-0 text-zinc-400 group-hover:text-zinc-500"
+                  aria-hidden="true"
+                />
+              </MenuButton>
+            </div>
+
+            <transition
+              enter-active-class="transition ease-out duration-100"
+              enter-from-class="transform opacity-0 scale-95"
+              enter-to-class="transform scale-100"
+              leave-active-class="transition ease-in duration-75"
+              leave-from-class="transform scale-100"
+              leave-to-class="transform opacity-0 scale-95"
+            >
+              <MenuItems
+                class="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white shadow-2xl ring-1 ring-black/5 focus:outline-hidden"
+              >
+                <div class="py-1">
+                  <MenuItem
+                    v-for="option in sortOptions"
+                    :key="option.name"
+                    v-slot="{ active }"
+                  >
+                    <a
+                      :href="option.href"
+                      :class="[
+                        option.current
+                          ? 'font-medium text-gray-900'
+                          : 'text-gray-500',
+                        active ? 'bg-gray-100 outline-hidden' : '',
+                        'block px-4 py-2 text-sm',
+                      ]"
+                      >{{ option.name }}</a
+                    >
+                  </MenuItem>
+                </div>
+              </MenuItems>
+            </transition>
+          </Menu>
+        </div>
+      </div>
+    </Disclosure>
     <ul
       role="list"
       class="relative grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
     >
       <li
-        v-for="game in filteredLibraryGames"
+        v-for="game in libraryGames"
         :key="game.id"
         class="relative overflow-hidden col-span-1 flex flex-col justify-center divide-y divide-zinc-800 rounded-xl bg-zinc-950/30 text-left shadow-md border hover:scale-102 hover:shadow-xl hover:bg-zinc-950/70 border-zinc-800 transition-all duration-200 group"
       >
@@ -272,20 +415,10 @@
         </div>
       </li>
       <p
-        v-if="filteredLibraryGames.length == 0 && libraryGames.length != 0"
+        v-if="libraryGames.length == 0 && hasLibraries"
         class="text-zinc-600 text-sm font-display font-bold uppercase text-center col-span-4"
       >
         {{ $t("common.noResults") }}
-      </p>
-      <p
-        v-if="
-          filteredLibraryGames.length == 0 &&
-          libraryGames.length == 0 &&
-          hasLibraries
-        "
-        class="text-zinc-600 text-sm font-display font-bold uppercase text-center col-span-4"
-      >
-        {{ $t("library.admin.noGames") }}
       </p>
       <p
         v-else-if="!hasLibraries"
@@ -351,7 +484,7 @@
             class="mr-3 size-5 text-zinc-500 group-disabled:text-zinc-700"
             aria-hidden="true"
           />
-          Previous
+          {{ $t("library.admin.nav.backPagination") }}
         </button>
       </div>
       <div class="hidden md:-mt-px md:flex">
@@ -375,7 +508,7 @@
           :disabled="currentIndex == maxPages - 1"
           @click="nextPage"
         >
-          Next
+          {{ $t("library.admin.nav.nextPagination") }}
           <ArrowLongRightIcon
             class="ml-3 size-5 text-zinc-500 group-disabled:text-zinc-700"
             aria-hidden="true"
@@ -398,9 +531,20 @@ import {
   WrenchScrewdriverIcon,
   ArrowLongLeftIcon,
   ArrowLongRightIcon,
+  ChevronDownIcon,
+  FunnelIcon,
 } from "@heroicons/vue/20/solid";
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
 import type { AdminLibraryGame } from "~/server/api/v1/admin/library/index.get";
+import {
+  Disclosure,
+  DisclosureButton,
+  DisclosurePanel,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems,
+} from "@headlessui/vue";
 
 const { t } = useI18n();
 
@@ -436,8 +580,8 @@ async function fetchPage() {
   gamesLoading.value = true;
   const { results, count } = await $dropFetch("/api/v1/admin/library", {
     query: {
-      s: currentIndex.value * pageSize,
-      l: pageSize,
+      skip: currentIndex.value * pageSize,
+      limit: pageSize,
     },
     failTitle: "Failed to fetch game library",
   });
@@ -502,19 +646,6 @@ const libraryGames = computed(() =>
   }),
 );
 
-const filteredLibraryGames = computed(() =>
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore excessively deep ts
-  libraryGames.value.filter((e) => {
-    if (!searchQuery.value) return true;
-    const searchQueryLower = searchQuery.value.toLowerCase();
-    if (e.mName.toLowerCase().includes(searchQueryLower)) return true;
-    if (e.mShortDescription.toLowerCase().includes(searchQueryLower))
-      return true;
-    return false;
-  }),
-);
-
 async function deleteGame(id: string) {
   await $dropFetch(`/api/v1/admin/game/${id}`, {
     method: "DELETE",
@@ -543,4 +674,73 @@ async function featureGame(id: string) {
   libraryGames.value[gameIndex].featured = !game.featured;
   gameFeatureLoading.value[game.id] = false;
 }
+
+const currentFilters = ref<{ [key: string]: boolean }>({});
+
+function createFilterKey(
+  filter: { value: string },
+  subfilter: { value: string },
+) {
+  return `${filter.value}.${subfilter.value}`;
+}
+
+const filters = computed(
+  () =>
+    ({
+      version: [
+        {
+          value: "none",
+          label: t("library.admin.nav.filters.version.none"),
+        },
+        {
+          value: "available",
+          label: t("library.admin.nav.filters.version.available"),
+        },
+      ],
+      metadata: [
+        {
+          value: "featured",
+          label: t("library.admin.nav.filters.metadata.featured"),
+        },
+        {
+          value: "noCarousel",
+          label: t("library.admin.nav.filters.metadata.noCarousel"),
+        },
+        {
+          value: "emptyDescription",
+          label: t("library.admin.nav.filters.metadata.emptyDescription"),
+        },
+      ],
+    }) as const,
+);
+
+const filterScaffold = computed(
+  () =>
+    ({
+      version: {
+        title: t("library.admin.nav.filters.version.title"),
+        value: "version",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        values: filters.value.version as any,
+      },
+      metadata: {
+        title: t("library.admin.nav.filters.metadata.title"),
+        value: "metadata",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        values: filters.value.metadata as any,
+      },
+    }) satisfies {
+      [key in keyof typeof filters.value]: {
+        title: string;
+        value: string;
+        values: Array<{ value: string; label: string }>;
+      };
+    },
+);
+
+const sortOptions = [
+  { name: "Most Popular", href: "#", current: true },
+  { name: "Best Rating", href: "#", current: false },
+  { name: "Newest", href: "#", current: false },
+];
 </script>

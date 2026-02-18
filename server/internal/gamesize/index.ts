@@ -21,23 +21,31 @@ class GameSizeManager {
   private gameBreakdownCache =
     cacheHandler.createCache<GameSizeBreakdown>("gameBreakdown");
 
+  private gameVersionSizeCacheKey(versionId: string, previousId?: string) {
+    return `${versionId}${previousId ? `-from-${previousId}` : ""}`;
+  }
+
   /***
    * Gets the size of the game to the user:
    * - installSize: size on disk after install
    * - downloadSize: how many bytes are downloaded (but not necessarily stored)
    */
-  async getVersionSize(versionId: string): Promise<GameVersionSize | null> {
-    if (await this.gameVersionsSizesCache.has(versionId))
-      return await this.gameVersionsSizesCache.get(versionId);
+  async getVersionSize(
+    versionId: string,
+    previousId?: string,
+  ): Promise<GameVersionSize | null> {
+    const key = this.gameVersionSizeCacheKey(versionId, previousId);
+    if (await this.gameVersionsSizesCache.has(key))
+      return await this.gameVersionsSizesCache.get(key);
     try {
       const { downloadSize, installSize } =
-        await createDownloadManifestDetails(versionId);
+        await createDownloadManifestDetails(versionId, previousId);
       const result = {
         downloadSize,
         installSize,
         versionId,
       } satisfies GameVersionSize;
-      await this.gameVersionsSizesCache.set(versionId, result);
+      await this.gameVersionsSizesCache.set(key, result);
       return result;
     } catch {
       return null;

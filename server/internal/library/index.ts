@@ -513,9 +513,16 @@ class LibraryManager {
             throw "Could not find or create manifest for this version.";
           }
 
-          const currentIndex = await prisma.gameVersion.count({
+          const largestIndex = await prisma.gameVersion.findFirst({
             where: { gameId: gameId },
+            orderBy: {
+              versionIndex: "desc",
+            },
+            select: {
+              versionIndex: true,
+            },
           });
+          const currentIndex = largestIndex ? largestIndex.versionIndex + 1 : 0;
 
           // Then, create the database object
           const newVersion = await prisma.gameVersion.create({

@@ -152,7 +152,7 @@
                         id="display-name"
                         v-model="version.settings.displayName"
                         type="text"
-                        class="min-w-48 block w-full rounded-md bg-white/5 px-3 py-1.5 text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-zinc-500 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-500 sm:text-sm/6"
+                        class="min-w-48 block w-full rounded-md border-radius-md bg-zinc-900 px-3 py-1.5 text-white outline-2 -outline-offset-1 outline-zinc-800 placeholder:text-zinc-500 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-500 sm:text-sm/6"
                         placeholder="My New Version"
                       />
                     </td>

@@ -1,3 +1,4 @@
+import { ArkErrors, type } from "arktype";
 import type { Platform } from "~/prisma/client/enums";
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import prisma from "~/server/internal/db/database";
@@ -21,6 +22,10 @@ type VersionDownloadOption = {
   }>;
 };
 
+const Query = type({
+  previous: "string?",
+});
+
 export default defineClientEventHandler(async (h3) => {
   const id = getRouterParam(h3, "id")!;
   if (!id)
@@ -28,6 +33,10 @@ export default defineClientEventHandler(async (h3) => {
       statusCode: 400,
       statusMessage: "No ID in router params",
     });
+
+  const query = Query(getQuery(h3));
+  if (query instanceof ArkErrors)
+    throw createError({ statusCode: 400, message: query.summary });
 
   const rawVersions = await prisma.gameVersion.findMany({
     where: {
@@ -93,7 +102,7 @@ export default defineClientEventHandler(async (h3) => {
           }
         }
 
-        const size = await gameSizeManager.getVersionSize(v.versionId);
+        const size = await gameSizeManager.getVersionSize(v.versionId, query.previous);
 
         return platformOptions
           .entries()

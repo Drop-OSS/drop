@@ -1,15 +1,22 @@
+import { ArkErrors, type } from "arktype";
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import { createDownloadManifestDetails } from "~/server/internal/library/manifest/index";
 
-export default defineClientEventHandler(async (h3) => {
-  const query = getQuery(h3);
-  const version = query.version?.toString();
-  if (!version)
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Missing version ID in query",
-    });
+const Query = type({
+  version: "string",
+  previous: "string?",
+  refresh: "string?",
+});
 
-  const result = await createDownloadManifestDetails(version);
+export default defineClientEventHandler(async (h3) => {
+  const query = Query(getQuery(h3));
+  if (query instanceof ArkErrors)
+    throw createError({ statusCode: 400, message: query.summary });
+
+  const result = await createDownloadManifestDetails(
+    query.version,
+    query.previous,
+    query.refresh == "true",
+  );
   return result;
 });
