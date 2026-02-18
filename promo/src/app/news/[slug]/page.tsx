@@ -61,7 +61,7 @@ export default async function BlogPost({
                     className="aspect-square size-6 rounded-full object-cover"
                   />
                 )}
-                <div className="text-sm/5 text-gray-700">{author.name}</div>
+                <div className="text-sm/5 text-zinc-300">{author.name}</div>
               </div>
             )}
             {
@@ -69,7 +69,7 @@ export default async function BlogPost({
                 {tags.map((tag) => (
                   <div
                     key={tag}
-                    className="rounded-full border border-dotted border-gray-300 bg-gray-50 px-2 text-sm/6 font-medium text-gray-500"
+                    className="rounded-full border border-dotted border-zinc-800 bg-zinc-900 px-2 text-sm/6 font-medium text-zinc-400"
                   >
                     {tag}
                   </div>
@@ -77,7 +77,7 @@ export default async function BlogPost({
               </div>
             }
           </div>
-          <div className="text-gray-700">
+          <div className="text-zinc-400">
             <div className="max-w-2xl xl:mx-auto">
               {post.image && (
                 <img

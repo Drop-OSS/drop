@@ -39,7 +39,7 @@ function GameVaultLogo() {
   return (
     <div className="inline-flex items-center gap-x-2 text-xl font-bold">
       <img src="/icons/gamevault.png" alt="GameVault Logo" className="size-8" />
-      <span className="relative whitespace-nowrap text-purple-900">
+      <span className="relative whitespace-nowrap text-zinc-100">
         <svg
           aria-hidden="true"
           viewBox="0 0 418 42"
@@ -56,7 +56,7 @@ function GameVaultLogo() {
 
 function GameVaultPlus() {
   return (
-    <div className="inline-flex items-center gap-x-1 rounded-full bg-gray-100 px-2 py-1 text-xs">
+    <div className="inline-flex items-center gap-x-1 rounded-full bg-zinc-800 px-2 py-1 text-xs">
       <img
         src="/icons/gamevault-plus.png"
         alt="GameVault+ icon"
@@ -69,7 +69,7 @@ function GameVaultPlus() {
 
 function ComingSoon() {
   return (
-    <div className="inline-flex items-center gap-x-1 rounded-full bg-gray-100 px-2 py-1 text-xs">
+    <div className="inline-flex items-center gap-x-1 rounded-full bg-zinc-900 px-2 py-1 text-xs">
       coming soon&trade;
     </div>
   )
@@ -121,6 +121,7 @@ const projects: Array<{
         'Installer/setup games': true,
         'Portable games': true,
         'Archives support': 'All 7-zip formats',
+        'Automatic import': 'Bulk-import tool',
       },
       Metadata: {
         'Additional with plugins': false,
@@ -230,7 +231,7 @@ const projects: Array<{
         'Non-versioned layout': true,
         'Automatic import': true,
         'Archives support': 'All 7-zip formats',
-        'Portable games': true
+        'Portable games': true,
       },
       Metadata: {
         IGDB: true,
@@ -279,14 +280,14 @@ function Header() {
   )
 }
 
-function PricingCards() {
+function ProjectCards() {
   return (
     <div className="relative py-24">
       <Gradient className="absolute inset-x-2 top-48 bottom-0 rounded-4xl ring-1 ring-black/5 ring-inset" />
       <Container className="relative">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {projects.map((tier, tierIndex) => (
-            <PricingCard key={tierIndex} tier={tier} />
+            <ProjectCard key={tierIndex} tier={tier} />
           ))}
         </div>
       </Container>
@@ -294,22 +295,22 @@ function PricingCards() {
   )
 }
 
-function PricingCard({ tier }: { tier: (typeof projects)[number] }) {
+function ProjectCard({ tier }: { tier: (typeof projects)[number] }) {
   return (
-    <div className="-m-2 grid grid-cols-1 rounded-4xl shadow-[inset_0_0_2px_1px_#ffffff4d] ring-1 ring-black/5 max-lg:mx-auto max-lg:w-full max-lg:max-w-md">
+    <div className="-m-2 grid grid-cols-1 rounded-4xl shadow-[inset_0_0_2px_1px_#ffffff4d] ring-1 ring-white/5 max-lg:mx-auto max-lg:w-full max-lg:max-w-md">
       <div className="grid grid-cols-1 rounded-4xl p-2 shadow-md shadow-black/5">
-        <div className="rounded-3xl bg-white p-10 pb-9 shadow-2xl ring-1 ring-black/5">
+        <div className="rounded-3xl bg-zinc-900 p-10 pb-9 shadow-2xl ring-1 ring-black/5">
           <div className="flex w-full items-center justify-center pb-8">
             {tier.logo()}
           </div>
 
           <Subheading>{tier.name}</Subheading>
-          <p className="mt-2 text-sm/6 text-gray-950/75">{tier.description}</p>
+          <p className="mt-2 text-sm/6 text-zinc-100/75">{tier.description}</p>
           <div className="mt-8">
             <Button href={tier.href}>Learn more &rarr;</Button>
           </div>
           <div className="mt-8">
-            <h3 className="text-sm/6 font-medium text-gray-950">
+            <h3 className="text-sm/6 font-medium text-zinc-100">
               Key features:
             </h3>
             <ul className="mt-3 space-y-3">
@@ -324,10 +325,10 @@ function PricingCard({ tier }: { tier: (typeof projects)[number] }) {
   )
 }
 
-function PricingTable({
-  selectedTier: selectedProject,
+function ProjectTable({
+  selectedProject,
 }: {
-  selectedTier: (typeof projects)[number]
+  selectedProject: (typeof projects)[number]
 }) {
   function onlyUnique<T>(value: T, index: number, array: Array<T>) {
     return array.indexOf(value) === index
@@ -385,7 +386,7 @@ function PricingTable({
                 <Menu>
                   <MenuButton className="flex items-center justify-between gap-2 font-medium">
                     {selectedProject.name}
-                    <ChevronUpDownIcon className="size-4 fill-gray-900" />
+                    <ChevronUpDownIcon className="size-4 fill-zinc-100" />
                   </MenuButton>
                   <MenuItems
                     anchor="bottom start"
@@ -444,7 +445,7 @@ function PricingTable({
                 colSpan={4}
                 className="px-0 pt-10 pb-0 group-first-of-type:pt-5"
               >
-                <div className="-mx-4 rounded-lg bg-gray-50 px-4 py-3 text-sm/6 font-semibold">
+                <div className="-mx-4 rounded-lg bg-zinc-900 px-4 py-3 text-sm/6 font-semibold">
                   {section}
                 </div>
               </th>
@@ -452,11 +453,11 @@ function PricingTable({
             {features[section].map((name) => (
               <tr
                 key={name}
-                className="border-b border-gray-100 last:border-none"
+                className="border-b border-zinc-800 last:border-none"
               >
                 <th
                   scope="row"
-                  className="px-0 py-4 text-sm/6 font-normal text-gray-600"
+                  className="px-0 py-4 text-sm/6 font-normal text-zinc-200"
                 >
                   {name}
                 </th>
@@ -488,7 +489,7 @@ function PricingTable({
                           </span>
                         </>
                       ) : (
-                        <div className="text-xs">{value}</div>
+                        <div className="text-xs text-zinc-400">{value}</div>
                       )}
                     </td>
                   )
@@ -514,10 +515,10 @@ function FeatureItem({
   return (
     <li
       data-disabled={disabled ? true : undefined}
-      className="flex items-center gap-4 text-sm/6 text-gray-950/75 data-disabled:text-gray-950/25"
+      className="flex items-center gap-4 text-sm/6 text-zinc-100/75 data-disabled:text-zinc-100/40"
     >
       <span className="inline-flex h-6 items-center self-start">
-        <PlusIcon className="size-3.75 shrink-0 fill-gray-950/25" />
+        <PlusIcon className="size-3.75 shrink-0 fill-zinc-100/25" />
       </span>
       {disabled && <span className="sr-only">Coming soon:</span>}
       {description}
@@ -553,8 +554,8 @@ export default function Pricing() {
         <Navbar />
       </Container>
       <Header />
-      <PricingCards />
-      <PricingTable selectedTier={tier} />
+      <ProjectCards />
+      <ProjectTable selectedProject={tier} />
       <Footer />
     </main>
   )

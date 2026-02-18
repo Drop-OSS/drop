@@ -12,11 +12,11 @@ function CallToAction() {
     <div className="relative pt-20 pb-16 text-center sm:py-24">
       <hgroup>
         <Subheading>Get started</Subheading>
-        <p className="mt-6 text-3xl font-medium tracking-tight text-gray-950 sm:text-5xl">
+        <p className="mt-6 text-3xl font-medium tracking-tight text-white sm:text-5xl">
           Ready to dive in?
         </p>
       </hgroup>
-      <p className="mx-auto mt-6 max-w-xs text-sm/6 text-gray-500">
+      <p className="mx-auto mt-6 max-w-xs text-sm/6 text-zinc-400">
         Get started hosting Drop in 10 minutes or less, and explore all the
         features it has to offer.
       </p>
@@ -33,7 +33,7 @@ function CallToAction() {
 }
 
 function SitemapHeading({ children }: { children: React.ReactNode }) {
-  return <h3 className="text-sm/6 font-medium text-gray-950/50">{children}</h3>
+  return <h3 className="text-sm/6 font-medium text-zinc-100/50">{children}</h3>
 }
 
 function SitemapLinks({ children }: { children: React.ReactNode }) {
@@ -45,7 +45,7 @@ function SitemapLink(props: React.ComponentPropsWithoutRef<typeof Link>) {
     <li>
       <Link
         {...props}
-        className="font-medium text-gray-950 data-hover:text-gray-950/75"
+        className="font-medium text-zinc-100 data-hover:text-zinc-100/75"
       />
     </li>
   )
@@ -164,8 +164,8 @@ function SocialLinks() {
 
 function Copyright() {
   return (
-    <div className="text-xs text-gray-500">
-      &copy; {new Date().getFullYear()} Drop OSS. Licensed under AGPLv3 and
+    <div className="text-xs text-zinc-400">
+      &copy; {new Date().getFullYear()} Drop OSS. Website licensed under AGPLv3 and
       Tailwind UI Plus (where applicable).
     </div>
   )
@@ -173,39 +173,37 @@ function Copyright() {
 
 export function Footer() {
   return (
-    <footer>
-      <Gradient className="relative">
-        <div className="absolute inset-2 rounded-4xl bg-white/80" />
-        <Container>
-          <CallToAction />
-          <PlusGrid className="pb-16">
-            <PlusGridRow>
-              <div className="grid grid-cols-2 gap-y-10 pb-6 lg:grid-cols-6 lg:gap-8">
-                <div className="col-span-2 flex">
-                  <PlusGridItem className="pt-6 lg:pb-6">
-                    <Logo className="h-9" />
-                  </PlusGridItem>
-                </div>
-                <div className="col-span-2 grid grid-cols-2 gap-x-8 gap-y-12 lg:col-span-4 lg:grid-cols-subgrid lg:pt-6">
-                  <Sitemap />
-                </div>
-              </div>
-            </PlusGridRow>
-            <PlusGridRow className="flex justify-between">
-              <div>
-                <PlusGridItem className="py-3">
-                  <Copyright />
+    <footer className="relative m-2 overflow-hidden rounded-4xl">
+      <Gradient className="absolute inset-0 rounded-4xl" />
+      <Container>
+        <CallToAction />
+        <PlusGrid className="pb-16">
+          <PlusGridRow>
+            <div className="grid grid-cols-2 gap-y-10 pb-6 lg:grid-cols-6 lg:gap-8">
+              <div className="col-span-2 flex">
+                <PlusGridItem className="pt-6 lg:pb-6">
+                  <Logo className="h-9" />
                 </PlusGridItem>
               </div>
-              <div className="flex">
-                <PlusGridItem className="flex items-center gap-8 py-3">
-                  <SocialLinks />
-                </PlusGridItem>
+              <div className="col-span-2 grid grid-cols-2 gap-x-8 gap-y-12 lg:col-span-4 lg:grid-cols-subgrid lg:pt-6">
+                <Sitemap />
               </div>
-            </PlusGridRow>
-          </PlusGrid>
-        </Container>
-      </Gradient>
+            </div>
+          </PlusGridRow>
+          <PlusGridRow className="flex justify-between">
+            <div>
+              <PlusGridItem className="py-3">
+                <Copyright />
+              </PlusGridItem>
+            </div>
+            <div className="flex">
+              <PlusGridItem className="flex items-center gap-8 py-3">
+                <SocialLinks />
+              </PlusGridItem>
+            </div>
+          </PlusGridRow>
+        </PlusGrid>
+      </Container>
     </footer>
   )
 }

@@ -27,8 +27,8 @@ function Person({
         <img alt="" src={img} className="size-12 rounded-full" />
         <div className="text-sm/6">
           <h3 className="font-medium group-hover:underline">{name}</h3>
-          <p className="text-gray-500">{description}</p>
-          <p className="text-xs font-semibold text-gray-400 uppercase">
+          <p className="text-zinc-400">{description}</p>
+          <p className="text-xs font-semibold text-blue-600/80">
             {contributions} contribution(s)
           </p>
         </div>
@@ -105,14 +105,14 @@ export function Team() {
       </Lead>
       <div className="mt-12 grid grid-cols-1 gap-12 lg:grid-cols-2">
         <div className="max-w-lg">
-          <p className="text-sm/6 text-gray-600">
+          <p className="text-sm/6 text-zinc-400">
             Drop OSS was started, mostly on a whim, in response to frustrations
             with the controlled nature of DRM games, and the missing comforts of
             DRM-free games. Since then, we&apos;ve put together a small circle
             of dedicated maintainers and contributors to develop Drop and all
             its amazing features.
           </p>
-          <p className="mt-8 text-sm/6 text-gray-600">
+          <p className="mt-8 text-sm/6 text-zinc-400">
             If you know a little code, you can help out! We heavily encourage
             contributions, especially if you&apos;re passionate about the
             project and enjoy writing code. We use a variety of stacks across
@@ -124,8 +124,9 @@ export function Team() {
               className="w-full sm:w-auto"
               href="https://developer.droposs.org/contributing"
               target="_blank"
+              variant="outline"
             >
-              Contribute
+              Contribute &rarr;
             </Button>
           </div>
         </div>
@@ -133,7 +134,7 @@ export function Team() {
       <Subheading id="team" as="h3" className="mt-24">
         The team
       </Subheading>
-      <hr className="mt-6 border-t border-gray-200" />
+      <hr className="mt-6 border-t border-zinc-800" />
       <ul
         role="list"
         className="mx-auto mt-16 grid grid-cols-1 gap-8 sm:grid-cols-3 lg:grid-cols-4"

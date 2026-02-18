@@ -5,8 +5,8 @@ import { Footer } from '@/components/footer'
 import { Gradient } from '@/components/gradient'
 import { LogoCluster } from '@/components/logo-cluster'
 import { Navbar } from '@/components/navbar'
-import { Screenshot } from '@/components/screenshot'
 import { Heading, Subheading } from '@/components/text'
+import { ArrowDownCircleIcon } from '@heroicons/react/24/solid'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -21,16 +21,18 @@ function Hero() {
       <Container className="relative">
         <Navbar />
         <div className="pt-16 pb-24 sm:pt-24 sm:pb-32 md:pt-32 md:pb-48">
-          <h1 className="font-display text-6xl/[0.9] font-medium tracking-tight text-balance text-gray-950 sm:text-8xl/[0.8] md:text-9xl/[0.8]">
+          <h1 className="font-display text-6xl/[0.9] font-medium tracking-tight text-balance text-zinc-100 sm:text-8xl/[0.8] md:text-9xl/[0.8]">
             An open Steam.
           </h1>
-          <p className="mt-8 max-w-lg text-xl/7 font-medium text-gray-950/75 sm:text-2xl/8">
+          <p className="mt-8 max-w-lg text-xl/7 font-medium text-zinc-100/75 sm:text-2xl/8">
             Drop is an open-source, self-hosted alternative to platforms like
             Steam and Epic.
           </p>
           <div className="mt-12 flex flex-col gap-x-6 gap-y-4 sm:flex-row">
-            <Button href="https://docs.droposs.org/docs/guides/quickstart">Get started</Button>
-            <Button variant="secondary" href="/about">
+            <Button href="https://docs.droposs.org/docs/guides/quickstart">
+              Get started
+            </Button>
+            <Button variant="outline" href="/about">
               About
             </Button>
           </div>
@@ -42,18 +44,49 @@ function Hero() {
 
 function FeatureSection() {
   return (
-    <div className="overflow-hidden">
-      <Container className="pb-24">
-        <Heading as="h2" className="max-w-3xl">
-          A better experience for DRM&#8209;free games.
-        </Heading>
-        <Screenshot
-          width={3408}
-          height={1846}
-          src="/screenshots/app.webp"
-          className="mt-16 h-144 sm:h-auto sm:w-304"
-        />
-      </Container>
+    <div className="py-24 sm:py-32">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="mx-auto max-w-2xl sm:text-center">
+          <Subheading>Drop OSS</Subheading>
+          <Heading as="h3" className="mt-2 max-w-4xl">
+            The ultimate self-hosted game manager.
+          </Heading>
+
+          <p className="mt-6 text-lg/8 text-zinc-400">
+            Drop is built from the ground up to be flexible, fast, and
+            beautiful. It's designed to scale with your library, and handle
+            thousands of games.
+          </p>
+        </div>
+      </div>
+      <div className="relative overflow-hidden pt-16">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <img
+            alt="App screenshot"
+            src="/gallery/store.png"
+            width={1920}
+            height={1071}
+            className="mb-[-5%] rounded-xl shadow-2xl ring-1 ring-gray-900/10"
+          />
+          <div aria-hidden="true" className="relative">
+            <div className="absolute -inset-x-20 bottom-0 bg-linear-to-t from-zinc-950 pt-[7%]" />
+          </div>
+        </div>
+      </div>
+      <div className="mx-auto mt-16 max-w-7xl px-6 sm:mt-20 md:mt-24 lg:px-8">
+        <dl className="mx-auto grid max-w-2xl grid-cols-1 gap-x-6 gap-y-10 text-base/7 text-zinc-400 sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-3 lg:gap-x-8 lg:gap-y-16">
+          <div className="relative pl-9">
+            <dt className="inline font-semibold text-zinc-100">
+              <ArrowDownCircleIcon
+                aria-hidden="true"
+                className="absolute top-1 left-1 size-5 text-blue-600"
+              />
+              ADASDASD
+            </dt>{' '}
+            <dd className="inline">ASDASDASDAS</dd>
+          </div>
+        </dl>
+      </div>
     </div>
   )
 }
@@ -132,7 +165,7 @@ export default function Home() {
     <div className="overflow-hidden">
       <Hero />
       <main>
-        <div className="bg-linear-to-b from-white from-50% to-gray-100 py-32">
+        <div className="bg-linear-to-b pb-16">
           <FeatureSection />
           <BentoSection />
         </div>

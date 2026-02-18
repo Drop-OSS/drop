@@ -26,7 +26,7 @@ function CTA() {
 
       <div className="mt-12 grid grid-cols-1 gap-12 lg:grid-cols-2">
         <div className="max-w-lg">
-          <p className="text-sm/6 text-gray-600">
+          <p className="text-sm/6 text-zinc-400">
             If you&apos;re looking to give back to the project financially -
             first off, thank you. It really does help a lot. There are two
             options for contributing: our OpenCollective, which funds
@@ -45,7 +45,6 @@ function CTA() {
             <Button
               className="w-full sm:w-auto"
               href="/about#team"
-              variant="secondary"
             >
               Team &rarr;
             </Button>
