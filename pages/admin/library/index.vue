@@ -91,7 +91,7 @@
         </div>
       </div>
     </div>
-    <!-- Search -->
+    <!-- Search & filter -->
     <Disclosure
       as="section"
       aria-labelledby="filter-heading"
@@ -197,14 +197,14 @@
       </div>
       <div class="col-start-1 row-start-1 py-4">
         <div class="mx-auto flex max-w-7xl justify-end px-2">
-          <Menu as="div" class="relative inline-block">
-            <div class="flex">
+          <Menu as="div" class="relative inline-block text-left">
+            <div>
               <MenuButton
-                class="group inline-flex justify-center text-sm font-medium text-zinc-400 hover:text-zinc-500"
+                class="group inline-flex justify-center text-sm font-medium text-zinc-400 hover:text-zinc-100"
               >
-                {{ $t("library.admin.nav.sortLabel") }}
+                {{ $t("store.view.sort") }}
                 <ChevronDownIcon
-                  class="-mr-1 ml-1 size-5 shrink-0 text-zinc-400 group-hover:text-zinc-500"
+                  class="-mr-1 ml-1 size-5 shrink-0 text-gray-400 group-hover:text-zinc-100"
                   aria-hidden="true"
                 />
               </MenuButton>
@@ -213,31 +213,39 @@
             <transition
               enter-active-class="transition ease-out duration-100"
               enter-from-class="transform opacity-0 scale-95"
-              enter-to-class="transform scale-100"
+              enter-to-class="transform opacity-100 scale-100"
               leave-active-class="transition ease-in duration-75"
-              leave-from-class="transform scale-100"
+              leave-from-class="transform opacity-100 scale-100"
               leave-to-class="transform opacity-0 scale-95"
             >
               <MenuItems
-                class="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white shadow-2xl ring-1 ring-black/5 focus:outline-hidden"
+                class="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-zinc-950 shadow-2xl ring-1 ring-white/5 focus:outline-hidden"
               >
                 <div class="py-1">
                   <MenuItem
-                    v-for="option in sortOptions"
-                    :key="option.name"
+                    v-for="option in sorts"
+                    :key="option.param"
                     v-slot="{ active }"
                   >
-                    <a
-                      :href="option.href"
+                    <button
                       :class="[
-                        option.current
-                          ? 'font-medium text-gray-900'
-                          : 'text-gray-500',
-                        active ? 'bg-gray-100 outline-hidden' : '',
-                        'block px-4 py-2 text-sm',
+                        currentSort == option.param
+                          ? 'font-medium text-zinc-100'
+                          : 'text-zinc-400',
+                        active ? 'bg-zinc-900 outline-hidden' : '',
+                        'w-full text-left block px-4 py-2 text-sm',
                       ]"
-                      >{{ option.name }}</a
+                      @click.prevent="handleSortClick(option, $event)"
                     >
+                      {{ option.name }}
+                      <span v-if="currentSort === option.param">
+                        {{
+                          sortOrder === "asc"
+                            ? $t("chars.arrowUp")
+                            : $t("chars.arrowDown")
+                        }}
+                      </span>
+                    </button>
                   </MenuItem>
                 </div>
               </MenuItems>
@@ -448,7 +456,7 @@
 
       <div
         v-if="gamesLoading"
-        class="absolute inset-0 bg-zinc-900/50 flex items-center justify-center"
+        class="absolute inset-0 bg-zinc-900/50 flex items-start p-4 justify-center"
       >
         <div role="status">
           <svg
@@ -556,8 +564,6 @@ useHead({
   title: t("library.admin.title"),
 });
 
-const searchQuery = ref("");
-
 const { unimportedGames, hasLibraries } = await $dropFetch(
   "/api/v1/admin/library/libraries",
 );
@@ -576,26 +582,7 @@ const maxPages = computed(() => Math.ceil(maxIndex.value / pageSize));
 const games = ref<AdminLibraryGame[]>([]);
 const gamesLoading = ref(false);
 
-async function fetchPage() {
-  gamesLoading.value = true;
-  const { results, count } = await $dropFetch("/api/v1/admin/library", {
-    query: {
-      skip: currentIndex.value * pageSize,
-      limit: pageSize,
-    },
-    failTitle: "Failed to fetch game library",
-  });
-  maxIndex.value = count;
-  games.value = results;
-  gamesLoading.value = false;
-  router.push({
-    path: route.path,
-    query: {
-      ...route.query,
-      page: currentIndex.value + 1,
-    },
-  });
-}
+const searchQuery = ref("");
 
 function nextPage() {
   if (currentIndex.value < maxPages.value - 1) {
@@ -608,13 +595,6 @@ function previousPage() {
     currentIndex.value--;
   }
 }
-
-await fetchPage();
-
-watch(currentIndex, () => {
-  fetchPage();
-  document.body.scrollTop = document.documentElement.scrollTop = 0;
-});
 
 const toImport = ref(Object.values(unimportedGames).flat().length > 0);
 
@@ -692,10 +672,10 @@ const filters = computed(
           value: "none",
           label: t("library.admin.nav.filters.version.none"),
         },
-        {
+        /*{
           value: "available",
           label: t("library.admin.nav.filters.version.available"),
-        },
+        },*/
       ],
       metadata: [
         {
@@ -738,9 +718,83 @@ const filterScaffold = computed(
     },
 );
 
-const sortOptions = [
-  { name: "Most Popular", href: "#", current: true },
-  { name: "Best Rating", href: "#", current: false },
-  { name: "Newest", href: "#", current: false },
+const sorts: Array<StoreSortOption> = [
+  {
+    name: "Default",
+    param: "default",
+  },
+  {
+    name: "Newest",
+    param: "newest",
+  },
+  {
+    name: "Recently Added",
+    param: "recent",
+  },
+  {
+    name: "Name",
+    param: "name",
+  },
 ];
+
+const currentSort = ref(sorts[0].param);
+const sortOrder = ref<"asc" | "desc">("desc");
+
+function handleSortClick(option: StoreSortOption, event: MouseEvent) {
+  event.stopPropagation();
+  if (currentSort.value === option.param) {
+    sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
+  } else {
+    currentSort.value = option.param;
+    sortOrder.value = option.param === "name" ? "asc" : "desc";
+  }
+}
+
+async function fetchPage() {
+  gamesLoading.value = true;
+  const { results, count } = await $dropFetch("/api/v1/admin/library", {
+    query: {
+      skip: currentIndex.value * pageSize,
+      limit: pageSize,
+      sort: currentSort.value,
+      order: sortOrder.value,
+      filters: Object.entries(currentFilters.value)
+        .filter(([_, enabled]) => enabled)
+        .map(([name, _]) => name)
+        .join(","),
+      query: searchQuery.value ? searchQuery.value : undefined,
+    },
+    failTitle: "Failed to fetch game library",
+  });
+  maxIndex.value = count;
+  games.value = results;
+  gamesLoading.value = false;
+  router.push({
+    path: route.path,
+    query: {
+      ...route.query,
+      page: currentIndex.value + 1,
+    },
+  });
+}
+
+function watchHandler() {
+  fetchPage();
+  document.body.scrollTop = document.documentElement.scrollTop = 0;
+}
+
+watch([currentIndex, currentSort, sortOrder], watchHandler);
+
+watch(currentFilters, watchHandler, { deep: true });
+
+let searchTimeout: NodeJS.Timeout | undefined;
+watch(searchQuery, () => {
+  if (searchTimeout) clearTimeout(searchTimeout);
+  gamesLoading.value = true;
+  searchTimeout = setTimeout(() => {
+    watchHandler();
+  }, 80);
+});
+
+await fetchPage();
 </script>

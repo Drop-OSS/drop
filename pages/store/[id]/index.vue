@@ -284,7 +284,7 @@ const ratingArray = Array(5)
 
 useHead({
   title: game.mName,
-  link: [{ rel: "icon", href: useObject(game.mIconObjectId) }],
+  // link: [{ rel: "icon", href: useObject(game.mIconObjectId) }], // Favicon doesn't get reset when we navigate off
 });
 </script>
 

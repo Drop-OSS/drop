@@ -15,7 +15,7 @@
   "i18n-ally.localesPaths": ["i18n", "i18n/locales"],
   // i18n Ally settings
   "i18n-ally.sortKeys": true,
-  "prisma.pinToPrisma6": true,
+  "prisma.pinToPrisma6": false,
   "spellchecker.ignoreWordsList": ["mTLS", "Wireguard"],
   "sqltools.connections": [
     {

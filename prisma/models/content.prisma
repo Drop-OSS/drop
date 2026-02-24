@@ -38,7 +38,7 @@ model Game {
   mIconObjectId           String // linked to objects in s3
   mBannerObjectId         String // linked to objects in s3
   mCoverObjectId          String
-  mImageCarouselObjectIds String[] // linked to below array
+  mImageCarouselObjectIds String[] @default([]) // linked to below array
   mImageLibraryObjectIds  String[] // linked to objects in s3
 
   versions GameVersion[]

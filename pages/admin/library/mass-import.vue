@@ -12,7 +12,7 @@
         </p>
       </div>
       <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-        <LoadingButton :loading="false" @click="triggerImport">
+        <LoadingButton :loading="false" :disabled="!hasSelected" @click="triggerImport">
           Import &rarr;
         </LoadingButton>
       </div>
@@ -299,6 +299,8 @@ const massImport = ref(
     })),
   })),
 );
+
+const hasSelected = computed(() => massImport.value.map((v) => v.versions).flat().filter((e) => e.enabled).length > 0);
 
 const globalState = computed({
   get() {

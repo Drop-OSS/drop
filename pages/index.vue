@@ -9,4 +9,12 @@ useHead({
 
 const router = useRouter();
 router.push("/store");
+
+onMounted(() => {
+  router.push("/store");
+});
+
+definePageMeta({
+  redirect: "/store"
+})
 </script>
