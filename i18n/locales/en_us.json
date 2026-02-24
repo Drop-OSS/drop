@@ -569,6 +569,7 @@
           "launch": "Launch Configurations",
           "name": "Name (ID)",
           "path": "Path",
+          "delta": "Update mode",
           "setup": "Setup Configurations"
         },
         "title": "Versions"
