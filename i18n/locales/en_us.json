@@ -566,10 +566,10 @@
         "noVersions": "You have no versions of this game available.",
         "setupOnly": "Version configured as in setup-only mode.",
         "table": {
+          "delta": "Update mode",
           "launch": "Launch Configurations",
           "name": "Name (ID)",
           "path": "Path",
-          "delta": "Update mode",
           "setup": "Setup Configurations"
         },
         "title": "Versions"
