@@ -102,7 +102,10 @@ export default defineClientEventHandler(async (h3) => {
           }
         }
 
-        const size = await gameSizeManager.getVersionSize(v.versionId, query.previous);
+        const size = await gameSizeManager.getVersionSize(
+          v.versionId,
+          query.previous,
+        );
 
         return platformOptions
           .entries()

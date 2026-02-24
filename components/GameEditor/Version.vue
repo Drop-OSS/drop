@@ -89,7 +89,8 @@
                     </div>
                   </td>
                   <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-400">
-                    {{ version.versionPath }} {{ version.delta }} {{ version.versionIndex }}
+                    {{ version.versionPath }} {{ version.delta }}
+                    {{ version.versionIndex }}
                   </td>
                   <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-400">
                     <ul class="space-y-2">

@@ -33,7 +33,7 @@ export async function createDownloadManifestDetails(
   previous?: string,
   refresh = false,
 ): Promise<DownloadManifestDetails> {
-  const manifestKey = `${versionId}${previous ? `-from-${previous}` : ''}`;
+  const manifestKey = `${versionId}${previous ? `-from-${previous}` : ""}`;
   if ((await manifestCache.has(manifestKey)) && !refresh)
     return (await manifestCache.get(manifestKey))!;
   const mainVersion = await prisma.gameVersion.findUnique({
@@ -96,7 +96,9 @@ export async function createDownloadManifestDetails(
   let installSize = 0;
   let downloadSize = 0;
 
-  const existingChunks = previous ? await createDownloadManifestDetails(previous) : undefined;
+  const existingChunks = previous
+    ? await createDownloadManifestDetails(previous)
+    : undefined;
 
   // Now that we have our file list, filter the manifests
   const manifests = new Map<string, DropletManifest>();
@@ -113,7 +115,11 @@ export async function createDownloadManifestDetails(
         //if(existingChunks && existingChunks.manifests[version.versionId]?.chunks?.[chunkId]) return false;
         let flag = false;
         chunkData.files.forEach((fileEntry) => {
-          if(existingChunks && existingChunks.fileList[fileEntry.filename] == version.versionId) return;
+          if (
+            existingChunks &&
+            existingChunks.fileList[fileEntry.filename] == version.versionId
+          )
+            return;
           if (fileNames[fileEntry.filename]) {
             flag = true;
             installSize += fileEntry.length;

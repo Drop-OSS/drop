@@ -38,8 +38,10 @@ class GameSizeManager {
     if (await this.gameVersionsSizesCache.has(key))
       return await this.gameVersionsSizesCache.get(key);
     try {
-      const { downloadSize, installSize } =
-        await createDownloadManifestDetails(versionId, previousId);
+      const { downloadSize, installSize } = await createDownloadManifestDetails(
+        versionId,
+        previousId,
+      );
       const result = {
         downloadSize,
         installSize,

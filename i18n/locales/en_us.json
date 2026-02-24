@@ -368,30 +368,8 @@
     "addGames": "All Games",
     "addToLib": "Add to Library",
     "admin": {
-      "nav": {
-        "nextPagination": "Next",
-        "backPagination": "Previous",
-        "sortLabel": "Sort",
-        "filterLabel": "Filters",
-        "filterCount": "{0} filters",
-        "clearAllFilters": "Clear all",
-        "filters": {
-          "version": {
-            "title": "Versions",
-            "none": "No versions imported",
-            "available": "Available to import"
-          },
-          "metadata": {
-            "title": "Metadata",
-            "noCarousel": "No images in carousel",
-            "emptyDescription": "Empty description",
-            "featured": "Featured"
-          }
-        }
-      },
       "detectedGame": "Drop has detected you have new games to import.",
       "detectedVersion": "Drop has detected you have new versions of this game to import.",
-      "massImportTool": "Mass Import Tool",
       "fileExtSelector": {
         "add": "Add \"{0}\"",
         "noSelected": "No extensions selected."
@@ -474,6 +452,7 @@
       },
       "libraryHint": "No libraries configured.",
       "libraryHintDocsLink": "What does this mean? {arrow}",
+      "massImportTool": "Mass Import Tool",
       "metadata": {
         "companies": {
           "action": "Manage {arrow}",
@@ -529,6 +508,27 @@
         }
       },
       "metadataProvider": "Metadata provider",
+      "nav": {
+        "backPagination": "Previous",
+        "clearAllFilters": "Clear all",
+        "filterCount": "{0} filters",
+        "filterLabel": "Filters",
+        "filters": {
+          "metadata": {
+            "emptyDescription": "Empty description",
+            "featured": "Featured",
+            "noCarousel": "No images in carousel",
+            "title": "Metadata"
+          },
+          "version": {
+            "available": "Available to import",
+            "none": "No versions imported",
+            "title": "Versions"
+          }
+        },
+        "nextPagination": "Next",
+        "sortLabel": "Sort"
+      },
       "noGames": "No games imported",
       "offline": "Drop couldn't access this game.",
       "offlineTitle": "Game offline",

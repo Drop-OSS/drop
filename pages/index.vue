@@ -15,6 +15,6 @@ onMounted(() => {
 });
 
 definePageMeta({
-  redirect: "/store"
-})
+  redirect: "/store",
+});
 </script>
