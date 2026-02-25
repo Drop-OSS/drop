@@ -74,6 +74,28 @@
     </Listbox>
 
     <div v-if="versionGuesses" class="flex flex-col gap-4">
+      <!-- version display name -->
+      <div class="bg-zinc-800 p-4 rounded-xl relative flex flex-col gap-y-2">
+        <div>
+          <label class="block text-sm font-medium leading-6 text-zinc-100">{{
+            $t("library.admin.import.version.displayName")
+          }}</label>
+          <p class="text-zinc-400 text-xs">
+            {{ $t("library.admin.import.version.displayNameDesc") }}
+          </p>
+        </div>
+        <div>
+          <input
+            id="display-name"
+            v-model="versionSettings.displayName"
+            type="text"
+            class="min-w-48 block w-full rounded-md border-radius-md bg-zinc-950 px-3 py-1.5 text-white outline-1 -outline-offset-1 outline-zinc-800 placeholder:text-zinc-500 focus:outline-1 focus:-outline-offset-1 focus:outline-blue-500 sm:text-sm/6"
+            :placeholder="
+              $t('library.admin.import.version.displayNamePlaceholder')
+            "
+          />
+        </div>
+      </div>
       <!-- setup executable -->
       <div class="bg-zinc-800 p-4 rounded-xl relative flex flex-col gap-y-2">
         <div>

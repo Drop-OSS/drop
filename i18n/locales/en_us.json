@@ -412,6 +412,9 @@
         "selectGameSearch": "Select game",
         "selectPlatform": "Please select a platform…",
         "version": {
+          "displayName": "Display Name",
+          "displayNameDesc": "Optionally, set the display name of the version. If not set, uses the name in the dropdown.",
+          "displayNamePlaceholder": "My New Version",
           "import": "Import version",
           "installDir": "(install_dir)/",
           "launchCmd": "Launch executable/command",
