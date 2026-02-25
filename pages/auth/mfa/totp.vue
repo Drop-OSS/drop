@@ -26,6 +26,7 @@
       <CodeInput
         :length="6"
         placeholder="123456"
+        size="w-10 h-10 text-lg lg:w-16 lg:h-16 lg:text-2xl"
         @complete="(code) => signin(code)"
       />
     </div>
