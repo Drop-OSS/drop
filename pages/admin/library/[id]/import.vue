@@ -297,7 +297,7 @@
       <LoadingButton
         class="w-fit ml-auto"
         :loading="importLoading"
-        @click="startImport_wrapper"
+        @click="startImport"
       >
         {{ $t("library.admin.import.import") }}
       </LoadingButton>
@@ -363,6 +363,7 @@ import {
   MinusIcon,
   PlusIcon,
 } from "@heroicons/vue/20/solid";
+import { FetchError } from "ofetch";
 import { GameType } from "~/prisma/client/enums";
 import type { ImportVersion } from "~/server/api/v1/admin/import/version/index.post";
 import type { VersionGuess } from "~/server/internal/library";
@@ -414,26 +415,27 @@ async function updateCurrentlySelectedVersion(value: number) {
 }
 
 async function startImport() {
-  if (!versionSettings.value) return;
-  const taskId = await $dropFetch("/api/v1/admin/import/version", {
-    method: "POST",
-    body: {
-      ...versionSettings.value,
-      id: gameId,
-      version: versions[currentlySelectedVersion.value],
-    },
-  });
-  router.push(`/admin/task/${taskId.taskId}`);
-}
-
-function startImport_wrapper() {
   importLoading.value = true;
-  startImport()
-    .catch((error) => {
-      importError.value = error.statusMessage ?? t("errors.unknown");
-    })
-    .finally(() => {
-      importLoading.value = false;
+
+  if (!versionSettings.value) return;
+  try {
+    const taskId = await $dropFetch("/api/v1/admin/import/version", {
+      method: "POST",
+      body: {
+        ...versionSettings.value,
+        id: gameId,
+        version: versions[currentlySelectedVersion.value],
+      },
     });
+    router.push(`/admin/task/${taskId.taskId}`);
+  } catch (error) {
+    if (error instanceof FetchError) {
+      importError.value = error.data?.message ?? t("errors.unknown");
+    } else {
+      importError.value = (error as string)?.toString();
+    }
+  } finally {
+    importLoading.value = false;
+  }
 }
 </script>
