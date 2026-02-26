@@ -16,9 +16,18 @@ export default defineEventHandler(async (h3) => {
 
   const game = await prisma.game.findUnique({
     where: { id },
-    select: { id: true },
+    select: { id: true, tags: { select: { id: true } } },
   });
   if (!game) throw createError({ statusCode: 404, message: "Game not found" });
+
+  const tagSet = new Set(game.tags.map((v) => v.id));
+  const toConnect = body.tags.filter((v) => !tagSet.has(v));
+
+  const bodyTagSet = new Set(body.tags);
+  const toDisconnect = tagSet
+    .values()
+    .filter((v) => !bodyTagSet.has(v))
+    .toArray();
 
   // SAFETY: Okay to disable due to check above
   // eslint-disable-next-line drop/no-prisma-delete
@@ -28,7 +37,8 @@ export default defineEventHandler(async (h3) => {
     },
     data: {
       tags: {
-        connect: body.tags.map((e) => ({ id: e })),
+        connect: toConnect.map((e) => ({ id: e })),
+        disconnect: toDisconnect.map((e) => ({ id: e })),
       },
     },
   });
