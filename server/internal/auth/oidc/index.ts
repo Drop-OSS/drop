@@ -153,14 +153,14 @@ export class OIDCManager {
 
     this.JWKS = jose.createRemoteJWKSet(this.oidcConfiguration.jwks_uri);
     this.redirectUrl = new URL(
-      `${this.externalUrl.toString()}api/v1/auth/odic/callback`,
+      `${this.externalUrl.toString()}api/v1/auth/oidc/callback`,
     );
   }
 
   static async create() {
     if (!systemConfig.shouldOidcRequireHttps()) {
       console.warn(
-        "Disabling HTTPS requirement for ODIC provider, not recommened in production enviroments",
+        "Disabling HTTPS requirement for OIDC provider, not recommened in production enviroments",
       );
     }
 

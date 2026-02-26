@@ -12,7 +12,7 @@ class SystemConfig {
   );
   private dropVersion: string;
   private gitRef: string;
-  private odicRequireHttps;
+  private oidcRequireHttps;
 
   private checkForUpdates = getUpdateCheckConfig();
 
@@ -22,14 +22,14 @@ class SystemConfig {
     this.dropVersion = config.dropVersion;
     this.gitRef = config.gitRef;
 
-    const odicRequireHttps = process.env.OIDC_REQUIRE_HTTPS as
+    const oidcRequireHttps = process.env.OIDC_REQUIRE_HTTPS as
       | string
       | undefined;
 
     // default to true if not set
-    this.odicRequireHttps =
-      odicRequireHttps !== undefined &&
-      odicRequireHttps.toLocaleLowerCase() === "false"
+    this.oidcRequireHttps =
+      oidcRequireHttps !== undefined &&
+      oidcRequireHttps.toLocaleLowerCase() === "false"
         ? false
         : true;
   }
@@ -64,7 +64,7 @@ class SystemConfig {
 
   // if oidc should require https for endpoints
   shouldOidcRequireHttps() {
-    return this.odicRequireHttps;
+    return this.oidcRequireHttps;
   }
 }
 
