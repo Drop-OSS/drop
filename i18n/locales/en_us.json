@@ -181,7 +181,13 @@
     "servers": "Servers",
     "srLoading": "Loading…",
     "tags": "Tags",
-    "today": "Today"
+    "today": "Today",
+    "components": {
+      "multiitem": {
+        "placeholder": "Start typing...",
+        "new": "Create new: \"{0}\""
+      }
+    }
   },
   "drop": {
     "desc": "An open-source game distribution platform built for speed, flexibility and beauty.",

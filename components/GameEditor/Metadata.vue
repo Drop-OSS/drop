@@ -30,7 +30,11 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-8">
-          <SelectorMultiItem v-model="currentTags" :items="tags" />
+          <SelectorMultiItem
+            v-model="currentTags"
+            :items="tags"
+            :create="createTag"
+          />
           <div class="flex flex-col">
             <label
               for="releaseDate"
@@ -493,8 +497,9 @@ if (!game.value)
 const currentTags = ref<{ [key: string]: boolean }>(
   Object.fromEntries(game.value.tags.map((e) => [e.id, true])),
 );
-const tags = (await $dropFetch("/api/v1/admin/tags")).map(
-  (e) => ({ name: e.name, param: e.id }) satisfies StoreSortOption,
+const rawTags = await $dropFetch("/api/v1/admin/tags");
+const tags = ref(
+  rawTags.map((e) => ({ name: e.name, param: e.id }) satisfies StoreSortOption),
 );
 
 watch(
@@ -505,7 +510,11 @@ watch(
       params: {
         id: game.value.id,
       },
-      body: { tags: Object.keys(v) },
+      body: {
+        tags: Object.entries(v)
+          .filter((v) => v[1])
+          .map((v) => v[0]),
+      },
       failTitle: "Failed to update game tags",
     });
   },
@@ -815,5 +824,16 @@ async function updateImageCarousel() {
       (e, c) => c(),
     );
   }
+}
+
+async function createTag(value: string): Promise<string> {
+  const tag = await $dropFetch(`/api/v1/admin/tags`, {
+    method: "POST",
+    body: {
+      name: value,
+    },
+  });
+  tags.value.push({ name: tag.name, param: tag.id });
+  return tag.id;
 }
 </script>
