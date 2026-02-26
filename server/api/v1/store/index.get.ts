@@ -53,24 +53,34 @@ export default defineEventHandler(async (h3) => {
     : undefined;
   const platformFilter = filterPlatforms
     ? ({
-        versions: {
-          some: {
-            launches: {
+        OR: [
+          {
+            versions: {
               some: {
-                platform: {
-                  in: filterPlatforms,
-                },
-              },
-            },
-            setups: {
-              some: {
-                platform: {
-                  in: filterPlatforms,
+                setups: {
+                  some: {
+                    platform: {
+                      in: filterPlatforms,
+                    },
+                  },
                 },
               },
             },
           },
-        },
+          {
+            versions: {
+              some: {
+                launches: {
+                  some: {
+                    platform: {
+                      in: filterPlatforms,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
       } satisfies Prisma.GameWhereInput)
     : undefined;
 
