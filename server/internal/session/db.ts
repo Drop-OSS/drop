@@ -87,6 +87,7 @@ export default function createDBSessionHandler(): SessionProvider {
               expiresAt: {
                 gt: DateTime.now().toJSDate(),
               },
+              userId: { not: null },
             },
           })
         ).length || 0
