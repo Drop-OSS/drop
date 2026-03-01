@@ -17,8 +17,8 @@ export const taskGroups = {
   "import:version": {
     concurrency: true,
   },
-  debug: {
-    concurrency: true,
+  "import:check-integrity": {
+    concurrency: false,
   },
 } as const;
 

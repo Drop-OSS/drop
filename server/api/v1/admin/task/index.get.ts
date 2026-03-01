@@ -1,6 +1,7 @@
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import taskHandler from "~/server/internal/tasks";
+import type { TaskGroup } from "~/server/internal/tasks/group";
 
 export default defineEventHandler(async (h3) => {
   const allowed = await aclManager.allowSystemACL(h3, ["task:read"]);
@@ -38,6 +39,7 @@ export default defineEventHandler(async (h3) => {
   });
   const dailyTasks = await taskHandler.dailyTasks();
   const weeklyTasks = await taskHandler.weeklyTasks();
+  const other: TaskGroup[] = ["import:check-integrity"];
 
-  return { runningTasks, historicalTasks, dailyTasks, weeklyTasks };
+  return { runningTasks, historicalTasks, dailyTasks, weeklyTasks, other };
 });

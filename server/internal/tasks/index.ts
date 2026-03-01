@@ -1,17 +1,18 @@
 import type { MinimumRequestObject } from "~/server/h3";
 import type { GlobalACL } from "../acls";
 import aclManager from "../acls";
-
-import cleanupInvites from "./registry/invitations";
-import cleanupSessions from "./registry/sessions";
-import checkUpdate from "./registry/update";
-import cleanupObjects from "./registry/objects";
 import { taskGroups, type TaskGroup } from "./group";
 import prisma from "../db/database";
 import { ArkErrors, type } from "arktype";
 import pino from "pino";
 import { logger } from "~/server/internal/logging";
 import { Writable } from "node:stream";
+
+import cleanupInvites from "./registry/invitations";
+import cleanupSessions from "./registry/sessions";
+import checkUpdate from "./registry/update";
+import cleanupObjects from "./registry/objects";
+import checkIntegrity from "./registry/check-integrity";
 
 type TaskActionLink = `${string}:${string}`;
 
@@ -65,7 +66,7 @@ class TaskHandler {
     this.saveScheduledTask(cleanupSessions);
     this.saveScheduledTask(checkUpdate);
     this.saveScheduledTask(cleanupObjects);
-    //this.saveScheduledTask(debug);
+    this.saveScheduledTask(checkIntegrity);
   }
 
   /**

@@ -755,6 +755,7 @@
         "cleanupSessionsDescription": "Cleans up expired sessions to save space and ensure security.",
         "cleanupSessionsName": "Clean up sessions."
       },
+      "utilityTitle": "Utility tasks",
       "viewTask": "View {arrow}",
       "weeklyScheduledTitle": "Weekly scheduled tasks"
     }

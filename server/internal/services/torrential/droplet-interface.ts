@@ -217,7 +217,7 @@ class DropletInterfaceManager {
       run: async (message) => {
         const callbacks = this.callbacks.get(message.messageId);
         if (!callbacks) {
-          logger.warn(
+          logger.debug(
             `got a droplet message with old message id: ${message.type}, ${message.messageId}`,
           );
           return undefined;

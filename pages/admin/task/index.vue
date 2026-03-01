@@ -166,6 +166,44 @@
             </div>
           </li>
         </ul>
+        <h2 class="text-sm font-medium text-zinc-400 mt-8">
+          {{ $t("tasks.admin.utilityTitle") }}
+        </h2>
+        <ul role="list" class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <li
+            v-for="task in other"
+            :key="task"
+            class="col-span-1 divide-y divide-gray-200 rounded-lg bg-zinc-800 border border-zinc-700 shadow-sm"
+          >
+            <div class="flex w-full items-center justify-between space-x-6 p-6">
+              <div class="flex-1">
+                <div class="flex items-center space-x-2">
+                  <h3 class="text-sm font-medium text-zinc-100">
+                    {{ scheduledTasks[task].name }}
+                  </h3>
+                </div>
+                <p class="mt-1 text-sm text-zinc-400">
+                  {{ scheduledTasks[task].description }}
+                </p>
+                <button
+                  class="mt-3 rounded-md text-xs font-medium text-zinc-100 hover:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-100 focus:ring-offset-2"
+                  @click="() => startTask(task)"
+                >
+                  <i18n-t
+                    keypath="tasks.admin.execute"
+                    tag="span"
+                    scope="global"
+                    class="inline-flex items-center gap-x-1"
+                  >
+                    <template #arrow>
+                      <PlayIcon class="size-4" aria-hidden="true" />
+                    </template>
+                  </i18n-t>
+                </button>
+              </div>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
@@ -185,7 +223,7 @@ definePageMeta({
 
 const { t } = useI18n();
 
-const { runningTasks, historicalTasks, dailyTasks, weeklyTasks } =
+const { runningTasks, historicalTasks, dailyTasks, weeklyTasks, other } =
   await $dropFetch("/api/v1/admin/task");
 
 const liveRunningTasks = ref(
@@ -219,9 +257,9 @@ const scheduledTasks: {
     name: "",
     description: "",
   },
-  debug: {
-    name: "",
-    description: "",
+  "import:check-integrity": {
+    name: "Check Integrity",
+    description: "Re-imports all versions and updates their manifests.",
   },
 };
 
