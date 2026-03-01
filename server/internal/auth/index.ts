@@ -30,7 +30,9 @@ class AuthManager {
         (this.authProviders as any)[key] = object;
         logger.info(`enabled auth: ${key}`);
       } catch (e) {
-        logger.warn(`failed to enable auth ${key}: ${(e as string).toString()}`);
+        logger.warn(
+          `failed to enable auth ${key}: ${(e as string).toString()}`,
+        );
       }
     }
 
