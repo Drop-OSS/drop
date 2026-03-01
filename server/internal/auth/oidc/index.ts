@@ -12,6 +12,7 @@ import * as jose from "jose";
 // import { inspect } from "util";
 import sessionHandler from "../../session";
 import type { SessionSearchTerms } from "../../session/types";
+import { queryParamBuilder } from "../../utils/query";
 
 // TODO: monitor https://github.com/goauthentik/authentik/issues/8751 for easier?? OIDC setup by end users
 
@@ -287,7 +288,15 @@ export class OIDCManager {
       this.oidcConfiguration.authorization_endpoint,
     ).toString();
 
-    const finalUrl = `${normalisedUrl}?client_id=${this.clientId}&redirect_uri=${encodeURIComponent(this.redirectUrl.toString())}&state=${stateKey}&response_type=code&scope=${encodeURIComponent(this.oidcConfiguration.scopes_supported.join(" "))}`;
+    const queryParams = queryParamBuilder({
+      client_id: this.clientId,
+      redirect_uri: this.redirectUrl.toString(),
+      state: stateKey,
+      response_type: "code",
+      scope: this.oidcConfiguration.scopes_supported.join(" "),
+    });
+
+    const finalUrl = `${normalisedUrl}?${queryParams}`;
 
     const session: OIDCAuthSession = {
       redirectUrl: finalUrl,
