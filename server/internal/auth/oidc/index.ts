@@ -17,23 +17,16 @@ import type { SessionSearchTerms } from "../../session/types";
 
 // Schema for OIDC well-known configuration
 const OIDCWellKnownV1 = type({
-  issuer: "string.url.parse",
+  issuer: "string",
   authorization_endpoint: "string.url.parse",
   token_endpoint: "string.url.parse",
-  userinfo_endpoint: "string.url.parse?",
+  userinfo_endpoint: "string.url.parse",
   jwks_uri: "string.url.parse",
-  scopes_supported: "string[]?",
+  scopes_supported: "string[]",
 });
 
 // Represents required OIDC configuration
-interface OIDCConfiguration {
-  issuer: URL;
-  authorization_endpoint: URL;
-  token_endpoint: URL;
-  userinfo_endpoint: URL;
-  jwks_uri: URL;
-  scopes_supported: string[];
-}
+type OIDCConfiguration = typeof OIDCWellKnownV1.infer;
 
 interface OIDCAuthSessionOptions {
   redirect: string | undefined;
@@ -241,7 +234,7 @@ export class OIDCManager {
         token_endpoint: new URL(tokenEndpoint),
         userinfo_endpoint: new URL(userinfoEndpoint),
         scopes_supported: scopes.split(","),
-        issuer: new URL(issuer),
+        issuer: issuer,
         jwks_uri: new URL(jwksEndpoint),
       };
     }
@@ -549,7 +542,8 @@ export class OIDCManager {
   }
 }
 
-function isHttps(url: URL): boolean {
-  if (url.protocol === "https:") return true;
+function isHttps(url: URL | string): boolean {
+  const parsedUrl = typeof url === "string" ? new URL(url) : url;
+  if (parsedUrl.protocol === "https:") return true;
   else return false;
 }
