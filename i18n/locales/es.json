@@ -1,1 +1,321 @@
-{}
+{
+  "account": {
+    "devices": {
+      "capabilities": "Funciones",
+      "lastConnected": "Última Conexión",
+      "noDevices": "No hay dispositivos asociados a tu cuenta.",
+      "platform": "Plataforma",
+      "revoke": "Desvincular",
+      "subheader": "Administra los dispositivos autorizados para acceder a tu cuenta de Drop.",
+      "title": "Dispositivos"
+    },
+    "home": {
+      "title": "Inicio"
+    },
+    "notifications": {
+      "all": "Ver todas {arrow}",
+      "clear": "Borrar notificaciones",
+      "desc": "Ver y administrar tus notificaciones.",
+      "markAllAsRead": "Marcar todo como leído",
+      "markAsRead": "Marcar como leído",
+      "none": "Sin notificaciones",
+      "notifications": "Notificaciones",
+      "title": "Notificaciones",
+      "unread": "Notificaciones Sin Leer"
+    },
+    "security": {
+      "2fa": {
+        "superlevelHint": {
+          "signin": "Iniciar sesión {arrow}",
+          "success": "Tienes acceso a estas acciones protegidas.",
+          "title": "Inicia sesión de nuevo para acceder a estas opciones."
+        },
+        "title": "Autentificación en dos pasos",
+        "totp": {
+          "description": "TOTP genera códigos de un sólo uso, completamente sin conexión. Puedes usar el autenticador TOTP que prefieras.",
+          "disableButton": "Deshabilitar",
+          "title": "TOTP"
+        },
+        "webauthn": {
+          "bypassHint": "También permite omitir el inicio de sesión con dispositivos compatibles.",
+          "description": "También conocidas como passkeys. Autentícate mediante biometría, un dispositivo, llaves YubiKey o cualquier dispositivo compatible con FIDO2.",
+          "manage": "Gestionar",
+          "modal": {
+            "description": "Crea nuevas claves o elimina claves existentes en tu cuenta.",
+            "new": "Nueva clave",
+            "tableCreated": "Creada",
+            "tableName": "Nombre",
+            "title": "Claves WebAuthn"
+          },
+          "title": "WebAuthn"
+        }
+      },
+      "title": "Seguridad"
+    },
+    "settings": "Configuración",
+    "title": "Configuración de tu Cuenta",
+    "token": {
+      "acls": "ACLs/permisos",
+      "aclsDesc": "Define qué permisos dispone este token. Evita seleccionar todos los permisos si no son necesarios.",
+      "expiry": "Expiración",
+      "expiry3Month": "3 meses",
+      "expiry5Year": "5 años",
+      "expiry6Month": "6 meses",
+      "expiryMonth": "Un mes",
+      "expiryYear": "Un año",
+      "name": "Nombre del token",
+      "nameDesc": "El nombre del token, como referencia.",
+      "namePlaceholder": "Mi Nuevo Token",
+      "noExpiry": "Sin expiración",
+      "noTokens": "No hay tokens asociados a tu cuenta.",
+      "revoke": "Desvincular",
+      "subheader": "Gestiona tus tokens API y sus permisos.",
+      "success": "Token creado con éxito.",
+      "successNote": "Asegurate de copiarlo ahora, no volverá a mostrarse.",
+      "title": "Tokens API"
+    }
+  },
+  "actions": "Acciones",
+  "add": "Añadir",
+  "adminTitle": "Tablero de Administración - {0}",
+  "adminTitleTemplate": "{0} - Administración - {1}",
+  "auth": {
+    "2fa": {
+      "backToOptions": "{arrow} Volver a opciones",
+      "description": "La autenticación en dos factores está habilitada en tu cuenta. Seleccione una de las opciones a continuación.",
+      "passkey": {
+        "createDescription": "WebAuthn, o passkeys, te permiten iniciar sesión o completar la verificación en dos pasos usando biometría o dispositivos de seguridad físicos.",
+        "createTitle": "Crear un passkey",
+        "description": "Usa una passkey, como biometría, un dispositivo de seguridad físico u otro dispositivo compatible, para iniciar sesión en tu cuenta de Drop.",
+        "passkeyNameTag": "Nombre",
+        "signinButton": "Iniciar sesión con WebAuthn",
+        "title": "WebAuthn"
+      },
+      "success": {
+        "back": "{arrow} Volver a seguridad de tu cuenta",
+        "description": "Drop ha creado y añadido correctamente tu método de verificación en dos pasos. Si es la primera vez que configuras el 2FA, tu cuenta lo requerirá a partir de ahora para iniciar sesión.",
+        "title": "¡Añadido tu método de autenticación en dos pasos!"
+      },
+      "title": "Autenticación en dos pasos",
+      "totp": {
+        "createDescription": "Usa tu autenticador TOTP, como Google Authenticator, Aegis, o Bitwarden, para añadir 2FA a tu cuenta Drop.",
+        "createHint": "Introduce el código generado para habilitar TOTP",
+        "createTitle": "Configura tu autenticador",
+        "description": "Usa un código de un solo uso para iniciar sesión en tu cuenta Drop.",
+        "title": "TOTP"
+      }
+    },
+    "callback": {
+      "authClient": "¿Autorizar el cliente?",
+      "authorize": "Autorizar",
+      "authorizedClient": "El cliente ha sido autorizado con éxito. Puedes cerrar esta ventana.",
+      "issues": "¿Tienes problemas?",
+      "learn": "Saber más {arrow}",
+      "paste": "Pega este código en el cliente para continuar:",
+      "permWarning": "Al aceptar esta petición se autorizará a \"{name}\" en \"{platform}\" a:",
+      "requestedAccess": "\"{name}\" ha solicitado acceso a tu cuenta Drop.",
+      "success": "¡Completado con éxito!"
+    },
+    "code": {
+      "description": "Usa un código para conectar tu cliente Drop si no eres capaz de abrir un navegador web en un dispositivo.",
+      "title": "Conectar tu cliente Drop"
+    },
+    "confirmPassword": "Confirmar @:auth.password",
+    "displayName": "Nombre Visible",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "register": {
+      "confirmPasswordFormat": "Las contraseñas deben coincidir",
+      "emailFormat": "Debe tener el formato usuario{'@'}ejemplo.com",
+      "passwordFormat": "Debe tener 8 o más carácteres",
+      "subheader": "Introduce tus datos a continuación para crear tu cuenta.",
+      "title": "Crear tu cuenta Drop",
+      "usernameFormat": "Debe tener 5 o más carácteres en minúscula"
+    },
+    "signin": {
+      "externalProvider": "proveedor externo",
+      "forgot": "¿Olvidaste tu contraseña?",
+      "noAccount": "¿No tienes una cuenta? Pídele a un administrador que te cree una cuenta.",
+      "noAccountProtected": "Por seguridad, necesita iniciar sesión de nuevo para acceder a acciones más sensibles.",
+      "or": "O",
+      "pageTitle": "Iniciar sesión en Drop",
+      "rememberMe": "Recordarme",
+      "signin": "Iniciar sesión",
+      "signinWithExternalProvider": "Iniciar sesión con {externalProvider} {arrow}",
+      "title": "Iniciar sesión en tu cuenta",
+      "titleProtected": "Inicia sesión para acceder a acciones protegidas"
+    },
+    "signout": "Cerrar sesión",
+    "username": "Nombre de usuario"
+  },
+  "cancel": "Cancelar",
+  "chars": {
+    "arrow": "→",
+    "arrowBack": "←",
+    "arrowDown": "↓",
+    "arrowUp": "↑",
+    "srComma": ", {0}"
+  },
+  "common": {
+    "add": "Añadir",
+    "cannotUndo": "Esta acción no se puede revertir.",
+    "close": "Cerrar",
+    "components": {
+      "multiitem": {
+        "new": "Crear nuevo: \"{0}\"",
+        "placeholder": "Empieza a escribir..."
+      }
+    },
+    "create": "Crear",
+    "date": "Fecha",
+    "delete": "Eliminar",
+    "deleteConfirm": "¿Estás seguro que quieres eliminar \"{0}\"?",
+    "divider": "{'|'}",
+    "edit": "Modificar",
+    "friends": "Amigos",
+    "groups": "Grupos",
+    "insert": "Insertar",
+    "labelValueColon": "{label}: {value}",
+    "name": "Nombre",
+    "noData": "No hay datos",
+    "noResults": "No hay resultados",
+    "noSelected": "Ningún elemento seleccionado.",
+    "remove": "Eliminar",
+    "save": "Guardar",
+    "saved": "Guardado",
+    "select": "Seleccionar",
+    "servers": "Servidores",
+    "srLoading": "Cargando…",
+    "tags": "Etiquetas",
+    "today": "Hoy"
+  },
+  "drop": {
+    "desc": "Una plataforma de distribución de videojuegos de código abierto diseñada para ser rápida, flexible y bonita.",
+    "drop": "Drop"
+  },
+  "editor": {
+    "bold": "Negrita",
+    "boldPlaceholder": "texto en negrita",
+    "code": "Código",
+    "codePlaceholder": "código",
+    "heading": "Cabecera",
+    "headingPlaceholder": "cabecera",
+    "italic": "Itálica",
+    "italicPlaceholder": "texto en itálica",
+    "link": "Enlace",
+    "linkPlaceholder": "texto con enlace",
+    "listItem": "Elemento de Lista",
+    "listItemPlaceholder": "elemento de lista"
+  },
+  "errors": {
+    "admin": {
+      "user": {
+        "delete": {
+          "desc": "Drop no pudo eliminar este usuario: {0}",
+          "title": "Error eliminando usuario"
+        }
+      }
+    },
+    "auth": {
+      "disabled": "Cuenta inválida o deshabilitada. Por favor contacta con el administrador del servidor.",
+      "invalidInvite": "Invitación inválida o expirada",
+      "invalidPassState": "Estado de la contraseña inválido. Por favor contacta con el administrador del servidor.",
+      "invalidUserOrPass": "Usuario o contraseña inválidos."
+    },
+    "library": {
+      "source": {
+        "delete": {
+          "desc": "Drop no pudo eliminar este usuario: {0}"
+        }
+      }
+    },
+    "news": {
+      "article": {
+        "delete": {
+          "desc": "Drop no pudo eliminar este usuario: {0}",
+          "title": "Error eliminando el artículo"
+        }
+      }
+    },
+    "signIn": "Iniciar sesión {arrow}"
+  },
+  "header": {
+    "admin": {
+      "home": "Inicio",
+      "settings": {
+        "title": "Configuración",
+        "tokens": "Tokens API"
+      }
+    }
+  },
+  "home": {
+    "admin": {
+      "title": "Inicio"
+    }
+  },
+  "library": {
+    "admin": {
+      "import": {
+        "version": {
+          "displayName": "Nombre Visible"
+        }
+      },
+      "metadata": {
+        "tags": {
+          "create": "Crear",
+          "title": "Etiquetas"
+        }
+      },
+      "sources": {
+        "nameDesc": "El nombre del origen, como referencia."
+      }
+    }
+  },
+  "news": {
+    "article": {
+      "add": "Añadir",
+      "editor": "Modificar"
+    }
+  },
+  "settings": {
+    "admin": {
+      "title": "Configuración"
+    }
+  },
+  "store": {
+    "tags": "Etiquetas"
+  },
+  "tasks": {
+    "admin": {
+      "viewTask": "Ver todas {arrow}"
+    }
+  },
+  "title": "Drop",
+  "userHeader": {
+    "profile": {
+      "admin": "Tablero de Administración",
+      "settings": "Configuración de tu Cuenta"
+    }
+  },
+  "users": {
+    "admin": {
+      "authentication": {
+        "disabled": "Deshabilitar"
+      },
+      "delete": "Eliminar",
+      "displayNameHeader": "Nombre Visible",
+      "emailHeader": "Correo electrónico",
+      "simple": {
+        "invite6Months": "6 meses",
+        "inviteEmailDescription": "Debe tener el formato usuario{'@'}ejemplo.com",
+        "inviteMonth": "Un mes",
+        "inviteUsernameFormat": "Debe tener 5 carácteres o más",
+        "inviteUsernamePlaceholder": "miUsuario",
+        "inviteYear": "1 año"
+      },
+      "srEditLabel": "Modificar",
+      "usernameHeader": "Nombre de usuario"
+    }
+  },
+  "welcome": "¡Español, Bienvenido!"
+}

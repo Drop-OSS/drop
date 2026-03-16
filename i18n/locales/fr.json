@@ -24,6 +24,32 @@
       "unread": "Notifications Non Lues"
     },
     "security": {
+      "2fa": {
+        "superlevelHint": {
+          "signin": "Se connecter {arrow}",
+          "success": "Vous avez accès a ces actions protégées.",
+          "title": "Connectez-vous une nouvelle fois pour accéder a vos réglages."
+        },
+        "title": "Authentification à deux facteurs",
+        "totp": {
+          "description": "TOTP génère des codes à usage unique, entièrement hors ligne. Vous pouvez utiliser l'authentificateur TOTP de votre choix.",
+          "disableButton": "Désactiver",
+          "title": "TOTP"
+        },
+        "webauthn": {
+          "bypassHint": "Permet également de contourner la connexion avec les appareils compatibles.",
+          "description": "Plus connu sous le nom de clés d'accès. Connectez vous en utilisant la biométrie, un appareil, YubiKeys, ou n'importe quel autre appareil compatible FIDO2.",
+          "manage": "Gérer",
+          "modal": {
+            "description": "Créer de nouvelles clés ou supprimer des clés existantes de votre compte.",
+            "new": "Nouvelle clé",
+            "tableCreated": "Créé",
+            "tableName": "Nom",
+            "title": "Clés WebAuthn"
+          },
+          "title": "WebAuthn"
+        }
+      },
       "title": "Sécurité"
     },
     "settings": "Paramètres",
@@ -51,9 +77,34 @@
   },
   "actions": "Actions",
   "add": "Ajouter",
-  "adminTitle": "Tableau de Bord Administratif - Drop",
-  "adminTitleTemplate": "{0} - Administration - Drop",
+  "adminTitle": "Tableau de Bord Administratif - {0}",
+  "adminTitleTemplate": "{0} - Administration - {1}",
   "auth": {
+    "2fa": {
+      "backToOptions": "{arrow} Retour aux options",
+      "description": "L’authentification à deux facteurs est activée sur votre compte. Choisissez une des options ci-dessous pour continuer.",
+      "passkey": {
+        "createDescription": "WebAuthn ou les clés d'accès vous permettent de vous connecter ou de terminer l'authentification à 2 facteurs à l'aide de données biométrique ou avec un appareil physique de sécurité.",
+        "createTitle": "Créer une clé d'accès",
+        "description": "Utiliser une clé d'accès, comme des données biométriques, un appareil physique de sécurité, ou n'importe quel autre appareil compatible pour vous connecter a votre compte Drop.",
+        "passkeyNameTag": "Nom",
+        "signinButton": "Se connecter avec WebAuthn",
+        "title": "WebAuthn"
+      },
+      "success": {
+        "back": "{arrow} Retour à la sécurité du compte",
+        "description": "Drop a créé et ajouté avec succès votre méthode d'authentification à deux facteurs (2FA). Si c'est la première fois que vous configurez la 2FA, votre compte l'exige désormais pour se connecter.",
+        "title": "Votre méthode d'authentification à 2 facteurs est ajoutée !"
+      },
+      "title": "Authentification à 2 facteurs",
+      "totp": {
+        "createDescription": "Utiliser votre authentificateur TOTP, comme Google Authenticator, Aegis, ou Bitwarden pour ajouter l'authentification à 2 facteurs à vôtre compte Drop.",
+        "createHint": "Entrer le code généré pour activer TOTP",
+        "createTitle": "Configurer votre authentificateur",
+        "description": "Utiliser un code à usage unique pour vous connecter à votre compte Drop.",
+        "title": "TOTP"
+      }
+    },
     "callback": {
       "authClient": "Authoriser le client ?",
       "authorize": "Authoriser",
@@ -85,12 +136,14 @@
       "externalProvider": "un fournisseur externe",
       "forgot": "Mot de passe oublié ?",
       "noAccount": "Pas de compte ? Demandez à un administrateur d'en créer un pour vous.",
+      "noAccountProtected": "Pour des raisons de sécurité, vous devez vous reconnecter lorsque vous tentez d'accéder à des actions sensibles.",
       "or": "OU",
       "pageTitle": "Se connecter à Drop",
       "rememberMe": "Se souvenir de moi",
       "signin": "Se connecter",
       "signinWithExternalProvider": "Connectez vous avec {externalProvider} {arrow}",
-      "title": "Se connecter à votre compte"
+      "title": "Se connecter à votre compte",
+      "titleProtected": "Reconnectez-vous pour accéder à cette action protégée"
     },
     "signout": "Déconnexion",
     "username": "Nom d'utilisateur"
@@ -125,6 +178,7 @@
     "remove": "Retirer",
     "save": "Sauvegarder",
     "saved": "Sauvegardé",
+    "select": "Sélectionner",
     "servers": "Serveurs",
     "srLoading": "Chargement…",
     "tags": "Étiquettes",
@@ -277,6 +331,7 @@
       "library": "Bibliothèque",
       "metadata": "Méta",
       "settings": {
+        "general": "Réglages Généraux",
         "store": "Store",
         "title": "Paramètres",
         "tokens": "API tokens"
@@ -317,6 +372,10 @@
     "admin": {
       "detectedGame": "Drop a détecté que vous avez des nouveaux jeux a importer.",
       "detectedVersion": "Drop a détecté que vous avez des nouvelles versions de ce jeu à importer.",
+      "fileExtSelector": {
+        "add": "Ajouter \"{0}\"",
+        "noSelected": "Aucune extension sélectionnée."
+      },
       "game": {
         "addCarouselNoImages": "Pas d'image a ajouter.",
         "addDescriptionNoImages": "Pas d'image à ajouter.",
@@ -337,10 +396,14 @@
         "setCover": "Définir comme couverture"
       },
       "gameLibrary": "Bibliothèque de jeux",
+      "gameSelector": {
+        "hint": "Tapper au moins 4 caractères pour avoir des résultats"
+      },
       "import": {
         "bulkImportDescription": "Lorsque vous êtes sur cette page, vous ne serez pas redirigé sur la tâche d'importation, pour que vous puissiez importer plusieurs jeux successivement.",
         "bulkImportTitle": "Mode d'importation de masse",
         "import": "Importer",
+        "importAs": "Importer comme",
         "link": "Imported {arrow}",
         "loading": "Chargement des résultats des jeux…",
         "search": "Rechercher",
@@ -360,6 +423,7 @@
           "loadingVersion": "Chargement des métadonnées de la version…",
           "noAdv": "Pas d'option avancée pour cette configuration.",
           "noLaunches": "Aucune configuration de lancement ajoutée.",
+          "noNameProvided": "Aucun nom fourni.",
           "noSetups": "Aucune configuration d'installation ajoutée.",
           "noVersions": "Pas de version à importer",
           "platform": "Version de la plateforme",
@@ -376,6 +440,27 @@
           "version": "Sélectionner la version à importer"
         },
         "withoutMetadata": "Importer sans les données méta"
+      },
+      "launchRow": {
+        "autosuggestHint": "Suggestion automatique des extensions",
+        "currentDirHint": "Le dossier d'installation est configuré comme le dossier actuel au lancement. Il n'est pas ajouté à vôtre commande.",
+        "emulatorHint": "{rom} est remplacé par la commande de lancement du jeu pour les émulateurs.",
+        "emulatorSelect": "Sélectionner le nouvel émulateur",
+        "emulatorTitle": "Émulateur",
+        "executorHint": "{executor} est remplacé par la commande de lancement du jeu pour les émulateurs.",
+        "executorSelect": "Sélectionner le nouvel exécuteur",
+        "executorTitle": "Exécuteur",
+        "noEmulatorSelected": "Pas d'émulateur sélectionné",
+        "noExecutorSelected": "Pas d'exécuteur sélectionné"
+      },
+      "launchSelector": {
+        "description": "Seléctionner une option de lancement comme exécuteur pour votre nouvelle option de lancement.",
+        "noVersions": "Pas de version importée.",
+        "platformFilterHint": "Affichage des lancements uniquement pour :",
+        "search": "Chercher un exécuteur",
+        "selectCommand": "Sélectionner une commande de lancement",
+        "selectVersions": "Sélectionner une version",
+        "title": "Sélectionner une commande de lancement"
       },
       "libraryHint": "Pas de bibliothèque configurée.",
       "libraryHintDocsLink": "Qu'est-ce que cela veut dire ? {arrow}",
@@ -470,8 +555,18 @@
       "title": "Bibliothèques",
       "version": {
         "delta": "Mode de mise à jour",
+        "description": "Toutes les versions sont importées pour vôtre jeu.",
+        "noSetups": "Pas d'installation configurée.",
         "noVersions": "Vous n'avez aucune version de ce jeu de disponible.",
-        "noVersionsAdded": "pas de version ajoutée"
+        "noVersionsAdded": "pas de version ajoutée",
+        "setupOnly": "Version configurée en mode installation uniquement.",
+        "table": {
+          "launch": "Configurations de Lancement",
+          "name": "Nom (ID)",
+          "path": "Chemin d'accés",
+          "setup": "Configuration des Installations"
+        },
+        "title": "Versions"
       },
       "versionPriority": "Priorité des versions"
     },
@@ -542,6 +637,17 @@
   "settings": {
     "admin": {
       "description": "Configurer les paramètres de Drop",
+      "general": {
+        "applicationLogo": "Logo de l'application",
+        "customLogo": "Logo personnalisé",
+        "defaultLogo": "Logo par défaut",
+        "logo": "Logo",
+        "serverName": "Nom du serveur",
+        "serverNameDescription": "Le nom du serveur",
+        "serverNamePlaceholder": "Mon Instance Drop",
+        "title": "Réglages généraux",
+        "uploadLogo": "Remplacer le logo"
+      },
       "store": {
         "dropGameAltPlaceholder": "Exemple d'icône de Jeu",
         "dropGameDescriptionPlaceholder": "Ceci est un jeu exemple. Il sera remplacé si vous importez un jeu.",
@@ -628,6 +734,7 @@
       "completedTasksTitle": "Tâches complétées",
       "dailyScheduledTitle": "Tâches quotidiennes planifiées",
       "execute": "{arrow} Exécuter",
+      "noActions": "Pas d'action",
       "noTasksRunning": "Pas de tâche en cours",
       "progress": "{0}%",
       "runningTasksTitle": "Tâches en cours d'exécution",

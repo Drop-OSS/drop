@@ -1,5 +1,8 @@
 name: Release Workflow
 
+# self-hosted runner to speed things up
+runs-on: self-hosted
+
 on:
   workflow_dispatch: {}
   release:
@@ -25,6 +28,8 @@ jobs:
     permissions:
       packages: write
       contents: read
+    # self-hosted runner to speed things up
+    runs-on: [self-hosted]
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4

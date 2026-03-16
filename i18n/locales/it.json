@@ -1,1 +1,291 @@
-{}
+{
+  "account": {
+    "devices": {
+      "capabilities": "Capacità",
+      "lastConnected": "Ultima Connessione",
+      "noDevices": "Nessun dispositivo connesso al tuo account.",
+      "platform": "Piattaforma",
+      "revoke": "Revoca",
+      "subheader": "Gestisci i dispositivi autorizzati all'accesso del tuo account Drop.",
+      "title": "Dispositivi"
+    },
+    "notifications": {
+      "all": "Mostra tutte {arrow}",
+      "clear": "Cancella notifiche",
+      "desc": "Visualizza e gestisci le tue notifiche.",
+      "markAllAsRead": "Segna tutto come letto",
+      "markAsRead": "Segna come letto",
+      "none": "Nessuna notifica",
+      "notifications": "Notifiche",
+      "title": "Notifiche",
+      "unread": "Notifiche non lette"
+    },
+    "security": {
+      "2fa": {
+        "superlevelHint": {
+          "signin": "Accedi {arrow}",
+          "success": "Hai accesso a queste azioni protette."
+        },
+        "title": "Autenticazione a due fattori",
+        "totp": {
+          "description": "TOTP genera codici monouso, completamente offline. Puoi usare qualsiasi autenticatore TOTP a tua scelta.",
+          "disableButton": "Disattiva"
+        },
+        "webauthn": {
+          "description": "Conosciute anche come passkey. Autentica utilizzando dati biometrici, un dispositivo, YubiKey, o un qualsiasi dispositivo compatibile con FIDO2.",
+          "manage": "Gestisci",
+          "modal": {
+            "description": "Crea chiavi nuove o rimuovi chiavi esistenti dal tuo account.",
+            "new": "Nuova chiave",
+            "tableCreated": "Creato",
+            "tableName": "Nome",
+            "title": "Chiavi WebAuthn"
+          }
+        }
+      },
+      "title": "Sicurezza"
+    },
+    "settings": "Impostazioni",
+    "title": "Impostazioni Account",
+    "token": {
+      "expiry": "Scadenza",
+      "expiry3Month": "3 mesi",
+      "expiry5Year": "5 anni",
+      "expiry6Month": "6 mesi",
+      "expiryMonth": "Un mese",
+      "expiryYear": "Un anno",
+      "name": "Nome token API",
+      "namePlaceholder": "Il mio nuovo token",
+      "noExpiry": "Nessuna scadenza",
+      "noTokens": "Nessun token connesso al tuo account.",
+      "revoke": "Revoca",
+      "subheader": "Gestisci i tuoi token API e a cosa possono accedere.",
+      "success": "Token creato con successo.",
+      "successNote": "Assicurati di averlo copiato adesso, poiché non verrà più mostrato.",
+      "title": "Token API"
+    }
+  },
+  "actions": "Azioni",
+  "add": "Aggiungi",
+  "adminTitle": "Pannello Amministrazione",
+  "adminTitleTemplate": "{0} - Amministratore - {1}",
+  "auth": {
+    "2fa": {
+      "backToOptions": "{arrow} Torna alle opzioni",
+      "description": "L'autenticazione a due fattori è abilitata per il tuo account. Seleziona una delle seguente opzioni per continuare.",
+      "passkey": {
+        "createTitle": "Crea una passkey",
+        "description": "Usa una passkey, come dati biometrici, un dispositivo di sicurezza hardware, o un altro dispositivo compatibile per accedere al tuo account Drop.",
+        "passkeyNameTag": "Nome",
+        "signinButton": "Accedi con WebAuthn"
+      },
+      "success": {
+        "title": "Aggiunto metodo 2FA!"
+      },
+      "title": "Autenticazione a due fattori",
+      "totp": {
+        "createDescription": "Usa il tuo autenticatore TOTP, come Google Authenticator, Aegis o Bitwarden, per aggiungere la 2FA al tuo account Drop.",
+        "createHint": "Inserire il codice generato per abilitare TOTP",
+        "createTitle": "Imposta il tuo autenticatore",
+        "description": "Usa un codice monouso per accedere al tuo account Drop."
+      }
+    },
+    "callback": {
+      "authClient": "Autorizzare client?",
+      "authorize": "Autorizza",
+      "authorizedClient": "Drop ha autorizzato il tuo client. Ora puoi chiudere questa finestra.",
+      "issues": "Riscontrando problemi?",
+      "paste": "Incolla questo codice nel client per continuare:",
+      "permWarning": "Accettare questa richiesta permetterà a \"{name}\" su \"{platform}\" di:",
+      "requestedAccess": "\"{name}\" ha richiesto l'accesso al tuo account Drop."
+    },
+    "code": {
+      "description": "Usa un codice per connettere il tuo client Drop se non è possibile aprire un browser sul tuo dispositivo.",
+      "title": "Connetti il tuo client Drop"
+    },
+    "confirmPassword": "Conferma @:auth.password",
+    "displayName": "Nome visualizzato",
+    "register": {
+      "confirmPasswordFormat": "Deve essere uguale alla precedente",
+      "emailFormat": "Deve seguire il formato user{'@'}example.com",
+      "passwordFormat": "Deve avere 8 o più caratteri",
+      "subheader": "Inserisci i tuoi dettagli per creare il tuo account.",
+      "title": "Crea il tuo account Drop",
+      "usernameFormat": "Deve essere minuscolo e lungo 5 o più caratteri"
+    },
+    "signin": {
+      "externalProvider": "provider esterno",
+      "forgot": "Password dimenticata?",
+      "noAccount": "Non hai un account? Chiedi ad un amministratore di crearne uno per te.",
+      "or": "O",
+      "pageTitle": "Accedi a Drop",
+      "rememberMe": "Ricordami",
+      "signin": "Accedi",
+      "signinWithExternalProvider": "Accedi con {externalProvider} {arrow}",
+      "title": "Accedi al tuo account"
+    },
+    "signout": "Disconnetti",
+    "username": "Nome utente"
+  },
+  "cancel": "Annulla",
+  "common": {
+    "add": "Aggiungi",
+    "cannotUndo": "Questa azione non può essere annullata.",
+    "close": "Chiudi",
+    "components": {
+      "multiitem": {
+        "new": "Crea nuovo: \"{0}\"",
+        "placeholder": "Inizia a scrivere..."
+      }
+    },
+    "create": "Crea",
+    "date": "Data",
+    "delete": "Elimina",
+    "deleteConfirm": "Sei sicuro di voler eliminare \"{0}\"?",
+    "edit": "Modifica",
+    "friends": "Amici",
+    "groups": "Gruppi",
+    "insert": "Inserisci",
+    "name": "Nome",
+    "noData": "Nessun dato",
+    "noResults": "Nessun risultato",
+    "noSelected": "Nessun elemento selezionato.",
+    "remove": "Rimuovi",
+    "save": "Salva",
+    "saved": "Salvato",
+    "select": "Seleziona",
+    "servers": "Server",
+    "srLoading": "Caricamento…",
+    "tags": "Tag",
+    "today": "Oggi"
+  },
+  "drop": {
+    "desc": "Una piattaforma di distribuzione videogiochi open-source costruita per velocità, flessibilità e bellezza."
+  },
+  "editor": {
+    "bold": "Grassetto",
+    "boldPlaceholder": "testo in grassetto",
+    "code": "Codice",
+    "codePlaceholder": "codice",
+    "heading": "Intestazione",
+    "headingPlaceholder": "intestazione",
+    "italic": "Corsivo",
+    "italicPlaceholder": "testo in corsivo",
+    "link": "Collegamento",
+    "linkPlaceholder": "testo collegamento",
+    "listItem": "Lista Elementi",
+    "listItemPlaceholder": "elemento lista"
+  },
+  "errors": {
+    "admin": {
+      "user": {
+        "delete": {
+          "desc": "Drop non è riuscito ad eliminare questo utente: {0}",
+          "title": "Errore nell'eliminazione dell'utente"
+        }
+      }
+    },
+    "auth": {
+      "disabled": "Account non valido o disattivato. Contattare l'amministratore del server.",
+      "invalidInvite": "Invito non valido o scaduto",
+      "invalidUserOrPass": "Nome utente o password non valida.",
+      "method": {
+        "signinDisabled": "Metodo di accesso non abilitato"
+      },
+      "usernameTaken": "Nome utente già utilizzato."
+    },
+    "externalUrl": {
+      "subtitle": "Questo messaggio è visibile solo agli amministratori.",
+      "title": "Accedendo su EXTERNAL_URL diverso. Si prega di controllare la documentazione."
+    },
+    "game": {
+      "banner": {
+        "description": "Drop non è riuscito ad aggiornare l'immagine del banner: {0}",
+        "title": "Errore nell'aggiornamento dell'immagine di banner"
+      },
+      "carousel": {
+        "description": "Drop non è riuscito ad aggiornare il carosello immagini: {0}",
+        "title": "Errore nell'aggiornamento del carosello immagini"
+      },
+      "cover": {
+        "description": "Drop non è riuscito ad aggiornare l'immagine di copertina: {0}",
+        "title": "Errore nell'aggiornamento dell'immagine di copertina"
+      },
+      "deleteImage": {
+        "description": "Drop non è riuscito ad eliminare l'immagine: {0}",
+        "title": "Errore nell'eliminazione dell'immagine"
+      },
+      "description": {
+        "description": "Drop non è riuscito ad aggiornare la descrizione del gioco: {0}",
+        "title": "Errore nell'aggiornamento della descrizione del gioco"
+      },
+      "metadata": {
+        "description": "Drop non è riuscito ad aggiornare i metadata del gioco: {0}",
+        "title": "Errore nell'aggiornamento dei metadati"
+      }
+    },
+    "inviteRequired": "Invito richiesto per la registrazione.",
+    "library": {
+      "add": {
+        "desc": "Drop non è riuscito ad aggiungere questo gioco nella tua libreria: {0}",
+        "title": "Errore nell'aggiunta del gioco in libreria"
+      },
+      "collection": {
+        "create": {
+          "desc": "Drop non è riuscito a creare la tua collezione: {0}",
+          "title": "Errore nella creazione della collezione"
+        }
+      }
+    },
+    "news": {
+      "article": {
+        "delete": {
+          "desc": "Drop non è riuscito ad eliminare questo articolo: {0}",
+          "title": "Errore nell'eliminazione dell'articolo"
+        }
+      }
+    },
+    "occurred": "È stato riscontrato un errore durante la risposta alla tua richiesta. Se credi che sia un bug, si prega di segnalarlo. Prova ad accedere e vedere se risolve il problema.",
+    "signIn": "Accedi {arrow}",
+    "support": "Supporto Discord",
+    "unknown": "È stato riscontrato un errore sconosciuto",
+    "upload": {
+      "description": "Drop non è riuscito a caricare il file: {0}"
+    },
+    "version": {
+      "delete": {
+        "desc": "Drop ha riscontrato un errore durante l'eliminazione della versione: {error}"
+      }
+    }
+  },
+  "footer": {
+    "aboutDrop": "Informazioni su Drop",
+    "documentation": "Documentazione",
+    "findGame": "Trova un gioco",
+    "games": "Giochi"
+  },
+  "header": {
+    "admin": {
+      "admin": "Amministratore",
+      "library": "Libreria",
+      "settings": {
+        "general": "Opzioni Generali",
+        "store": "Negozio",
+        "title": "Opzioni",
+        "tokens": "Token API"
+      },
+      "users": "Utenti"
+    },
+    "back": "Indietro"
+  },
+  "helpUsTranslate": "Aiutaci a tradurre Drop {arrow}",
+  "home": {
+    "admin": {
+      "activeInactiveUsers": "Utenti attivi/inattivi",
+      "activeUsers": "Utenti attivi",
+      "cpuUsage": "Utilizzo CPU",
+      "games": "Giochi",
+      "inactiveUsers": "Utenti inattivi"
+    }
+  }
+}
