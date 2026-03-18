@@ -89,7 +89,7 @@
     "eslint": "^9.24.0",
     "eslint-config-prettier": "^10.1.1",
     "golar": "^0.0.13",
-    "h3": "^1.15.5",
+    "h3": "^1.15.6",
     "nitropack": "^2.11.12",
     "ofetch": "^1.4.1",
     "prettier": "^3.5.3",
