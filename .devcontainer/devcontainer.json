@@ -1,34 +1,11 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/javascript-node
 {
-  "name": "Node.js",
-  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-  "dockerComposeFile": "docker-compose.yml",
-  "service": "app",
-  "workspaceFolder": "/workspaces/drop",
-  "runServices": [ "db", "app" ],
-  "shutdownAction": "stopCompose",
   "containerEnv": {
     "DATABASE_URL": "postgres://drop:drop@db:5432/drop",
     "EXTERNAL_URL": "http://localhost:4000",
     "NUXT_PORT": "4000"
   },
-
-  // Features to add to the dev container. More info: https://containers.dev/features.
-  "features": {
-    "ghcr.io/devcontainers/features/node:1": { },
-    "ghcr.io/devcontainers/features/rust:1": {
-      "version": "nightly-2026-03-29"
-    },
-    "ghcr.io/devcontainers-extra/features/protoc:1": { }
-  },
-
-  // Use 'forwardPorts' to make a list of ports inside the container available locally.
-  // "forwardPorts": [],
-
-  // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "git submodule update --init --recursive",
-  "postStartCommand": "pnpm install && pnpm prisma migrate deploy && cd torrential && cargo build --release && cd ..",
 
   // Configure tool-specific properties.
   "customizations": {
@@ -44,8 +21,32 @@
         "dbaeumer.vscode-eslint"
       ]
     }
-  }
+  },
 
   // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
   // "remoteUser": "root"
+
+  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+  "dockerComposeFile": "docker-compose.yml",
+  // Features to add to the dev container. More info: https://containers.dev/features.
+  "features": {
+    "ghcr.io/devcontainers-extra/features/protoc:1": {},
+    "ghcr.io/devcontainers/features/node:1": {},
+    "ghcr.io/devcontainers/features/rust:1": {
+      "version": "nightly-2026-03-29"
+    }
+  },
+
+  "name": "Node.js",
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  // "forwardPorts": [],
+
+  // Use 'postCreateCommand' to run commands after the container is created.
+  "postCreateCommand": "git submodule update --init --recursive",
+  "postStartCommand": "pnpm install && pnpm prisma migrate deploy && cd torrential && cargo build --release && cd ..",
+
+  "runServices": ["db", "app"],
+  "service": "app",
+  "shutdownAction": "stopCompose",
+  "workspaceFolder": "/workspaces/drop"
 }
