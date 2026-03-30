@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+message VersionQuery {
+  string version_id = 1;
+}
+
+message VersionResponse {
+  message Manifest {
+    string version = 1;
+    message ChunkData {
+      message FileEntry {
+        string filename = 1;
+        uint64 start = 2;
+        uint64 length = 3;
+        fixed32 permissions = 4;
+      }
+      repeated FileEntry files = 1;
+      string checksum = 2;
+      bytes iv = 3;
+    }
+    map<string, ChunkData> chunks = 2;
+    uint64 size = 3;
+    bytes key = 4;
+  }
+  Manifest manifest = 1;
+
+  message LibrarySource {
+    enum LibraryBackend {
+      FILESYSTEM = 0;
+      FLAT_FILESYSTEM = 1;
+    }
+    string options = 1; /// JSON
+    string id = 2;
+    LibraryBackend backend = 3;
+  }
+  LibrarySource source = 2;
+  string library_path = 3;
+  string version_path = 4;
+}

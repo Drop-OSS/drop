@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+enum TorrentialBoundType {
+  ERROR = 0;
+  SERVER_GAMES_RESPONSE = 1;
+  VERSION_RESPONSE = 2;
+
+  GENERATE_MANIFEST = 3;
+  GENERATE_ROOT_CA = 4;
+  GENERATE_CLIENT_CERT = 5;
+
+  HAS_BACKEND_QUERY = 6;
+  LIST_FILES_QUERY = 7;
+  PEEK_FILE_QUERY = 8;
+}
+
+message TorrentialBound {
+  string message_id = 1;
+  TorrentialBoundType type = 2;
+  bytes data = 3;
+}
+
+enum DropBoundType {
+  SERVER_GAMES_QUERY = 0;
+  VERSION_QUERY = 1;
+
+  RPC_ERROR = 2;
+
+  MANIFEST_PROGRESS = 3;
+  MANIFEST_LOG = 4;
+  MANIFEST_COMPLETE = 5;
+
+  ROOT_CA_COMPLETE = 6;
+  CLIENT_CERT_COMPLETE = 7;
+
+  HAS_BACKEND_COMPLETE = 8;
+  LIST_FILES_COMPLETE = 9;
+  PEEK_FILE_COMPLETE = 10;
+}
+
+message DropBound {
+  string message_id = 1;
+  DropBoundType type = 2;
+  bytes data = 3;
+}

@@ -1,0 +1,20 @@
+[package]
+name = "tests_crate"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+
+[dependencies]
+native_model = { path = "../", no-default-features = true }
+serde = { version = "1.0.200", features = ["derive"], optional = true }
+bincode = { version = "2.0.0-rc.3", features = ["serde"] ,  optional = true }
+postcard = { version = "1.0.8", features = ["alloc"], optional = true }
+anyhow = "1.0.82"
+
+
+[features]
+default = ["bincode_1_3"]
+bincode_1_3 = ["serde", "native_model/bincode_1_3"]
+bincode_2 = ["serde", "native_model/bincode_2", "bincode"]
+postcard_1_0 = ["serde", "native_model/postcard_1_0", "postcard"]

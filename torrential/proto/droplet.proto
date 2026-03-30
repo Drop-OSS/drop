@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+message RpcError {
+  string error = 1;
+}
+
+/// Certificates
+message RootCertQuery {}
+message RootCertResponse {
+  string cert = 1;
+  string priv = 2;
+}
+
+message ClientCertQuery {
+  string client_id = 1;
+  string client_name = 2;
+  string root_cert = 3;
+  string root_priv = 4;
+}
+message ClientCertResponse {
+  string cert = 1;
+  string priv = 2;
+}
+
+/// Manifest generation
+message GenerateManifest {
+  string version_dir = 1;
+}
+
+message ManifestProgress {
+  float progress = 1;
+}
+message ManifestLog {
+  string log_line = 1;
+}
+message ManifestComplete {
+  string manifest = 1;
+}
+
+/// Backend tools
+message HasBackendQuery {
+  string path = 1;
+}
+message HasBackendResponse {
+  bool result = 1;
+}
+
+message ListFilesQuery {
+  string path = 1;
+}
+message ListFilesResponse {
+  repeated string files = 1;
+}
+
+message PeekFileQuery {
+  string path = 1;
+  string filename = 2;
+}
+message PeekFileResponse {
+  uint64 size = 1;
+}

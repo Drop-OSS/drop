@@ -1,0 +1,30 @@
+name: Clippy Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main, next ]
+  schedule:
+    - cron:  '0 23 * * 4'
+
+env:
+  RUST_BACKTRACE: full
+
+jobs:
+  clippy_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+      - uses: extractions/setup-just@v3
+      - uses: hustcer/setup-nu@v3.23
+        with:
+          version: '0.105.1'
+        env:
+            GITHUB_TOKEN: ${{ secrets.PAT_GLOBAL }}
+      - name: Just version
+        run: just --version
+      - name: Clippy Check
+        run: just clippy_check 

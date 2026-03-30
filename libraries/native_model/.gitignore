@@ -1,0 +1,10 @@
+/target
+/Cargo.lock
+
+# TODO: remove it used by semantic-release/exec
+node_modules/
+package-lock.json
+package.json
+
+/native_model_macro/target
+/native_model_macro/Cargo.lock

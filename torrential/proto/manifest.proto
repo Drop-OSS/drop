@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+message ServerGamesQuery {}
+
+message ServerGamesResponse {
+    message SkeletonGame {
+        message SkeletonVersion {
+            string version_id = 1;
+        }
+        string id = 1;
+        repeated SkeletonVersion versions = 2;
+    }
+    repeated SkeletonGame games = 1;
+}

@@ -1,0 +1,66 @@
+name: Build Test Release
+
+on:
+  push:
+    branches: [ main, next ]
+  pull_request:
+    branches: [ main, next ]
+  workflow_dispatch:
+
+jobs:
+  build_test_common_os:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+        toolchain: [stable]
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          override: true
+      - uses: extractions/setup-just@v3
+      - uses: hustcer/setup-nu@v3.23
+        with:
+          version: '0.105.1'
+      - name: Just version
+        run: just --version
+      - name: Build
+        run: just build_all
+      - name: Test
+        run: just test_all
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: [build_test_common_os]
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: install npm
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Semantic Release
+        uses: cycjimmy/semantic-release-action@v4
+        with:
+          dry_run: ${{ github.event_name != 'workflow_dispatch' }}
+          extra_plugins: |
+            @semantic-release/commit-analyzer
+            @semantic-release/release-notes-generator
+            @semantic-release/exec
+            @semantic-release/github
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_GLOBAL }}
+          CARGO_TOKEN: ${{ secrets.CARGO_TOKEN }}

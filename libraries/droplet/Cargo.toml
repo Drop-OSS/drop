@@ -1,0 +1,46 @@
+[package]
+edition = "2021"
+authors = ["Drop-OSS"]
+name = "droplet-rs"
+version = "0.16.3"
+license = "AGPL-3.0-only"
+description = "Droplet is a `napi.rs` Rust/Node.js package full of high-performance and low-level utils for Drop"
+
+[dependencies]
+hex = "0.4.3"
+time = "0.3.41"
+ring = "0.17.14"
+dyn-clone = "1.0.20"
+tokio = { version = "^1.48.0", features = [
+    "process",
+    "fs",
+    "io-util",
+    "rt",
+    "rt-multi-thread",
+    "macros",
+    "sync",
+] }
+anyhow = "1.0.100"
+async-trait = "0.1.89"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.145"
+humansize = "2.1.3"
+uuid = { version = "1.19.0", features = ["v4"] }
+sha2 = "0.10.9"
+futures = "0.3.31"
+getrandom = "0.3.4"
+libarchive-drop = { version = "*", path = "../libarchive" }
+speedometer = "0.2.2"
+test-generator = "0.3.1"
+
+[dependencies.x509-parser]
+version = "0.17.0"
+features = ["verify"]
+
+[dependencies.rcgen]
+version = "0.13.2"
+features = ["crypto", "pem", "x509-parser"]
+
+[profile.release]
+lto = true
+strip = "symbols"

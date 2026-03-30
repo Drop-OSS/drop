@@ -1,0 +1,12 @@
+[package]
+name = "libarchive-drop"
+version = "0.1.1"
+authors = ["Jamie Winsor <reset@chef.io>", "Drop OSS"]
+license = "Apache-2.0"
+repository = "https://github.com/Drop-OSS/libarchive-rust"
+description = "A safe Rust API for authoring and extracting archives with libarchive"
+keywords = ["libarchive", "archive", "tar", "zip"]
+
+[dependencies]
+libc = ">= 0.2.0"
+libarchive3-sys = "0.1"

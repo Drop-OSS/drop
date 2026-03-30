@@ -14,7 +14,7 @@ crossbeam-channel = "0.5.15"
 ctr = "0.9.2"
 database = { path = "../database", version = "0.1.0" }
 download_manager = { path = "../download_manager", version = "0.1.0" }
-droplet-rs = { git = "https://github.com/Drop-OSS/droplet-rs" }
+droplet-rs = { path = "../../../libraries/droplet" }
 futures-util = "*"
 hex = "0.4.3"
 log = "0.4.28"

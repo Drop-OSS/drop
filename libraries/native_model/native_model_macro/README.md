@@ -1,0 +1,1 @@
+A procedural macro for [native_model](https://github.com/Drop-OSS/native_model).

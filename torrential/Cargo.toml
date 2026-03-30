@@ -1,0 +1,69 @@
+[package]
+name = "torrential"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "torrential"
+path = "src/lib.rs"
+
+[[bin]]
+name = "torrential"
+path = "src/main.rs"
+
+[dependencies]
+axum = { version = "0.8.7", features = ["macros"] }
+log = "0.4.28"
+reqwest = { version = "0.12.24", default-features = false, features = [
+    "json",
+    "rustls-tls",
+] }
+serde = { version = "1.0.228", features = ["derive"] }
+simple_logger = { version = "5.1.0", default-features = false, features = [
+    "colors",
+] }
+tokio = { version = "*", features = ["rt-multi-thread", "sync"] }
+droplet-rs = { path = "../libraries/droplet" }
+dashmap = "6.1.0"
+anyhow = "1.0.100"
+serde_json = "1.0.145"
+url = { version = "2.5.7", default-features = false }
+tokio-util = { version = "0.7.17", features = ["io"] }
+async-trait = "0.1.89"
+futures-util = "0.3.31"
+ctr = "0.9.2"
+aes = "0.8.4"
+bytes = "*"
+file_open_limit = "0.0.5"
+pin-project-lite = "0.2.16"
+protobuf = "3.7.2"
+waitmap = "1.1.0"
+uuid = { version = "1.20.0", features = ["v4"] }
+num_cpus = "1.17.0"
+
+[lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+
+almost_swapped = "deny"
+unwrap_used = "warn"
+expect_used = "warn"
+dbg_macro = "deny"
+needless_match = "deny"
+
+cast_possible_truncation = "warn"
+cast_possible_wrap = "warn"
+single_match_else = "warn"
+inconsistent_digit_grouping = "warn"
+
+[[bench]]
+name = "torrential"
+harness = false
+
+[dev-dependencies]
+criterion = { version = "0.8.0", features = ["async", "async_tokio"] }
+rand = "0.9.2"
+tempfile = "3.23.0"
+
+[build-dependencies]
+protobuf-codegen = "3.7.2"
+protoc-bin-vendored = "3.2.0"

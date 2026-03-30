@@ -3,3 +3,6 @@ plugins:
   - local: protoc-gen-es
     out: server/internal/proto
     opt: target=ts
+
+inputs:
+  - directory: ../

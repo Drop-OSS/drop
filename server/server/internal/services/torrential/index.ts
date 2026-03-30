@@ -49,9 +49,9 @@ export class TorrentialService extends Service<unknown> {
     super(
       "torrential",
       () => {
-        const localDir = fs.readdirSync(".");
-        if (localDir.includes("torrential")) {
-          const stat = fs.statSync("./torrential");
+        const torrentialDir = "../torrential";
+        if (fs.existsSync(torrentialDir)) {
+          const stat = fs.statSync(torrentialDir);
           if (stat.isDirectory()) {
             // in dev and we have the submodule
             logger.info(
@@ -62,15 +62,17 @@ export class TorrentialService extends Service<unknown> {
               [
                 "run",
                 "--manifest-path",
-                "./torrential/Cargo.toml",
+                `${torrentialDir}/Cargo.toml`,
                 "--release",
               ],
               {},
             );
-          } else {
-            // binary
-            return spawn("./torrential", [], {});
           }
+        }
+
+        const localDir = fs.readdirSync(".");
+        if (localDir.includes("torrential")) {
+          return spawn("./torrential", [], {});
         }
 
         const envPath = process.env.TORRENTIAL_PATH;

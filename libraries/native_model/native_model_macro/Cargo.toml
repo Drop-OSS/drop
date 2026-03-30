@@ -1,0 +1,20 @@
+[package]
+name = "native_model_macro"
+version = "0.6.4"
+authors = ["Vincent Herlemont <vincent@herlemont.fr>", "quexeky <git@quexeky.dev>"]
+edition = "2018"
+description = "A procedural macro for native_model"
+license = "MIT"
+repository = "https://github.com/Drop-OSS/native_model"
+readme = "README.md"
+
+
+[lib]
+path = "src/lib.rs"
+proc-macro = true
+
+[dependencies]
+syn = { version = "2.0.60", features = ["full"] }
+quote = "1.0.36"
+proc-macro2 = "1.0.81"
+log = "0.4.27"
