@@ -226,14 +226,14 @@ function DownloadCard({
   return (
     <div className="-m-2 grid grid-cols-1 rounded-4xl shadow-[inset_0_0_2px_1px_#ffffff4d] ring-1 ring-black/5 max-lg:mx-auto max-lg:w-full max-lg:max-w-md">
       <div className="grid grid-cols-1 rounded-4xl p-2 shadow-md shadow-black/5">
-        <div className="flex h-full flex-col justify-between rounded-3xl bg-white p-10 pb-9 shadow-2xl ring-1 ring-black/5">
+        <div className="flex h-full flex-col justify-between rounded-3xl bg-zinc-900/50 p-10 pb-9 shadow-2xl ring-1 ring-white/5">
           <div>
             <div className="flex w-full items-center justify-center gap-x-4">
               {data.icon()}
               <Heading>{data.name}</Heading>
             </div>
 
-            <p className="mt-3 text-sm/6 text-gray-950/75">
+            <p className="mt-3 text-sm/6 text-zinc-100/75">
               {data.description}
             </p>
           </div>
@@ -266,11 +266,11 @@ export default function DownloadCards() {
       <Container>
         <div className="flex flex-col items-center">
           <Listbox value={currentVersion} onChange={setCurrentVersion}>
-            <Label className="block text-sm/6 font-medium text-gray-900">
+            <Label className="block text-sm/6 font-medium text-zinc-100">
               Version
             </Label>
             <div className="relative mt-2">
-              <ListboxButton className="grid w-full min-w-[10rem] cursor-default grid-cols-1 rounded-md bg-white py-1.5 pr-2 pl-3 text-left text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-600 sm:text-sm/6">
+              <ListboxButton className="grid w-full min-w-[10rem] cursor-default grid-cols-1 rounded-md bg-zinc-900 py-1.5 pr-2 pl-3 text-left text-zinc-100 outline-1 -outline-offset-1 outline-zinc-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-600 sm:text-sm/6">
                 <span className="col-start-1 row-start-1 truncate pr-6">
                   {currentVersion}
                 </span>
@@ -282,13 +282,13 @@ export default function DownloadCards() {
 
               <ListboxOptions
                 transition
-                className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg outline-1 outline-black/5 data-leave:transition data-leave:duration-100 data-leave:ease-in data-closed:data-leave:opacity-0 sm:text-sm"
+                className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg outline-1 outline-white/5 data-leave:transition data-leave:duration-100 data-leave:ease-in data-closed:data-leave:opacity-0 sm:text-sm"
               >
                 {Object.keys(releasePages).map((version) => (
                   <ListboxOption
                     key={version}
                     value={version}
-                    className="group relative cursor-default py-2 pr-9 pl-3 text-gray-900 select-none data-focus:bg-blue-600 data-focus:text-white data-focus:outline-hidden"
+                    className="group relative cursor-default py-2 pr-9 pl-3 text-zinc-100 select-none data-focus:bg-blue-600 data-focus:text-white data-focus:outline-hidden"
                   >
                     <span className="block truncate font-normal group-data-selected:font-semibold">
                       {version}

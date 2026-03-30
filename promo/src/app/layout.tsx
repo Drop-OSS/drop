@@ -15,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="text-gray-950 antialiased">
+      <body className="text-zinc-100 bg-zinc-950 antialiased">
         {children}
       </body>
     </html>

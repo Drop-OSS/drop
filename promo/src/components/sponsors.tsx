@@ -76,19 +76,10 @@ function SponsorCard({
       ref={ref}
       style={{ opacity }}
       {...props}
-      className="relative flex aspect-9/16 w-64 shrink-0 snap-start scroll-ml-(--scroll-padding) flex-col justify-end overflow-hidden rounded-3xl sm:aspect-3/4 sm:w-72"
+      className="relative flex w-64 rounded-3xl sm:w-72 bg-black"
     >
-      <img
-        alt=""
-        src={img}
-        className="absolute inset-x-0 top-0 aspect-square w-full object-contain"
-      />
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 rounded-3xl bg-linear-to-t from-black from-[calc(7/16*100%)] ring-1 ring-gray-950/10 ring-inset sm:from-25%"
-      />
       <figure className="relative p-10">
-        <figcaption className="mt-6 border-t border-white/20 pt-6">
+        <figcaption className="pb-3 border-b border-white/20">
           <p className="text-sm/6 font-medium text-white">{name}</p>
           <p className="text-sm/6 font-medium">
             <span className="bg-linear-to-r from-sky-300 from-28% via-blue-200 via-70% to-cyan-300 bg-clip-text text-transparent">
@@ -272,8 +263,8 @@ export function Sponsors() {
                   data-active={activeIndex === i ? true : undefined}
                   aria-label={`Scroll to sponsorship from ${name}`}
                   className={clsx(
-                    'size-2.5 cursor-pointer rounded-full border border-transparent bg-gray-300 transition',
-                    'data-active:bg-gray-400 data-hover:bg-gray-400',
+                    'size-2.5 cursor-pointer rounded-full border border-transparent bg-zinc-600 transition',
+                    'data-active:bg-blue-700 data-hover:bg-zinc-900',
                     'forced-colors:data-active:bg-[Highlight] forced-colors:data-focus:outline-offset-4',
                   )}
                 />

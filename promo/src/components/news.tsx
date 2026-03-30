@@ -26,14 +26,14 @@ function FeaturedPosts() {
   const postAuthors = fetchPostAuthors()
 
   return (
-    <div className="mt-16 bg-linear-to-t from-gray-100 pb-14">
+    <div className="mt-16 pb-14">
       <Container>
         <h2 className="text-2xl font-medium tracking-tight">Featured</h2>
         <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-3">
           {featuredPosts.map((post) => (
             <div
               key={post._meta.path}
-              className="relative flex flex-col rounded-3xl bg-white p-2 shadow-md ring-1 shadow-black/5 ring-black/5"
+              className="relative flex flex-col rounded-3xl bg-zinc-900 p-2 shadow-md ring-1 shadow-white/5 ring-white/5"
             >
               {post.image && (
                 <img
@@ -43,7 +43,7 @@ function FeaturedPosts() {
                 />
               )}
               <div className="flex flex-1 flex-col p-8">
-                <div className="text-sm/5 text-gray-700">
+                <div className="text-sm/5 text-zinc-400">
                   {dayjs(post.date).format('dddd, MMMM D, YYYY')}
                 </div>
                 <div className="mt-2 text-base/7 font-medium">
@@ -52,7 +52,7 @@ function FeaturedPosts() {
                     {post.title}
                   </Link>
                 </div>
-                <div className="mt-2 flex-1 text-sm/6 text-gray-500">
+                <div className="mt-2 flex-1 text-sm/6 text-zinc-400">
                   {post.excerpt}
                 </div>
                 {postAuthors[post.author ?? ''] && (
@@ -62,7 +62,7 @@ function FeaturedPosts() {
                       src={postAuthors[post.author ?? ''].avatar}
                       className="aspect-square size-6 rounded-full object-cover"
                     />
-                    <div className="text-sm/5 text-gray-700">
+                    <div className="text-sm/5 text-zinc-300">
                       {postAuthors[post.author ?? ''].name}
                     </div>
                   </div>
@@ -94,7 +94,7 @@ function Posts({ page, category }: { page: number; category?: string }) {
       {posts.map((post) => (
         <div
           key={post._meta.path}
-          className="relative grid grid-cols-1 border-b border-b-gray-100 py-10 first:border-t first:border-t-gray-200 max-sm:gap-3 sm:grid-cols-3"
+          className="relative grid grid-cols-1 border-b border-b-zinc-900 py-10 first:border-t first:border-t-zinc-900 max-sm:gap-3 sm:grid-cols-3"
         >
           <div>
             <div className="text-sm/5 max-sm:text-gray-700 sm:font-medium">
@@ -109,7 +109,7 @@ function Posts({ page, category }: { page: number; category?: string }) {
                     className="aspect-square size-6 rounded-full object-cover"
                   />
                 }
-                <div className="text-sm/5 text-gray-700">
+                <div className="text-sm/5 text-zinc-300">
                   {postAuthors[post.author ?? ''].name}
                 </div>
               </div>
@@ -117,7 +117,7 @@ function Posts({ page, category }: { page: number; category?: string }) {
           </div>
           <div className="sm:col-span-2 sm:max-w-2xl">
             <h2 className="text-sm/5 font-medium">{post.title}</h2>
-            <p className="mt-3 text-sm/6 text-gray-500">{post.excerpt}</p>
+            <p className="mt-3 text-sm/6 text-zinc-300">{post.excerpt}</p>
             <div className="mt-4">
               <Link
                 href={post.url}
@@ -180,9 +180,9 @@ function Pagination({
             data-active={i + 1 === page ? true : undefined}
             className={clsx(
               'size-7 rounded-lg text-center text-sm/7 font-medium',
-              'data-hover:bg-gray-100',
-              'data-active:shadow-sm data-active:ring-1 data-active:ring-black/10',
-              'data-active:data-hover:bg-gray-50',
+              'data-hover:bg-zinc-900',
+              'data-active:shadow-sm data-active:ring-1 data-active:ring-white/10',
+              'data-active:data-hover:bg-zinc-900',
             )}
           >
             {i + 1}

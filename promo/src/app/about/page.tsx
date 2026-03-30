@@ -25,14 +25,14 @@ function Header() {
       <section className="mt-16 grid grid-cols-1 lg:grid-cols-2 lg:gap-12">
         <div className="max-w-lg">
           <h2 className="text-2xl font-medium tracking-tight">Our mission</h2>
-          <p className="mt-6 text-sm/6 text-gray-600">
+          <p className="mt-6 text-sm/6 text-zinc-400">
             We aim to build a &quot;Steam-like experience for DRM-free
             games&quot;. One of the major sticking points of DRM games, and why
             platforms like Steam have done so well, is that they provide awesome
             features like worldwide play-together, social features, and useful
             overlays and tools. We aim to replicate this for <i>any</i> game.
           </p>
-          <p className="mt-8 text-sm/6 text-gray-600">
+          <p className="mt-8 text-sm/6 text-zinc-400">
             Don&apos;t get us wrong, we don&apos;t think Steam or Valve is bad.
             They are unusually consumer-friendly, and provide a great service.
             They will always have a place, providing a marketplace for DRM
@@ -41,16 +41,16 @@ function Header() {
         </div>
         <div className="max-lg:mt-16 lg:col-span-1">
           <Subheading>The Numbers</Subheading>
-          <hr className="mt-6 border-t border-gray-200" />
+          <hr className="mt-6 border-t border-zinc-800" />
           <dl className="mt-6 grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
-            <div className="flex flex-col gap-y-2 border-b border-dotted border-gray-200 pb-4">
-              <dt className="text-sm/6 text-gray-600">Lines of code</dt>
+            <div className="flex flex-col gap-y-2 border-b border-dotted border-zinc-800 pb-4">
+              <dt className="text-sm/6 text-zinc-400">Lines of code</dt>
               <dd className="order-first text-6xl font-medium tracking-tight">
                 <AnimatedNumber start={10} end={40} />k
               </dd>
             </div>
-            <div className="flex flex-col gap-y-2 border-b border-dotted border-gray-200 pb-4">
-              <dt className="text-sm/6 text-gray-600">
+            <div className="flex flex-col gap-y-2 border-b border-dotted border-zinc-800 pb-4">
+              <dt className="text-sm/6 text-zinc-400">
                 Individual open-source projects
               </dt>
               <dd className="order-first text-6xl font-medium tracking-tight">
@@ -59,13 +59,13 @@ function Header() {
               </dd>
             </div>
             <div className="flex flex-col gap-y-2 max-sm:border-b max-sm:border-dotted max-sm:border-gray-200 max-sm:pb-4">
-              <dt className="text-sm/6 text-gray-600">Docker pulls</dt>
+              <dt className="text-sm/6 text-zinc-400">Docker pulls</dt>
               <dd className="order-first text-6xl font-medium tracking-tight">
                 <AnimatedNumber start={0} end={48.8} decimals={1} />k
               </dd>
             </div>
             <div className="flex flex-col gap-y-2">
-              <dt className="text-sm/6 text-gray-600">Contributors</dt>
+              <dt className="text-sm/6 text-zinc-400">Contributors</dt>
               <dd className="order-first text-6xl font-medium tracking-tight">
                 &gt;
                 <AnimatedNumber start={0} end={15} />
@@ -91,7 +91,7 @@ function FrequentlyAskedQuestions() {
             <dt className="text-sm font-semibold">
               Do you intend to replace Steam?
             </dt>
-            <dd className="mt-4 text-sm/6 text-gray-600">
+            <dd className="mt-4 text-sm/6 text-zinc-400">
               No. Drop is not a replacement for Steam, in the sense that we will
               ever offer a marketplace for developers to sell games. Drop can
               replace Steam <i>for an individual</i>, if they only played
@@ -102,7 +102,7 @@ function FrequentlyAskedQuestions() {
             <dt className="text-sm font-semibold">
               Will Drop ever cost money or require a subscription?
             </dt>
-            <dd className="mt-4 text-sm/6 text-gray-600">
+            <dd className="mt-4 text-sm/6 text-zinc-400">
               We believe in <strong>paying for services, not code</strong>. All
               our projects are and always will be open source (AGPLv3), and we
               endeavour to allow users to self-host as much of it as possible.
@@ -114,7 +114,7 @@ function FrequentlyAskedQuestions() {
           </dl>
           <dl>
             <dt className="text-sm font-semibold">Is Drop legal?</dt>
-            <dd className="mt-4 text-sm/6 text-gray-600">
+            <dd className="mt-4 text-sm/6 text-zinc-400">
               Yes. Officially, Drop is <strong>only</strong> for DRM-free games,
               like the ones you purchase from GOG or download from itch.io,{' '}
               <strong>and</strong> that you have a license to redistribute. We
@@ -126,7 +126,7 @@ function FrequentlyAskedQuestions() {
           </dl>
           <dl>
             <dt className="text-sm font-semibold">How can I support Drop or get involved?</dt>
-            <dd className="mt-4 text-sm/6 text-gray-600">
+            <dd className="mt-4 text-sm/6 text-zinc-400">
               Thank you for helping us out! If you&apos;re looking to contribute
               code, check out our{' '}
               <Link
