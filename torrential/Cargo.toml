@@ -61,7 +61,7 @@ harness = false
 
 [dev-dependencies]
 criterion = { version = "0.8.0", features = ["async", "async_tokio"] }
-rand = "0.9.2"
+rand = "0.9.3"
 tempfile = "3.23.0"
 
 [build-dependencies]
