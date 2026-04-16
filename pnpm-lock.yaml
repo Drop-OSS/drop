@@ -73,27 +73,6 @@ importers:
         specifier: ^2.9.4
         version: 2.10.1
 
-  docs:
-    dependencies:
-      '@astrojs/starlight':
-        specifier: ^0.37.4
-        version: 0.37.7(astro@5.18.1(@types/node@24.12.2)(db0@0.3.4(@electric-sql/pglite@0.3.15)(mysql2@3.15.3))(ioredis@5.10.1)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.1)(sass@1.99.0)(terser@5.46.1)(typescript@5.9.3)(yaml@2.8.3))
-      astro:
-        specifier: ^5.6.1
-        version: 5.18.1(@types/node@24.12.2)(db0@0.3.4(@electric-sql/pglite@0.3.15)(mysql2@3.15.3))(ioredis@5.10.1)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.1)(sass@1.99.0)(terser@5.46.1)(typescript@5.9.3)(yaml@2.8.3)
-      sharp:
-        specifier: ^0.34.2
-        version: 0.34.5
-      starlight-image-zoom:
-        specifier: ^0.13.2
-        version: 0.13.2(@astrojs/starlight@0.37.7(astro@5.18.1(@types/node@24.12.2)(db0@0.3.4(@electric-sql/pglite@0.3.15)(mysql2@3.15.3))(ioredis@5.10.1)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.1)(sass@1.99.0)(terser@5.46.1)(typescript@5.9.3)(yaml@2.8.3)))
-      starlight-links-validator:
-        specifier: ^0.19.2
-        version: 0.19.2(@astrojs/starlight@0.37.7(astro@5.18.1(@types/node@24.12.2)(db0@0.3.4(@electric-sql/pglite@0.3.15)(mysql2@3.15.3))(ioredis@5.10.1)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.1)(sass@1.99.0)(terser@5.46.1)(typescript@5.9.3)(yaml@2.8.3)))(astro@5.18.1(@types/node@24.12.2)(db0@0.3.4(@electric-sql/pglite@0.3.15)(mysql2@3.15.3))(ioredis@5.10.1)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.1)(sass@1.99.0)(terser@5.46.1)(typescript@5.9.3)(yaml@2.8.3))
-      starlight-theme-rapide:
-        specifier: ^0.5.2
-        version: 0.5.2(@astrojs/starlight@0.37.7(astro@5.18.1(@types/node@24.12.2)(db0@0.3.4(@electric-sql/pglite@0.3.15)(mysql2@3.15.3))(ioredis@5.10.1)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.1)(sass@1.99.0)(terser@5.46.1)(typescript@5.9.3)(yaml@2.8.3)))
-
   libraries/base:
     dependencies:
       '@headlessui/vue':
@@ -118,100 +97,6 @@ importers:
       vue:
         specifier: latest
         version: 3.5.32(typescript@5.9.3)
-
-  promo:
-    dependencies:
-      '@headlessui/react':
-        specifier: ^2.2.6
-        version: 2.2.10(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      '@heroicons/react':
-        specifier: ^2.2.0
-        version: 2.2.0(react@19.2.5)
-      '@octokit/core':
-        specifier: ^7.0.3
-        version: 7.0.6
-      clsx:
-        specifier: ^2.1.1
-        version: 2.1.1
-      dayjs:
-        specifier: ^1.11.13
-        version: 1.11.20
-      feed:
-        specifier: ^5.1.0
-        version: 5.2.0
-      framer-motion:
-        specifier: ^12.23.11
-        version: 12.38.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      next:
-        specifier: 15.4.4
-        version: 15.4.4(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.99.0)
-      react:
-        specifier: ^19
-        version: 19.2.5
-      react-dom:
-        specifier: ^19
-        version: 19.2.5(react@19.2.5)
-      react-use-measure:
-        specifier: ^2.1.7
-        version: 2.1.7(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      styled-components:
-        specifier: ^6
-        version: 6.4.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-    devDependencies:
-      '@content-collections/core':
-        specifier: ^0.11.1
-        version: 0.11.1(typescript@5.9.3)
-      '@content-collections/mdx':
-        specifier: ^0.2.2
-        version: 0.2.2(@content-collections/core@0.11.1(typescript@5.9.3))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      '@content-collections/next':
-        specifier: ^0.2.7
-        version: 0.2.11(@content-collections/core@0.11.1(typescript@5.9.3))(next@15.4.4(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.99.0))
-      '@eslint/eslintrc':
-        specifier: ^3
-        version: 3.3.5
-      '@tailwindcss/postcss':
-        specifier: ^4.1.11
-        version: 4.2.2
-      '@types/mdx':
-        specifier: ^2.0.13
-        version: 2.0.13
-      '@types/node':
-        specifier: ^24
-        version: 24.12.2
-      '@types/react':
-        specifier: ^19
-        version: 19.2.14
-      '@types/react-dom':
-        specifier: ^19
-        version: 19.2.3(@types/react@19.2.14)
-      eslint:
-        specifier: ^9
-        version: 9.39.4(jiti@2.6.1)
-      eslint-config-next:
-        specifier: 15.4.4
-        version: 15.4.4(eslint-plugin-import-x@4.16.2(@typescript-eslint/utils@8.58.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
-      postcss:
-        specifier: ^8.5.6
-        version: 8.5.10
-      prettier:
-        specifier: ^3.6.2
-        version: 3.8.3
-      prettier-plugin-organize-imports:
-        specifier: ^4.2.0
-        version: 4.3.0(prettier@3.8.3)(typescript@5.9.3)(vue-tsc@3.2.6(typescript@5.9.3))
-      prettier-plugin-tailwindcss:
-        specifier: ^0.6.14
-        version: 0.6.14(prettier-plugin-organize-imports@4.3.0(prettier@3.8.3)(typescript@5.9.3)(vue-tsc@3.2.6(typescript@5.9.3)))(prettier@3.8.3)
-      tailwindcss:
-        specifier: ^4.1.11
-        version: 4.2.2
-      typescript:
-        specifier: ^5
-        version: 5.9.3
-      zod:
-        specifier: ^4.1.5
-        version: 4.3.6
 
   server:
     dependencies:
@@ -444,6 +329,121 @@ importers:
       vue-tsc:
         specifier: ^3.0.1
         version: 3.2.6(typescript@5.9.3)
+
+  sites/docs:
+    dependencies:
+      '@astrojs/starlight':
+        specifier: ^0.37.4
+        version: 0.37.7(astro@5.18.1(@types/node@24.12.2)(db0@0.3.4(@electric-sql/pglite@0.3.15)(mysql2@3.15.3))(ioredis@5.10.1)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.1)(sass@1.99.0)(terser@5.46.1)(typescript@5.9.3)(yaml@2.8.3))
+      astro:
+        specifier: ^5.6.1
+        version: 5.18.1(@types/node@24.12.2)(db0@0.3.4(@electric-sql/pglite@0.3.15)(mysql2@3.15.3))(ioredis@5.10.1)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.1)(sass@1.99.0)(terser@5.46.1)(typescript@5.9.3)(yaml@2.8.3)
+      sharp:
+        specifier: ^0.34.2
+        version: 0.34.5
+      starlight-image-zoom:
+        specifier: ^0.13.2
+        version: 0.13.2(@astrojs/starlight@0.37.7(astro@5.18.1(@types/node@24.12.2)(db0@0.3.4(@electric-sql/pglite@0.3.15)(mysql2@3.15.3))(ioredis@5.10.1)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.1)(sass@1.99.0)(terser@5.46.1)(typescript@5.9.3)(yaml@2.8.3)))
+      starlight-links-validator:
+        specifier: ^0.19.2
+        version: 0.19.2(@astrojs/starlight@0.37.7(astro@5.18.1(@types/node@24.12.2)(db0@0.3.4(@electric-sql/pglite@0.3.15)(mysql2@3.15.3))(ioredis@5.10.1)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.1)(sass@1.99.0)(terser@5.46.1)(typescript@5.9.3)(yaml@2.8.3)))(astro@5.18.1(@types/node@24.12.2)(db0@0.3.4(@electric-sql/pglite@0.3.15)(mysql2@3.15.3))(ioredis@5.10.1)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.1)(sass@1.99.0)(terser@5.46.1)(typescript@5.9.3)(yaml@2.8.3))
+      starlight-theme-rapide:
+        specifier: ^0.5.2
+        version: 0.5.2(@astrojs/starlight@0.37.7(astro@5.18.1(@types/node@24.12.2)(db0@0.3.4(@electric-sql/pglite@0.3.15)(mysql2@3.15.3))(ioredis@5.10.1)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.1)(sass@1.99.0)(terser@5.46.1)(typescript@5.9.3)(yaml@2.8.3)))
+
+  sites/promo:
+    dependencies:
+      '@headlessui/react':
+        specifier: ^2.2.6
+        version: 2.2.10(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@heroicons/react':
+        specifier: ^2.2.0
+        version: 2.2.0(react@19.2.5)
+      '@octokit/core':
+        specifier: ^7.0.3
+        version: 7.0.6
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      dayjs:
+        specifier: ^1.11.13
+        version: 1.11.20
+      feed:
+        specifier: ^5.1.0
+        version: 5.2.0
+      framer-motion:
+        specifier: ^12.23.11
+        version: 12.38.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      next:
+        specifier: 15.4.4
+        version: 15.4.4(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.99.0)
+      react:
+        specifier: ^19
+        version: 19.2.5
+      react-dom:
+        specifier: ^19
+        version: 19.2.5(react@19.2.5)
+      react-use-measure:
+        specifier: ^2.1.7
+        version: 2.1.7(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      styled-components:
+        specifier: ^6
+        version: 6.4.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+    devDependencies:
+      '@content-collections/core':
+        specifier: ^0.11.1
+        version: 0.11.1(typescript@5.9.3)
+      '@content-collections/mdx':
+        specifier: ^0.2.2
+        version: 0.2.2(@content-collections/core@0.11.1(typescript@5.9.3))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@content-collections/next':
+        specifier: ^0.2.7
+        version: 0.2.11(@content-collections/core@0.11.1(typescript@5.9.3))(next@15.4.4(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.99.0))
+      '@eslint/eslintrc':
+        specifier: ^3
+        version: 3.3.5
+      '@tailwindcss/postcss':
+        specifier: ^4.1.11
+        version: 4.2.2
+      '@types/mdx':
+        specifier: ^2.0.13
+        version: 2.0.13
+      '@types/node':
+        specifier: ^24
+        version: 24.12.2
+      '@types/react':
+        specifier: ^19
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: ^19
+        version: 19.2.3(@types/react@19.2.14)
+      eslint:
+        specifier: ^9
+        version: 9.39.4(jiti@2.6.1)
+      eslint-config-next:
+        specifier: 15.4.4
+        version: 15.4.4(eslint-plugin-import-x@4.16.2(@typescript-eslint/utils@8.58.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
+      postcss:
+        specifier: ^8.5.6
+        version: 8.5.10
+      prettier:
+        specifier: ^3.6.2
+        version: 3.8.3
+      prettier-plugin-organize-imports:
+        specifier: ^4.2.0
+        version: 4.3.0(prettier@3.8.3)(typescript@5.9.3)(vue-tsc@3.2.6(typescript@5.9.3))
+      prettier-plugin-tailwindcss:
+        specifier: ^0.6.14
+        version: 0.6.14(prettier-plugin-organize-imports@4.3.0(prettier@3.8.3)(typescript@5.9.3)(vue-tsc@3.2.6(typescript@5.9.3)))(prettier@3.8.3)
+      tailwindcss:
+        specifier: ^4.1.11
+        version: 4.2.2
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+      zod:
+        specifier: ^4.1.5
+        version: 4.3.6
 
 packages:
 
@@ -13304,7 +13304,7 @@ snapshots:
 
   '@types/pg@8.20.0':
     dependencies:
-      '@types/node': 22.19.17
+      '@types/node': 24.12.2
       pg-protocol: 1.13.0
       pg-types: 2.2.0
 
@@ -14458,7 +14458,7 @@ snapshots:
 
   canvas-renderer@2.2.1:
     dependencies:
-      '@types/node': 22.19.17
+      '@types/node': 24.12.2
 
   caseless@0.12.0: {}
 
@@ -15478,7 +15478,7 @@ snapshots:
       '@typescript-eslint/parser': 8.58.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
       eslint: 9.39.4(jiti@2.6.1)
       eslint-import-resolver-node: 0.3.10
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import-x@4.16.2(@typescript-eslint/utils@8.58.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint@9.39.4(jiti@2.6.1)))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.58.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1))
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import-x@4.16.2(@typescript-eslint/utils@8.58.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint@9.39.4(jiti@2.6.1)))(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.6.1))
       eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.58.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.6.1))
       eslint-plugin-jsx-a11y: 6.10.2(eslint@9.39.4(jiti@2.6.1))
       eslint-plugin-react: 7.37.5(eslint@9.39.4(jiti@2.6.1))
@@ -15514,7 +15514,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import-x@4.16.2(@typescript-eslint/utils@8.58.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint@9.39.4(jiti@2.6.1)))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.58.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1)):
+  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import-x@4.16.2(@typescript-eslint/utils@8.58.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint@9.39.4(jiti@2.6.1)))(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.6.1)):
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
       debug: 4.4.3
@@ -15541,7 +15541,7 @@ snapshots:
       '@typescript-eslint/parser': 8.58.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
       eslint: 9.39.4(jiti@2.6.1)
       eslint-import-resolver-node: 0.3.10
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import-x@4.16.2(@typescript-eslint/utils@8.58.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint@9.39.4(jiti@2.6.1)))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.58.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1))
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import-x@4.16.2(@typescript-eslint/utils@8.58.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint@9.39.4(jiti@2.6.1)))(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.6.1))
     transitivePeerDependencies:
       - supports-color
 

@@ -1,8 +1,7 @@
 packages:
   - "server/"
-  - "promo/"
   - "libraries/base/"
-  - "docs/"
+  - "sites/*"
   - "desktop/"
 
 onlyBuiltDependencies:
