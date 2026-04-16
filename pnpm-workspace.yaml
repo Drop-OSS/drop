@@ -2,6 +2,7 @@ packages:
   - "server/"
   - "promo/"
   - "libraries/base/"
+  - "docs/"
 
 onlyBuiltDependencies:
   - "@bufbuild/buf"
