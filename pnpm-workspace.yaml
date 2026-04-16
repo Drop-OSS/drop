@@ -1,6 +1,7 @@
 packages:
   - "server/"
   - "promo/"
+  - "libraries/base/"
 
 onlyBuiltDependencies:
   - "@bufbuild/buf"
