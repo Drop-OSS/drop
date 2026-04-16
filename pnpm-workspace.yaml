@@ -1,5 +1,6 @@
 packages:
   - "server/"
+  - "promo/"
 
 onlyBuiltDependencies:
   - "@bufbuild/buf"
@@ -12,6 +13,9 @@ onlyBuiltDependencies:
   - prisma
   - sharp
   - unrs-resolver
+  - contentlayer
+  - contentlayer2
+  - protobufjs
 
 overrides:
   "@isaacs/brace-expansion@<=5.0.0": ">=5.0.1"
