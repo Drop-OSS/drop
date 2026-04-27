@@ -11,7 +11,9 @@ export default withNuxt([
   eslintConfigPrettier,
 
   // vue-i18n plugin
+    // @ts-expect-error
   ...vueI18n.configs.recommended,
+    // @ts-expect-error
   {
     rules: {
       // Optional.
@@ -34,8 +36,11 @@ export default withNuxt([
         messageSyntaxVersion: "^11.0.0",
       },
     },
+  },
+    // @ts-expect-error
+  {
     plugins: {
       drop: { rules: { "no-prisma-delete": noPrismaDelete } },
     },
-  },
+  }
 ]);

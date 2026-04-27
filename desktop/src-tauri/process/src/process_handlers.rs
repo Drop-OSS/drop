@@ -40,7 +40,7 @@ impl ProcessHandler for WindowsLauncher {
         _current_dir: &str,
         _database: &Database,
     ) -> Result<String, ProcessError> {
-        Ok(format!("cmd /C \"{}\"", launch_command))
+        Ok(format!("pwsh \"cmd /C \"{}\"\"", launch_command))
     }
 
     fn valid_for_platform(&self, _db: &Database, _target: &Platform) -> bool {
