@@ -35,6 +35,9 @@ jobs:
             args: ""
 
     runs-on: ${{ matrix.platform }}
+    defaults:
+      run:
+        working-directory: ./desktop
     steps:
       - uses: actions/checkout@v4
         with:
@@ -62,7 +65,6 @@ jobs:
 
       - name: Rust cache
         uses: swatinem/rust-cache@v2
-        working-directory: desktop
         with:
           workspaces: './src-tauri -> target'
 
@@ -125,9 +127,8 @@ jobs:
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
           APPLE_SIGNING_IDENTITY: ${{ env.CERT_ID }}
           NO_STRIP: true
-        working-directory: desktop
         with:
-          tagName: ${{ inputs.print_tags || "v__VERSION__" }} # the action automatically replaces \_\_VERSION\_\_ with the app version.
+          tagName: ${{ inputs.print_tags || 'v__VERSION__' }} # the action automatically replaces \_\_VERSION\_\_ with the app version.
           releaseName: "Auto-release v__VERSION__"
           releaseBody: "See the assets to download this version and install. This release was created automatically."
           releaseDraft: false
