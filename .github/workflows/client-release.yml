@@ -1,7 +1,12 @@
 name: "publish"
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      tagName:
+        required: false
+        type: string
+        description: "Tag-name to be associated with this release."
   release:
     types: [published]
   # This can be used to automatically publish nightlies at UTC nighttime
@@ -122,7 +127,7 @@ jobs:
           NO_STRIP: true
         working-directory: desktop
         with:
-          tagName: v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
+          tagName: ${{ inputs.print_tags || "v__VERSION__" }} # the action automatically replaces \_\_VERSION\_\_ with the app version.
           releaseName: "Auto-release v__VERSION__"
           releaseBody: "See the assets to download this version and install. This release was created automatically."
           releaseDraft: false
