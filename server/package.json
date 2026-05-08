@@ -90,7 +90,7 @@
     "eslint-config-prettier": "^10.1.1",
     "golar": "^0.0.13",
     "h3": "^1.15.5",
-    "nitropack": "^2.11.12",
+    "nitropack": "^2.13.4",
     "ofetch": "^1.4.1",
     "prettier": "^3.5.3",
     "prettier-plugin-sort-json": "^4.1.1",
