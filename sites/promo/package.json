@@ -17,7 +17,7 @@
     "dayjs": "^1.11.13",
     "feed": "^5.1.0",
     "framer-motion": "^12.23.11",
-    "next": "15.4.4",
+    "next": "15.5.18",
     "react": "^19",
     "react-dom": "^19",
     "react-use-measure": "^2.1.7",
