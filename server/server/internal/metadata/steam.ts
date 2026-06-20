@@ -306,7 +306,8 @@ export class SteamProvider implements MetadataProvider {
             "https://store.steampowered.com/publisher/",
           ),
       )
-      .map((v) => v.attribs.href);
+      .map((v) => v.attribs.href)
+      .filter((v) => v !== undefined);
 
     const companies: {
       [key: string]: {
@@ -319,6 +320,8 @@ export class SteamProvider implements MetadataProvider {
       const [type, name] = v
         .substring("https://store.steampowered.com/".length, v.indexOf("?"))
         .split("/");
+
+      if (!type || !name) return;
 
       companies[name] ??= { pub: false, dev: false };
       switch (type) {
@@ -546,7 +549,9 @@ export class SteamProvider implements MetadataProvider {
     let titleMatch = ogTitleRegex.exec(html);
     titleMatch ??= titleTagRegex.exec(html);
 
-    return titleMatch ? this._decodeHtmlEntities(titleMatch[1]) : undefined;
+    return titleMatch && titleMatch[1]
+      ? this._decodeHtmlEntities(titleMatch[1])
+      : undefined;
   }
 
   private _extractDescription(html: string): string | undefined {
@@ -558,7 +563,9 @@ export class SteamProvider implements MetadataProvider {
     let descMatch = ogDescRegex.exec(html);
     descMatch ??= nameDescRegex.exec(html);
 
-    return descMatch ? this._decodeHtmlEntities(descMatch[1]) : undefined;
+    return descMatch && descMatch[1]
+      ? this._decodeHtmlEntities(descMatch[1])
+      : undefined;
   }
 
   private _extractImage(html: string): string | undefined {
@@ -583,6 +590,7 @@ export class SteamProvider implements MetadataProvider {
     curatorUrlMatch ??= linkfilterRegex.exec(html);
 
     if (!curatorUrlMatch) return undefined;
+    if (!curatorUrlMatch[1]) return undefined;
 
     try {
       return decodeURIComponent(curatorUrlMatch[1]);
@@ -601,11 +609,12 @@ export class SteamProvider implements MetadataProvider {
     bannerMatch ??= backgroundImageRegex.exec(html);
 
     if (!bannerMatch) return undefined;
+    if (!bannerMatch[1]) return undefined;
 
     let bannerUrl = bannerMatch[1].replace(/['"]/g, "");
     // Clean up the URL
     if (bannerUrl.includes("?")) {
-      bannerUrl = bannerUrl.split("?")[0];
+      bannerUrl = bannerUrl.split("?")[0]!;
     }
     return bannerUrl;
   }
