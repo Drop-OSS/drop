@@ -11,9 +11,9 @@ export const FlatFilesystemProviderConfig = type({
   baseDir: "string",
 });
 
-export class FlatFilesystemProvider
-  implements LibraryProvider<typeof FlatFilesystemProviderConfig.infer>
-{
+export class FlatFilesystemProvider implements LibraryProvider<
+  typeof FlatFilesystemProviderConfig.infer
+> {
   private config: typeof FlatFilesystemProviderConfig.infer;
   private myId: string;
 

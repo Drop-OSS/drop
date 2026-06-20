@@ -123,7 +123,10 @@ export class FsObjectBackend extends ObjectBackend {
     const metadataRaw = JSON.parse(fs.readFileSync(metadataPath, "utf-8"));
     const metadata = objectMetadata(metadataRaw);
     if (metadata instanceof type.errors) {
-      logger.error("FsObjectBackend#fetchMetadata", metadata.summary);
+      logger.error(
+        { summary: metadata.summary },
+        "FsObjectBackend#fetchMetadata",
+      );
       return undefined;
     }
     await this.metadataCache.set(id, metadata);
@@ -198,8 +201,8 @@ export class FsObjectBackend extends ObjectBackend {
         );
       } catch (error) {
         cleanupLogger.error(
+          { error },
           `[FsObjectBackend#cleanupMetadata]: Failed to remove ${file}`,
-          error,
         );
       }
     }

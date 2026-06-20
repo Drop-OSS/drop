@@ -7,7 +7,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "pino": "^9.7.0",
+    "pino": "^9.14.0",
     "pino-pretty": "^13.1.1",
     "tauri": "^0.15.0"
   },

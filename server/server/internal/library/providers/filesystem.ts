@@ -14,9 +14,9 @@ export const FilesystemProviderConfig = type({
   baseDir: "string",
 });
 
-export class FilesystemProvider
-  implements LibraryProvider<typeof FilesystemProviderConfig.infer>
-{
+export class FilesystemProvider implements LibraryProvider<
+  typeof FilesystemProviderConfig.infer
+> {
   private config: typeof FilesystemProviderConfig.infer;
   private myId: string;
 

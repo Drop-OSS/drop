@@ -190,7 +190,7 @@ class TaskHandler {
       parentTask?.progress ??
       ((progress: number) => {
         if (progress < 0 || progress > 100) {
-          logger.error("Progress must be between 0 and 100", { progress });
+          logger.error({ progress }, "Progress must be between 0 and 100");
           return;
         }
         const taskEntry = this.taskPool.get(task.id);
