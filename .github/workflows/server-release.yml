@@ -89,8 +89,6 @@ jobs:
           build-args: |
             BUILD_DROP_VERSION=${{ steps.get_final_ver.outputs.final_ver }}
             BUILD_GIT_REF=${{ github.sha }}
-          context: ./server
-          file: ./server/Dockerfile
 
       - name: Export digest
         run: |
