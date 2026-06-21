@@ -23,7 +23,7 @@ function CallToAction() {
       <div className="mt-6">
         <Button
           className="w-full sm:w-auto"
-          href="https://docs.droposs.org/docs/guides/quickstart"
+          href="/docs/admin/quickstart"
         >
           Quickstart &rarr;
         </Button>
@@ -65,7 +65,7 @@ function Sitemap() {
       <div>
         <SitemapHeading>Documentation</SitemapHeading>
         <SitemapLinks>
-          <SitemapLink href="https://docs.droposs.org/">
+          <SitemapLink href="/docs">
             Self-hosters
           </SitemapLink>
           <SitemapLink href="https://developer.droposs.org/">

@@ -16,7 +16,7 @@ Drop automatically parses and formats the URL, so there are no requirements on t
 
 ## LAN
 
-The `compose.yaml` provided in the [Quickstart guide](/admin/quickstart/) already exposes the Drop instance on port 3000. If you're on the same LAN as your Drop instance, you can find it's IP and then use:
+The `compose.yaml` provided in the [Quickstart guide](/docs/admin/quickstart/) already exposes the Drop instance on port 3000. If you're on the same LAN as your Drop instance, you can find it's IP and then use:
 
 ```
 http://[instance IP]:3000

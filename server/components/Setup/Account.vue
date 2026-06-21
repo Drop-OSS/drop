@@ -19,7 +19,7 @@
           </p>
           <NuxtLink
             class="mt-4 rounded-md inline-flex items-center text-sm font-semibold text-blue-500 hover:text-blue-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
-            href="https://docs.droposs.org/docs/authentication/simple"
+            href="https://droposs.org/docs/admin/authentication/simple"
             target="_blank"
           >
             <i18n-t
@@ -74,7 +74,7 @@
           </p>
           <NuxtLink
             class="mt-4 rounded-md inline-flex items-center text-sm font-semibold text-blue-500 hover:text-blue-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
-            href="https://docs.droposs.org/docs/authentication/oidc"
+            href="https://droposs.org/docs/admin/authentication/oidc"
             target="_blank"
           >
             <i18n-t

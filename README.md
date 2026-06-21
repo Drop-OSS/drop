@@ -6,7 +6,7 @@
 # Drop
 
 [![Website](https://img.shields.io/badge/website-000000?style=for-the-badge&logo=About.me&logoColor=white)](https://droposs.org)
-[![Docs](https://img.shields.io/badge/DOCS-black?style=for-the-badge&logo=docusaurus)](https://docs.droposs.org/)
+[![Docs](https://img.shields.io/badge/DOCS-black?style=for-the-badge&logo=docusaurus)](https://droposs.org/docs)
 [![Static Badge](https://img.shields.io/badge/FORUM-blue?style=for-the-badge)](https://forum.droposs.org)
 [![GitHub License](https://img.shields.io/badge/AGPL--3.0-red?style=for-the-badge)](LICENSE)
 [![Discord](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/ACq4qZp4a9)
@@ -28,7 +28,7 @@ Drop is an open-source game distribution platform, similar to GameVault or Steam
 
 ## Deployment
 
-See our documentation on how to [deploy Drop](https://docs.droposs.org/docs/guides/quickstart) for more information.
+See our documentation on how to [deploy Drop](https://droposs.org/docs/admin/quickstart) for more information.
 
 ## Contributing
 

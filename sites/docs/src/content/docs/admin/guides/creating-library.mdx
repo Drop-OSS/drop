@@ -10,7 +10,7 @@ To import games and start using Drop, you must first create a library to import 
 
 1. **Decide on a library layout.**
 
-   Drop supports different layouts for your files on disk, you can read more about them in the [Library Sources](/reference/library-sources) reference section.
+   Drop supports different layouts for your files on disk, you can read more about them in the [Library Sources](/docs/reference/library-sources) reference section.
 
 2. **Mount your library in the Docker container.**
 
@@ -28,7 +28,7 @@ To import games and start using Drop, you must first create a library to import 
    - `/mnt/media/my-drop-library` is the path to your library.
    - `/library` is a **unique** path inside the container. **Use something else if another volume mounts to `/library`**.
 
-   If you followed the [Quickstart](/admin/quickstart/) guide, you'll have already set up a library at `./library` pointing to `/library` within the container. You may want to instead edit that line in the `volumes` section to point to where your library is located.
+   If you followed the [Quickstart](/docs/admin/quickstart/) guide, you'll have already set up a library at `./library` pointing to `/library` within the container. You may want to instead edit that line in the `volumes` section to point to where your library is located.
 
 3. **Open library source interface in Admin Dashboard.**
 

@@ -46,7 +46,7 @@ function Header() {
             <div className="flex flex-col gap-y-2 border-b border-dotted border-zinc-800 pb-4">
               <dt className="text-sm/6 text-zinc-400">Lines of code</dt>
               <dd className="order-first text-6xl font-medium tracking-tight">
-                <AnimatedNumber start={10} end={40} />k
+                <AnimatedNumber start={0} end={75} />k
               </dd>
             </div>
             <div className="flex flex-col gap-y-2 border-b border-dotted border-zinc-800 pb-4">
@@ -61,7 +61,7 @@ function Header() {
             <div className="flex flex-col gap-y-2 max-sm:border-b max-sm:border-dotted max-sm:border-gray-200 max-sm:pb-4">
               <dt className="text-sm/6 text-zinc-400">Docker pulls</dt>
               <dd className="order-first text-6xl font-medium tracking-tight">
-                <AnimatedNumber start={0} end={48.8} decimals={1} />k
+                <AnimatedNumber start={0} end={210} decimals={1} />k
               </dd>
             </div>
             <div className="flex flex-col gap-y-2">

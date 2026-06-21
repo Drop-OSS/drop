@@ -6,6 +6,7 @@ on:
     branches: [develop]
     paths:
       - "sites/promo/**"
+      - "sites/docs/**"
       - "package.json"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
@@ -43,10 +44,11 @@ jobs:
           node-version: "22"
           cache: "pnpm"
 
-      # Only install the promo site (radiant) and its dependencies so the public
-      # website deploy stays decoupled from the server/desktop build pipelines.
+      # Only install the promo site (radiant) and docs site (docs-next) and their
+      # dependencies so the public website deploy stays decoupled from the
+      # server/desktop build pipelines.
       - name: Install dependencies
-        run: pnpm install --filter radiant...
+        run: pnpm install --filter radiant... --filter docs-next...
 
       - name: Setup Pages
         id: setup_pages
@@ -63,11 +65,23 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
 
-      - name: Build with Next.js
+      - name: Build promo site with Next.js
         working-directory: sites/promo
         run: pnpm run build
         env:
           PAGES_BASE_PATH: ${{ steps.setup_pages.outputs.base_path }}
+
+      - name: Build docs site with Astro
+        working-directory: sites/docs
+        run: pnpm run build
+
+      # Nest the Starlight docs (built with base: "/docs") inside the promo export
+      # so both ship from a single GitHub Pages deployment at /docs.
+      - name: Assemble docs into /docs
+        run: |
+          rm -rf sites/promo/out/docs
+          mkdir -p sites/promo/out/docs
+          cp -r sites/docs/dist/. sites/promo/out/docs/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

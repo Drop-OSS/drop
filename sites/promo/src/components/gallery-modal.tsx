@@ -80,11 +80,11 @@ export function Gallery() {
               )
               .map((file) => (
                 <div key={file.url} className="relative w-full">
-                  <div className="group overflow-hidden rounded-lg bg-gray-100 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-blue-600">
+                  <div className="group relative block w-full overflow-hidden rounded-lg bg-gray-100 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-blue-600">
                     <img
                       alt=""
                       src={file.url}
-                      className="pointer-events-none aspect-10/7 aspect-auto rounded-lg object-cover outline -outline-offset-1 outline-black/5 group-hover:opacity-75"
+                      className="pointer-events-none block w-full rounded-lg object-cover outline -outline-offset-1 outline-black/5 group-hover:opacity-75"
                     />
                     <button
                       type="button"
@@ -96,10 +96,10 @@ export function Gallery() {
                       </span>
                     </button>
                   </div>
-                  <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900">
+                  <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-zinc-100">
                     {file.name}
                   </p>
-                  <p className="pointer-events-none block text-xs font-medium text-gray-500">
+                  <p className="pointer-events-none block text-xs font-medium text-zinc-400">
                     {file.description}
                   </p>
                 </div>

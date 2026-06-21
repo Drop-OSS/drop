@@ -85,5 +85,6 @@ export default defineConfig({
       customCss: ["./src/styles/drop.css"],
     }),
   ],
-  site: "https://docs-next.droposs.org/",
+  site: "https://droposs.org",
+  base: "/docs",
 });

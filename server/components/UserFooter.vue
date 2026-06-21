@@ -134,11 +134,11 @@ const navigation = computed(() => ({
     // { name: t("footer.api"), href: "https://api.droposs.org/" },
     {
       name: t("footer.docs.server"),
-      href: "https://docs.droposs.org/docs/guides/quickstart",
+      href: "https://droposs.org/docs/admin/quickstart",
     },
     {
       name: t("footer.docs.client"),
-      href: "https://docs.droposs.org/docs/guides/client",
+      href: "https://droposs.org/docs/user",
     },
   ],
   about: [

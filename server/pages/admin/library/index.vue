@@ -438,7 +438,7 @@
 
         <NuxtLink
           class="transition text-xs text-zinc-600 hover:underline hover:text-zinc-400"
-          href="https://docs.droposs.org/docs/library"
+          href="https://droposs.org/docs/reference/library-sources"
           target="_blank"
         >
           <i18n-t

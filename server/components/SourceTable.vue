@@ -174,13 +174,13 @@ const optionsMetadata: {
   Filesystem: {
     title: t("library.admin.sources.fsTitle"),
     description: t("library.admin.sources.fsDesc"),
-    docsLink: "https://docs.droposs.org/docs/library#drop-style",
+    docsLink: "https://droposs.org/docs/reference/library-sources#drop-style",
     icon: DropLogo,
   },
   FlatFilesystem: {
     title: t("library.admin.sources.fsFlatTitle"),
     description: t("library.admin.sources.fsFlatDesc"),
-    docsLink: "https://docs.droposs.org/docs/library#flat-style-or-compat",
+    docsLink: "https://droposs.org/docs/reference/library-sources#compatibility-flat-style",
     icon: BackwardIcon,
   },
 };
