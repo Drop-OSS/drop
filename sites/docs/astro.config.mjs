@@ -41,7 +41,7 @@ export default defineConfig({
             { slug: "user" },
             {
               label: "Install",
-              autogenerate: { directory: "user/install" },
+              items: [{ autogenerate: { directory: "user/install" } }],
             },
             {
               label: "Usage",
@@ -65,21 +65,21 @@ export default defineConfig({
             },
             {
               label: "Going further",
-              autogenerate: { directory: "admin/going-further" },
+              items: [{ autogenerate: { directory: "admin/going-further" } }],
             },
             {
               label: "Metadata",
-              autogenerate: { directory: "admin/metadata" },
+              items: [{ autogenerate: { directory: "admin/metadata" } }],
             },
             {
               label: "Authentication",
-              autogenerate: { directory: "admin/authentication" },
+              items: [{ autogenerate: { directory: "admin/authentication" } }],
             },
           ],
         },
         {
           label: "Reference",
-          autogenerate: { directory: "reference" },
+          items: [{ autogenerate: { directory: "reference" } }],
         },
       ],
       customCss: ["./src/styles/drop.css"],

@@ -20,12 +20,6 @@ onlyBuiltDependencies:
   - protobufjs
 
 overrides:
-  # Pin @astrojs/sitemap to the last 3.6.x (zod v3) release. Starlight 0.37.7 pulls
-  # in @astrojs/sitemap@3.7.x which depends on zod v4, conflicting with Astro 5.18's
-  # zod v3 and crashing the docs build with "Cannot read properties of undefined
-  # (reading '_zod')". 3.6.1 still satisfies Starlight's "^3.3.0" range.
-  # See https://github.com/withastro/astro/issues/15854
-  "@astrojs/sitemap": "3.6.1"
   "@isaacs/brace-expansion@<=5.0.0": ">=5.0.1"
   ajv@<6.14.0: ">=6.14.0"
   devalue@<=5.6.2: ">=5.6.3"
