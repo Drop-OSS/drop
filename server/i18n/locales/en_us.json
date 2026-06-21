@@ -547,6 +547,9 @@
       "sources": {
         "create": "Create source",
         "createDesc": "Drop will use this source to access your game library, and make them available.",
+        "deleteButton": "Delete source",
+        "deleteDesc": "Deleting \"{0}\" will cascade delete the library, all of its games, all of their versions, and all of their metadata. This action cannot be undone.",
+        "deleteTitle": "Delete library source?",
         "desc": "Configure your library sources, where Drop will look for new games and versions to import.",
         "documentationLink": "Documentation {arrow}",
         "edit": "Edit source",

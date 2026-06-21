@@ -347,30 +347,45 @@ function edit(index: number) {
   actionSourceOpen.value = true;
 }
 
-async function deleteSource(index: number) {
+function deleteSource(index: number) {
   const source = sources.value[index];
   if (!source) return;
 
-  try {
-    await $dropFetch("/api/v1/admin/library/sources", {
-      method: "DELETE",
-      body: { id: source.id },
-      headers,
-    });
-  } catch (e) {
-    createModal(
-      ModalType.Notification,
-      {
-        title: t("errors.library.source.delete.title"),
-        description: t("errors.library.source.delete.desc", [
-          // @ts-expect-error attempt to display statusMessage on error
-          e?.statusMessage ?? t("errors.unknown"),
-        ]),
-      },
-      (_, c) => c(),
-    );
-  }
+  createModal(
+    ModalType.Confirmation,
+    {
+      title: t("library.admin.sources.deleteTitle"),
+      description: t("library.admin.sources.deleteDesc", [source.name]),
+      buttonText: t("library.admin.sources.deleteButton"),
+    },
+    async (event, close) => {
+      if (event !== "confirm") return close();
 
-  sources.value.splice(index, 1);
+      try {
+        await $dropFetch("/api/v1/admin/library/sources", {
+          method: "DELETE",
+          body: { id: source.id },
+          headers,
+        });
+      } catch (e) {
+        createModal(
+          ModalType.Notification,
+          {
+            title: t("errors.library.source.delete.title"),
+            description: t("errors.library.source.delete.desc", [
+              // @ts-expect-error attempt to display statusMessage on error
+              e?.statusMessage ?? t("errors.unknown"),
+            ]),
+          },
+          (_, c) => c(),
+        );
+        return close();
+      }
+
+      const currentIndex = sources.value.findIndex((s) => s.id === source.id);
+      if (currentIndex !== -1) sources.value.splice(currentIndex, 1);
+      close();
+    },
+  );
 }
 </script>
