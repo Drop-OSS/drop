@@ -125,7 +125,7 @@ impl ProcessManager<'_> {
         match self.processes.get_mut(&game_id) {
             Some(process) => {
                 process.manually_killed = true;
-                process.handle.kill()?;
+                kill_process_tree(&process.handle)?;
                 let exit_status = process.handle.wait()?;
                 info!("exit status: {:?}", exit_status);
                 Ok(())
@@ -591,6 +591,30 @@ impl ProcessManager<'_> {
         });
         Ok(())
     }
+}
+
+fn kill_process_tree(handle: &SharedChild) -> io::Result<()> {
+    #[cfg(target_os = "windows")]
+    {
+        // handle.kill() only terminates the launched process (often a cmd or
+        // powershell wrapper), orphaning the actual game. taskkill /T kills the
+        // whole process tree.
+        use std::os::windows::process::CommandExt;
+        const CREATE_NO_WINDOW: u32 = 0x08000000;
+        let pid = handle.id().to_string();
+        let killed = Command::new("taskkill")
+            .args(["/F", "/T", "/PID", pid.as_str()])
+            .creation_flags(CREATE_NO_WINDOW)
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::null())
+            .status()
+            .map(|status| status.success())
+            .unwrap_or(false);
+        if killed {
+            return Ok(());
+        }
+    }
+    handle.kill()
 }
 
 pub trait ProcessHandler: Send + 'static {
