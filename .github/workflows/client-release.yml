@@ -83,6 +83,10 @@ jobs:
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security set-keychain-settings -t 3600 -u build.keychain
 
+          # Add build.keychain to the user keychain search list so that codesign
+          # (invoked later by tauri-action WITHOUT an explicit --keychain) can
+          # resolve the signing identity from it.
+          security list-keychains -d user -s build.keychain $(security list-keychains -d user | tr -d '"')
 
           echo "Created keychain"
 
@@ -118,8 +122,12 @@ jobs:
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          # Do NOT set APPLE_CERTIFICATE / APPLE_CERTIFICATE_PASSWORD here. Doing so
+          # makes tauri-action import the cert into its own throwaway keychain and
+          # look up the identity by Apple-only name prefixes (e.g.
+          # "Developer ID Application:"), which never matches our "Drop OSS" cert
+          # and fails with "failed to resolve signing identity". Instead we rely on
+          # the build.keychain prepared above and only pass the resolved identity.
           APPLE_SIGNING_IDENTITY: ${{ env.CERT_ID }}
           NO_STRIP: true
         with:
