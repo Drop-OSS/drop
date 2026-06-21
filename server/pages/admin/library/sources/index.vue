@@ -285,7 +285,8 @@ const optionsMetadata: {
   FlatFilesystem: {
     title: t("library.admin.sources.fsFlatTitle"),
     description: t("library.admin.sources.fsFlatDesc"),
-    docsLink: "https://droposs.org/docs/reference/library-sources#compatibility-flat-style",
+    docsLink:
+      "https://droposs.org/docs/reference/library-sources#compatibility-flat-style",
     icon: BackwardIcon,
   },
 };
