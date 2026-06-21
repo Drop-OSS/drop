@@ -24,4 +24,3 @@ pub struct Manifest {
     pub size: u64,
     pub key: [u8; 16],
 }
-
