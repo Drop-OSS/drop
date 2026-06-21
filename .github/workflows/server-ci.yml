@@ -1,12 +1,24 @@
-name: CI
+name: Server CI
 
 on:
   push:
-    branches:
-      - develop
+    branches: [develop]
+    paths:
+      - "server/**"
+      - "libraries/base/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - ".github/workflows/server-ci.yml"
   pull_request:
-    branches:
-      - develop
+    branches: [develop]
+    paths:
+      - "server/**"
+      - "libraries/base/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - ".github/workflows/server-ci.yml"
 
 permissions:
   contents: read
@@ -18,8 +30,6 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
-        with:
-          submodules: true
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -34,6 +44,7 @@ jobs:
         run: pnpm install
 
       - name: Typecheck
+        working-directory: server
         run: pnpm run typecheck
 
   lint:
@@ -42,8 +53,6 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
-        with:
-          submodules: true
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -58,4 +67,5 @@ jobs:
         run: pnpm install
 
       - name: Lint
+        working-directory: server
         run: pnpm run lint

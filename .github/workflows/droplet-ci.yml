@@ -1,0 +1,56 @@
+name: Droplet CI
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - "libraries/droplet/**"
+      - "libraries/droplet_types/**"
+      - "libraries/libarchive/**"
+      - ".github/workflows/droplet-ci.yml"
+  pull_request:
+    branches: [develop]
+    paths:
+      - "libraries/droplet/**"
+      - "libraries/droplet_types/**"
+      - "libraries/libarchive/**"
+      - ".github/workflows/droplet-ci.yml"
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  ci:
+    name: Build, Test, Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: libraries/droplet
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt, clippy
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./libraries/droplet -> target"
+
+      - name: Install libarchive
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libarchive-dev
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Run Clippy (lint)
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Run tests
+        run: cargo test --all-features --all --verbose
