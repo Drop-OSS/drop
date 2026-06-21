@@ -6,7 +6,14 @@ import { Gradient } from '@/components/gradient'
 import { LogoCluster } from '@/components/logo-cluster'
 import { Navbar } from '@/components/navbar'
 import { Heading, Subheading } from '@/components/text'
-import { ArrowDownCircleIcon } from '@heroicons/react/24/solid'
+import {
+  BuildingStorefrontIcon,
+  CloudArrowDownIcon,
+  ComputerDesktopIcon,
+  PencilSquareIcon,
+  ServerStackIcon,
+  ShieldCheckIcon,
+} from '@heroicons/react/24/solid'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -77,13 +84,80 @@ function FeatureSection() {
         <dl className="mx-auto grid max-w-2xl grid-cols-1 gap-x-6 gap-y-10 text-base/7 text-zinc-400 sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-3 lg:gap-x-8 lg:gap-y-16">
           <div className="relative pl-9">
             <dt className="inline font-semibold text-zinc-100">
-              <ArrowDownCircleIcon
+              <ServerStackIcon
                 aria-hidden="true"
                 className="absolute top-1 left-1 size-5 text-blue-600"
               />
-              ADASDASD
+              Self-hosted &amp; open-source.
             </dt>{' '}
-            <dd className="inline">ASDASDASDAS</dd>
+            <dd className="inline">
+              Run Drop entirely on your own hardware. Your library, your data,
+              your rules &mdash; all under the AGPLv3.
+            </dd>
+          </div>
+          <div className="relative pl-9">
+            <dt className="inline font-semibold text-zinc-100">
+              <PencilSquareIcon
+                aria-hidden="true"
+                className="absolute top-1 left-1 size-5 text-blue-600"
+              />
+              Rich metadata editing.
+            </dt>{' '}
+            <dd className="inline">
+              Customise names, descriptions, and icons with full Markdown and
+              image support.
+            </dd>
+          </div>
+          <div className="relative pl-9">
+            <dt className="inline font-semibold text-zinc-100">
+              <CloudArrowDownIcon
+                aria-hidden="true"
+                className="absolute top-1 left-1 size-5 text-blue-600"
+              />
+              Automatic imports.
+            </dt>{' '}
+            <dd className="inline">
+              Pull cover art and game details straight from IGDB, GiantBomb, and
+              PCGamingWiki.
+            </dd>
+          </div>
+          <div className="relative pl-9">
+            <dt className="inline font-semibold text-zinc-100">
+              <BuildingStorefrontIcon
+                aria-hidden="true"
+                className="absolute top-1 left-1 size-5 text-blue-600"
+              />
+              A built-in store.
+            </dt>{' '}
+            <dd className="inline">
+              Let users browse, filter, and collect games through a fully
+              featured store.
+            </dd>
+          </div>
+          <div className="relative pl-9">
+            <dt className="inline font-semibold text-zinc-100">
+              <ShieldCheckIcon
+                aria-hidden="true"
+                className="absolute top-1 left-1 size-5 text-blue-600"
+              />
+              Flexible authentication.
+            </dt>{' '}
+            <dd className="inline">
+              Use simple accounts or hook into your existing SSO.
+            </dd>
+          </div>
+          <div className="relative pl-9">
+            <dt className="inline font-semibold text-zinc-100">
+              <ComputerDesktopIcon
+                aria-hidden="true"
+                className="absolute top-1 left-1 size-5 text-blue-600"
+              />
+              Native desktop client.
+            </dt>{' '}
+            <dd className="inline">
+              Download, install, and play your whole library through a
+              cross-platform desktop client.
+            </dd>
           </div>
         </dl>
       </div>
@@ -127,7 +201,7 @@ function BentoSection() {
         <BentoCard
           eyebrow="Authentication"
           title="Flexible authentication"
-          description="Drop supports both simple and SSO authentication, with more features like SCIM on the way."
+          description="Drop supports both simple and SSO authentication, so users can sign in however suits them."
           graphic={
             <div className="flex h-full w-full items-center justify-center p-4">
               <div className="bg-position-center h-full w-full grow rounded-lg bg-[url(/screenshots/authentication.png)] bg-cover bg-no-repeat" />

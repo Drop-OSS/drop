@@ -46,7 +46,7 @@ function Circles() {
       <Circle size={400} opacity="5%" delay={0.3} />
       <Circle size={272} opacity="5%" delay={0.15} />
       <Circle size={144} opacity="10%" delay={0} />
-      <div className="absolute inset-0 bg-linear-to-t from-white to-35%" />
+      <div className="absolute inset-0 bg-linear-to-t from-zinc-900 to-35%" />
     </div>
   )
 }
