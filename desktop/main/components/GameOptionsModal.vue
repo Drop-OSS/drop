@@ -1,7 +1,7 @@
 <template>
   <ModalTemplate size-class="max-w-4xl" v-model="open">
     <template #default>
-      <div class="flex flex-row gap-x-4 h-96">
+      <div class="flex flex-row gap-x-4 min-h-96">
         <nav class="flex flex-1 flex-col" aria-label="Sidebar">
           <ul role="list" class="-mx-2 space-y-1">
             <li v-for="(tab, tabIdx) in tabs" :key="tab.name">
@@ -29,7 +29,7 @@
             </li>
           </ul>
         </nav>
-        <div class="border-l-2 border-zinc-800 w-full grow pl-4 overflow-y-scroll">
+        <div class="border-l-2 border-zinc-800 w-full grow pl-4">
           <component
             v-model="configuration"
             :is="tabs[currentTabIndex]?.page"
