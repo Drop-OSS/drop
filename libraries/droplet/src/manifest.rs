@@ -43,7 +43,7 @@ where
         "Could not create backend for path. Is this structure supported?"
     ))?()?;
     let mut files = backend.list_files().await?;
-    files.sort_by(|a, b| b.size.cmp(&a.size));
+    files.sort_by_key(|b| std::cmp::Reverse(b.size));
 
     log_sfn("organising files into chunks...".to_string());
 

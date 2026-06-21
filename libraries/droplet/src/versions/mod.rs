@@ -34,9 +34,11 @@ const SUPPORTED_FILE_EXTENSIONS: [&str; 11] = [
 ];
 
 pub mod types;
-pub fn create_backend_constructor<'a, P>(
-    path: P,
-) -> Option<Box<dyn FnOnce() -> Result<Box<dyn VersionBackend + Send + Sync + 'a>>>>
+
+type BackendConstructor<'a> =
+    Box<dyn FnOnce() -> Result<Box<dyn VersionBackend + Send + Sync + 'a>>>;
+
+pub fn create_backend_constructor<'a, P>(path: P) -> Option<BackendConstructor<'a>>
 where
     P: AsRef<Path>,
 {
@@ -53,7 +55,7 @@ where
         }));
     };
 
-    let file_extension = path.extension().map(|v| v.to_str()).flatten()?;
+    let file_extension = path.extension().and_then(|v| v.to_str())?;
     if SUPPORTED_FILE_EXTENSIONS.contains(&file_extension) {
         let buf = path.to_path_buf();
         return Some(Box::new(move || Ok(Box::new(ZipVersionBackend::new(buf)?))));
