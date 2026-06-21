@@ -1,6 +1,6 @@
 use std::{env, path::PathBuf};
 
-use droplet_rs::manifest::{ManifestWriterFactory, generate_manifest_rusty};
+use droplet_rs::manifest::{generate_manifest_rusty, ManifestWriterFactory};
 use tokio::runtime::Handle;
 
 struct SinkFactory {}

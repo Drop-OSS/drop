@@ -2,6 +2,7 @@ use std::{collections::HashMap, ops::Not, path::Path};
 
 use anyhow::anyhow;
 use async_trait::async_trait;
+pub use droplet_types::{ChunkData, FileEntry, Manifest};
 use futures::StreamExt;
 use hex::ToHex as _;
 use humansize::{format_size, BINARY};
@@ -9,8 +10,6 @@ use sha2::{Digest as _, Sha256};
 use tokio::io::AsyncWriteExt;
 use tokio::io::{AsyncReadExt as _, AsyncWrite};
 use tokio::sync::Semaphore;
-pub use droplet_types::{ChunkData, FileEntry, Manifest};
-
 
 pub const CHUNK_SIZE: u64 = 1024 * 1024 * 64;
 pub const MAX_FILE_COUNT: usize = 512;
