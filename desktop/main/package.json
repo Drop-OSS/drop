@@ -22,7 +22,7 @@
     "koa": "^2.16.1",
     "markdown-it": "^14.1.0",
     "micromark": "^4.0.1",
-    "nuxt": "^3.21.6",
+    "nuxt": "^4.4.8",
     "scss": "^0.2.4",
     "vue-router": "latest",
     "vuedraggable": "^4.1.0"

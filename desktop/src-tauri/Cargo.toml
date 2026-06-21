@@ -136,6 +136,9 @@ tauri-build = { version = "*", features = [] }
 [target."cfg(any(target_os = \"macos\", windows, target_os = \"linux\"))".dependencies]
 tauri-plugin-single-instance = { version = "2.0.0", features = ["deep-link"] }
 
+[target."cfg(target_os = \"linux\")".dependencies]
+libloading = "0.7"
+
 [profile.release]
 lto = true
 panic = "abort"

@@ -34,6 +34,7 @@
             v-model="configuration"
             :is="tabs[currentTabIndex]?.page"
             :proton-enabled="protonEnabled"
+            :game-id="props.gameId"
           />
         </div>
       </div>

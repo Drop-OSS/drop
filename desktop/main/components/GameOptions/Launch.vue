@@ -23,16 +23,19 @@
     </p>
 
     <ProtonSelector v-model="model" v-if="$props.protonEnabled" />
+    <HandlerSelector v-model="model" :game-id="$props.gameId" />
   </div>
 </template>
 
 <script setup lang="ts">
 import type { GameVersion } from "~/types";
 import ProtonSelector from "./ProtonSelector.vue";
+import HandlerSelector from "./HandlerSelector.vue";
 
 const model = defineModel<GameVersion["userConfiguration"]>({ required: true });
 
 const props = defineProps<{
   protonEnabled: boolean;
+  gameId: string;
 }>();
 </script>

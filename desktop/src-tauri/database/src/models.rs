@@ -79,6 +79,7 @@ pub mod data {
             UserConfiguration {
                 launch_template: "{}".to_owned(),
                 override_proton_path: None,
+                override_handler: None,
                 enable_updates: false,
             }
         }
@@ -88,6 +89,8 @@ pub mod data {
         pub struct UserConfiguration {
             pub launch_template: String,
             pub override_proton_path: Option<String>,
+            #[serde(default)]
+            pub override_handler: Option<String>,
             pub enable_updates: bool,
         }
 

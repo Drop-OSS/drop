@@ -21,11 +21,39 @@ Then, what happens with this, depends on the type of game we're launching:
 
 ## Normal (no emulator)
 
-Drop reconstructs the original shell string, and passes it into platform-specific command wrappers. On Windows, the command is launched based on its file type: `.exe` files run directly, `.bat` and `.cmd` files run through `cmd`, `.ps1` files run through `powershell`, and anything else gets handed to `cmd` so builtins and `%VAR%` expansion still work. On Linux, native games run directly, while games targeting Windows get wrapped in `umu-run`.
+Drop reconstructs the original shell string, and passes it into a platform-specific command wrapper, called a **launch method**. Drop picks a sensible launch method automatically, but you can override it per-game for troubleshooting — see [Launch methods](#launch-methods) below.
+
+By default, on Windows the command is launched based on its file type: `.exe` files run directly, `.bat` and `.cmd` files run through `cmd`, `.ps1` files run through PowerShell, and anything else is handed to `cmd` so builtins, `PATHEXT` resolution and `%VAR%` expansion all work. On Linux, native games run directly on the host, while games targeting Windows are wrapped in `umu-run` (with Proton).
 
 It is then parsed again, and then passed into process creation, mapping the environment variable, command, and arguments into their respective platform-dependent places.
 
 Drop logs out it's final parsed command, if you want to look at it in the client logs.
+
+## Launch methods
+
+The wrapper Drop uses to start a game is called a **launch method** (a *process handler* internally). Drop automatically selects the best available method for each game, but if a game won't launch you can override it under **Game Options → Launch → Launch method**.
+
+Only methods supported by your current platform (and the game's target platform) are listed, each with a short description in the client.
+
+### Windows
+
+| Method | Description |
+| ------ | ----------- |
+| **Automatic** *(default)* | Detects the file type and launches it directly, or through `cmd` or PowerShell. |
+| **Direct executable** | Runs the executable directly, without a shell. |
+| **Command Prompt (cmd)** | Launches through `cmd.exe`. Supports batch files, builtins and `%VAR%` expansion. |
+| **PowerShell** | Runs the command as a PowerShell script (`-File`). |
+
+### Linux
+
+| Method | Description |
+| ------ | ----------- |
+| **Native (direct)** *(default for Linux games)* | Runs the native Linux game directly on the host. |
+| **Steam Linux Runtime (umu-run)** | Runs the native Linux game inside `umu-run`'s Steam Linux Runtime. Requires [UMU launcher](/user/usage/proton/). |
+| **Proton (umu-run)** *(default for Windows games)* | Runs a Windows game through Proton, using `umu-run`. Requires [Proton](/user/usage/proton/). |
+| **Proton + muvm (Asahi)** | Runs a Windows game through Proton inside a muvm microVM, for Apple Silicon / Asahi Linux. |
+
+On macOS, games are always launched directly.
 
 ## Emulators
 For emulators, we have the "emulator version" (version containing the emulator), and the "emulated version" (version containing the ROM). 

@@ -3,7 +3,7 @@ use std::sync::Arc;
 use process::{
     PROCESS_MANAGER,
     error::ProcessError,
-    process_manager::{LaunchOption, ProcessManager},
+    process_manager::{LaunchOption, ProcessHandlerOption, ProcessManager},
 };
 use serde::Serialize;
 use tauri::AppHandle;
@@ -14,6 +14,11 @@ pub fn get_launch_options(id: String) -> Result<Vec<LaunchOption>, ProcessError>
     let launch_options = ProcessManager::get_launch_options(id)?;
 
     Ok(launch_options)
+}
+
+#[tauri::command]
+pub fn get_process_handlers(id: String) -> Result<Vec<ProcessHandlerOption>, ProcessError> {
+    PROCESS_MANAGER.lock().get_process_handlers(id)
 }
 
 #[derive(Serialize)]

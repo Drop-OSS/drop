@@ -77,7 +77,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     openssl \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
-RUN pnpm install prisma@7.3.0 --global
+RUN pnpm install prisma@7.7.0 --global
 # init prisma to download all required files
 RUN pnpm prisma init
 
