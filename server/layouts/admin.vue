@@ -126,16 +126,50 @@
     </div>
 
     <div
-      class="sticky top-0 z-40 flex items-center gap-x-6 bg-zinc-900 px-4 py-4 shadow-sm sm:px-6 lg:hidden"
+      class="sticky top-0 z-40 lg:pl-20 border-b border-zinc-800 bg-zinc-950 shadow-sm"
     >
-      <button
-        type="button"
-        class="-m-2.5 p-2.5 text-zinc-400 lg:hidden"
-        @click="sidebarOpen = true"
-      >
-        <span class="sr-only">{{ $t("header.openSidebar") }}</span>
-        <Bars3Icon class="h-6 w-6" aria-hidden="true" />
-      </button>
+      <div class="flex items-center gap-x-4 px-4 py-2 sm:px-6 lg:px-8">
+        <button
+          type="button"
+          class="-m-2.5 p-2.5 text-zinc-400 lg:hidden"
+          @click="sidebarOpen = true"
+        >
+          <span class="sr-only">{{ $t("header.openSidebar") }}</span>
+          <Bars3Icon class="h-6 w-6" aria-hidden="true" />
+        </button>
+
+        <div class="flex-1" />
+
+        <ol class="inline-flex items-center gap-3">
+          <li>
+            <Menu as="div" class="relative inline-block">
+              <MenuButton>
+                <UserHeaderWidget :notifications="unreadNotifications.length">
+                  <BellIcon class="h-5" />
+                </UserHeaderWidget>
+              </MenuButton>
+
+              <transition
+                enter-active-class="transition ease-out duration-100"
+                enter-from-class="transform opacity-0 scale-95"
+                enter-to-class="transform opacity-100 scale-100"
+                leave-active-class="transition ease-in duration-75"
+                leave-from-class="transform opacity-100 scale-100"
+                leave-to-class="transform opacity-0 scale-95"
+              >
+                <MenuItems
+                  class="absolute right-0 top-10 z-50 w-96 focus:outline-none shadow-md"
+                >
+                  <UserHeaderNotificationWidgetPanel
+                    :notifications="unreadNotifications"
+                  />
+                </MenuItems>
+              </transition>
+            </Menu>
+          </li>
+          <UserHeaderUserWidget />
+        </ol>
+      </div>
     </div>
 
     <main class="lg:pl-20 min-h-screen bg-zinc-900 flex flex-col">
@@ -156,6 +190,9 @@ import {
   DialogPanel,
   TransitionChild,
   TransitionRoot,
+  Menu,
+  MenuButton,
+  MenuItems,
 } from "@headlessui/vue";
 import {
   Bars3Icon,
@@ -168,7 +205,7 @@ import {
 } from "@heroicons/vue/24/outline";
 import type { NavigationItem } from "~/composables/types";
 import { useCurrentNavigationIndex } from "~/composables/current-page-engine";
-import { ArrowLeftIcon } from "@heroicons/vue/16/solid";
+import { ArrowLeftIcon, BellIcon } from "@heroicons/vue/16/solid";
 import { XMarkIcon } from "@heroicons/vue/24/solid";
 import type { Settings } from "~/server/internal/utils/types";
 
@@ -219,10 +256,10 @@ const navigation: Array<NavigationItem & { icon: Component }> = [
   },
 ];
 
-// const notifications = useNotifications();
-// const unreadNotifications = computed(() =>
-//   notifications.value.filter((e) => !e.read)
-// );
+const notifications = useNotifications();
+const unreadNotifications = computed(() =>
+  notifications.value.filter((e) => !e.read),
+);
 
 const currentNavigationIndex = useCurrentNavigationIndex(navigation);
 
