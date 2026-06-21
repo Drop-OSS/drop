@@ -28,7 +28,7 @@ use crate::{
     format::DropFormatArgs,
     parser::{LaunchParameters, ParsedCommand},
     process_handlers::{
-        AsahiMuvmLauncher, MacLauncher, UMUCompatLauncher, UMUNativeLauncher, WindowsLauncher,
+        AsahiMuvmLauncher, LinuxNativeLauncher, MacLauncher, UMUCompatLauncher, WindowsLauncher,
     },
 };
 
@@ -78,7 +78,7 @@ impl ProcessManager<'_> {
                 ),
                 (
                     (Platform::Linux, Platform::Linux),
-                    &UMUNativeLauncher {} as &(dyn ProcessHandler + Sync + Send + 'static),
+                    &LinuxNativeLauncher {} as &(dyn ProcessHandler + Sync + Send + 'static),
                 ),
                 (
                     (Platform::macOS, Platform::macOS),

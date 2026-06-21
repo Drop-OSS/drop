@@ -21,7 +21,7 @@ Then, what happens with this, depends on the type of game we're launching:
 
 ## Normal (no emulator)
 
-Drop reconstructs the original shell string, and passes it into platform-specific command wrappers. For Windows, this means nothing. For Linux, it gets wrapped in `umu-run`.
+Drop reconstructs the original shell string, and passes it into platform-specific command wrappers. On Windows, the command is launched based on its file type: `.exe` files run directly, `.bat` and `.cmd` files run through `cmd`, `.ps1` files run through `powershell`, and anything else gets handed to `cmd` so builtins and `%VAR%` expansion still work. On Linux, native games run directly, while games targeting Windows get wrapped in `umu-run`.
 
 It is then parsed again, and then passed into process creation, mapping the environment variable, command, and arguments into their respective platform-dependent places.
 

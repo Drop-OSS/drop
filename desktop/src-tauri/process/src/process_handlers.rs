@@ -1,11 +1,15 @@
-use std::{fs::create_dir_all, path::PathBuf, process::Command};
+use std::{
+    fs::create_dir_all,
+    path::{Path, PathBuf},
+    process::Command,
+};
 
 use client::compat::{COMPAT_INFO, UMU_LAUNCHER_EXECUTABLE};
 use database::{
     Database, DownloadableMetadata, GameVersion, db::DATA_ROOT_DIR, platform::Platform,
 };
 
-use crate::{error::ProcessError, process_manager::ProcessHandler};
+use crate::{error::ProcessError, parser::ParsedCommand, process_manager::ProcessHandler};
 
 pub struct MacLauncher;
 impl ProcessHandler for MacLauncher {
@@ -37,10 +41,53 @@ impl ProcessHandler for WindowsLauncher {
         _meta: &DownloadableMetadata,
         launch_command: String,
         _game_version: &GameVersion,
-        _current_dir: &str,
+        current_dir: &str,
         _database: &Database,
     ) -> Result<String, ProcessError> {
-        Ok(format!("pwsh \"cmd /C \"{}\"\"", launch_command))
+        let mut parsed = ParsedCommand::parse(launch_command)?;
+
+        let extension = Path::new(&parsed.command)
+            .extension()
+            .and_then(|ext| ext.to_str())
+            .map(str::to_ascii_lowercase);
+
+        match extension.as_deref() {
+            // PowerShell scripts
+            Some("ps1") => {
+                parsed.make_absolute(PathBuf::from(current_dir));
+                let script = std::mem::replace(&mut parsed.command, "powershell".to_owned());
+                let mut args = vec![
+                    "-NoProfile".to_owned(),
+                    "-ExecutionPolicy".to_owned(),
+                    "Bypass".to_owned(),
+                    "-File".to_owned(),
+                    script,
+                ];
+                args.append(&mut parsed.args);
+                parsed.args = args;
+            }
+            // Batch scripts
+            Some("bat") | Some("cmd") => {
+                parsed.make_absolute(PathBuf::from(current_dir));
+                let script = std::mem::replace(&mut parsed.command, "cmd".to_owned());
+                let mut args = vec!["/C".to_owned(), script];
+                args.append(&mut parsed.args);
+                parsed.args = args;
+            }
+            // Direct executables
+            Some("exe") | Some("com") => {
+                parsed.make_absolute(PathBuf::from(current_dir));
+            }
+            // Builtins, PATHEXT resolution, %VAR% expansion, etc.
+            _ => {
+                let command = std::mem::replace(&mut parsed.command, "cmd".to_owned());
+                let mut args = vec!["/C".to_owned(), command];
+                args.append(&mut parsed.args);
+                parsed.args = args;
+            }
+        }
+
+        Ok(parsed.reconstruct())
     }
 
     fn valid_for_platform(&self, _db: &Database, _target: &Platform) -> bool {
@@ -56,48 +103,22 @@ impl ProcessHandler for WindowsLauncher {
     }
 }
 
-pub struct UMUNativeLauncher;
-impl ProcessHandler for UMUNativeLauncher {
+pub struct LinuxNativeLauncher;
+impl ProcessHandler for LinuxNativeLauncher {
     fn create_launch_process(
         &self,
-        meta: &DownloadableMetadata,
+        _meta: &DownloadableMetadata,
         launch_command: String,
-        game_version: &GameVersion,
+        _game_version: &GameVersion,
         _current_dir: &str,
         _database: &Database,
     ) -> Result<String, ProcessError> {
-        let umu_id_override = game_version
-            .launches
-            .iter()
-            .find(|v| v.platform == meta.target_platform)
-            .and_then(|v| v.umu_id_override.as_ref())
-            .map_or("", |v| v);
-
-        let game_id = if umu_id_override.is_empty() {
-            &game_version.version_id
-        } else {
-            umu_id_override
-        };
-
-        let pfx_dir = DATA_ROOT_DIR.join("pfx");
-        let pfx_dir = pfx_dir.join(meta.id.clone());
-        create_dir_all(&pfx_dir)?;
-
-        Ok(format!(
-            "GAMEID={game_id} UMU_NO_PROTON=1 WINEPREFIX={} {umu:?} {launch}",
-            pfx_dir.to_string_lossy(),
-            umu = UMU_LAUNCHER_EXECUTABLE
-                .as_ref()
-                .expect("Failed to get UMU_LAUNCHER_EXECUTABLE as ref"),
-            launch = launch_command,
-        ))
+        // Run native Linux games directly, no umu-run wrapper
+        Ok(launch_command)
     }
 
     fn valid_for_platform(&self, _db: &Database, _target: &Platform) -> bool {
-        let Some(compat_info) = &*COMPAT_INFO else {
-            return false;
-        };
-        compat_info.umu_installed
+        true
     }
 
     fn modify_command(&self, _command: &mut Command) {}
