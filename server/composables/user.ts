@@ -9,7 +9,12 @@ export const updateUser = async () => {
   const user = useUser();
   if (user.value === null) return;
 
-  user.value = await $dropFetch<UserModel | null>("/api/v1/user");
+  user.value = await $dropFetch<UserModel | null>("/api/v1/user", {
+    // Forward headers manually when called outside a component
+    headers: import.meta.server
+      ? useRequestHeaders(["cookie", "authorization"])
+      : undefined,
+  });
 };
 
 export async function completeSignin() {

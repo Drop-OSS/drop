@@ -2,14 +2,13 @@ const whitelistedPrefixes = ["/auth", "/api", "/setup"];
 const requireAdmin = ["/admin"];
 
 export default defineNuxtRouteMiddleware(async (to, _from) => {
-  if (import.meta.server) return;
   const error = useError();
   if (error.value !== undefined) return;
   if (whitelistedPrefixes.findIndex((e) => to.fullPath.startsWith(e)) != -1)
     return;
 
   const user = useUser();
-  if (user === undefined) {
+  if (user.value === undefined) {
     await updateUser();
   }
   if (!user.value) {
