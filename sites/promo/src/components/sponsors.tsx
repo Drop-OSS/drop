@@ -79,6 +79,7 @@ function SponsorCard({
       className="relative flex w-64 rounded-3xl sm:w-72 bg-black"
     >
       <figure className="relative p-10">
+        <img alt={name} src={img} className="mb-4 size-12 rounded-full" />
         <figcaption className="pb-3 border-b border-white/20">
           <p className="text-sm/6 font-medium text-white">{name}</p>
           <p className="text-sm/6 font-medium">

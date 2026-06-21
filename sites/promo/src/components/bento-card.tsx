@@ -35,6 +35,12 @@ export function BentoCard({
     >
       <div className="relative h-80 shrink-0">
         {graphic}
+        {fade.includes('top') && (
+          <div className="absolute inset-0 bg-linear-to-b from-zinc-900 to-50%" />
+        )}
+        {fade.includes('bottom') && (
+          <div className="absolute inset-0 bg-linear-to-t from-zinc-900 to-50%" />
+        )}
       </div>
       <div className="relative p-10">
         <Subheading as="h3" dark={dark}>

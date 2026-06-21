@@ -54,7 +54,7 @@ function FeatureSection() {
 
           <p className="mt-6 text-lg/8 text-zinc-400">
             Drop is built from the ground up to be flexible, fast, and
-            beautiful. It's designed to scale with your library, and handle
+            beautiful. It&apos;s designed to scale with your library, and handle
             thousands of games.
           </p>
         </div>
