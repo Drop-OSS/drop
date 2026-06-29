@@ -312,9 +312,12 @@ impl ProcessHandler for UMUNativeLauncher {
         let pfx_dir = pfx_dir.join(meta.id.clone());
         create_dir_all(&pfx_dir)?;
 
+        let game_id_env = shell_words::quote(&format!("GAMEID={game_id}")).into_owned();
+        let wineprefix_env =
+            shell_words::quote(&format!("WINEPREFIX={}", pfx_dir.to_string_lossy())).into_owned();
+
         Ok(format!(
-            "GAMEID={game_id} UMU_NO_PROTON=1 WINEPREFIX={} {umu:?} {launch}",
-            pfx_dir.to_string_lossy(),
+            "{game_id_env} UMU_NO_PROTON=1 {wineprefix_env} {umu:?} {launch}",
             umu = UMU_LAUNCHER_EXECUTABLE
                 .as_ref()
                 .expect("Failed to get UMU_LAUNCHER_EXECUTABLE as ref"),
@@ -388,12 +391,17 @@ impl ProcessHandler for UMUCompatLauncher {
         if !proton_valid {
             return Err(ProcessError::NoCompat);
         }
-        let proton_env = format!("PROTONPATH={}", proton_path);
+
+        // Shell-quote the env assignments so values containing spaces (e.g. a
+        // Proton install named "Proton-GE Latest") aren't split into separate
+        // tokens and misinterpreted as the command by the launch parser.
+        let game_id_env = shell_words::quote(&format!("GAMEID={game_id}")).into_owned();
+        let proton_env = shell_words::quote(&format!("PROTONPATH={proton_path}")).into_owned();
+        let wineprefix_env =
+            shell_words::quote(&format!("WINEPREFIX={}", pfx_dir.to_string_lossy())).into_owned();
 
         Ok(format!(
-            "GAMEID={game_id} {} WINEPREFIX={} {umu:?} {launch}",
-            proton_env,
-            pfx_dir.to_string_lossy(),
+            "{game_id_env} {proton_env} {wineprefix_env} {umu:?} {launch}",
             umu = UMU_LAUNCHER_EXECUTABLE
                 .as_ref()
                 .expect("Failed to get UMU_LAUNCHER_EXECUTABLE as ref"),

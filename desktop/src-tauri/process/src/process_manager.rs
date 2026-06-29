@@ -523,6 +523,13 @@ impl ProcessManager<'_> {
             install_dir.into(),
         );
 
+        let mut launch_parameters = launch_parameters;
+        launch_parameters
+            .0
+            .make_command_absolute_if_local(&launch_parameters.1);
+
+        launch_parameters.0.ensure_executable()?;
+
         info!(
             "launching (in {}): {:?}",
             launch_parameters.1.to_string_lossy(),

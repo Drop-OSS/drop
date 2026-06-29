@@ -19,6 +19,7 @@ pub enum ProcessError {
     OpenerError(Arc<tauri_plugin_opener::Error>),
     InvalidArguments(String),
     FailedLaunch(String),
+    NotExecutable(String),
     NoCompat,
 }
 
@@ -38,6 +39,9 @@ impl Display for ProcessError {
             }
             ProcessError::FailedLaunch(game_id) => {
                 &format!("Drop detected that the game {game_id} may have failed to launch properly")
+            }
+            ProcessError::NotExecutable(command) => {
+                &format!("The command '{command}' exists but is not marked as executable")
             }
             ProcessError::RequiredDependency(game_id, version_id) => &format!(
                 "Missing a required dependency to launch this game: {} {}",
