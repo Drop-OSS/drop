@@ -1,6 +1,6 @@
 <template>
   <div
-    class="pt-8 lg:pt-0 lg:pl-20 fixed inset-0 flex flex-col overflow-auto bg-zinc-900"
+    class="lg:pl-20 fixed inset-x-0 bottom-0 top-16 lg:top-14 flex flex-col overflow-auto bg-zinc-900"
   >
     <div
       class="bg-zinc-950 w-full flex flex-row items-center gap-2 justify-between px-2 pt-6 lg:pt-0"
