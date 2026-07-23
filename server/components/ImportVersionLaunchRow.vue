@@ -292,6 +292,18 @@ const launchFilteredVersionGuesses = computed(() =>
 
 function updateLaunchCommand(command: string) {
   launchConfiguration.value.launch = command;
+
+  // Auto-fill name from filename if user hasn't set one (#373)
+  if (!launchConfiguration.value.name) {
+    const guess = props.versionGuesses?.find((v) => v.filename === command);
+    if (guess?.type === "emulator") {
+      launchConfiguration.value.name = guess.launchName;
+    } else {
+      const basename = command.split("/").pop() ?? command;
+      launchConfiguration.value.name = basename.replace(/\.[^.]+$/, "");
+    }
+  }
+
   if (launchConfiguration.value.platform === undefined) {
     const autosetGuess = props.versionGuesses?.find(
       (v) => v.filename == command,
