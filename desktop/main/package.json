@@ -8,7 +8,10 @@
     "dev": "nuxt dev",
     "postinstall": "nuxt prepare",
     "tauri": "tauri",
-    "typecheck": "nuxt typecheck"
+    "typecheck": "nuxt typecheck",
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "lint": "prettier --check ."
   },
   "dependencies": {
     "@headlessui/vue": "^1.7.23",
