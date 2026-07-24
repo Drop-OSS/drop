@@ -16,3 +16,17 @@ trim_trailing_whitespace = false
 
 [*.{yml,yaml}]
 indent_size = 2
+
+# Makefiles require tabs (syntax)
+[Makefile]
+indent_style = tab
+
+# Nix files: prettier handles formatting, allow 2-space indent
+[*.nix]
+indent_style = space
+indent_size = 2
+
+# JSON files: Prettier handles formatting with 2-space indent
+[*.json]
+indent_style = space
+indent_size = 2
