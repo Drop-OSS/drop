@@ -3,7 +3,7 @@ version: 2
 registries:
   # Allow Dependabot to resolve private/skipped registry hosts from lockfiles
   # (e.g. buf schema registry, GitHub Packages). Public registries need no entry.
-  npm-(pkg-github:
+  npm-pkg-github:
     type: "npm-registry"
     url: "https://npm.pkg.github.com"
     token: "${{secrets.GITHUB_TOKEN}}"
