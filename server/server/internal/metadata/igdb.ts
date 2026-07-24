@@ -1,5 +1,14 @@
 import type { CompanyModel } from "~/prisma/client/models";
 import { AgeRatingOrganization, MetadataSource } from "~/prisma/client/enums";
+import {
+  ESRBRating,
+  PEGIRating,
+  CEROrating,
+  USKRating,
+  GRACRating,
+  ClassIndRating,
+  ACBRating,
+} from "~/utils/ageRatings";
 import type { MetadataProvider } from ".";
 import { MissingMetadataProviderConfig } from ".";
 import type {
@@ -100,49 +109,49 @@ const IGDB_CATEGORY_TO_ORG: Record<number, AgeRatingOrganization> = {
 
 const IGDB_RATING_TO_STRING: Record<number, string> = {
   // PEGI
-  1: "3",
-  2: "7",
-  3: "12",
-  4: "16",
-  5: "18",
+  1: PEGIRating["3"],
+  2: PEGIRating["7"],
+  3: PEGIRating["12"],
+  4: PEGIRating["16"],
+  5: PEGIRating["18"],
   // ESRB
-  7: "EC",
-  8: "E",
-  9: "E10",
-  10: "T",
-  11: "M",
-  12: "AO",
+  7: ESRBRating.EC,
+  8: ESRBRating.E,
+  9: ESRBRating.E10,
+  10: ESRBRating.T,
+  11: ESRBRating.M,
+  12: ESRBRating.AO,
   // CERO
-  13: "A",
-  14: "B",
-  15: "C",
-  16: "D",
-  17: "Z",
+  13: CEROrating.A,
+  14: CEROrating.B,
+  15: CEROrating.C,
+  16: CEROrating.D,
+  17: CEROrating.Z,
   // USK
-  18: "0",
-  19: "6",
-  20: "12",
-  21: "16",
-  22: "18",
+  18: USKRating["0"],
+  19: USKRating["6"],
+  20: USKRating["12"],
+  21: USKRating["16"],
+  22: USKRating["18"],
   // GRAC
-  23: "ALL",
-  24: "12",
-  25: "15",
-  26: "18",
+  23: GRACRating.ALL,
+  24: GRACRating["12"],
+  25: GRACRating["15"],
+  26: GRACRating["18"],
   // CLASS_IND
-  28: "L",
-  29: "10",
-  30: "12",
-  31: "14",
-  32: "16",
-  33: "18",
+  28: ClassIndRating.L,
+  29: ClassIndRating["10"],
+  30: ClassIndRating["12"],
+  31: ClassIndRating["14"],
+  32: ClassIndRating["16"],
+  33: ClassIndRating["18"],
   // ACB
-  34: "G",
-  35: "PG",
-  36: "M",
-  37: "MA15",
-  38: "R18",
-  39: "RC",
+  34: ACBRating.G,
+  35: ACBRating.PG,
+  36: ACBRating.M,
+  37: ACBRating.MA15,
+  38: ACBRating.R18,
+  39: ACBRating.RC,
 };
 
 // https://api-docs.igdb.com/?shell#game
