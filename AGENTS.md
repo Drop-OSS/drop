@@ -146,6 +146,21 @@ Coverage 1.17% lines / 2.09% funcs (server, no gates). See `docs/coverage-baseli
 
 Bugs caught during this sequence: `prioritylist.ts:34` (`a.priority == a.priority`); `database/Cargo.toml` missing `serde/derive` (53 errs); `cli/` binary-only, no `lib.rs`.
 
+## Deferred Work Backlog (2026-07-24)
+
+Captured at PR #22 (https://github.com/BillyOutlast/drop/pull/22) close-out. Repo issues disabled — document here instead of filing GitHub issues. **Re-evaluate when coverage >30% or as bandwidth allows.**
+
+| Item                               | Trigger                  | Why deferred                                                                                                                                                                                                                                                                     |
+| ---------------------------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Codecov test-results reporting     | Coverage >30%            | JUnit analytics produce zero signal at 32 tests. Use `codecov-action@v5` with `report_type: test_results` (NOT `codecov/test-results-action@v1` which is DEPRECATED).                                                                                                            |
+| `.codecov.yml` with `target: auto` | Coverage >30%            | At 1.17% baseline, ANY new uncovered code drops percentage and blocks every PR. Contradicts current "no gates" policy.                                                                                                                                                           |
+| gitleaks-action v2→v3 migration    | Pre-Sept 2026            | v2 uses Node 20; GitHub deprecates Node 20 default in Sept 2026. Also unlocks v3's native fork-PR base-SHA resolution.                                                                                                                                                           |
+| SonarCloud C rating fix            | Needs SonarCloud auth    | Cannot view findings via GitHub API. Likely test-only noise (90% of PR #22 is test code).                                                                                                                                                                                        |
+| `noUncheckedIndexedAccess` enable  | After latent-error fixup | 30+ latent TS errors in `server/api/v1/{admin/import/massversion, auth/mfa/webauthn, auth/passkey}/`, `server/internal/{auth/totp, clients/event-handler, metadata/pcgamingwiki, system-data/index, utils/prioritylist}.ts`. Each requires explicit `if (!arr[i]) return` guard. |
+| CLI integration tests refactor     | Post lib.rs unblock      | `cli/tests/*.rs` now compile (commit 35b63960), but real coverage of `commands/upload/` and `commands/connect/` flows needs fixture data setup.                                                                                                                                  |
+| E2E user-flow data fixtures        | Post test DB infra       | The 5 e2e flows added in PR #22 test navigation, not content. Content tests need seed data.                                                                                                                                                                                      |
+| commitlint                         | Multi-contributor        | Solo dev → zero value. Re-add when team >1.                                                                                                                                                                                                                                      |
+
 ## Verifying Facts in This File
 
 This file is a cache. Before trusting any fact, verify with a direct command:
