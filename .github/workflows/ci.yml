@@ -25,6 +25,20 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Run actionlint
         uses: reviewdog/action-actionlint@086cc5300a077f608b81d2b03801bc382e417264 # v1.65.2
+
+      # Verify every pnpm audit --ignore advisory has a risk register entry.
+      # This enforces the contract: any accepted vuln must be documented.
+      - name: Verify risk register coverage
+        run: |
+          # Extract GHSAs from pnpm audit ignore list in CI workflows
+          IGNORED=$(grep -rh '\-\-ignore GHSA-' .github/workflows/ | grep -oE 'GHSA-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}' | sort -u)
+          for ghsa in $IGNORED; do
+            if ! grep -q "$ghsa" security/risk-register.yaml; then
+              echo "ERROR: $ghsa ignored in pnpm audit but missing from security/risk-register.yaml"
+              exit 1
+            fi
+          done
+          echo "All $IGNORED ignored advisories have risk register entries"
         with:
           fail_on_error: true
 
