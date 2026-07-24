@@ -47,7 +47,9 @@ export default defineEventHandler(async (h3) => {
   const passkeys = (mfaMec.credentials as unknown as WebAuthNv1Credentials)
     .passkeys;
   const passkeyIndex = passkeys.findIndex((v) => v.id === credentialId);
-  const passkey = passkeys[passkeyIndex]; // Exists guarantee by database
+  if (passkeyIndex == -1)
+    throw createError({ statusCode: 400, message: "Invalid credential ID." });
+  const passkey = passkeys[passkeyIndex];
 
   const rpID = await getRpId();
   const externalUrl = await systemConfig.getExternalUrl();
