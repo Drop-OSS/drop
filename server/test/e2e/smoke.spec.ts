@@ -1,20 +1,24 @@
 /**
- * E2E smoke test: verifies the Playwright config is internally consistent
- * and the dev server responds at the configured baseURL.
+ * E2E smoke test: verifies the dev server boots and the health endpoint
+ * responds. Health is a pure handler (no DB, no auth) so it works in
+ * bare CI without service dependencies.
  *
- * This is the lowest-cost E2E coverage — it doesn't exercise real user
- * flows, but it catches the most common first-run failure (port mismatch
- * between Playwright config and nuxt.config.ts devServer.port).
- *
- * Real user-flow tests will be added in subsequent commits.
+ * Catches:
+ * - Port mismatch between Playwright config and nuxt.config.ts
+ * - Dev server crash on boot (e.g. tailwindcss plugin recursion)
+ * - Routing/middleware misconfiguration that breaks API routes
  */
 import { test, expect } from "@playwright/test";
 
 test.describe("E2E smoke", () => {
-  test("baseURL is reachable", async ({ page }) => {
-    const response = await page.goto("/");
-    // 200 OK for any rendered page, or 302 for an auth redirect (both
-    // prove the server is up and responding).
-    expect([200, 302, 307]).toContain(response?.status() ?? 0);
+  test("health endpoint responds", async ({ request }) => {
+    const response = await request.get("/api/v1/health");
+    expect(response.status()).toBe(200);
+    const body = (await response.json()) as {
+      status: string;
+      timestamp: number;
+    };
+    expect(body.status).toBe("ok");
+    expect(typeof body.timestamp).toBe("number");
   });
 });
