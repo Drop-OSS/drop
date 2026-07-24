@@ -1,0 +1,31 @@
+name: EditorConfig CI
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop]
+  workflow_dispatch:
+
+jobs:
+  lint-editorconfig:
+    name: EditorConfig Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+
+      - name: Install editorconfig-checker
+        run: npm install -g editorconfig-checker
+
+      - name: Validate .editorconfig compliance
+        run: ec --exclude '(node_modules|\.git|\.nuxt|\.output|coverage|dist|target)'
