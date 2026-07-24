@@ -1,0 +1,33 @@
+# CodeRabbit configuration
+# https://docs.coderabbit.ai/guides/configure-coderabbit
+
+language: en-US
+early_access: true
+
+reviews:
+  request_changes_workflow: false
+  profile: chill
+  high_level_summary: true
+  review_status: true
+  commit_messages: true
+  suggested_labels: true
+  poem: false
+  path_filters:
+    - "!**/target/**"
+    - "!**/node_modules/**"
+    - "!**/.nuxt/**"
+    - "!**/.output/**"
+    - "!**/coverage/**"
+    - "!**/dist/**"
+    - "!**/.git/**"
+
+# Auto-review on PRs
+auto_review:
+  enabled: true
+  drafts: false
+  ignore_title_keywords:
+    - "WIP"
+    - "DRAFT"
+
+chat:
+  auto_reply: true
