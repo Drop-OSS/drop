@@ -146,6 +146,9 @@ jobs:
   coverage:
     name: Coverage
     runs-on: ubuntu-latest
+    # Coverage is measurement-only at this stage. No thresholds, no gates.
+    # Add a `coverage:check` script with thresholds once coverage matures
+    # past ~30% on the server business-logic modules.
     steps:
       - name: Check out the repo
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
