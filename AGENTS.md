@@ -133,6 +133,19 @@ pnpm --filter drop exec prettier --write <file>
 
 Before batch commits: `pnpm --filter drop lint:fix` from repo root.
 
+## Test State (2026-07-24)
+
+| Workspace                     | Tests                 | Notes                                            |
+| ----------------------------- | --------------------- | ------------------------------------------------ |
+| `server/`                     | 32 vitest + 1 skipped | `pnpm --filter drop test`                        |
+| `cli/`                        | 10 cargo              | `cd cli && cargo test`                           |
+| `desktop/src-tauri/database/` | 6 cargo               | `cargo test -p database`                         |
+| `server/test/e2e/`            | 1 smoke               | `pnpm --filter drop test:e2e` (needs dev server) |
+
+Coverage 1.17% lines / 2.09% funcs (server, no gates). See `docs/coverage-baseline-2026-07-24.md`.
+
+Bugs caught during this sequence: `prioritylist.ts:34` (`a.priority == a.priority`); `database/Cargo.toml` missing `serde/derive` (53 errs); `cli/` binary-only, no `lib.rs`.
+
 ## Verifying Facts in This File
 
 This file is a cache. Before trusting any fact, verify with a direct command:
