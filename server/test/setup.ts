@@ -1,9 +1,20 @@
 import { afterAll, beforeAll } from "vitest";
-import { setupTestMocks, teardownTestMocks } from "./mocks";
+import { setupAllMocks, teardownTestMocks } from "./mocks";
 
-// Global test setup — runs before all test files
+// Stub Nuxt globals that handlers may rely on.
+// Real handler runs in Nuxt server context; tests don't have Nuxt loaded.
+(globalThis as Record<string, unknown>).defineRouteMeta = () => {};
+(globalThis as Record<string, unknown>).defineEventHandler = <T>(
+  handler: T,
+): T => handler;
+(globalThis as Record<string, unknown>).getHeader = () => undefined;
+(globalThis as Record<string, unknown>).getQuery = () => ({});
+(globalThis as Record<string, unknown>).getRouterParam = () => undefined;
+(globalThis as Record<string, unknown>).readBody = async () => ({});
+(globalThis as Record<string, unknown>).createError = (err: unknown) => err;
+
 beforeAll(() => {
-  setupTestMocks();
+  setupAllMocks();
 });
 
 afterAll(() => {
