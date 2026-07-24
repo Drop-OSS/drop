@@ -105,3 +105,28 @@ jobs:
       - name: Run tests
         working-directory: server
         run: pnpm run test
+
+  dockerfile:
+    name: Dockerfile Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+      - name: Run hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+          failure-threshold: warning
+
+  shellcheck:
+    name: Shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+      - name: Run shellcheck
+        uses: ludeeus/action-shellcheck@2.0.0
+        with:
+          scandir: "./scripts"
+          additional_files: ".husky/pre-commit"
+          ignore-paths: "node_modules,.git,.nuxt,.output,target"
