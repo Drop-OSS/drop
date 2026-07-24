@@ -27,9 +27,7 @@ jobs:
       - name: Install editorconfig-checker
         run: npm install -g editorconfig-checker
 
-      # Pre-existing violations in legacy files: tracked in TODO, not blocking
       - name: Validate .editorconfig compliance
-        continue-on-error: true
         run: |
           ec --exclude \
             '(node_modules|\.git|\.nuxt|\.output|coverage|dist|target|\.omo|\.dockerignore|README\.md|LICENSE|server/prisma/migrations|sites/docs|sites/promo/public|desktop/libs|backend|desktop/main/(components|pages|layouts|assets|plugins|public))'
