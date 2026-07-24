@@ -40,52 +40,41 @@ export const DEFAULT_OIDC_USERINFO_RESPONSE = {
  * oidcHandlers({ userinfo: { sub: "custom-sub", groups: ["drop-admins"] } })
  * ```
  */
-export function oidcHandlers(
-  overrides?: {
-    config?: Partial<typeof DEFAULT_OIDC_CONFIG>;
-    token?: Partial<typeof DEFAULT_OIDC_TOKEN_RESPONSE>;
-    userinfo?: Partial<typeof DEFAULT_OIDC_USERINFO_RESPONSE>;
-  },
-): HttpHandler[] {
+export function oidcHandlers(overrides?: {
+  config?: Partial<typeof DEFAULT_OIDC_CONFIG>;
+  token?: Partial<typeof DEFAULT_OIDC_TOKEN_RESPONSE>;
+  userinfo?: Partial<typeof DEFAULT_OIDC_USERINFO_RESPONSE>;
+}): HttpHandler[] {
   const config = { ...DEFAULT_OIDC_CONFIG, ...overrides?.config };
   const token = { ...DEFAULT_OIDC_TOKEN_RESPONSE, ...overrides?.token };
-  const userinfo = { ...DEFAULT_OIDC_USERINFO_RESPONSE, ...overrides?.userinfo };
-
-  const key = crypto.subtle.generateKey(
-    { name: "HMAC", hash: "SHA-256" },
-    true,
-    ["sign", "verify"],
-  );
+  const userinfo = {
+    ...DEFAULT_OIDC_USERINFO_RESPONSE,
+    ...overrides?.userinfo,
+  };
 
   return [
     // OIDC well-known configuration endpoint
-    http.get(config.jwks_uri.replace("/jwks", "/.well-known/openid-configuration"), () =>
-      HttpResponse.json(config),
+    http.get(
+      config.jwks_uri.replace("/jwks", "/.well-known/openid-configuration"),
+      () => HttpResponse.json(config),
     ),
 
     // Also match a generic well-known URL pattern
-    http.get("https://mock-oidc.heretek.dev/.well-known/openid-configuration", () =>
-      HttpResponse.json(config),
+    http.get(
+      "https://mock-oidc.heretek.dev/.well-known/openid-configuration",
+      () => HttpResponse.json(config),
     ),
 
     // Token endpoint
-    http.post(config.token_endpoint, () =>
-      HttpResponse.json(token),
-    ),
+    http.post(config.token_endpoint, () => HttpResponse.json(token)),
 
     // Userinfo endpoint
-    http.get(config.userinfo_endpoint, () =>
-      HttpResponse.json(userinfo),
-    ),
-    http.post(config.userinfo_endpoint, () =>
-      HttpResponse.json(userinfo),
-    ),
+    http.get(config.userinfo_endpoint, () => HttpResponse.json(userinfo)),
+    http.post(config.userinfo_endpoint, () => HttpResponse.json(userinfo)),
 
     // JWKS endpoint — return an empty key set by default; tests that need
     // real JWT verification should use the jwt.ts helpers instead.
-    http.get(config.jwks_uri, () =>
-      HttpResponse.json({ keys: [] }),
-    ),
+    http.get(config.jwks_uri, () => HttpResponse.json({ keys: [] })),
   ];
 }
 

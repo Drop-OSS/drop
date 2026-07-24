@@ -50,7 +50,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Typecheck
-        run: pnpm typecheck
+        working-directory: server
+        run: pnpm run typecheck
 
   lint:
     name: Lint & Format
@@ -74,9 +75,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Check formatting
-        run: pnpm format:check
+        working-directory: server
+        run: pnpm run format:check
       - name: Lint
-        run: pnpm lint
+        working-directory: server
+        run: pnpm run lint:eslint
 
   test:
     name: Test
@@ -100,4 +103,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Run tests
-        run: pnpm test
+        working-directory: server
+        run: pnpm run test

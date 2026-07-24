@@ -199,8 +199,7 @@ export class OIDCManager {
       };
     } else {
       const authorizationEndpoint = process.env.OIDC_AUTHORIZATION as
-        | string
-        | undefined;
+        string | undefined;
       const tokenEndpoint = process.env.OIDC_TOKEN as string | undefined;
       const userinfoEndpoint = process.env.OIDC_USERINFO as string | undefined;
       const issuer = process.env.OIDC_ISSUER as string | undefined;

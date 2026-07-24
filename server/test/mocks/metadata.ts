@@ -21,7 +21,12 @@ export const DEFAULT_IGDB_GAME_SEARCH_RESPONSE: unknown[] = [
     cover: { id: 100, image_id: "co1234" },
     artworks: [{ id: 200, image_id: "ar5678" }],
     involved_companies: [
-      { id: 300, company: { id: 400, name: "Mock Dev" }, developer: true, publisher: true },
+      {
+        id: 300,
+        company: { id: 400, name: "Mock Dev" },
+        developer: true,
+        publisher: true,
+      },
     ],
     screenshots: [{ id: 500, image_id: "ss9012" }],
     rating: 85.0,
@@ -56,9 +61,13 @@ export function igdbHandlers(overrides?: {
     ),
 
     // IGDB API v4 — genres
-    http.post("https://api.igdb.com/v4/genres", ({ request }) =>
+    http.post("https://api.igdb.com/v4/genres", () =>
       HttpResponse.json(
-        (searchResponse as Array<{ genres?: Array<{ id: number; name: string }> }>)
+        (
+          searchResponse as Array<{
+            genres?: Array<{ id: number; name: string }>;
+          }>
+        )
           .flatMap((g) => g.genres ?? [])
           .filter((g, i, a) => a.findIndex((x) => x.id === g.id) === i),
       ),
@@ -67,16 +76,19 @@ export function igdbHandlers(overrides?: {
     // IGDB API v4 — involved companies
     http.post("https://api.igdb.com/v4/involved_companies", () =>
       HttpResponse.json(
-        (searchResponse as Array<{ involved_companies?: unknown[] }>)
-          .flatMap((g) => g.involved_companies ?? []),
+        (searchResponse as Array<{ involved_companies?: unknown[] }>).flatMap(
+          (g) => g.involved_companies ?? [],
+        ),
       ),
     ),
 
     // IGDB image CDN
-    http.get("https://images.igdb.com/igdb/image/upload/:size/:imageId.jpg", () =>
-      HttpResponse.arrayBuffer(new ArrayBuffer(0), {
-        headers: { "Content-Type": "image/jpeg" },
-      }),
+    http.get(
+      "https://images.igdb.com/igdb/image/upload/:size/:imageId.jpg",
+      () =>
+        HttpResponse.arrayBuffer(new ArrayBuffer(0), {
+          headers: { "Content-Type": "image/jpeg" },
+        }),
     ),
   ];
 }
@@ -91,7 +103,12 @@ export const DEFAULT_STEAM_SEARCH_RESPONSE: Array<{
   icon: string;
   logo: string;
 }> = [
-  { appid: "12345", name: "Mock Steam Game", icon: "mock_icon.jpg", logo: "mock_logo.jpg" },
+  {
+    appid: "12345",
+    name: "Mock Steam Game",
+    icon: "mock_icon.jpg",
+    logo: "mock_logo.jpg",
+  },
 ];
 
 export const DEFAULT_STEAM_STORE_DETAILS_RESPONSE = {
@@ -148,7 +165,6 @@ export function steamHandlers(overrides?: {
   details?: unknown;
 }): HttpHandler[] {
   const searchResponse = overrides?.search ?? DEFAULT_STEAM_SEARCH_RESPONSE;
-  const detailsResponse = overrides?.details ?? DEFAULT_STEAM_STORE_DETAILS_RESPONSE;
 
   return [
     // Steam community search
@@ -174,15 +190,21 @@ export function steamHandlers(overrides?: {
               about_the_game: "A mock game for testing.",
               short_description: "A mock Steam game for testing.",
               supported_languages: "English",
-              header_image: "https://cdn.fastly.steamstatic.com/steam/apps/12345/header.jpg",
-              capsule_image: "https://cdn.fastly.steamstatic.com/steam/apps/12345/capsule.jpg",
-              capsule_imagev5: "https://cdn.fastly.steamstatic.com/steam/apps/12345/capsule_184x69.jpg",
+              header_image:
+                "https://cdn.fastly.steamstatic.com/steam/apps/12345/header.jpg",
+              capsule_image:
+                "https://cdn.fastly.steamstatic.com/steam/apps/12345/capsule.jpg",
+              capsule_imagev5:
+                "https://cdn.fastly.steamstatic.com/steam/apps/12345/capsule_184x69.jpg",
               categories: [{ id: 1, description: "Single-player" }],
               genres: [{ id: "1", description: "Action" }],
               publishers: ["Mock Publisher"],
               developers: ["Mock Developer"],
               release_date: { coming_soon: false, date: "Jan 1, 2024" },
-              metacritic: { score: 85, url: "https://www.metacritic.com/game/pc/mock-game" },
+              metacritic: {
+                score: 85,
+                url: "https://www.metacritic.com/game/pc/mock-game",
+              },
             },
           },
         });
@@ -218,10 +240,12 @@ export function steamHandlers(overrides?: {
         headers: { "Content-Type": "image/jpeg" },
       }),
     ),
-    http.get("https://cdn.fastly.steamstatic.com/steamcommunity/public/images/:path*", () =>
-      HttpResponse.arrayBuffer(new ArrayBuffer(0), {
-        headers: { "Content-Type": "image/jpeg" },
-      }),
+    http.get(
+      "https://cdn.fastly.steamstatic.com/steamcommunity/public/images/:path*",
+      () =>
+        HttpResponse.arrayBuffer(new ArrayBuffer(0), {
+          headers: { "Content-Type": "image/jpeg" },
+        }),
     ),
   ];
 }
@@ -252,26 +276,29 @@ export function giantbombHandlers(overrides?: {
   const searchResponse = overrides?.search ?? DEFAULT_GIANTBOMB_SEARCH_RESPONSE;
 
   return [
-    http.get("https://www.giantbomb.com/api/:resource/:id?", ({ request, params }) => {
-      const url = new URL(request.url);
-      const format = url.searchParams.get("format") ?? "json";
-      const resource = params.resource as string;
+    http.get(
+      "https://www.giantbomb.com/api/:resource/:id?",
+      ({ request, params }) => {
+        const url = new URL(request.url);
+        const format = url.searchParams.get("format") ?? "json";
+        const resource = params.resource as string;
 
-      if (resource === "search") {
+        if (resource === "search") {
+          return HttpResponse.json({
+            format,
+            results: searchResponse,
+          });
+        }
+
+        // Generic game/company/review endpoints
         return HttpResponse.json({
           format,
-          results: searchResponse,
+          results: params.id
+            ? (searchResponse as { results: unknown[] }).results[0]
+            : searchResponse,
         });
-      }
-
-      // Generic game/company/review endpoints
-      return HttpResponse.json({
-        format,
-        results: params.id
-          ? (searchResponse as { results: unknown[] }).results[0]
-          : searchResponse,
-      });
-    }),
+      },
+    ),
   ];
 }
 

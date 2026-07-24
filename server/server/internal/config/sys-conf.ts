@@ -23,8 +23,7 @@ class SystemConfig {
     this.gitRef = config.gitRef;
 
     const oidcRequireHttps = process.env.OIDC_REQUIRE_HTTPS as
-      | string
-      | undefined;
+      string | undefined;
 
     // default to true if not set
     this.oidcRequireHttps =

@@ -1,5 +1,7 @@
 import { setupServer, type SetupServer } from "msw/node";
 import type { HttpHandler } from "msw";
+import { defaultOidcHandlers } from "./oidc";
+import { allMetadataHandlers } from "./metadata";
 
 // Re-export everything
 export * from "./oidc";
@@ -25,7 +27,9 @@ let server: SetupServer | null = null;
  */
 export function setupTestMocks(...handlers: HttpHandler[][]): void {
   if (server) {
-    throw new Error("setupTestMocks was already called; call teardownTestMocks first.");
+    throw new Error(
+      "setupTestMocks was already called; call teardownTestMocks first.",
+    );
   }
 
   const flatHandlers = handlers.flat();
@@ -65,7 +69,5 @@ export function resetTestMocks(...handlers: HttpHandler[][]): void {
  * ```
  */
 export function setupAllMocks(): void {
-  const { defaultOidcHandlers } = require("./oidc");
-  const { allMetadataHandlers } = require("./metadata");
   setupTestMocks(defaultOidcHandlers, allMetadataHandlers());
 }

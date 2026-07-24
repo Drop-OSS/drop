@@ -217,8 +217,8 @@ async function updateVersionOrder() {
         },
       },
     );
-    const newVersions = newVersionOrder.map(
-      (id) => game.value.versions.find((k) => k.versionId == id)!,
+    const newVersions = newVersionOrder.map((id) =>
+      game.value.versions.find((k) => k.versionId == id)!,
     );
     game.value.versions = newVersions;
   } catch (e) {

@@ -313,8 +313,7 @@ class TaskHandler {
       name: task.name,
       success: task.success,
       error: task.error as unknown as
-        | { title: string; description: string }
-        | undefined,
+        { title: string; description: string } | undefined,
       log: task.log,
       progress: task.progress,
       actions: task.actions as TaskActionLink[],
