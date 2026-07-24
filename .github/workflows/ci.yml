@@ -176,7 +176,7 @@ jobs:
         working-directory: server
         run: pnpm run coverage
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4
+        uses: codecov/codecov-action@04b047e8bb82a0c002c8312c1c880fbc6a999d45 # v5
         with:
           directory: server/coverage
           token: ${{ secrets.CODECOV_TOKEN }}
