@@ -1,9 +1,10 @@
 import type { CompanyModel } from "~/prisma/client/models";
-import { MetadataSource } from "~/prisma/client/enums";
+import { AgeRatingOrganization, MetadataSource } from "~/prisma/client/enums";
 import type { MetadataProvider } from ".";
 import { MissingMetadataProviderConfig } from ".";
 import type {
   GameMetadataSearchResult,
+  GameMetadataAgeRating,
   _FetchGameMetadataParams,
   GameMetadata,
   _FetchCompanyMetadataParams,
@@ -80,6 +81,69 @@ interface IGDBSearchStub extends IGDBItem {
   first_release_date?: number; // unix timestamp
   summary: string;
 }
+
+interface IGDBAgeRating extends IGDBItem {
+  category: number; // 1=ESRB, 2=PEGI, 3=CERO, 4=USK, 5=GRAC, 6=CLASS_IND, 7=ACB
+  rating: number; // Specific rating level enum value
+  rating_cover_url?: string;
+}
+
+const IGDB_CATEGORY_TO_ORG: Record<number, AgeRatingOrganization> = {
+  1: AgeRatingOrganization.ESRB,
+  2: AgeRatingOrganization.PEGI,
+  3: AgeRatingOrganization.CERO,
+  4: AgeRatingOrganization.USK,
+  5: AgeRatingOrganization.GRAC,
+  6: AgeRatingOrganization.ClassInd,
+  7: AgeRatingOrganization.ACB,
+};
+
+const IGDB_RATING_TO_STRING: Record<number, string> = {
+  // PEGI
+  1: "3",
+  2: "7",
+  3: "12",
+  4: "16",
+  5: "18",
+  // ESRB
+  7: "EC",
+  8: "E",
+  9: "E10",
+  10: "T",
+  11: "M",
+  12: "AO",
+  // CERO
+  13: "A",
+  14: "B",
+  15: "C",
+  16: "D",
+  17: "Z",
+  // USK
+  18: "0",
+  19: "6",
+  20: "12",
+  21: "16",
+  22: "18",
+  // GRAC
+  23: "ALL",
+  24: "12",
+  25: "15",
+  26: "18",
+  // CLASS_IND
+  28: "L",
+  29: "10",
+  30: "12",
+  31: "14",
+  32: "16",
+  33: "18",
+  // ACB
+  34: "G",
+  35: "PG",
+  36: "M",
+  37: "MA15",
+  38: "R18",
+  39: "RC",
+};
 
 // https://api-docs.igdb.com/?shell#game
 interface IGDBGameFull extends IGDBSearchStub {
@@ -302,6 +366,34 @@ export class IGDBProvider implements MetadataProvider {
     return results;
   }
 
+  private async getAgeRatings(
+    ageRatingIds: IGDBID[] | undefined,
+  ): Promise<GameMetadataAgeRating[]> {
+    if (!ageRatingIds?.length) return [];
+
+    const results: GameMetadataAgeRating[] = [];
+    for (const id of ageRatingIds) {
+      const response = await this.request<IGDBAgeRating>(
+        "age_ratings",
+        `where id = ${id}; fields category,rating,rating_cover_url;`,
+      );
+
+      for (const ar of response) {
+        const organization = IGDB_CATEGORY_TO_ORG[ar.category];
+        const rating = IGDB_RATING_TO_STRING[ar.rating];
+        if (!organization || !rating) continue;
+
+        results.push({
+          organization,
+          rating,
+          ratingCoverUrl: ar.rating_cover_url,
+        });
+      }
+    }
+
+    return results;
+  }
+
   name() {
     return "IGDB";
   }
@@ -444,6 +536,7 @@ export class IGDBProvider implements MetadataProvider {
     };
 
     const genres = await this.getGenres(currentGame.genres);
+    const ageRatings = await this.getAgeRatings(currentGame.age_ratings);
 
     let description = "";
     let shortDescription = "";
@@ -468,6 +561,7 @@ export class IGDBProvider implements MetadataProvider {
 
       genres,
       reviews: [review],
+      ageRatings,
 
       publishers,
       developers,

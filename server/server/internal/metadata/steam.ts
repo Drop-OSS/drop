@@ -1,4 +1,4 @@
-import { MetadataSource } from "~/prisma/client/enums";
+import { AgeRatingOrganization, MetadataSource } from "~/prisma/client/enums";
 import type { MetadataProvider } from ".";
 import type {
   GameMetadataSearchResult,
@@ -7,6 +7,7 @@ import type {
   _FetchCompanyMetadataParams,
   CompanyMetadata,
   GameMetadataRating,
+  GameMetadataAgeRating,
 } from "./types";
 import type { TaskRunContext } from "../tasks";
 import * as jdenticon from "jdenticon";
@@ -143,6 +144,12 @@ interface SteamTagsPackage {
   };
 }
 
+interface SteamRatingEntry {
+  rating: string;
+  descriptors?: string;
+  required_age?: string;
+}
+
 interface SteamWebAppDetailsSmall {
   type: string;
   name: string;
@@ -162,6 +169,7 @@ interface SteamWebAppDetailsSmall {
   mac_requirements: { minimum: string; recommended: string };
   linux_requirements: { minimum: string; recommended: string };
   legal_notice: string;
+  ratings?: Record<string, SteamRatingEntry>;
 }
 
 interface SteamWebAppDetailsLarge extends SteamWebAppDetailsSmall {
@@ -177,6 +185,20 @@ interface SteamWebAppDetailsPackage {
     data: SteamWebAppDetailsSmall | SteamWebAppDetailsLarge;
   };
 }
+
+const STEAM_RATING_KEY_TO_ORG: Record<string, AgeRatingOrganization> = {
+  esrb: AgeRatingOrganization.ESRB,
+  pegi: AgeRatingOrganization.PEGI,
+  usk: AgeRatingOrganization.USK,
+  oflc: AgeRatingOrganization.ACB,
+};
+
+const STEAM_RATING_NORMALIZE: Record<string, Record<string, string>> = {
+  esrb: { ec: "EC", e: "E", e10: "E10", t: "T", m: "M", ao: "AO" },
+  pegi: { "3": "3", "7": "7", "12": "12", "16": "16", "18": "18" },
+  usk: { "0": "0", "6": "6", "12": "12", "16": "16", "18": "18" },
+  oflc: { g: "G", pg: "PG", m: "M", ma15: "MA15", r18: "R18", rc: "RC" },
+};
 
 export class SteamProvider implements MetadataProvider {
   name() {
@@ -363,7 +385,7 @@ export class SteamProvider implements MetadataProvider {
     context?.logger.info("Fetching detailed description and reviews...");
     const webAppDetails = (await this._getWebAppDetails(
       id,
-      "metacritic",
+      "metacritic,ratings",
     )) as SteamWebAppDetailsLarge;
 
     const detailedDescription =
@@ -407,6 +429,13 @@ export class SteamProvider implements MetadataProvider {
       `Steam reviews: ${steamReviewCount} reviews, ${steamRating}% positive`,
     );
 
+    const ageRatings = this._extractAgeRatings(webAppDetails?.ratings);
+    if (ageRatings.length > 0) {
+      context?.logger.info(
+        `Found ${ageRatings.length} age ratings: ${ageRatings.map((r) => `${r.organization}: ${r.rating}`).join(", ")}`,
+      );
+    }
+
     if (webAppDetails?.metacritic) {
       reviews.push({
         metadataId: id,
@@ -437,6 +466,7 @@ export class SteamProvider implements MetadataProvider {
       developers,
       tags,
       reviews,
+      ageRatings,
       icon,
       bannerId: banner,
       coverId: cover,
@@ -793,6 +823,24 @@ export class SteamProvider implements MetadataProvider {
     }
 
     return appData;
+  }
+
+  private _extractAgeRatings(
+    ratings: Record<string, SteamRatingEntry> | undefined,
+  ): GameMetadataAgeRating[] {
+    if (!ratings) return [];
+
+    const results: GameMetadataAgeRating[] = [];
+    for (const [key, entry] of Object.entries(ratings)) {
+      const org = STEAM_RATING_KEY_TO_ORG[key];
+      if (!org) continue;
+
+      const normalized =
+        STEAM_RATING_NORMALIZE[key]?.[entry.rating] ??
+        entry.rating.toUpperCase();
+      results.push({ organization: org, rating: normalized });
+    }
+    return results;
   }
 
   private _getImageUrl(filename: string, format?: string): string {

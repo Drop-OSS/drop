@@ -445,6 +445,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
       tags: this.compileTags(game),
 
       reviews: pageContent.reception.filter((v) => typeof v !== "undefined"),
+      ageRatings: [],
       publishers,
       developers,
 

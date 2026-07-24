@@ -397,7 +397,11 @@
         "imageLibraryDescription": "Please note all images uploaded are accessible to all users through browser dev-tools.",
         "removeImageCarousel": "Remove image",
         "setBanner": "Set as banner",
-        "setCover": "Set as cover"
+        "setCover": "Set as cover",
+        "ageRatings": "Age Ratings",
+        "ageRatingsEmpty": "No age ratings set",
+        "addAgeRating": "Add Rating",
+        "removeAgeRating": "Remove"
       },
       "gameLibrary": "Game Library",
       "gameSelector": {
@@ -723,6 +727,7 @@
     "platform": "Platform | Platform | Platforms",
     "publishers": "Publishers | Publisher | Publishers",
     "rating": "Rating",
+    "ageRating": "Age Rating",
     "recentlyAdded": "Recently Added",
     "recentlyReleased": "Recently released",
     "released": "Released",

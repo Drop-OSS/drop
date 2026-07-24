@@ -51,6 +51,7 @@ export type AdminFetchGameType = Prisma.GameGetPayload<{
       };
     };
     tags: true;
+    ageRatings: true;
   };
 }>;
 
@@ -111,6 +112,7 @@ export default defineEventHandler<
         },
       },
       tags: true,
+      ageRatings: true,
     },
   });
 

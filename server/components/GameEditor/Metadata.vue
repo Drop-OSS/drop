@@ -52,6 +52,87 @@
               />
             </div>
           </div>
+          <div class="flex flex-col">
+            <label class="text-sm/6 font-medium text-zinc-100">
+              {{ $t("library.admin.game.ageRatings") }}
+            </label>
+            <div class="mt-2 space-y-2">
+              <div
+                v-for="(ar, idx) in ageRatings"
+                :key="ar.organization"
+                class="flex items-center gap-2"
+              >
+                <span
+                  class="inline-flex items-center rounded-full bg-zinc-800 px-2.5 py-0.5 text-sm font-medium text-zinc-100"
+                >
+                  {{ ar.organization }}: {{ ar.rating }}
+                </span>
+                <button
+                  type="button"
+                  class="text-red-400 hover:text-red-300 text-sm"
+                  @click="() => removeAgeRating(idx)"
+                >
+                  {{ $t("library.admin.game.removeAgeRating") }}
+                </button>
+              </div>
+              <p
+                v-if="ageRatings.length === 0 && !showAddAgeRating"
+                class="text-sm text-zinc-400"
+              >
+                {{ $t("library.admin.game.ageRatingsEmpty") }}
+              </p>
+              <div v-if="showAddAgeRating" class="flex items-center gap-2">
+                <select
+                  v-model="newAgeRatingOrg"
+                  class="rounded-md bg-zinc-800 px-2 py-1 text-sm text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 focus:outline-blue-600"
+                >
+                  <option
+                    v-for="org in availableOrganizations"
+                    :key="org"
+                    :value="org"
+                  >
+                    {{ org }}
+                  </option>
+                </select>
+                <select
+                  v-model="newAgeRatingValue"
+                  :disabled="!newAgeRatingOrg"
+                  class="rounded-md bg-zinc-800 px-2 py-1 text-sm text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 focus:outline-blue-600"
+                >
+                  <option
+                    v-for="r in newAgeRatingOrgValues"
+                    :key="r"
+                    :value="r"
+                  >
+                    {{ r }}
+                  </option>
+                </select>
+                <button
+                  type="button"
+                  class="rounded-md bg-blue-600 px-2 py-1 text-sm font-semibold text-white hover:bg-blue-500"
+                  :disabled="!newAgeRatingOrg || !newAgeRatingValue"
+                  @click="addAgeRating"
+                >
+                  {{ $t("add") }}
+                </button>
+                <button
+                  type="button"
+                  class="text-zinc-400 hover:text-zinc-300 text-sm"
+                  @click="showAddAgeRating = false"
+                >
+                  {{ $t("cancel") }}
+                </button>
+              </div>
+              <button
+                v-if="!showAddAgeRating && availableOrganizations.length > 0"
+                type="button"
+                class="text-sm text-blue-400 hover:text-blue-300"
+                @click="showAddAgeRating = true"
+              >
+                {{ $t("library.admin.game.addAgeRating") }}
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- image carousel pick -->
@@ -468,6 +549,8 @@
 
 <script setup lang="ts">
 import type { GameModel } from "~/prisma/client/models";
+import { AgeRatingOrganization } from "~/prisma/client/enums";
+import { getAvailableRatings } from "~/utils/ageRatings";
 import { micromark } from "micromark";
 import {
   CheckIcon,
@@ -520,6 +603,59 @@ watch(
   },
   { deep: true },
 );
+
+const allOrganizations = Object.values(AgeRatingOrganization);
+const ageRatings = ref(
+  (game.value.ageRatings ?? []).map((ar) => ({
+    organization: ar.organization,
+    rating: ar.rating,
+  })),
+);
+const showAddAgeRating = ref(false);
+const newAgeRatingOrg = ref("");
+const newAgeRatingValue = ref("");
+
+const availableOrganizations = computed(() =>
+  allOrganizations.filter(
+    (org) => !ageRatings.value.some((ar) => ar.organization === org),
+  ),
+);
+
+const newAgeRatingOrgValues = computed(() =>
+  newAgeRatingOrg.value
+    ? getAvailableRatings(newAgeRatingOrg.value as AgeRatingOrganization)
+    : [],
+);
+
+watch(newAgeRatingOrg, () => {
+  newAgeRatingValue.value = "";
+});
+
+async function saveAgeRatings() {
+  await $dropFetch(`/api/v1/admin/game/:id/age-ratings`, {
+    method: "PATCH",
+    params: { id: game.value.id },
+    body: { ageRatings: ageRatings.value },
+    failTitle: "Failed to update age ratings",
+  });
+}
+
+async function addAgeRating() {
+  if (!newAgeRatingOrg.value || !newAgeRatingValue.value) return;
+  ageRatings.value.push({
+    organization: newAgeRatingOrg.value as AgeRatingOrganization,
+    rating: newAgeRatingValue.value,
+  });
+  newAgeRatingOrg.value = "";
+  newAgeRatingValue.value = "";
+  showAddAgeRating.value = false;
+  await saveAgeRatings();
+}
+
+async function removeAgeRating(index: number) {
+  ageRatings.value.splice(index, 1);
+  await saveAgeRatings();
+}
 
 const releaseDate = ref(
   game.value.mReleased
