@@ -37,6 +37,11 @@ jobs:
         with:
           workspaces: "./cli -> target"
 
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libarchive-dev
+
       - name: Check formatting
         run: cargo fmt --all -- --check
 
