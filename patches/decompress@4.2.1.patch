@@ -1,0 +1,78 @@
+diff --git a/index.js b/index.js
+index 6aa67ca9cda4bac1262915ca6e47e97b224d336e..17fcc21d96543efa7d1bdd4266e4c1a2b40ef635 100644
+--- a/index.js
++++ b/index.js
+@@ -26,7 +26,8 @@ const safeMakeDir = (dir, realOutputPath) => {
+ 			return safeMakeDir(parent, realOutputPath);
+ 		})
+ 		.then(realParentPath => {
+-			if (realParentPath.indexOf(realOutputPath) !== 0) {
++			const rel = path.relative(realOutputPath, realParentPath);
++			if (rel.startsWith('..') || path.isAbsolute(rel)) {
+ 				throw (new Error('Refusing to create a directory outside the output path.'));
+ 			}
+ 
+@@ -51,6 +52,35 @@ const preventWritingThroughSymlink = (destination, realOutputPath) => {
+ 		});
+ };
+ 
++// Security: strip setuid, setgid, and sticky bits from extracted file modes.
++// The original code used `x.mode & ~process.umask()` which only clears bits
++// already masked by the process umask, leaving setuid/setgid/sticky intact.
++// A crafted archive could create a setuid binary on extraction, which is
++// especially dangerous when extraction runs as root (CI, containers).
++const safeMode = (mode) => (mode & ~process.umask()) & 0o777 & ~0o7000;
++
++// Security: resolve a symlink/hardlink target to its realpath and verify
++// it stays inside realOutputPath. Prevents a crafted archive from creating
++// a link to /etc/passwd (hardlink) or a symlink to /tmp (symlink) inside
++// the output directory.
++const resolveAndCheckLinkTarget = (linkname, realOutputPath) => {
++	const resolved = path.resolve(realOutputPath, linkname);
++	return fsP.realpath(resolved)
++		.catch(_ => {
++			// Target doesn't exist yet — for hardlinks, check the parent dir;
++			// for symlinks, the target is checked at write time below.
++			return null;
++		})
++		.then(realTarget => {
++			if (realTarget) {
++				const rel = path.relative(realOutputPath, realTarget);
++				if (rel.startsWith('..') || path.isAbsolute(rel)) {
++					throw new Error('Refusing to create a link to outside output directory: ' + realTarget);
++				}
++			}
++		});
++};
++
+ const extractFile = (input, output, opts) => runPlugins(input, opts).then(files => {
+ 	if (opts.strip > 0) {
+ 		files = files
+@@ -75,7 +105,7 @@ const extractFile = (input, output, opts) => runPlugins(input, opts).then(files
+ 
+ 	return Promise.all(files.map(x => {
+ 		const dest = path.join(output, x.path);
+-		const mode = x.mode & ~process.umask();
++		const mode = safeMode(x.mode);
+ 		const now = new Date();
+ 
+ 		if (x.type === 'directory') {
+@@ -103,11 +133,17 @@ const extractFile = (input, output, opts) => runPlugins(input, opts).then(files
+ 			.then(realOutputPath => {
+ 				return fsP.realpath(path.dirname(dest))
+ 					.then(realDestinationDir => {
+-						if (realDestinationDir.indexOf(realOutputPath) !== 0) {
++						const rel = path.relative(realOutputPath, realDestinationDir);
++						if (rel.startsWith('..') || path.isAbsolute(rel)) {
+ 							throw (new Error('Refusing to write outside output directory: ' + realDestinationDir));
+ 						}
+ 					});
+ 			})
++			.then(realOutputPath => {
++				if (x.type === 'link' || x.type === 'symlink') {
++					return resolveAndCheckLinkTarget(x.linkname, realOutputPath);
++				}
++			})
+ 			.then(() => {
+ 				if (x.type === 'link') {
+ 					return fsP.link(x.linkname, dest);

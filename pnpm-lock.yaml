@@ -53,6 +53,9 @@ overrides:
   tough-cookie@<4.1.3: '>=4.1.3'
   trim-newlines@<3.0.1: '>=3.0.1'
 
+patchedDependencies:
+  decompress@4.2.1: 45158ed496346a01b560e676c853793c22191f0f6056b5633694f408fcb7372b
+
 importers:
 
   .:
@@ -15858,7 +15861,7 @@ snapshots:
 
   bin-build@3.0.0:
     dependencies:
-      decompress: 4.2.1
+      decompress: 4.2.1(patch_hash=45158ed496346a01b560e676c853793c22191f0f6056b5633694f408fcb7372b)
       download: 6.2.5
       execa: 0.7.0
       p-map-series: 1.0.0
@@ -16643,7 +16646,7 @@ snapshots:
       pify: 2.3.0
       yauzl: 2.10.0
 
-  decompress@4.2.1:
+  decompress@4.2.1(patch_hash=45158ed496346a01b560e676c853793c22191f0f6056b5633694f408fcb7372b):
     dependencies:
       decompress-tar: 4.1.1
       decompress-tarbz2: 4.1.1
@@ -16795,7 +16798,7 @@ snapshots:
     dependencies:
       caw: 2.0.1
       content-disposition: 0.5.4
-      decompress: 4.2.1
+      decompress: 4.2.1(patch_hash=45158ed496346a01b560e676c853793c22191f0f6056b5633694f408fcb7372b)
       ext-name: 5.0.0
       file-type: 5.2.0
       filenamify: 2.1.0
@@ -16810,7 +16813,7 @@ snapshots:
       archive-type: 4.0.0
       caw: 2.0.1
       content-disposition: 0.5.4
-      decompress: 4.2.1
+      decompress: 4.2.1(patch_hash=45158ed496346a01b560e676c853793c22191f0f6056b5633694f408fcb7372b)
       ext-name: 5.0.0
       file-type: 8.1.0
       filenamify: 2.1.0
