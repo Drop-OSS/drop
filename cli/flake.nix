@@ -37,7 +37,7 @@
             cargo-expand
           ];
 
-          
+
           buildInputs = libraries;
 
           shellHook = ''

@@ -329,7 +329,7 @@ impl Read for TailscaleConn {
 
 impl Write for TailscaleConn {
     fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-        
+
         let fd = self.as_raw_fd();
         // Safety: Calling libc::write on a valid file descriptor.
         // The caller must ensure the handle is valid for writing (it is after successful dial/accept).
