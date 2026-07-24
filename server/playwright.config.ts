@@ -9,7 +9,7 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   webServer: {
-    command: "pnpm dev",
+    command: "E2E=true pnpm dev",
     port: 4000,
     reuseExistingServer: !process.env.CI,
   },
