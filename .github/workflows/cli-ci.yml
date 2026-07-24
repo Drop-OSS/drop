@@ -59,3 +59,10 @@ jobs:
       - name: Run tests
         continue-on-error: true
         run: cargo test --all-features --all --verbose
+
+      # Advisory until noise rate is low. Tighten to blocking after triage.
+      - name: Audit dependencies
+        continue-on-error: true
+        run: |
+          cargo install cargo-audit --locked
+          cargo audit
