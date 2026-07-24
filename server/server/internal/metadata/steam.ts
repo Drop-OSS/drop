@@ -1,5 +1,10 @@
 import { AgeRatingOrganization, MetadataSource } from "~/prisma/client/enums";
-import { ESRBRating, PEGIRating, USKRating, ACBRating } from "~/utils/ageRatings";
+import {
+  ESRBRating,
+  PEGIRating,
+  USKRating,
+  ACBRating,
+} from "~/utils/ageRatings";
 import type { MetadataProvider } from ".";
 import type {
   GameMetadataSearchResult,
@@ -194,7 +199,9 @@ const STEAM_RATING_KEY_TO_ORG: Record<string, AgeRatingOrganization> = {
   oflc: AgeRatingOrganization.ACB,
 };
 
-function lowercaseNormMap(ratings: Record<string, string>): Record<string, string> {
+function lowercaseNormMap(
+  ratings: Record<string, string>,
+): Record<string, string> {
   return Object.fromEntries(
     Object.values(ratings).map((v) => [v.toLowerCase(), v]),
   );

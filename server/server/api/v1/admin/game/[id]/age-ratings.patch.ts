@@ -3,7 +3,10 @@ import type { AgeRatingOrganization } from "~/prisma/client/enums";
 import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
-import { getAvailableRatings, RATINGS_FOR_ORGANIZATION } from "~/utils/ageRatings";
+import {
+  getAvailableRatings,
+  RATINGS_FOR_ORGANIZATION,
+} from "~/utils/ageRatings";
 
 const PatchAgeRatings = type({
   ageRatings: type({
@@ -44,8 +47,6 @@ export default defineEventHandler(async (h3) => {
   if (!game) throw createError({ statusCode: 404, message: "Game not found" });
 
   await prisma.$transaction([
-    // SAFETY: Okay to disable due to check above
-    // eslint-disable-next-line drop/no-prisma-delete
     prisma.gameAgeRating.deleteMany({
       where: { gameId: id },
     }),

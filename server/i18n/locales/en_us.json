@@ -381,9 +381,13 @@
         "noSelected": "No extensions selected."
       },
       "game": {
+        "addAgeRating": "Add Rating",
         "addCarouselNoImages": "No images to add.",
         "addDescriptionNoImages": "No images to add.",
         "addImageCarousel": "Add from image library",
+        "ageRatingLabel": "{organization}: {rating}",
+        "ageRatings": "Age Ratings",
+        "ageRatingsEmpty": "No age ratings set",
         "currentBanner": "banner",
         "currentCover": "cover",
         "deleteImage": "Delete image",
@@ -395,14 +399,10 @@
         "imageCarouselEmpty": "No images added to the carousel yet.",
         "imageLibrary": "Image library",
         "imageLibraryDescription": "Please note all images uploaded are accessible to all users through browser dev-tools.",
+        "removeAgeRating": "Remove",
         "removeImageCarousel": "Remove image",
         "setBanner": "Set as banner",
-        "setCover": "Set as cover",
-        "ageRatings": "Age Ratings",
-        "ageRatingsEmpty": "No age ratings set",
-        "ageRatingLabel": "{organization}: {rating}",
-        "addAgeRating": "Add Rating",
-        "removeAgeRating": "Remove"
+        "setCover": "Set as cover"
       },
       "gameLibrary": "Game Library",
       "gameSelector": {
@@ -712,6 +712,7 @@
     "welcomeDescription": "Welcome to Drop setup wizard. It will walk you through configuring Drop for the first time, and how it works."
   },
   "store": {
+    "ageRating": "Age Rating",
     "commingSoon": "coming soon",
     "developers": "Developers | Developer | Developers",
     "featured": "Featured",
@@ -728,7 +729,6 @@
     "platform": "Platform | Platform | Platforms",
     "publishers": "Publishers | Publisher | Publishers",
     "rating": "Rating",
-    "ageRating": "Age Rating",
     "recentlyAdded": "Recently Added",
     "recentlyReleased": "Recently released",
     "released": "Released",

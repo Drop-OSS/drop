@@ -3,7 +3,7 @@ import { AgeRatingOrganization } from "~/prisma/client/enums";
 /**
  * This file will live as the known ratings that come from various sources. Each source reports a bit differently, the goal
  * will be to normalize to these ratings. Admins of course can override and set a separate rating if needed.
- * 
+ *
  * These will change, but historically very infrequently.
  */
 

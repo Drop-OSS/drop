@@ -177,10 +177,7 @@ export class MetadataHandler {
     return results;
   }
 
-  private parseAgeRatings(
-    ageRatings: GameMetadataAgeRating[],
-    gameId: string,
-  ) {
+  private parseAgeRatings(ageRatings: GameMetadataAgeRating[], gameId: string) {
     return ageRatings.map((ar) => ({
       where: {
         gameOrganizationKey: {

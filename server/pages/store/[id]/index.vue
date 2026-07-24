@@ -165,10 +165,7 @@
                       :alt="`${ar.organization} ${ar.rating}`"
                       class="h-8"
                     />
-                    <span
-                      v-else
-                      class="text-xs bg-zinc-700 px-2 py-1 rounded"
-                    >
+                    <span v-else class="text-xs bg-zinc-700 px-2 py-1 rounded">
                       {{ ar.organization }} {{ ar.rating }}
                     </span>
                   </div>

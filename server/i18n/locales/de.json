@@ -318,9 +318,13 @@
       "detectedGame": "Drop hat erkannt, dass du ein neues Spiel importieren kannst.",
       "detectedVersion": "Drop hat erkannt, dass du eine neue Version dieses Spiels importieren kannst.",
       "game": {
+        "addAgeRating": "Bewertung hinzufügen",
         "addCarouselNoImages": "Keine Bilder zum hinzufügen.",
         "addDescriptionNoImages": "Keine Bilder zum hinzufügen.",
         "addImageCarousel": "Aus der Bilderbibliothek hinzufügen",
+        "ageRatingLabel": "{organization}: {rating}",
+        "ageRatings": "Altersfreigaben",
+        "ageRatingsEmpty": "Keine Altersfreigaben festgelegt",
         "currentBanner": "Banner",
         "currentCover": "Cover",
         "deleteImage": "Bild löschen",
@@ -332,14 +336,10 @@
         "imageCarouselEmpty": "Es wurden noch keine Bilder zum Karussell hinzugefügt.",
         "imageLibrary": "Bilderbibliothek",
         "imageLibraryDescription": "Bitte beachten: Alle hochgeladenen Bilder sind für alle Nutzer über die Browser-Entwicklertools zugänglich.",
+        "removeAgeRating": "Entfernen",
         "removeImageCarousel": "Bild entfernen",
         "setBanner": "Als Banner festlegen",
-        "setCover": "Als Cover festlegen",
-        "ageRatings": "Altersfreigaben",
-        "ageRatingsEmpty": "Keine Altersfreigaben festgelegt",
-        "ageRatingLabel": "{organization}: {rating}",
-        "addAgeRating": "Bewertung hinzufügen",
-        "removeAgeRating": "Entfernen"
+        "setCover": "Als Cover festlegen"
       },
       "gameLibrary": "Spielebibliothek",
       "import": {
@@ -591,6 +591,7 @@
   },
   "store": {
     "about": "Über",
+    "ageRating": "Altersfreigabe",
     "commingSoon": "Demnächst verfügbar",
     "developers": "Entwickler | Entwickler | Entwickler",
     "exploreMore": "Mehr entdecken {arrow}",
@@ -608,7 +609,6 @@
     "platform": "Plattform | Plattform | Plattform",
     "publishers": "Publisher | Publisher | Publisher",
     "rating": "Bewertung",
-    "ageRating": "Altersfreigabe",
     "readLess": "Weniger anzeigen",
     "readMore": "Mehr anzeigen",
     "recentlyAdded": "Kürzlich hinzugefügt",

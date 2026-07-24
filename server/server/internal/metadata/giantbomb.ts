@@ -121,14 +121,17 @@ function lowercaseNormMap(
   );
 }
 
-const GB_RATING_NORMALIZE: Record<AgeRatingOrganization, Record<string, string>> = {
+const GB_RATING_NORMALIZE: Record<
+  AgeRatingOrganization,
+  Record<string, string>
+> = {
   [AgeRatingOrganization.ESRB]: {
     ...lowercaseNormMap(ESRBRating),
     "early childhood": ESRBRating.EC,
-    "everyone": ESRBRating.E,
+    everyone: ESRBRating.E,
     "everyone 10+": ESRBRating.E10,
-    "teen": ESRBRating.T,
-    "mature": ESRBRating.M,
+    teen: ESRBRating.T,
+    mature: ESRBRating.M,
     "mature 17+": ESRBRating.M,
     "adults only": ESRBRating.AO,
     "adults only 18+": ESRBRating.AO,
