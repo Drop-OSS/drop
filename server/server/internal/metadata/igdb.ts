@@ -315,7 +315,7 @@ export class IGDBProvider implements MetadataProvider {
 
     const results: GameMetadataSearchResult[] = [];
     for (let i = 0; i < response.length; i++) {
-      let icon = "";
+      let icon: string;
       const cover = response[i].cover;
       if (cover !== undefined) {
         icon = await this.getIconURL(cover);
@@ -445,8 +445,8 @@ export class IGDBProvider implements MetadataProvider {
 
     const genres = await this.getGenres(currentGame.genres);
 
-    let description = "";
-    let shortDescription = "";
+    let description: string;
+    let shortDescription: string;
 
     if (currentGame.summary.length > (currentGame.storyline?.length ?? 0)) {
       description = currentGame.summary;

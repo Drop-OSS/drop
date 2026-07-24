@@ -80,8 +80,9 @@ export default defineNuxtConfig({
 
   vite: {
     plugins: [
+      // Skip Tailwind CSS Vite plugin in test environment to avoid infinite recursion
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      tailwindcss() as any,
+      ...(process.env.VITEST === "true" ? [] : [tailwindcss() as any]),
     ],
   },
 
