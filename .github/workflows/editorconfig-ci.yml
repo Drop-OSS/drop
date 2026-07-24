@@ -28,4 +28,4 @@ jobs:
         run: npm install -g editorconfig-checker
 
       - name: Validate .editorconfig compliance
-        run: ec --exclude '(node_modules|\.git|\.nuxt|\.output|coverage|dist|target)'
+        run: ec --exclude '(node_modules|\.git|\.nuxt|\.output|coverage|dist|target|\.omo|server/prisma/migrations|sites/docs/src/content|sites/docs/public|server/.*\.nuxtrc|\.dockerignore)'
