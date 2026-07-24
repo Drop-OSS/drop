@@ -1,5 +1,5 @@
 import type { CompanyModel } from "~/prisma/client/models";
-import { MetadataSource } from "~/prisma/client/enums";
+import { AgeRatingOrganization, MetadataSource } from "~/prisma/client/enums";
 import type { MetadataProvider } from ".";
 import { MissingMetadataProviderConfig } from ".";
 import type {
@@ -9,11 +9,20 @@ import type {
   _FetchCompanyMetadataParams,
   CompanyMetadata,
   GameMetadataRating,
+  GameMetadataAgeRating,
 } from "./types";
 import TurndownService from "turndown";
 import { DateTime } from "luxon";
 import type { TaskRunContext } from "../tasks";
 import type { NitroFetchOptions, NitroFetchRequest } from "nitropack";
+import {
+  ESRBRating,
+  PEGIRating,
+  CEROrating,
+  USKRating,
+  GRACRating,
+  ACBRating,
+} from "~/utils/ageRatings";
 
 interface GiantBombResponseType<T> {
   error: "OK" | string;
@@ -78,6 +87,64 @@ interface ReviewResult {
   reviewer: string;
   site_detail_url: string;
 }
+
+interface GameRatingResult {
+  id: number;
+  name: string;
+  rating_board: {
+    id: number;
+    name: string;
+  };
+}
+
+interface ReleaseResult {
+  guid: string;
+  name: string;
+  game_rating?: GameRatingResult;
+}
+
+const GB_BOARD_TO_ORG: Record<string, AgeRatingOrganization> = {
+  ESRB: AgeRatingOrganization.ESRB,
+  PEGI: AgeRatingOrganization.PEGI,
+  CERO: AgeRatingOrganization.CERO,
+  USK: AgeRatingOrganization.USK,
+  GRAC: AgeRatingOrganization.GRAC,
+  OFLC: AgeRatingOrganization.ACB,
+  ACB: AgeRatingOrganization.ACB,
+};
+
+function lowercaseNormMap(
+  ratings: Record<string, string>,
+): Record<string, string> {
+  return Object.fromEntries(
+    Object.values(ratings).map((v) => [v.toLowerCase(), v]),
+  );
+}
+
+const GB_RATING_NORMALIZE: Record<AgeRatingOrganization, Record<string, string>> = {
+  [AgeRatingOrganization.ESRB]: {
+    ...lowercaseNormMap(ESRBRating),
+    "early childhood": ESRBRating.EC,
+    "everyone": ESRBRating.E,
+    "everyone 10+": ESRBRating.E10,
+    "teen": ESRBRating.T,
+    "mature": ESRBRating.M,
+    "mature 17+": ESRBRating.M,
+    "adults only": ESRBRating.AO,
+    "adults only 18+": ESRBRating.AO,
+  },
+  [AgeRatingOrganization.PEGI]: lowercaseNormMap(PEGIRating),
+  [AgeRatingOrganization.CERO]: lowercaseNormMap(CEROrating),
+  [AgeRatingOrganization.USK]: lowercaseNormMap(USKRating),
+  [AgeRatingOrganization.GRAC]: lowercaseNormMap(GRACRating),
+  [AgeRatingOrganization.ACB]: {
+    ...lowercaseNormMap(ACBRating),
+    "ma 15+": ACBRating.MA15,
+    "r 18+": ACBRating.R18,
+    "refused classification": ACBRating.RC,
+  },
+  [AgeRatingOrganization.ClassInd]: {},
+};
 
 interface CompanySearchResult {
   guid: string;
@@ -246,6 +313,43 @@ export class GiantBombProvider implements MetadataProvider {
 
     const tags = (gameData.genres ?? []).map((e) => e.name);
 
+    // Fetch age ratings from releases
+    const ageRatings: GameMetadataAgeRating[] = [];
+    try {
+      const releasesResult = await this.request<Array<ReleaseResult>>(
+        "releases",
+        "",
+        {
+          filter: `game:${gameData.guid}`,
+          field_list: "guid,name,game_rating",
+        },
+      );
+
+      const seenOrgs = new Set<AgeRatingOrganization>();
+      for (const release of releasesResult.results) {
+        if (!release.game_rating?.rating_board) continue;
+
+        const boardName = release.game_rating.rating_board.name;
+        const org = GB_BOARD_TO_ORG[boardName];
+        if (!org || seenOrgs.has(org)) continue;
+
+        const ratingName = release.game_rating.name.toLowerCase();
+        const normalized = GB_RATING_NORMALIZE[org]?.[ratingName];
+        if (!normalized) continue;
+
+        seenOrgs.add(org);
+        ageRatings.push({ organization: org, rating: normalized });
+      }
+
+      if (ageRatings.length > 0) {
+        context?.logger.info(
+          `Found ${ageRatings.length} age ratings: ${ageRatings.map((r) => `${r.organization}: ${r.rating}`).join(", ")}`,
+        );
+      }
+    } catch (e) {
+      context?.logger.warn(`Failed to fetch age ratings from releases: ${e}`);
+    }
+
     const metadata: GameMetadata = {
       id: gameData.guid,
       name: gameData.name,
@@ -256,7 +360,7 @@ export class GiantBombProvider implements MetadataProvider {
       tags,
 
       reviews,
-      ageRatings: [],
+      ageRatings,
 
       publishers,
       developers,
