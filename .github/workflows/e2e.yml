@@ -1,0 +1,62 @@
+name: E2E
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - "server/**"
+      - ".github/workflows/e2e.yml"
+      - "server/playwright.config.ts"
+  pull_request:
+    branches: [develop]
+    paths:
+      - "server/**"
+      - ".github/workflows/e2e.yml"
+      - "server/playwright.config.ts"
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    name: Playwright E2E
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          submodules: true
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpng-dev
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22.16.0"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Playwright config sets webServer.command = "pnpm dev", so the
+      # dev server is auto-spawned. No explicit start needed.
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        run: pnpm run test:e2e
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@5d5d0a4aa1ee7b0aef45891cd63f31b86a3e3514 # v4
+        with:
+          name: playwright-report
+          path: server/playwright-report/
+          retention-days: 7
