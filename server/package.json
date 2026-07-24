@@ -120,8 +120,18 @@
       "eslint --fix",
       "prettier --write"
     ],
-    "*.json": [
+    "*.{json,css,scss}": [
       "prettier --write"
+    ],
+    "*.{yaml,yml,md}": [
+      "prettier --write"
+    ],
+    "*.{mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.rs": [
+      "cargo fmt --"
     ]
   },
   "overrides": {
