@@ -101,6 +101,7 @@
     "autoprefixer": "^10.4.20",
     "eslint": "^9.24.0",
     "eslint-config-prettier": "^10.1.1",
+    "fast-check": "^4.9.0",
     "golar": "^0.0.13",
     "h3": "^1.15.5",
     "happy-dom": "^20.11.1",

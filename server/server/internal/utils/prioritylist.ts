@@ -31,7 +31,7 @@ export class PriorityList<T> {
 
     const sorted = this.source
       .sort((a, b) => {
-        if (a.priority == a.priority) {
+        if (a.priority == b.priority) {
           return a.addedIndex - b.addedIndex;
         }
 
