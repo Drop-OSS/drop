@@ -1,0 +1,52 @@
+name: Dependabot auto-merge
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+# Auto-merge Dependabot PRs for patch + minor npm updates after CI passes.
+# Major npm + all cargo updates require human review.
+# Restrict via `pull-request.user.login == 'dependabot[bot]'` to prevent abuse.
+
+jobs:
+  auto-merge:
+    name: Auto-merge Dependabot PR
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch metadata
+        id: meta
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            // Parse "bump <package> from X to Y" or "<package> from X to Y"
+            const title = pr.title;
+            const match = title.match(/(bump\s+)?(\S+)\s+from\s+\S+\s+to\s+(\S+)/);
+            if (!match) {
+              core.setOutput('major', 'true');
+              return;
+            }
+            const to = match[3];
+            const isMajor = to.includes('major') || /^(\d+)\.0\.0$/.test(to);
+            core.setOutput('major', isMajor ? 'true' : 'false');
+            core.setOutput('package', match[2]);
+
+      # Only auto-merge for non-major npm updates
+      - name: Auto-merge (non-major only)
+        if: steps.meta.outputs.major != 'true' && contains(steps.meta.outputs.package, '@')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            await github.rest.pulls.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+              merge_method: 'squash',
+            });
+            core.info(`Auto-merged PR #${pr.number} (${pr.title})`);
