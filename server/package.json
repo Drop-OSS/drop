@@ -21,10 +21,12 @@
     "lint:fix": "eslint . --fix && prettier --write --list-different .",
     "test:e2e": "playwright test",
     "test": "vitest run",
+    "test:changed": "vitest run --changed",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
     "prepare": "husky",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "dev:setup": "bash scripts/dev-setup.sh"
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.11.0",
