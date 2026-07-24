@@ -1,35 +1,35 @@
 {
-	"folders": [
-		{
-			"path": "server"
-		},
-		{
-			"path": "torrential"
-		}
-	],
-	"settings": {
-		"i18n-ally.extract.autoDetect": true,
-		"i18n-ally.extract.ignored": [
-			"string >= 14",
-			"string.alphanumeric >= 5"
-		],
-		"i18n-ally.extract.ignoredByFiles": {
-			"components/NewsArticleCreateButton.vue": [
-				"[",
-				"`",
-				"Enter"
-			],
-			"pages/admin/library/sources/index.vue": [
-				"Filesystem"
-			],
-			"server/api/v1/auth/signin/simple.post.ts": [
-				"boolean | undefined"
-			]
-		},
-		"i18n-ally.keepFulfilled": true,
-		"i18n-ally.keystyle": "nested",
-		"i18n-ally.sortKeys": true,
-		"prisma.pinToPrisma6": false,
-		"typescript.experimental.useTsgo": false
-	}
+    "folders": [
+        {
+            "path": "server"
+        },
+        {
+            "path": "torrential"
+        }
+    ],
+    "settings": {
+        "i18n-ally.extract.autoDetect": true,
+        "i18n-ally.extract.ignored": [
+            "string >= 14",
+            "string.alphanumeric >= 5"
+        ],
+        "i18n-ally.extract.ignoredByFiles": {
+            "components/NewsArticleCreateButton.vue": [
+                "[",
+                "`",
+                "Enter"
+            ],
+            "pages/admin/library/sources/index.vue": [
+                "Filesystem"
+            ],
+            "server/api/v1/auth/signin/simple.post.ts": [
+                "boolean | undefined"
+            ]
+        },
+        "i18n-ally.keepFulfilled": true,
+        "i18n-ally.keystyle": "nested",
+        "i18n-ally.sortKeys": true,
+        "prisma.pinToPrisma6": false,
+        "typescript.experimental.useTsgo": false
+    }
 }

@@ -109,8 +109,8 @@ impl Drop for TailscaleListener {
     fn drop(&mut self) {
         // TailscaleListener is treated like a file descriptor.
         let ret = unsafe { libc::close(self.0) };
-         if ret != 0 && ret != libc::EBADF {
-             eprintln!("Error closing Tailscale listener {}: {}", self.0, ret);
+        if ret != 0 && ret != libc::EBADF {
+            eprintln!("Error closing Tailscale listener {}: {}", self.0, ret);
         }
     }
 }
@@ -119,8 +119,8 @@ impl Drop for TailscaleConn {
     fn drop(&mut self) {
         // TailscaleConn is treated like a file descriptor (pipe).
         let ret = unsafe { libc::close(self.0) };
-         if ret != 0 && ret != libc::EBADF {
-             eprintln!("Error closing Tailscale connection {}: {}", self.0, ret);
+        if ret != 0 && ret != libc::EBADF {
+            eprintln!("Error closing Tailscale connection {}: {}", self.0, ret);
         }
     }
 }
