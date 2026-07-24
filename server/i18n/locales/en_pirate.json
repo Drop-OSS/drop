@@ -276,7 +276,12 @@
         "imageLibraryDescription": "Please note all images hoisted be accessible to all crew through browser dev-tools, savvy.",
         "removeImageCarousel": "Remove image",
         "setBanner": "Set as banner",
-        "setCover": "Set as cover"
+        "setCover": "Set as cover",
+        "ageRatings": "Age Ratings, Savvy?",
+        "ageRatingsEmpty": "Age ratings plundered",
+        "ageRatingLabel": "{organization}: {rating}",
+        "addAgeRating": "Add Rating",
+        "removeAgeRating": "Remove"
       },
       "gameLibrary": "Game Treasure Hoard",
       "import": {
@@ -421,6 +426,7 @@
     "openAdminDashboard": "Open in Cap'n's Quarters",
     "platform": "Ship | Ship | Ships",
     "rating": "Rating, argh!",
+    "ageRating": "Age Rating, ye landlubber!",
     "readLess": "Click to read less, matey!",
     "readMore": "Click to read more, ye dog!",
     "recentlyAdded": "Recently Added Plunder",

@@ -320,7 +320,12 @@
         "imageLibraryDescription": "Należy pamiętać, że wszystkie przesłane obrazy są dostępne dla wszystkich użytkowników za pośrednictwem narzędzi programistycznych przeglądarki.",
         "removeImageCarousel": "Usuń zdjęcie",
         "setBanner": "Ustaw jako baner",
-        "setCover": "Ustaw jako okładke"
+        "setCover": "Ustaw jako okładke",
+        "ageRatings": "Kategorie wiekowe",
+        "ageRatingsEmpty": "Brak kategorii wiekowych",
+        "ageRatingLabel": "{organization}: {rating}",
+        "addAgeRating": "Dodaj kategorię",
+        "removeAgeRating": "Usuń"
       },
       "gameLibrary": "Biblioteka Gier",
       "import": {
@@ -579,6 +584,7 @@
     "platform": "Platforma | Platforma | Platformy",
     "publishers": "Wydawcy | Wydawca | Wydawcy",
     "rating": "Ocena",
+    "ageRating": "Kategoria wiekowa",
     "readLess": "Kliknij aby przeczytać mniej",
     "readMore": "Kliknij aby przeczytać więcej",
     "recentlyAdded": "Ostatnio Dodane",

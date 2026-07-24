@@ -334,7 +334,12 @@
         "imageLibraryDescription": "Veuillez noter que toutes les images uploadées sont accessible a tous les utilisateurs via des outils de développement des navigateurs.",
         "removeImageCarousel": "Retirer l'image",
         "setBanner": "Définir comme bannière",
-        "setCover": "Définir comme couverture"
+        "setCover": "Définir comme couverture",
+        "ageRatings": "Classifications d'âge",
+        "ageRatingsEmpty": "Aucune classification d'âge définie",
+        "ageRatingLabel": "{organization} : {rating}",
+        "addAgeRating": "Ajouter une classification",
+        "removeAgeRating": "Supprimer"
       },
       "gameLibrary": "Bibliothèque de jeux",
       "import": {
@@ -603,6 +608,7 @@
     "platform": "Plateforme | Plateforme | Plateformes",
     "publishers": "Éditeurs | Éditeur | Éditeurs",
     "rating": "Note",
+    "ageRating": "Classification d'âge",
     "readLess": "Cliquez pour lire moins",
     "readMore": "Clique pour lire plus",
     "recentlyAdded": "Ajouté Récemment",

@@ -334,7 +334,12 @@
         "imageLibraryDescription": "Bitte beachten: Alle hochgeladenen Bilder sind für alle Nutzer über die Browser-Entwicklertools zugänglich.",
         "removeImageCarousel": "Bild entfernen",
         "setBanner": "Als Banner festlegen",
-        "setCover": "Als Cover festlegen"
+        "setCover": "Als Cover festlegen",
+        "ageRatings": "Altersfreigaben",
+        "ageRatingsEmpty": "Keine Altersfreigaben festgelegt",
+        "ageRatingLabel": "{organization}: {rating}",
+        "addAgeRating": "Bewertung hinzufügen",
+        "removeAgeRating": "Entfernen"
       },
       "gameLibrary": "Spielebibliothek",
       "import": {
@@ -603,6 +608,7 @@
     "platform": "Plattform | Plattform | Plattform",
     "publishers": "Publisher | Publisher | Publisher",
     "rating": "Bewertung",
+    "ageRating": "Altersfreigabe",
     "readLess": "Weniger anzeigen",
     "readMore": "Mehr anzeigen",
     "recentlyAdded": "Kürzlich hinzugefügt",
