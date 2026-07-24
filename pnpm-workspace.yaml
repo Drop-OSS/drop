@@ -4,6 +4,24 @@ packages:
   - "sites/*"
   - "desktop/"
 
+allowBuilds:
+  '@bufbuild/buf': true
+  '@parcel/watcher': true
+  '@prisma/engines': true
+  argon2: true
+  esbuild: true
+  msw: true
+  optipng-bin: true
+  pngquant-bin: true
+  prisma: true
+  sharp: true
+  tauri: true
+  unrs-resolver: true
+  zopflipng-bin: true
+
+minimumReleaseAgeExclude:
+  - lint-staged@17.2.0
+
 onlyBuiltDependencies:
   - "@bufbuild/buf"
   - "@parcel/watcher"
