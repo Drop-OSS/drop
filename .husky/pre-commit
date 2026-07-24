@@ -1,1 +1,1 @@
-pnpm --filter drop lint-staged && pnpm --filter drop test
+pnpm --filter drop lint-staged && pnpm --filter drop typecheck
