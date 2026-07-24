@@ -400,6 +400,7 @@
         "setCover": "Set as cover",
         "ageRatings": "Age Ratings",
         "ageRatingsEmpty": "No age ratings set",
+        "ageRatingLabel": "{organization}: {rating}",
         "addAgeRating": "Add Rating",
         "removeAgeRating": "Remove"
       },

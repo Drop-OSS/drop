@@ -65,7 +65,7 @@
                 <span
                   class="inline-flex items-center rounded-full bg-zinc-800 px-2.5 py-0.5 text-sm font-medium text-zinc-100"
                 >
-                  {{ ar.organization }}: {{ ar.rating }}
+                  {{ $t("library.admin.game.ageRatingLabel", { organization: ar.organization, rating: ar.rating }) }}
                 </span>
                 <button
                   type="button"

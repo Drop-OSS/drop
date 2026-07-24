@@ -1,5 +1,5 @@
 import { type } from "arktype";
-import { AgeRatingOrganization } from "~/prisma/client/enums";
+import type { AgeRatingOrganization } from "~/prisma/client/enums";
 import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
