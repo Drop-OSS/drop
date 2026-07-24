@@ -1,4 +1,4 @@
-use database::{DB};
+use database::DB;
 use http::{Response, header::CONTENT_TYPE, response::Builder as ResponseBuilder};
 use log::{debug, warn};
 use tauri::UriSchemeResponder;

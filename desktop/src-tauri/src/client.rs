@@ -77,9 +77,10 @@ pub fn open_fs(path: String, app_handle: AppHandle) -> Result<(), tauri_plugin_o
     app_handle.opener().open_path(path, None::<&str>)
 }
 
-
 #[tauri::command]
 pub async fn check_online() -> Result<bool, ()> {
-    let online = make_authenticated_get(generate_url(&["/api/v1/"], &[]).unwrap()).await.is_ok();
+    let online = make_authenticated_get(generate_url(&["/api/v1/"], &[]).unwrap())
+        .await
+        .is_ok();
     Ok(online)
 }

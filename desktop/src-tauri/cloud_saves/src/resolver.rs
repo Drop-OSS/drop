@@ -26,7 +26,7 @@ pub fn resolve(meta: &mut CloudSaveMetadata) -> File {
             .iter()
             .find_map(|p| match p {
                 super::conditions::Condition::Os(os) => Some(os),
-                _ => None
+                _ => None,
             })
             .cloned()
         {
@@ -92,7 +92,7 @@ pub fn extract(file: PathBuf) -> Result<(), BackupError> {
             .iter()
             .find_map(|p| match p {
                 super::conditions::Condition::Os(os) => Some(os),
-                _ => None
+                _ => None,
             })
             .cloned()
         {
@@ -143,9 +143,10 @@ pub fn copy_item<P: AsRef<Path>>(src: P, dest: P) -> io::Result<()> {
     } else {
         // Handle other file types like symlinks if necessary,
         // for now, return an error or skip.
-        return Err(io::Error::other(
-            format!("Source {:?} is neither a file nor a directory", src_path),
-        ));
+        return Err(io::Error::other(format!(
+            "Source {:?} is neither a file nor a directory",
+            src_path
+        )));
     }
 
     Ok(())

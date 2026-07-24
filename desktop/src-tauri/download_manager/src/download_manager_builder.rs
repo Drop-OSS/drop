@@ -16,9 +16,7 @@ use crate::{
     depot_manager::DepotManager,
     download_manager_frontend::DownloadStatus,
     error::ApplicationDownloadError,
-    frontend_updates::{
-        DownloadStatsUpdateEvent, QueueUpdateEvent, QueueUpdateEventQueueData,
-    },
+    frontend_updates::{DownloadStatsUpdateEvent, QueueUpdateEvent, QueueUpdateEventQueueData},
 };
 
 use super::{

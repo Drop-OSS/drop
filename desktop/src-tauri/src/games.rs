@@ -3,7 +3,8 @@ use std::sync::nonpoison::Mutex;
 use bitcode::{Decode, Encode};
 use database::{
     DownloadableMetadata, GameDownloadStatus, borrow_db_checked, borrow_db_mut_checked,
-    models::data::{InstalledGameType, UserConfiguration}, platform::Platform,
+    models::data::{InstalledGameType, UserConfiguration},
+    platform::Platform,
 };
 use games::{
     collections::collection::Collection,

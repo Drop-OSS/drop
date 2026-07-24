@@ -23,7 +23,7 @@ impl DropFormatArgs {
         map.insert("dir", working_dir.to_string());
         map.insert("exe", executable_name.to_string());
         map.insert("abs_exe", absolute_executable_name);
-        
+
         if let Some(original) = original {
             map.insert("rom", original);
         }

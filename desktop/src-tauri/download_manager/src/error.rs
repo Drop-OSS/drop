@@ -1,6 +1,9 @@
 use humansize::{BINARY, format_size};
 use std::{
-    fmt::{Display, Formatter}, io, path::StripPrefixError, sync::{Arc, mpsc::SendError}
+    fmt::{Display, Formatter},
+    io,
+    path::StripPrefixError,
+    sync::{Arc, mpsc::SendError},
 };
 
 use remote::error::RemoteAccessError;

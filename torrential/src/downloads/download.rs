@@ -22,7 +22,7 @@ pub struct DownloadContext {
     last_access: Instant,
 }
 impl DownloadContext {
-    #[must_use] 
+    #[must_use]
     pub fn last_access(&self) -> Instant {
         self.last_access
     }

@@ -1,6 +1,7 @@
 use database::borrow_db_checked;
 use http::{
-    HeaderMap, HeaderValue, Request, Response, StatusCode, Uri, header::{CONTENT_SECURITY_POLICY, USER_AGENT, X_FRAME_OPTIONS},
+    HeaderMap, HeaderValue, Request, Response, StatusCode, Uri,
+    header::{CONTENT_SECURITY_POLICY, USER_AGENT, X_FRAME_OPTIONS},
 };
 use log::{error, warn};
 use tauri::UriSchemeResponder;
@@ -103,7 +104,7 @@ async fn handle_server_proto(request: Request<Vec<u8>>) -> Result<Response<Vec<u
     {
         let client_response_headers = client_http_response.headers_mut().unwrap();
         for (header, header_value) in response.headers() {
-            if header == CONTENT_SECURITY_POLICY  {
+            if header == CONTENT_SECURITY_POLICY {
                 continue;
             }
             if header == X_FRAME_OPTIONS {

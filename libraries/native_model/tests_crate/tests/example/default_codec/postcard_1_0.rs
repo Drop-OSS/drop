@@ -1,10 +1,9 @@
 #![cfg(feature = "postcard_1_0")]
-use native_model::{native_model};
+use native_model::native_model;
 use serde::Deserialize;
 use serde::Serialize;
 
-#[derive(Serialize)]
-#[derive(Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
 #[native_model(id = 1, version = 1, with = native_model::postcard_1_0::PostCard)]
 struct Example {
     a: u32,

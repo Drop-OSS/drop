@@ -27,9 +27,7 @@ static SEARCH_PATHS: LazyLock<Vec<String>> = LazyLock::new(|| {
 });
 
 pub fn read_proton_path(proton_path: PathBuf) -> Result<Option<ProtonPath>, io::Error> {
-    let read_dir = read_dir(&proton_path)?
-        .flatten()
-        .collect::<Vec<DirEntry>>();
+    let read_dir = read_dir(&proton_path)?.flatten().collect::<Vec<DirEntry>>();
     let has_proton_path = read_dir
         .iter()
         .find(|v| v.file_name().to_string_lossy() == "proton")
@@ -147,9 +145,10 @@ pub async fn remove_proton_layer(index: usize) {
     let deleted = db.applications.additional_proton_paths.try_remove(index);
     if let Some(deleted) = deleted
         && let Some(default_path) = &db.applications.default_proton_path
-        && *default_path == deleted {
-            db.applications.default_proton_path = None;
-        }
+        && *default_path == deleted
+    {
+        db.applications.default_proton_path = None;
+    }
 }
 
 #[tauri::command]

@@ -79,7 +79,13 @@ pub fn set_partially_installed(
     app_handle: Option<&AppHandle>,
     configuration: UserConfiguration,
 ) {
-    set_partially_installed_db(&mut borrow_db_mut_checked(), meta, install_dir, app_handle, configuration);
+    set_partially_installed_db(
+        &mut borrow_db_mut_checked(),
+        meta,
+        install_dir,
+        app_handle,
+        configuration,
+    );
 }
 
 pub fn set_partially_installed_db(

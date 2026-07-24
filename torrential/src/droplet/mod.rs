@@ -2,11 +2,17 @@ use std::sync::Arc;
 
 use log::warn;
 
-use crate::{proto::{core::{DropBoundType, TorrentialBound}, droplet::RpcError}, server::DropServer};
+use crate::{
+    proto::{
+        core::{DropBoundType, TorrentialBound},
+        droplet::RpcError,
+    },
+    server::DropServer,
+};
 
+pub mod backend;
 pub mod cert;
 pub mod manifest;
-pub mod backend;
 
 pub async fn call_rpc<T>(server: Arc<DropServer>, message: TorrentialBound, rpc: T)
 where
@@ -20,11 +26,7 @@ where
         let mut manifest_err = RpcError::new();
         manifest_err.error = err.to_string();
         let _ = server
-            .send_message(
-                DropBoundType::RPC_ERROR,
-                manifest_err,
-                Some(message_id),
-            )
+            .send_message(DropBoundType::RPC_ERROR, manifest_err, Some(message_id))
             .await
             .inspect_err(|err| {
                 warn!("failed to send manifest err: {err:?}");

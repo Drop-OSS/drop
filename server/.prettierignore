@@ -1,7 +1,7 @@
-drop-base/
-# file is fully managed by pnpm, no reason to break it
-pnpm-lock.yaml
-
-/torrential/
+node_modules/
+.nuxt/
+.output/
+dist/
 .data/**
 **/.data/**
+pnpm-lock.yaml

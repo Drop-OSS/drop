@@ -1,7 +1,10 @@
-use std::sync::{Arc, atomic::{AtomicUsize, Ordering}};
+use std::sync::{
+    Arc,
+    atomic::{AtomicUsize, Ordering},
+};
 
 pub struct SyncSemaphore {
-    inner: Arc<AtomicUsize>
+    inner: Arc<AtomicUsize>,
 }
 
 impl Default for SyncSemaphore {
@@ -12,10 +15,12 @@ impl Default for SyncSemaphore {
 
 impl SyncSemaphore {
     pub fn new() -> Self {
-        Self { inner: Arc::new(AtomicUsize::new(0)) }
+        Self {
+            inner: Arc::new(AtomicUsize::new(0)),
+        }
     }
 
-    pub fn acquire(&self) -> SyncSemaphorePermit  {
+    pub fn acquire(&self) -> SyncSemaphorePermit {
         self.inner.fetch_add(1, Ordering::Relaxed);
         SyncSemaphorePermit(self.inner.clone())
     }

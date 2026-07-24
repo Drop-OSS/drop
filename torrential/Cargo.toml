@@ -63,6 +63,7 @@ harness = false
 criterion = { version = "0.8.0", features = ["async", "async_tokio"] }
 rand = "0.9.2"
 tempfile = "3.23.0"
+tokio-test = "0.4.4"
 
 [build-dependencies]
 protobuf-codegen = "3.7.2"

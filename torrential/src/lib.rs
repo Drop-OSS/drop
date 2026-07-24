@@ -1,11 +1,11 @@
 use tokio::sync::Semaphore;
+pub mod conversions;
 pub mod downloads;
+pub mod droplet;
+pub mod proto;
+pub mod server;
 pub mod state;
 pub mod util;
-pub mod proto;
-pub mod conversions;
-pub mod server;
-pub mod droplet;
 
 pub use downloads::download::DownloadContext;
 

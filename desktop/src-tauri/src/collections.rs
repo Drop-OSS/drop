@@ -57,7 +57,10 @@ pub async fn fetch_collections_offline(
                     .game_statuses
                     .get(&v.game_id)
                     .unwrap_or(&GameDownloadStatus::Remote {}),
-                GameDownloadStatus::Installed { install_type: InstalledGameType::Installed | InstalledGameType::SetupRequired, .. }
+                GameDownloadStatus::Installed {
+                    install_type: InstalledGameType::Installed | InstalledGameType::SetupRequired,
+                    ..
+                }
             )
         });
     }

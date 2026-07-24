@@ -1,4 +1,4 @@
-use database::{DB};
+use database::DB;
 use reqwest_middleware::Error;
 use url::Url;
 

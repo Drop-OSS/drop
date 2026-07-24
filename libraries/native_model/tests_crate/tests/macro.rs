@@ -1,10 +1,10 @@
 #![cfg(feature = "bincode_1_3")]
 
-use serde::{Deserialize, Serialize};
 use native_model::{native_model, Model};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
-#[native_model(id = 1, version =  1)]
+#[native_model(id = 1, version = 1)]
 struct Foo1 {
     x: i32,
 }

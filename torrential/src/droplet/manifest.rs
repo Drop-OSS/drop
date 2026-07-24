@@ -7,7 +7,11 @@ use droplet_rs::manifest::ManifestWriterFactory;
 use log::info;
 use protobuf::Message;
 use serde_json::json;
-use tokio::{io::{BufWriter, SimplexStream}, spawn, sync::Semaphore};
+use tokio::{
+    io::{BufWriter, SimplexStream},
+    spawn,
+    sync::Semaphore,
+};
 
 use crate::{
     proto::{

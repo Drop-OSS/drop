@@ -66,6 +66,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Check formatting
+        working-directory: server
+        run: pnpm run format:check
+
       - name: Lint
         working-directory: server
-        run: pnpm run lint
+        run: pnpm run lint:eslint

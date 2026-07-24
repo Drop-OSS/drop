@@ -2,9 +2,7 @@ use std::sync::nonpoison::Mutex;
 
 use async_trait::async_trait;
 use client::{app_state::AppState, app_status::AppStatus};
-use database::{
-    GameDownloadStatus, GameVersion, borrow_db_checked, borrow_db_mut_checked,
-};
+use database::{GameDownloadStatus, GameVersion, borrow_db_checked, borrow_db_mut_checked};
 use log::warn;
 use process::PROCESS_MANAGER;
 use remote::utils::DROP_APP_HANDLE;
@@ -54,8 +52,6 @@ impl ScheduleTask for GameUpdater {
 
         let to_check: Vec<GameVersion> = {
             let db_lock = borrow_db_checked();
-
-            
 
             db_lock
                 .applications
@@ -110,8 +106,9 @@ impl ScheduleTask for GameUpdater {
                 .ok_or(anyhow::anyhow!(""))?;
 
             if let GameDownloadStatus::Installed {
-                    update_available, ..
-                } = game_status {
+                update_available, ..
+            } = game_status
+            {
                 *update_available = latest.version_id != version.version_id;
             };
         }

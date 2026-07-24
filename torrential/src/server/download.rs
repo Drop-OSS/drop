@@ -28,7 +28,11 @@ pub async fn fetch_version_data(
 pub async fn fetch_instance_games(app_state: &AppState) -> Result<Vec<SkeletonGame>, ErrorOption> {
     let message_id = app_state
         .server
-        .send_message(DropBoundType::SERVER_GAMES_QUERY, ServerGamesQuery::new(), None)
+        .send_message(
+            DropBoundType::SERVER_GAMES_QUERY,
+            ServerGamesQuery::new(),
+            None,
+        )
         .await?;
 
     let response: ServerGamesResponse = app_state.server.wait_for_message_id(&message_id).await?;

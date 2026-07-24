@@ -156,7 +156,11 @@ impl ProcessHandler for WindowsDirectLauncher {
         current_dir: &str,
         _database: &Database,
     ) -> Result<String, ProcessError> {
-        windows_launch_command(launch_command, current_dir, Some(WindowsLaunchStrategy::Direct))
+        windows_launch_command(
+            launch_command,
+            current_dir,
+            Some(WindowsLaunchStrategy::Direct),
+        )
     }
 
     fn valid_for_platform(&self, _db: &Database, _target: &Platform) -> bool {
@@ -190,7 +194,11 @@ impl ProcessHandler for WindowsCmdLauncher {
         current_dir: &str,
         _database: &Database,
     ) -> Result<String, ProcessError> {
-        windows_launch_command(launch_command, current_dir, Some(WindowsLaunchStrategy::Cmd))
+        windows_launch_command(
+            launch_command,
+            current_dir,
+            Some(WindowsLaunchStrategy::Cmd),
+        )
     }
 
     fn valid_for_platform(&self, _db: &Database, _target: &Platform) -> bool {

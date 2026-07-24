@@ -1,8 +1,4 @@
-use std::{
-    collections::HashMap,
-    sync::Arc,
-    task::Poll,
-};
+use std::{collections::HashMap, sync::Arc, task::Poll};
 
 use axum::{
     Json,

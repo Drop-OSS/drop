@@ -10,9 +10,10 @@ fn main() {
 
     read_dir(OUT_DIR).unwrap().for_each(|v| {
         if let Ok(entry) = v
-            && entry.file_name().to_str().unwrap().ends_with(".rs") {
-                fs::remove_file(entry.path()).unwrap();
-            }
+            && entry.file_name().to_str().unwrap().ends_with(".rs")
+        {
+            fs::remove_file(entry.path()).unwrap();
+        }
     });
 
     Codegen::new()

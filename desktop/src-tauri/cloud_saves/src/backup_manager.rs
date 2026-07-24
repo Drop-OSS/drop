@@ -197,9 +197,7 @@ impl BackupHandler for WindowsBackupManager {
         _path: &PathBuf,
         _game: &GameVersion,
     ) -> Result<PathBuf, BackupError> {
-        CommonPath::DataLocalLow
-            .get()
-            .ok_or(BackupError::NotFound)
+        CommonPath::DataLocalLow.get().ok_or(BackupError::NotFound)
     }
     fn win_dir_translate(
         &self,
