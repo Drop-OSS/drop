@@ -73,7 +73,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Audit dependencies
-        run: pnpm audit --audit-level=critical
+        # GHSA-mp2f-45pm-3cg9 patched locally via patches/decompress@4.2.1.patch.
+        # Remove ignore when upstream publishes decompress@>=4.2.2.
+        run: pnpm audit --audit-level=critical --ignore GHSA-mp2f-45pm-3cg9
       - name: Typecheck
         working-directory: server
         run: pnpm run typecheck
