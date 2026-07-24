@@ -4,17 +4,17 @@ Dense technical reference for AI coding agents. Keep under 150 lines. If a fact 
 
 ## Workspace Map
 
-| workspace | language | framework | entry point |
-|---|---|---|---|
-| server/ | TS | Nuxt 3 + Nitro | nuxt.config.ts |
-| desktop/main/ | TS | Nuxt 4 | nuxt.config.ts |
-| desktop/src-tauri/ | Rust | Tauri v2 (workspace, 7 crates) | client/, database/, games/, … |
-| cli/ | Rust | clap (downpour) | src/main.rs |
-| sites/promo | TS | Next.js 15 | next.config |
-| sites/docs | TS | Astro 6 + Starlight | astro.config |
-| libraries/base | TS | Nuxt layer | nuxt.config.ts |
-| libraries/droplet, droplet_types, libarchive, native_model | Rust | — | Cargo.toml |
-| torrential/ | Rust | (experimental) | skip |
+| workspace                                                  | language | framework                      | entry point                   |
+| ---------------------------------------------------------- | -------- | ------------------------------ | ----------------------------- |
+| server/                                                    | TS       | Nuxt 3 + Nitro                 | nuxt.config.ts                |
+| desktop/main/                                              | TS       | Nuxt 4                         | nuxt.config.ts                |
+| desktop/src-tauri/                                         | Rust     | Tauri v2 (workspace, 7 crates) | client/, database/, games/, … |
+| cli/                                                       | Rust     | clap (downpour)                | src/main.rs                   |
+| sites/promo                                                | TS       | Next.js 15                     | next.config                   |
+| sites/docs                                                 | TS       | Astro 6 + Starlight            | astro.config                  |
+| libraries/base                                             | TS       | Nuxt layer                     | nuxt.config.ts                |
+| libraries/droplet, droplet_types, libarchive, native_model | Rust     | —                              | Cargo.toml                    |
+| torrential/                                                | Rust     | (experimental)                 | skip                          |
 
 ## Package Manager: ALWAYS pnpm, NEVER yarn or npm
 
@@ -29,6 +29,7 @@ Dense technical reference for AI coding agents. Keep under 150 lines. If a fact 
 ## Nuxt Server Double-Nesting (CRITICAL CONFUSION POINT)
 
 `server/server/` is the Nitro server code, not the Nuxt app:
+
 - `server/api/v1/*.ts` — API route handlers (file-based)
 - `server/routes/auth/*.ts` — non-API routes (signin, signout, OIDC callback)
 - `server/server/api/...` — actually? NO. The structure is: `server/` IS the Nuxt app root. Nitro code lives in `server/server/`. The dot is real. The double-nest is intentional, not a bug.
@@ -72,9 +73,13 @@ pnpm --filter drop lint             # prettier + eslint
 pnpm --filter drop lint:fix         # eslint --fix + prettier --write
 
 # cli/ (Rust)
-cargo test --all-features
+cargo test --all-features --all                                    # NOTE: requires src/lib.rs (binary-only crate; tests reference `downpour::*`)
 cargo fmt --all -- --check
-cargo clippy --all-targets --all-features -- -D warnings
+cargo clippy --all-targets --all-features -- -D warnings            # `--all-targets` requires lib.rs to compile integration tests
+
+# cli/ (Rust) — pre-lib.rs workaround (currently in cli-ci.yml)
+cargo fmt --all -- --check
+cargo clippy --bins --no-deps --all-features                        # `--bins` excludes test targets (tests don't compile)
 
 # desktop/src-tauri/ (Rust)
 cargo check --all-features --all
@@ -97,9 +102,10 @@ cargo clippy --all-targets --all-features -- -D warnings
 
 ## Pre-commit Hooks (ACTUAL BEHAVIOR)
 
-- `.husky/pre-commit` (root, ACTIVE): runs `pnpm --filter drop lint-staged && pnpm --filter drop test`
-- `server/.husky/pre-commit` (DEAD CODE, will be deleted): Git only honors one hooks directory. This file never fires.
+- `.husky/pre-commit` (root, ACTIVE): runs `pnpm --filter drop lint-staged && pnpm --filter drop typecheck`
+- `--filter drop` = `server/` (filter targets the `drop` package name; see `server/package.json`).
 - lint-staged patterns: `*.{ts,vue,json,css,scss,yaml,yml,md,mjs,cjs}` → eslint --fix + prettier --write. `*.rs` → `cargo fmt -- <file>`.
+- **Note:** Pre-commit does NOT run tests. Tests are slow + stateful; run `pnpm --filter drop test` manually before pushing.
 
 ## Common Gotchas
 
@@ -130,6 +136,7 @@ Before batch commits: `pnpm --filter drop lint:fix` from repo root.
 ## Verifying Facts in This File
 
 This file is a cache. Before trusting any fact, verify with a direct command:
+
 - Workspace structure: `ls -la <workspace>/`
 - Scripts: `cat <workspace>/package.json | jq .scripts`
 - CI behavior: `cat .github/workflows/<file>.yml`
