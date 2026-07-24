@@ -1,0 +1,47 @@
+name: CLI CI
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - "cli/**"
+      - ".github/workflows/cli-ci.yml"
+  pull_request:
+    branches: [develop]
+    paths:
+      - "cli/**"
+      - ".github/workflows/cli-ci.yml"
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  ci:
+    name: Build, Test, Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cli
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt, clippy
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./cli -> target"
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Run Clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Run tests
+        run: cargo test --all-features --all --verbose
