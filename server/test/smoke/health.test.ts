@@ -27,4 +27,15 @@ describe("GET /api/v1/health handler", () => {
     expect(response.timestamp).toBeGreaterThanOrEqual(before);
     expect(response.timestamp).toBeLessThanOrEqual(after);
   });
+
+  it("returns only status and timestamp keys (no leakage)", () => {
+    const response = handler(mockEvent) as Record<string, unknown>;
+    expect(Object.keys(response).sort()).toEqual(["status", "timestamp"]);
+  });
+
+  it("returns monotonic timestamps across rapid calls", () => {
+    const first = (handler(mockEvent) as { timestamp: number }).timestamp;
+    const second = (handler(mockEvent) as { timestamp: number }).timestamp;
+    expect(second).toBeGreaterThanOrEqual(first);
+  });
 });
