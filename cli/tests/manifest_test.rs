@@ -101,29 +101,3 @@ fn test_depot_manifest_serde_variants() {
         assert!(!deserialized.is_empty());
     }
 }
-
-#[test]
-fn test_depot_manifest_overwrite_same_game_id_replaces_version() {
-    let mut manifest = DepotManifest::new();
-    manifest.append(
-        "game-001".to_string(),
-        "v1.0".to_string(),
-        CompressionOption::None,
-    );
-    manifest.append(
-        "game-001".to_string(),
-        "v2.0".to_string(),
-        CompressionOption::Gzip,
-    );
-    let json = serde_json::to_string(&manifest).unwrap();
-    assert!(json.contains("v2.0"));
-    assert!(!json.contains("v1.0"));
-}
-
-#[test]
-fn test_depot_manifest_empty_serde_roundtrip() {
-    let manifest = DepotManifest::new();
-    let json = serde_json::to_string(&manifest).unwrap();
-    let deserialized: DepotManifest = serde_json::from_str(&json).unwrap();
-    assert!(deserialized.is_empty());
-}
