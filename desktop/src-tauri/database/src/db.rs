@@ -3,9 +3,6 @@ use std::{
     sync::{Arc, LazyLock},
 };
 
-use keyring::Entry;
-use log::info;
-
 use crate::interface::DatabaseInterface;
 
 pub static DB: LazyLock<DatabaseInterface> = LazyLock::new(DatabaseInterface::set_up_database);
