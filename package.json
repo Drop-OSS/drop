@@ -3,6 +3,7 @@
   "private": true,
   "packageManager": "pnpm@11.17.0",
   "devDependencies": {
+    "fast-check": "^4.9.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.2.0"
   },

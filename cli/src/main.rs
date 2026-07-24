@@ -1,21 +1,14 @@
-#![feature(async_fn_traits)]
-
-use crate::commands::connect::config::manage_configuration;
-use crate::{
+use clap::Parser;
+use downpour::commands::connect::config::manage_configuration;
+use downpour::commands::upload;
+use downpour::{
     cli::{Cli, Commands},
     commands::connect::config::Config,
-    commands::upload,
 };
-use clap::Parser;
-mod cli;
-mod commands;
-mod logging;
-mod manifest;
-mod operator_builder;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    crate::logging::configure_logging()?;
+    downpour::logging::configure_logging()?;
 
     let cli = Cli::parse();
 

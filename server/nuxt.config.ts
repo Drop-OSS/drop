@@ -80,9 +80,13 @@ export default defineNuxtConfig({
 
   vite: {
     plugins: [
-      // Skip Tailwind CSS Vite plugin in test environment to avoid infinite recursion
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ...(process.env.VITEST === "true" ? [] : [tailwindcss() as any]),
+      // Skip Tailwind CSS Vite plugin in test/e2e to avoid CSS pre-transform
+      // recursion (CI pnpm hoisting differs from local dev). E2E checks
+      // route existence + status, not styling.
+      ...(process.env.VITEST === "true" || process.env.E2E === "true"
+        ? []
+        : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          [tailwindcss() as any]),
     ],
   },
 

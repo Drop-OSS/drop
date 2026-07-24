@@ -1,9 +1,16 @@
+//! Integration tests for `downpour::manifest::DepotManifest`.
+//!
+//! Smoke tests: constructors, append, serde roundtrip. These exercise the
+//! public API exposed via `lib.rs` and validate the fix for the binary-only
+//! crate limitation (see `cli-ci.yml` comments).
+
 use downpour::manifest::{CompressionOption, DepotManifest};
 
 #[test]
 fn test_depot_manifest_new_is_empty() {
     let manifest = DepotManifest::new();
     assert!(manifest.is_empty());
+    assert_eq!(manifest.len(), 0);
 }
 
 #[test]
@@ -15,10 +22,11 @@ fn test_depot_manifest_append_adds_entry() {
         CompressionOption::None,
     );
     assert!(!manifest.is_empty());
+    assert_eq!(manifest.len(), 1);
 }
 
 #[test]
-fn test_depot_manifest_append_multiple() {
+fn test_depot_manifest_append_multiple_distinct() {
     let mut manifest = DepotManifest::new();
     manifest.append(
         "game-001".to_string(),
@@ -30,8 +38,7 @@ fn test_depot_manifest_append_multiple() {
         "v2.0".to_string(),
         CompressionOption::Zstd,
     );
-    // Inserting different keys creates multiple entries
-    assert!(!manifest.is_empty());
+    assert_eq!(manifest.len(), 2);
 }
 
 #[test]
@@ -47,8 +54,8 @@ fn test_depot_manifest_append_same_game_overwrites() {
         "v2.0".to_string(),
         CompressionOption::Gzip,
     );
-    // Same game_id overwrites — only one entry
-    assert!(!manifest.is_empty());
+    // Same game_id overwrites — still one entry, count stays at 1.
+    assert_eq!(manifest.len(), 1);
 }
 
 #[test]
@@ -65,20 +72,15 @@ fn test_depot_manifest_serde_roundtrip() {
         CompressionOption::None,
     );
 
-    // Serialize to JSON
     let json = serde_json::to_string(&manifest).expect("serialize manifest");
     assert!(!json.is_empty());
 
-    // Deserialize back
     let deserialized: DepotManifest = serde_json::from_str(&json).expect("deserialize manifest");
-
-    // Roundtrip preserved content
-    assert!(!deserialized.is_empty());
+    assert_eq!(deserialized.len(), 2);
 }
 
 #[test]
 fn test_depot_manifest_serde_variants() {
-    // Test that all CompressionOption variants serialize and deserialize correctly
     let variants = [
         ("None", CompressionOption::None),
         ("Gzip", CompressionOption::Gzip),
@@ -98,6 +100,6 @@ fn test_depot_manifest_serde_variants() {
         );
 
         let deserialized: DepotManifest = serde_json::from_str(&json).unwrap();
-        assert!(!deserialized.is_empty());
+        assert_eq!(deserialized.len(), 1);
     }
 }

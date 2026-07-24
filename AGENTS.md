@@ -4,17 +4,17 @@ Dense technical reference for AI coding agents. Keep under 150 lines. If a fact 
 
 ## Workspace Map
 
-| workspace | language | framework | entry point |
-|---|---|---|---|
-| server/ | TS | Nuxt 3 + Nitro | nuxt.config.ts |
-| desktop/main/ | TS | Nuxt 4 | nuxt.config.ts |
-| desktop/src-tauri/ | Rust | Tauri v2 (workspace, 7 crates) | client/, database/, games/, … |
-| cli/ | Rust | clap (downpour) | src/main.rs |
-| sites/promo | TS | Next.js 15 | next.config |
-| sites/docs | TS | Astro 6 + Starlight | astro.config |
-| libraries/base | TS | Nuxt layer | nuxt.config.ts |
-| libraries/droplet, droplet_types, libarchive, native_model | Rust | — | Cargo.toml |
-| torrential/ | Rust | (experimental) | skip |
+| workspace                                                  | language | framework                      | entry point                   |
+| ---------------------------------------------------------- | -------- | ------------------------------ | ----------------------------- |
+| server/                                                    | TS       | Nuxt 3 + Nitro                 | nuxt.config.ts                |
+| desktop/main/                                              | TS       | Nuxt 4                         | nuxt.config.ts                |
+| desktop/src-tauri/                                         | Rust     | Tauri v2 (workspace, 7 crates) | client/, database/, games/, … |
+| cli/                                                       | Rust     | clap (downpour)                | src/main.rs                   |
+| sites/promo                                                | TS       | Next.js 15                     | next.config                   |
+| sites/docs                                                 | TS       | Astro 6 + Starlight            | astro.config                  |
+| libraries/base                                             | TS       | Nuxt layer                     | nuxt.config.ts                |
+| libraries/droplet, droplet_types, libarchive, native_model | Rust     | —                              | Cargo.toml                    |
+| torrential/                                                | Rust     | (experimental)                 | skip                          |
 
 ## Package Manager: ALWAYS pnpm, NEVER yarn or npm
 
@@ -29,6 +29,7 @@ Dense technical reference for AI coding agents. Keep under 150 lines. If a fact 
 ## Nuxt Server Double-Nesting (CRITICAL CONFUSION POINT)
 
 `server/server/` is the Nitro server code, not the Nuxt app:
+
 - `server/api/v1/*.ts` — API route handlers (file-based)
 - `server/routes/auth/*.ts` — non-API routes (signin, signout, OIDC callback)
 - `server/server/api/...` — actually? NO. The structure is: `server/` IS the Nuxt app root. Nitro code lives in `server/server/`. The dot is real. The double-nest is intentional, not a bug.
@@ -72,9 +73,13 @@ pnpm --filter drop lint             # prettier + eslint
 pnpm --filter drop lint:fix         # eslint --fix + prettier --write
 
 # cli/ (Rust)
-cargo test --all-features
+cargo test --all-features --all                                    # NOTE: requires src/lib.rs (binary-only crate; tests reference `downpour::*`)
 cargo fmt --all -- --check
-cargo clippy --all-targets --all-features -- -D warnings
+cargo clippy --all-targets --all-features -- -D warnings            # `--all-targets` requires lib.rs to compile integration tests
+
+# cli/ (Rust) — pre-lib.rs workaround (currently in cli-ci.yml)
+cargo fmt --all -- --check
+cargo clippy --bins --no-deps --all-features                        # `--bins` excludes test targets (tests don't compile)
 
 # desktop/src-tauri/ (Rust)
 cargo check --all-features --all
@@ -97,9 +102,10 @@ cargo clippy --all-targets --all-features -- -D warnings
 
 ## Pre-commit Hooks (ACTUAL BEHAVIOR)
 
-- `.husky/pre-commit` (root, ACTIVE): runs `pnpm --filter drop lint-staged && pnpm --filter drop test`
-- `server/.husky/pre-commit` (DEAD CODE, will be deleted): Git only honors one hooks directory. This file never fires.
+- `.husky/pre-commit` (root, ACTIVE): runs `pnpm --filter drop lint-staged && pnpm --filter drop typecheck`
+- `--filter drop` = `server/` (filter targets the `drop` package name; see `server/package.json`).
 - lint-staged patterns: `*.{ts,vue,json,css,scss,yaml,yml,md,mjs,cjs}` → eslint --fix + prettier --write. `*.rs` → `cargo fmt -- <file>`.
+- **Note:** Pre-commit does NOT run tests. Tests are slow + stateful; run `pnpm --filter drop test` manually before pushing.
 
 ## Common Gotchas
 
@@ -127,9 +133,38 @@ pnpm --filter drop exec prettier --write <file>
 
 Before batch commits: `pnpm --filter drop lint:fix` from repo root.
 
+## Test State (2026-07-24)
+
+| Workspace                     | Tests                 | Notes                                            |
+| ----------------------------- | --------------------- | ------------------------------------------------ |
+| `server/`                     | 32 vitest + 1 skipped | `pnpm --filter drop test`                        |
+| `cli/`                        | 10 cargo              | `cd cli && cargo test`                           |
+| `desktop/src-tauri/database/` | 6 cargo               | `cargo test -p database`                         |
+| `server/test/e2e/`            | 1 smoke               | `pnpm --filter drop test:e2e` (needs dev server) |
+
+Coverage 1.17% lines / 2.09% funcs (server, no gates). See `docs/coverage-baseline-2026-07-24.md`.
+
+Bugs caught during this sequence: `prioritylist.ts:34` (`a.priority == a.priority`); `database/Cargo.toml` missing `serde/derive` (53 errs); `cli/` binary-only, no `lib.rs`.
+
+## Deferred Work Backlog (2026-07-24)
+
+Captured at PR #22 (https://github.com/BillyOutlast/drop/pull/22) close-out. Repo issues disabled — document here instead of filing GitHub issues. **Re-evaluate when coverage >30% or as bandwidth allows.**
+
+| Item                               | Trigger                  | Why deferred                                                                                                                                                                                                                                                                                                                                                   |
+| ---------------------------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Codecov test-results reporting     | Coverage >30%            | JUnit analytics produce zero signal at 32 tests. Use `codecov-action@v5` with `report_type: test_results` (NOT `codecov/test-results-action@v1` which is DEPRECATED).                                                                                                                                                                                          |
+| `.codecov.yml` with `target: auto` | Coverage >30%            | At 1.17% baseline, ANY new uncovered code drops percentage and blocks every PR. Contradicts current "no gates" policy.                                                                                                                                                                                                                                         |
+| gitleaks-action v2→v3 migration    | Pre-Sept 2026            | v2 uses Node 20; GitHub deprecates Node 20 default in Sept 2026. Also unlocks v3's native fork-PR base-SHA resolution.                                                                                                                                                                                                                                         |
+| SonarCloud C rating fix            | Needs SonarCloud auth    | Cannot view findings via GitHub API. Likely test-only noise (90% of PR #22 is test code).                                                                                                                                                                                                                                                                      |
+| `noUncheckedIndexedAccess` enable  | After latent-error fixup | 30+ latent TS errors in `server/api/v1/{admin/import/massversion, auth/mfa/webauthn, auth/passkey}/`, `server/internal/{auth/totp, clients/event-handler, metadata/pcgamingwiki, system-data/index, utils/prioritylist}.ts`. Each requires explicit `if (!arr[i]) return` guard.                                                                               |
+| CLI integration tests refactor     | Post lib.rs unblock      | `cli/tests/*.rs` now compile (commit 35b63960), but real coverage of `commands/upload/` and `commands/connect/` flows needs fixture data setup.                                                                                                                                                                                                                |
+| E2E user-flow data fixtures        | Post test DB infra       | 5 page-flow E2E tests were added then removed in PR #22: they return 500 in CI because the app needs DB + auth setup to render pages. The tailwindcss v4 vite plugin recursion is fixed (`E2E=true` guard in `server/nuxt.config.ts`), but the application itself can't render without services. Re-add page tests when test DB + auth fixtures are available. |
+| commitlint                         | Multi-contributor        | Solo dev → zero value. Re-add when team >1.                                                                                                                                                                                                                                                                                                                    |
+
 ## Verifying Facts in This File
 
 This file is a cache. Before trusting any fact, verify with a direct command:
+
 - Workspace structure: `ls -la <workspace>/`
 - Scripts: `cat <workspace>/package.json | jq .scripts`
 - CI behavior: `cat .github/workflows/<file>.yml`

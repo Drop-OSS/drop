@@ -46,18 +46,12 @@ jobs:
         run: cargo fmt --all -- --check
 
       - name: Run Clippy
-        # `--bins` excludes test targets (tests reference `downpour::` which
-        # doesn't compile in binary-only crate). Switch to `--all-targets`
-        # after adding lib.rs or moving tests to src/.
+        # `--all-targets` includes tests since lib.rs was added.
         # `--no-deps` to avoid linting transitive deps (unmaintained crates).
         # Pre-existing warnings not escalated to errors; fix incrementally.
-        run: cargo clippy --bins --no-deps --all-features
+        run: cargo clippy --all-targets --no-deps --all-features
 
-      # `cargo test` disabled: integration tests reference `downpour::` which
-      # doesn't resolve (binary-only crate, no lib.rs). Re-enable after adding
-      # lib.rs or moving tests to src/.
       - name: Run tests
-        continue-on-error: true
         run: cargo test --all-features --all --verbose
 
       # Advisory until noise rate is low. Tighten to blocking after triage.
