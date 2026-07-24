@@ -20,12 +20,12 @@ pub struct S3ConfigCli {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct S3Config {
-    key_id: String,
-    secret_key: String,
-    endpoint: String,
-    region: String,
-    bucket_name: String,
-    root: Option<String>,
+    pub key_id: String,
+    pub secret_key: String,
+    pub endpoint: String,
+    pub region: String,
+    pub bucket_name: String,
+    pub root: Option<String>,
 }
 
 impl Configure for S3ConfigCli {

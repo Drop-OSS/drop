@@ -16,7 +16,7 @@ struct DepotManifestGameData {
     version_id: String,
     compression: CompressionOption,
 }
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Copy, Clone, Debug, PartialEq, Eq)]
 pub enum CompressionOption {
     None,
     Gzip,
@@ -36,6 +36,12 @@ impl DepotManifest {
                 compression,
             },
         );
+    }
+    pub fn is_empty(&self) -> bool {
+        self.content.is_empty()
+    }
+    pub fn len(&self) -> usize {
+        self.content.len()
     }
 }
 

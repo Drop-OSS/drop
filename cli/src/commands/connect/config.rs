@@ -32,6 +32,12 @@ impl Config {
     pub fn exists(&self, name: &String) -> bool {
         self.configurations.contains_key(name)
     }
+    pub fn is_empty(&self) -> bool {
+        self.configurations.is_empty()
+    }
+    pub fn len(&self) -> usize {
+        self.configurations.len()
+    }
     pub fn save(&self) -> anyhow::Result<()> {
         let json = serde_json::to_string(self)?;
         let save_path = dirs::config_dir()
