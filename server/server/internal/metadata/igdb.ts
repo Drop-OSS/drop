@@ -240,7 +240,7 @@ export class IGDBProvider implements MetadataProvider {
     const body = `where id = ${mediaID}; fields image_id;`;
     const response = await this.request<IGDBCover>(type, body);
 
-    if (!response.length || !response[0].image_id) {
+    if (!response.length || !response[0]?.image_id) {
       throw new Error(`No image_id found for ${type} with id ${mediaID}`);
     }
 

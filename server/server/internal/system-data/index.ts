@@ -23,11 +23,13 @@ function getCPUInfo() {
 
   for (const cpu in cpus) {
     if (!Object.hasOwn(cpus, cpu)) continue;
-    user += cpus[cpu].times.user;
-    nice += cpus[cpu].times.nice;
-    sys += cpus[cpu].times.sys;
-    irq += cpus[cpu].times.irq;
-    idle += cpus[cpu].times.idle;
+    const cpuTimes = cpus[cpu]?.times;
+    if (!cpuTimes) continue;
+    user += cpuTimes.user;
+    nice += cpuTimes.nice;
+    sys += cpuTimes.sys;
+    irq += cpuTimes.irq;
+    idle += cpuTimes.idle;
   }
 
   const total = user + nice + sys + idle + irq;

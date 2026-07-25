@@ -27,7 +27,7 @@ export function defineClientEventHandler<T>(handler: EventHandlerFunction<T>) {
     let clientId: string;
     switch (method) {
       case "JWT": {
-        clientId = parts[0];
+        clientId = parts[0] ?? "";
         const jwtToken = parts[1];
 
         if (!clientId || !jwtToken) throw createError({ statusCode: 403 });

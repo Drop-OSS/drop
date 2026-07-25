@@ -36,6 +36,7 @@ export default defineEventHandler(async (h3) => {
         versionIndex++
       ) {
         const version = body.versions[versionIndex];
+        if (!version) continue;
         const preload = await libraryManager.fetchUnimportedVersionInformation(
           version.id,
           version.version,

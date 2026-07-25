@@ -42,10 +42,12 @@ export default defineEventHandler<{
   await objectHandler.deleteAsSystem(imageId);
 
   if (game.mBannerObjectId === imageId) {
-    game.mBannerObjectId = game.mImageLibraryObjectIds[0];
+    const next = game.mImageLibraryObjectIds[0];
+    if (next) game.mBannerObjectId = next;
   }
   if (game.mCoverObjectId === imageId) {
-    game.mCoverObjectId = game.mImageLibraryObjectIds[0];
+    const next = game.mImageLibraryObjectIds[0];
+    if (next) game.mCoverObjectId = next;
   }
 
   const result = (

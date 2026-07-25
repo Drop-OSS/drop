@@ -9,7 +9,7 @@ const { fromCharCode } = String;
 const encode = (uint8array: Uint8Array) => {
   const output = [];
   for (let i = 0, { length } = uint8array; i < length; i++)
-    output.push(fromCharCode(uint8array[i]));
+    output.push(fromCharCode(uint8array[i] as number));
   return btoa(output.join(""));
 };
 

@@ -82,6 +82,9 @@ export class PriorityListIndexed<T> extends PriorityList<T> {
 
   override pop(position?: number): PriorityTagged<T> {
     const value = super.pop(position);
+    if (!value) {
+      throw new Error("PriorityList: pop() on empty list");
+    }
 
     const index = this.getIndex(value.object);
     this.indexMap.delete(index);

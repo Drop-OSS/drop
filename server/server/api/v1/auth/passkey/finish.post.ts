@@ -50,6 +50,8 @@ export default defineEventHandler(async (h3) => {
   if (passkeyIndex == -1)
     throw createError({ statusCode: 400, message: "Invalid credential ID." });
   const passkey = passkeys[passkeyIndex];
+  if (!passkey)
+    throw createError({ statusCode: 400, message: "Invalid credential ID." });
 
   const rpID = await getRpId();
   const externalUrl = await systemConfig.getExternalUrl();
@@ -83,7 +85,7 @@ export default defineEventHandler(async (h3) => {
   const { authenticationInfo } = verification;
   const { newCounter } = authenticationInfo;
 
-  passkeys[passkeyIndex].counter = newCounter;
+  passkeys[passkeyIndex]!.counter = newCounter;
   (mfaMec.credentials as unknown as WebAuthNv1Credentials).passkeys = passkeys;
 
   // Safe because we query it before
