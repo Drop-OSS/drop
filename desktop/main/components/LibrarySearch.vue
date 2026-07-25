@@ -28,7 +28,7 @@
         :key="nav.id"
         :class="[
           'first:pt-0 last:pb-0',
-          nav.tools && !filteredNavigation[navIndex - 1].tools ? 'mt-auto' : '',
+          nav.tools && !filteredNavigation[navIndex - 1]?.tools ? 'mt-auto' : '',
         ]"
         v-slot="{ open }"
         :default-open="nav.deft"
@@ -160,7 +160,9 @@ function getGameStatusStyleText(status: GameStatus): [string, string] {
     if (status.install_type.type === InstalledType.SetupRequired) {
       return ["text-yellow-500", "Setup required"];
     }
-    throw "Non-exhaustive installed type, missing: " + JSON.stringify(status.install_type);
+    throw new Error(
+      "Non-exhaustive installed type, missing: " + JSON.stringify(status.install_type),
+    );
   }
   return [gameStatusTextStyle[status.type], gameStatusText[status.type]];
 }

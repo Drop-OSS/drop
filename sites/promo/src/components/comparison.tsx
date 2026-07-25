@@ -317,14 +317,14 @@ function ProjectTable({ selectedProject }: { selectedProject: (typeof projects)[
   const sections = projects
     .map((e) => Object.keys(e.features))
     .flat()
-    .filter(onlyUnique);
+    .filter((v, i, a) => onlyUnique(v, i, a));
   const features: { [key: string]: string[] } = {};
   for (const section of sections) {
     const uniqueFeatures = projects
       .filter((e) => e.features[section])
       .map((e) => Object.keys(e.features[section]))
       .flat()
-      .filter(onlyUnique);
+      .filter((v, i, a) => onlyUnique(v, i, a));
     features[section] = uniqueFeatures;
   }
   return (
@@ -500,9 +500,10 @@ function PlusIcon(props: React.ComponentPropsWithoutRef<"svg">) {
 
 export default function Pricing() {
   let params = useSearchParams();
-  let tier =
-    typeof params.get("tier") === "string"
-      ? projects.find(({ slug }) => slug === params.get("tier"))!
+  const requestedTier = params.get("tier");
+  const tier =
+    typeof requestedTier === "string"
+      ? (projects.find(({ slug }) => slug === requestedTier) ?? projects[0])
       : projects[0];
 
   return (
