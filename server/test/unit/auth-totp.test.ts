@@ -55,3 +55,65 @@ describe("dropDecodeArrayBase64", () => {
     expect(decoded).toEqual(original);
   });
 });
+
+import { SecretKey, totp, generateKey } from "otp-io";
+import { hmac, randomBytes } from "otp-io/crypto";
+
+describe("TOTP code generation and verification", () => {
+  it("generates a 6-digit code that round-trips with the same secret", async () => {
+    const secret = generateKey(randomBytes, 20);
+    const secretKey = new SecretKey(secret.bytes);
+
+    const code = await totp(hmac, { secret: secretKey });
+    const reCode = await totp(hmac, { secret: secretKey });
+
+    expect(code).toMatch(/^\d{6}$/);
+    expect(code).toBe(reCode);
+  });
+
+  it("round-trips through base64 storage format", async () => {
+    const secret = generateKey(randomBytes, 20);
+    const base64 = dropEncodeArrayBase64(secret.bytes);
+    const restored = new SecretKey(dropDecodeArrayBase64(base64));
+
+    const code = await totp(hmac, { secret });
+    const restoredCode = await totp(hmac, { secret: restored });
+
+    expect(code).toBe(restoredCode);
+  });
+
+  it("rejects an invalid (wrong) code", async () => {
+    const secret = generateKey(randomBytes, 20);
+    const secretKey = new SecretKey(secret.bytes);
+
+    const code = await totp(hmac, { secret: secretKey });
+
+    expect(code).not.toBe("000000");
+  });
+
+  it("fails verification when time window has passed", async () => {
+    const secret = generateKey(randomBytes, 20);
+    const secretKey = new SecretKey(secret.bytes);
+
+    const current = await totp(hmac, { secret: secretKey });
+    const past = await totp(hmac, {
+      secret: secretKey,
+      now: new Date(Date.now() - 120_000), // 2 minutes ago = 4 windows back
+    });
+
+    expect(current).not.toBe(past);
+  });
+
+  it("produces different codes for different secrets at the same time", async () => {
+    const secretA = generateKey(randomBytes, 20);
+    const secretB = generateKey(randomBytes, 20);
+    const now = new Date();
+
+    const codeA = await totp(hmac, { secret: secretA, now });
+    const codeB = await totp(hmac, { secret: secretB, now });
+
+    expect(codeA).not.toBe(codeB);
+    expect(codeA).toMatch(/^\d{6}$/);
+    expect(codeB).toMatch(/^\d{6}$/);
+  });
+});
