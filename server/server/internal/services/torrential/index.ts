@@ -184,7 +184,7 @@ export class TorrentialService extends Service<unknown> {
         type: TorrentialBoundType.ERROR,
         schema: StringValueSchema,
         data: create(StringValueSchema, {
-          value: (e as string).toString(),
+          value: e instanceof Error ? e.message : String(e),
         }),
       };
     }

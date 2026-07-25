@@ -1,12 +1,12 @@
 <template>
-  <div class="relative z-50" @close="emit('event', 'close')">
-    <div class="fixed inset-0 bg-zinc-950/75" />
+  <Dialog class="relative z-50" @close="emit('event', 'close')">
+    <DialogBackdrop class="fixed inset-0 bg-zinc-950/75" />
 
     <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
       <div
         class="flex min-h-full items-start justify-center p-4 text-center sm:items-center sm:p-0"
       >
-        <div
+        <DialogPanel
           class="relative transform rounded-lg bg-zinc-900 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg"
         >
           <div class="px-4 pb-4 pt-5 space-y-4 sm:p-6 sm:pb-4">
@@ -33,13 +33,14 @@
               {{ props.data.buttonText ?? "Close" }}
             </LoadingButton>
           </div>
-        </div>
+        </DialogPanel>
       </div>
     </div>
-  </div>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
+import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/vue";
 import type { ModalDatas, ModalEvents, ModalType } from "../composables/modal-stack";
 
 const props = defineProps<{

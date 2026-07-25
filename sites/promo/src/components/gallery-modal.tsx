@@ -64,7 +64,7 @@ export function Gallery() {
 
   return (
     <Container className="py-10">
-      <div role="list" className="grid grid-cols-1 gap-4 sm:grid-cols-3 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 md:grid-cols-4">
         {[0, 1, 2, 3].map((index) => (
           <div key={index} className="flex flex-col gap-y-4">
             {files
