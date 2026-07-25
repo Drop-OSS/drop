@@ -84,12 +84,11 @@ describe("PriorityListIndexed", () => {
     expect(list.get("b")).toEqual({ id: "b" });
   });
 
-  it("throws TypeError when popping an empty list (current behavior)", () => {
-    // Current PriorityListIndexed.pop() does not guard against empty list.
-    // super.pop() returns undefined, then this.getIndex(value.object) throws.
-    // PR4 plans to add an explicit throw guard. This test pins current
-    // behavior so the guard is a deliberate change.
+  it("throws when popping an empty list", () => {
+    // PR #29 added an explicit throw guard in prioritylist.ts:pop().
+    // super.pop() returns undefined; the new code throws with a clear
+    // message instead of letting getIndex(value.object) crash.
     const list = new PriorityListIndexed<Tagged>("id");
-    expect(() => list.pop()).toThrow(TypeError);
+    expect(() => list.pop()).toThrow(/empty/);
   });
 });
