@@ -70,8 +70,13 @@ export class SessionHandler {
 
     const expiresAt = this.createExipreAt(rememberMe);
 
-    const token =
-      this.getSessionToken(h3) ?? this.createSessionCookie(h3, expiresAt);
+    // Invalidate any pre-existing session token — prevents session fixation
+    const oldToken = this.getSessionToken(h3);
+    const token = this.createSessionCookie(h3, expiresAt);
+    if (oldToken) {
+      await this.sessionProvider.removeSession(oldToken);
+    }
+
     const defaultSession: Session = {
       expiresAt,
       data,
