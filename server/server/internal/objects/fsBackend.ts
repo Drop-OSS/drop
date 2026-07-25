@@ -162,7 +162,7 @@ export class FsObjectBackend extends ObjectBackend {
     if (obj === undefined) return;
 
     // hash object
-    const hash = createHash("md5");
+    const hash = createHash("sha256");
     hash.setEncoding("hex");
 
     // local variable to point to object
