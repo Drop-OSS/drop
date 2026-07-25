@@ -9,10 +9,9 @@ export default defineEventHandler(async (h3) => {
   const libraries = Object.fromEntries(
     (await libraryManager.fetchLibraries()).map((e) => [e.id, e]),
   );
-  const iterableUnimportedGames = Object.entries(unimportedGames)
-    .map(([libraryId, gameArray]) =>
+  const iterableUnimportedGames = Object.entries(unimportedGames).flatMap(
+    ([libraryId, gameArray]) =>
       gameArray.map((e) => ({ game: e, library: libraries[libraryId] })),
-    )
-    .flat();
+  );
   return { unimportedGames: iterableUnimportedGames };
 });

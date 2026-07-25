@@ -62,7 +62,7 @@ export class FilesystemProvider implements LibraryProvider<
     const validVersionDirs = [];
 
     for (const versionDir of versionDirs) {
-      if (ignoredVersions && ignoredVersions.includes(versionDir)) continue;
+      if (ignoredVersions?.includes(versionDir)) continue;
       const fullDir = path.join(this.config.baseDir, game, versionDir);
       const valid = await dropletInterface.hasBackend(fullDir);
       if (!valid) continue;

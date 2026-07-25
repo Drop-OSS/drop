@@ -9,12 +9,14 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 SERVER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$SERVER_DIR"
 
-step() { printf "\033[1;34m==>\033[0m %s\n" "$1"; }
-warn() { printf "\033[1;33m[!]\033[0m %s\n" "$1"; }
+# step prints an informational message with a blue `==>` prefix.
+step() { local msg="$1"; printf "\033[1;34m==>\033[0m %s\n" "$msg"; }
+# warn prints a yellow warning message prefixed with `[!]`.
+warn() { local msg="$1"; printf "\033[1;33m[!]\033[0m %s\n" "$msg"; }
 
 step "Checking Node version (need >= 22.16)"
 NODE_MAJOR="$(node -p 'process.versions.node.split(".")[0]')"
-if [ "$NODE_MAJOR" -lt 22 ]; then
+if [[ "$NODE_MAJOR" -lt 22 ]]; then
   warn "Node $NODE_MAJOR detected. Drop server requires Node >= 22.16."
   exit 1
 fi
@@ -26,7 +28,7 @@ if ! command -v pnpm >/dev/null 2>&1; then
 fi
 
 step "Creating .env from template"
-if [ ! -f .env ]; then
+if [[ ! -f .env ]]; then
   cp .env.example .env
   echo "    Created .env (edit with your local config)"
 else

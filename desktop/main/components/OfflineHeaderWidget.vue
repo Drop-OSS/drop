@@ -3,7 +3,7 @@ import { CloudIcon } from "@heroicons/vue/20/solid";
 import { invoke } from "@tauri-apps/api/core";
 
 async function checkOffline() {
-  const isOffline = await invoke("check_online");
+  await invoke("check_online");
 }
 </script>
 

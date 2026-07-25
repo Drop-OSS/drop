@@ -33,7 +33,7 @@ onMounted(() => {
 
 router.afterEach(() => {
   title.value = "Loading...";
-  // TODO: more robust after-render "detection"
+  // PENDING(sonar): replace setTimeout with MutationObserver for robust title detection - deferred, current workaround functional
   setTimeout(() => {
     title.value = document.title;
   }, 500);

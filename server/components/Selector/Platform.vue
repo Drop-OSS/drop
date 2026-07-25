@@ -91,7 +91,10 @@ const typedModel = computed<Platform | null>({
     return model.value || null;
   },
   set(v) {
-    if (v === null) return (model.value = undefined);
+    if (v === null) {
+      model.value = undefined;
+      return;
+    }
     model.value = v;
   },
 });

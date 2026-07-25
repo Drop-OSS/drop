@@ -4,7 +4,7 @@ import libraryManager from "~/server/internal/library";
 
 export type WorkingLibrarySource = LibraryModel & {
   working: boolean;
-  fsStats?: { freeSpace: number; totalSpace: number } | undefined;
+  fsStats?: { freeSpace: number; totalSpace: number };
 };
 
 export default defineEventHandler(async (h3) => {

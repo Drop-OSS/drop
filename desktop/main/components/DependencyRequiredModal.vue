@@ -2,7 +2,7 @@
   <ModalTemplate :model-value="true">
     <template #default
       ><div class="flex items-start gap-x-3">
-        <img :src="useObject(game.mIconObjectId)" class="size-12" />
+        <img :src="useObject(game.mIconObjectId)" class="size-12" alt="" />
         <div class="mt-3 text-center sm:mt-0 sm:text-left">
           <h3 class="text-base font-semibold text-zinc-100">
             Missing required dependency "{{ game.mName }}"
@@ -16,10 +16,7 @@
           </div>
         </div>
       </div>
-      <InstallDirectorySelector
-        :install-dirs="installDirs"
-        v-model="installDir"
-      />
+      <InstallDirectorySelector :install-dirs="installDirs" v-model="installDir" />
 
       <div v-if="installError" class="mt-1 rounded-md bg-red-600/10 p-4">
         <div class="flex">
@@ -66,15 +63,10 @@ const model = defineModel<{ gameId: string; versionId: string }>({
 
 const { game, status } = await useGame(model.value.gameId);
 
-const versionOptions = await invoke<Array<VersionOption>>(
-  "fetch_game_version_options",
-  {
-    gameId: game.id,
-  }
-);
-const version = versionOptions.find(
-  (v) => v.versionId === model.value.versionId
-)!;
+const versionOptions = await invoke<Array<VersionOption>>("fetch_game_version_options", {
+  gameId: game.id,
+});
+const version = versionOptions.find((v) => v.versionId === model.value.versionId)!;
 
 const installDirs = await invoke<string[]>("fetch_download_dir_stats");
 const installDir = ref(0);

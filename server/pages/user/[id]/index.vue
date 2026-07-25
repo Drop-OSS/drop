@@ -5,6 +5,7 @@
         v-if="profile?.profilePictureObjectId"
         :src="useObject(profile.profilePictureObjectId)"
         class="w-24 h-24 rounded-md object-cover"
+        alt=""
       />
       <div>
         <h1 class="text-2xl font-bold font-display text-zinc-100">

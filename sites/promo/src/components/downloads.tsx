@@ -1,47 +1,33 @@
-'use client'
+"use client";
 
-import {
-  Label,
-  Listbox,
-  ListboxButton,
-  ListboxOption,
-  ListboxOptions,
-} from '@headlessui/react'
-import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/16/solid'
-import Link from 'next/link'
-import { useState, type JSX } from 'react'
-import { Button } from './button'
-import { Container } from './container'
-import { Heading } from './text'
+import { Label, Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/react";
+import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/16/solid";
+import Link from "next/link";
+import { useState, type JSX } from "react";
+import { Button } from "./button";
+import { Container } from "./container";
+import { Heading } from "./text";
 
-type Version = 'v0.2.0' | 'v0.3.0' | 'v0.3.1' | 'v0.3.2' | 'v0.3.3' | 'v0.3.4'
-type Platforms = 'Windows' | 'Linux' | 'macOS'
-type Arch = 'x86' | 'ARM'
+type Version = "v0.2.0" | "v0.3.0" | "v0.3.1" | "v0.3.2" | "v0.3.3" | "v0.3.4";
+type Platforms = "Windows" | "Linux" | "macOS";
+type Arch = "x86" | "ARM";
 
 const releasePages: { [key in Version]: string } = {
-  'v0.2.0': 'https://github.com/Drop-OSS/drop-app/releases/tag/v0.2.0-beta',
-  'v0.3.0': 'https://github.com/Drop-OSS/drop-app/releases/tag/v0.3.0',
-  'v0.3.1': 'https://github.com/Drop-OSS/drop-app/releases/tag/v0.3.1',
-  'v0.3.2': 'https://github.com/Drop-OSS/drop-app/releases/tag/v0.3.2',
-  'v0.3.3': 'https://github.com/Drop-OSS/drop-app/releases/tag/v0.3.3',
-  'v0.3.4': 'https://github.com/Drop-OSS/drop-app/releases/tag/v0.3.4',
-}
+  "v0.2.0": "https://github.com/Drop-OSS/drop-app/releases/tag/v0.2.0-beta",
+  "v0.3.0": "https://github.com/Drop-OSS/drop-app/releases/tag/v0.3.0",
+  "v0.3.1": "https://github.com/Drop-OSS/drop-app/releases/tag/v0.3.1",
+  "v0.3.2": "https://github.com/Drop-OSS/drop-app/releases/tag/v0.3.2",
+  "v0.3.3": "https://github.com/Drop-OSS/drop-app/releases/tag/v0.3.3",
+  "v0.3.4": "https://github.com/Drop-OSS/drop-app/releases/tag/v0.3.4",
+};
 
+/**
+ * Renders the Windows platform icon.
+ */
 function WindowsIcon() {
   return (
-    <svg
-      viewBox="0 0 20 20"
-      version="1.1"
-      xmlns="http://www.w3.org/2000/svg"
-      className="size-12"
-    >
-      <g
-        id="Page-1"
-        stroke="none"
-        strokeWidth="1"
-        fill="none"
-        fillRule="evenodd"
-      >
+    <svg viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" className="size-12">
+      <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
         <g
           id="Dribbble-Light-Preview"
           transform="translate(-60.000000, -7439.000000)"
@@ -56,9 +42,12 @@ function WindowsIcon() {
         </g>
       </g>
     </svg>
-  )
+  );
 }
 
+/**
+ * Renders the Linux platform icon.
+ */
 function LinuxIcon() {
   return (
     <svg
@@ -76,9 +65,12 @@ function LinuxIcon() {
         />
       </g>
     </svg>
-  )
+  );
 }
 
+/**
+ * Renders the macOS logo as an SVG icon.
+ */
 function macOSIcon() {
   return (
     <svg
@@ -87,13 +79,7 @@ function macOSIcon() {
       xmlns="http://www.w3.org/2000/svg"
       className="size-14"
     >
-      <g
-        id="Page-1"
-        stroke="none"
-        strokeWidth="1"
-        fill="none"
-        fillRule="evenodd"
-      >
+      <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
         <g
           id="Dribbble-Light-Preview"
           transform="translate(-102.000000, -7439.000000)"
@@ -108,120 +94,126 @@ function macOSIcon() {
         </g>
       </g>
     </svg>
-  )
+  );
 }
 
 const downloads: {
   [key in Platforms]: {
-    name: string
-    description: string
-    icon: () => JSX.Element
-    downloads: { [key in Version]: { [key in Arch]: string | undefined } }
-  }
+    name: string;
+    description: string;
+    icon: () => JSX.Element;
+    downloads: { [key in Version]: { [key in Arch]: string | undefined } };
+  };
 } = {
   Windows: {
-    name: 'Windows',
-    description:
-      'A setup executable to install the Drop Desktop Client on your Windows system.',
+    name: "Windows",
+    description: "A setup executable to install the Drop Desktop Client on your Windows system.",
     icon: WindowsIcon,
     downloads: {
-      'v0.2.0': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.2.0-beta/Drop.Desktop.Client_0.2.0-beta_x64-setup.exe',
+      "v0.2.0": {
+        x86: "https://github.com/Drop-OSS/drop-app/releases/download/v0.2.0-beta/Drop.Desktop.Client_0.2.0-beta_x64-setup.exe",
         ARM: undefined,
       },
-      'v0.3.0': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.0/Drop.Desktop.Client_0.3.0_x64-setup.exe',
+      "v0.3.0": {
+        x86: "https://github.com/Drop-OSS/drop-app/releases/download/v0.3.0/Drop.Desktop.Client_0.3.0_x64-setup.exe",
         ARM: undefined,
       },
-      'v0.3.1': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.1/Drop.Desktop.Client_0.3.1_x64-setup.exe',
+      "v0.3.1": {
+        x86: "https://github.com/Drop-OSS/drop-app/releases/download/v0.3.1/Drop.Desktop.Client_0.3.1_x64-setup.exe",
         ARM: undefined,
       },
-      'v0.3.2': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.2/Drop.Desktop.Client_0.3.2_x64-setup.exe',
+      "v0.3.2": {
+        x86: "https://github.com/Drop-OSS/drop-app/releases/download/v0.3.2/Drop.Desktop.Client_0.3.2_x64-setup.exe",
         ARM: undefined,
       },
-      'v0.3.3': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.3/Drop.Desktop.Client_0.3.3_x64-setup.exe',
+      "v0.3.3": {
+        x86: "https://github.com/Drop-OSS/drop-app/releases/download/v0.3.3/Drop.Desktop.Client_0.3.3_x64-setup.exe",
         ARM: undefined,
       },
-      'v0.3.4': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.4/Drop.Desktop.Client_0.3.4_x64-setup.exe',
+      "v0.3.4": {
+        x86: "https://github.com/Drop-OSS/drop-app/releases/download/v0.3.4/Drop.Desktop.Client_0.3.4_x64-setup.exe",
         ARM: undefined,
       },
     },
   },
   Linux: {
-    name: 'Linux',
+    name: "Linux",
     description:
-      'A .deb file that can be installed on Debian-based systems, or repackaged to another distro. Other Linux downloads are available on the GitHub releases page.',
+      "A .deb file that can be installed on Debian-based systems, or repackaged to another distro. Other Linux downloads are available on the GitHub releases page.",
     icon: LinuxIcon,
     downloads: {
-      'v0.2.0': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.2.0-beta/Drop.Desktop.Client_0.2.0-beta_amd64.deb',
+      "v0.2.0": {
+        x86: "https://github.com/Drop-OSS/drop-app/releases/download/v0.2.0-beta/Drop.Desktop.Client_0.2.0-beta_amd64.deb",
         ARM: undefined,
       },
-      'v0.3.0': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.0/Drop.Desktop.Client_0.3.0_amd64.deb',
-        ARM: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.0/Drop.Desktop.Client_0.3.0_arm64.deb',
+      "v0.3.0": {
+        x86: "https://github.com/Drop-OSS/drop-app/releases/download/v0.3.0/Drop.Desktop.Client_0.3.0_amd64.deb",
+        ARM: "https://github.com/Drop-OSS/drop-app/releases/download/v0.3.0/Drop.Desktop.Client_0.3.0_arm64.deb",
       },
-      'v0.3.1': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.1/Drop.Desktop.Client_0.3.1_amd64.deb',
-        ARM: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.1/Drop.Desktop.Client_0.3.1_arm64.deb',
+      "v0.3.1": {
+        x86: "https://github.com/Drop-OSS/drop-app/releases/download/v0.3.1/Drop.Desktop.Client_0.3.1_amd64.deb",
+        ARM: "https://github.com/Drop-OSS/drop-app/releases/download/v0.3.1/Drop.Desktop.Client_0.3.1_arm64.deb",
       },
-      'v0.3.2': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.2/Drop.Desktop.Client_0.3.2_amd64.deb',
-        ARM: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.2/Drop.Desktop.Client_0.3.2_arm64.deb',
+      "v0.3.2": {
+        x86: "https://github.com/Drop-OSS/drop-app/releases/download/v0.3.2/Drop.Desktop.Client_0.3.2_amd64.deb",
+        ARM: "https://github.com/Drop-OSS/drop-app/releases/download/v0.3.2/Drop.Desktop.Client_0.3.2_arm64.deb",
       },
-      'v0.3.3': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.3/Drop.Desktop.Client_0.3.3_amd64.deb',
-        ARM: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.3/Drop.Desktop.Client_0.3.3_arm64.deb',
+      "v0.3.3": {
+        x86: "https://github.com/Drop-OSS/drop-app/releases/download/v0.3.3/Drop.Desktop.Client_0.3.3_amd64.deb",
+        ARM: "https://github.com/Drop-OSS/drop-app/releases/download/v0.3.3/Drop.Desktop.Client_0.3.3_arm64.deb",
       },
-      'v0.3.4': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.4/Drop.Desktop.Client_0.3.4_amd64.deb',
-        ARM: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.4/Drop.Desktop.Client_0.3.4_arm64.deb',
+      "v0.3.4": {
+        x86: "https://github.com/Drop-OSS/drop-app/releases/download/v0.3.4/Drop.Desktop.Client_0.3.4_amd64.deb",
+        ARM: "https://github.com/Drop-OSS/drop-app/releases/download/v0.3.4/Drop.Desktop.Client_0.3.4_arm64.deb",
       },
     },
   },
   macOS: {
-    name: 'macOS',
-    description: 'A self-signed .dmg to install on your macOS system.',
+    name: "macOS",
+    description: "A self-signed .dmg to install on your macOS system.",
     icon: macOSIcon,
     downloads: {
-      'v0.2.0': {
+      "v0.2.0": {
         x86: undefined,
         ARM: undefined,
       },
-      'v0.3.0': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.0/Drop.Desktop.Client_0.3.0_x64.dmg',
-        ARM: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.0/Drop.Desktop.Client_0.3.0_aarch64.dmg',
+      "v0.3.0": {
+        x86: "https://github.com/Drop-OSS/drop-app/releases/download/v0.3.0/Drop.Desktop.Client_0.3.0_x64.dmg",
+        ARM: "https://github.com/Drop-OSS/drop-app/releases/download/v0.3.0/Drop.Desktop.Client_0.3.0_aarch64.dmg",
       },
-      'v0.3.1': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.1/Drop.Desktop.Client_0.3.1_x64.dmg',
-        ARM: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.1/Drop.Desktop.Client_0.3.1_aarch64.dmg',
+      "v0.3.1": {
+        x86: "https://github.com/Drop-OSS/drop-app/releases/download/v0.3.1/Drop.Desktop.Client_0.3.1_x64.dmg",
+        ARM: "https://github.com/Drop-OSS/drop-app/releases/download/v0.3.1/Drop.Desktop.Client_0.3.1_aarch64.dmg",
       },
-      'v0.3.2': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.2/Drop.Desktop.Client_0.3.2_x64.dmg',
-        ARM: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.2/Drop.Desktop.Client_0.3.2_aarch64.dmg',
+      "v0.3.2": {
+        x86: "https://github.com/Drop-OSS/drop-app/releases/download/v0.3.2/Drop.Desktop.Client_0.3.2_x64.dmg",
+        ARM: "https://github.com/Drop-OSS/drop-app/releases/download/v0.3.2/Drop.Desktop.Client_0.3.2_aarch64.dmg",
       },
-      'v0.3.3': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.3/Drop.Desktop.Client_0.3.3_x64.dmg',
-        ARM: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.3/Drop.Desktop.Client_0.3.3_aarch64.dmg',
+      "v0.3.3": {
+        x86: "https://github.com/Drop-OSS/drop-app/releases/download/v0.3.3/Drop.Desktop.Client_0.3.3_x64.dmg",
+        ARM: "https://github.com/Drop-OSS/drop-app/releases/download/v0.3.3/Drop.Desktop.Client_0.3.3_aarch64.dmg",
       },
-      'v0.3.4': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.4/Drop.Desktop.Client_0.3.4_x64.dmg',
-        ARM: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.4/Drop.Desktop.Client_0.3.4_aarch64.dmg',
+      "v0.3.4": {
+        x86: "https://github.com/Drop-OSS/drop-app/releases/download/v0.3.4/Drop.Desktop.Client_0.3.4_x64.dmg",
+        ARM: "https://github.com/Drop-OSS/drop-app/releases/download/v0.3.4/Drop.Desktop.Client_0.3.4_aarch64.dmg",
       },
     },
   },
-}
+};
 
+/**
+ * Renders a download card for a platform and application version.
+ *
+ * @param version - The application version whose downloads are displayed
+ * @param data - The platform name, description, icon, and download links
+ * @returns The rendered platform download card
+ */
 function DownloadCard({
   version,
   data,
 }: {
-  version: Version
-  data: (typeof downloads)[Platforms]
+  readonly version: Version;
+  readonly data: (typeof downloads)[Platforms];
 }) {
   return (
     <div className="-m-2 grid grid-cols-1 rounded-4xl shadow-[inset_0_0_2px_1px_#ffffff4d] ring-1 ring-black/5 max-lg:mx-auto max-lg:w-full max-lg:max-w-md">
@@ -233,9 +225,7 @@ function DownloadCard({
               <Heading>{data.name}</Heading>
             </div>
 
-            <p className="mt-3 text-sm/6 text-zinc-100/75">
-              {data.description}
-            </p>
+            <p className="mt-3 text-sm/6 text-zinc-100/75">{data.description}</p>
           </div>
           <div className="mt-8 flex w-full items-center justify-center gap-x-3">
             {Object.entries(data.downloads[version])
@@ -249,13 +239,16 @@ function DownloadCard({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
+/**
+ * Renders version selection controls and download cards for each supported platform.
+ */
 export default function DownloadCards() {
   const [currentVersion, setCurrentVersion] = useState<Version>(
     Object.keys(releasePages).at(-1)! as Version,
-  )
+  );
 
   return (
     <div className="relative py-24">
@@ -266,14 +259,10 @@ export default function DownloadCards() {
       <Container>
         <div className="flex flex-col items-center">
           <Listbox value={currentVersion} onChange={setCurrentVersion}>
-            <Label className="block text-sm/6 font-medium text-zinc-100">
-              Version
-            </Label>
+            <Label className="block text-sm/6 font-medium text-zinc-100">Version</Label>
             <div className="relative mt-2">
               <ListboxButton className="grid w-full min-w-[10rem] cursor-default grid-cols-1 rounded-md bg-zinc-900 py-1.5 pr-2 pl-3 text-left text-zinc-100 outline-1 -outline-offset-1 outline-zinc-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-600 sm:text-sm/6">
-                <span className="col-start-1 row-start-1 truncate pr-6">
-                  {currentVersion}
-                </span>
+                <span className="col-start-1 row-start-1 truncate pr-6">{currentVersion}</span>
                 <ChevronUpDownIcon
                   aria-hidden="true"
                   className="col-start-1 row-start-1 size-5 self-center justify-self-end text-gray-500 sm:size-4"
@@ -318,5 +307,5 @@ export default function DownloadCards() {
         </div>
       </Container>
     </div>
-  )
+  );
 }

@@ -1,5 +1,5 @@
 <template>
-  <iframe :src="convertedStoreUrl" class="grow w-full h-full" />
+  <iframe :src="convertedStoreUrl" title="Store" class="grow w-full h-full" />
 </template>
 <script setup lang="ts">
 import { convertFileSrc } from "@tauri-apps/api/core";

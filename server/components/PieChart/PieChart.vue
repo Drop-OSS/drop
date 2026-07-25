@@ -40,7 +40,7 @@ import type { SliceData } from "~/components/PieChart/types";
 
 const { data, title = undefined } = defineProps<{
   data: SliceData[];
-  title?: string | undefined;
+  title?: string;
 }>();
 
 const slices = generateSlices(data);

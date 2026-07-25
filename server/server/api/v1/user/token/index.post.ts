@@ -16,9 +16,7 @@ export default defineEventHandler(async (h3) => {
 
   const body = await readDropValidatedBody(h3, CreateToken);
 
-  const invalidACLs = body.acls.filter(
-    (e) => userACLs.findIndex((v) => e == v) == -1,
-  );
+  const invalidACLs = body.acls.filter((e) => !userACLs.some((v) => e == v));
   if (invalidACLs.length > 0)
     throw createError({
       statusCode: 400,

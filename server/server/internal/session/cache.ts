@@ -2,9 +2,12 @@ import cacheHandler from "../cache";
 import type { SessionProvider, SessionWithToken } from "./types";
 
 /**
- * DO NOT USE THIS. THE CACHE EVICTS SESSIONS.
+ * Creates a cache-backed session provider for in-memory session management.
  *
- * This needs work. TODO.
+ * Sessions may be evicted by the cache, so this provider is unsuitable for
+ * reliable session persistence.
+ *
+ * @returns A cache-backed session provider
  */
 export default function createCacheSessionProvider() {
   const sessions = cacheHandler.createCache<SessionWithToken>(

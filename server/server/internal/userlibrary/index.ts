@@ -7,7 +7,7 @@ import prisma from "../db/database";
 
 class UserLibraryManager {
   // Caches the user's core library
-  private coreLibraryCache =
+  private readonly coreLibraryCache =
     cacheHandler.createCache<string>("UserCoreLibrary");
 
   private async fetchUserLibrary(userId: string) {

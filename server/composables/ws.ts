@@ -4,12 +4,12 @@ export type WebSocketCallback = (message: string) => void;
 export type WebSocketErrorHandler = (error: NuxtError<unknown>) => void;
 
 export class WebSocketHandler {
-  private listeners: Array<WebSocketCallback> = [];
+  private readonly listeners: Array<WebSocketCallback> = [];
 
-  private outQueue: Array<string> = [];
-  private inQueue: Array<string> = [];
+  private readonly outQueue: Array<string> = [];
+  private readonly inQueue: Array<string> = [];
 
-  private ws: WebSocket | undefined = undefined;
+  private readonly ws: WebSocket | undefined = undefined;
   private connected: boolean = false;
 
   private errorHandler: WebSocketErrorHandler | undefined = undefined;

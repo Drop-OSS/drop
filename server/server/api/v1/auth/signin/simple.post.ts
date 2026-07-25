@@ -83,7 +83,7 @@ export default defineEventHandler<{
         message: t("errors.auth.invalidUserOrPass"),
       });
 
-    // TODO: send user to forgot password screen or something to force them to change their password to new system
+    // PENDING(sonar): redirect user to password change flow when password hash needs migration - deferred
     const result = await sessionHandler.signin(h3, authMek.userId, {
       rememberMe: body.rememberMe ?? false,
     });

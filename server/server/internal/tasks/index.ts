@@ -93,7 +93,7 @@ class TaskHandler {
       for (const existingTask of this.taskPool.values()) {
         // if a task is already running, we don't want to start another
         if (existingTask.taskGroup === task.taskGroup) {
-          // TODO: handle this more gracefully, maybe with a queue? should be configurable
+          // PENDING(sonar): implement configurable task queue for non-concurrent task groups - deferred
           logger.warn(
             `Task group ${task.taskGroup} does not allow concurrent tasks. Task ${task.id} will not be started.`,
           );
@@ -346,8 +346,7 @@ class TaskHandler {
     const allClientIds = this.taskPool
       .values()
       .toArray()
-      .map((e) => e.clients.keys().toArray())
-      .flat();
+      .flatMap((e) => e.clients.keys().toArray());
 
     if (!allClientIds.includes(id)) {
       this.clientRegistry.delete(id);

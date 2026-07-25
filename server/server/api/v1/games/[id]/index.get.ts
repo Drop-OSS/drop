@@ -70,12 +70,10 @@ export default defineEventHandler(async (h3) => {
   );
 
   const platforms = new Set(
-    game
-      .versions!.map((v) => [
-        ...v.setups.map((v) => v.platform),
-        ...v.launches.map((v) => v.platform),
-      ])
-      .flat(),
+    game.versions!.flatMap((v) => [
+      ...v.setups.map((v) => v.platform),
+      ...v.launches.map((v) => v.platform),
+    ]),
   );
 
   const gameV: Omit<typeof game, "versions"> = game;

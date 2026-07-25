@@ -9,15 +9,14 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// handler writes a fixed greeting to the HTTP response.
 func handler(res http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(res, "G'day there mate")
 }
+// routingMiddleware trims a trailing slash from the request URL path before passing the request to h.
 func routingMiddleware(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		url := *r.URL
-		url.Path = strings.TrimSuffix(r.URL.Path, "/")
-		r.URL = &url
-
+		r.URL.Path = strings.TrimSuffix(r.URL.Path, "/")
 		h.ServeHTTP(w, r)
 	})
 }

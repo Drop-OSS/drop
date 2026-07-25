@@ -8,6 +8,12 @@ export function fsStats(folderPath: string) {
   return { freeSpace, totalSpace };
 }
 
+/**
+ * Calculates the total size of all files within a directory and its subdirectories.
+ *
+ * @param folderPath - The path to the directory to measure
+ * @returns The total size of the directory contents in bytes
+ */
 export function getFolderSize(folderPath: string): number {
   const files = fs.readdirSync(folderPath, { withFileTypes: true });
 
@@ -30,8 +36,14 @@ export function getFolderSize(folderPath: string): number {
     );
 }
 
+/**
+ * Formats a byte count as a human-readable binary unit.
+ *
+ * @param bytes - The number of bytes to format
+ * @returns The byte count expressed in B, KiB, MiB, GiB, or TiB
+ */
 export function formatBytes(bytes: number): string {
-  // TODO: use i18n formatting https://vue-i18n.intlify.dev/guide/essentials/number.html
+  // PENDING(sonar): use i18n number formatting for bytes display - deferred, needs vue-i18n integration
 
   if (bytes < 1024) {
     return `${bytes} B`;

@@ -129,10 +129,6 @@ useHead({
   transform: translateX(-30px);
 }
 
-.list-move {
-  transition: transform 0.3s ease;
-}
-
 /* Hide scrollbar for Chrome, Safari and Opera */
 .no-scrollbar::-webkit-scrollbar {
   display: none;

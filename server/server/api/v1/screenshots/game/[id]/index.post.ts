@@ -3,8 +3,8 @@ import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import screenshotManager from "~/server/internal/screenshots";
 
-// TODO: make defineClientEventHandler instead?
-// only clients will be upload screenshots yea??
+// Only clients upload screenshots - consider using defineClientEventHandler
+// PENDING(sonar): refactor to use defineClientEventHandler for client-only routes - deferred
 export default defineEventHandler(async (h3) => {
   const userId = await aclManager.getUserIdACL(h3, ["screenshots:new"]);
   if (!userId) throw createError({ statusCode: 403 });

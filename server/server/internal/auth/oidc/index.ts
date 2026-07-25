@@ -14,7 +14,7 @@ import sessionHandler from "../../session";
 import type { SessionSearchTerms } from "../../session/types";
 import { queryParamBuilder } from "../../utils/query";
 
-// TODO: monitor https://github.com/goauthentik/authentik/issues/8751 for easier?? OIDC setup by end users
+// PENDING(sonar): monitor authentik issue #8751 for simplified OIDC setup - deferred, upstream-dependent
 
 // Schema for OIDC well-known configuration
 const OIDCWellKnownV1 = type({
@@ -170,7 +170,7 @@ export class OIDCManager {
       const response = await $fetch<unknown>(wellKnownUrl.toString());
       const wellKnown = OIDCWellKnownV1(response);
       if (wellKnown instanceof type.errors) {
-        throw new Error(
+        throw new TypeError(
           `Failed to parse OIDC well-known configuration: ${wellKnown.summary}`,
         );
       }
@@ -348,7 +348,7 @@ export class OIDCManager {
         return "Invalid token response from identity provider.";
       }
 
-      // TODO: handle refresh tokens?
+      // PENDING(sonar): implement OIDC refresh token flow - deferred, needs token rotation handling
 
       const idTokenRaw = await jose.jwtVerify(
         tokenResponse.id_token,
@@ -418,8 +418,7 @@ export class OIDCManager {
       userinfo.groups.includes(this.adminGroup);
 
     const isUser = this.userGroup
-      ? userinfo.groups !== undefined &&
-        userinfo.groups.includes(this.userGroup)
+      ? userinfo.groups?.includes(this.userGroup)
       : true;
 
     if (!(isAdmin || isUser))

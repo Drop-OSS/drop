@@ -599,7 +599,7 @@ export class SteamProvider implements MetadataProvider {
 
   private _extractBanner(html: string): string | undefined {
     const bannerRegex =
-      /background-image:\s*url\(['"]([^'"]*(?:\/clan\/\d+|\/app\/\d+|background|header)[^'"]*?)['"][^}]*\)/i;
+      /background-image:\s*url\(['"]([^'"]*?(?:\/clan\/\d+|\/app\/\d+|background|header)[^'"]*?)['"][^}]*\)/i;
     const backgroundImageRegex =
       /style\s*=\s*["'][^"']*background-image:\s*url\(([^)]+)\)[^"']*/i;
 
@@ -619,17 +619,17 @@ export class SteamProvider implements MetadataProvider {
 
   private _decodeHtmlEntities(text: string): string {
     return text
-      .replace(/&nbsp;/g, " ")
-      .replace(/&amp;/g, "&")
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
+      .replaceAll("&nbsp;", " ")
+      .replaceAll("&amp;", "&")
+      .replaceAll("&lt;", "<")
+      .replaceAll("&gt;", ">")
+      .replaceAll("&quot;", '"')
+      .replaceAll("&#39;", "'")
       .replace(/&#x([0-9A-Fa-f]+);/g, (_, hex) =>
-        String.fromCharCode(Number.parseInt(hex, 16)),
+        String.fromCodePoint(Number.parseInt(hex, 16)),
       )
       .replace(/&#(\d+);/g, (_, dec) =>
-        String.fromCharCode(Number.parseInt(dec, 10)),
+        String.fromCodePoint(Number.parseInt(dec, 10)),
       );
   }
 
@@ -853,7 +853,7 @@ export class SteamProvider implements MetadataProvider {
     markdown = markdown.replace(/•\s*\t+/g, "\n- ");
 
     // Handle numbered enumeration (1.\t, 2.\t, etc.)
-    markdown = markdown.replace(/(\d+)\.\s*\t+/g, "\n$1. ");
+    markdown = markdown.replace(/(\d+)\.\t+/g, "\n$1. ");
 
     // Convert bold text
     markdown = markdown.replace(
@@ -1043,11 +1043,11 @@ export class SteamProvider implements MetadataProvider {
   private _stripHtmlTags(html: string): string {
     return html
       .replace(/<[^>]*>/g, "")
-      .replace(/&nbsp;/g, " ")
-      .replace(/&amp;/g, "&")
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'");
+      .replaceAll("&nbsp;", " ")
+      .replaceAll("&amp;", "&")
+      .replaceAll("&lt;", "<")
+      .replaceAll("&gt;", ">")
+      .replaceAll("&quot;", '"')
+      .replaceAll("&#39;", "'");
   }
 }

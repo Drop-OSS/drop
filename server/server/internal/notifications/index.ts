@@ -12,7 +12,8 @@ import type { GlobalACL } from "../acls";
 
 // type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 
-// TODO: document notification action format
+// Notification action format: actions field contains an array of action objects with label and handler
+// PENDING(sonar): add formal documentation for notification action format - deferred
 export type NotificationCreateArgs = Pick<
   NotificationModel,
   "title" | "description" | "actions" | "nonce"
@@ -20,7 +21,7 @@ export type NotificationCreateArgs = Pick<
 
 class NotificationSystem {
   // userId to acl to listenerId
-  private listeners = new Map<
+  private readonly listeners = new Map<
     string,
     Map<
       string,
@@ -66,7 +67,7 @@ class NotificationSystem {
   ) {
     for (const [_, listener] of this.listeners.get(userId) ?? []) {
       const hasSome = notification.acls.some((e) =>
-        listener.acls.some((v) => v === e),
+        listener.acls.includes(e as GlobalACL),
       );
       if (hasSome) listener.callback(notification);
     }

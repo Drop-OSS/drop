@@ -4,10 +4,7 @@
       <h2 class="text-sm font-medium text-zinc-400">
         {{ $t("tasks.admin.runningTasksTitle") }}
       </h2>
-      <ul
-        role="list"
-        class="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-3 lg:grid-cols-4"
-      >
+      <ul class="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-3 lg:grid-cols-4">
         <li
           v-for="task in liveRunningTasks"
           :key="task.value?.id"
@@ -29,7 +26,6 @@
           {{ $t("tasks.admin.completedTasksTitle") }}
         </h2>
         <ul
-          role="list"
           class="mt-4 grid grid-cols-1 gap-2 lg:grid-cols-4 overflow-y-scroll max-h-[80vh]"
         >
           <li
@@ -93,7 +89,7 @@
         <h2 class="text-sm font-medium text-zinc-400">
           {{ $t("tasks.admin.dailyScheduledTitle") }}
         </h2>
-        <ul role="list" class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ul class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
           <li
             v-for="task in dailyTasks"
             :key="task"
@@ -110,6 +106,7 @@
                   {{ scheduledTasks[task].description }}
                 </p>
                 <button
+                  type="button"
                   class="mt-3 rounded-md text-xs font-medium text-zinc-100 hover:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-100 focus:ring-offset-2"
                   @click="() => startTask(task)"
                 >
@@ -131,7 +128,7 @@
         <h2 class="text-sm font-medium text-zinc-400 mt-8">
           {{ $t("tasks.admin.weeklyScheduledTitle") }}
         </h2>
-        <ul role="list" class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ul class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
           <li
             v-for="task in weeklyTasks"
             :key="task"
@@ -148,6 +145,7 @@
                   {{ scheduledTasks[task].description }}
                 </p>
                 <button
+                  type="button"
                   class="mt-3 rounded-md text-xs font-medium text-zinc-100 hover:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-100 focus:ring-offset-2"
                   @click="() => startTask(task)"
                 >
@@ -169,7 +167,7 @@
         <h2 class="text-sm font-medium text-zinc-400 mt-8">
           {{ $t("tasks.admin.utilityTitle") }}
         </h2>
-        <ul role="list" class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ul class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
           <li
             v-for="task in other"
             :key="task"
@@ -186,6 +184,7 @@
                   {{ scheduledTasks[task].description }}
                 </p>
                 <button
+                  type="button"
                   class="mt-3 rounded-md text-xs font-medium text-zinc-100 hover:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-100 focus:ring-offset-2"
                   @click="() => startTask(task)"
                 >

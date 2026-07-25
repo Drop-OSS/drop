@@ -51,7 +51,6 @@ jobs:
           node-version: lts/*
           cache: pnpm
 
-
       - name: install Rust nightly
         uses: dtolnay/rust-toolchain@4fd1da8b0805d2d2e936788875a7d65dbd677dc2 # nightly
         with:
@@ -61,7 +60,7 @@ jobs:
       - name: Rust cache
         uses: swatinem/rust-cache@42dc69e1aa15d09112580998cf2ef0119e2e91ae # v2
         with:
-          workspaces: './desktop/src-tauri -> target'
+          workspaces: "./desktop/src-tauri -> target"
 
       - name: install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-22.04' || matrix.platform == 'ubuntu-22.04-arm' # This must match the platform value defined above.
@@ -117,7 +116,7 @@ jobs:
           echo "Certificate imported. Using identity: $CERT_ID"
 
       - name: install frontend dependencies
-        run: pnpm install # change this to npm, pnpm or bun depending on which one you use.
+        run: pnpm install --ignore-scripts # change this to npm, pnpm or bun depending on which one you use.
 
       - uses: tauri-apps/tauri-action@fce9c6108b31ea247710505d3aaaa893ee6768d4 # v0
         env:
@@ -137,4 +136,4 @@ jobs:
           releaseDraft: false
           prerelease: true
           args: ${{ matrix.args }}
-          projectPath: './desktop'
+          projectPath: "./desktop"

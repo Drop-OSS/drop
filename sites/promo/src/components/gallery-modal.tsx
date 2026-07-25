@@ -56,6 +56,11 @@ const files: Array<{
   },
 ];
 
+/**
+ * Renders the responsive image gallery and its selected-image modal.
+ *
+ * @returns The gallery interface.
+ */
 export function Gallery() {
   const [currentModal, setCurrentModal] = useState<string | undefined>();
   function resetModal() {
@@ -101,7 +106,19 @@ export function Gallery() {
   );
 }
 
-export default function GalleryModal({ img, close }: { img?: string; close: () => void }) {
+/**
+ * Displays a selected gallery image in a dismissible modal.
+ *
+ * @param img - The URL of the image to display; the modal is hidden when omitted.
+ * @param close - Closes the modal.
+ */
+export default function GalleryModal({
+  img,
+  close,
+}: {
+  readonly img?: string;
+  readonly close: () => void;
+}) {
   return (
     <Dialog open={!!img} onClose={close} className="relative z-10">
       <DialogBackdrop

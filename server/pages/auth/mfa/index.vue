@@ -1,8 +1,5 @@
 <template>
-  <ul
-    role="list"
-    class="-mt-6 divide-y divide-white/10 border-b border-white/10"
-  >
+  <ul class="-mt-6 divide-y divide-white/10 border-b border-white/10">
     <li v-if="mfa.includes(MFAMec.TOTP)" class="relative flex gap-x-6 py-6">
       <div
         class="flex size-10 flex-none items-center justify-center rounded-lg bg-zinc-800/50 shadow-xs outline-1 -outline-offset-1 outline-white/10"

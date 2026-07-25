@@ -8,6 +8,7 @@
       <img
         :src="useObject(game.mBannerObjectId)"
         class="blur-sm w-full h-auto"
+        alt=""
       />
       <div
         class="absolute inset-0 bg-gradient-to-b from-transparent to-80% to-zinc-950"
@@ -228,6 +229,7 @@
                 <img
                   class="w-fit h-48 lg:h-96 rounded"
                   :src="useObject(image)"
+                  alt=""
                 />
               </VueSlide>
               <VueSlide v-if="game.mImageCarouselObjectIds.length == 0">

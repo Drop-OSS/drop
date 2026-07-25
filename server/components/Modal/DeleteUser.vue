@@ -25,6 +25,7 @@
         {{ $t("common.delete") }}
       </LoadingButton>
       <button
+        type="button"
         class="inline-flex items-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold font-display text-white hover:bg-zinc-700"
         @click="() => (user = undefined)"
       >

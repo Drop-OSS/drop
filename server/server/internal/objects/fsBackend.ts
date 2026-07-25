@@ -222,7 +222,7 @@ export class FsObjectBackend extends ObjectBackend {
 }
 
 class FsHashStore {
-  private cache = cacheHandler.createCache<string>("ObjectHashStore");
+  private readonly cache = cacheHandler.createCache<string>("ObjectHashStore");
 
   /**
    * Gets hash of object

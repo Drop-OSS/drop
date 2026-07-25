@@ -15,6 +15,11 @@ func deleteCertificateFromKeyChain(_ certificateLabel: String) -> Bool {
     return delStatus == errSecSuccess
 }
 
+/// Saves a certificate to the system keychain with the specified label and applies administrative trust settings.
+/// - Parameters:
+///   - certificate: The certificate to save.
+///   - certificateLabel: The label assigned to the certificate.
+/// - Throws: `SecurityError.generalError` if the certificate cannot be added to the keychain.
 func saveCertificateToKeyChain(_ certificate: SecCertificate, certificateLabel: String) throws {
     SecKeychainSetPreferenceDomain(SecPreferencesDomain.system)
     deleteCertificateFromKeyChain(certificateLabel)
@@ -32,14 +37,21 @@ func saveCertificateToKeyChain(_ certificate: SecCertificate, certificateLabel: 
         throw SecurityError.generalError
     }
 
-    var status = SecTrustSettingsSetTrustSettings(certificate, SecTrustSettingsDomain.admin, nil)
+    let trustStatus: OSStatus = SecTrustSettingsSetTrustSettings(certificate, SecTrustSettingsDomain.admin, nil)
+
+    guard trustStatus == errSecSuccess else {
+        throw SecurityError.generalError
+    }
 }
 
+/// Creates a security certificate from a Base64-encoded string.
+/// - Parameter stringData: The Base64-encoded certificate data.
+/// - Returns: The decoded security certificate.
+/// - Throws: `SecurityError.generalError` if the string cannot be decoded into a certificate.
 func getCertificateFromString(stringData: String) throws -> SecCertificate {
-    if let data = NSData(base64Encoded: stringData, options: NSData.Base64DecodingOptions.ignoreUnknownCharacters) {
-        if let certificate = SecCertificateCreateWithData(kCFAllocatorDefault, data) {
-            return certificate
-        }
+    if let data = NSData(base64Encoded: stringData, options: NSData.Base64DecodingOptions.ignoreUnknownCharacters),
+       let certificate = SecCertificateCreateWithData(kCFAllocatorDefault, data) {
+        return certificate
     }
     throw SecurityError.generalError
 }

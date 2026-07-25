@@ -15,9 +15,9 @@
       class="absolute inset-0"
     >
       <img
-        :src="imageProps.src"
+        :src="cover.src"
         class="w-full h-full object-cover brightness-[90%]"
-        :alt="imageProps.alt"
+        :alt="cover.alt"
       />
       <div
         v-if="showTitleDescription"
@@ -83,16 +83,16 @@ const {
   defaultPlaceholder?: boolean;
 }>();
 
-const imageProps = {
+const cover = {
   src: "",
   alt: t("settings.admin.store.dropGameAltPlaceholder"),
 };
 
 if (game) {
-  imageProps.src = useObject(game.mCoverObjectId);
-  imageProps.alt = game.mName;
+  cover.src = useObject(game.mCoverObjectId);
+  cover.alt = game.mName;
 } else if (defaultPlaceholder) {
-  imageProps.src = "/game-panel-placeholder.png";
+  cover.src = "/game-panel-placeholder.png";
 }
 </script>
 

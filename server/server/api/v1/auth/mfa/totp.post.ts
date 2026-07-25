@@ -14,7 +14,7 @@ const TOTPBody = type({
 
 export default defineEventHandler(async (h3) => {
   const session = await sessionHandler.getSession(h3);
-  if (!session || !session.authenticated || session.authenticated.level == 0)
+  if (!session?.authenticated || session.authenticated?.level == 0)
     throw createError({
       statusCode: 403,
       message: "Sign in before completing MFA",

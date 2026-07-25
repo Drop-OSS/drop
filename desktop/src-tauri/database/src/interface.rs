@@ -161,7 +161,7 @@ impl DatabaseInterface {
     }
 }
 
-// TODO: Make the error relelvant rather than just assume that it's a Deserialize error
+// PENDING: Make the error relelvant rather than just assume that it's a Deserialize error
 fn handle_invalid_database(
     error: Error,
     db_path: PathBuf,

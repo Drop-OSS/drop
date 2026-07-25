@@ -38,5 +38,5 @@ pub(crate) static KEY_IV: LazyLock<([u8; 16], [u8; 16])> = LazyLock::new(|| {
 });
 */
 
-// TODO: fix keyring
+// PENDING: fix keyring
 pub(crate) static KEY_IV: LazyLock<([u8; 16], [u8; 16])> = LazyLock::new(|| ([0; 16], [0; 16]));

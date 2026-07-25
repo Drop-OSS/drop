@@ -44,7 +44,9 @@ export class PriorityList<T> {
   }
 
   find(predicate: (value: T, index: number, obj: T[]) => boolean) {
-    return this.source.map((e) => e.object).find(predicate);
+    return this.source
+      .map((e) => e.object)
+      .find((value, index, obj) => predicate(value, index, obj));
   }
 }
 

@@ -8,7 +8,8 @@ import sessionHandler from "../session";
 
 class UserStatsManager {
   // Caches the user's core library
-  private userStatsCache = cacheHandler.createCache<number>("userStats");
+  private readonly userStatsCache =
+    cacheHandler.createCache<number>("userStats");
 
   async cacheUserSessions() {
     const activeSessions = await sessionHandler.getNumberActiveSessions();

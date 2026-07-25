@@ -6,16 +6,24 @@ import { Button } from "./button";
 import { Container } from "./container";
 import { Heading, Lead, Subheading } from "./text";
 
+/**
+ * Renders a team member with a GitHub profile link, avatar, description, and contribution count.
+ *
+ * @param name - The team member's GitHub username
+ * @param description - A description of the team member
+ * @param img - The team member's avatar URL
+ * @param contributions - The number of contributions made by the team member
+ */
 function Person({
   name,
   description,
   img,
   contributions,
 }: {
-  name: string;
-  description: string;
-  img: string;
-  contributions: number;
+  readonly name: string;
+  readonly description: string;
+  readonly img: string;
+  readonly contributions: number;
 }) {
   return (
     <li>
@@ -47,6 +55,9 @@ const descriptionOverride: { [key: string]: string } = {
   quexeky: "Maintainer",
 };
 
+/**
+ * Displays project contributors and provides information about contributing to Drop OSS.
+ */
 export function Team() {
   const [team, setTeam] = useState<Array<TeamObject> | null>(null);
 
@@ -127,16 +138,15 @@ export function Team() {
         role="list"
         className="mx-auto mt-16 grid grid-cols-1 gap-8 sm:grid-cols-3 lg:grid-cols-4"
       >
-        {team &&
-          team.map((member) => (
-            <Person
-              key={member.login}
-              name={member.login}
-              description={`${descriptionOverride[member.login] ?? "Contributor"}`}
-              contributions={member.contributions}
-              img={member.avatar_url}
-            />
-          ))}
+        {team?.map((member) => (
+          <Person
+            key={member.login}
+            name={member.login}
+            description={`${descriptionOverride[member.login] ?? "Contributor"}`}
+            contributions={member.contributions}
+            img={member.avatar_url}
+          />
+        ))}
       </ul>
     </Container>
   );

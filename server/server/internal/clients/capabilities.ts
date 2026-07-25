@@ -22,7 +22,7 @@ export type CapabilityConfiguration = {
 };
 
 class CapabilityManager {
-  private validationFunctions: EnumDictionary<
+  private readonly validationFunctions: EnumDictionary<
     InternalClientCapability,
     (configuration: object) => Promise<boolean>
   > = {

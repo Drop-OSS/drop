@@ -1,40 +1,56 @@
-import { clsx } from 'clsx'
-import { Mark } from './logo'
+import { clsx } from "clsx";
+import { Mark } from "./logo";
 
-function Row({ children }: { children: React.ReactNode }) {
+/**
+ * Renders a timeline row with horizontal divider lines around its content.
+ *
+ * @param children - Content displayed within the row
+ */
+function Row({ children }: { readonly children: React.ReactNode }) {
   return (
     <div className="group relative">
       <div className="absolute inset-x-0 top-1/2 h-0.5 bg-linear-to-r from-white/15 from-[2px] to-[2px] bg-size-[12px_100%]" />
       <div className="absolute inset-x-0 bottom-0 h-0.5 bg-linear-to-r from-white/5 from-[2px] to-[2px] bg-size-[12px_100%] group-last:hidden" />
       {children}
     </div>
-  )
+  );
 }
 
+/**
+ * Renders an animated logo badge with an icon and label.
+ *
+ * @param label - The text displayed beside the logo
+ * @param src - The image source for the logo
+ * @param className - Additional classes applied to the badge
+ * @returns The logo badge element
+ */
 function Logo({
   label,
   src,
   className,
 }: {
-  label: string
-  src: string
-  className: string
+  readonly label: string;
+  readonly src: string;
+  readonly className: string;
 }) {
   return (
     <div
       className={clsx(
         className,
-        'absolute top-2 grid grid-cols-[1rem_1fr] items-center gap-2 px-3 py-1 whitespace-nowrap',
-        'rounded-full bg-linear-to-t from-gray-800 from-50% to-gray-700 ring-1 ring-white/10 ring-inset',
-        '[--move-x-from:-100%] [--move-x-to:calc(100%+100cqw)] [animation-iteration-count:infinite] [animation-name:move-x] [animation-play-state:paused] [animation-timing-function:linear] group-hover:[animation-play-state:running]',
+        "absolute top-2 grid grid-cols-[1rem_1fr] items-center gap-2 px-3 py-1 whitespace-nowrap",
+        "rounded-full bg-linear-to-t from-gray-800 from-50% to-gray-700 ring-1 ring-white/10 ring-inset",
+        "[--move-x-from:-100%] [--move-x-to:calc(100%+100cqw)] [animation-iteration-count:infinite] [animation-name:move-x] [animation-play-state:paused] [animation-timing-function:linear] group-hover:[animation-play-state:running]",
       )}
     >
       <img alt="" src={src} className="size-4" />
       <span className="text-sm/6 font-medium text-white">{label}</span>
     </div>
-  )
+  );
 }
 
+/**
+ * Renders an animated timeline of integration logos around the primary brand mark.
+ */
 export function LogoTimeline() {
   return (
     <div aria-hidden="true" className="relative h-full overflow-hidden">
@@ -43,8 +59,8 @@ export function LogoTimeline() {
           className="absolute inset-0 backdrop-blur-md"
           style={{
             maskImage: `url('data:image/svg+xml,<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="96" height="96" rx="12" fill="black"/></svg>')`,
-            maskPosition: 'center',
-            maskRepeat: 'no-repeat',
+            maskPosition: "center",
+            maskRepeat: "no-repeat",
           }}
         />
         <div className="relative flex size-24 items-center justify-center rounded-xl bg-linear-to-t from-white/5 to-white/25 shadow-sm ring-1 ring-white/10 outline outline-offset-[-5px] outline-white/5 ring-inset">
@@ -126,5 +142,5 @@ export function LogoTimeline() {
         </Row>
       </div>
     </div>
-  )
+  );
 }

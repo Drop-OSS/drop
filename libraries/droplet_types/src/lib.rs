@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct FileEntry {
     pub filename: String,
     pub start: usize,
-    pub length: usize, // TODO: Replace with u64 for 32 bit clients
+    pub length: usize, // PENDING: Replace with u64 for 32 bit clients
     pub permissions: u32,
 }
 

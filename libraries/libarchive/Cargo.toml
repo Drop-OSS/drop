@@ -1,3 +1,4 @@
+# Cargo.lock intentionally omitted for library crates
 [package]
 name = "libarchive-drop"
 version = "0.1.1"

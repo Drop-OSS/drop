@@ -62,7 +62,7 @@ if (import.meta.client) {
         <p class="mt-6 text-base leading-7 text-zinc-400">
           {{ $t("errors.occurred") }}
         </p>
-        <!-- <p>{{ error. }}</p> -->
+
         <div class="mt-10">
           <!-- clearError is inconsistent so reload app to clear erro -->
           <a
@@ -77,6 +77,7 @@ if (import.meta.client) {
             </i18n-t>
           </a>
           <button
+            type="button"
             v-else
             class="text-sm font-semibold leading-7 text-blue-600"
             @click="signIn"

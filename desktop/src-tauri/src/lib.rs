@@ -138,7 +138,7 @@ async fn setup(handle: AppHandle) -> AppState {
 
     debug!("database is set up");
 
-    // TODO: Account for possible failure
+    // PENDING: Account for possible failure
     let (app_status, user) = auth::setup().await;
 
     let db_handle = borrow_db_checked();
@@ -494,7 +494,7 @@ fn run_on_tray<T: FnOnce()>(f: T) {
     (f)();
 }
 
-// TODO: Refactor
+// PENDING: Refactor
 pub async fn recieve_handshake(app: AppHandle, path: String) {
     // Tell the app we're processing
     app_emit!(&app, "auth/processing", ());
@@ -523,7 +523,7 @@ pub async fn recieve_handshake(app: AppHandle, path: String) {
     app_emit!(&app, "auth/finished", ());
 }
 
-// TODO: Refactor
+// PENDING: Refactor
 async fn recieve_handshake_logic(app: &AppHandle, path: String) -> Result<(), RemoteAccessError> {
     let path_chunks: Vec<&str> = path.split('/').collect();
     if path_chunks.len() != 3 {

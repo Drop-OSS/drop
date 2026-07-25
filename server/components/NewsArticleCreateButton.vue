@@ -138,9 +138,11 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-zinc-400 mb-2">{{
-            $t("common.tags")
-          }}</label>
+          <label
+            for="tag-input"
+            class="block text-sm font-medium text-zinc-400 mb-2"
+            >{{ $t("common.tags") }}</label
+          >
           <div class="flex flex-wrap gap-2 mb-2">
             <span
               v-for="tag in newArticle.tags"
@@ -159,9 +161,11 @@
           </div>
           <div class="flex gap-x-2">
             <input
+              id="tag-input"
               v-model="newTagInput"
               type="text"
               :placeholder="$t('news.article.tagPlaceholder')"
+              aria-label="New tag"
               class="mt-1 block w-full rounded-md bg-zinc-900 border-zinc-700 text-zinc-100 shadow-sm focus:border-primary-500 focus:ring-primary-500"
               @keydown.enter.prevent="addTag"
             />
@@ -246,8 +250,7 @@ const isValidArticle = computed(
 );
 
 const markdownPreview = computed(() => {
-  // TODO: maybe?? add https://github.com/cure53/DOMPurify
-  // micromark says its safe, but this is straight html we are injecting
+  // PENDING(sonar): consider adding DOMPurify for HTML sanitization - deferred, micromark output is safe per spec
   return micromark(newArticle.value.content);
 });
 

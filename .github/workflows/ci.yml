@@ -87,7 +87,10 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Generate Nuxt and Prisma artifacts
+        run: pnpm --filter drop run postinstall
       - name: Audit dependencies
         # GHSA-mp2f-45pm-3cg9 patched locally via patches/decompress@4.2.1.patch.
         # Remove ignore when upstream publishes decompress@>=4.2.2.
@@ -116,7 +119,10 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Generate Nuxt and Prisma artifacts
+        run: pnpm --filter drop run postinstall
       - name: Check formatting
         working-directory: server
         run: pnpm run format:check
@@ -144,7 +150,10 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Generate Nuxt and Prisma artifacts
+        run: pnpm --filter drop run postinstall
       - name: Run tests
         working-directory: server
         run: pnpm run test
@@ -172,7 +181,10 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Generate Nuxt and Prisma artifacts
+        run: pnpm --filter drop run postinstall
       - name: Run coverage
         working-directory: server
         run: pnpm run coverage
@@ -203,7 +215,7 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Run shellcheck
-        uses: ludeeus/action-shellcheck@2.0.0
+        uses: ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38 # 2.0.0
         with:
           scandir: "./scripts"
           additional_files: ".husky/pre-commit"

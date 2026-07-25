@@ -3,7 +3,7 @@ import sessionHandler from "~/server/internal/session";
 
 export default defineEventHandler(async (h3) => {
   const user = await sessionHandler.getSession(h3);
-  if (!user || !user.authenticated) throw createError({ statusCode: 403 });
+  if (!user?.authenticated) throw createError({ statusCode: 403 });
 
   const body = await readBody(h3);
   const clientId = await body.id;

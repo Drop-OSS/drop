@@ -24,7 +24,7 @@ export default {
         const tableExpr = node.callee.object;
         if (!tableExpr) return;
         const prismaExpr = tableExpr.object;
-        if (!prismaExpr || prismaExpr.name !== "prisma") return;
+        if (prismaExpr?.name !== "prisma") return;
         context.report({
           node,
           messageId: "noPrismaDelete",

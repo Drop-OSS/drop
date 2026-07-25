@@ -155,7 +155,6 @@
             :title="t('home.admin.biggestGamesToDownload')"
             :subtitle="t('home.admin.latestVersionOnly')"
           >
-            <!--            <RankingList :items="biggestGamesLatest.map(gameToRankItem)" />-->
           </TileWithLink>
         </div>
         <div class="col-span-6 lg:col-span-2">
@@ -163,7 +162,6 @@
             :title="t('home.admin.biggestGamesOnServer')"
             :subtitle="t('home.admin.allVersionsCombined')"
           >
-            <!--            <RankingList :items="biggestGamesCombined.map(gameToRankItem)" />-->
           </TileWithLink>
         </div>
       </div>

@@ -46,7 +46,7 @@ pub fn resolve(meta: &mut CloudSaveMetadata) -> File {
         let t_path = PathBuf::from(normalize(&file.path, os));
         println!("{:?}", &t_path);
         let path = parse_path(t_path, handler, &meta.game_version).unwrap();
-        let f = std::fs::metadata(&path).unwrap(); // TODO: Fix unwrap here
+        let f = std::fs::metadata(&path).unwrap(); // PENDING: Fix unwrap here
         if f.is_dir() {
             tarball.append_dir_all(&id, path).unwrap();
         } else if f.is_file() {

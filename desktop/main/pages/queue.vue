@@ -122,7 +122,7 @@ const queue = useQueueState();
 const stats = useStatsState();
 const speedHistory = useDownloadHistory();
 const speedHistoryMax = computed(() => windowWidth.value / 4);
-const speedMax = computed(() => speedHistory.value.reduce((a, b) => (a > b ? a : b)) * 1.1);
+const speedMax = computed(() => speedHistory.value.reduce((a, b) => Math.max(a, b)) * 1.1);
 const previousGameId = useState<string | undefined>("previous_game");
 
 type ListIterable = { element: (typeof queue.value.queue)[0] };

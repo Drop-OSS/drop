@@ -1,3 +1,4 @@
+# Cargo.lock intentionally omitted for library crates
 [package]
 name = "native_model_macro"
 version = "0.6.4"

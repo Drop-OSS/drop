@@ -23,7 +23,7 @@ export interface ClientMetadata {
 }
 
 export class ClientHandler {
-  private temporaryClientTable = new Map<
+  private readonly temporaryClientTable = new Map<
     string,
     {
       timeout: NodeJS.Timeout;
@@ -33,7 +33,7 @@ export class ClientHandler {
       peer?: PeerImpl;
     }
   >();
-  private codeClientMap = new Map<string, string>();
+  private readonly codeClientMap = new Map<string, string>();
 
   async initiate(metadata: ClientMetadata) {
     const clientId = randomUUID();
@@ -66,10 +66,7 @@ export class ClientHandler {
       case AuthMode.Callback:
         return `/client/authorize/${clientId}`;
       case AuthMode.Code: {
-        const code = randomUUID()
-          .replaceAll(/-/g, "")
-          .slice(0, 7)
-          .toUpperCase();
+        const code = randomUUID().replaceAll("-", "").slice(0, 7).toUpperCase();
         this.codeClientMap.set(code, clientId);
         return code;
       }

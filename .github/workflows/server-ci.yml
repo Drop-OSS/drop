@@ -45,7 +45,10 @@ jobs:
           cache: "pnpm"
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --ignore-scripts
+
+      - name: Generate Nuxt and Prisma artifacts
+        run: pnpm --filter drop run postinstall
 
       - name: Typecheck
         working-directory: server
@@ -72,7 +75,10 @@ jobs:
           cache: "pnpm"
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --ignore-scripts
+
+      - name: Generate Nuxt and Prisma artifacts
+        run: pnpm --filter drop run postinstall
 
       - name: Check formatting
         working-directory: server
@@ -103,7 +109,10 @@ jobs:
           cache: "pnpm"
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --ignore-scripts
+
+      - name: Generate Nuxt and Prisma artifacts
+        run: pnpm --filter drop run postinstall
 
       - name: Test
         working-directory: server

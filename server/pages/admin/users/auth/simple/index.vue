@@ -34,7 +34,7 @@
           </div>
         </div>
       </div>
-      <ul role="list" class="divide-y divide-zinc-800">
+      <ul class="divide-y divide-zinc-800">
         <li
           v-for="invitation in invitations"
           :key="invitation.id"
@@ -443,7 +443,7 @@ const email = computed({
     _email.value = v;
   },
 });
-const mailRegex = /^\S+@\S+\.\S+$/;
+const mailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const validEmail = computed(() =>
   _email.value === undefined ? true : mailRegex.test(email.value as string),
 );

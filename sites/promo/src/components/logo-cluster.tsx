@@ -1,17 +1,24 @@
-'use client'
+"use client";
 
-import { clsx } from 'clsx'
-import { motion } from 'framer-motion'
-import { Mark } from './logo'
+import { clsx } from "clsx";
+import { motion } from "framer-motion";
+import { Mark } from "./logo";
 
+/**
+ * Renders an animated circular background element.
+ *
+ * @param size - The circle's base diameter in pixels.
+ * @param delay - The animation delay in seconds.
+ * @param opacity - The gradient color opacity.
+ */
 function Circle({
   size,
   delay,
   opacity,
 }: {
-  size: number
-  delay: number
-  opacity: string
+  readonly size: number;
+  readonly delay: number;
+  readonly opacity: string;
 }) {
   return (
     <motion.div
@@ -24,21 +31,24 @@ function Circle({
             duration: 0.75,
             repeat: Infinity,
             repeatDelay: 1.25,
-            ease: 'easeInOut',
+            ease: "easeInOut",
             delay,
           },
         },
       }}
-      style={{ '--opacity': opacity } as React.CSSProperties}
+      style={{ "--opacity": opacity } as React.CSSProperties}
       className={clsx(
-        'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full',
-        'bg-[radial-gradient(circle,transparent_25%,color-mix(in_srgb,var(--color-blue-500)_var(--opacity),transparent)_100%)]',
-        'ring-1 ring-blue-500/8 ring-inset',
+        "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full",
+        "bg-[radial-gradient(circle,transparent_25%,color-mix(in_srgb,var(--color-blue-500)_var(--opacity),transparent)_100%)]",
+        "ring-1 ring-blue-500/8 ring-inset",
       )}
     />
-  )
+  );
 }
 
+/**
+ * Renders the animated concentric circles and gradient overlay used as the logo cluster background.
+ */
 function Circles() {
   return (
     <div className="absolute inset-0">
@@ -48,27 +58,39 @@ function Circles() {
       <Circle size={144} opacity="10%" delay={0} />
       <div className="absolute inset-0 bg-linear-to-t from-zinc-900 to-35%" />
     </div>
-  )
+  );
 }
 
+/**
+ * Renders the centered main logo within a circular container.
+ */
 function MainLogo() {
   return (
     <div className="absolute top-32 left-44 flex size-16 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-black/5">
       <Mark className="h-9" />
     </div>
-  )
+  );
 }
 
+/**
+ * Renders an animated logo image at the specified position.
+ *
+ * @param src - The logo image source
+ * @param left - The horizontal position
+ * @param top - The vertical position
+ * @param hover - The animation offsets, rotation, and delay
+ * @returns The rendered logo image
+ */
 function Logo({
   src,
   left,
   top,
   hover,
 }: {
-  src: string
-  left: number
-  top: number
-  hover: { x: number; y: number; rotate: number; delay: number }
+  readonly src: string;
+  readonly left: number;
+  readonly top: number;
+  readonly hover: { x: number; y: number; rotate: number; delay: number };
 }) {
   return (
     <motion.img
@@ -82,7 +104,7 @@ function Logo({
             duration: 0.75,
             repeat: Infinity,
             repeatDelay: 1.25,
-            ease: 'easeInOut',
+            ease: "easeInOut",
             delay: hover.delay,
           },
         },
@@ -92,9 +114,12 @@ function Logo({
       style={{ left, top } as React.CSSProperties}
       className="absolute size-16 rounded-full bg-white shadow-sm ring-1 ring-black/5"
     />
-  )
+  );
 }
 
+/**
+ * Renders an animated cluster of platform logos around the main logo.
+ */
 export function LogoCluster() {
   return (
     <div aria-hidden="true" className="relative h-full overflow-hidden">
@@ -139,5 +164,5 @@ export function LogoCluster() {
         /> */}
       </div>
     </div>
-  )
+  );
 }

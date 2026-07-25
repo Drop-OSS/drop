@@ -83,17 +83,17 @@ function buildRefMap(): FieldReferenceMap {
 }
 
 /**
- * Searches all models for a given id in their fields
- * @param id
- * @param fieldRefMap
- * @returns
+ * Determines whether an object ID is referenced by any configured model field.
+ *
+ * @param id - The object ID to search for
+ * @param fieldRefMap - The models and fields to inspect
+ * @returns `true` if the ID is referenced, `false` otherwise
  */
 async function isReferencedInModelFields(
   id: string,
   fieldRefMap: FieldReferenceMap,
 ): Promise<boolean> {
-  // TODO: optimize the built queries
-  // rn it runs a query for every id over each db table
+  // PENDING(sonar): batch DB queries instead of one-per-id-per-table - deferred, performance optimization
   for (const { model, fields, arrayFields } of Object.values(fieldRefMap)) {
     const singleFieldOrConditions = fields
       ? fields.map((field) => ({

@@ -114,7 +114,7 @@ export default defineEventHandler<
     },
   });
 
-  if (!game || !game.libraryId)
+  if (!game?.libraryId)
     throw createError({ statusCode: 404, statusMessage: "Game ID not found" });
 
   const gameWithVersionSize = {

@@ -8,6 +8,7 @@
         <input
           type="text"
           v-model="searchQuery"
+          aria-label="Search library"
           class="block w-full rounded-lg border-0 bg-zinc-800/50 py-2 pl-10 pr-3 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6"
           placeholder="Search library..."
         />
@@ -92,7 +93,7 @@
       </Disclosure>
     </TransitionGroup>
     <div v-if="loading" class="h-full grow flex p-8 justify-center text-zinc-100">
-      <div role="status">
+      <div role="status" aria-live="polite">
         <svg
           aria-hidden="true"
           class="w-6 h-6 text-transparent animate-spin fill-zinc-600"
@@ -122,7 +123,7 @@ import { invoke } from "@tauri-apps/api/core";
 import {
   type EmptyGameStatusEnum,
   InstalledType,
-  type Collection as Collection,
+  type Collection,
   type Game,
   type GameStatus,
 } from "~/types";
@@ -213,10 +214,7 @@ async function calculateGamesLogic(clearAll = false, forceRefresh = false) {
   });
   const allGames = [
     ...library.library,
-    ...library.collections
-      .map((e) => e.entries)
-      .flat()
-      .map((e) => e.game),
+    ...library.collections.flatMap((e) => e.entries).map((e) => e.game),
     ...library.other,
     ...library.missing,
   ].filter((v, i, a) => a.indexOf(v) === i);

@@ -9,6 +9,12 @@ const paths = ["./components", "./layouts", "./pages", "./server"];
 const constPaths = ["error.vue", "app.vue"];
 const extensions = [".vue", ".ts"];
 
+/**
+ * Finds supported files beneath a directory and includes the configured constant paths.
+ *
+ * @param root - The directory to search recursively
+ * @returns Paths to matching files and configured constant files
+ */
 function recursiveFindFiles(root: string): string[] {
   const results = [];
   const subpaths = fs.readdirSync(root);
@@ -21,7 +27,6 @@ function recursiveFindFiles(root: string): string[] {
     const stat = fs.statSync(absPath);
     if (stat.isDirectory()) {
       results.push(...recursiveFindFiles(absPath));
-      continue;
     }
   }
   return [...results, ...constPaths];

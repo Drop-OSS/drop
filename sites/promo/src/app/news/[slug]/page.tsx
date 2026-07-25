@@ -1,52 +1,47 @@
-import { Button } from '@/components/button'
-import { Container } from '@/components/container'
-import Content from '@/components/content'
-import { Footer } from '@/components/footer'
-import { GradientBackground } from '@/components/gradient'
-import { Navbar } from '@/components/navbar'
-import { fetchPostAuthors } from '@/components/post'
-import { Heading, Subheading } from '@/components/text'
-import { ChevronLeftIcon } from '@heroicons/react/16/solid'
-import { allPosts } from 'content-collections'
-import dayjs from 'dayjs'
-import { notFound } from 'next/navigation'
+import { Button } from "@/components/button";
+import { Container } from "@/components/container";
+import Content from "@/components/content";
+import { Footer } from "@/components/footer";
+import { GradientBackground } from "@/components/gradient";
+import { Navbar } from "@/components/navbar";
+import { fetchPostAuthors } from "@/components/post";
+import { Heading, Subheading } from "@/components/text";
+import { ChevronLeftIcon } from "@heroicons/react/16/solid";
+import { allPosts } from "content-collections";
+import dayjs from "dayjs";
+import { notFound } from "next/navigation";
 
-export const generateStaticParams = async () =>
-  allPosts.map((post) => ({ slug: post._meta.path }))
+export const generateStaticParams = async () => allPosts.map((post) => ({ slug: post._meta.path }));
 
-export const generateMetadata = async ({
-  params,
-}: {
-  params: Promise<{ slug: string }>
-}) => {
-  const aParams = await params
-  const post = allPosts.find((post) => post._meta.path === aParams.slug)
-  if (!post) notFound()
-  return { title: post.title, description: post.excerpt }
-}
+export const generateMetadata = async ({ params }: { params: Promise<{ slug: string }> }) => {
+  const aParams = await params;
+  const post = allPosts.find((post) => post._meta.path === aParams.slug);
+  if (!post) notFound();
+  return { title: post.title, description: post.excerpt };
+};
 
-export default async function BlogPost({
-  params,
-}: {
-  params: Promise<{ slug: string }>
-}) {
-  const aParams = await params
-  const post = allPosts.find((post) => post._meta.path === aParams.slug)
-  if (!post) notFound()
+/**
+ * Renders a news article page for the requested slug.
+ *
+ * @param params - Route parameters containing the article slug
+ * @returns The rendered news article page
+ */
+export default async function BlogPost({ params }: { readonly params: Promise<{ slug: string }> }) {
+  const aParams = await params;
+  const post = allPosts.find((post) => post._meta.path === aParams.slug);
+  if (!post) notFound();
 
-  const postAuthors = fetchPostAuthors()
+  const postAuthors = fetchPostAuthors();
 
-  const author = post.author ? postAuthors[post.author] : undefined
-  const tags = (post.tags ?? '').split(',').map((e) => e.trim())
+  const author = post.author ? postAuthors[post.author] : undefined;
+  const tags = (post.tags ?? "").split(",").map((e) => e.trim());
 
   return (
     <main className="overflow-hidden">
       <GradientBackground />
       <Container>
         <Navbar />
-        <Subheading className="mt-16">
-          {dayjs(post.date).format('dddd, MMMM D, YYYY')}
-        </Subheading>
+        <Subheading className="mt-16">{dayjs(post.date).format("dddd, MMMM D, YYYY")}</Subheading>
         <Heading as="h1" className="mt-2">
           {post.title}
         </Heading>
@@ -100,5 +95,5 @@ export default async function BlogPost({
       </Container>
       <Footer />
     </main>
-  )
+  );
 }

@@ -77,9 +77,11 @@
       <!-- version display name -->
       <div class="bg-zinc-800 p-4 rounded-xl relative flex flex-col gap-y-2">
         <div>
-          <label class="block text-sm font-medium leading-6 text-zinc-100">{{
-            $t("library.admin.import.version.displayName")
-          }}</label>
+          <label
+            for="display-name"
+            class="block text-sm font-medium leading-6 text-zinc-100"
+            >{{ $t("library.admin.import.version.displayName") }}</label
+          >
           <p class="text-zinc-400 text-xs">
             {{ $t("library.admin.import.version.displayNameDesc") }}
           </p>
@@ -99,9 +101,9 @@
       <!-- setup executable -->
       <div class="bg-zinc-800 p-4 rounded-xl relative flex flex-col gap-y-2">
         <div>
-          <label class="block text-sm font-medium leading-6 text-zinc-100">{{
+          <span class="block text-sm font-medium leading-6 text-zinc-100">{{
             $t("library.admin.import.version.setupCmd")
-          }}</label>
+          }}</span>
           <p class="text-zinc-400 text-xs">
             {{ $t("library.admin.import.version.setupDesc") }}
           </p>
@@ -184,9 +186,9 @@
       <!-- launch executables -->
       <div class="relative flex flex-col gap-y-2 bg-zinc-800 p-4 rounded-xl">
         <div>
-          <label class="block text-sm font-medium leading-6 text-zinc-100">{{
+          <span class="block text-sm font-medium leading-6 text-zinc-100">{{
             $t("library.admin.import.version.launchCmd")
-          }}</label>
+          }}</span>
           <p class="text-zinc-400 text-xs">
             {{ $t("library.admin.import.version.launchDesc") }}
           </p>
@@ -318,8 +320,9 @@
     </div>
     <div
       v-else-if="currentlySelectedVersion != -1"
-      role="status"
       class="inline-flex text-zinc-100 font-display font-semibold items-center gap-x-4"
+      role="status"
+      aria-live="polite"
     >
       {{ $t("library.admin.import.version.loadingVersion") }}
       <svg

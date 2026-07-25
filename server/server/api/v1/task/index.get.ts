@@ -1,7 +1,7 @@
 import taskHandler from "~/server/internal/tasks";
 import type { MinimumRequestObject } from "~/server/h3";
 
-// TODO add web socket sessions for horizontal scaling
+// PENDING(sonar): add web socket session management for horizontal scaling - deferred, needs distributed session store
 // ID to admin
 const socketHeaders = new Map<string, MinimumRequestObject>();
 

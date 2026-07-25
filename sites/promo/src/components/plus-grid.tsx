@@ -1,27 +1,39 @@
-import { clsx } from 'clsx'
+import { clsx } from "clsx";
 
+/**
+ * Wraps content in a grid container.
+ *
+ * @param className - Additional CSS classes for the container
+ * @param children - Content to render inside the container
+ */
 export function PlusGrid({
-  className = '',
+  className = "",
   children,
 }: {
-  className?: string
-  children: React.ReactNode
+  readonly className?: string;
+  readonly children: React.ReactNode;
 }) {
-  return <div className={className}>{children}</div>
+  return <div className={className}>{children}</div>;
 }
 
+/**
+ * Renders a grid row with decorative border lines and spacing around its content.
+ *
+ * @param className - Additional CSS classes for the row container
+ * @param children - Content rendered inside the row
+ */
 export function PlusGridRow({
-  className = '',
+  className = "",
   children,
 }: {
-  className?: string
-  children: React.ReactNode
+  readonly className?: string;
+  readonly children: React.ReactNode;
 }) {
   return (
     <div
       className={clsx(
         className,
-        'group/row relative isolate pt-[calc(--spacing(2)+1px)] last:pb-[calc(--spacing(2)+1px)]',
+        "group/row relative isolate pt-[calc(--spacing(2)+1px)] last:pb-[calc(--spacing(2)+1px)]",
       )}
     >
       <div
@@ -35,60 +47,60 @@ export function PlusGridRow({
       </div>
       {children}
     </div>
-  )
+  );
 }
 
+/**
+ * Renders an item container with decorative plus icons at its row boundaries.
+ *
+ * @param children - The content to render inside the item
+ */
 export function PlusGridItem({
-  className = '',
+  className = "",
   children,
 }: {
-  className?: string
-  children: React.ReactNode
+  readonly className?: string;
+  readonly children: React.ReactNode;
 }) {
   return (
-    <div className={clsx(className, 'group/item relative')}>
-      <PlusGridIcon
-        placement="top left"
-        className="hidden group-first/item:block"
-      />
+    <div className={clsx(className, "group/item relative")}>
+      <PlusGridIcon placement="top left" className="hidden group-first/item:block" />
       <PlusGridIcon placement="top right" />
       <PlusGridIcon
         placement="bottom left"
         className="hidden group-first/item:group-last/row:block"
       />
-      <PlusGridIcon
-        placement="bottom right"
-        className="hidden group-last/row:block"
-      />
+      <PlusGridIcon placement="bottom right" className="hidden group-last/row:block" />
       {children}
     </div>
-  )
+  );
 }
 
+/**
+ * Renders a decorative plus-shaped icon at the specified position.
+ *
+ * @param placement - The icon position, such as `top left` or `bottom right`
+ * @returns The positioned plus-shaped SVG icon
+ */
 export function PlusGridIcon({
-  className = '',
+  className = "",
   placement,
 }: {
-  className?: string
-  placement: `${'top' | 'bottom'} ${'right' | 'left'}`
+  readonly className?: string;
+  readonly placement: `${"top" | "bottom"} ${"right" | "left"}`;
 }) {
-  let [yAxis, xAxis] = placement.split(' ')
+  let [yAxis, xAxis] = placement.split(" ");
 
-  let yClass = yAxis === 'top' ? '-top-2' : '-bottom-2'
-  let xClass = xAxis === 'left' ? '-left-2' : '-right-2'
+  let yClass = yAxis === "top" ? "-top-2" : "-bottom-2";
+  let xClass = xAxis === "left" ? "-left-2" : "-right-2";
 
   return (
     <svg
       viewBox="0 0 15 15"
       aria-hidden="true"
-      className={clsx(
-        className,
-        'absolute size-[15px] fill-white/10',
-        yClass,
-        xClass,
-      )}
+      className={clsx(className, "absolute size-[15px] fill-white/10", yClass, xClass)}
     >
       <path d="M8 0H7V7H0V8H7V15H8V8H15V7H8V0Z" />
     </svg>
-  )
+  );
 }

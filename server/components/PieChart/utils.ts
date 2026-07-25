@@ -30,7 +30,7 @@ export function generateSlices(data: SliceData[]): Slice[] {
           ? polarToCartesian(
               CENTER,
               RADIUS,
-              percent2Degrees(lastItem(accumulator).totalPercentage),
+              percent2Degrees(lastItem(accumulator)?.totalPercentage ?? 0),
             )
           : START,
         radius: RADIUS,

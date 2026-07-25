@@ -208,6 +208,7 @@
                       class="py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-0"
                     >
                       <button
+                        type="button"
                         class="text-blue-400 hover:text-blue-300"
                         @click="() => deletePasskey(mec.id)"
                       >

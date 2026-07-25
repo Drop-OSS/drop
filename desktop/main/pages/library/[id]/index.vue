@@ -119,6 +119,7 @@
                           :src="useObject(url)"
                           class="absolute inset-0 w-full h-full object-cover"
                           v-show="index === currentImageIndex"
+                          alt=""
                         />
                       </TransitionGroup>
                     </div>
@@ -344,7 +345,7 @@
           </div>
         </div>
         <div v-else class="w-full flex items-center justify-center p-4">
-          <div role="status">
+          <div role="status" aria-live="polite">
             <svg
               aria-hidden="true"
               class="w-7 h-7 text-transparent animate-spin fill-white"
@@ -479,6 +480,7 @@
       <ol class="space-y-2">
         <li v-for="(launchData, launchIdx) in launchOptions!">
           <button
+            type="button"
             class="transition w-full rounded-sm bg-zinc-800 inline-flex items-center text-sm py-2 px-3 gap-x-2 text-zinc-100 hover:text-zinc-300 hover:bg-zinc-700"
             @click="() => launchIndex(launchIdx)"
           >
@@ -534,25 +536,31 @@
     >
       <div class="relative w-full h-full flex items-center justify-center" @click.stop>
         <button
+          type="button"
+          aria-label="Close fullscreen"
           class="absolute top-4 right-4 p-2 rounded-full bg-zinc-900/50 text-zinc-100 hover:bg-zinc-900 transition-colors"
           @click.stop="fullscreenImage = null"
         >
-          <XMarkIcon class="size-6" />
+          <XMarkIcon class="size-6" aria-hidden="true" />
         </button>
 
         <button
+          type="button"
+          aria-label="Previous image"
           v-if="game.mImageCarouselObjectIds.length > 1"
           @click.stop="previousImage()"
           class="absolute left-4 p-3 rounded-full bg-zinc-900/50 text-zinc-100 hover:bg-zinc-900 transition-colors"
         >
-          <ChevronLeftIcon class="size-6" />
+          <ChevronLeftIcon class="size-6" aria-hidden="true" />
         </button>
         <button
+          type="button"
+          aria-label="Next image"
           v-if="game.mImageCarouselObjectIds.length > 1"
           @click.stop="nextImage()"
           class="absolute right-4 p-3 rounded-full bg-zinc-900/50 text-zinc-100 hover:bg-zinc-900 transition-colors"
         >
-          <ChevronRightIcon class="size-6" />
+          <ChevronRightIcon class="size-6" aria-hidden="true" />
         </button>
 
         <TransitionGroup

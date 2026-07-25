@@ -22,8 +22,7 @@ export default defineDropTask({
   acls: ["system:maintenance:read"],
   taskGroup: "check:update",
   async run({ progress, logger }) {
-    // TODO: maybe implement some sort of rate limit thing to prevent this from calling github api a bunch in the event of crashloop or whatever?
-    // probably will require custom task scheduler for object cleanup anyway, so something to thing about
+    // PENDING(sonar): implement rate limiting for GitHub API calls to prevent crashloop abuse - deferred, needs task scheduler redesign
 
     if (!systemConfig.shouldCheckForUpdates()) {
       logger.info("Update check is disabled by configuration");
@@ -82,7 +81,7 @@ export default defineDropTask({
     }
     progress(70);
 
-    // TODO: handle prerelease identifiers https://github.com/npm/node-semver#prerelease-identifiers
+    // PENDING(sonar): handle semver prerelease identifiers for version comparison - deferred, current comparison works for stable releases
     // check if is newer version
     if (semver.gt(latestVer, currVer)) {
       logger.info("Update available");

@@ -3,7 +3,7 @@ import { OIDCManager } from "./oidc";
 import { logger } from "~/server/internal/logging";
 
 class AuthManager {
-  private authProviders: {
+  private readonly authProviders: {
     [AuthMec.Simple]: boolean;
     [AuthMec.OpenID]: OIDCManager | undefined;
   } = {
@@ -11,7 +11,7 @@ class AuthManager {
     [AuthMec.OpenID]: undefined,
   };
 
-  private initFuncs: {
+  private readonly initFuncs: {
     [K in keyof typeof this.authProviders]: () => Promise<unknown>;
   } = {
     [AuthMec.OpenID]: OIDCManager.create,

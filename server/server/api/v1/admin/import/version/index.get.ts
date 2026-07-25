@@ -18,7 +18,7 @@ export default defineEventHandler(async (h3) => {
     where: { id: gameId },
     select: { libraryId: true, libraryPath: true, type: true },
   });
-  if (!game || !game.libraryId)
+  if (!game?.libraryId)
     throw createError({ statusCode: 404, statusMessage: "Game not found" });
 
   const unimportedVersions = await libraryManager.fetchUnimportedGameVersions(

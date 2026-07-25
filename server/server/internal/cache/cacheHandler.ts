@@ -4,7 +4,7 @@ import { prefixStorage, type StorageValue, type Storage } from "unstorage";
  * Creates and manages the lifecycles of various caches
  */
 export class CacheHandler {
-  private caches = new Map<string, Storage<StorageValue>>();
+  private readonly caches = new Map<string, Storage<StorageValue>>();
 
   /**
    * Create a new cache

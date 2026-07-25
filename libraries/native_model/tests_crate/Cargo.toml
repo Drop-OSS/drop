@@ -1,3 +1,4 @@
+# Cargo.lock intentionally omitted for library crates
 [package]
 name = "tests_crate"
 version = "0.1.0"

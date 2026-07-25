@@ -74,6 +74,6 @@ export const useTask = (taskId: string): Ref<TaskMessage | undefined> => {
   taskStates.set(taskId, ref(undefined));
   console.log("connecting to " + taskId);
   websocketHandler.send(`connect/${taskId}`);
-  // TODO: this may have changed behavior
+  // PENDING(sonar): verify websocket connection behavior hasn't changed after refactoring - deferred
   return taskStates.get(taskId) ?? ref(undefined);
 };

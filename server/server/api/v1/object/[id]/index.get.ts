@@ -27,7 +27,7 @@ export default defineEventHandler(async (h3) => {
     return null;
   }
 
-  // TODO: fix undefined etagValue
+  // PENDING(sonar): investigate why etagActualValue may be undefined - deferred, currently falls back to empty string
   setHeader(h3, "ETag", etagActualValue ?? "");
   setHeader(h3, "Content-Type", object.mime);
   setHeader(

@@ -14,7 +14,7 @@
           >
           <div class="mt-2">
             <input
-              id="name"
+              id="serverName"
               v-model="settings.generalSettings.serverName"
               type="text"
               name="serverName"
@@ -36,7 +36,9 @@
                   :hover-text="$t('settings.admin.general.uploadLogo')"
                   :open-modal="openModal"
                   :object-id="mCustomLogoObjectId"
-                  :image-alt="$t('settings.admin.general.applicationLogo')"
+                  :alt-description="
+                    $t('settings.admin.general.applicationLogo')
+                  "
                 />
               </div>
               <label class="flex flex-col text-zinc-100 text-sm items-center">

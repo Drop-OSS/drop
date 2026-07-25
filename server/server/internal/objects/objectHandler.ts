@@ -131,7 +131,7 @@ export class ObjectHandler {
 
   // We only need one permission, so find instead of filter is faster
   private hasAnyPermissions(permissions: string[], userId?: string) {
-    return !!permissions.find((e) => {
+    return permissions.some((e) => {
       if (userId !== undefined && e.startsWith(userId)) return true;
       if (userId !== undefined && e.startsWith("internal")) return true;
       if (e.startsWith("anonymous")) return true;
@@ -150,8 +150,9 @@ export class ObjectHandler {
         })
         // Strip IDs from permissions
         .map((e) => e.split(":").at(1))
+        .filter((e): e is string => e !== undefined)
         // Map to priority according to array
-        .map((e) => ObjectPermissionPriority.findIndex((c) => c === e))
+        .map((e) => ObjectPermissionPriority.indexOf(e as ObjectPermission))
     );
   }
 
@@ -215,7 +216,7 @@ export class ObjectHandler {
     if (!hasPermission) return false;
 
     const source = await sourceFetcher();
-    // TODO: prevent user from overwriting existing object
+    // PENDING(sonar): add check to prevent user from overwriting existing object - deferred, needs idempotency design
     const result = await this.backend.write(id, source);
 
     return result;

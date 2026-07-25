@@ -9,6 +9,7 @@
           v-model="launchConfiguration.name"
           type="text"
           name="startup"
+          aria-label="Launch name"
           class="block flex-1 border-0 py-1.5 px-3 bg-transparent text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
           placeholder="Launch name"
         />
@@ -90,6 +91,7 @@
                       v-if="guess.type === 'emulator'"
                       :src="useObject(guess.icon)"
                       class="size-5"
+                      alt=""
                     />
                   </span>
 
@@ -198,6 +200,7 @@
           $t("library.admin.launchRow.emulatorSelect")
         }}</LoadingButton>
         <button
+          type="button"
           :disabled="!emulator"
           class="transition rounded p-2 bg-zinc-900/30 group hover:enabled:bg-red-600/10 text-zinc-400 hover:enabled:text-red-600 disabled:bg-zinc-900/80 disabled:text-zinc-700"
           @click="() => (emulator = undefined)"

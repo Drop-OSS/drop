@@ -268,6 +268,9 @@ function Header() {
   );
 }
 
+/**
+ * Renders the project cards for the comparison page.
+ */
 function ProjectCards() {
   return (
     <div className="relative py-24">
@@ -283,7 +286,12 @@ function ProjectCards() {
   );
 }
 
-function ProjectCard({ tier }: { tier: (typeof projects)[number] }) {
+/**
+ * Renders a project tier card with its branding, description, link, and key features.
+ *
+ * @param tier - The project tier whose details are displayed.
+ */
+function ProjectCard({ tier }: { readonly tier: (typeof projects)[number] }) {
   return (
     <div className="-m-2 grid grid-cols-1 rounded-4xl shadow-[inset_0_0_2px_1px_#ffffff4d] ring-1 ring-white/5 max-lg:mx-auto max-lg:w-full max-lg:max-w-md">
       <div className="grid grid-cols-1 rounded-4xl p-2 shadow-md shadow-black/5">
@@ -309,21 +317,28 @@ function ProjectCard({ tier }: { tier: (typeof projects)[number] }) {
   );
 }
 
-function ProjectTable({ selectedProject }: { selectedProject: (typeof projects)[number] }) {
+/**
+ * Renders a responsive comparison table for all projects and their features.
+ *
+ * @param selectedProject - The project whose comparison column is highlighted and selected on small screens.
+ */
+function ProjectTable({
+  selectedProject,
+}: {
+  readonly selectedProject: (typeof projects)[number];
+}) {
   function onlyUnique<T>(value: T, index: number, array: Array<T>) {
     return array.indexOf(value) === index;
   }
 
   const sections = projects
-    .map((e) => Object.keys(e.features))
-    .flat()
+    .flatMap((e) => Object.keys(e.features))
     .filter((v, i, a) => onlyUnique(v, i, a));
   const features: { [key: string]: string[] } = {};
   for (const section of sections) {
     const uniqueFeatures = projects
       .filter((e) => e.features[section])
-      .map((e) => Object.keys(e.features[section]))
-      .flat()
+      .flatMap((e) => Object.keys(e.features[section]))
       .filter((v, i, a) => onlyUnique(v, i, a));
     features[section] = uniqueFeatures;
   }
@@ -465,14 +480,21 @@ function ProjectTable({ selectedProject }: { selectedProject: (typeof projects)[
   );
 }
 
+/**
+ * Renders a comparison feature with optional coming-soon and paid indicators.
+ *
+ * @param description - The feature description to display
+ * @param disabled - Whether to mark the feature as coming soon
+ * @param paid - Whether to display the GameVault+ indicator
+ */
 function FeatureItem({
   description,
   disabled = false,
   paid = false,
 }: {
-  description: string;
-  disabled?: boolean;
-  paid?: boolean;
+  readonly description: string;
+  readonly disabled?: boolean;
+  readonly paid?: boolean;
 }) {
   return (
     <li

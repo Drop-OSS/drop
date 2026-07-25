@@ -57,5 +57,15 @@ export abstract class LibraryProvider<CFG> {
   abstract fsStats(): { freeSpace: number; totalSpace: number } | undefined;
 }
 
-export class GameNotFoundError extends Error {}
-export class VersionNotFoundError extends Error {}
+export class GameNotFoundError extends Error {
+  constructor(message?: string) {
+    super(message);
+    this.name = "GameNotFoundError";
+  }
+}
+export class VersionNotFoundError extends Error {
+  constructor(message?: string) {
+    super(message);
+    this.name = "VersionNotFoundError";
+  }
+}

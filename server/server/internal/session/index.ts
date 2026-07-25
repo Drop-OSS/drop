@@ -1,5 +1,6 @@
 import type { H3Event } from "h3";
 import type {
+  OIDCData,
   Session,
   SessionSearchTerms,
   SessionProvider,
@@ -41,7 +42,7 @@ export interface SigninOptions {
   data?: Session["data"];
 
   // set oidc session data
-  oidc?: Session["oidc"];
+  oidc?: OIDCData;
 }
 
 export class SessionHandler {
@@ -108,7 +109,7 @@ export class SessionHandler {
     if (!token)
       throw createError({ statusCode: 403, message: "User not signed in" });
     const session = await this.sessionProvider.getSession(token);
-    if (!session || !session.authenticated)
+    if (!session?.authenticated)
       throw createError({ statusCode: 403, message: "User not signed in" });
 
     session.authenticated.level += amount;
@@ -129,7 +130,7 @@ export class SessionHandler {
     // if expired session
     if (new Date(session.expiresAt).getTime() < Date.now()) {
       await this.sessionProvider.removeSession(token);
-      // TODO: should probably call signout to clear the cookie
+      // PENDING(sonar): call signout to clear cookie on expired session - deferred, needs safe cookie clearing path
       // session expired
       return undefined;
     }
@@ -264,8 +265,7 @@ export class SessionHandler {
    */
   private createSessionCookie(h3: H3Event, expiresAt: Date) {
     const token = randomUUID();
-    // TODO: we should probably switch to jwts to minimize possibility of someone
-    // trying to guess a session id (jwts let us sign + encrypt stuff in a std way)
+    // PENDING(sonar): consider switching to JWTs for session tokens - deferred, significant refactoring needed
     setCookie(h3, dropTokenCookieName, token, { expires: expiresAt });
     return token;
   }

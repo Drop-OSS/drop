@@ -2,7 +2,7 @@
   <div
     class="relative group/iconupload rounded-xl overflow-hidden w-20 mx-auto"
   >
-    <img v-if="objectId" :src="useObject(objectId)" :alt="imageAlt" />
+    <img v-if="objectId" :src="useObject(objectId)" :alt="altDescription" />
     <ArrowUpTrayIcon v-else />
     <button
       type="button"
@@ -18,10 +18,10 @@
 <script setup lang="ts">
 import { ArrowUpTrayIcon } from "@heroicons/vue/24/solid";
 
-const { objectId, openModal, hoverText, imageAlt } = defineProps<{
+const { objectId, openModal, hoverText, altDescription } = defineProps<{
   objectId: string | null;
   openModal: () => void;
   hoverText: string;
-  imageAlt: string;
+  altDescription: string;
 }>();
 </script>

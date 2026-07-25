@@ -115,7 +115,7 @@ function addFileExtension(raw: string) {
 }
 
 function removeFileExtension(extension: string) {
-  const index = model.value.findIndex((v) => v === extension);
+  const index = model.value.indexOf(extension);
   if (index == -1) return;
   model.value.splice(index, 1);
 }

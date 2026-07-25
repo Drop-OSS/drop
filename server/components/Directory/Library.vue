@@ -11,6 +11,7 @@
         v-model="searchQuery"
         type="text"
         name="search"
+        aria-label="Search library"
         autocomplete="off"
         class="block w-full rounded-md bg-zinc-900 py-2 pl-9 pr-2 text-sm text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600"
         :placeholder="$t('library.search')"

@@ -74,9 +74,9 @@
             </div>
           </div>
           <div v-if="createMode">
-            <label class="block text-sm font-medium leading-6 text-zinc-100">{{
+            <span class="block text-sm font-medium leading-6 text-zinc-100">{{
               $t("type")
-            }}</label>
+            }}</span>
             <p class="text-zinc-400 block text-xs font-medium leading-6">
               {{ $t("library.admin.sources.typeDesc") }}
             </p>

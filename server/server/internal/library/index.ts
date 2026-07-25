@@ -23,17 +23,31 @@ import { castManifest } from "./manifest/utils";
 import { Shescape } from "shescape";
 import type { Prisma } from "~/prisma/client/client";
 
+/**
+ * Creates a deterministic task identifier for importing a game.
+ *
+ * @param libraryId - The identifier of the library containing the game
+ * @param libraryPath - The game's path within the library
+ * @returns A SHA-256 hexadecimal task identifier
+ */
 export function createGameImportTaskId(libraryId: string, libraryPath: string) {
-  return createHash("md5")
+  return createHash("sha256")
     .update(`import:${libraryId}:${libraryPath}`)
     .digest("hex");
 }
 
+/**
+ * Creates a deterministic task key for importing a game version.
+ *
+ * @param gameId - The identifier of the game
+ * @param versionName - The name of the version
+ * @returns A SHA-256 hexadecimal hash derived from the game and version identifiers
+ */
 export function createVersionImportTaskKey(
   gameId: string,
   versionName: string,
 ) {
-  return createHash("md5")
+  return createHash("sha256")
     .update(`import:${gameId}:${versionName}`)
     .digest("hex");
 }
@@ -181,7 +195,7 @@ class LibraryManager {
       const unimportedVersions = versions
         .filter(
           (e) =>
-            params.versions.findIndex((v) => v == e) == -1 &&
+            !params.versions.some((v) => v == e) &&
             !taskHandler.hasTaskKey(
               createVersionImportTaskKey(params.gameId, e),
             ),
@@ -264,7 +278,7 @@ class LibraryManager {
       where: { id: gameId },
       select: { libraryPath: true, libraryId: true, mName: true },
     });
-    if (!game || !game.libraryId) return undefined;
+    if (!game?.libraryId) return undefined;
 
     const library = this.libraries.get(game.libraryId);
     if (!library) return undefined;
@@ -346,37 +360,22 @@ class LibraryManager {
       const dotLocation = filename.lastIndexOf(".");
       const ext =
         dotLocation == -1 ? "" : filename.slice(dotLocation).toLowerCase();
-      for (const [platform, checkExts] of Object.entries(fileExts)) {
-        for (const checkExt of checkExts) {
-          if (checkExt != ext) continue;
-          const fuzzyValue = fuzzy(basename, game.mName);
-          options.push({
-            type: "platform",
-            filename: this.shescape.escape(filename),
-            platform: platform as Platform,
-            match: fuzzyValue,
-          });
-        }
-      }
-      for (const emulator of emulators) {
-        for (const suggestion of emulator.emulatorSuggestions) {
-          if (suggestion != ext) continue;
-          const fuzzyValue = fuzzy(basename, game.mName);
-          options.push({
-            type: "emulator",
-            filename: this.shescape.escape(filename),
-            match: fuzzyValue,
-            emulatorId: emulator.launchId,
-
-            icon: emulator.gameVersion.game.mIconObjectId,
-            gameName: emulator.gameVersion.game.mName,
-            versionName: (emulator.gameVersion.displayName ??
-              emulator.gameVersion.versionPath)!,
-            launchName: emulator.name,
-            platform: emulator.platform,
-          });
-        }
-      }
+      this.matchPlatformExtensions(
+        filename,
+        basename,
+        ext,
+        fileExts,
+        game.mName,
+        options,
+      );
+      this.matchEmulatorSuggestions(
+        filename,
+        basename,
+        ext,
+        emulators,
+        game.mName,
+        options,
+      );
     }
 
     const sortedOptions = options.sort((a, b) => b.match - a.match);
@@ -403,21 +402,12 @@ class LibraryManager {
   }
   */
 
-  async importVersion(
-    gameId: string,
-    version: UnimportedVersionInformation,
-    metadata: typeof ImportVersion.infer,
-    parentTask?: TaskRunContext,
-  ) {
-    const taskKey = createVersionImportTaskKey(gameId, version.identifier);
-
+  private async validateImportMetadata(metadata: typeof ImportVersion.infer) {
     if (metadata.delta) {
-      for (const platformObject of [
-        ...metadata.launches,
-        ...metadata.setups,
-      ].filter(
+      const uniquePlatforms = [...metadata.launches, ...metadata.setups].filter(
         (v, i, a) => a.findIndex((k) => k.platform === v.platform) == i,
-      )) {
+      );
+      for (const platformObject of uniquePlatforms) {
         const validOverlayVersions = await prisma.gameVersion.count({
           where: {
             gameId: metadata.id,
@@ -444,19 +434,88 @@ class LibraryManager {
           statusCode: 400,
           message: 'Setup required in "setup mode".',
         });
-    } else {
-      if (metadata.launches.length == 0)
-        throw createError({
-          statusCode: 400,
-          message: "Launch executable is required.",
+    } else if (metadata.launches.length == 0)
+      throw createError({
+        statusCode: 400,
+        message: "Launch executable is required.",
+      });
+  }
+
+  private matchPlatformExtensions(
+    filename: string,
+    basename: string,
+    ext: string,
+    fileExts: { [key in Platform]: string[] },
+    gameName: string,
+    options: Array<VersionGuess>,
+  ) {
+    for (const [platform, checkExts] of Object.entries(fileExts)) {
+      for (const checkExt of checkExts) {
+        if (checkExt != ext) continue;
+        const fuzzyValue = fuzzy(basename, gameName);
+        options.push({
+          type: "platform",
+          filename: this.shescape.escape(filename),
+          platform: platform as Platform,
+          match: fuzzyValue,
         });
+      }
     }
+  }
+
+  private matchEmulatorSuggestions(
+    filename: string,
+    basename: string,
+    ext: string,
+    emulators: Array<{
+      emulatorSuggestions: string[];
+      launchId: string;
+      name: string;
+      platform: Platform;
+      gameVersion: {
+        game: { mIconObjectId: string; mName: string };
+        displayName: string | null;
+        versionPath: string | null;
+      };
+    }>,
+    gameName: string,
+    options: Array<VersionGuess>,
+  ) {
+    for (const emulator of emulators) {
+      for (const suggestion of emulator.emulatorSuggestions) {
+        if (suggestion != ext) continue;
+        const fuzzyValue = fuzzy(basename, gameName);
+        options.push({
+          type: "emulator",
+          filename: this.shescape.escape(filename),
+          match: fuzzyValue,
+          emulatorId: emulator.launchId,
+          icon: emulator.gameVersion.game.mIconObjectId,
+          gameName: emulator.gameVersion.game.mName,
+          versionName: (emulator.gameVersion.displayName ??
+            emulator.gameVersion.versionPath)!,
+          launchName: emulator.name,
+          platform: emulator.platform,
+        });
+      }
+    }
+  }
+
+  async importVersion(
+    gameId: string,
+    version: UnimportedVersionInformation,
+    metadata: typeof ImportVersion.infer,
+    parentTask?: TaskRunContext,
+  ) {
+    const taskKey = createVersionImportTaskKey(gameId, version.identifier);
+
+    await this.validateImportMetadata(metadata);
 
     const game = await prisma.game.findUnique({
       where: { id: gameId },
       select: { mName: true, libraryId: true, libraryPath: true, type: true },
     });
-    if (!game || !game.libraryId) return undefined;
+    if (!game?.libraryId) return undefined;
 
     if (game.type === GameType.Dependency && !metadata.onlySetup)
       throw createError({

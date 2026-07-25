@@ -24,10 +24,7 @@ jobs:
           node-version: "22"
           cache: pnpm
 
-      - name: Install editorconfig-checker
-        run: npm install -g editorconfig-checker
-
       - name: Validate .editorconfig compliance
         run: |
-          ec --exclude \
+          pnpm dlx editorconfig-checker@6.1.1 --exclude \
             '(node_modules|\.git|\.nuxt|\.output|coverage|dist|target|\.omo|\.dockerignore|README\.md|LICENSE|server/prisma/migrations|sites/docs|sites/promo/public|desktop/libs|backend|desktop/main/(components|pages|layouts|assets|plugins|public))'

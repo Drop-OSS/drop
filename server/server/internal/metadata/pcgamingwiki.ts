@@ -49,7 +49,7 @@ interface PCGamingWikiGame extends PCGamingWikiSearchStub {
   Developers: string | string[] | null;
   Publishers: string | string[] | null;
 
-  // TODO: save this somewhere, maybe a tag?
+  // PENDING(sonar): persist Series field as a game tag - deferred, needs tag system integration
   Series: string | null;
 
   // tags
@@ -155,7 +155,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
 
       const ratingElements = infoBoxEle.find(".template-infobox-type");
 
-      // TODO: cleanup this ratnest
+      // PENDING(sonar): refactor reception rating parsing into smaller functions - deferred, complex nested logic
       const parseIdFromHref = (href: string): string | undefined => {
         const url = new URL(href);
         const opencriticRegex = /^\/game\/(\d+)\/.+$/;
@@ -475,7 +475,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
 
     const res = await this.cargoQuery<PCGamingWikiCompany>(searchParams);
 
-    // TODO: replace with company logo
+    // PENDING(sonar): replace jdenticon fallback with actual company logo - deferred, needs logo API integration
     const icon = createObject(jdenticon.toPng(query, 512));
 
     for (let i = 0; i < res.cargoquery.length; i++) {

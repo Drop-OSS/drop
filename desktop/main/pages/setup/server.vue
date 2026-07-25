@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8"
-  >
+  <div class="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-sm flex flex-col items-center">
       <Wordmark />
       <h2
@@ -14,9 +12,7 @@
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
       <form class="space-y-6" @submit.prevent="connect_wrapper">
         <div>
-          <label
-            for="company-website"
-            class="block text-sm font-medium leading-6 text-zinc-100"
+          <label for="company-website" class="block text-sm font-medium leading-6 text-zinc-100"
             >Drop instance address</label
           >
           <div class="mt-2">
@@ -41,9 +37,7 @@
         </div>
 
         <div>
-          <LoadingButton :loading="loading" class="w-full">
-            Continue ->
-          </LoadingButton>
+          <LoadingButton :loading="loading" class="w-full"> Continue -> </LoadingButton>
         </div>
 
         <div v-if="error" class="mt-1 rounded-md bg-red-600/10 p-4">
@@ -90,15 +84,15 @@ const router = useRouter();
 const showHttps = computed(() => {
   const prefixes = ["http://", "https://"];
 
-  const doesntHavePrefix = prefixes.findIndex((e) => url.value.startsWith(e.slice(0, url.value.length))) == -1;
+  const doesntHavePrefix = !prefixes.some((e) =>
+    url.value.startsWith(e.slice(0, url.value.length)),
+  );
 
   return doesntHavePrefix;
-})
+});
 
 async function connect() {
-  const newUrl = url.value.startsWith("http")
-    ? url.value
-    : `https://${url.value}`;
+  const newUrl = url.value.startsWith("http") ? url.value : `https://${url.value}`;
 
   const result = await invoke("use_remote", { url: newUrl });
   router.push("/auth");

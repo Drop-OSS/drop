@@ -8,8 +8,6 @@ declare module "@vue/runtime-core" {
   interface ComponentCustomProperties extends _ComponentCustomProperties {
     $t: (key: string, ...args: unknown[]) => string;
   }
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface ComponentCustomOptions extends _ComponentCustomOptions {}
 }
 
 export interface EmulatorLaunchObject {

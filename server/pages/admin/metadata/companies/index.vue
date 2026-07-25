@@ -25,6 +25,7 @@
         v-model="searchQuery"
         type="text"
         name="search"
+        aria-label="Search companies"
         class="col-start-1 row-start-1 block w-full rounded-md bg-zinc-900 py-1.5 pl-10 pr-3 text-base text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:pl-9 sm:text-sm/6"
         :placeholder="$t('library.admin.metadata.companies.search')"
       />
@@ -34,7 +35,6 @@
       />
     </div>
     <ul
-      role="list"
       class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
     >
       <li
@@ -76,6 +76,7 @@
                 </i18n-t>
               </NuxtLink>
               <button
+                type="button"
                 class="w-fit rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-red-500 hover:scale-105 hover:shadow-lg hover:shadow-red-500/25 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
                 @click="() => deleteCompany(company.id)"
               >

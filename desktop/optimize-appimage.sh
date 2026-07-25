@@ -14,7 +14,7 @@ APPIMAGE_UNPACK="./squashfs-root"
 find $APPIMAGE_UNPACK -type f -exec strip -s {} \;
 
 APPIMAGETOOL=$(echo "obsolete-appimagetool-$ARCH.AppImage")
-wget -O $APPIMAGETOOL "https://github.com/AppImage/AppImageKit/releases/download/13/$APPIMAGETOOL"
+wget --content-disposition -O "$APPIMAGETOOL" "https://github.com/AppImage/AppImageKit/releases/download/13/$APPIMAGETOOL"
 chmod +x $APPIMAGETOOL
 
 APPIMAGE_OUTPUT=$(./$APPIMAGETOOL $APPIMAGE_UNPACK | grep ".AppImage" | grep squashfs-root | awk '{ print $6 }')

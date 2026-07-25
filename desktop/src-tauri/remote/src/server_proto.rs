@@ -85,7 +85,7 @@ async fn handle_server_proto(request: Request<Vec<u8>>) -> Result<Response<Vec<u
     let response = match DROP_CLIENT_ASYNC
         .request(request.method().clone(), new_uri.to_string())
         .headers(headers)
-        .body(request.body().clone()) // TODO: refactor this into a move
+        .body(request.body().clone()) // PENDING: refactor this into a move
         .send()
         .await
     {

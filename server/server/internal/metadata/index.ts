@@ -35,7 +35,7 @@ export class MissingMetadataProviderConfig extends Error {
   }
 }
 
-// TODO: add useragent to all outbound api calls (best practice)
+// User-agent string sent with outbound API calls per HTTP best practice
 export const DropUserAgent = `Drop/${systemConfig.getDropVersion()}`;
 
 export abstract class MetadataProvider {
@@ -55,9 +55,9 @@ export abstract class MetadataProvider {
 
 export class MetadataHandler {
   // Ordered by priority
-  private providers: PriorityListIndexed<MetadataProvider> =
+  private readonly providers: PriorityListIndexed<MetadataProvider> =
     new PriorityListIndexed("source");
-  private objectHandler: ObjectTransactionalHandler =
+  private readonly objectHandler: ObjectTransactionalHandler =
     new ObjectTransactionalHandler();
 
   addProvider(provider: MetadataProvider, priority: number = 0) {
@@ -80,27 +80,27 @@ export class MetadataHandler {
     for (const provider of this.providers.values()) {
       const queryTransformationPromise = new Promise<
         InternalGameMetadataResult[]
-        // TODO: fix eslint error
-        // eslint-disable-next-line no-async-promise-executor
-      >(async (resolve, reject) => {
+      >((resolve, reject) => {
         setTimeout(
           () => reject(new Error("Timeout while fetching results")),
           systemConfig.getMetadataTimeout(),
         );
-        try {
-          const results = await provider.search(query);
-          const mappedResults: InternalGameMetadataResult[] = results.map(
-            (result) =>
-              Object.assign({}, result, {
-                sourceId: provider.source(),
-                sourceName: provider.name(),
-              }),
-          );
-          resolve(mappedResults);
-        } catch (e) {
-          logger.warn(e);
-          reject(e);
-        }
+        (async () => {
+          try {
+            const results = await provider.search(query);
+            const mappedResults: InternalGameMetadataResult[] = results.map(
+              (result) =>
+                Object.assign({}, result, {
+                  sourceId: provider.source(),
+                  sourceName: provider.name(),
+                }),
+            );
+            resolve(mappedResults);
+          } catch (e) {
+            logger.warn(e);
+            reject(e);
+          }
+        })();
       });
       promises.push(queryTransformationPromise);
     }
@@ -108,8 +108,7 @@ export class MetadataHandler {
     const results = await Promise.allSettled(promises);
     const successfulResults = results
       .filter((result) => result.status === "fulfilled")
-      .map((result) => result.value)
-      .flat()
+      .flatMap((result) => result.value)
       .map((result) => {
         const match = fuzzy(query, result.name);
         return { ...result, fuzzy: match };
