@@ -34,6 +34,27 @@ updates:
     # — keep Dependabot from re-enabling builds that the workspace intentionally skips.
     rebase-strategy: "auto"
 
+  # ----- Nuxt 4 desktop app (separate pnpm workspace) -----
+  # desktop/main/ has its own pnpm-workspace.yaml and pnpm-lock.yaml,
+  # so root npm entry at "/" does not cover it. Scanned independently.
+  - package-ecosystem: "npm"
+    directory: "/desktop/main"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    groups:
+      desktop-minor:
+        update-types: ["minor", "patch"]
+      desktop-major:
+        update-types: ["major"]
+    commit-message:
+      prefix: "deps(desktop)"
+    labels: ["dependencies", "javascript"]
+    rebase-strategy: "auto"
+
   # ----- Rust workspace: CLI -----
   - package-ecosystem: "cargo"
     directory: "/cli"

@@ -1,0 +1,29 @@
+coverage:
+  status:
+    # Project-level gating is OFF until overall coverage > 30% (per AGENTS.md).
+    # At 1.17% baseline, target: auto would block every PR.
+    project: off
+    # Patch-level: warn-only. New code should be tested but not block.
+    patch:
+      default:
+        target: 50%
+        informational: true
+    # Per-flag thresholds (server flag already configured in ci.yml).
+    # Add cli, desktop, etc. as their coverage toolchains ship.
+    flags:
+      server:
+        target: 80%
+        informational: true
+
+# PR comments disabled for now: solo dev, low PR traffic, low signal at 32 tests.
+comment: false
+
+# Group admin paths that should not count toward coverage.
+ignore:
+  - ".nuxt/**"
+  - ".output/**"
+  - "prisma/client/**"
+  - "proto/**"
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "test/**"

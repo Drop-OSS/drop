@@ -34,7 +34,10 @@ export function setupTestMocks(...handlers: HttpHandler[][]): void {
 
   const flatHandlers = handlers.flat();
   server = setupServer(...flatHandlers);
-  server.listen({ onUnhandledRequest: "warn" });
+  // "error" fails the test on any unmocked request. Forces explicit
+  // MSW handler registration when adding new HTTP calls. "bypass"
+  // intentional cases via resetTestMocks([...unmockedHandlers]).
+  server.listen({ onUnhandledRequest: "error" });
 }
 
 /**

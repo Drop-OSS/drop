@@ -13,7 +13,10 @@ export default defineVitestConfig({
       provider: "v8",
       reporter: ["text", "lcov"],
       reportsDirectory: "./coverage",
-      include: ["server/**/*.ts"],
+      // Scope to Nitro backend only. Excludes server/pages/,
+      // server/components/, server/composables/, server/layouts/
+      // (frontend code that needs Playwright, not vitest).
+      include: ["server/server/**/*.ts"],
       exclude: ["server/test/**", "server/**/*.test.ts"],
     },
     setupFiles: ["./test/setup.ts"],
