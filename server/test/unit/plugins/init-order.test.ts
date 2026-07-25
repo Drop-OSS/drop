@@ -168,9 +168,7 @@ describe("Nitro Plugin Init Order", () => {
 
       const prefixes = files.map((f) => f.slice(0, 2));
       for (let i = 0; i < prefixes.length; i++) {
-        expect(prefixes[i]).toBe(
-          String(i + 1).padStart(2, "0"),
-        );
+        expect(prefixes[i]).toBe(String(i + 1).padStart(2, "0"));
       }
     });
 
@@ -201,10 +199,7 @@ describe("Nitro Plugin Init Order", () => {
 
       for (const [prefix, deps] of Object.entries(depGraph)) {
         const currentFile = files.find((f) => f.startsWith(prefix));
-        expect(
-          currentFile,
-          `Plugin ${prefix} file not found`,
-        ).toBeDefined();
+        expect(currentFile, `Plugin ${prefix} file not found`).toBeDefined();
         const currentIdx = files.indexOf(currentFile!);
 
         for (const dep of deps) {
@@ -234,10 +229,7 @@ describe("Nitro Plugin Init Order", () => {
     it("fetchProviderIdsInOrder() returns non-empty after adding providers", () => {
       const handler = new MetadataHandler();
 
-      handler.addProvider(
-        { source: () => "Steam", name: () => "Steam" },
-        100,
-      );
+      handler.addProvider({ source: () => "Steam", name: () => "Steam" }, 100);
 
       const ids = handler.fetchProviderIdsInOrder();
       expect(ids.length).toBeGreaterThan(0);
@@ -247,14 +239,8 @@ describe("Nitro Plugin Init Order", () => {
     it("returns providers sorted by priority (highest first)", () => {
       const handler = new MetadataHandler();
 
-      handler.addProvider(
-        { source: () => "LowPri", name: () => "Low" },
-        0,
-      );
-      handler.addProvider(
-        { source: () => "HighPri", name: () => "High" },
-        100,
-      );
+      handler.addProvider({ source: () => "LowPri", name: () => "Low" }, 0);
+      handler.addProvider({ source: () => "HighPri", name: () => "High" }, 100);
 
       const ids = handler.fetchProviderIdsInOrder();
       expect(ids).toEqual(["HighPri", "LowPri"]);
@@ -267,10 +253,7 @@ describe("Nitro Plugin Init Order", () => {
         { source: () => "Manual", name: () => "Manual" },
         -1000,
       );
-      handler.addProvider(
-        { source: () => "IGDB", name: () => "IGDB" },
-        50,
-      );
+      handler.addProvider({ source: () => "IGDB", name: () => "IGDB" }, 50);
 
       const ids = handler.fetchProviderIdsInOrder();
       expect(ids).not.toContain("Manual");

@@ -96,7 +96,15 @@ describe("Session Fixation (T3)", () => {
     mockLinkedMFACount.mockResolvedValue(0);
     mockSessionFindUnique.mockResolvedValue(null);
     mockSessionUpsert.mockImplementation(
-      ({ where, create, update }: { where: { token: string }; create?: { data: object }; update?: { data: object } }) => ({
+      ({
+        where,
+        create,
+        update,
+      }: {
+        where: { token: string };
+        create?: { data: object };
+        update?: { data: object };
+      }) => ({
         data: { token: where.token, data: create?.data || update?.data },
       }),
     );

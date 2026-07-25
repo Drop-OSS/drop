@@ -86,10 +86,7 @@ describe("allowSystemACL — confused deputy prevention (T4)", () => {
     mockGetSession.mockResolvedValue(authenticatedSession(adminUser.id));
     prismaUserFindUnique.mockResolvedValue(adminUser);
 
-    const result = await aclManager.allowSystemACL(
-      makeRequest(),
-      systemACLs,
-    );
+    const result = await aclManager.allowSystemACL(makeRequest(), systemACLs);
 
     expect(result).toBe(true);
   });
@@ -115,10 +112,7 @@ describe("allowSystemACL — confused deputy prevention (T4)", () => {
     mockGetSession.mockResolvedValue(undefined);
     prismaTokenFindUnique.mockResolvedValue(null);
 
-    const result = await aclManager.allowSystemACL(
-      makeRequest(),
-      systemACLs,
-    );
+    const result = await aclManager.allowSystemACL(makeRequest(), systemACLs);
 
     expect(result).toBe(false);
   });

@@ -186,14 +186,32 @@ describe("MetadataHandler provider chain (search)", () => {
     handler.addProvider(new FailingProvider(), 10);
     handler.addProvider(
       new MockSuccessProvider("ProvB", MetadataSource.Steam, [
-        { id: "b1", name: "Close Match", icon: "", description: "", year: 2024 },
-        { id: "b2", name: "Exact Match", icon: "", description: "", year: 2023 },
+        {
+          id: "b1",
+          name: "Close Match",
+          icon: "",
+          description: "",
+          year: 2024,
+        },
+        {
+          id: "b2",
+          name: "Exact Match",
+          icon: "",
+          description: "",
+          year: 2023,
+        },
       ]),
       5,
     );
     handler.addProvider(
       new MockSuccessProvider("ProvC", MetadataSource.GiantBomb, [
-        { id: "c1", name: "Mediocre Match", icon: "", description: "", year: 2022 },
+        {
+          id: "c1",
+          name: "Mediocre Match",
+          icon: "",
+          description: "",
+          year: 2022,
+        },
       ]),
       0,
     );

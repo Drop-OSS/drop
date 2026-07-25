@@ -117,19 +117,21 @@ function createManager(adminGroup?: string, userGroup?: string): OIDCManager {
     delete process.env.OIDC_USER_GROUP;
   }
 
-  const manager = new (OIDCManager as unknown as new (
-    oidcConfiguration: {
-      issuer: string;
-      authorization_endpoint: string;
-      token_endpoint: string;
-      userinfo_endpoint: string;
-      jwks_uri: string;
-      scopes_supported: string[];
-    },
-    clientId: string,
-    clientSecret: string,
-    externalUrl: URL,
-  ) => OIDCManager)(
+  const manager = new (
+    OIDCManager as unknown as new (
+      oidcConfiguration: {
+        issuer: string;
+        authorization_endpoint: string;
+        token_endpoint: string;
+        userinfo_endpoint: string;
+        jwks_uri: string;
+        scopes_supported: string[];
+      },
+      clientId: string,
+      clientSecret: string,
+      externalUrl: URL,
+    ) => OIDCManager
+  )(
     {
       issuer: "https://mock-oidc.test",
       authorization_endpoint: "https://mock-oidc.test/auth",
@@ -211,7 +213,11 @@ describe("fetchOrCreateUser – OIDC group-to-admin escalation (T2)", () => {
       }),
     );
 
-    const result = await (manager as unknown as { fetchOrCreateUser: (info: OIDCUserInfo) => Promise<{ admin: boolean }> }).fetchOrCreateUser(userinfo);
+    const result = await (
+      manager as unknown as {
+        fetchOrCreateUser: (info: OIDCUserInfo) => Promise<{ admin: boolean }>;
+      }
+    ).fetchOrCreateUser(userinfo);
 
     expect(result.admin).toBe(true);
     // Verify prisma.create was called with admin:true in connectOrCreate.create
@@ -251,7 +257,11 @@ describe("fetchOrCreateUser – OIDC group-to-admin escalation (T2)", () => {
       }),
     );
 
-    const result = await (manager as unknown as { fetchOrCreateUser: (info: OIDCUserInfo) => Promise<{ admin: boolean }> }).fetchOrCreateUser(userinfo);
+    const result = await (
+      manager as unknown as {
+        fetchOrCreateUser: (info: OIDCUserInfo) => Promise<{ admin: boolean }>;
+      }
+    ).fetchOrCreateUser(userinfo);
 
     expect(result.admin).toBe(false);
     expect(mockLinkedAuthMecCreate).toHaveBeenCalledWith(
@@ -290,7 +300,11 @@ describe("fetchOrCreateUser – OIDC group-to-admin escalation (T2)", () => {
       }),
     );
 
-    const result = await (manager as unknown as { fetchOrCreateUser: (info: OIDCUserInfo) => Promise<{ admin: boolean }> }).fetchOrCreateUser(userinfo);
+    const result = await (
+      manager as unknown as {
+        fetchOrCreateUser: (info: OIDCUserInfo) => Promise<{ admin: boolean }>;
+      }
+    ).fetchOrCreateUser(userinfo);
 
     expect(result.admin).toBe(false);
     expect(mockLinkedAuthMecCreate).toHaveBeenCalledWith(

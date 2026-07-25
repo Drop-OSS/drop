@@ -166,7 +166,11 @@ describe("PriorityListIndexed (property-based)", () => {
   it("get() returns the same item at the same key as long as it hasn't been popped", () => {
     fc.assert(
       fc.property(
-        fc.uniqueArray(itemArb, { selector: (item) => item.id, minLength: 1, maxLength: 30 }),
+        fc.uniqueArray(itemArb, {
+          selector: (item) => item.id,
+          minLength: 1,
+          maxLength: 30,
+        }),
         (items: Array<{ id: string; priority: number }>) => {
           const list = new PriorityListIndexed<TaggedWithPriority>("id");
           for (const item of items) {

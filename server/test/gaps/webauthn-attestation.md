@@ -10,24 +10,24 @@ An attacker who can submit a crafted passkey registration request can inject an 
 
 ## What is validated
 
-| Check                | Status |
-|----------------------|--------|
-| Client data JSON     | parsed & typed (arktype) |
-| Challenge match      | checked against provided value |
+| Check                | Status                                        |
+| -------------------- | --------------------------------------------- |
+| Client data JSON     | parsed & typed (arktype)                      |
+| Challenge match      | checked against provided value                |
 | RPID hash            | SHA-256 of domain compared to authData[0..31] |
-| AAGUID presence      | length check only |
-| Credential ID length | bounds check |
-| COSE key decode      | parsed as CBOR Map |
+| AAGUID presence      | length check only                             |
+| Credential ID length | bounds check                                  |
+| COSE key decode      | parsed as CBOR Map                            |
 
 ## What is NOT validated
 
-| Check                | Status |
-|----------------------|--------|
-| Attestation `fmt`    | read but never enforced |
-| Attestation signature | never parsed or verified |
-| `verificationData`   | never constructed |
-| Authenticator data integrity | not cryptographically verified |
-| `aaguid`             | not checked against any allow/block list |
+| Check                        | Status                                   |
+| ---------------------------- | ---------------------------------------- |
+| Attestation `fmt`            | read but never enforced                  |
+| Attestation signature        | never parsed or verified                 |
+| `verificationData`           | never constructed                        |
+| Authenticator data integrity | not cryptographically verified           |
+| `aaguid`                     | not checked against any allow/block list |
 
 ## Test evidence
 
