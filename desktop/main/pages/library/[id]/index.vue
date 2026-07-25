@@ -1,7 +1,7 @@
 <template>
   <div class="mx-auto w-full relative flex flex-col justify-center pt-72 overflow-hidden">
     <div class="absolute inset-0 z-0">
-      <img :src="bannerUrl" class="w-full h-[24rem] object-cover blur-sm scale-105" />
+      <img :src="bannerUrl" alt="" class="w-full h-[24rem] object-cover blur-sm scale-105" />
       <div
         class="absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/80 to-transparent opacity-90"
       />

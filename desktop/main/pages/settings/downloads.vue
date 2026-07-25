@@ -217,10 +217,9 @@
 </template>
 
 <script setup lang="ts">
-import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from "@headlessui/vue";
+import { Dialog, DialogPanel, Switch, TransitionChild, TransitionRoot } from "@headlessui/vue";
 import { FolderIcon, TrashIcon, XCircleIcon } from "@heroicons/vue/16/solid";
 import { invoke } from "@tauri-apps/api/core";
-import { Switch } from "@headlessui/vue";
 import { type Settings } from "~/types";
 
 const open = ref(false);

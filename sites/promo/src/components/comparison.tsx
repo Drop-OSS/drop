@@ -51,7 +51,7 @@ function GameVaultLogo() {
 function GameVaultPlus() {
   return (
     <div className="inline-flex items-center gap-x-1 rounded-full bg-zinc-800 px-2 py-1 text-xs">
-      <img src="/icons/gamevault-plus.png" alt="GameVault+ icon" className="size-4" />
+      <img src="/icons/gamevault-plus.png" alt="" className="size-4" />
       GameVault+
     </div>
   );
