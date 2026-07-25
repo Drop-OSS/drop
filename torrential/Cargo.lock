@@ -2471,7 +2471,7 @@ dependencies = [
  "protobuf",
  "protobuf-codegen",
  "protoc-bin-vendored",
- "rand 0.9.2",
+ "rand 0.9.3",
  "reqwest",
  "serde",
  "serde_json",
