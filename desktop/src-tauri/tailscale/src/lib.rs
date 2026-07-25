@@ -6,11 +6,12 @@ use std::ffi::{CStr, CString};
 use std::io::{Read, Write};
 #[cfg(not(target_os = "windows"))]
 use std::os::fd::{AsRawFd, RawFd};
+use std::os::raw::{c_char, c_int};
 #[cfg(target_os = "windows")]
 use std::os::windows::io::{AsRawHandle, RawHandle};
-use std::os::raw::{c_char, c_int};
 mod bindings;
-#[cfg(test)]
+pub mod provider;
+#[cfg(all(test, libtailscale_available))]
 mod test;
 
 type GoInt = i64;
@@ -316,9 +317,7 @@ impl Read for TailscaleConn {
         let fd = self.as_raw_handle();
         // Safety: Calling libc::read on a valid file descriptor.
         // The caller must ensure the handle is valid for reading (it is after successful dial/accept).
-        let n = unsafe {
-            libc::read(fd, buf.as_mut_ptr() as *mut libc::c_void, buf.len())
-        };
+        let n = unsafe { libc::read(fd, buf.as_mut_ptr() as *mut libc::c_void, buf.len()) };
         if n < 0 {
             Err(std::io::Error::last_os_error())
         } else {
@@ -329,13 +328,10 @@ impl Read for TailscaleConn {
 
 impl Write for TailscaleConn {
     fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-
         let fd = self.as_raw_fd();
         // Safety: Calling libc::write on a valid file descriptor.
         // The caller must ensure the handle is valid for writing (it is after successful dial/accept).
-        let n = unsafe {
-            libc::write(fd, buf.as_ptr() as *const libc::c_void, buf.len())
-        };
+        let n = unsafe { libc::write(fd, buf.as_ptr() as *const libc::c_void, buf.len()) };
         if n < 0 {
             Err(std::io::Error::last_os_error())
         } else {
@@ -348,3 +344,6 @@ impl Write for TailscaleConn {
         Ok(())
     }
 }
+
+// Re-export the provider trait and mock for external consumers.
+pub use crate::provider::{MockTailscale, TailscaleProvider};
