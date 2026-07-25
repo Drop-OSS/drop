@@ -1,6 +1,15 @@
 import { defineVitestConfig } from "@nuxt/test-utils/config";
+import { fileURLToPath } from "node:url";
+
+const serverDir = fileURLToPath(new URL(".", import.meta.url));
 
 export default defineVitestConfig({
+  resolve: {
+    alias: {
+      "~": serverDir,
+      "~/*": `${serverDir}*`,
+    },
+  },
   test: {
     environment: "nuxt",
     globals: true,
