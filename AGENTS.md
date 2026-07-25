@@ -73,13 +73,9 @@ pnpm --filter drop lint             # prettier + eslint
 pnpm --filter drop lint:fix         # eslint --fix + prettier --write
 
 # cli/ (Rust)
-cargo test --all-features --all                                    # NOTE: requires src/lib.rs (binary-only crate; tests reference `downpour::*`)
+cargo test --all-features --all
 cargo fmt --all -- --check
-cargo clippy --all-targets --all-features -- -D warnings            # `--all-targets` requires lib.rs to compile integration tests
-
-# cli/ (Rust) — pre-lib.rs workaround (currently in cli-ci.yml)
-cargo fmt --all -- --check
-cargo clippy --bins --no-deps --all-features                        # `--bins` excludes test targets (tests don't compile)
+cargo clippy --all-targets --all-features -- -D warnings
 
 # desktop/src-tauri/ (Rust)
 cargo check --all-features --all
