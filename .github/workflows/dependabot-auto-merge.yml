@@ -7,6 +7,8 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  checks: read
+  statuses: read
 
 # Auto-merge Dependabot PRs for patch + minor npm updates after CI passes.
 # Major npm + all cargo updates require human review.
@@ -24,25 +26,45 @@ jobs:
         with:
           script: |
             const pr = context.payload.pull_request;
+            // Detect ecosystem via label Dependabot attaches: 'dependencies/npm_and_yarn', 'dependencies/cargo', etc.
+            const isNpm = (pr.labels || []).some(l => l.name === 'dependencies/npm_and_yarn');
+            const isCargo = (pr.labels || []).some(l => l.name === 'dependencies/cargo');
             // Parse "bump <package> from X to Y" or "<package> from X to Y"
             const title = pr.title;
             const match = title.match(/(bump\s+)?(\S+)\s+from\s+\S+\s+to\s+(\S+)/);
             if (!match) {
               core.setOutput('major', 'true');
+              core.setOutput('ecosystem', 'unknown');
               return;
             }
             const to = match[3];
             const isMajor = to.includes('major') || /^(\d+)\.0\.0$/.test(to);
             core.setOutput('major', isMajor ? 'true' : 'false');
             core.setOutput('package', match[2]);
+            core.setOutput('ecosystem', isNpm ? 'npm' : isCargo ? 'cargo' : 'other');
 
-      # Only auto-merge for non-major npm updates
-      - name: Auto-merge (non-major only)
-        if: steps.meta.outputs.major != 'true' && contains(steps.meta.outputs.package, '@')
+      # Only auto-merge for non-major npm updates (cargo updates always require human review)
+      - name: Auto-merge (non-major npm only)
+        if: steps.meta.outputs.major != 'true' && steps.meta.outputs.ecosystem == 'npm'
         uses: actions/github-script@v7
         with:
           script: |
             const pr = context.payload.pull_request;
+            const sha = pr.head.sha;
+
+            // Pre-check commit status: all required status checks must be 'success'.
+            // This prevents merging a PR whose CI hasn't finished or has failed.
+            const { data: statuses } = await github.rest.repos.getCombinedStatusForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: sha,
+            });
+
+            if (statuses.state !== 'success') {
+              core.info(`PR #${pr.number} status is '${statuses.state}' — skipping auto-merge. Will retry on next push.`);
+              return;
+            }
+
             await github.rest.pulls.merge({
               owner: context.repo.owner,
               repo: context.repo.repo,
