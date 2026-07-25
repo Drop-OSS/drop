@@ -1,8 +1,8 @@
-import { spawn } from "child_process";
+import { spawn } from "node:child_process";
 import { Service } from "..";
 import { systemConfig } from "../../config/sys-conf";
-import path from "path";
-import fs from "fs";
+import path from "node:path";
+import fs from "node:fs";
 
 export const NGINX_SERVICE = new Service(
   "nginx",

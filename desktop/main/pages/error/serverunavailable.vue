@@ -11,26 +11,22 @@
       class="mx-auto w-full max-w-7xl px-6 py-24 sm:py-32 lg:col-span-2 lg:col-start-1 lg:row-start-2 lg:px-8"
     >
       <div class="max-w-lg">
-        <h1
-          class="mt-4 text-3xl font-bold font-display tracking-tight text-zinc-100 sm:text-5xl"
-        >
+        <h1 class="mt-4 text-3xl font-bold font-display tracking-tight text-zinc-100 sm:text-5xl">
           Server is unavailable
         </h1>
         <p class="mt-6 text-base leading-7 text-zinc-400">
-          We were unable to contact your Drop instance. See if you can open it
-          in your web browser, or contact your server admin for help.
+          We were unable to contact your Drop instance. See if you can open it in your web browser,
+          or contact your server admin for help.
         </p>
         <div class="mt-10 space-x-10">
           <button
-          @click="() => retry()"
+            type="button"
+            @click="() => retry()"
             class="inline-flex gap-x-2 items-center text-sm text-left font-semibold leading-7 text-white"
           >
             Retry <ArrowPathIcon class="w-5 h-5" />
           </button>
-          <NuxtLink
-            to="/setup"
-            class="text-sm text-left font-semibold leading-7 text-blue-600"
-          >
+          <NuxtLink to="/setup" class="text-sm text-left font-semibold leading-7 text-blue-600">
             Connect to different instance <span aria-hidden="true">&rarr;</span>
           </NuxtLink>
         </div>
@@ -42,28 +38,18 @@
           class="mx-auto flex w-full max-w-7xl items-center gap-x-4 px-6 text-sm leading-7 text-zinc-400 lg:px-8"
         >
           <a href="#">Documentation</a>
-          <svg
-            viewBox="0 0 2 2"
-            aria-hidden="true"
-            class="h-0.5 w-0.5 fill-zinc-700"
-          >
+          <svg viewBox="0 0 2 2" aria-hidden="true" class="h-0.5 w-0.5 fill-zinc-700">
             <circle cx="1" cy="1" r="1" />
           </svg>
           <a href="#">Troubleshooting</a>
-          <svg
-            viewBox="0 0 2 2"
-            aria-hidden="true"
-            class="h-0.5 w-0.5 fill-zinc-700"
-          >
+          <svg viewBox="0 0 2 2" aria-hidden="true" class="h-0.5 w-0.5 fill-zinc-700">
             <circle cx="1" cy="1" r="1" />
           </svg>
           <NuxtLink to="/setup/server">Switch instance</NuxtLink>
         </nav>
       </div>
     </footer>
-    <div
-      class="hidden lg:relative lg:col-start-2 lg:row-start-1 lg:row-end-4 lg:block"
-    >
+    <div class="hidden lg:relative lg:col-start-2 lg:row-start-1 lg:row-end-4 lg:block">
       <img
         src="@/assets/wallpaper.jpg"
         alt=""

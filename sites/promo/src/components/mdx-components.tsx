@@ -1,10 +1,8 @@
-import type { MDXComponents } from 'mdx/types';
-import Link from 'next/link'
+import type { MDXComponents } from "mdx/types";
+import Link from "next/link";
 
 const components: MDXComponents = {
-  p: ({ children }) => (
-    <p className="my-8 text-base/8 first:mt-0 last:mb-0">{children}</p>
-  ),
+  p: ({ children }) => <p className="my-8 text-base/8 first:mt-0 last:mb-0">{children}</p>,
   h1: ({ children }) => (
     <h2 className="mt-12 mb-10 text-4xl/8 font-medium tracking-tight text-zinc-100 first:mt-0 last:mb-0">
       {children}
@@ -27,34 +25,25 @@ const components: MDXComponents = {
   ),
   image: (props) => (
     // eslint-disable-next-line jsx-a11y/alt-text
-    <img
-      {...(props as { alt: string; src: string })}
-      className="w-full rounded-2xl"
-    />
+    <img {...(props as { alt: string; src: string })} className="w-full rounded-2xl" />
   ),
   hr: () => <hr className="my-8 border-t border-zinc-800" />,
-  strong: ({ children }) => (
-    <strong className="font-semibold text-zinc-100">{children}</strong>
-  ),
+  strong: ({ children }) => <strong className="font-semibold text-zinc-100">{children}</strong>,
   code: ({ children }) => (
     <>
-      <code className="text-[15px]/8 font-semibold text-zinc-300 bg-zinc-800 p-4 rounded-xl w-full">
+      <code className="w-full rounded-xl bg-zinc-800 p-4 text-[15px]/8 font-semibold text-zinc-300">
         {children}
       </code>
     </>
   ),
   ul: ({ children }) => (
-    <ul className="list-disc pl-4 text-base/8 marker:text-gray-400">
-      {children}
-    </ul>
+    <ul className="list-disc pl-4 text-base/8 marker:text-gray-400">{children}</ul>
   ),
   ol: ({ children }) => (
-    <ol className="list-decimal pl-4 text-base/8 marker:text-gray-400">
-      {children}
-    </ol>
+    <ol className="list-decimal pl-4 text-base/8 marker:text-gray-400">{children}</ol>
   ),
   li: ({ children }) => {
-    return <li className="my-2 pl-2 has-[br]:mb-8">{children}</li>
+    return <li className="my-2 pl-2 has-[br]:mb-8">{children}</li>;
   },
   a: (props) => {
     return (
@@ -64,10 +53,10 @@ const components: MDXComponents = {
       >
         {props.children}
       </Link>
-    )
+    );
   },
-}
+};
 
 export function useMDXComponents(): MDXComponents {
-  return components
+  return components;
 }

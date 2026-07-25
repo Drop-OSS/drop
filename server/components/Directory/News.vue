@@ -52,6 +52,7 @@
         </label>
         <div class="flex flex-wrap gap-2">
           <button
+            type="button"
             v-for="tag in availableTags"
             :key="tag"
             class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors duration-200"

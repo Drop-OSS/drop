@@ -18,6 +18,4 @@ export default defineEventHandler(async (h3) => {
   })!;
   if (count == 0)
     throw createError({ statusCode: 404, statusMessage: "Token not found" });
-
-  return;
 });

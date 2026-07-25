@@ -20,10 +20,7 @@
                     {{ props.data.description }}
                   </p>
                 </div>
-                <form
-                  class="mt-4 w-full"
-                  @submit.prevent="() => emit('event', 'submit', v)"
-                >
+                <form class="mt-4 w-full" @submit.prevent="() => emit('event', 'submit', v)">
                   <input
                     v-model="v"
                     type="text"
@@ -62,17 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  Dialog,
-  DialogTitle,
-  TransitionChild,
-  TransitionRoot,
-} from "@headlessui/vue";
-import type {
-  ModalDatas,
-  ModalEvents,
-  ModalType,
-} from "../composables/modal-stack";
+import type { ModalDatas, ModalEvents, ModalType } from "../composables/modal-stack";
 
 const props = defineProps<{
   zHeight: number;

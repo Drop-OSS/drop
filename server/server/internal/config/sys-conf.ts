@@ -1,20 +1,22 @@
 import normalizeUrl from "normalize-url";
 
 class SystemConfig {
-  private libraryFolder = process.env.LIBRARY ?? "./.data/library";
-  private dataFolder = process.env.DATA ?? "./.data/data";
+  private readonly libraryFolder = process.env.LIBRARY ?? "./.data/library";
+  private readonly dataFolder = process.env.DATA ?? "./.data/data";
 
-  private metadataTimeout = parseInt(process.env.METADATA_TIMEOUT ?? "5000");
+  private readonly metadataTimeout = Number.parseInt(
+    process.env.METADATA_TIMEOUT ?? "5000",
+  );
 
-  private externalUrl = normalizeUrl(
+  private readonly externalUrl = normalizeUrl(
     process.env.EXTERNAL_URL ?? "http://localhost:3000",
     { stripWWW: false },
   );
-  private dropVersion: string;
-  private gitRef: string;
-  private oidcRequireHttps;
+  private readonly dropVersion: string;
+  private readonly gitRef: string;
+  private readonly oidcRequireHttps;
 
-  private checkForUpdates = getUpdateCheckConfig();
+  private readonly checkForUpdates = getUpdateCheckConfig();
 
   constructor() {
     // get drop version and git ref from nuxt config

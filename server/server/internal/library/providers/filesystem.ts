@@ -5,8 +5,8 @@ import {
   type LibraryProvider,
 } from "../provider";
 import { LibraryBackend } from "~/prisma/client/enums";
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 import { fsStats } from "~/server/internal/utils/files";
 import { dropletInterface } from "../../services/torrential/droplet-interface";
 
@@ -17,8 +17,8 @@ export const FilesystemProviderConfig = type({
 export class FilesystemProvider implements LibraryProvider<
   typeof FilesystemProviderConfig.infer
 > {
-  private config: typeof FilesystemProviderConfig.infer;
-  private myId: string;
+  private readonly config: typeof FilesystemProviderConfig.infer;
+  private readonly myId: string;
 
   constructor(rawConfig: unknown, id: string) {
     const config = FilesystemProviderConfig(rawConfig);
@@ -32,7 +32,7 @@ export class FilesystemProvider implements LibraryProvider<
     this.config = config;
 
     if (!fs.existsSync(this.config.baseDir))
-      throw "Base directory does not exist.";
+      throw new Error("Base directory does not exist.");
   }
 
   id(): string {

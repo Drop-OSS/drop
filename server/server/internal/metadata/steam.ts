@@ -549,7 +549,7 @@ export class SteamProvider implements MetadataProvider {
     let titleMatch = ogTitleRegex.exec(html);
     titleMatch ??= titleTagRegex.exec(html);
 
-    return titleMatch && titleMatch[1]
+    return titleMatch?.[1]
       ? this._decodeHtmlEntities(titleMatch[1])
       : undefined;
   }
@@ -563,9 +563,7 @@ export class SteamProvider implements MetadataProvider {
     let descMatch = ogDescRegex.exec(html);
     descMatch ??= nameDescRegex.exec(html);
 
-    return descMatch && descMatch[1]
-      ? this._decodeHtmlEntities(descMatch[1])
-      : undefined;
+    return descMatch?.[1] ? this._decodeHtmlEntities(descMatch[1]) : undefined;
   }
 
   private _extractImage(html: string): string | undefined {
@@ -601,7 +599,7 @@ export class SteamProvider implements MetadataProvider {
 
   private _extractBanner(html: string): string | undefined {
     const bannerRegex =
-      /background-image:\s*url\(['"]([^'"]*(?:\/clan\/\d+|\/app\/\d+|background|header)[^'"]*)\??[^'"]*['"][^}]*\)/i;
+      /background-image:\s*url\(['"]([^'"]*(?:\/clan\/\d+|\/app\/\d+|background|header)[^'"]*?)['"][^}]*\)/i;
     const backgroundImageRegex =
       /style\s*=\s*["'][^"']*background-image:\s*url\(([^)]+)\)[^"']*/i;
 
@@ -628,9 +626,11 @@ export class SteamProvider implements MetadataProvider {
       .replace(/&quot;/g, '"')
       .replace(/&#39;/g, "'")
       .replace(/&#x([0-9A-Fa-f]+);/g, (_, hex) =>
-        String.fromCharCode(parseInt(hex, 16)),
+        String.fromCharCode(Number.parseInt(hex, 16)),
       )
-      .replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(parseInt(dec, 10)));
+      .replace(/&#(\d+);/g, (_, dec) =>
+        String.fromCharCode(Number.parseInt(dec, 10)),
+      );
   }
 
   private async _fetchGameDetails(
@@ -642,7 +642,7 @@ export class SteamProvider implements MetadataProvider {
     const searchParams = new URLSearchParams({
       input_json: JSON.stringify({
         ids: gameIds.map((id) => ({
-          appid: parseInt(id),
+          appid: Number.parseInt(id),
         })),
         context: {
           language,
@@ -865,7 +865,7 @@ export class SteamProvider implements MetadataProvider {
     markdown = markdown.replace(
       /<h([1-6])(?:\s+class="bb_tag")?[^>]*>(.*?)<\/h[1-6]>/gi,
       (_, level, content) => {
-        const headerLevel = "#".repeat(parseInt(level));
+        const headerLevel = "#".repeat(Number.parseInt(level));
         const cleanContent = this._stripHtmlTags(content).trim();
         return cleanContent ? `\n\n${headerLevel} ${cleanContent}\n\n` : "";
       },

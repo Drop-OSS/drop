@@ -1,7 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { data } from "autoprefixer";
-import { AppStatus, type AppState } from "~/types";
+import { AppStatus } from "~/types";
 
 export function setupHooks() {
   const router = useRouter();
@@ -12,9 +11,7 @@ export function setupHooks() {
   });
 
   listen("auth/failed", (event) => {
-    router.push(
-      `/auth/failed?error=${encodeURIComponent(event.payload as string)}`
-    );
+    router.push(`/auth/failed?error=${encodeURIComponent(event.payload as string)}`);
   });
 
   listen("auth/finished", async (event) => {
@@ -32,7 +29,7 @@ export function setupHooks() {
         ).toString()}"`,
         buttonText: "Close",
       },
-      (e, c) => c()
+      (e, c) => c(),
     );
   });
 
@@ -51,7 +48,7 @@ export function setupHooks() {
           await invoke("open_process_logs", { gameId: event.payload });
         }
         c();
-      }
+      },
     );
   });
 

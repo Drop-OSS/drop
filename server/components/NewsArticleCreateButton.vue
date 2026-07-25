@@ -3,6 +3,7 @@
   <div class="w-full">
     <!-- Create article button - only show for admin users -->
     <button
+      type="button"
       v-if="user?.admin"
       class="transition inline-flex w-full items-center px-4 gap-x-2 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold text-sm shadow-sm"
       @click="modalOpen = !modalOpen"
@@ -199,6 +200,7 @@
           {{ $t("news.article.submit") }}
         </LoadingButton>
         <button
+          type="button"
           class="inline-flex items-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold font-display text-white hover:bg-zinc-700"
           @click="() => (modalOpen = !modalOpen)"
         >

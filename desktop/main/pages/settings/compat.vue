@@ -14,13 +14,11 @@
         <CheckCircleIcon class="size-5 text-green-400" aria-hidden="true" />
       </div>
       <div class="ml-3">
-        <h3 class="text-sm font-medium text-green-200">
-          UMU Launcher installed
-        </h3>
+        <h3 class="text-sm font-medium text-green-200">UMU Launcher installed</h3>
         <div class="mt-2 text-sm text-green-200/85">
           <p>
-            The necessary component to use the Proton Compatibility Layer is
-            installed, and detected.
+            The necessary component to use the Proton Compatibility Layer is installed, and
+            detected.
           </p>
         </div>
       </div>
@@ -32,13 +30,11 @@
         <XCircleIcon class="size-5 text-red-400" aria-hidden="true" />
       </div>
       <div class="ml-3">
-        <h3 class="text-sm font-medium text-red-200">
-          UMU Launcher not installed
-        </h3>
+        <h3 class="text-sm font-medium text-red-200">UMU Launcher not installed</h3>
         <div class="mt-2 text-sm text-red-200/80">
           <p>
-            You will be unable to install or run games designed for Windows
-            until you install UMU Launcher and restart Drop.
+            You will be unable to install or run games designed for Windows until you install UMU
+            Launcher and restart Drop.
           </p>
         </div>
       </div>
@@ -54,14 +50,11 @@
         <XCircleIcon class="size-5 text-red-400" aria-hidden="true" />
       </div>
       <div class="ml-3">
-        <h3 class="text-sm font-medium text-red-200">
-          No default Proton layer
-        </h3>
+        <h3 class="text-sm font-medium text-red-200">No default Proton layer</h3>
         <div class="mt-2 text-sm text-red-200/80">
           <p>
-            You won't be able to launch any Windows games without overriding
-            their Proton layer in game settings. Please select a default layer
-            below using the stars.
+            You won't be able to launch any Windows games without overriding their Proton layer in
+            game settings. Please select a default layer below using the stars.
           </p>
         </div>
       </div>
@@ -80,9 +73,7 @@
   <div class="mt-2">
     <div class="sm:flex sm:items-center">
       <div class="sm:flex-auto">
-        <h1 class="text-base font-semibold text-white">
-          Auto-discovered Proton Layers
-        </h1>
+        <h1 class="text-base font-semibold text-white">Auto-discovered Proton Layers</h1>
         <p class="mt-2 text-sm text-gray-300">
           All auto-discovered Proton Layers from common paths on your system.
         </p>
@@ -100,26 +91,17 @@
                 >
                   Name
                 </th>
-                <th
-                  scope="col"
-                  class="px-3 py-3.5 text-left text-sm font-semibold text-white"
-                >
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">
                   Path
                 </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-white/10">
-              <tr
-                v-for="path in paths.data.value?.autodiscovered"
-                :key="path.path"
-              >
+              <tr v-for="path in paths.data.value?.autodiscovered" :key="path.path">
                 <td
                   class="py-4 pr-3 pl-4 text-sm font-medium inline-flex items-center gap-x-2 whitespace-nowrap text-white sm:pl-0"
                 >
-                  <DefaultProtonButton
-                    :path="path.path"
-                    v-model="paths.data.value!.default"
-                  />
+                  <DefaultProtonButton :path="path.path" v-model="paths.data.value!.default" />
                   {{ path.name }}
                 </td>
                 <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-400">
@@ -139,8 +121,7 @@
       <div class="sm:flex-auto">
         <h1 class="text-base font-semibold text-white">Manual Proton Layers</h1>
         <p class="mt-2 text-sm text-gray-300">
-          Add or remove custom Proton compatible layers for your games. We
-          recommend
+          Add or remove custom Proton compatible layers for your games. We recommend
           <a
             href="https://github.com/DavidoTek/ProtonUp-Qt"
             target="_blank"
@@ -151,8 +132,7 @@
         </p>
         <p class="mt-2 text-sm text-gray-300">
           Note: deleting a custom Proton layer will
-          <span class="font-bold">not</span> clear it from manually selected
-          Proton layers.
+          <span class="font-bold">not</span> clear it from manually selected Proton layers.
         </p>
       </div>
       <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
@@ -177,10 +157,7 @@
                 >
                   Name
                 </th>
-                <th
-                  scope="col"
-                  class="px-3 py-3.5 text-left text-sm font-semibold text-white"
-                >
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">
                   Path
                 </th>
                 <th scope="col" class="py-3.5 pr-4 pl-3 sm:pr-0">
@@ -189,26 +166,19 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-white/10">
-              <tr
-                v-for="(path, pathIdx) in paths.data.value?.custom"
-                :key="path.path"
-              >
+              <tr v-for="(path, pathIdx) in paths.data.value?.custom" :key="path.path">
                 <td
                   class="py-4 pr-3 pl-4 text-sm font-medium inline-flex items-center gap-x-2 whitespace-nowrap text-white sm:pl-0"
                 >
-                  <DefaultProtonButton
-                    :path="path.path"
-                    v-model="paths.data.value!.default"
-                  />
+                  <DefaultProtonButton :path="path.path" v-model="paths.data.value!.default" />
                   {{ path.name }}
                 </td>
                 <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-400">
                   {{ path.path }}
                 </td>
-                <td
-                  class="py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-0"
-                >
+                <td class="py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-0">
                   <button
+                    type="button"
                     @click="() => deleteCustom(pathIdx)"
                     class="text-red-400 hover:text-red-300"
                   >
@@ -227,14 +197,11 @@
     <template #default>
       <div class="sm:flex sm:items-start">
         <div class="mt-3 text-center sm:mt-0 sm:text-left">
-          <h3 class="text-base font-semibold text-zinc-100">
-            Select your Proton layer
-          </h3>
+          <h3 class="text-base font-semibold text-zinc-100">Select your Proton layer</h3>
           <div class="mt-2">
             <p class="text-sm text-zinc-400">
-              Select the path to your Proton layer. It should have at least two
-              files, one named "proton" and one named "compatibilitytool.vdf",
-              for Drop to recognise it.
+              Select the path to your Proton layer. It should have at least two files, one named
+              "proton" and one named "compatibilitytool.vdf", for Drop to recognise it.
             </p>
           </div>
         </div>
@@ -245,14 +212,9 @@
         <span v-else class="italic text-zinc-400">No path selected.</span>
       </div>
 
-      <LoadingButton :loading="false" @click="pickLayer"
-        >Select path</LoadingButton
-      >
+      <LoadingButton :loading="false" @click="pickLayer">Select path</LoadingButton>
 
-      <div
-        v-if="pickError"
-        class="rounded-md bg-red-500/15 p-4 outline outline-red-500/25"
-      >
+      <div v-if="pickError" class="rounded-md bg-red-500/15 p-4 outline outline-red-500/25">
         <div class="flex">
           <div class="shrink-0">
             <XCircleIcon class="size-5 text-red-400" aria-hidden="true" />
@@ -289,7 +251,6 @@
 
 <script setup lang="ts">
 import { CheckCircleIcon, XCircleIcon } from "@heroicons/vue/16/solid";
-import { ExclamationTriangleIcon } from "@heroicons/vue/24/solid";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 

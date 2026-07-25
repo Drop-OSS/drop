@@ -5,17 +5,14 @@
         Debug Information
       </h2>
       <p class="mt-1 text-sm leading-6 text-zinc-400">
-        Technical information about your Drop client installation, helpful for
-        debugging.
+        Technical information about your Drop client installation, helpful for debugging.
       </p>
 
       <div class="mt-10 space-y-8">
         <div>
           <div class="flex items-center gap-x-3">
             <FingerPrintIcon class="h-5 w-5 text-zinc-400" />
-            <h3 class="text-sm font-medium leading-6 text-zinc-100">
-              Client ID
-            </h3>
+            <h3 class="text-sm font-medium leading-6 text-zinc-100">Client ID</h3>
           </div>
           <p class="mt-2 text-sm text-zinc-400 font-mono ml-8">
             {{ clientId || "Not signed in" }}
@@ -25,9 +22,7 @@
         <div>
           <div class="flex items-center gap-x-3">
             <ComputerDesktopIcon class="h-5 w-5 text-zinc-400" />
-            <h3 class="text-sm font-medium leading-6 text-zinc-100">
-              Platform
-            </h3>
+            <h3 class="text-sm font-medium leading-6 text-zinc-100">Platform</h3>
           </div>
           <p class="mt-2 text-sm text-zinc-400 font-mono ml-8">
             {{ platformInfo }}
@@ -37,9 +32,7 @@
         <div>
           <div class="flex items-center gap-x-3">
             <ServerIcon class="h-5 w-5 text-zinc-400" />
-            <h3 class="text-sm font-medium leading-6 text-zinc-100">
-              Server URL
-            </h3>
+            <h3 class="text-sm font-medium leading-6 text-zinc-100">Server URL</h3>
           </div>
           <p class="mt-2 text-sm text-zinc-400 font-mono ml-8">
             {{ baseUrl || "Not connected" }}
@@ -49,9 +42,7 @@
         <div>
           <div class="flex items-center gap-x-3">
             <FolderIcon class="h-5 w-5 text-zinc-400" />
-            <h3 class="text-sm font-medium leading-6 text-zinc-100">
-              Data Directory
-            </h3>
+            <h3 class="text-sm font-medium leading-6 text-zinc-100">Data Directory</h3>
           </div>
           <p class="mt-2 text-sm text-zinc-400 font-mono ml-8">
             {{ dataDir || "Unknown" }}
@@ -60,6 +51,7 @@
 
         <div class="pt-6 flex gap-x-4">
           <button
+            type="button"
             @click="() => openDataDir()"
             type="button"
             class="inline-flex items-center gap-x-2 rounded-md bg-blue-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
@@ -68,6 +60,7 @@
             Open Data Directory
           </button>
           <button
+            type="button"
             @click="() => openLogFile()"
             type="button"
             class="inline-flex items-center gap-x-2 rounded-md bg-blue-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
@@ -83,17 +76,14 @@
 
 <script setup lang="ts">
 import { invoke } from "@tauri-apps/api/core";
-import { platform, type } from "@tauri-apps/plugin-os";
+import { platform } from "@tauri-apps/plugin-os";
 import {
   FingerPrintIcon,
-  TagIcon,
   ComputerDesktopIcon,
   ServerIcon,
   FolderIcon,
-  CubeIcon,
   DocumentTextIcon,
 } from "@heroicons/vue/24/outline";
-import { open } from "@tauri-apps/plugin-shell";
 
 const clientId = ref<string | null>(null);
 const platformInfo = ref("Loading...");

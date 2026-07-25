@@ -69,7 +69,7 @@ export const useTask = (taskId: string): Ref<TaskMessage | undefined> => {
   if (import.meta.server) return ref(undefined);
   const taskStates = useTaskStates();
   const task = taskStates.get(taskId);
-  if (task && task.value && !task.value.error) return task;
+  if (task?.value && !task.value.error) return task;
 
   taskStates.set(taskId, ref(undefined));
   console.log("connecting to " + taskId);

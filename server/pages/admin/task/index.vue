@@ -93,7 +93,7 @@
         <h2 class="text-sm font-medium text-zinc-400">
           {{ $t("tasks.admin.dailyScheduledTitle") }}
         </h2>
-        <ul role="list" class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ul class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
           <li
             v-for="task in dailyTasks"
             :key="task"
@@ -131,7 +131,7 @@
         <h2 class="text-sm font-medium text-zinc-400 mt-8">
           {{ $t("tasks.admin.weeklyScheduledTitle") }}
         </h2>
-        <ul role="list" class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ul class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
           <li
             v-for="task in weeklyTasks"
             :key="task"
@@ -169,7 +169,7 @@
         <h2 class="text-sm font-medium text-zinc-400 mt-8">
           {{ $t("tasks.admin.utilityTitle") }}
         </h2>
-        <ul role="list" class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ul class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
           <li
             v-for="task in other"
             :key="task"

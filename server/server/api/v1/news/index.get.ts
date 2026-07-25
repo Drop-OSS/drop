@@ -25,8 +25,8 @@ export default defineEventHandler(async (h3) => {
   }
 
   const options = {
-    take: parseInt(query.limit as string),
-    skip: parseInt(query.skip as string),
+    take: Number.parseInt(query.limit as string),
+    skip: Number.parseInt(query.skip as string),
     orderBy: orderBy,
     ...(tags && { tags: tags.map((e) => e.toString()) }),
     search: query.search as string,

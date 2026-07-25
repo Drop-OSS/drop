@@ -35,7 +35,7 @@ export default defineEventHandler<{ body: typeof UpdateLibrarySource.infer }>(
 
     // Test we can actually use it
     if ((await newLibrary.listGames()) === undefined) {
-      throw "Library failed to fetch games.";
+      throw new Error("Library failed to fetch games.");
     }
 
     const updatedSource = (

@@ -19,7 +19,7 @@
               {{ $t("setup.welcomeDescription") }}
             </p>
           </div>
-          <ul role="list" class="mt-10 divide-y divide-zinc-700/5">
+          <ul class="mt-10 divide-y divide-zinc-700/5">
             <li
               v-for="(action, actionIdx) in actions"
               :key="action.name"
@@ -39,6 +39,7 @@
               <div class="flex-auto">
                 <h3 class="text-sm/6 font-semibold text-zinc-100">
                   <button
+                    type="button"
                     :class="
                       actionsComplete[actionIdx]
                         ? 'line-through text-zinc-300'
@@ -199,9 +200,7 @@ const actions = ref<
 
 const actionsComplete = ref(Array(actions.value.length).fill(false));
 
-const finished = computed(
-  () => actionsComplete.value.filter((e) => !e).length == 0,
-);
+const finished = computed(() => actionsComplete.value.every((e) => e));
 
 const open = computed(() => currentAction.value != -1);
 definePageMeta({

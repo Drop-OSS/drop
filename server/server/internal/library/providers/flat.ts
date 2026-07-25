@@ -2,8 +2,8 @@ import { ArkErrors, type } from "arktype";
 import type { LibraryProvider } from "../provider";
 import { VersionNotFoundError } from "../provider";
 import { LibraryBackend } from "~/prisma/client/enums";
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 import { fsStats } from "~/server/internal/utils/files";
 import { dropletInterface } from "../../services/torrential/droplet-interface";
 
@@ -14,8 +14,8 @@ export const FlatFilesystemProviderConfig = type({
 export class FlatFilesystemProvider implements LibraryProvider<
   typeof FlatFilesystemProviderConfig.infer
 > {
-  private config: typeof FlatFilesystemProviderConfig.infer;
-  private myId: string;
+  private readonly config: typeof FlatFilesystemProviderConfig.infer;
+  private readonly myId: string;
 
   constructor(rawConfig: unknown, id: string) {
     const config = FlatFilesystemProviderConfig(rawConfig);
@@ -29,7 +29,7 @@ export class FlatFilesystemProvider implements LibraryProvider<
     this.config = config;
 
     if (!fs.existsSync(this.config.baseDir))
-      throw "Base directory does not exist.";
+      throw new Error("Base directory does not exist.");
   }
 
   type() {

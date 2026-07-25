@@ -37,7 +37,7 @@ export default defineQueryProcessor({
         },
       },
     });
-    if (!version) throw "Game version not found";
+    if (!version) throw new Error("Game version not found");
 
     const manifest = castManifest(version.dropletManifest);
 

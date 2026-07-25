@@ -7,7 +7,7 @@ interface PriorityTagged<T> {
 }
 
 export class PriorityList<T> {
-  private source: Array<PriorityTagged<T>> = [];
+  private readonly source: Array<PriorityTagged<T>> = [];
   private cachedSorted: Array<T> | undefined;
 
   push(item: T, priority: number = 0) {
@@ -53,8 +53,8 @@ type IndexableProperty<T> = keyof FilterConditionally<
   (() => string) | string
 >;
 export class PriorityListIndexed<T> extends PriorityList<T> {
-  private indexName: IndexableProperty<T>;
-  private indexMap = new Map<string, T>();
+  private readonly indexName: IndexableProperty<T>;
+  private readonly indexMap = new Map<string, T>();
 
   constructor(indexName: IndexableProperty<T>) {
     super();

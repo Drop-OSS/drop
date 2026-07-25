@@ -121,6 +121,7 @@
               :needs-name="false"
             />
             <button
+              type="button"
               class="transition rounded p-1 bg-zinc-900/30 group hover:bg-red-600/30"
               @click="() => versionSettings.setups.splice(launchIdx, 1)"
             >
@@ -220,6 +221,7 @@
                     <MinusIcon v-else class="size-6" aria-hidden="true" />
                   </span>
                   <button
+                    type="button"
                     class="ml-1 transition rounded p-1 bg-zinc-900/30 group hover:bg-red-600/30"
                     @click.prevent="
                       () => versionSettings.launches.splice(launchIdx, 1)

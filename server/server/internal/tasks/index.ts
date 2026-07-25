@@ -46,19 +46,19 @@ type TaskPoolEntry = FinishedTask & {
  */
 class TaskHandler {
   // registry of scheduled tasks to be created
-  private taskCreators: Map<TaskGroup, () => Task> = new Map();
+  private readonly taskCreators: Map<TaskGroup, () => Task> = new Map();
 
   // list of all currently running tasks
-  private taskPool = new Map<string, TaskPoolEntry>();
+  private readonly taskPool = new Map<string, TaskPoolEntry>();
   // list of all clients currently connected to tasks
-  private clientRegistry = new Map<string, PeerImpl>();
+  private readonly clientRegistry = new Map<string, PeerImpl>();
 
-  private dailyScheduledTasks: TaskGroup[] = [
+  private readonly dailyScheduledTasks: TaskGroup[] = [
     "cleanup:invitations",
     "cleanup:sessions",
     "check:update",
   ];
-  private weeklyScheduledTasks: TaskGroup[] = ["cleanup:objects"];
+  private readonly weeklyScheduledTasks: TaskGroup[] = ["cleanup:objects"];
 
   constructor() {
     // register the cleanup invitations task
@@ -368,9 +368,7 @@ class TaskHandler {
   }
 
   hasTaskKey(key: string) {
-    return (
-      this.taskPool.values().find((v) => v.key && v.key == key) != undefined
-    );
+    return this.taskPool.values().some((v) => v.key && v.key == key);
   }
 
   dailyTasks() {

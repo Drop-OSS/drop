@@ -25,7 +25,7 @@ export default defineClientEventHandler(
         statusCode: 400,
         statusMessage: "No slotIndex in route params",
       });
-    const slotIndex = parseInt(slotIndexString);
+    const slotIndex = Number.parseInt(slotIndexString);
     if (Number.isNaN(slotIndex))
       throw createError({
         statusCode: 400,
@@ -46,7 +46,5 @@ export default defineClientEventHandler(
       h3.node.req,
       client.id,
     );
-
-    return;
   },
 );

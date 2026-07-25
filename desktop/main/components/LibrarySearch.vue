@@ -1,16 +1,9 @@
 <template>
   <div class="flex flex-col h-full">
     <div class="mb-3 inline-flex gap-x-2">
-      <div
-        class="relative transition-transform duration-300 hover:scale-105 active:scale-95"
-      >
-        <div
-          class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
-        >
-          <MagnifyingGlassIcon
-            class="h-5 w-5 text-zinc-400"
-            aria-hidden="true"
-          />
+      <div class="relative transition-transform duration-300 hover:scale-105 active:scale-95">
+        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+          <MagnifyingGlassIcon class="h-5 w-5 text-zinc-400" aria-hidden="true" />
         </div>
         <input
           type="text"
@@ -20,6 +13,7 @@
         />
       </div>
       <button
+        type="button"
         @click="() => calculateGames(true, true)"
         class="p-1 flex items-center justify-center transition-transform duration-300 size-10 hover:scale-110 active:scale-90 rounded-lg bg-zinc-800/50 text-zinc-100"
       >
@@ -27,16 +21,15 @@
       </button>
     </div>
 
-    <TransitionGroup
-      name="list"
-      tag="ul"
-      class="flex flex-col gap-y-1.5 h-full"
-    >
+    <TransitionGroup name="list" tag="ul" class="flex flex-col gap-y-1.5 h-full">
       <Disclosure
         as="div"
         v-for="(nav, navIndex) in filteredNavigation"
         :key="nav.id"
-        :class="['first:pt-0 last:pb-0', nav.tools && !filteredNavigation[navIndex - 1].tools ? 'mt-auto' : '']"
+        :class="[
+          'first:pt-0 last:pb-0',
+          nav.tools && !filteredNavigation[navIndex - 1].tools ? 'mt-auto' : '',
+        ]"
         v-slot="{ open }"
         :default-open="nav.deft"
       >
@@ -44,9 +37,7 @@
           <DisclosureButton
             class="flex w-full items-center justify-between text-left text-gray-900 dark:text-white"
           >
-            <span class="text-sm font-semibold font-display">{{
-              nav.name
-            }}</span>
+            <span class="text-sm font-semibold font-display">{{ nav.name }}</span>
             <span class="ml-6 relative flex size-4">
               <MinusIcon class="absolute inset-0 size-4" aria-hidden="true" />
               <MinusIcon
@@ -74,9 +65,7 @@
             :href="item.route"
           >
             <div class="flex items-center w-full gap-x-2">
-              <div
-                class="flex-none transition-transform duration-300 hover:-rotate-2"
-              >
+              <div class="flex-none transition-transform duration-300 hover:-rotate-2">
                 <img
                   class="size-6 object-cover bg-zinc-900 rounded transition-all duration-300 shadow-sm"
                   :src="useObject(item.icon)"
@@ -89,9 +78,7 @@
                 </p>
                 <p
                   class="truncate text-[10px] font-bold uppercase font-display"
-                  :class="[
-                    getGameStatusStyleText(games[item.id].status.value)[0],
-                  ]"
+                  :class="[getGameStatusStyleText(games[item.id].status.value)[0]]"
                 >
                   {{ getGameStatusStyleText(games[item.id].status.value)[1] }}
                 </p>
@@ -104,10 +91,7 @@
         </DisclosurePanel>
       </Disclosure>
     </TransitionGroup>
-    <div
-      v-if="loading"
-      class="h-full grow flex p-8 justify-center text-zinc-100"
-    >
+    <div v-if="loading" class="h-full grow flex p-8 justify-center text-zinc-100">
       <div role="status">
         <svg
           aria-hidden="true"
@@ -133,12 +117,7 @@
 
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/vue";
-import {
-  ArrowPathIcon,
-  MagnifyingGlassIcon,
-  MinusIcon,
-  PlusIcon,
-} from "@heroicons/vue/20/solid";
+import { ArrowPathIcon, MagnifyingGlassIcon, MinusIcon } from "@heroicons/vue/20/solid";
 import { invoke } from "@tauri-apps/api/core";
 import {
   type EmptyGameStatusEnum,
@@ -181,10 +160,7 @@ function getGameStatusStyleText(status: GameStatus): [string, string] {
     if (status.install_type.type === InstalledType.SetupRequired) {
       return ["text-yellow-500", "Setup required"];
     }
-    throw (
-      "Non-exhaustive installed type, missing: " +
-      JSON.stringify(status.install_type)
-    );
+    throw "Non-exhaustive installed type, missing: " + JSON.stringify(status.install_type);
   }
   return [gameStatusTextStyle[status.type], gameStatusText[status.type]];
 }
@@ -327,8 +303,7 @@ const currentNavigation = computed(() => {
 });
 
 const filteredNavigation = computed(() => {
-  if (!searchQuery.value)
-    return navigation.value.map((e, i) => ({ ...e, index: i }));
+  if (!searchQuery.value) return navigation.value.map((e, i) => ({ ...e, index: i }));
   const query = searchQuery.value.toLowerCase();
   return navigation.value
     .map((c) => ({
