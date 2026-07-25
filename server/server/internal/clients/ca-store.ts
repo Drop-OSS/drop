@@ -90,7 +90,7 @@ export const dbCertificateStore = () => {
           blacklisted: true,
         },
       });
-      if (result === null) return true;
+      if (result === null) return false;
       return result.blacklisted;
     },
   };
