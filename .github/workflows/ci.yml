@@ -168,6 +168,26 @@ jobs:
           fail_ci_if_error: false
           flags: server
 
+  sonar:
+    name: SonarCloud Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    continue-on-error: true
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          submodules: true
+      - name: SonarCloud Scan
+        uses: sonarcloud/github-action@v3
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=Heretek-Drop_drop
+            -Dsonar.organization=heretek-drop
+
   dockerfile:
     name: Dockerfile Lint
     runs-on: ubuntu-latest
