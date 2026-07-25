@@ -1,6 +1,22 @@
 import prisma from "~/server/internal/db/database";
 import { defineDropTask, wrapTaskContext } from "..";
 import { libraryManager } from "../../library";
+import type { LibraryProvider } from "../../library/provider";
+
+async function generateManifestForVersion(
+  library: LibraryProvider<unknown>,
+  libraryPath: string,
+  versionPath: string,
+  progress: (v: number) => void,
+  log: (v: string) => void,
+): Promise<string> {
+  return library.generateDropletManifest(
+    libraryPath,
+    versionPath,
+    progress,
+    log,
+  );
+}
 
 export default defineDropTask({
   buildId: () => `import:check-integrity:${new Date().toISOString()}`,
@@ -49,7 +65,8 @@ export default defineDropTask({
         { min, max, prefix: `re-check ${displayName}` },
       );
 
-      const manifest = await library.generateDropletManifest(
+      const manifest = await generateManifestForVersion(
+        library,
         version.game.libraryPath,
         version.versionPath!,
         taskContext.progress,
