@@ -30,6 +30,7 @@
             </NuxtLink>
 
             <button
+              type="button"
               v-if="user?.admin"
               class="px-2 py-1 rounded bg-red-900/50 backdrop-blur-sm transition text-sm/6 font-semibold text-red-400 hover:text-red-100 inline-flex gap-x-2 items-center duration-200 hover:scale-105"
               @click="() => (currentlyDeleting = article)"

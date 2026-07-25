@@ -11,9 +11,9 @@ export type CertificateBundle = {
 This is designed to handle client certificates, as described in the README.md
 */
 export class CertificateAuthority {
-  private certificateStore: CertificateStore;
+  private readonly certificateStore: CertificateStore;
 
-  private root: CertificateBundle;
+  private readonly root: CertificateBundle;
 
   constructor(store: CertificateStore, root: CertificateBundle) {
     this.certificateStore = store;

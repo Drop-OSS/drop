@@ -10,5 +10,4 @@ export default defineEventHandler(async (h3) => {
   const company = await prisma.company.deleteMany({ where: { id } });
   if (company.count == 0)
     throw createError({ statusCode: 404, statusMessage: "Company not found" });
-  return;
 });

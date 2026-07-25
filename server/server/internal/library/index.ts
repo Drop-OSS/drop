@@ -5,7 +5,7 @@
  * It also provides the endpoints with information about unmatched games
  */
 
-import path from "path";
+import path from "node:path";
 import prisma from "../db/database";
 import { fuzzy } from "fast-fuzzy";
 import type { TaskRunContext } from "../tasks";
@@ -63,8 +63,8 @@ export interface UnimportedVersionInformation {
 }
 
 class LibraryManager {
-  private libraries: Map<string, LibraryProvider<unknown>> = new Map();
-  private shescape = new Shescape({});
+  private readonly libraries: Map<string, LibraryProvider<unknown>> = new Map();
+  private readonly shescape = new Shescape({});
 
   addLibrary(library: LibraryProvider<unknown>) {
     this.libraries.set(library.id(), library);
@@ -510,7 +510,9 @@ class LibraryManager {
             fileList = unimportedVersion.fileList;
             progress(90);
           } else {
-            throw "Could not find or create manifest for this version.";
+            throw new Error(
+              "Could not find or create manifest for this version.",
+            );
           }
 
           const largestIndex = await prisma.gameVersion.findFirst({
@@ -574,7 +576,7 @@ class LibraryManager {
           logger.info("Successfully created version!");
 
           notificationSystem.systemPush({
-            nonce: `version-create-${gameId}-${version}`,
+            nonce: `version-create-${gameId}-${version.identifier}`,
             title: `'${game.mName}' ('${version.name}') finished importing.`,
             description: `Drop finished importing version ${version.name} for ${game.mName}.`,
             actions: [`View|/admin/library/${gameId}`],

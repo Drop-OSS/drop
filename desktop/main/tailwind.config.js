@@ -1,6 +1,6 @@
-const path = require('path');
+const path = require("node:path");
 
-const dropbase = path.join(__dirname, "../../libraries/base")
+const dropbase = path.join(__dirname, "../../libraries/base");
 
 /** @type {import('tailwindcss').Config} */
 export default {

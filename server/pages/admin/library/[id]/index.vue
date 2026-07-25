@@ -74,6 +74,7 @@
             :key="value"
           >
             <button
+              type="button"
               :class="[
                 'inline-flex items-center gap-x-1 py-2 px-3 rounded-t-md font-semibold text-sm',
                 value == currentMode

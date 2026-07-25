@@ -153,13 +153,17 @@
               </div>
             </div>
 
-            <button @click="() => (showAddImageDescriptionModal = true)">
+            <button
+              type="button"
+              @click="() => (showAddImageDescriptionModal = true)"
+            >
               <PhotoIcon
                 class="transition size-5 text-zinc-100 hover:text-zinc-300"
               />
             </button>
 
             <button
+              type="button"
               class="block lg:hidden"
               @click="
                 () => (mobileShowFinalDescription = !mobileShowFinalDescription)

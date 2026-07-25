@@ -36,6 +36,7 @@
 
           <!-- Delete button (only show for non-default collections) -->
           <button
+            type="button"
             class="group px-3 ml-[2px] bg-zinc-800/50 hover:bg-zinc-800 group focus:bg-zinc-800 focus:outline-none"
             @click="() => (currentlyDeleting = collection)"
           >
@@ -48,6 +49,7 @@
         <!-- Create new collection button (also wrap in div) -->
         <div>
           <button
+            type="button"
             class="group flex flex-row rounded-lg overflow-hidden transition-all duration-200 text-left w-full hover:scale-105"
             @click="collectionCreateOpen = true"
           >

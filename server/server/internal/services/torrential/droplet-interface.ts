@@ -64,9 +64,9 @@ type DropletFunctionCallbacks =
   | PeekFileCallback;
 
 class DropletInterfaceManager {
-  private callbacks: Map<string, DropletFunctionCallbacks> = new Map();
+  private readonly callbacks: Map<string, DropletFunctionCallbacks> = new Map();
 
-  private queryProcessors: QueryProcessor<
+  private readonly queryProcessors: QueryProcessor<
     DropBoundType,
     TorrentialBoundType,
     Message

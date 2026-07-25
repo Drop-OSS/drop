@@ -11,6 +11,7 @@
         </h2>
         <div class="inline-flex gap-x-2">
           <button
+            type="button"
             :disabled="notifications.length === 0"
             class="inline-flex items-center justify-center gap-x-2 rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm transition-all duration-200 hover:bg-zinc-700 hover:scale-[1.02] hover:shadow-lg active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-zinc-800 disabled:hover:scale-100 disabled:hover:shadow-none"
             @click="markAllAsRead"
@@ -19,6 +20,7 @@
             {{ $t("account.notifications.markAllAsRead") }}
           </button>
           <button
+            type="button"
             :disabled="notifications.length === 0"
             class="inline-flex items-center justify-center gap-x-2 rounded-md bg-red-800 px-3 py-2 text-sm font-semibold text-red-100 shadow-sm transition-all duration-200 hover:bg-red-700 hover:scale-[1.02] hover:shadow-lg active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-red-800 disabled:hover:scale-100 disabled:hover:shadow-none"
             @click="clearNotifications"

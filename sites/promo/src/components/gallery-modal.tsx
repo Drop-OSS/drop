@@ -1,83 +1,74 @@
-'use client'
+"use client";
 
-import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react'
-import { XMarkIcon } from '@heroicons/react/24/solid'
-import { useState } from 'react'
-import { Container } from './container'
+import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
+import { XMarkIcon } from "@heroicons/react/24/solid";
+import { useState } from "react";
+import { Container } from "./container";
 
 const files: Array<{
-  url: string
-  name: string
-  description: string
-  column?: number
+  url: string;
+  name: string;
+  description: string;
+  column?: number;
 }> = [
   {
-    url: '/gallery/store.png',
-    name: 'Store',
+    url: "/gallery/store.png",
+    name: "Store",
+    description: "A store page with ~20 games imported and slightly customised metadata.",
+  },
+  {
+    url: "/gallery/storepage.png",
+    name: "Store page - Enshrouded",
+    description: "An example store page of Enshrouded.",
+  },
+  {
+    url: "/gallery/storepagemobile.png",
+    name: "Mobile store page - Enshrouded",
+    description: "A mobile view of the example store page of Enshrouded",
+  },
+  {
+    url: "/gallery/developermobile.png",
+    name: "Company page - Keen Games",
     description:
-      'A store page with ~20 games imported and slightly customised metadata.',
+      "An example company page that lists their games. Can be filtered by developed or published.",
   },
   {
-    url: '/gallery/storepage.png',
-    name: 'Store page - Enshrouded',
-    description: 'An example store page of Enshrouded.',
+    url: "/gallery/devices.png",
+    name: "Devices page",
+    description: "A list of authorised devices connected to your account.",
   },
   {
-    url: '/gallery/storepagemobile.png',
-    name: 'Mobile store page - Enshrouded',
-    description: 'A mobile view of the example store page of Enshrouded',
+    url: "/gallery/companyadmin.png",
+    name: "Company - Admin Dashboard",
+    description: "Page to edit and customise company metadata, and add/remove games to it.",
   },
   {
-    url: '/gallery/developermobile.png',
-    name: 'Company page - Keen Games',
-    description:
-      'An example company page that lists their games. Can be filtered by developed or published.',
-  },
-  {
-    url: '/gallery/devices.png',
-    name: 'Devices page',
-    description: 'A list of authorised devices connected to your account.',
-  },
-  {
-    url: '/gallery/companyadmin.png',
-    name: 'Company - Admin Dashboard',
-    description:
-      'Page to edit and customise company metadata, and add/remove games to it.',
-  },
-  {
-    url: '/gallery/importgameadmin.png',
-    name: 'Import game - Admin Dashboard',
-    description:
-      'Importing a game with metadata from configured metadata providers.',
+    url: "/gallery/importgameadmin.png",
+    name: "Import game - Admin Dashboard",
+    description: "Importing a game with metadata from configured metadata providers.",
     column: 0,
   },
   {
-    url: '/gallery/importversionadmin.png',
-    name: 'Import version - Admin Dashboard',
-    description:
-      'Importing an example version, with the auto-suggested executable name.',
+    url: "/gallery/importversionadmin.png",
+    name: "Import version - Admin Dashboard",
+    description: "Importing an example version, with the auto-suggested executable name.",
     column: 1,
   },
-]
+];
 
 export function Gallery() {
-  const [currentModal, setCurrentModal] = useState<string | undefined>()
+  const [currentModal, setCurrentModal] = useState<string | undefined>();
   function resetModal() {
-    setCurrentModal(undefined)
+    setCurrentModal(undefined);
   }
 
   return (
     <Container className="py-10">
-      <div
-        role="list"
-        className="grid grid-cols-1 gap-4 sm:grid-cols-3 md:grid-cols-4"
-      >
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 md:grid-cols-4">
         {[0, 1, 2, 3].map((index) => (
           <div key={index} className="flex flex-col gap-y-4">
             {files
-              .filter((v, i) =>
-                v.column !== undefined ? index == v.column : i % 4 == index,
-              )
+              .filter((v, i) => (v.column !== undefined ? index == v.column : i % 4 == index))
               .map((file) => (
                 <div key={file.url} className="relative w-full">
                   <div className="group relative block w-full overflow-hidden rounded-lg bg-gray-100 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-blue-600">
@@ -91,9 +82,7 @@ export function Gallery() {
                       className="absolute inset-0 focus:outline-hidden"
                       onClick={() => setCurrentModal(file.url)}
                     >
-                      <span className="sr-only">
-                        View details for {file.name}
-                      </span>
+                      <span className="sr-only">View details for {file.name}</span>
                     </button>
                   </div>
                   <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-zinc-100">
@@ -109,16 +98,10 @@ export function Gallery() {
       </div>
       <GalleryModal img={currentModal} close={resetModal} />
     </Container>
-  )
+  );
 }
 
-export default function GalleryModal({
-  img,
-  close,
-}: {
-  img?: string
-  close: () => void
-}) {
+export default function GalleryModal({ img, close }: { img?: string; close: () => void }) {
   return (
     <Dialog open={!!img} onClose={close} className="relative z-10">
       <DialogBackdrop
@@ -134,6 +117,7 @@ export default function GalleryModal({
           >
             <img src={img} alt="" className="max-h-[90vh] w-full" />
             <button
+              type="button"
               className="absolute top-0 right-0 m-4 cursor-pointer rounded-xl bg-zinc-900 p-2 text-zinc-100 outline outline-zinc-700 hover:text-zinc-400"
               onClick={close}
             >
@@ -143,5 +127,5 @@ export default function GalleryModal({
         </div>
       </div>
     </Dialog>
-  )
+  );
 }

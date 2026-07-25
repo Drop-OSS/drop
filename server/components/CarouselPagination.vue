@@ -1,6 +1,7 @@
 <template>
   <div class="flex flex-row flex-wrap gap-2 justify-center">
     <button
+      type="button"
       v-for="(_, i) in amount"
       :key="i"
       :class="[

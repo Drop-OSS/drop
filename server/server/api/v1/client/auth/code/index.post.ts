@@ -30,6 +30,4 @@ export default defineEventHandler(async (h3) => {
   const token = await clientHandler.generateAuthToken(clientId);
 
   await clientHandler.sendAuthToken(clientId, token);
-
-  return;
 });

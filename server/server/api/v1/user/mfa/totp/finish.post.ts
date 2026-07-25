@@ -56,6 +56,4 @@ export default defineEventHandler(async (h3) => {
       enabled: true,
     },
   });
-
-  return;
 });

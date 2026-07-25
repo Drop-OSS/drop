@@ -13,8 +13,8 @@ suite.
 
 | Changed path prefix       | Command (run from repo root)                              |
 |---------------------------|----------------------------------------------------------|
-| `server/**`               | `pnpm --filter drop test`                                  |
 | `server/test/e2e/**`      | `pnpm --filter drop test:e2e` (needs dev server running)   |
+| `server/**`               | `pnpm --filter drop test`                                  |
 | `cli/**`                  | `cd cli && cargo test --all-features --all`                |
 | `desktop/src-tauri/**`    | `cd desktop/src-tauri && cargo test --workspace --no-fail-fast` |
 | `libraries/droplet/**`    | `cd libraries/droplet && cargo test`                       |

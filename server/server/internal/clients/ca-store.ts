@@ -1,5 +1,5 @@
-import path from "path";
-import fs from "fs";
+import path from "node:path";
+import fs from "node:fs";
 import type { CertificateBundle } from "./ca";
 import prisma from "../db/database";
 import { systemConfig } from "../config/sys-conf";

@@ -22,7 +22,7 @@
             class="group/name inline-flex items-center gap-x-3 text-5xl font-bold font-display text-zinc-100"
           >
             {{ company.mName }}
-            <button @click="() => editName()">
+            <button type="button" @click="() => editName()">
               <PencilIcon
                 class="transition duration-200 xl:opacity-0 group-hover/name:opacity-100 size-8"
               />
@@ -35,7 +35,7 @@
               company.mShortDescription ||
               $t("library.admin.metadata.companies.editor.noDescription")
             }}
-            <button @click="() => editShortDescription()">
+            <button type="button" @click="() => editShortDescription()">
               <PencilIcon
                 class="transition duration-200 xl:opacity-0 group-hover/description:opacity-100 size-5"
               />
@@ -48,7 +48,7 @@
               company.mWebsite ||
               $t("library.admin.metadata.companies.editor.websitePlaceholder")
             }}
-            <button @click="() => editWebsite()">
+            <button type="button" @click="() => editWebsite()">
               <PencilIcon
                 class="transition duration-200 xl:opacity-0 group-hover/website:opacity-100 size-4"
               />
@@ -76,6 +76,7 @@
       </div>
       <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
         <button
+          type="button"
           class="block rounded-md bg-blue-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-500 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
           @click="() => (addGameModelOpen = true)"
         >

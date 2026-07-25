@@ -1,21 +1,13 @@
 <template>
   <div class="bg-zinc-950 p-4 min-h-full space-y-4">
-    <div
-      class="h-16 overflow-hidden relative rounded-xl flex flex-row border border-zinc-900"
-    >
+    <div class="h-16 overflow-hidden relative rounded-xl flex flex-row border border-zinc-900">
       <div
         class="bg-zinc-900 z-10 w-32 flex flex-col gap-x-2 font-display items-left justify-center pl-2"
       >
-        <span class="font-bold text-zinc-100"
-          >{{ formatKilobytes(stats.speed) }}B/s</span
-        >
-        <span class="text-xs text-zinc-400"
-          >{{ formatTime(stats.time) }} left</span
-        >
+        <span class="font-bold text-zinc-100">{{ formatKilobytes(stats.speed) }}B/s</span>
+        <span class="text-xs text-zinc-400">{{ formatTime(stats.time) }} left</span>
       </div>
-      <div
-        class="absolute inset-0 h-full flex flex-row items-end justify-end space-x-[1px]"
-      >
+      <div class="absolute inset-0 h-full flex flex-row items-end justify-end space-x-[1px]">
         <div
           v-for="bar in speedHistory"
           :style="{ height: `${(bar / speedMax) * 100}%` }"
@@ -57,19 +49,14 @@
                 v-if="element.dl_progress"
                 class="mt-1 w-96 bg-zinc-800 rounded-lg overflow-hidden"
               >
-                <div
-                  class="h-2 bg-blue-600"
-                  :style="{ width: `${element.dl_progress * 100}%` }"
-                />
+                <div class="h-2 bg-blue-600" :style="{ width: `${element.dl_progress * 100}%` }" />
               </div>
-              <span
-                class="mt-2 inline-flex items-center gap-x-1 text-zinc-400 text-sm font-display"
+              <span class="mt-2 inline-flex items-center gap-x-1 text-zinc-400 text-sm font-display"
                 ><span class="text-zinc-300"
                   >{{ formatKilobytes(element.dl_current / 1000) }}B</span
                 >
                 /
-                <span class=""
-                  >{{ formatKilobytes(element.dl_max / 1000) }}B</span
+                <span class="">{{ formatKilobytes(element.dl_max / 1000) }}B</span
                 ><CloudIcon class="size-5"
               /></span>
               <div
@@ -77,9 +64,7 @@
                 class="h-[1px] my-2 w-full bg-zinc-700"
               />
               <div
-                v-if="
-                  element.disk_progress && element.dl_max !== element.disk_max
-                "
+                v-if="element.disk_progress && element.dl_max !== element.disk_max"
                 class="mt-1 w-96 bg-zinc-800 rounded-lg overflow-hidden"
               >
                 <div
@@ -94,12 +79,11 @@
                   >{{ formatKilobytes(element.disk_current / 1000) }}B</span
                 >
                 /
-                <span class=""
-                  >{{ formatKilobytes(element.disk_max / 1000) }}B</span
+                <span class="">{{ formatKilobytes(element.disk_max / 1000) }}B</span
                 ><ServerIcon class="size-5"
               /></span>
             </div>
-            <button @click="() => cancelGame(element.meta)" class="group">
+            <button type="button" @click="() => cancelGame(element.meta)" class="group">
               <XMarkIcon
                 class="transition size-8 flex-none text-zinc-600 group-hover:text-zinc-300"
                 aria-hidden="true"
@@ -138,9 +122,7 @@ const queue = useQueueState();
 const stats = useStatsState();
 const speedHistory = useDownloadHistory();
 const speedHistoryMax = computed(() => windowWidth.value / 4);
-const speedMax = computed(
-  () => speedHistory.value.reduce((a, b) => (a > b ? a : b)) * 1.1,
-);
+const speedMax = computed(() => speedHistory.value.reduce((a, b) => (a > b ? a : b)) * 1.1);
 const previousGameId = useState<string | undefined>("previous_game");
 
 type ListIterable = { element: (typeof queue.value.queue)[0] };

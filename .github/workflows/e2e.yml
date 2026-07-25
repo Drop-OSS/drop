@@ -7,12 +7,18 @@ on:
       - "server/**"
       - ".github/workflows/e2e.yml"
       - "server/playwright.config.ts"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
   pull_request:
     branches: [develop]
     paths:
       - "server/**"
       - ".github/workflows/e2e.yml"
       - "server/playwright.config.ts"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
   workflow_dispatch:
 
 permissions:
@@ -30,6 +36,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           submodules: true
+          persist-credentials: false
 
       - name: Install system dependencies
         run: |

@@ -17,11 +17,7 @@
       />
       {{ fetchStatusStyleData($props.status).buttonName }}
     </button>
-    <Menu
-      v-if="showDropdown"
-      as="div"
-      class="relative inline-block text-left grow"
-    >
+    <Menu v-if="showDropdown" as="div" class="relative inline-block text-left grow">
       <div class="h-full">
         <MenuButton
           :class="[
@@ -48,11 +44,10 @@
           <div class="py-1">
             <MenuItem v-slot="{ active }">
               <button
+                type="button"
                 @click="() => emit('install')"
                 :class="[
-                  active
-                    ? 'bg-zinc-800 text-zinc-100 outline-none'
-                    : 'text-zinc-400',
+                  active ? 'bg-zinc-800 text-zinc-100 outline-none' : 'text-zinc-400',
                   'w-full px-4 py-2 text-sm inline-flex justify-between',
                 ]"
               >
@@ -63,11 +58,10 @@
 
             <MenuItem v-if="showOptions" v-slot="{ active }">
               <button
+                type="button"
                 @click="() => emit('options')"
                 :class="[
-                  active
-                    ? 'bg-zinc-800 text-zinc-100 outline-none'
-                    : 'text-zinc-400',
+                  active ? 'bg-zinc-800 text-zinc-100 outline-none' : 'text-zinc-400',
                   'w-full px-4 py-2 text-sm inline-flex justify-between',
                 ]"
               >
@@ -77,11 +71,10 @@
             </MenuItem>
             <MenuItem v-slot="{ active }">
               <button
+                type="button"
                 @click="() => emit('uninstall')"
                 :class="[
-                  active
-                    ? 'bg-zinc-800 text-zinc-100 outline-none'
-                    : 'text-zinc-400',
+                  active ? 'bg-zinc-800 text-zinc-100 outline-none' : 'text-zinc-400',
                   'w-full inline-flex px-4 py-2 text-sm justify-between',
                 ]"
               >
@@ -108,14 +101,9 @@ import {
 } from "@heroicons/vue/20/solid";
 
 import type { Component } from "vue";
-import {
-  type EmptyGameStatusEnum,
-  InstalledType,
-  type GameStatus,
-} from "~/types.js";
+import { type EmptyGameStatusEnum, InstalledType, type GameStatus } from "~/types.js";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
 import { Cog6ToothIcon, TrashIcon } from "@heroicons/vue/24/outline";
-import { ArrowsRightLeftIcon, ArrowUpTrayIcon } from "@heroicons/vue/24/solid";
 
 const props = defineProps<{ status: GameStatus }>();
 const emit = defineEmits<{
@@ -164,7 +152,7 @@ function fetchStatusStyleData(status: GameStatus): StatusStyleData {
         action: () => emit("resume"),
       };
     }
-    throw "Non-exhaustive install type: " + JSON.stringify(status.install_type);
+    throw new Error("Non-exhaustive install type: " + JSON.stringify(status.install_type));
   }
   return {
     style: styles[status.type],

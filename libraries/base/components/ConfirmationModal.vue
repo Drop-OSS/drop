@@ -50,17 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  Dialog,
-  DialogTitle,
-  TransitionChild,
-  TransitionRoot,
-} from "@headlessui/vue";
-import type {
-  ModalDatas,
-  ModalEvents,
-  ModalType,
-} from "../composables/modal-stack";
+import type { ModalDatas, ModalEvents, ModalType } from "../composables/modal-stack";
 
 const props = defineProps<{
   zHeight: number;

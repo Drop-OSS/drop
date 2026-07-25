@@ -105,6 +105,4 @@ export default defineEventHandler(async (h3) => {
       credentials: webauthnMec.credentials!,
     },
   });
-
-  return;
 });

@@ -21,7 +21,7 @@ pub struct S3ConfigCli {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct S3Config {
     pub key_id: String,
-    pub secret_key: String,
+    secret_key: String,
     pub endpoint: String,
     pub region: String,
     pub bucket_name: String,

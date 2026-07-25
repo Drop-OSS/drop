@@ -35,6 +35,7 @@
             </div>
             <span class="inline-flex gap-x-8 items-center" v-else>
               <button
+                type="button"
                 @click="() => authWrapper_wrapper()"
                 :disabled="loading"
                 class="px-3 py-1 inline-flex items-center gap-x-2 bg-zinc-700 rounded text-sm text-left font-semibold leading-7 text-white"
@@ -93,28 +94,18 @@
           class="mx-auto flex w-full max-w-7xl items-center gap-x-4 px-6 text-sm leading-7 text-zinc-400 lg:px-8"
         >
           <a href="#">Documentation</a>
-          <svg
-            viewBox="0 0 2 2"
-            aria-hidden="true"
-            class="h-0.5 w-0.5 fill-zinc-700"
-          >
+          <svg viewBox="0 0 2 2" aria-hidden="true" class="h-0.5 w-0.5 fill-zinc-700">
             <circle cx="1" cy="1" r="1" />
           </svg>
           <a href="#">Troubleshooting</a>
-          <svg
-            viewBox="0 0 2 2"
-            aria-hidden="true"
-            class="h-0.5 w-0.5 fill-zinc-700"
-          >
+          <svg viewBox="0 0 2 2" aria-hidden="true" class="h-0.5 w-0.5 fill-zinc-700">
             <circle cx="1" cy="1" r="1" />
           </svg>
           <NuxtLink to="/setup/server">Switch instance</NuxtLink>
         </nav>
       </div>
     </footer>
-    <div
-      class="hidden lg:relative lg:col-start-2 lg:row-start-1 lg:row-end-4 lg:block"
-    >
+    <div class="hidden lg:relative lg:col-start-2 lg:row-start-1 lg:row-end-4 lg:block">
       <img
         src="@/assets/wallpaper.jpg"
         alt=""

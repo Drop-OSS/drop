@@ -53,6 +53,7 @@
                 v-slot="{ active }"
               >
                 <button
+                  type="button"
                   :class="[
                     active ? 'bg-zinc-700/90' : '',
                     'group flex w-full items-center justify-between rounded-md px-3 py-2 text-sm text-zinc-200',
@@ -105,13 +106,11 @@ const createCollectionModal = ref(false);
 const collections = await useCollections();
 const library = await useLibrary();
 
-const inLibrary = computed(
-  () => library.value.entries.findIndex((e) => e.gameId == props.gameId) != -1,
+const inLibrary = computed(() =>
+  library.value.entries.some((e) => e.gameId == props.gameId),
 );
 const inCollections = computed(() =>
-  collections.value.map(
-    (e) => e.entries.findIndex((e) => e.gameId == props.gameId) != -1,
-  ),
+  collections.value.map((e) => e.entries.some((e) => e.gameId == props.gameId)),
 );
 
 async function toggleLibrary() {

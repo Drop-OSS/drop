@@ -94,8 +94,8 @@ interface CompanySearchResult {
 
 // Api Docs: https://www.giantbomb.com/api/
 export class GiantBombProvider implements MetadataProvider {
-  private apikey: string;
-  private turndown: TurndownService;
+  private readonly apikey: string;
+  private readonly turndown: TurndownService;
 
   constructor() {
     const apikey = process.env.GIANT_BOMB_API_KEY;

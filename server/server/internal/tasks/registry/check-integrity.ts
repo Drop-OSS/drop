@@ -36,7 +36,7 @@ export default defineDropTask({
       const displayName = `${version.game.mName} ${version.displayName ?? version.versionPath}`;
       logger.info(`Starting integrity check for ${displayName}`);
 
-      const library = await libraryManager.getLibrary(version.game.libraryId);
+      const library = libraryManager.getLibrary(version.game.libraryId);
       if (!library) {
         logger.warn(`No library for ${displayName}`);
         continue;

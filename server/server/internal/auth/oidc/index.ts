@@ -1,9 +1,9 @@
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import prisma from "../../db/database";
 import type { UserModel } from "~/prisma/client/models";
 import { AuthMec } from "~/prisma/client/enums";
 import objectHandler from "../../objects";
-import type { Readable } from "stream";
+import type { Readable } from "node:stream";
 import * as jdenticon from "jdenticon";
 import { systemConfig } from "../../config/sys-conf";
 import { logger } from "~/server/internal/logging";
@@ -114,25 +114,25 @@ export interface OIDCAuthMekCredentialsV1 {
 }
 
 export class OIDCManager {
-  private oidcConfiguration: OIDCConfiguration;
-  private clientId: string;
-  private clientSecret: string;
-  private externalUrl: URL;
-  private redirectUrl: URL;
+  private readonly oidcConfiguration: OIDCConfiguration;
+  private readonly clientId: string;
+  private readonly clientSecret: string;
+  private readonly externalUrl: URL;
+  private readonly redirectUrl: URL;
 
-  private userGroup?: string = process.env.OIDC_USER_GROUP;
-  private adminGroup?: string = process.env.OIDC_ADMIN_GROUP;
-  private usernameClaim: keyof OIDCUserInfo =
+  private readonly userGroup?: string = process.env.OIDC_USER_GROUP;
+  private readonly adminGroup?: string = process.env.OIDC_ADMIN_GROUP;
+  private readonly usernameClaim: keyof OIDCUserInfo =
     (process.env.OIDC_USERNAME_CLAIM as keyof OIDCUserInfo) ??
     "preferred_username";
 
-  private signinStateTable: { [key: string]: OIDCAuthSession } = {};
+  private readonly signinStateTable: { [key: string]: OIDCAuthSession } = {};
 
   /**
    * Util to fetch JWKS for verifying tokens
    * @see https://github.com/panva/jose/blob/main/docs/jwks/remote/functions/createRemoteJWKSet.md
    */
-  private JWKS: ReturnType<typeof jose.createRemoteJWKSet>;
+  private readonly JWKS: ReturnType<typeof jose.createRemoteJWKSet>;
 
   private constructor(
     oidcConfiguration: OIDCConfiguration,

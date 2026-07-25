@@ -102,7 +102,7 @@
         >
       </div>
       <nav class="mt-8">
-        <ul role="list" class="flex flex-col items-stretch space-y-4 mx-2">
+        <ul class="flex flex-col items-stretch space-y-4 mx-2">
           <li v-for="(item, itemIdx) in navigation" :key="item.route">
             <NuxtLink
               :href="item.route"

@@ -87,7 +87,10 @@
                 </span>
               </p>
             </div>
-            <button @click="() => deleteInvitation(invitation.id)">
+            <button
+              type="button"
+              @click="() => deleteInvitation(invitation.id)"
+            >
               <TrashIcon
                 class="h-5 w-5 flex-none text-red-600"
                 aria-hidden="true"

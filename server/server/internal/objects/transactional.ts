@@ -2,7 +2,7 @@
 The purpose of this class is to hold references to remote objects (like images) until they're actually needed
 This is used as a utility in metadata handling, so we only fetch the objects if we're actually creating a database record.
 */
-import type { Readable } from "stream";
+import type { Readable } from "node:stream";
 import { randomUUID } from "node:crypto";
 import objectHandler from ".";
 import type { TaskRunContext } from "../tasks";
@@ -16,7 +16,7 @@ export type Pull = () => Promise<void>;
 export type Dump = () => void;
 
 export class ObjectTransactionalHandler {
-  private record: GlobalTransactionRecord = new Map();
+  private readonly record: GlobalTransactionRecord = new Map();
 
   new(
     metadata: { [key: string]: string },

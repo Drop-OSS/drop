@@ -1,9 +1,9 @@
-import type { ChildProcess } from "child_process";
+import type { ChildProcess } from "node:child_process";
 import { logger } from "../logging";
 import type { Logger } from "pino";
 
 class ServiceManager {
-  private services: Map<string, Service<unknown>> = new Map();
+  private readonly services: Map<string, Service<unknown>> = new Map();
 
   register(name: string, service: Service<unknown>) {
     this.services.set(name, service);
@@ -34,9 +34,9 @@ export type Setup = () => Promise<boolean>;
 export type Healthcheck = () => Promise<boolean>;
 export class Service<T> {
   name: string;
-  private executor: Executor;
-  private setup: Setup | undefined;
-  private healthcheck: Healthcheck | undefined;
+  private readonly executor: Executor;
+  private readonly setup: Setup | undefined;
+  private readonly healthcheck: Healthcheck | undefined;
 
   logger: Logger<never>;
 
@@ -46,9 +46,9 @@ export class Service<T> {
   private healthy: boolean = true;
   private spun: boolean = false;
 
-  private uutils: T;
+  private readonly uutils: T;
 
-  private readyPromise: Promise<void>;
+  private readonly readyPromise: Promise<void>;
   private readyPromiseResolve: (() => void) | undefined;
 
   constructor(
@@ -126,7 +126,7 @@ export class Service<T> {
         try {
           const hasSetup = await this.setup();
           if (hasSetup) break;
-          throw "setup function returned false...";
+          throw new Error("setup function returned false...");
         } catch (e) {
           this.logger.warn(`failed setup, trying again... | ${e}`);
           await new Promise((r) => setTimeout(r, 7000));

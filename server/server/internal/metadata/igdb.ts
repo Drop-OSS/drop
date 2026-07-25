@@ -137,8 +137,8 @@ interface IGDBGameFull extends IGDBSearchStub {
 
 // Api Docs: https://api-docs.igdb.com/
 export class IGDBProvider implements MetadataProvider {
-  private clientId: string;
-  private clientSecret: string;
+  private readonly clientId: string;
+  private readonly clientSecret: string;
   private accessToken: string;
   private accessTokenExpiry: DateTime;
 

@@ -3,9 +3,10 @@
     <template #default>
       <div class="flex flex-row gap-x-4 min-h-96">
         <nav class="flex flex-1 flex-col" aria-label="Sidebar">
-          <ul role="list" class="-mx-2 space-y-1">
+          <ul class="-mx-2 space-y-1">
             <li v-for="(tab, tabIdx) in tabs" :key="tab.name">
               <button
+                type="button"
                 @click="() => (currentTabIndex = tabIdx)"
                 :class="[
                   tabIdx == currentTabIndex
@@ -74,12 +75,7 @@
 
 <script setup lang="ts">
 import type { Component } from "vue";
-import {
-  RocketLaunchIcon,
-  ServerIcon,
-  TrashIcon,
-  XCircleIcon,
-} from "@heroicons/vue/20/solid";
+import { RocketLaunchIcon, ServerIcon, XCircleIcon } from "@heroicons/vue/20/solid";
 import Launch from "./GameOptions/Launch.vue";
 import Updates from "./GameOptions/Updates.vue";
 import { invoke } from "@tauri-apps/api/core";
@@ -92,16 +88,16 @@ const open = defineModel<boolean>();
 const props = defineProps<{ gameId: string }>();
 const game = await useGame(props.gameId);
 
-const configuration: Ref<GameVersion["userConfiguration"]> = ref(game.version.value!.userConfiguration);
+const configuration: Ref<GameVersion["userConfiguration"]> = ref(
+  game.version.value!.userConfiguration,
+);
 
 const hasWindows = !!(
   game.version.value!.setups.find((v) => v.platform === "Windows") ??
   game.version.value!.launches.find((v) => v.platform === "Windows")
 );
 
-const protonEnabled = !!(
-  appState.value!.umuState !== "NotNeeded" && hasWindows
-);
+const protonEnabled = !!(appState.value!.umuState !== "NotNeeded" && hasWindows);
 
 const tabs: Array<{ name: string; icon: Component; page: Component }> = [
   {

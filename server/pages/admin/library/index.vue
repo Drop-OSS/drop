@@ -574,7 +574,7 @@ const router = useRouter();
 // Hard limit on server
 const pageSize = 24;
 const currentIndex = ref(
-  route.query.page ? parseInt(route.query.page.toString()) - 1 : 0,
+  route.query.page ? Number.parseInt(route.query.page.toString()) - 1 : 0,
 );
 const maxIndex = ref(0);
 const maxPages = computed(() => Math.ceil(maxIndex.value / pageSize));

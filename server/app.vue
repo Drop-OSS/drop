@@ -16,7 +16,7 @@
         $t("errors.externalUrl.subtitle")
       }}</span>
     </div>
-    <button class="text-red-200" @click="() => hideExternalURL()">
+    <button type="button" class="text-red-200" @click="() => hideExternalURL()">
       <XMarkIcon class="size-5" />
     </button>
   </div>

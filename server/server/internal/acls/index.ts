@@ -136,7 +136,7 @@ class ACLManager {
       throw new Error("Native web requests not available - weird deployment?");
     // Sessions automatically have all ACLs
     const session = await sessionHandler.getSession(request);
-    if (session && session.authenticated) {
+    if (session?.authenticated) {
       if (session.authenticated.level >= session.authenticated.requiredLevel)
         return session.authenticated.userId;
       return undefined;
@@ -194,7 +194,7 @@ class ACLManager {
     if (!request)
       throw new Error("Native web requests not available - weird deployment?");
     const userSession = await sessionHandler.getSession(request);
-    if (userSession && userSession.authenticated) {
+    if (userSession?.authenticated) {
       const user = await prisma.user.findUnique({
         where: { id: userSession.authenticated.userId },
       });

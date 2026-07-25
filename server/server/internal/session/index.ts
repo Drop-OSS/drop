@@ -45,7 +45,7 @@ export interface SigninOptions {
 }
 
 export class SessionHandler {
-  private sessionProvider: SessionProvider;
+  private readonly sessionProvider: SessionProvider;
 
   constructor() {
     // Create a new provider

@@ -16,14 +16,14 @@ import { PriorityListIndexed } from "../utils/prioritylist";
 import { systemConfig } from "../config/sys-conf";
 import type { TaskRunContext } from "../tasks";
 import taskHandler, { wrapTaskContext } from "../tasks";
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import { fuzzy } from "fast-fuzzy";
 import { logger } from "~/server/internal/logging";
 import { createGameImportTaskId } from "../library";
 import type { GameTagModel } from "~/prisma/client/models";
 
 export class MissingMetadataProviderConfig extends Error {
-  private providerName: string;
+  private readonly providerName: string;
 
   constructor(configKey: string, providerName: string) {
     super(`Missing config item ${configKey} for ${providerName}`);

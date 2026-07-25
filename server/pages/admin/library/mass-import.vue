@@ -304,12 +304,11 @@ const massImport = ref(
   })),
 );
 
-const hasSelected = computed(
-  () =>
-    massImport.value
-      .map((v) => v.versions)
-      .flat()
-      .filter((e) => e.enabled).length > 0,
+const hasSelected = computed(() =>
+  massImport.value
+    .map((v) => v.versions)
+    .flat()
+    .some((e) => e.enabled),
 );
 
 const globalState = computed({

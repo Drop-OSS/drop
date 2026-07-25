@@ -4,9 +4,7 @@
       <HeaderWidget>
         <div class="inline-flex items-center text-zinc-300 hover:text-white">
           <img :src="profilePictureUrl" class="w-5 h-5 rounded-sm" />
-          <span class="ml-2 text-sm font-bold">{{
-            state.user.displayName
-          }}</span>
+          <span class="ml-2 text-sm font-bold">{{ state.user.displayName }}</span>
           <ChevronDownIcon class="ml-3 h-4" />
         </div>
       </HeaderWidget>
@@ -30,9 +28,7 @@
           >
             <div class="inline-flex items-center text-zinc-300">
               <img :src="profilePictureUrl" class="w-5 h-5 rounded-sm" />
-              <span class="ml-2 text-sm font-bold">{{
-                state.user.displayName
-              }}</span>
+              <span class="ml-2 text-sm font-bold">{{ state.user.displayName }}</span>
             </div>
           </NuxtLink>
           <div class="h-0.5 rounded-full w-full bg-zinc-800" />
@@ -49,11 +45,9 @@
                 Admin Dashboard
               </a>
             </MenuItem>
-            <MenuItem
-              v-for="(nav, navIdx) in navigation"
-              v-slot="{ active, close }"
-            >
+            <MenuItem v-for="(nav, navIdx) in navigation" v-slot="{ active, close }">
               <button
+                type="button"
                 @click="() => navigate(close, nav)"
                 :href="nav.route"
                 :class="[
@@ -86,9 +80,7 @@ router.afterEach(() => {
 });
 
 const state = useAppState();
-const profilePictureUrl: string = await useObject(
-  state.value?.user?.profilePictureObjectId ?? ""
-);
+const profilePictureUrl: string = await useObject(state.value?.user?.profilePictureObjectId ?? "");
 const adminUrl: string = await invoke("gen_drop_url", {
   path: "/admin",
 });
