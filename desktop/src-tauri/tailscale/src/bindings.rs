@@ -15,9 +15,25 @@ unsafe extern "C" {
     pub fn TsnetSetEphemeral(sd: c_int, ephemeral: GoInt) -> c_int;
     pub fn TsnetSetLogFD(sd: c_int, fd: c_int) -> c_int;
     pub fn TsnetGetIps(sd: c_int, buf: *mut std::os::raw::c_char, len: usize) -> c_int;
-    pub fn TsnetLoopback(sd: c_int, addr: *mut std::os::raw::c_char, addr_len: usize, proxy: *mut std::os::raw::c_char, local: *mut std::os::raw::c_char) -> c_int;
-    pub fn TsnetDial(sd: c_int, network: *mut std::os::raw::c_char, addr: *mut std::os::raw::c_char, conn_out: *mut c_int) -> c_int;
-    pub fn TsnetListen(sd: c_int, network: *mut std::os::raw::c_char, addr: *mut std::os::raw::c_char, listener_out: *mut c_int) -> c_int;
+    pub fn TsnetLoopback(
+        sd: c_int,
+        addr: *mut std::os::raw::c_char,
+        addr_len: usize,
+        proxy: *mut std::os::raw::c_char,
+        local: *mut std::os::raw::c_char,
+    ) -> c_int;
+    pub fn TsnetDial(
+        sd: c_int,
+        network: *mut std::os::raw::c_char,
+        addr: *mut std::os::raw::c_char,
+        conn_out: *mut c_int,
+    ) -> c_int;
+    pub fn TsnetListen(
+        sd: c_int,
+        network: *mut std::os::raw::c_char,
+        addr: *mut std::os::raw::c_char,
+        listener_out: *mut c_int,
+    ) -> c_int;
     pub fn TsnetEnableFunnelToLocalhostPlaintextHttp1(sd: c_int, port: c_int) -> c_int;
     pub fn TsnetErrmsg(sd: c_int, buf: *mut std::os::raw::c_char, len: usize) -> c_int;
 }
