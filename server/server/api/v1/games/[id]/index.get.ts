@@ -45,6 +45,7 @@ export default defineEventHandler(async (h3) => {
         },
       },
       tags: true,
+      ageRatings: true,
     },
   });
 

@@ -304,9 +304,13 @@
       "detectedGame": "Drop wykrył że masz nowe gry do zaimportowania.",
       "detectedVersion": "Drop wykrył że masz nowe wersje tej gry do zaimportowania.",
       "game": {
+        "addAgeRating": "Dodaj kategorię",
         "addCarouselNoImages": "Brak obrazów do dodania.",
         "addDescriptionNoImages": "Brak obrazów do dodania.",
         "addImageCarousel": "Dodaj z galerii obrazów",
+        "ageRatingLabel": "{organization}: {rating}",
+        "ageRatings": "Kategorie wiekowe",
+        "ageRatingsEmpty": "Brak kategorii wiekowych",
         "currentBanner": "baner",
         "currentCover": "okładka",
         "deleteImage": "Usuń obraz",
@@ -318,6 +322,7 @@
         "imageCarouselEmpty": "Nie dodano jeszcze żadnych zdjęć do karuzeli.",
         "imageLibrary": "Biblioteka Obrazów",
         "imageLibraryDescription": "Należy pamiętać, że wszystkie przesłane obrazy są dostępne dla wszystkich użytkowników za pośrednictwem narzędzi programistycznych przeglądarki.",
+        "removeAgeRating": "Usuń",
         "removeImageCarousel": "Usuń zdjęcie",
         "setBanner": "Ustaw jako baner",
         "setCover": "Ustaw jako okładke"
@@ -562,6 +567,7 @@
   },
   "store": {
     "about": "O",
+    "ageRating": "Kategoria wiekowa",
     "commingSoon": "wkrótce",
     "developers": "Producentów | Producent | Producentów",
     "exploreMore": "Odkryj więcej {arrow}",

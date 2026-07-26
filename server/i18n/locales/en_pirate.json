@@ -261,9 +261,13 @@
       "detectedGame": "Drop has found new plunder to import, argh!",
       "detectedVersion": "Drop has found new versions of this plunder to import, savvy!",
       "game": {
+        "addAgeRating": "Add Rating",
         "addCarouselNoImages": "No images to add, ye dog.",
         "addDescriptionNoImages": "No images to add, argh.",
         "addImageCarousel": "Add from image treasure hoard",
+        "ageRatingLabel": "{organization}: {rating}",
+        "ageRatings": "Age Ratings, Savvy?",
+        "ageRatingsEmpty": "Age ratings plundered",
         "currentBanner": "banner",
         "currentCover": "cover",
         "deleteImage": "Scuttle image",
@@ -274,6 +278,7 @@
         "imageCarouselEmpty": "No images added to the carousel yet, argh.",
         "imageLibrary": "Image treasure hoard",
         "imageLibraryDescription": "Please note all images hoisted be accessible to all crew through browser dev-tools, savvy.",
+        "removeAgeRating": "Remove",
         "removeImageCarousel": "Remove image",
         "setBanner": "Set as banner",
         "setCover": "Set as cover"
@@ -412,6 +417,7 @@
   "selectLanguage": "Pick yer tongue",
   "settings": "Settings",
   "store": {
+    "ageRating": "Age Rating, ye landlubber!",
     "commingSoon": "comin' soon, argh!",
     "exploreMore": "Explore more {arrow}, ye dog!",
     "images": "Plunder Images",

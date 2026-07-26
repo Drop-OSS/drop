@@ -145,6 +145,32 @@
                   }}</span>
                 </td>
               </tr>
+              <tr v-if="game.ageRatings?.length">
+                <td
+                  class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"
+                >
+                  {{ $t("store.ageRating") }}
+                </td>
+                <td
+                  class="whitespace-nowrap flex flex-row items-center gap-x-2 px-3 py-4 text-sm text-zinc-400"
+                >
+                  <div
+                    v-for="ar in game.ageRatings"
+                    :key="ar.id"
+                    class="flex items-center gap-1"
+                  >
+                    <img
+                      v-if="ar.ratingCoverUrl"
+                      :src="ar.ratingCoverUrl"
+                      :alt="`${ar.organization} ${ar.rating}`"
+                      class="h-8"
+                    />
+                    <span v-else class="text-xs bg-zinc-700 px-2 py-1 rounded">
+                      {{ ar.organization }} {{ ar.rating }}
+                    </span>
+                  </div>
+                </td>
+              </tr>
               <tr>
                 <td
                   class="whitespace-nowrap align-top py-4 pl-4 pr-3 text-sm font-medium text-zinc-100 sm:pl-3"

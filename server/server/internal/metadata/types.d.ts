@@ -1,4 +1,5 @@
 import type { Company, GameRating } from "~/prisma/client";
+import type { AgeRatingOrganization } from "~/prisma/client/enums";
 import type { TransactionDataType } from "../objects/transactional";
 import type { ObjectReference } from "../objects/objectHandler";
 
@@ -27,6 +28,12 @@ export type GameMetadataRating = Pick<
   | "mReviewRating"
 >;
 
+export interface GameMetadataAgeRating {
+  organization: AgeRatingOrganization;
+  rating: string;
+  ratingCoverUrl?: string;
+}
+
 export interface GameMetadata {
   id: string;
   name: string;
@@ -42,6 +49,7 @@ export interface GameMetadata {
   tags: string[];
 
   reviews: GameMetadataRating[];
+  ageRatings: GameMetadataAgeRating[];
 
   // Created with another utility function
   icon: ObjectReference;

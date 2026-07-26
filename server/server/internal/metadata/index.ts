@@ -6,6 +6,7 @@ import type {
   _FetchGameMetadataParams,
   _FetchCompanyMetadataParams,
   GameMetadata,
+  GameMetadataAgeRating,
   GameMetadataSearchResult,
   InternalGameMetadataResult,
   CompanyMetadata,
@@ -176,6 +177,20 @@ export class MetadataHandler {
     return results;
   }
 
+  private parseAgeRatings(ageRatings: GameMetadataAgeRating[], gameId: string) {
+    return ageRatings.map((ar) => ({
+      where: {
+        gameOrganizationKey: {
+          gameId,
+          organization: ar.organization,
+        },
+      },
+      create: {
+        ...ar,
+      },
+    }));
+  }
+
   async createGame(
     result: { sourceId: string; id: string; name: string },
     libraryId: string,
@@ -286,6 +301,12 @@ export class MetadataHandler {
 
             ratings: {
               connectOrCreate: metadataHandler.parseRatings(metadata.reviews),
+            },
+            ageRatings: {
+              connectOrCreate: metadataHandler.parseAgeRatings(
+                metadata.ageRatings,
+                gameId,
+              ),
             },
             tags: {
               connect: await metadataHandler.parseTags(metadata.tags),
