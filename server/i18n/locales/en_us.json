@@ -850,7 +850,28 @@
         "userInvitation": "User invitation"
       },
       "srEditLabel": "Edit",
-      "usernameHeader": "Username"
+      "usernameHeader": "Username",
+      "groups": {
+        "title": "User Groups",
+        "description": "Manage user groups and age rating restrictions.",
+        "createGroup": "Create Group",
+        "name": "Name",
+        "descriptionField": "Description",
+        "details": "Details",
+        "members": "Members",
+        "addMember": "Select a user...",
+        "removeMember": "Remove",
+        "noMembers": "No members in this group.",
+        "oidcManagedNote": "Group membership is managed by your OIDC provider. Members are automatically synced when users log in. To change group membership, update your identity provider's group assignments.",
+        "bannedRatings": "Banned Ratings",
+        "addBannedRating": "Add banned rating",
+        "removeBannedRating": "Remove",
+        "noBannedRatings": "No banned ratings configured.",
+        "unratedNote": "Games without age ratings will also be hidden from users in this group.",
+        "deleteConfirm": "Are you sure you want to delete this group? This action cannot be undone.",
+        "deleteGroup": "Delete",
+        "groupsLink": "Groups {arrow}"
+      }
     }
   },
   "welcome": "American, Welcome!"

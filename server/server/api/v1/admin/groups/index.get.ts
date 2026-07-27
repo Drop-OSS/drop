@@ -1,0 +1,21 @@
+import aclManager from "~/server/internal/acls";
+import prisma from "~/server/internal/db/database";
+
+export default defineEventHandler(async (h3) => {
+  const allowed = await aclManager.allowSystemACL(h3, ["user:read"]);
+  if (!allowed) throw createError({ statusCode: 403 });
+
+  const groups = await prisma.userGroup.findMany({
+    include: {
+      _count: {
+        select: {
+          users: true,
+          bannedAgeRatings: true,
+        },
+      },
+    },
+    orderBy: { name: "asc" },
+  });
+
+  return groups;
+});

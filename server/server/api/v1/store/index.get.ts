@@ -4,6 +4,7 @@ import { GameType } from "~/prisma/client/enums";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import { parsePlatform } from "~/server/internal/utils/parseplatform";
+import { getAgeRestrictionFilter } from "~/server/internal/utils/ageRestrictions";
 
 const StoreRead = type({
   skip: type("string")
@@ -24,8 +25,9 @@ const StoreRead = type({
 });
 
 export default defineEventHandler(async (h3) => {
-  const userId = await aclManager.getUserIdACL(h3, ["store:read"]);
-  if (!userId) throw createError({ statusCode: 403 });
+  const user = await aclManager.getUserACL(h3, ["store:read"]);
+  if (!user) throw createError({ statusCode: 403 });
+  const userId = user.id;
 
   const query = getQuery(h3);
   const options = StoreRead(query);
@@ -116,10 +118,13 @@ export default defineEventHandler(async (h3) => {
    * Query
    */
 
+  const ageFilter = await getAgeRestrictionFilter(userId, user.admin);
+
   const finalFilter: Prisma.GameWhereInput = {
     ...tagFilter,
     ...platformFilter,
     ...companyFilter,
+    ...ageFilter,
     type: GameType.Game,
   };
 

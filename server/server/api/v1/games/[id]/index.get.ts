@@ -1,10 +1,11 @@
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import gameSizeManager from "~/server/internal/gamesize";
+import { getAgeRestrictionFilter } from "~/server/internal/utils/ageRestrictions";
 
 export default defineEventHandler(async (h3) => {
-  const userId = await aclManager.getUserIdACL(h3, ["store:read"]);
-  if (!userId) throw createError({ statusCode: 403 });
+  const user = await aclManager.getUserACL(h3, ["store:read"]);
+  if (!user) throw createError({ statusCode: 403 });
 
   const gameId = getRouterParam(h3, "id");
   if (!gameId)
@@ -51,6 +52,15 @@ export default defineEventHandler(async (h3) => {
 
   if (!game)
     throw createError({ statusCode: 404, statusMessage: "Game not found" });
+
+  const ageFilter = await getAgeRestrictionFilter(user.id, user.admin);
+  if (ageFilter) {
+    const allowed = await prisma.game.count({
+      where: { id: gameId, ...ageFilter },
+    });
+    if (allowed === 0)
+      throw createError({ statusCode: 404, statusMessage: "Game not found" });
+  }
 
   const rating = await prisma.gameRating.aggregate({
     where: {

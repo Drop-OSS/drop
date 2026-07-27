@@ -407,7 +407,10 @@ export class OIDCManager {
       },
     });
 
-    if (existingAuthMek) return existingAuthMek.user;
+    if (existingAuthMek) {
+      await this.syncUserGroups(existingAuthMek.user.id, userinfo.groups);
+      return existingAuthMek.user;
+    }
 
     const username = userinfo[this.usernameClaim]?.toString();
     if (!username)
@@ -492,7 +495,33 @@ export class OIDCManager {
       },
     });
 
+    await this.syncUserGroups(created.user.id, userinfo.groups);
     return created.user;
+  }
+
+  private async syncUserGroups(
+    userId: string,
+    oidcGroups: string[] | undefined,
+  ) {
+    if (!oidcGroups || oidcGroups.length === 0) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { groups: { set: [] } },
+      });
+      return;
+    }
+
+    const matchingGroups = await prisma.userGroup.findMany({
+      where: { name: { in: oidcGroups } },
+      select: { id: true },
+    });
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        groups: { set: matchingGroups.map((g) => ({ id: g.id })) },
+      },
+    });
   }
 
   /**
