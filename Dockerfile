@@ -33,7 +33,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /build
 COPY . .
-RUN cargo build --release --manifest-path ./torrential/Cargo.toml
+RUN cargo build --locked --release --manifest-path ./torrential/Cargo.toml
 
 ### BUILD APP
 FROM base AS build-system
