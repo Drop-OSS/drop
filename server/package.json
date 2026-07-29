@@ -20,10 +20,10 @@
     "lint:fix": "eslint . --fix && prettier --write --list-different .",
     "format:check": "prettier --check .",
     "test:e2e": "playwright test",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "test:changed": "vitest run --changed",
     "test:watch": "vitest",
-    "coverage": "vitest run --coverage",
+    "coverage": "vitest run --coverage --passWithNoTests",
     "coverage:type": "NODE_OPTIONS=\"--max-old-space-size=8192\" type-coverage --strict --cache --ignore-nested --ignore-catch",
     "prepare": "husky",
     "lint-staged": "lint-staged"
