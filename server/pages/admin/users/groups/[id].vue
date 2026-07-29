@@ -67,8 +67,10 @@
           :key="member.id"
           class="flex items-center justify-between rounded-md bg-zinc-800/50 px-3 py-2"
         >
+          <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
           <span class="text-sm text-zinc-100">
             {{ member.displayName }}
+            <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
             <span class="text-zinc-400">({{ member.username }})</span>
           </span>
           <button
@@ -90,6 +92,7 @@
           <option value="" disabled>
             {{ $t("users.admin.groups.addMember") }}
           </option>
+          <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
           <option
             v-for="user in availableUsers"
             :key="user.id"
@@ -130,6 +133,7 @@
           :key="br.id"
           class="flex items-center gap-2"
         >
+          <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
           <span
             class="inline-flex items-center rounded-full bg-zinc-800 px-2.5 py-0.5 text-sm font-medium text-zinc-100"
           >
@@ -193,10 +197,7 @@
 
 <script setup lang="ts">
 import type { AuthMec } from "~/prisma/client/enums";
-import {
-  RATINGS_FOR_ORGANIZATION,
-  getAvailableRatings,
-} from "~/utils/ageRatings";
+import { getAvailableRatings } from "~/utils/ageRatings";
 import { AgeRatingOrganization } from "~/prisma/client/enums";
 
 useHead({ title: "Edit Group" });

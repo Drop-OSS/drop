@@ -507,6 +507,7 @@ export class OIDCManager {
     if (oidcGroups === undefined) return;
 
     if (oidcGroups.length === 0) {
+      // eslint-disable-next-line drop/no-prisma-delete
       await prisma.user.update({
         where: { id: userId },
         data: { groups: { set: [] } },
@@ -519,6 +520,7 @@ export class OIDCManager {
       select: { id: true },
     });
 
+    // eslint-disable-next-line drop/no-prisma-delete
     await prisma.user.update({
       where: { id: userId },
       data: {
