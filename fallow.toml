@@ -1,0 +1,21 @@
+# Fallow audit config — entry-point overrides for the test scaffolding
+# introduced by port/quality-assets. Without these, fallow's static
+# analysis can't trace Playwright testDir and Vitest setupFiles as
+# entry points (both are framework-injected, not Nuxt-imported) and
+# false-positives every new file as unused.
+#
+# Husky pre-commit invokes fallow with `gate = "new-only"` (default);
+# `ignorePatterns` keeps the audit focused on the affected subdir while
+# excluding tooling configuration that's known to be portable.
+ignorePatterns = [
+  "server/test/**",
+  "fallow.toml",
+  ".fallow/**",
+]
+
+# @playwright/test only runs in the Playwright test runner (not loaded by
+# Nuxt at runtime). Confirmed in server/package.json as devDependencies;
+# fallow flags it as `unlisted_dependencies` because server/playwright.config.ts
+# imports it from outside the test/ ignorePattern. Promote to ignored
+# rather than promote to runtime dependencies.
+ignoreDependencies = ["@playwright/test"]
