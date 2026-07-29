@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# Pre-push gate: incremental tests, fallow audit, optional full suite, PR thread check.
+
+set -u
+
+# Incremental test run: only tests affected by pushed changes.
+# Full suite still runs in CI.
+if command -v pnpm >/dev/null 2>&1; then
+  pnpm --filter drop test:changed
+else
+  echo ":: pnpm not found — cannot run incremental tests" >&2
+  exit 1
+fi
+
+# Detect base from upstream tracking. If upstream matches current branch
+# (PR branch self-tracking) or unset, fall back to origin/develop.
+CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+UPSTREAM="$(git rev-parse --abbrev-ref '@{upstream}' 2>/dev/null || true)"
+REMOTE_BASE="${UPSTREAM}"
+if [ -z "${REMOTE_BASE}" ] || [ "${REMOTE_BASE##*/}" = "${CURRENT_BRANCH}" ]; then
+  REMOTE_BASE="origin/develop"
+fi
+
+# fallow audit gate: block on 'fail' verdict, tolerate JSON parse errors.
+if command -v fallow >/dev/null 2>&1; then
+  FALLOW_STDERR="$(mktemp)"
+  FALLOW_JSON="$(FALLOW_AUDIT_BASE="${REMOTE_BASE}" fallow audit --format json --quiet --explain --gate-marker agent 2>"${FALLOW_STDERR}" || echo '{"verdict":"error","error":true}')"
+  FALLOW_STDERR_CONTENT="$(cat "${FALLOW_STDERR}")"
+  rm -f "${FALLOW_STDERR}"
+  if [ -n "${FALLOW_STDERR_CONTENT}" ]; then
+    echo ":: fallow audit stderr: ${FALLOW_STDERR_CONTENT}" >&2
+  fi
+  if command -v jq >/dev/null 2>&1; then
+    FALLOW_VERDICT="$(echo "${FALLOW_JSON}" | jq -r '.verdict // "error"' 2>/dev/null || echo "error")"
+  else
+    # Fallback: parse verdict without jq so the gate still works
+    FALLOW_VERDICT="$(echo "${FALLOW_JSON}" | grep -oE '"verdict":"[a-z]+"' | cut -d'"' -f4 || echo "error")"
+  fi
+  if [ "${FALLOW_VERDICT}" = "fail" ]; then
+    echo ":: fallow audit verdict: fail. Fix findings or use --no-verify."
+    exit 1
+  elif [ "${FALLOW_VERDICT}" = "error" ]; then
+    echo ":: fallow audit returned errors (non-blocking) — continuing"
+  fi
+else
+  echo ":: fallow CLI not found — skipping audit gate"
+fi
+
+# Optional full test suite gate: verify no regressions before push.
+# Disabled by default — CI runs the full suite. Set FULL_TEST=1 to enable.
+if [ -n "${FULL_TEST:-}" ]; then
+  pnpm --filter drop test
+fi
+
+# Check for PR review threads.
+# Quick count only — use /pull-review-comments skill for full details + resolution.
+if command -v gh >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then
+  REPO="$(git remote get-url origin | sed -nE 's#.*github.com[:/]([^/]+/[^/.]+)(\.git)?$#\1#p' 2>/dev/null)"
+  if [ -z "${REPO}" ]; then
+    echo ":: unable to parse GitHub repository from remote URL — skipping review thread check" >&2
+    exit 0
+  fi
+  PR_NUMBER="$(gh pr view --json number -q .number 2>/dev/null || true)"
+  if [ -n "${PR_NUMBER}" ]; then
+    echo ":: PR #${PR_NUMBER} open — run /pull-review-comments for unresolved review threads before pushing"
+  fi
+else
+  echo ":: gh or jq not found — skipping review thread check" >&2
+fi

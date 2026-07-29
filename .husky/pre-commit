@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# Fallow audit gate — every finding in changed files blocks the commit.
+# `gate = "all"` is configured in fallow.toml so inherited findings also gate.
+# Base pinned to https://github.com/BillyOutlast/drop/tree/develop.
+FALLOW_AUDIT_BASE=origin/develop fallow audit --format json --quiet --explain --gate-marker agent || exit 1
+
+# Prisma generate trigger — only when schema or proto files change (build-dep,
+# not a content check).
+changed_schema=$(git diff --cached --name-only --diff-filter=ACM -- 'server/prisma/schema.prisma' 'server/**/*.proto')
+if [ -n "$changed_schema" ]; then
+  echo "Prisma schema or proto changed — running prisma generate..."
+  pnpm --filter drop exec prisma generate || exit 1
+fi
+
+# Whole-repo type-safety + style gate (prettier --check + eslint, no auto-fix).
+pnpm --filter drop lint || exit 1
+pnpm --filter drop typecheck || exit 1
+
+# Whole-repo shellcheck — all git-tracked .sh files, not just staged ones.
+if command -v shellcheck >/dev/null 2>&1; then
+  tracked_sh=$(git ls-files '*.sh')
+  if [ -n "$tracked_sh" ]; then
+    echo "$tracked_sh" | xargs shellcheck --severity=warning || exit 1
+  fi
+else
+  echo "shellcheck not installed — skipping shell script checks"
+fi
+
+# Whole-repo bare-assertion scan — flag toBeDefined / .not.toBeNull() without
+# a companion meaningful assertion across every test file in the repo.
+tracked_tests=$(git ls-files '*.test.ts' '*.spec.ts')
+if [ -n "$tracked_tests" ]; then
+  bare_assertions=$(echo "$tracked_tests" | xargs grep -n '\.toBeDefined()\|\.not\.toBeNull()' 2>/dev/null | grep -v '\.toEqual\|\.toMatchSnapshot\|\.toStrictEqual\|\.toBe(' || true)
+  if [ -n "$bare_assertions" ]; then
+    echo "ERROR: Bare .toBeDefined() or .not.toBeNull() without companion assertion:"
+    echo "$bare_assertions"
+    echo "Add a meaningful assertion (.toEqual, .toMatchSnapshot, etc.) or suppress with --no-verify."
+    exit 1
+  fi
+fi
+
+# Whole-repo cargo fmt --check across all three rust workspaces (no auto-fix;
+# forces developer to format manually if any .rs file drifts).
+if command -v cargo >/dev/null 2>&1; then
+  cargo fmt --all --manifest-path torrential/Cargo.toml -- --check || exit 1
+  cargo fmt --all --manifest-path cli/Cargo.toml -- --check || exit 1
+  cargo fmt --all --manifest-path desktop/src-tauri/Cargo.toml -- --check || exit 1
+else
+  echo "cargo not installed — skipping rust format checks"
+fi
