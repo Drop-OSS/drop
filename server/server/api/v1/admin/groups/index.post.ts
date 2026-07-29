@@ -18,7 +18,10 @@ export default defineEventHandler(async (h3) => {
     where: { name: body.name },
   });
   if (existing)
-    throw createError({ statusCode: 400, message: "Group name already exists" });
+    throw createError({
+      statusCode: 400,
+      message: "Group name already exists",
+    });
 
   const group = await prisma.userGroup.create({
     data: {

@@ -699,6 +699,26 @@
       "description": "Gérer les utilisateurs sur votre instance Drop, et configurer vos méthodes d'authentification.",
       "displayNameHeader": "Nom d'affichage",
       "emailHeader": "Email",
+      "groups": {
+        "addBannedRating": "Ajouter une classification interdite",
+        "addMember": "Sélectionner un utilisateur...",
+        "bannedRatings": "Classifications interdites",
+        "createGroup": "Créer un groupe",
+        "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce groupe ? Cette action est irréversible.",
+        "deleteGroup": "Supprimer",
+        "description": "Gérer les groupes d'utilisateurs et les restrictions d'âge.",
+        "descriptionField": "Description",
+        "details": "Détails",
+        "members": "Membres",
+        "name": "Nom",
+        "noBannedRatings": "Aucune classification interdite configurée.",
+        "noMembers": "Aucun membre dans ce groupe.",
+        "oidcManagedNote": "L'appartenance aux groupes est gérée par votre fournisseur OIDC. Les membres sont automatiquement synchronisés lors de la connexion. Pour modifier l'appartenance aux groupes, mettez à jour les affectations de groupes de votre fournisseur d'identité.",
+        "removeBannedRating": "Retirer",
+        "removeMember": "Retirer",
+        "title": "Groupes d'utilisateurs",
+        "unratedNote": "Les jeux sans classification d'âge seront également masqués pour les utilisateurs de ce groupe."
+      },
       "normalUserLabel": "Utilisateur normal",
       "simple": {
         "adminInvitation": "Invitation adminstrateur",
@@ -732,27 +752,7 @@
         "userInvitation": "Invitation utilisateur"
       },
       "srEditLabel": "Éditer",
-      "usernameHeader": "Nom d'utilisateur",
-      "groups": {
-        "title": "Groupes d'utilisateurs",
-        "description": "Gérer les groupes d'utilisateurs et les restrictions d'âge.",
-        "createGroup": "Créer un groupe",
-        "name": "Nom",
-        "descriptionField": "Description",
-        "details": "Détails",
-        "members": "Membres",
-        "addMember": "Sélectionner un utilisateur...",
-        "removeMember": "Retirer",
-        "noMembers": "Aucun membre dans ce groupe.",
-        "oidcManagedNote": "L'appartenance aux groupes est gérée par votre fournisseur OIDC. Les membres sont automatiquement synchronisés lors de la connexion. Pour modifier l'appartenance aux groupes, mettez à jour les affectations de groupes de votre fournisseur d'identité.",
-        "bannedRatings": "Classifications interdites",
-        "addBannedRating": "Ajouter une classification interdite",
-        "removeBannedRating": "Retirer",
-        "noBannedRatings": "Aucune classification interdite configurée.",
-        "unratedNote": "Les jeux sans classification d'âge seront également masqués pour les utilisateurs de ce groupe.",
-        "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce groupe ? Cette action est irréversible.",
-        "deleteGroup": "Supprimer"
-      }
+      "usernameHeader": "Nom d'utilisateur"
     }
   },
   "welcome": "Américain, bienvenue !"

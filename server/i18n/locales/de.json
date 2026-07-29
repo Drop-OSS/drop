@@ -699,6 +699,26 @@
       "description": "Verwalte Benutzer auf deiner Drop-Instanz und konfiguriere deine Authentifizierungsmethode.",
       "displayNameHeader": "Anzeigename",
       "emailHeader": "E-Mail",
+      "groups": {
+        "addBannedRating": "Gesperrte Einstufung hinzufügen",
+        "addMember": "Benutzer auswählen...",
+        "bannedRatings": "Gesperrte Alterseinstufungen",
+        "createGroup": "Gruppe erstellen",
+        "deleteConfirm": "Sind Sie sicher, dass Sie diese Gruppe löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+        "deleteGroup": "Löschen",
+        "description": "Benutzergruppen und Altersbeschränkungen verwalten.",
+        "descriptionField": "Beschreibung",
+        "details": "Details",
+        "members": "Mitglieder",
+        "name": "Name",
+        "noBannedRatings": "Keine gesperrten Einstufungen konfiguriert.",
+        "noMembers": "Keine Mitglieder in dieser Gruppe.",
+        "oidcManagedNote": "Die Gruppenmitgliedschaft wird von Ihrem OIDC-Anbieter verwaltet. Mitglieder werden bei der Anmeldung automatisch synchronisiert. Um die Gruppenmitgliedschaft zu ändern, aktualisieren Sie die Gruppenzuweisungen Ihres Identitätsanbieters.",
+        "removeBannedRating": "Entfernen",
+        "removeMember": "Entfernen",
+        "title": "Benutzergruppen",
+        "unratedNote": "Spiele ohne Alterseinstufung werden für Benutzer in dieser Gruppe ebenfalls ausgeblendet."
+      },
       "normalUserLabel": "Normaler Benutzer",
       "simple": {
         "adminInvitation": "Admin Einladung",
@@ -732,27 +752,7 @@
         "userInvitation": "Benutzereinladung"
       },
       "srEditLabel": "Bearbeiten",
-      "usernameHeader": "Nutzername",
-      "groups": {
-        "title": "Benutzergruppen",
-        "description": "Benutzergruppen und Altersbeschränkungen verwalten.",
-        "createGroup": "Gruppe erstellen",
-        "name": "Name",
-        "descriptionField": "Beschreibung",
-        "details": "Details",
-        "members": "Mitglieder",
-        "addMember": "Benutzer auswählen...",
-        "removeMember": "Entfernen",
-        "noMembers": "Keine Mitglieder in dieser Gruppe.",
-        "oidcManagedNote": "Die Gruppenmitgliedschaft wird von Ihrem OIDC-Anbieter verwaltet. Mitglieder werden bei der Anmeldung automatisch synchronisiert. Um die Gruppenmitgliedschaft zu ändern, aktualisieren Sie die Gruppenzuweisungen Ihres Identitätsanbieters.",
-        "bannedRatings": "Gesperrte Alterseinstufungen",
-        "addBannedRating": "Gesperrte Einstufung hinzufügen",
-        "removeBannedRating": "Entfernen",
-        "noBannedRatings": "Keine gesperrten Einstufungen konfiguriert.",
-        "unratedNote": "Spiele ohne Alterseinstufung werden für Benutzer in dieser Gruppe ebenfalls ausgeblendet.",
-        "deleteConfirm": "Sind Sie sicher, dass Sie diese Gruppe löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
-        "deleteGroup": "Löschen"
-      }
+      "usernameHeader": "Nutzername"
     }
   },
   "welcome": "Deutsche, willkommen!"

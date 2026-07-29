@@ -498,6 +498,26 @@
       "description": "Manage the crew on yer Drop vessel, and set yer passage methods, savvy?",
       "displayNameHeader": "Scallywag Name",
       "emailHeader": "Salty Mail",
+      "groups": {
+        "addBannedRating": "Add forbidden rating",
+        "addMember": "Pick a scallywag...",
+        "bannedRatings": "Forbidden Ratings",
+        "createGroup": "Form a Crew",
+        "deleteConfirm": "Be ye sure ye want to disband this crew? There be no turnin' back!",
+        "deleteGroup": "Disband",
+        "description": "Manage yer crew groups and age restrictions on the plunder.",
+        "descriptionField": "Description",
+        "details": "Details",
+        "members": "Crew Members",
+        "name": "Name",
+        "noBannedRatings": "No forbidden ratings set, captain.",
+        "noMembers": "No souls in this crew.",
+        "oidcManagedNote": "Crew membership be managed by yer OIDC harbourmaster. Members be synced when they come aboard. To change crew membership, update yer identity provider's assignments.",
+        "removeBannedRating": "Remove",
+        "removeMember": "Cast overboard",
+        "title": "Crew Groups",
+        "unratedNote": "Unrated plunder will also be hidden from scallywags in this crew."
+      },
       "normalUserLabel": "Common crewman",
       "simple": {
         "adminInvitation": "Cap'n's Invitation",
@@ -531,27 +551,7 @@
         "userInvitation": "Crewman's Invitation"
       },
       "srEditLabel": "Amend",
-      "usernameHeader": "Crew Name",
-      "groups": {
-        "title": "Crew Groups",
-        "description": "Manage yer crew groups and age restrictions on the plunder.",
-        "createGroup": "Form a Crew",
-        "name": "Name",
-        "descriptionField": "Description",
-        "details": "Details",
-        "members": "Crew Members",
-        "addMember": "Pick a scallywag...",
-        "removeMember": "Cast overboard",
-        "noMembers": "No souls in this crew.",
-        "oidcManagedNote": "Crew membership be managed by yer OIDC harbourmaster. Members be synced when they come aboard. To change crew membership, update yer identity provider's assignments.",
-        "bannedRatings": "Forbidden Ratings",
-        "addBannedRating": "Add forbidden rating",
-        "removeBannedRating": "Remove",
-        "noBannedRatings": "No forbidden ratings set, captain.",
-        "unratedNote": "Unrated plunder will also be hidden from scallywags in this crew.",
-        "deleteConfirm": "Be ye sure ye want to disband this crew? There be no turnin' back!",
-        "deleteGroup": "Disband"
-      }
+      "usernameHeader": "Crew Name"
     }
   },
   "welcome": "Ahoy, Welcome!"

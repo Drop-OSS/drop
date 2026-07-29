@@ -23,7 +23,10 @@ export default defineEventHandler(async (h3) => {
     where: { name: body.name, id: { not: id } },
   });
   if (nameTaken)
-    throw createError({ statusCode: 400, message: "Group name already exists" });
+    throw createError({
+      statusCode: 400,
+      message: "Group name already exists",
+    });
 
   // eslint-disable-next-line drop/no-prisma-delete
   const group = await prisma.userGroup.update({

@@ -46,10 +46,7 @@ class UserLibraryManager {
     await this.collectionRemove(gameId, userLibraryId, userId);
   }
 
-  async fetchLibrary(
-    userId: string,
-    gameFilter?: Prisma.GameWhereInput,
-  ) {
+  async fetchLibrary(userId: string, gameFilter?: Prisma.GameWhereInput) {
     const userLibraryId = await this.fetchUserLibrary(userId);
     const userLibrary = await prisma.collection.findUnique({
       where: { id: userLibraryId },
@@ -80,10 +77,7 @@ class UserLibraryManager {
     });
   }
 
-  async fetchCollections(
-    userId: string,
-    gameFilter?: Prisma.GameWhereInput,
-  ) {
+  async fetchCollections(userId: string, gameFilter?: Prisma.GameWhereInput) {
     await this.fetchUserLibrary(userId); // Ensures user library exists, doesn't have much performance impact due to caching
     return await prisma.collection.findMany({
       where: { userId, isDefault: false },

@@ -271,8 +271,9 @@ const fetchAllUsers = async () => {
 // Check OIDC
 const checkOidc = async () => {
   try {
-    const auth = await $dropFetch<Record<string, unknown>>("/api/v1/admin/auth");
-    oidcEnabled.value = !!auth[("OpenID" as AuthMec)];
+    const auth =
+      await $dropFetch<Record<string, unknown>>("/api/v1/admin/auth");
+    oidcEnabled.value = !!auth["OpenID" as AuthMec];
   } catch {
     oidcEnabled.value = false;
   }
