@@ -1,0 +1,212 @@
+# Accepted security risks.
+#
+# Each entry documents a known vulnerability with accepted mitigation.
+# `review_by`: when this entry must be re-evaluated (auto-flagged if past).
+# `ci_ignore: true` means the vuln is in `pnpm audit --ignore GHSA-...` and
+# this entry is the authoritative rationale.
+#
+# When a new vuln is added to `pnpm audit --ignore`, add a corresponding
+# entry here. CI check (ci: verify risk register covers all ignored advisories)
+# enforces coverage.
+
+risks:
+  - id: RISK-001
+    title: "decompress: Archive extraction can create files and links outside the target directory"
+    package: "decompress@<=4.2.1"
+    advisory: GHSA-mp2f-45pm-3cg9
+    severity: critical
+    affected_paths:
+      - "desktop>tauri>imagemin-optipng>optipng-bin>bin-build>decompress"
+      - "desktop>tauri>imagemin-optipng>optipng-bin>bin-build>download>decompress"
+      - "desktop>tauri>imagemin-optipng>optipng-bin>bin-wrapper>download>decompress"
+    mitigation: "Local patch applied via patches/decompress@4.2.1.patch (path containment + mode bit stripping + link target validation). Only used in Tauri build pipeline, not exposed to runtime. Patched in commit 2be06d7a."
+    accepted_by: "BillyOutlast"
+    accepted_date: "2025-07-24"
+    review_by: "2025-10-24"
+    ci_ignore: true
+
+  - id: RISK-002
+    title: "Prototype Pollution in lodash"
+    package: "lodash.pick@>=4.0.0 <=4.4.0"
+    advisory: GHSA-p6mc-m468-83gw
+    severity: high
+    affected_paths:
+      - "desktop>tauri>@tauri-apps/tauri-inliner>cheerio>lodash.pick"
+    mitigation: "Dead-end transitive dep. tauri-inliner pins lodash.pick 4.x. No upstream fix available. Desktop build pipeline only, not exposed to runtime."
+    accepted_by: "BillyOutlast"
+    accepted_date: "2025-07-24"
+    review_by: "2025-10-24"
+    ci_ignore: true
+
+  - id: RISK-003
+    title: "SVGO removeScripts plugin leaves some executable code intact"
+    package: "svgo@1.3.2"
+    advisory: GHSA-2p49-hgcm-8545
+    severity: high
+    affected_paths:
+      - "desktop>tauri>@tauri-apps/tauri-inliner>svgo"
+    mitigation: "Dead-end transitive dep. tauri-inliner pins svgo 1.x. No upstream fix. Desktop build pipeline only."
+    accepted_by: "BillyOutlast"
+    accepted_date: "2025-07-24"
+    review_by: "2025-10-24"
+    ci_ignore: true
+
+  - id: RISK-004
+    title: "Server-Side Request Forgery in Request"
+    package: "request@2.88.2"
+    advisory: GHSA-c2qf-rxjj-qqgw
+    severity: moderate
+    affected_paths:
+      - "desktop>tauri>@tauri-apps/tauri-inliner>request"
+    mitigation: "Deprecated since 2020. No fix. Desktop build pipeline only."
+    accepted_by: "BillyOutlast"
+    accepted_date: "2025-07-24"
+    review_by: "2025-10-24"
+    ci_ignore: true
+
+  - id: RISK-005
+    title: "file-type affected by infinite loop in ASF parser"
+    package: "file-type@18.7.0"
+    advisory: GHSA-cjm9-3pvw-9wxf
+    severity: moderate
+    affected_paths:
+      - "server>stream-mime-type>file-type"
+    mitigation: "Server uses file-type only for stream MIME detection. Affected path requires crafted ASF file input. No upstream fix yet."
+    accepted_by: "BillyOutlast"
+    accepted_date: "2025-07-24"
+    review_by: "2025-10-24"
+    ci_ignore: true
+
+  - id: RISK-006
+    title: "@hono/node-server: Middleware bypass via repeated X-Powered-By headers"
+    package: "@hono/node-server<1.13.10"
+    advisory: GHSA-7g6w-hpgm-66vp
+    severity: moderate
+    affected_paths:
+      - "server>prisma>@prisma/dev>@hono/node-server"
+    mitigation: "Dev-only dep. Not bundled in production. Prisma update would resolve."
+    accepted_by: "BillyOutlast"
+    accepted_date: "2025-07-24"
+    review_by: "2025-10-24"
+    ci_ignore: true
+
+  - id: RISK-007
+    title: "uuid: Missing buffer bounds check"
+    package: "uuid@<11.0.0"
+    advisory: GHSA-cf7w-9wvq-3f9r
+    severity: moderate
+    affected_paths:
+      - "desktop>tauri>@tauri-apps/tauri-inliner>request>uuid"
+    mitigation: "Transitive through deprecated request. Desktop build pipeline only. Normal uuid usage unaffected (CVE requires explicit buf arg)."
+    accepted_by: "BillyOutlast"
+    accepted_date: "2025-07-24"
+    review_by: "2025-10-24"
+    ci_ignore: true
+
+  - id: RISK-008
+    title: "Astro: Reflected XSS via unescaped View Transition"
+    package: "astro@<7.0.10"
+    advisory: GHSA-vfqw-2gh8-h2hg
+    severity: moderate
+    affected_paths:
+      - "sites/docs>astro"
+    mitigation: "Fix requires astro 7.x (MAJOR version jump). sites/docs uses astro 6.4.8. Migration deferred. sites/docs is content-only — no user input rendering."
+    accepted_by: "BillyOutlast"
+    accepted_date: "2025-07-24"
+    review_by: "2025-10-24"
+    ci_ignore: true
+
+  - id: RISK-009
+    title: "Astro: XSS via unescaped spread attribute names in components"
+    package: "astro@<7.0.10"
+    advisory: GHSA-fv6c-7r8v-qpqv
+    severity: moderate
+    affected_paths:
+      - "sites/docs>astro"
+    mitigation: "Same as RISK-008 — requires astro 7.x. Deferred."
+    accepted_by: "BillyOutlast"
+    accepted_date: "2025-07-24"
+    review_by: "2025-10-24"
+    ci_ignore: true
+
+  - id: RISK-010
+    title: "Node.js Adapter for Hono: Path traversal in serveStatic"
+    package: "@hono/node-server<1.13.10"
+    advisory: GHSA-3qpp-9r2h-9wj2
+    severity: moderate
+    affected_paths:
+      - "server>prisma>@prisma/dev>@hono/node-server"
+    mitigation: "Dev-only dep. Not in production. Prisma update would resolve."
+    accepted_by: "BillyOutlast"
+    accepted_date: "2025-07-24"
+    review_by: "2025-10-24"
+    ci_ignore: true
+
+  - id: RISK-011
+    title: "Valibot: record() issue paths can make flatten() throw"
+    package: "valibot@<1.2.0"
+    advisory: GHSA-vfqw-2gh8-h3gv
+    severity: moderate
+    affected_paths:
+      - "server>prisma>@prisma/dev>valibot"
+    mitigation: "Dev-only dep (prisma devtools). Not in production. Prisma update would resolve."
+    accepted_by: "BillyOutlast"
+    accepted_date: "2025-07-24"
+    review_by: "2025-10-24"
+    ci_ignore: true
+
+  - id: RISK-012
+    title: "esbuild allows arbitrary file read when running the dev server"
+    package: "esbuild@<=0.25.0"
+    advisory: GHSA-67mh-4wv8-7f7v
+    severity: low
+    affected_paths:
+      - "sites/docs>astro>esbuild"
+    mitigation: "Windows-only exploit. Linux dev server immune. sites/docs is content-only, no untrusted file access."
+    accepted_by: "BillyOutlast"
+    accepted_date: "2025-07-24"
+    review_by: "2025-10-24"
+    ci_ignore: true
+
+  - id: RISK-013
+    title: "Astro: Cross-site scripting via unescaped transition:* props"
+    package: "astro@<7.0.10"
+    advisory: GHSA-fv6c-7r8v-qpg3
+    severity: low
+    affected_paths:
+      - "sites/docs>astro"
+    mitigation: "Same as RISK-008 — requires astro 7.x. sites/docs uses astro 6.4.8. Deferred."
+    accepted_by: "BillyOutlast"
+    accepted_date: "2025-07-24"
+    review_by: "2025-10-24"
+    ci_ignore: true
+
+  - id: RISK-014
+    title: "quick-xml: Quadratic duplicate attribute check DoS"
+    package: "quick-xml@<0.41.0"
+    advisory: RUSTSEC-2026-0194
+    severity: high
+    affected_paths:
+      - "cli>opendal>reqsign>quick-xml 0.37.5"
+      - "cli>opendal>quick-xml 0.38.4"
+      - "desktop>tauri>tauri-utils>plist>quick-xml 0.38.4"
+    mitigation: "Desktop build-time path: tauri-utils/plist parses only its own Info.plist — fully trusted. CLI path via opendal: the XML endpoint is user-configured cloud storage. While normal usage targets trusted providers, a user could configure a malicious endpoint returning crafted XML. Keep CLI advisory open; recommend limiting deployment to trusted endpoints. Upstream crate bump in opendal will resolve when available."
+    accepted_by: "BillyOutlast"
+    accepted_date: "2026-07-28"
+    review_by: "2026-10-28"
+    ci_ignore: false
+
+  - id: RISK-015
+    title: "quick-xml: Unbounded namespace allocation OOM"
+    package: "quick-xml@<0.41.0"
+    advisory: RUSTSEC-2026-0195
+    severity: high
+    affected_paths:
+      - "cli>opendal>reqsign>quick-xml 0.37.5"
+      - "cli>opendal>quick-xml 0.38.4"
+      - "desktop>tauri>tauri-utils>plist>quick-xml 0.38.4"
+    mitigation: "Same as RISK-014. Desktop build-time path is trusted; CLI opendal path has untrusted XML surface from user-configured endpoints. NsReader path unused in all affected crates' usage patterns."
+    accepted_by: "BillyOutlast"
+    accepted_date: "2026-07-28"
+    review_by: "2026-10-28"
+    ci_ignore: false

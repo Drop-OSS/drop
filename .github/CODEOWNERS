@@ -1,0 +1,17 @@
+# Security-sensitive routes — require review
+# Auth: webauthn, passkey, MFA, OIDC, TOTP
+/server/server/api/v1/auth/ @BillyOutlast
+/server/server/internal/auth/ @BillyOutlast
+
+# Metadata providers — external HTTP integration, complex fallthrough
+/server/server/internal/metadata/ @BillyOutlast
+
+# Nitro server core (server/ dir)
+/server/server/ @BillyOutlast
+
+# Build, deps, CI
+/server/.env.example @BillyOutlast
+/.github/workflows/ @BillyOutlast
+/AGENTS.md @BillyOutlast
+/CLAUDE.md @BillyOutlast
+/CONTRIBUTING.md @BillyOutlast

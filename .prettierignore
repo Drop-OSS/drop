@@ -1,0 +1,25 @@
+# Build output
+dist/
+.nuxt/
+.output/
+coverage/
+target/
+
+# Dependencies
+**/node_modules/
+
+# Generated code (Prisma)
+prisma/client/
+**/migrations/
+
+# Proto-generated code
+**/proto/
+
+# External / auto-generated code (not maintained by us)
+desktop/libs/appletrust/
+
+# Test artifacts
+**/test-results/
+
+# Documentation sites (separate conventions)
+sites/docs/

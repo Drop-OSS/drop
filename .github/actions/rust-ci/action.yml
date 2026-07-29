@@ -1,0 +1,154 @@
+name: Rust CI
+description: >
+  Reusable Rust CI steps for Drop monorepo workspaces.
+  Handles checkout, toolchain, cache, system deps, fmt, clippy/check,
+  tests, coverage (llvm-cov + Codecov), and advisory cargo-audit.
+
+inputs:
+  working-directory:
+    required: true
+    description: >
+      Working directory for cargo commands.
+      Example: libraries/droplet, cli, desktop/src-tauri
+
+  cache-workspaces:
+    required: true
+    description: >
+      Workspace mapping for swatinem/rust-cache.
+      Example: "./libraries/droplet -> target"
+
+  system-dependencies:
+    required: false
+    description: >
+      Shell commands to install system dependencies (apt-get etc.).
+      Omit or leave empty when no system deps are needed.
+    default: ""
+
+  lint-command:
+    required: true
+    description: >
+      Cargo lint/build command.
+      Example: cargo clippy --all-targets --all-features -- -D warnings
+
+  coverage-path:
+    required: true
+    description: >
+      Path to coverage.lcov relative to repo root (for Codecov upload).
+      Example: libraries/droplet/coverage.lcov
+
+  test-command:
+    required: false
+    description: Cargo test command.
+    default: cargo test --all-features --all --verbose
+
+  test-continue-on-error:
+    required: false
+    description: Whether to continue on test failure.
+    default: "false"
+
+  lint-continue-on-error:
+    required: false
+    description: Whether to continue on lint failure.
+    default: "false"
+
+  components:
+    required: false
+    description: Rust toolchain components (comma-separated).
+    default: rustfmt, clippy
+
+runs:
+  using: composite
+  steps:
+    # ── Setup ──────────────────────────────────────────────────────
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@4fd1da8b0805d2d2e936788875a7d65dbd677dc2
+      with:
+        toolchain: nightly
+        components: ${{ inputs.components }}
+
+    - name: Rust cache
+      # pinned to v2
+      uses: swatinem/rust-cache@42dc69e1aa15d09112580998cf2ef0119e2e91ae
+      with:
+        workspaces: ${{ inputs.cache-workspaces }}
+
+    # ── System dependencies ────────────────────────────────────────
+    - name: Install system dependencies
+      if: ${{ inputs.system-dependencies != '' }}
+      shell: bash
+      run: ${{ inputs.system-dependencies }}
+
+    # ── Format ─────────────────────────────────────────────────────
+    - name: Check formatting
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: cargo fmt --all -- --check
+
+    # ── Lint / Build ───────────────────────────────────────────────
+    - name: Lint / Build
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      continue-on-error: ${{ inputs.lint-continue-on-error == 'true' }}
+      run: ${{ inputs.lint-command }}
+
+    # ── Test ───────────────────────────────────────────────────────
+    - name: Run tests
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      continue-on-error: ${{ inputs.test-continue-on-error == 'true' }}
+      run: ${{ inputs.test-command }}
+
+    # ── Coverage ───────────────────────────────────────────────────
+    - name: Install cargo-llvm-cov
+      uses: taiki-e/install-action@cargo-llvm-cov
+
+    - name: Generate code coverage
+      # Was continue-on-error: true — switched to false so coverage
+      # failures surface in CI. Codecov upload below still uses
+      # fail_ci_if_error: false, so generation failure is visible
+      # but won't block the pipeline.
+      continue-on-error: false
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        cargo llvm-cov --all-features --workspace \
+          --codecov --output-path coverage.lcov
+
+    - name: Upload coverage to Codecov
+      # pinned to v5
+      uses: codecov/codecov-action@04b047e8bb82a0c002c8312c1c880fbc6a999d45
+      with:
+        files: ${{ inputs.coverage-path }}
+        fail_ci_if_error: false
+
+    # ── Security audit ─────────────────────────────────────────────
+    - name: Install cargo-audit
+      uses: taiki-e/install-action@cargo-audit
+
+    - name: Audit dependencies
+      # cargo audit exits 1 on ANY advisory. Keep non-blocking here; the
+      # follow-up step fails only when a NEW (un-ignored) advisory is found
+      # that is not already documented in security/risk-register.yaml.
+      continue-on-error: true
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: cargo audit --json > /tmp/cargo-audit.json 2>/dev/null || true
+
+    - name: Check for new Rust advisories
+      # Run on success or failure of the audit step, but not on cancel.
+      # Use --min-severity high for cargo to catch DoS-class advisories
+      # (RUSTSEC-2026-0194/0195 in quick-xml are severity "high"); the
+      # script handles missing/empty/malformed JSON and missing risk
+      # register gracefully (exits 0 with a warning in both cases).
+      # Resolve the script via $GITHUB_WORKSPACE because this composite
+      # action is invoked with working-directory set to a sub-crate
+      # (cli/, desktop/src-tauri/, libraries/droplet/), where a relative
+      # `scripts/check-new-vulns.cjs` would not exist.
+      if: success() || failure()
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        node "$GITHUB_WORKSPACE/scripts/check-new-vulns.cjs" \
+          --format cargo \
+          --json /tmp/cargo-audit.json \
+          --min-severity high

@@ -1,0 +1,158 @@
+version: 2
+
+registries:
+  # Allow Dependabot to resolve private/skipped registry hosts from lockfiles
+  # (e.g. buf schema registry, GitHub Packages). Public registries need no entry.
+  npm-pkg-github:
+    type: "npm-registry"
+    url: "https://npm.pkg.github.com"
+    token: "${{secrets.GITHUB_TOKEN}}"
+
+updates:
+  # ----- Node / pnpm workspace (root, server, sites/*, desktop) -----
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "06:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 10
+    groups:
+      # Patch + minor bumps bundled together to avoid PR spam
+      node-minor:
+        update-types: ["minor", "patch"]
+      # Pin major bumps separately for explicit review
+      node-major:
+        update-types: ["major"]
+    commit-message:
+      prefix: "deps"
+      prefix-development: "chore(deps-dev)"
+    labels: ["dependencies", "javascript"]
+    reviewers: ["BillyOutlast"]
+    # Keep lockfile in sync; pnpm-workspace.yaml declares onlyBuiltDependencies
+    # — keep Dependabot from re-enabling builds that the workspace intentionally skips.
+    rebase-strategy: "auto"
+
+  # ----- Nuxt 4 desktop app (separate pnpm workspace) -----
+  # desktop/main/ has its own pnpm-workspace.yaml and pnpm-lock.yaml,
+  # so root npm entry at "/" does not cover it. Scanned independently.
+  - package-ecosystem: "npm"
+    directory: "/desktop/main"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    groups:
+      desktop-minor:
+        update-types: ["minor", "patch"]
+      desktop-major:
+        update-types: ["major"]
+    commit-message:
+      prefix: "deps(desktop)"
+    labels: ["dependencies", "javascript"]
+    rebase-strategy: "auto"
+
+  # ----- Rust workspace: CLI -----
+  - package-ecosystem: "cargo"
+    directory: "/cli"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    groups:
+      rust-minor:
+        update-types: ["minor", "patch"]
+      rust-major:
+        update-types: ["major"]
+    commit-message:
+      prefix: "deps(cli)"
+    labels: ["dependencies", "rust"]
+
+  # ----- Rust workspace: droplet library -----
+  - package-ecosystem: "cargo"
+    directory: "/libraries/droplet"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    groups:
+      rust-minor:
+        update-types: ["minor", "patch"]
+      rust-major:
+        update-types: ["major"]
+    commit-message:
+      prefix: "deps(droplet)"
+    labels: ["dependencies", "rust"]
+
+  # ----- Rust workspace: native_model library -----
+  - package-ecosystem: "cargo"
+    directory: "/libraries/native_model"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    groups:
+      rust-minor:
+        update-types: ["minor", "patch"]
+      rust-major:
+        update-types: ["major"]
+    commit-message:
+      prefix: "deps(native_model)"
+    labels: ["dependencies", "rust"]
+
+  # ----- Rust workspace: desktop (Tauri) -----
+  - package-ecosystem: "cargo"
+    directory: "/desktop/src-tauri"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    groups:
+      rust-minor:
+        update-types: ["minor", "patch"]
+      rust-major:
+        update-types: ["major"]
+    commit-message:
+      prefix: "deps(desktop)"
+    labels: ["dependencies", "rust"]
+
+  # ----- Dockerfile (root image) -----
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "deps(docker)"
+    labels: ["dependencies", "docker"]
+
+  # ----- GitHub Actions -----
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 10
+    groups:
+      actions-minor:
+        update-types: ["minor", "patch"]
+      actions-major:
+        update-types: ["major"]
+    commit-message:
+      prefix: "deps(ci)"
+    labels: ["dependencies", "github-actions"]

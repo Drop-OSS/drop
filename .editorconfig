@@ -1,0 +1,32 @@
+root = true
+
+[*]
+indent_style = space
+indent_size = 2
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.rs]
+indent_size = 4
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.{yml,yaml}]
+indent_size = 2
+
+# Makefiles require tabs (syntax)
+[Makefile]
+indent_style = tab
+
+# Nix files: prettier handles formatting, allow 2-space indent
+[*.nix]
+indent_style = space
+indent_size = 2
+
+# JSON files: Prettier handles formatting with 2-space indent
+[*.json]
+indent_style = space
+indent_size = 2
