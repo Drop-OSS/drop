@@ -131,7 +131,7 @@ jobs:
           APPLE_SIGNING_IDENTITY: ${{ env.CERT_ID }}
           NO_STRIP: true
         with:
-          tagName: ${{ inputs.print_tags || 'v__VERSION__' }} # the action automatically replaces \_\_VERSION\_\_ with the app version.
+          tagName: ${{ inputs.tagName || 'v__VERSION__' }} # the action automatically replaces \_\_VERSION\_\_ with the app version.
           releaseName: "Auto-release v__VERSION__"
           releaseBody: "See the assets to download this version and install. This release was created automatically."
           releaseDraft: false

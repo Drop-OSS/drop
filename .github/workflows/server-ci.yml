@@ -41,7 +41,11 @@ jobs:
           cache: "pnpm"
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Generate Nuxt + Prisma + Buf artifacts
+        working-directory: server
+        run: pnpm run postinstall
 
       - name: Typecheck
         working-directory: server
@@ -64,7 +68,11 @@ jobs:
           cache: "pnpm"
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Generate Nuxt + Prisma + Buf artifacts
+        working-directory: server
+        run: pnpm run postinstall
 
       - name: Lint
         working-directory: server
