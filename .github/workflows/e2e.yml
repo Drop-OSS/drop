@@ -58,6 +58,12 @@ jobs:
       - name: Generate Nuxt and Prisma artifacts
         run: pnpm --filter drop run postinstall
 
+      # Start test postgres before the dev server so any API-touching
+      # E2E spec (Prisma → postgres) doesn't 500. Scoped to the test
+      # compose file; uses port 5433 to avoid clashing with local dev.
+      - name: Start postgres test container
+        run: docker compose -f server/docker-compose.test.yml up -d --wait
+
       # Playwright config sets webServer.command = "pnpm dev", so the
       # dev server is auto-spawned. No explicit start needed.
       - name: Install Playwright browsers
