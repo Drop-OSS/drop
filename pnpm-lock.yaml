@@ -424,8 +424,8 @@ importers:
         specifier: 15.4.4
         version: 15.4.4(eslint-plugin-import-x@4.17.1(@typescript-eslint/utils@8.65.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
       postcss:
-        specifier: ^8.5.6
-        version: 8.5.10
+        specifier: ^8.5.18
+        version: 8.5.24
       prettier:
         specifier: ^3.6.2
         version: 3.8.3
@@ -8274,11 +8274,6 @@ packages:
     resolution: {integrity: sha512-Tz09sEL2EEuv5fFowm419c1+a/jSMiBjI9gHxVLrVdbUkkNUUfjsVYs9pVZu5oCon/kmRh9TfLEObFtkVxmY0w==}
     engines: {node: '>=8.0.0'}
 
-  nanoid@3.3.11:
-    resolution: {integrity: sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==}
-    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
-    hasBin: true
-
   nanoid@3.3.16:
     resolution: {integrity: sha512-bzlKTyNJ7+LdGIIwy8ijFpIqEQIvafahV7eYykJ8Cvh42EdJeODoJ6gUJXpQJvej1BddH8OqTXZNE/KfbWAu8Q==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
@@ -9127,10 +9122,6 @@ packages:
 
   postcss@8.4.31:
     resolution: {integrity: sha512-PS08Iboia9mts/2ygV3eLpY5ghnUcfLV/EXTOW1E2qYxJKGGBUtNjN76FYHnMs36RmARn41bC0AZmn+rR0OVpQ==}
-    engines: {node: ^10 || ^12 || >=14}
-
-  postcss@8.5.10:
-    resolution: {integrity: sha512-pMMHxBOZKFU6HgAZ4eyGnwXF/EvPGGqUr0MnZ5+99485wwW41kW91A4LOGxSHhgugZmSChL5AlElNdwlNgcnLQ==}
     engines: {node: ^10 || ^12 || >=14}
 
   postcss@8.5.24:
@@ -15144,7 +15135,7 @@ snapshots:
       '@alloc/quick-lru': 5.2.0
       '@tailwindcss/node': 4.2.2
       '@tailwindcss/oxide': 4.2.2
-      postcss: 8.5.10
+      postcss: 8.5.24
       tailwindcss: 4.2.2
 
   '@tailwindcss/typography@0.5.19(tailwindcss@4.2.2)':
@@ -20779,8 +20770,6 @@ snapshots:
     dependencies:
       lru.min: 1.1.4
 
-  nanoid@3.3.11: {}
-
   nanoid@3.3.16: {}
 
   nanotar@0.3.0: {}
@@ -22054,12 +22043,6 @@ snapshots:
   postcss@8.4.31:
     dependencies:
       nanoid: 3.3.16
-      picocolors: 1.1.1
-      source-map-js: 1.2.1
-
-  postcss@8.5.10:
-    dependencies:
-      nanoid: 3.3.11
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
