@@ -531,7 +531,27 @@
         "userInvitation": "Crewman's Invitation"
       },
       "srEditLabel": "Amend",
-      "usernameHeader": "Crew Name"
+      "usernameHeader": "Crew Name",
+      "groups": {
+        "title": "Crew Groups",
+        "description": "Manage yer crew groups and age restrictions on the plunder.",
+        "createGroup": "Form a Crew",
+        "name": "Name",
+        "descriptionField": "Description",
+        "details": "Details",
+        "members": "Crew Members",
+        "addMember": "Pick a scallywag...",
+        "removeMember": "Cast overboard",
+        "noMembers": "No souls in this crew.",
+        "oidcManagedNote": "Crew membership be managed by yer OIDC harbourmaster. Members be synced when they come aboard. To change crew membership, update yer identity provider's assignments.",
+        "bannedRatings": "Forbidden Ratings",
+        "addBannedRating": "Add forbidden rating",
+        "removeBannedRating": "Remove",
+        "noBannedRatings": "No forbidden ratings set, captain.",
+        "unratedNote": "Unrated plunder will also be hidden from scallywags in this crew.",
+        "deleteConfirm": "Be ye sure ye want to disband this crew? There be no turnin' back!",
+        "deleteGroup": "Disband"
+      }
     }
   },
   "welcome": "Ahoy, Welcome!"

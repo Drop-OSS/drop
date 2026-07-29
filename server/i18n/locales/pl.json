@@ -708,7 +708,27 @@
         "userInvitation": "Zaproszenie użytkownika"
       },
       "srEditLabel": "Edytuj",
-      "usernameHeader": "Nazwa Użytkownika"
+      "usernameHeader": "Nazwa Użytkownika",
+      "groups": {
+        "title": "Grupy użytkowników",
+        "description": "Zarządzaj grupami użytkowników i ograniczeniami wiekowymi.",
+        "createGroup": "Utwórz grupę",
+        "name": "Nazwa",
+        "descriptionField": "Opis",
+        "details": "Szczegóły",
+        "members": "Członkowie",
+        "addMember": "Wybierz użytkownika...",
+        "removeMember": "Usuń",
+        "noMembers": "Brak członków w tej grupie.",
+        "oidcManagedNote": "Członkostwo w grupach jest zarządzane przez dostawcę OIDC. Członkowie są automatycznie synchronizowani podczas logowania. Aby zmienić członkostwo w grupach, zaktualizuj przypisania grup u dostawcy tożsamości.",
+        "bannedRatings": "Zablokowane kategorie wiekowe",
+        "addBannedRating": "Dodaj zablokowaną kategorię",
+        "removeBannedRating": "Usuń",
+        "noBannedRatings": "Brak skonfigurowanych zablokowanych kategorii.",
+        "unratedNote": "Gry bez kategorii wiekowej będą również ukryte przed użytkownikami w tej grupie.",
+        "deleteConfirm": "Czy na pewno chcesz usunąć tę grupę? Tej akcji nie można cofnąć.",
+        "deleteGroup": "Usuń"
+      }
     }
   },
   "welcome": "Polaku, Witaj!"
