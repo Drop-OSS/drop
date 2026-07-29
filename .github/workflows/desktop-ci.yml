@@ -1,0 +1,47 @@
+name: Desktop CI
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - "desktop/src-tauri/**"
+      - ".github/workflows/desktop-ci.yml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+  pull_request:
+    branches: [develop]
+    paths:
+      - "desktop/src-tauri/**"
+      - ".github/workflows/desktop-ci.yml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: Format, Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/rust-ci
+        with:
+          working-directory: desktop/src-tauri
+          cache-workspaces: "./desktop/src-tauri -> target"
+          system-dependencies: |
+            sudo apt-get update
+            sudo apt-get install -y \
+              libwebkit2gtk-4.1-dev \
+              libappindicator3-dev \
+              librsvg2-dev \
+              patchelf
+          lint-command: cargo clippy --workspace
+          coverage-path: desktop/src-tauri/coverage.lcov
+          test-command: cargo test --workspace --no-fail-fast
+          components: rustfmt, clippy

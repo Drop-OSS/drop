@@ -1,0 +1,305 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  validate:
+    name: Validate workflows
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Run actionlint
+        uses: reviewdog/action-actionlint@086cc5300a077f608b81d2b03801bc382e417264 # v1.65.2
+
+      # Enforce: every pnpm audit --ignore GHSA-... must have a risk register entry.
+      - name: Verify risk register coverage
+        run: |
+          IGNORED=$(grep -rh '\-\-ignore GHSA-' .github/workflows/ | grep -oE 'GHSA-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}' | sort -u)
+          for ghsa in $IGNORED; do
+            if ! grep -q "$ghsa" security/risk-register.yaml; then
+              echo "ERROR: $ghsa ignored but missing from security/risk-register.yaml"
+              exit 1
+            fi
+          done
+          echo "All $(echo "$IGNORED" | wc -w) ignored advisories have risk register entries"
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Review dependencies
+        uses: actions/dependency-review-action@da24556b548a50705dd671f47852072ea4c105d9 # v4
+        with:
+          fail-on-severity: critical
+
+  secrets:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          # gitleaks-action v2 needs full history to resolve base-commit
+          # refs on fork PRs (compares baseRef^..headRef). Without this,
+          # git fails with 'ambiguous argument ...^...' on shallow clones.
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@dcedce43c6f43de0b836d1fe38946645c9c638dc # v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          submodules: true
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpng-dev
+      - name: Install pnpm
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Generate Nuxt and Prisma artifacts
+        run: pnpm --filter drop run postinstall
+      - name: Audit dependencies
+        # GHSA-mp2f-45pm-3cg9 patched locally via patches/decompress@4.2.1.patch.
+        # Remove ignore when upstream publishes decompress@>=4.2.2.
+        continue-on-error: true
+        run: pnpm audit --audit-level=critical --ignore GHSA-mp2f-45pm-3cg9
+
+      - name: Check for new critical advisories
+        # Run on success or failure of the audit step, but not on cancel.
+        # Use --min-severity critical for pnpm to limit noise; the script
+        # handles missing/empty/malformed JSON gracefully.
+        if: success() || failure()
+        run: |
+          pnpm audit --audit-level=critical --json > /tmp/audit.json 2>/dev/null || true
+          node scripts/check-new-vulns.cjs \
+            --format pnpm \
+            --json /tmp/audit.json \
+            --ignored GHSA-mp2f-45pm-3cg9 \
+            --min-severity critical
+      - name: Typecheck
+        working-directory: server
+        run: pnpm run typecheck
+
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          submodules: true
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpng-dev
+      - name: Install pnpm
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Generate Nuxt and Prisma artifacts
+        run: pnpm --filter drop run postinstall
+      - name: Check formatting
+        working-directory: server
+        run: pnpm run format:check
+      - name: Lint
+        working-directory: server
+        run: pnpm run lint:eslint
+
+  test:
+    name: Test + Coverage
+    runs-on: ubuntu-latest
+    # Coverage is measurement-only at 29.32% server backend baseline.
+    # No thresholds, no gates. Rust workspaces use reusable rust-ci action
+    # which also uploads per-workspace lcov to Codecov.
+    # Add a `coverage:check` script with thresholds once coverage matures
+    # past ~40% on server business-logic modules.
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          submodules: true
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpng-dev
+      - name: Install pnpm
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Generate Nuxt and Prisma artifacts
+        run: pnpm --filter drop run postinstall
+      - name: Run tests with coverage
+        working-directory: server
+        run: pnpm run coverage
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@04b047e8bb82a0c002c8312c1c880fbc6a999d45 # v5
+        with:
+          directory: server/coverage
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+          flags: server
+      - name: Post coverage gaps to PR
+        # Skip silently when CODECOV_TOKEN is unset — the script fails
+        # Only run on PRs (script posts a comment); wrap with || true so a
+        # missing or invalid CODECOV_TOKEN does not fail the workflow.
+        # Step-level env is not visible in this step's own `if:` context
+        # so we cannot gate on env.CODECOV_TOKEN here; rely on the script
+        # being tolerant instead.
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: bash scripts/codecov-pr-comment.sh
+
+  sonar:
+    name: SonarCloud Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 0
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpng-dev
+      - name: Install pnpm
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Generate Nuxt and Prisma artifacts
+        run: pnpm --filter drop run postinstall
+      - name: Run tests with coverage
+        working-directory: server
+        run: pnpm run coverage
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      - name: SonarQube Scan
+        id: sonar-scan
+        uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8.1.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  sonar-sync:
+    name: Sync SonarCloud findings
+    runs-on: ubuntu-latest
+    needs: sonar
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop' && needs.sonar.result == 'success'
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 0
+      - name: Sync findings to GitHub Issues
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash scripts/sonarcloud-sync.sh
+
+  sonar-pr-comment:
+    name: SonarCloud PR Comment
+    runs-on: ubuntu-latest
+    needs: sonar
+    # The scan uploads findings to SonarCloud API before quality gate check.
+    # Run even when quality gate fails — the API still has data to comment.
+    # always() overrides needs dependency failure; !cancelled() alone does not.
+    if: github.event_name == 'pull_request' && always() && !cancelled()
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 0
+      - name: Post SonarCloud findings to PR
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: bash scripts/sonarcloud-pr-comment.sh
+
+  dockerfile:
+    name: Dockerfile Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Run hadolint
+        uses: hadolint/hadolint-action@54c9adbab1582c2ef04b2016b760714a4bfde3cf # v3.1.0
+        with:
+          dockerfile: Dockerfile
+          failure-threshold: error
+
+  shellcheck:
+    name: Shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Run shellcheck
+        uses: ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38 # 2.0.0
+        with:
+          scandir: "./scripts"
+          additional_files: ".husky/pre-commit"
+          ignore-paths: "node_modules,.git,.nuxt,.output,target"

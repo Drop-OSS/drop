@@ -1,0 +1,41 @@
+name: CLI CI
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - "cli/**"
+      - ".github/workflows/cli-ci.yml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+  pull_request:
+    branches: [develop]
+    paths:
+      - "cli/**"
+      - ".github/workflows/cli-ci.yml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: Build, Test, Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/rust-ci
+        with:
+          working-directory: cli
+          cache-workspaces: "./cli -> target"
+          system-dependencies: |
+            sudo apt-get update
+            sudo apt-get install -y libarchive-dev
+          lint-command: cargo clippy --all-targets --no-deps --all-features
+          coverage-path: cli/coverage.lcov
