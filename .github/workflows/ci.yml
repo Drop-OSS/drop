@@ -228,7 +228,7 @@ jobs:
         working-directory: server
         run: pnpm run coverage
       - name: Cache SonarQube packages
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8e7296529d2fc39830 # v4
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
