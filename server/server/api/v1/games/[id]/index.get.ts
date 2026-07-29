@@ -14,6 +14,16 @@ export default defineEventHandler(async (h3) => {
       statusMessage: "Missing gameId in route params (somehow...?)",
     });
 
+  // Check age restrictions before the heavy fetch
+  const ageFilter = await getAgeRestrictionFilter(user.id, user.admin);
+  if (ageFilter) {
+    const allowed = await prisma.game.count({
+      where: { id: gameId, ...ageFilter },
+    });
+    if (allowed === 0)
+      throw createError({ statusCode: 404, statusMessage: "Game not found" });
+  }
+
   const game = await prisma.game.findUnique({
     where: { id: gameId },
     include: {
@@ -52,15 +62,6 @@ export default defineEventHandler(async (h3) => {
 
   if (!game)
     throw createError({ statusCode: 404, statusMessage: "Game not found" });
-
-  const ageFilter = await getAgeRestrictionFilter(user.id, user.admin);
-  if (ageFilter) {
-    const allowed = await prisma.game.count({
-      where: { id: gameId, ...ageFilter },
-    });
-    if (allowed === 0)
-      throw createError({ statusCode: 404, statusMessage: "Game not found" });
-  }
 
   const rating = await prisma.gameRating.aggregate({
     where: {

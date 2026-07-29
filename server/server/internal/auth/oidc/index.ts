@@ -503,7 +503,10 @@ export class OIDCManager {
     userId: string,
     oidcGroups: string[] | undefined,
   ) {
-    if (!oidcGroups || oidcGroups.length === 0) {
+    // If the IdP didn't include the groups claim, don't touch membership
+    if (oidcGroups === undefined) return;
+
+    if (oidcGroups.length === 0) {
       await prisma.user.update({
         where: { id: userId },
         data: { groups: { set: [] } },

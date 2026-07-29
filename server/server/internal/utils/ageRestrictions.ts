@@ -25,8 +25,17 @@ export async function getAgeRestrictionFilter(
 
   if (!user) return undefined;
 
-  const bannedPairs = user.groups.flatMap((g) => g.bannedAgeRatings);
-  if (bannedPairs.length === 0) return undefined;
+  const allBanned = user.groups.flatMap((g) => g.bannedAgeRatings);
+  if (allBanned.length === 0) return undefined;
+
+  // Deduplicate across groups
+  const seen = new Set<string>();
+  const bannedPairs = allBanned.filter((bp) => {
+    const key = `${bp.organization}:${bp.rating}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 
   return {
     AND: [

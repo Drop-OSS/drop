@@ -869,8 +869,7 @@
         "noBannedRatings": "No banned ratings configured.",
         "unratedNote": "Games without age ratings will also be hidden from users in this group.",
         "deleteConfirm": "Are you sure you want to delete this group? This action cannot be undone.",
-        "deleteGroup": "Delete",
-        "groupsLink": "Groups {arrow}"
+        "deleteGroup": "Delete"
       }
     }
   },

@@ -321,36 +321,34 @@ const removeMember = async (userId: string) => {
   await fetchGroup();
 };
 
-const saveRatings = async () => {
-  if (!group.value) return;
-  await $dropFetch(`/api/v1/admin/groups/${groupId}/ratings`, {
-    method: "PATCH",
-    body: {
-      bannedRatings: group.value.bannedAgeRatings.map((br) => ({
-        organization: br.organization,
-        rating: br.rating,
-      })),
-    },
-  });
-  await fetchGroup();
-};
-
 const addRating = async () => {
   if (!group.value || !newRatingOrg.value || !newRatingValue.value) return;
-  group.value.bannedAgeRatings.push({
-    id: "",
-    organization: newRatingOrg.value,
-    rating: newRatingValue.value,
+  const newRatings = [
+    ...group.value.bannedAgeRatings.map((br) => ({
+      organization: br.organization,
+      rating: br.rating,
+    })),
+    { organization: newRatingOrg.value, rating: newRatingValue.value },
+  ];
+  await $dropFetch(`/api/v1/admin/groups/${groupId}/ratings`, {
+    method: "PATCH",
+    body: { bannedRatings: newRatings },
   });
-  await saveRatings();
   showAddRating.value = false;
   newRatingOrg.value = "";
   newRatingValue.value = "";
+  await fetchGroup();
 };
 
 const removeRating = async (idx: number) => {
   if (!group.value) return;
-  group.value.bannedAgeRatings.splice(idx, 1);
-  await saveRatings();
+  const newRatings = group.value.bannedAgeRatings
+    .filter((_, i) => i !== idx)
+    .map((br) => ({ organization: br.organization, rating: br.rating }));
+  await $dropFetch(`/api/v1/admin/groups/${groupId}/ratings`, {
+    method: "PATCH",
+    body: { bannedRatings: newRatings },
+  });
+  await fetchGroup();
 };
 </script>
