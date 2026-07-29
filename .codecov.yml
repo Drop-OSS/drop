@@ -1,3 +1,9 @@
+# NOTE: Baseline coverage is ~29% (27.85% on develop as of 2026-Q2).
+# The project/patch range [60%, 80%] below is aspirational for Phase 3
+# coverage push (post-fast-check + property tests + Vitest utility tests).
+# CI's ci.yml intentionally runs with "no thresholds, no gates", so this
+# file does NOT currently block PRs — it only affects Codecov status
+# badges. Update the range after Phase 2 coverage lands.
 codecov:
   notify:
     wait_for_ci: true
