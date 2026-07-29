@@ -12,8 +12,14 @@ if [ -n "$changed_schema" ]; then
   pnpm --filter drop exec prisma generate || exit 1
 fi
 
-# Whole-repo type-safety + style gate (prettier --check + eslint, no auto-fix).
-pnpm --filter drop lint || exit 1
+# Staged-files style gate (prettier + cargo fmt --check + shellcheck — see
+# server/lint-staged.config.js). ESLint intentionally NOT here: Nuxt3
+# type-aware rules load the full tsconfig regardless of staged subset, so
+# lint-staged gives no timing win for ESLint. Full-repo lint runs via
+# `pnpm --filter drop lint` only in CI (ci.yml), not on commit.
+pnpm --filter drop lint-staged || exit 1
+
+# Typecheck must be full-repo (Nuxt type graph). Not staged-scoped.
 pnpm --filter drop typecheck || exit 1
 
 # Whole-repo shellcheck — all git-tracked .sh files, not just staged ones.
@@ -38,6 +44,28 @@ if [ -n "$tracked_tests" ]; then
     exit 1
   fi
 fi
+
+# Block focused tests leaking into CI (.only / it.only / describe.only).
+# Vitest + Playwright both treat `.only` as a hard focus filter — a single
+# .only in a 200-file test suite means CI runs one spec and reports green.
+focused=$(echo "$tracked_tests" | xargs grep -nE '(\(it|describe|test)\.only\(|fdescribe\(|fit\(' 2>/dev/null || true)
+if [ -n "$focused" ]; then
+  echo "BLOCKED: Focused test detected — remove .only / fit / fdescribe before committing:"
+  echo "$focused"
+  exit 1
+fi
+
+# Warn (non-blocking) on skipped tests and assertion-less test files.
+skipped=$(echo "$tracked_tests" | xargs grep -nE '(\(it|describe|test)\.skip\(|xit\(|xdescribe\(' 2>/dev/null || true)
+if [ -n "$skipped" ]; then
+  echo "WARNING: Skipped test(s) detected (consider removing .skip before commit):"
+  echo "$skipped"
+fi
+for tf in $tracked_tests; do
+  if ! grep -q 'expect\|assert' "$tf" 2>/dev/null; then
+    echo "WARNING: $tf has no expect/assert calls — test does not assert anything."
+  fi
+done
 
 # Whole-repo cargo fmt --check across all three rust workspaces (no auto-fix;
 # forces developer to format manually if any .rs file drifts).
