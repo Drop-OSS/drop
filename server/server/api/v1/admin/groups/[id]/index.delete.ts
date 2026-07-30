@@ -11,6 +11,7 @@ export default defineEventHandler(async (h3) => {
   if (!group)
     throw createError({ statusCode: 404, message: "Group not found" });
 
+  // SAFETY: existence verified above via findUnique
   // eslint-disable-next-line drop/no-prisma-delete
   await prisma.userGroup.delete({ where: { id } });
 

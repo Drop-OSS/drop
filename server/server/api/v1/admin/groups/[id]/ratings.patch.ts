@@ -57,7 +57,9 @@ export default defineEventHandler(async (h3) => {
     }),
   ]);
 
-  return await prisma.bannedAgeRating.findMany({
+  const ratings = await prisma.bannedAgeRating.findMany({
     where: { userGroupId: id },
   });
+
+  return ratings;
 });

@@ -28,6 +28,7 @@ export default defineEventHandler(async (h3) => {
       message: "Group name already exists",
     });
 
+  // SAFETY: existence verified above via findUnique
   // eslint-disable-next-line drop/no-prisma-delete
   const group = await prisma.userGroup.update({
     where: { id },
