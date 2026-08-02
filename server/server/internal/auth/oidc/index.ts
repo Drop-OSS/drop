@@ -407,7 +407,10 @@ export class OIDCManager {
       },
     });
 
-    if (existingAuthMek) return existingAuthMek.user;
+    if (existingAuthMek) {
+      await this.syncUserGroups(existingAuthMek.user.id, userinfo.groups);
+      return existingAuthMek.user;
+    }
 
     const username = userinfo[this.usernameClaim]?.toString();
     if (!username)
@@ -492,7 +495,36 @@ export class OIDCManager {
       },
     });
 
+    await this.syncUserGroups(created.user.id, userinfo.groups);
     return created.user;
+  }
+
+  private async syncUserGroups(
+    userId: string,
+    oidcGroups: string[] | undefined,
+  ) {
+    // If the IdP didn't include the groups claim, don't touch membership
+    if (oidcGroups === undefined) return;
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) return;
+
+    const groupsToSet =
+      oidcGroups.length === 0
+        ? []
+        : (
+            await prisma.userGroup.findMany({
+              where: { name: { in: oidcGroups } },
+              select: { id: true },
+            })
+          ).map((g) => ({ id: g.id }));
+
+    // SAFETY: existence verified above via findUnique
+    // eslint-disable-next-line drop/no-prisma-delete
+    await prisma.user.update({
+      where: { id: userId },
+      data: { groups: { set: groupsToSet } },
+    });
   }
 
   /**

@@ -1,0 +1,23 @@
+model UserGroup {
+  id          String @id @default(uuid())
+  name        String @unique
+  description String @default("")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users            User[]
+  bannedAgeRatings BannedAgeRating[]
+}
+
+model BannedAgeRating {
+  id String @id @default(uuid())
+
+  organization AgeRatingOrganization
+  rating       String
+
+  userGroup   UserGroup @relation(fields: [userGroupId], references: [id], onDelete: Cascade)
+  userGroupId String
+
+  @@unique([userGroupId, organization, rating], name: "groupRatingKey")
+}

@@ -22,6 +22,8 @@ model User {
     saves       SaveSlot[]
     screenshots Screenshot[]
     playtime    Playtime[]
+
+    groups UserGroup[]
 }
 
 model Notification {

@@ -2,6 +2,7 @@
 Handles managing collections
 */
 
+import type { Prisma } from "~/prisma/client/client";
 import cacheHandler from "../cache";
 import prisma from "../db/database";
 
@@ -45,30 +46,44 @@ class UserLibraryManager {
     await this.collectionRemove(gameId, userLibraryId, userId);
   }
 
-  async fetchLibrary(userId: string) {
+  async fetchLibrary(userId: string, gameFilter?: Prisma.GameWhereInput) {
     const userLibraryId = await this.fetchUserLibrary(userId);
     const userLibrary = await prisma.collection.findUnique({
       where: { id: userLibraryId },
-      include: { entries: { include: { game: true } } },
+      include: {
+        entries: {
+          where: gameFilter ? { game: gameFilter } : undefined,
+          include: { game: true },
+        },
+      },
     });
     if (!userLibrary) throw new Error("Failed to load user library");
     return userLibrary;
   }
 
   // Will not return the default library
-  async fetchCollection(collectionId: string) {
+  async fetchCollection(
+    collectionId: string,
+    gameFilter?: Prisma.GameWhereInput,
+  ) {
     return await prisma.collection.findUnique({
       where: { id: collectionId, isDefault: false },
-      include: { entries: { include: { game: true } } },
+      include: {
+        entries: {
+          where: gameFilter ? { game: gameFilter } : undefined,
+          include: { game: true },
+        },
+      },
     });
   }
 
-  async fetchCollections(userId: string) {
+  async fetchCollections(userId: string, gameFilter?: Prisma.GameWhereInput) {
     await this.fetchUserLibrary(userId); // Ensures user library exists, doesn't have much performance impact due to caching
     return await prisma.collection.findMany({
       where: { userId, isDefault: false },
       include: {
         entries: {
+          where: gameFilter ? { game: gameFilter } : undefined,
           include: {
             game: true,
           },
