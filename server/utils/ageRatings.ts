@@ -80,10 +80,7 @@ export const RATINGS_FOR_ORGANIZATION = {
   [AgeRatingOrganization.GRAC]: GRACRating,
   [AgeRatingOrganization.ClassInd]: ClassIndRating,
   [AgeRatingOrganization.ACB]: ACBRating,
-} as const satisfies Record<
-  AgeRatingOrganization,
-  Record<string, RatingDef>
->;
+} as const satisfies Record<AgeRatingOrganization, Record<string, RatingDef>>;
 
 export function getAvailableRatings(org: AgeRatingOrganization): string[] {
   return Object.values(RATINGS_FOR_ORGANIZATION[org]).map((r) => r.value);

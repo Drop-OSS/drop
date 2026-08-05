@@ -92,7 +92,7 @@
           <option value="" disabled>
             {{ $t("users.admin.groups.addMember") }}
           </option>
-          <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
+          <!-- eslint-disable @intlify/vue-i18n/no-raw-text -->
           <option
             v-for="user in availableUsers"
             :key="user.id"
@@ -100,6 +100,7 @@
           >
             {{ user.displayName }} ({{ user.username }})
           </option>
+          <!-- eslint-enable @intlify/vue-i18n/no-raw-text -->
         </select>
         <button
           class="rounded-md bg-blue-600 px-2 py-1 text-sm font-semibold text-white hover:bg-blue-500"
@@ -134,10 +135,11 @@
 
       <div class="max-w-md">
         <div class="flex items-center justify-between mb-2">
-          <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
+          <!-- eslint-disable @intlify/vue-i18n/no-raw-text -->
           <span class="text-sm font-medium text-zinc-100">
             {{ sliderAge }}+
           </span>
+          <!-- eslint-enable @intlify/vue-i18n/no-raw-text -->
         </div>
         <input
           v-model.number="sliderAge"
@@ -211,12 +213,13 @@
               :key="br.id"
               class="flex items-center gap-2"
             >
-              <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
+              <!-- eslint-disable @intlify/vue-i18n/no-raw-text -->
               <span
                 class="inline-flex items-center rounded-full bg-zinc-800 px-2.5 py-0.5 text-sm font-medium text-zinc-100"
               >
                 {{ br.organization }}: {{ br.rating }}
               </span>
+              <!-- eslint-enable @intlify/vue-i18n/no-raw-text -->
               <button
                 type="button"
                 class="text-red-400 hover:text-red-300 text-sm"
@@ -241,11 +244,7 @@
               :disabled="!newRatingOrg"
               class="rounded-md bg-zinc-800 px-2 py-1 text-sm text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 focus:outline-blue-600"
             >
-              <option
-                v-for="r in availableRatingsForOrg"
-                :key="r"
-                :value="r"
-              >
+              <option v-for="r in availableRatingsForOrg" :key="r" :value="r">
                 {{ r }}
               </option>
             </select>
@@ -336,9 +335,7 @@ const sliderBannedPreview = computed(() =>
 
 const hasManualOverrides = computed(() => {
   if (!group.value) return false;
-  return (
-    inferMaxAgeFromBannedRatings(group.value.bannedAgeRatings) === null
-  );
+  return inferMaxAgeFromBannedRatings(group.value.bannedAgeRatings) === null;
 });
 
 const availableRatingsForOrg = computed(() => {
@@ -359,9 +356,7 @@ const fetchGroup = async () => {
   editDescription.value = group.value.description;
 
   // Initialize slider from existing banned ratings
-  const inferred = inferMaxAgeFromBannedRatings(
-    group.value.bannedAgeRatings,
-  );
+  const inferred = inferMaxAgeFromBannedRatings(group.value.bannedAgeRatings);
   sliderAge.value = inferred ?? 18;
 };
 
