@@ -446,11 +446,14 @@ pub fn run() {
                 handle_server_proto_wrapper(request, responder).await;
             });
         })
-        .on_window_event(|window, event| {
-            if let WindowEvent::CloseRequested { api, .. } = event {
+        .on_window_event(|_window, event| {
+            if let WindowEvent::CloseRequested { api: _api, .. } = event {
+                // On Linux, hiding the window keeps WebkitGTK rendering in the
+                // background which causes 100% CPU usage. Let the app exit instead.
+                #[cfg(not(target_os = "linux"))]
                 run_on_tray(|| {
-                    window.hide().expect("Failed to close window in tray");
-                    api.prevent_close();
+                    _window.hide().expect("Failed to close window in tray");
+                    _api.prevent_close();
                 });
             }
         })
@@ -458,10 +461,17 @@ pub fn run() {
         .expect("error while running tauri application");
 
     app.run(|_app_handle, event| {
-        if let RunEvent::ExitRequested { code, api, .. } = event {
+        if let RunEvent::ExitRequested {
+            code: _code,
+            api: _api,
+            ..
+        } = event
+        {
+            // On Linux, let the app exit cleanly (see on_window_event above).
+            #[cfg(not(target_os = "linux"))]
             run_on_tray(|| {
-                if code.is_none() {
-                    api.prevent_exit();
+                if _code.is_none() {
+                    _api.prevent_exit();
                 }
             });
         }
