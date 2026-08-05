@@ -717,6 +717,12 @@
         "removeBannedRating": "Retirer",
         "removeMember": "Retirer",
         "title": "Groupes d'utilisateurs",
+        "maximumContentAge": "Restriction d'âge",
+        "maximumContentAgeDescription": "Définissez l'âge maximum du contenu autorisé pour les membres de ce groupe. Les classifications au-dessus de cet âge seront interdites.",
+        "applyAgeRestriction": "Appliquer la restriction d'âge",
+        "advancedOverrides": "Avancé : Remplacements manuels",
+        "manualOverrideNote": "Les classifications interdites actuelles ne correspondent pas à un seuil d'âge standard. Elles ont peut-être été configurées manuellement.",
+        "sliderOverrideWarning": "L'ajout ou la suppression manuelle de classifications remplacera le curseur. Utilisez le curseur ci-dessus pour revenir à un seuil d'âge standard.",
         "unratedNote": "Les jeux sans classification d'âge seront également masqués pour les utilisateurs de ce groupe."
       },
       "normalUserLabel": "Utilisateur normal",

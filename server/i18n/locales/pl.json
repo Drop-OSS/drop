@@ -693,6 +693,12 @@
         "removeBannedRating": "Usuń",
         "removeMember": "Usuń",
         "title": "Grupy użytkowników",
+        "maximumContentAge": "Ograniczenie wiekowe",
+        "maximumContentAgeDescription": "Ustaw maksymalny wiek treści dozwolony dla członków tej grupy. Oceny powyżej tego wieku zostaną zablokowane.",
+        "applyAgeRestriction": "Zastosuj ograniczenie wiekowe",
+        "advancedOverrides": "Zaawansowane: Ręczne zastępowanie",
+        "manualOverrideNote": "Obecne zablokowane oceny nie odpowiadają standardowemu progowi wiekowemu. Mogły zostać skonfigurowane ręcznie.",
+        "sliderOverrideWarning": "Ręczne dodawanie lub usuwanie ocen zastąpi suwak. Użyj suwaka powyżej, aby powrócić do standardowego progu wiekowego.",
         "unratedNote": "Gry bez kategorii wiekowej będą również ukryte przed użytkownikami w tej grupie."
       },
       "normalUserLabel": "Normalny użytkownik",

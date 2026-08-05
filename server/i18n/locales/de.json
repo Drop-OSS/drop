@@ -717,6 +717,12 @@
         "removeBannedRating": "Entfernen",
         "removeMember": "Entfernen",
         "title": "Benutzergruppen",
+        "maximumContentAge": "Altersbeschränkung",
+        "maximumContentAgeDescription": "Legen Sie das maximale Inhaltsalter für Mitglieder dieser Gruppe fest. Bewertungen über diesem Alter werden gesperrt.",
+        "applyAgeRestriction": "Altersbeschränkung anwenden",
+        "advancedOverrides": "Erweitert: Manuelle Überschreibungen",
+        "manualOverrideNote": "Die aktuellen gesperrten Bewertungen entsprechen keiner Standard-Altersschwelle. Sie wurden möglicherweise manuell konfiguriert.",
+        "sliderOverrideWarning": "Das manuelle Hinzufügen oder Entfernen von Bewertungen überschreibt den Schieberegler. Verwenden Sie den obigen Schieberegler, um auf eine Standard-Altersschwelle zurückzusetzen.",
         "unratedNote": "Spiele ohne Alterseinstufung werden für Benutzer in dieser Gruppe ebenfalls ausgeblendet."
       },
       "normalUserLabel": "Normaler Benutzer",

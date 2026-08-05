@@ -835,6 +835,12 @@
         "removeBannedRating": "Remove",
         "removeMember": "Remove",
         "title": "User Groups",
+        "maximumContentAge": "Age Restriction",
+        "maximumContentAgeDescription": "Set the maximum content age allowed for members of this group. Ratings above this age will be banned.",
+        "applyAgeRestriction": "Apply age restriction",
+        "advancedOverrides": "Advanced: Manual Overrides",
+        "manualOverrideNote": "The current banned ratings do not match a standard age threshold. They may have been manually configured.",
+        "sliderOverrideWarning": "Manually adding or removing ratings here will override the slider. Use the slider above to reset to a standard age threshold.",
         "unratedNote": "Games without age ratings will also be hidden from users in this group."
       },
       "normalUserLabel": "Normal user",
