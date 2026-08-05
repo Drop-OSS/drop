@@ -24,7 +24,7 @@ services:
       - POSTGRES_USER=drop
       - POSTGRES_DB=drop
   drop:
-    image: ghcr.io/drop-oss/drop:0.4.0-rc-3
+    image: ghcr.io/drop-oss/drop:0.4.0-rc-5
     depends_on:
       postgres:
         condition: service_healthy
