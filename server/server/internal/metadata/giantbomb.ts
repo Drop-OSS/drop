@@ -114,10 +114,10 @@ const GB_BOARD_TO_ORG: Record<string, AgeRatingOrganization> = {
 };
 
 function lowercaseNormMap(
-  ratings: Record<string, string>,
+  ratings: Record<string, { value: string; age: number }>,
 ): Record<string, string> {
   return Object.fromEntries(
-    Object.values(ratings).map((v) => [v.toLowerCase(), v]),
+    Object.values(ratings).map((r) => [r.value.toLowerCase(), r.value]),
   );
 }
 
@@ -127,14 +127,14 @@ const GB_RATING_NORMALIZE: Record<
 > = {
   [AgeRatingOrganization.ESRB]: {
     ...lowercaseNormMap(ESRBRating),
-    "early childhood": ESRBRating.EC,
-    everyone: ESRBRating.E,
-    "everyone 10+": ESRBRating.E10,
-    teen: ESRBRating.T,
-    mature: ESRBRating.M,
-    "mature 17+": ESRBRating.M,
-    "adults only": ESRBRating.AO,
-    "adults only 18+": ESRBRating.AO,
+    "early childhood": ESRBRating.EC.value,
+    everyone: ESRBRating.E.value,
+    "everyone 10+": ESRBRating.E10.value,
+    teen: ESRBRating.T.value,
+    mature: ESRBRating.M.value,
+    "mature 17+": ESRBRating.M.value,
+    "adults only": ESRBRating.AO.value,
+    "adults only 18+": ESRBRating.AO.value,
   },
   [AgeRatingOrganization.PEGI]: lowercaseNormMap(PEGIRating),
   [AgeRatingOrganization.CERO]: lowercaseNormMap(CEROrating),
@@ -142,9 +142,9 @@ const GB_RATING_NORMALIZE: Record<
   [AgeRatingOrganization.GRAC]: lowercaseNormMap(GRACRating),
   [AgeRatingOrganization.ACB]: {
     ...lowercaseNormMap(ACBRating),
-    "ma 15+": ACBRating.MA15,
-    "r 18+": ACBRating.R18,
-    "refused classification": ACBRating.RC,
+    "ma 15+": ACBRating.MA15.value,
+    "r 18+": ACBRating.R18.value,
+    "refused classification": ACBRating.RC.value,
   },
   [AgeRatingOrganization.ClassInd]: {},
 };

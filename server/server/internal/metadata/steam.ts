@@ -200,10 +200,10 @@ const STEAM_RATING_KEY_TO_ORG: Record<string, AgeRatingOrganization> = {
 };
 
 function lowercaseNormMap(
-  ratings: Record<string, string>,
+  ratings: Record<string, { value: string; age: number }>,
 ): Record<string, string> {
   return Object.fromEntries(
-    Object.values(ratings).map((v) => [v.toLowerCase(), v]),
+    Object.values(ratings).map((r) => [r.value.toLowerCase(), r.value]),
   );
 }
 

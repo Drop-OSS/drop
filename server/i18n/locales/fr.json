@@ -702,6 +702,8 @@
       "groups": {
         "addBannedRating": "Ajouter une classification interdite",
         "addMember": "Sélectionner un utilisateur...",
+        "advancedOverrides": "Avancé : Remplacements manuels",
+        "applyAgeRestriction": "Appliquer la restriction d'âge",
         "bannedRatings": "Classifications interdites",
         "createGroup": "Créer un groupe",
         "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce groupe ? Cette action est irréversible.",
@@ -709,6 +711,9 @@
         "description": "Gérer les groupes d'utilisateurs et les restrictions d'âge.",
         "descriptionField": "Description",
         "details": "Détails",
+        "manualOverrideNote": "Les classifications interdites actuelles ne correspondent pas à un seuil d'âge standard. Elles ont peut-être été configurées manuellement.",
+        "maximumContentAge": "Restriction d'âge",
+        "maximumContentAgeDescription": "Définissez l'âge maximum du contenu autorisé pour les membres de ce groupe. Les classifications au-dessus de cet âge seront interdites.",
         "members": "Membres",
         "name": "Nom",
         "noBannedRatings": "Aucune classification interdite configurée.",
@@ -716,6 +721,7 @@
         "oidcManagedNote": "L'appartenance aux groupes est gérée par votre fournisseur OIDC. Les membres sont automatiquement synchronisés lors de la connexion. Pour modifier l'appartenance aux groupes, mettez à jour les affectations de groupes de votre fournisseur d'identité.",
         "removeBannedRating": "Retirer",
         "removeMember": "Retirer",
+        "sliderOverrideWarning": "L'ajout ou la suppression manuelle de classifications remplacera le curseur. Utilisez le curseur ci-dessus pour revenir à un seuil d'âge standard.",
         "title": "Groupes d'utilisateurs",
         "unratedNote": "Les jeux sans classification d'âge seront également masqués pour les utilisateurs de ce groupe."
       },

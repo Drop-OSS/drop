@@ -501,6 +501,8 @@
       "groups": {
         "addBannedRating": "Add forbidden rating",
         "addMember": "Pick a scallywag...",
+        "advancedOverrides": "Advanced: Manual Overrides",
+        "applyAgeRestriction": "Apply age restriction",
         "bannedRatings": "Forbidden Ratings",
         "createGroup": "Form a Crew",
         "deleteConfirm": "Be ye sure ye want to disband this crew? There be no turnin' back!",
@@ -508,6 +510,9 @@
         "description": "Manage yer crew groups and age restrictions on the plunder.",
         "descriptionField": "Description",
         "details": "Details",
+        "manualOverrideNote": "The current banned ratings don't match a standard age threshold. They may've been manually set by the captain.",
+        "maximumContentAge": "Age Restriction",
+        "maximumContentAgeDescription": "Set the maximum content age fer members of this crew. Ratings above this age be banned, arr!",
         "members": "Crew Members",
         "name": "Name",
         "noBannedRatings": "No forbidden ratings set, captain.",
@@ -515,6 +520,7 @@
         "oidcManagedNote": "Crew membership be managed by yer OIDC harbourmaster. Members be synced when they come aboard. To change crew membership, update yer identity provider's assignments.",
         "removeBannedRating": "Remove",
         "removeMember": "Cast overboard",
+        "sliderOverrideWarning": "Manually addin' or removin' ratings here will override the slider. Use the slider above to reset to a standard age threshold.",
         "title": "Crew Groups",
         "unratedNote": "Unrated plunder will also be hidden from scallywags in this crew."
       },

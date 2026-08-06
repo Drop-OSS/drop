@@ -92,7 +92,7 @@
           <option value="" disabled>
             {{ $t("users.admin.groups.addMember") }}
           </option>
-          <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
+          <!-- eslint-disable @intlify/vue-i18n/no-raw-text -->
           <option
             v-for="user in availableUsers"
             :key="user.id"
@@ -100,6 +100,7 @@
           >
             {{ user.displayName }} ({{ user.username }})
           </option>
+          <!-- eslint-enable @intlify/vue-i18n/no-raw-text -->
         </select>
         <button
           class="rounded-md bg-blue-600 px-2 py-1 text-sm font-semibold text-white hover:bg-blue-500"
@@ -111,93 +112,179 @@
       </div>
     </div>
 
-    <!-- Banned Ratings Section -->
+    <!-- Age Restriction Slider Section -->
     <div class="mt-8 rounded-lg border border-zinc-800 bg-zinc-900 p-6">
       <h2 class="text-base font-semibold text-zinc-100 mb-4">
-        {{ $t("users.admin.groups.bannedRatings") }}
+        {{ $t("users.admin.groups.maximumContentAge") }}
       </h2>
+      <p class="text-sm text-zinc-400 mb-4">
+        {{ $t("users.admin.groups.maximumContentAgeDescription") }}
+      </p>
       <p class="text-sm text-zinc-400 mb-4">
         {{ $t("users.admin.groups.unratedNote") }}
       </p>
 
       <div
-        v-if="group.bannedAgeRatings.length === 0 && !showAddRating"
-        class="text-sm text-zinc-400"
+        v-if="hasManualOverrides"
+        class="mb-4 rounded-md bg-yellow-900/30 border border-yellow-700/50 p-3"
       >
-        {{ $t("users.admin.groups.noBannedRatings") }}
+        <p class="text-sm text-yellow-300">
+          {{ $t("users.admin.groups.manualOverrideNote") }}
+        </p>
       </div>
 
-      <div class="space-y-2">
-        <div
-          v-for="(br, idx) in group.bannedAgeRatings"
-          :key="br.id"
-          class="flex items-center gap-2"
-        >
-          <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
-          <span
-            class="inline-flex items-center rounded-full bg-zinc-800 px-2.5 py-0.5 text-sm font-medium text-zinc-100"
-          >
-            {{ br.organization }}: {{ br.rating }}
+      <div class="max-w-md">
+        <div class="flex items-center justify-between mb-2">
+          <!-- eslint-disable @intlify/vue-i18n/no-raw-text -->
+          <span class="text-sm font-medium text-zinc-100">
+            {{ sliderAge }}+
           </span>
-          <button
-            type="button"
-            class="text-red-400 hover:text-red-300 text-sm"
-            @click="removeRating(idx)"
+          <!-- eslint-enable @intlify/vue-i18n/no-raw-text -->
+        </div>
+        <input
+          v-model.number="sliderAge"
+          type="range"
+          min="0"
+          max="18"
+          step="1"
+          class="w-full cursor-pointer accent-blue-600"
+        />
+        <!-- eslint-disable @intlify/vue-i18n/no-raw-text -->
+        <div class="flex justify-between text-xs text-zinc-500 mt-1">
+          <span>0</span>
+          <span>6</span>
+          <span>12</span>
+          <span>18</span>
+        </div>
+        <!-- eslint-enable @intlify/vue-i18n/no-raw-text -->
+      </div>
+
+      <div v-if="sliderBannedPreview.length > 0" class="mt-4">
+        <p class="text-sm text-zinc-400 mb-2">
+          {{ $t("users.admin.groups.bannedRatings") }}
+        </p>
+        <div class="flex flex-wrap gap-1">
+          <span
+            v-for="bp in sliderBannedPreview"
+            :key="`${bp.organization}:${bp.rating}`"
+            class="inline-flex items-center rounded-full bg-red-900/30 border border-red-700/50 px-2 py-0.5 text-xs text-red-300"
           >
-            {{ $t("users.admin.groups.removeBannedRating") }}
-          </button>
+            <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
+            {{ bp.organization }}: {{ bp.rating }}
+          </span>
         </div>
       </div>
-
-      <div v-if="showAddRating" class="mt-4 flex items-center gap-2">
-        <select
-          v-model="newRatingOrg"
-          class="rounded-md bg-zinc-800 px-2 py-1 text-sm text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 focus:outline-blue-600"
-        >
-          <option v-for="org in organizations" :key="org" :value="org">
-            {{ org }}
-          </option>
-        </select>
-        <select
-          v-model="newRatingValue"
-          :disabled="!newRatingOrg"
-          class="rounded-md bg-zinc-800 px-2 py-1 text-sm text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 focus:outline-blue-600"
-        >
-          <option v-for="r in availableRatingsForOrg" :key="r" :value="r">
-            {{ r }}
-          </option>
-        </select>
-        <button
-          type="button"
-          class="rounded-md bg-blue-600 px-2 py-1 text-sm font-semibold text-white hover:bg-blue-500"
-          :disabled="!newRatingOrg || !newRatingValue"
-          @click="addRating"
-        >
-          {{ $t("add") }}
-        </button>
-        <button
-          type="button"
-          class="text-zinc-400 hover:text-zinc-300 text-sm"
-          @click="showAddRating = false"
-        >
-          {{ $t("cancel") }}
-        </button>
+      <div v-else class="mt-4">
+        <p class="text-sm text-zinc-400">
+          {{ $t("users.admin.groups.noBannedRatings") }}
+        </p>
       </div>
+
       <button
-        v-if="!showAddRating"
         type="button"
-        class="mt-4 text-sm text-blue-400 hover:text-blue-300"
-        @click="showAddRating = true"
+        class="mt-4 rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-500"
+        @click="applySlider"
       >
-        {{ $t("users.admin.groups.addBannedRating") }}
+        {{ $t("users.admin.groups.applyAgeRestriction") }}
       </button>
+    </div>
+
+    <!-- Advanced: Manual Overrides -->
+    <div class="mt-8 rounded-lg border border-zinc-800 bg-zinc-900 p-6">
+      <details>
+        <summary class="cursor-pointer text-base font-semibold text-zinc-100">
+          {{ $t("users.admin.groups.advancedOverrides") }}
+        </summary>
+        <div class="mt-4">
+          <p class="text-sm text-zinc-400 mb-4">
+            {{ $t("users.admin.groups.sliderOverrideWarning") }}
+          </p>
+
+          <div
+            v-if="group.bannedAgeRatings.length === 0 && !showAddRating"
+            class="text-sm text-zinc-400"
+          >
+            {{ $t("users.admin.groups.noBannedRatings") }}
+          </div>
+
+          <div class="space-y-2">
+            <div
+              v-for="(br, idx) in group.bannedAgeRatings"
+              :key="br.id"
+              class="flex items-center gap-2"
+            >
+              <!-- eslint-disable @intlify/vue-i18n/no-raw-text -->
+              <span
+                class="inline-flex items-center rounded-full bg-zinc-800 px-2.5 py-0.5 text-sm font-medium text-zinc-100"
+              >
+                {{ br.organization }}: {{ br.rating }}
+              </span>
+              <!-- eslint-enable @intlify/vue-i18n/no-raw-text -->
+              <button
+                type="button"
+                class="text-red-400 hover:text-red-300 text-sm"
+                @click="removeRating(idx)"
+              >
+                {{ $t("users.admin.groups.removeBannedRating") }}
+              </button>
+            </div>
+          </div>
+
+          <div v-if="showAddRating" class="mt-4 flex items-center gap-2">
+            <select
+              v-model="newRatingOrg"
+              class="rounded-md bg-zinc-800 px-2 py-1 text-sm text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 focus:outline-blue-600"
+            >
+              <option v-for="org in organizations" :key="org" :value="org">
+                {{ org }}
+              </option>
+            </select>
+            <select
+              v-model="newRatingValue"
+              :disabled="!newRatingOrg"
+              class="rounded-md bg-zinc-800 px-2 py-1 text-sm text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 focus:outline-blue-600"
+            >
+              <option v-for="r in availableRatingsForOrg" :key="r" :value="r">
+                {{ r }}
+              </option>
+            </select>
+            <button
+              type="button"
+              class="rounded-md bg-blue-600 px-2 py-1 text-sm font-semibold text-white hover:bg-blue-500"
+              :disabled="!newRatingOrg || !newRatingValue"
+              @click="addRating"
+            >
+              {{ $t("add") }}
+            </button>
+            <button
+              type="button"
+              class="text-zinc-400 hover:text-zinc-300 text-sm"
+              @click="showAddRating = false"
+            >
+              {{ $t("cancel") }}
+            </button>
+          </div>
+          <button
+            v-if="!showAddRating"
+            type="button"
+            class="mt-4 text-sm text-blue-400 hover:text-blue-300"
+            @click="showAddRating = true"
+          >
+            {{ $t("users.admin.groups.addBannedRating") }}
+          </button>
+        </div>
+      </details>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { AuthMec } from "~/prisma/client/enums";
-import { getAvailableRatings } from "~/utils/ageRatings";
+import {
+  getAvailableRatings,
+  getBannedRatingsForMaxAge,
+  inferMaxAgeFromBannedRatings,
+} from "~/utils/ageRatings";
 import { AgeRatingOrganization } from "~/prisma/client/enums";
 
 useHead({ title: "Edit Group" });
@@ -239,6 +326,18 @@ const newRatingValue = ref("");
 
 const organizations = Object.values(AgeRatingOrganization);
 
+// Slider state
+const sliderAge = ref(18);
+
+const sliderBannedPreview = computed(() =>
+  getBannedRatingsForMaxAge(sliderAge.value),
+);
+
+const hasManualOverrides = computed(() => {
+  if (!group.value) return false;
+  return inferMaxAgeFromBannedRatings(group.value.bannedAgeRatings) === null;
+});
+
 const availableRatingsForOrg = computed(() => {
   if (!newRatingOrg.value) return [];
   return getAvailableRatings(newRatingOrg.value as AgeRatingOrganization);
@@ -255,6 +354,10 @@ const fetchGroup = async () => {
   );
   editName.value = group.value.name;
   editDescription.value = group.value.description;
+
+  // Initialize slider from existing banned ratings
+  const inferred = inferMaxAgeFromBannedRatings(group.value.bannedAgeRatings);
+  sliderAge.value = inferred ?? 18;
 };
 
 // Fetch all users for member add dropdown
@@ -319,6 +422,16 @@ const removeMember = async (userId: string) => {
   await $dropFetch(`/api/v1/admin/groups/${groupId}/members`, {
     method: "PATCH",
     body: { userIds: newUserIds },
+  });
+  await fetchGroup();
+};
+
+const applySlider = async () => {
+  if (!group.value) return;
+  const bannedRatings = getBannedRatingsForMaxAge(sliderAge.value);
+  await $dropFetch(`/api/v1/admin/groups/${groupId}/ratings`, {
+    method: "PATCH",
+    body: { bannedRatings },
   });
   await fetchGroup();
 };

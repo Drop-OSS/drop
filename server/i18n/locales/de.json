@@ -702,6 +702,8 @@
       "groups": {
         "addBannedRating": "Gesperrte Einstufung hinzufügen",
         "addMember": "Benutzer auswählen...",
+        "advancedOverrides": "Erweitert: Manuelle Überschreibungen",
+        "applyAgeRestriction": "Altersbeschränkung anwenden",
         "bannedRatings": "Gesperrte Alterseinstufungen",
         "createGroup": "Gruppe erstellen",
         "deleteConfirm": "Sind Sie sicher, dass Sie diese Gruppe löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
@@ -709,6 +711,9 @@
         "description": "Benutzergruppen und Altersbeschränkungen verwalten.",
         "descriptionField": "Beschreibung",
         "details": "Details",
+        "manualOverrideNote": "Die aktuellen gesperrten Bewertungen entsprechen keiner Standard-Altersschwelle. Sie wurden möglicherweise manuell konfiguriert.",
+        "maximumContentAge": "Altersbeschränkung",
+        "maximumContentAgeDescription": "Legen Sie das maximale Inhaltsalter für Mitglieder dieser Gruppe fest. Bewertungen über diesem Alter werden gesperrt.",
         "members": "Mitglieder",
         "name": "Name",
         "noBannedRatings": "Keine gesperrten Einstufungen konfiguriert.",
@@ -716,6 +721,7 @@
         "oidcManagedNote": "Die Gruppenmitgliedschaft wird von Ihrem OIDC-Anbieter verwaltet. Mitglieder werden bei der Anmeldung automatisch synchronisiert. Um die Gruppenmitgliedschaft zu ändern, aktualisieren Sie die Gruppenzuweisungen Ihres Identitätsanbieters.",
         "removeBannedRating": "Entfernen",
         "removeMember": "Entfernen",
+        "sliderOverrideWarning": "Das manuelle Hinzufügen oder Entfernen von Bewertungen überschreibt den Schieberegler. Verwenden Sie den obigen Schieberegler, um auf eine Standard-Altersschwelle zurückzusetzen.",
         "title": "Benutzergruppen",
         "unratedNote": "Spiele ohne Alterseinstufung werden für Benutzer in dieser Gruppe ebenfalls ausgeblendet."
       },
