@@ -32,6 +32,6 @@ See our documentation on how to [deploy Drop](https://droposs.org/docs/admin/qui
 
 ## Contributing
 
-Please see the [in-depth contributing guide](CONTRIBUTING.md). The guide includes information on how to set up the project, how to contribute code, how to report issues, and even how to effectively translate Drop.
+Please see the [in-depth contributing guide](https://developer.droposs.org/contributing). The guide includes information on how to set up the project, how to contribute code, how to report issues, and even how to effectively translate Drop.
 
 [![Drop Translation Progress](https://translate.droposs.org/widget/drop/horizontal-auto.svg)](https://translate.droposs.org/engage/drop/)
