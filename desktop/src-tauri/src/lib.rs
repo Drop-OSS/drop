@@ -388,9 +388,18 @@ pub fn run() {
                         .menu(&menu)
                         .on_menu_event(|app, event| match event.id.as_ref() {
                             "open" => {
-                                app.webview_windows()
-                                    .get("frontend")
-                                    .expect("Failed to get webview")
+                                #[cfg(target_os = "linux")]
+                                {
+                                    // Resume webview rendering after showing
+                                    if let Some(win) = app.get_window("main") {
+                                        for wv in win.webviews() {
+                                            let _ = wv.eval("document.dispatchEvent(new Event('visibilitychange'))");
+                                        }
+                                    }
+                                }
+
+                                app.get_window("main")
+                                    .expect("Failed to get main window")
                                     .show()
                                     .expect("Failed to show window");
                             }
@@ -446,14 +455,19 @@ pub fn run() {
                 handle_server_proto_wrapper(request, responder).await;
             });
         })
-        .on_window_event(|_window, event| {
-            if let WindowEvent::CloseRequested { api: _api, .. } = event {
-                // On Linux, hiding the window keeps WebkitGTK rendering in the
-                // background which causes 100% CPU usage. Let the app exit instead.
-                #[cfg(not(target_os = "linux"))]
+        .on_window_event(|window, event| {
+            if let WindowEvent::CloseRequested { api, .. } = event {
                 run_on_tray(|| {
-                    _window.hide().expect("Failed to close window in tray");
-                    _api.prevent_close();
+                    // Pause webview rendering before hiding to prevent idle CPU usage
+                    #[cfg(target_os = "linux")]
+                    {
+                        for wv in window.webviews() {
+                            let _ = wv.eval("document.dispatchEvent(new Event('visibilitychange'))");
+                        }
+                    }
+
+                    window.hide().expect("Failed to hide window in tray");
+                    api.prevent_close();
                 });
             }
         })
@@ -462,16 +476,14 @@ pub fn run() {
 
     app.run(|_app_handle, event| {
         if let RunEvent::ExitRequested {
-            code: _code,
-            api: _api,
+            code,
+            api,
             ..
         } = event
         {
-            // On Linux, let the app exit cleanly (see on_window_event above).
-            #[cfg(not(target_os = "linux"))]
             run_on_tray(|| {
-                if _code.is_none() {
-                    _api.prevent_exit();
+                if code.is_none() {
+                    api.prevent_exit();
                 }
             });
         }
