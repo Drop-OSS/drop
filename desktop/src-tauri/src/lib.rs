@@ -49,7 +49,7 @@ use log4rs::{
     encode::pattern::PatternEncoder,
 };
 use tauri::{
-    AppHandle, LogicalPosition, LogicalSize, Manager, RunEvent, WebviewBuilder, WebviewUrl,
+    AppHandle, Emitter, LogicalPosition, LogicalSize, Manager, RunEvent, WebviewBuilder, WebviewUrl,
     WindowBuilder, WindowEvent,
     menu::{Menu, MenuItem, PredefinedMenuItem},
     tray::TrayIconBuilder,
@@ -391,11 +391,7 @@ pub fn run() {
                                 #[cfg(target_os = "linux")]
                                 {
                                     // Resume webview rendering after showing
-                                    if let Some(win) = app.get_window("main") {
-                                        for wv in win.webviews() {
-                                            let _ = wv.eval("document.dispatchEvent(new Event('visibilitychange'))");
-                                        }
-                                    }
+                                    app_emit!(app, "window_visibility_change", ());
                                 }
 
                                 app.get_window("main")
@@ -461,9 +457,7 @@ pub fn run() {
                     // Pause webview rendering before hiding to prevent idle CPU usage
                     #[cfg(target_os = "linux")]
                     {
-                        for wv in window.webviews() {
-                            let _ = wv.eval("document.dispatchEvent(new Event('visibilitychange'))");
-                        }
+                        let _ = window.app_handle().emit("window_visibility_change", ());
                     }
 
                     window.hide().expect("Failed to hide window in tray");

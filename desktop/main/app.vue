@@ -42,6 +42,10 @@ listen("update_state", (event) => {
   state.value = event.payload as AppState;
 });
 
+listen("window_visibility_change", () => {
+  document.dispatchEvent(new Event("visibilitychange"));
+});
+
 setupHooks();
 initialNavigation(state);
 
