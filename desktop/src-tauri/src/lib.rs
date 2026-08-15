@@ -49,7 +49,7 @@ use log4rs::{
     encode::pattern::PatternEncoder,
 };
 use tauri::{
-    AppHandle, LogicalPosition, LogicalSize, Manager, RunEvent, WebviewBuilder, WebviewUrl,
+    AppHandle, Emitter, LogicalPosition, LogicalSize, Manager, RunEvent, WebviewBuilder, WebviewUrl,
     WindowBuilder, WindowEvent,
     menu::{Menu, MenuItem, PredefinedMenuItem},
     tray::TrayIconBuilder,
@@ -388,9 +388,14 @@ pub fn run() {
                         .menu(&menu)
                         .on_menu_event(|app, event| match event.id.as_ref() {
                             "open" => {
-                                app.webview_windows()
-                                    .get("frontend")
-                                    .expect("Failed to get webview")
+                                #[cfg(target_os = "linux")]
+                                {
+                                    // Resume webview rendering after showing
+                                    app_emit!(app, "window_visibility_change", ());
+                                }
+
+                                app.get_window("main")
+                                    .expect("Failed to get main window")
                                     .show()
                                     .expect("Failed to show window");
                             }
@@ -449,7 +454,13 @@ pub fn run() {
         .on_window_event(|window, event| {
             if let WindowEvent::CloseRequested { api, .. } = event {
                 run_on_tray(|| {
-                    window.hide().expect("Failed to close window in tray");
+                    // Pause webview rendering before hiding to prevent idle CPU usage
+                    #[cfg(target_os = "linux")]
+                    {
+                        let _ = window.app_handle().emit("window_visibility_change", ());
+                    }
+
+                    window.hide().expect("Failed to hide window in tray");
                     api.prevent_close();
                 });
             }
@@ -458,7 +469,12 @@ pub fn run() {
         .expect("error while running tauri application");
 
     app.run(|_app_handle, event| {
-        if let RunEvent::ExitRequested { code, api, .. } = event {
+        if let RunEvent::ExitRequested {
+            code,
+            api,
+            ..
+        } = event
+        {
             run_on_tray(|| {
                 if code.is_none() {
                     api.prevent_exit();
