@@ -10,11 +10,11 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/starlight": "^0.40.0",
+    "@astrojs/starlight": "^0.41.7",
     "astro": "^7.1.1",
     "sharp": "^0.35.3",
     "starlight-image-zoom": "^0.14.2",
-    "starlight-links-validator": "^0.24.1",
+    "starlight-links-validator": "^0.25.3",
     "starlight-theme-rapide": "^0.5.2"
   }
 }

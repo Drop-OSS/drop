@@ -48,10 +48,10 @@ Drop recommends using the OIDC well-known option **instead** of manually specify
 
 ## Redirect URL
 
-Drop uses the `EXTERNAL_URL` environment variable to create the callback URL: `$EXTERNAL_URL/api/v1/auth/odic/callback`.
+Drop uses the `EXTERNAL_URL` environment variable to create the callback URL: `$EXTERNAL_URL/api/v1/auth/oidc/callback`.
 
-For example: if `EXTERNAL_URL` was set to `http://localhost:3000/`, then the redirect URL would be `http://localhost:3000/api/v1/auth/odic/callback`.
+For example: if `EXTERNAL_URL` was set to `http://localhost:3000/`, then the redirect URL would be `http://localhost:3000/api/v1/auth/oidc/callback`.
 
 ## Logout URL
 
-Drop supports OIDC back-channel logout, enabling the OIDC provider to logout users. Using the example above, the back-channel logout URL would be `http://localhost:3000/api/v1/auth/odic/logout`.
+Drop supports OIDC back-channel logout, enabling the OIDC provider to logout users. Using the example above, the back-channel logout URL would be `http://localhost:3000/api/v1/auth/oidc/logout`.
