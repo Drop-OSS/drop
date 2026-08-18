@@ -18,6 +18,7 @@ pub static PROCESS_MANAGER: ProcessManagerWrapper = ProcessManagerWrapper::new()
 pub mod compat;
 pub mod error;
 pub mod format;
+mod network_block;
 mod parser;
 pub mod process_handlers;
 pub mod process_manager;

@@ -641,6 +641,45 @@
     v-if="dependencyRequiredModal"
     v-model="dependencyRequiredModal"
   />
+
+  <Transition name="fade">
+    <div
+      v-if="flagActionRequiredModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+    >
+      <div class="mx-4 w-full max-w-md rounded-xl bg-zinc-900 p-6 ring-1 ring-zinc-700">
+        <h2 class="text-lg font-semibold text-zinc-100">
+          Launch Flag
+        </h2>
+        <p class="mt-3 text-sm text-zinc-400">
+          This game has a launch flag that needs your attention.
+        </p>
+        <div class="mt-4 rounded-lg bg-zinc-950 p-3">
+          <p class="text-sm text-zinc-300">
+            <span class="font-medium text-zinc-200">Flag:</span>
+            {{ flagActionRequiredModal.flag }}
+          </p>
+          <p class="mt-2 text-xs text-zinc-500">
+            This setting will be remembered for future launches.
+          </p>
+        </div>
+        <div class="mt-6 flex justify-end gap-3">
+          <button
+            @click="() => handleFlagAction(false)"
+            class="rounded-lg px-4 py-2 text-sm font-medium text-zinc-400 hover:text-zinc-200"
+          >
+            I've handled it
+          </button>
+          <button
+            @click="() => handleFlagAction(true)"
+            class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
+          >
+            Block automatically
+          </button>
+        </div>
+      </div>
+    </div>
+  </Transition>
 </template>
 
 <script setup lang="ts">
@@ -810,6 +849,10 @@ const dependencyRequiredModal = ref<
   { gameId: string; versionId: string } | undefined
 >(undefined);
 
+const flagActionRequiredModal = ref<
+  { launchId: string; flag: string } | undefined
+>(undefined);
+
 async function launchIndex(index: number) {
   launchOptions.value = undefined;
   try {
@@ -822,6 +865,11 @@ async function launchIndex(index: number) {
         gameId: result.data[0],
         versionId: result.data[1],
       };
+    } else if (result.result == "FlagActionRequired") {
+      flagActionRequiredModal.value = {
+        launchId: result.data.launchId,
+        flag: result.data.flag,
+      };
     }
   } catch (e) {
     createModal(
@@ -829,6 +877,31 @@ async function launchIndex(index: number) {
       {
         title: `Couldn't run "${game.mName}"`,
         description: `Drop failed to launch "${game.mName}": ${e}`,
+        buttonText: "Close",
+      },
+      (e, c) => c(),
+    );
+  }
+}
+
+async function handleFlagAction(autoHandled: boolean) {
+  if (!flagActionRequiredModal.value) return;
+  const { launchId, flag } = flagActionRequiredModal.value;
+  try {
+    await invoke("acknowledge_flag", {
+      launchId,
+      flag,
+      autoHandled,
+    });
+    flagActionRequiredModal.value = undefined;
+    // Re-trigger launch after acknowledgment
+    await launchIndex(0);
+  } catch (e) {
+    createModal(
+      ModalType.Notification,
+      {
+        title: `Couldn't acknowledge flag`,
+        description: `Drop failed to process launch flag: ${e}`,
         buttonText: "Close",
       },
       (e, c) => c(),

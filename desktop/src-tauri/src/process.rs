@@ -26,6 +26,7 @@ pub fn get_process_handlers(id: String) -> Result<Vec<ProcessHandlerOption>, Pro
 pub enum LaunchResult {
     Success,
     InstallRequired(String, String),
+    FlagActionRequired { launch_id: String, flag: String },
 }
 
 #[tauri::command]
@@ -43,6 +44,15 @@ pub fn launch_game(id: String, index: usize) -> Result<LaunchResult, ProcessErro
             game_id.to_string(),
             version_id.to_string(),
         ));
+    }
+
+    if let Err(err) = &result
+        && let ProcessError::FlagActionRequired { launch_id, flag } = err
+    {
+        return Ok(LaunchResult::FlagActionRequired {
+            launch_id: launch_id.to_string(),
+            flag: flag.to_string(),
+        });
     }
 
     result?;
@@ -64,4 +74,43 @@ pub fn open_process_logs(game_id: String, app_handle: AppHandle) -> Result<(), P
         .opener()
         .open_path(dir.display().to_string(), None::<&str>)
         .map_err(|v| ProcessError::OpenerError(Arc::new(v)))
+}
+
+#[tauri::command]
+pub fn acknowledge_flag(
+    launch_id: String,
+    flag: String,
+    auto_handled: bool,
+) -> Result<(), ProcessError> {
+    use database::borrow_db_mut_checked;
+    use database::FlagAcknowledgment;
+
+    let mut db = borrow_db_mut_checked();
+    let acknowledgment = if auto_handled {
+        FlagAcknowledgment::AutoHandled
+    } else {
+        FlagAcknowledgment::ManuallyHandled
+    };
+    db.applications
+        .flag_acknowledgments
+        .insert((launch_id, flag), acknowledgment);
+    Ok(())
+}
+
+#[tauri::command]
+pub fn get_flag_status(launch_id: String, flag: String) -> Result<Option<String>, ProcessError> {
+    use database::borrow_db_checked;
+    use database::FlagAcknowledgment;
+
+    let db = borrow_db_checked();
+    let acknowledgment = db
+        .applications
+        .flag_acknowledgments
+        .get(&(launch_id, flag));
+
+    Ok(match acknowledgment {
+        Some(FlagAcknowledgment::NotAcknowledged) | None => None,
+        Some(FlagAcknowledgment::AutoHandled) => Some("auto_handled".to_string()),
+        Some(FlagAcknowledgment::ManuallyHandled) => Some("manually_handled".to_string()),
+    })
 }

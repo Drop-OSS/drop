@@ -21,6 +21,8 @@ pub enum ProcessError {
     FailedLaunch(String),
     NotExecutable(String),
     NoCompat,
+    FlagActionRequired { launch_id: String, flag: String },
+    FlagEnforcementFailed(String),
 }
 
 impl Display for ProcessError {
@@ -48,6 +50,10 @@ impl Display for ProcessError {
                 game_id, version_id
             ),
             ProcessError::NoCompat => "No Proton compatibility layer could be found for this tool. Add an override or set your global default in settings.",
+            ProcessError::FlagActionRequired { launch_id, flag } => {
+                &format!("Launch flag '{}' requires acknowledgment for launch '{}'", flag, launch_id)
+            }
+            ProcessError::FlagEnforcementFailed(msg) => &format!("Failed to enforce launch flag: {}", msg),
         };
         write!(f, "{s}")
     }

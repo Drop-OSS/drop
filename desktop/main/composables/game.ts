@@ -65,7 +65,8 @@ export const useGame = async (gameId: string) => {
 
 export type LaunchResult =
   | { result: "Success" }
-  | { result: "InstallRequired"; data: [string, string] };
+  | { result: "InstallRequired"; data: [string, string] }
+  | { result: "FlagActionRequired"; data: { launchId: string; flag: string } };
 
 export type VersionOption = {
   versionId: string;
