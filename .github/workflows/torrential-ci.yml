@@ -19,6 +19,9 @@ on:
       - ".github/workflows/torrential-ci.yml"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 env:
   CARGO_TERM_COLOR: always
 
