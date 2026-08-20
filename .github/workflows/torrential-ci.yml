@@ -1,0 +1,54 @@
+name: Torrential CI
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - "torrential/**"
+      - "libraries/droplet/**"
+      - "libraries/droplet_types/**"
+      - "libraries/libarchive/**"
+      - ".github/workflows/torrential-ci.yml"
+  pull_request:
+    branches: [develop]
+    paths:
+      - "torrential/**"
+      - "libraries/droplet/**"
+      - "libraries/droplet_types/**"
+      - "libraries/libarchive/**"
+      - ".github/workflows/torrential-ci.yml"
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  ci:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: torrential
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./torrential -> target"
+
+      # Required by the droplet-rs path dependency (libarchive bindings).
+      - name: Install libarchive
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libarchive-dev
+
+      - name: Build
+        run: cargo build --all-targets --verbose
+
+      - name: Run tests
+        run: cargo test --verbose
