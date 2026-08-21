@@ -161,7 +161,7 @@ impl DropServer {
 
         {
             let mut mutex_lock = self.write_stream.lock().await;
-            mutex_lock.write(&buf.len().to_le_bytes()).await?;
+            mutex_lock.write_all(&buf.len().to_le_bytes()).await?;
             mutex_lock.write_all(&buf).await?;
         };
 

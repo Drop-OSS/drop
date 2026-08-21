@@ -41,8 +41,8 @@ impl AsyncRead for ArchiveReader {
     ) -> std::task::Poll<std::io::Result<()>> {
         if let Some(block) = &mut self.prev_block {
             let to_read = buf.remaining().min(block.len());
-            let result = block.split_off(to_read);
-            buf.put_slice(&result);
+            buf.put_slice(&block[..to_read]);
+            block.drain(..to_read);
 
             // If the block is empty, we can read more
             if block.is_empty() {
