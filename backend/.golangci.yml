@@ -1,0 +1,27 @@
+# golangci-lint v2 configuration.
+# Run:  cd backend && golangci-lint run
+# CI:   golangci-lint-action@v8 with --new-from-rev=origin/develop (rollout mode).
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  default: none
+  enable:
+    - gosec # security-focused linter
+    - errcheck
+    - govet
+    - staticcheck
+    - ineffassign
+    - unused
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - gosec # test fixtures routinely trip G201/G404 etc.
+
+formatters:
+  enable:
+    - gofmt
+    - goimports

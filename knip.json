@@ -1,0 +1,31 @@
+{
+  "$schema": "./node_modules/knip/schema.json",
+  "workspaces": {
+    ".": {
+      "entry": ["lefthook.yml"],
+      "ignoreDependencies": [
+        "lefthook",
+        "knip",
+        "@ast-grep/cli",
+        "prettier",
+        "prettier-plugin-sort-json"
+      ]
+    },
+    "desktop": {},
+    "libraries/base": {},
+    "server": {
+      "entry": [
+        "app.vue",
+        "error.vue",
+        "nuxt.config.ts",
+        "plugins/**/*.{ts,js}",
+        "middleware/**/*.{ts,js}",
+        "layouts/**/*.vue"
+      ],
+      "ignore": [".nuxt/**", ".output/**", ".data/**", "build/**"],
+      "project": ["**/*.{ts,js,mjs,vue}"]
+    },
+    "sites/docs": {},
+    "sites/promo": {}
+  }
+}

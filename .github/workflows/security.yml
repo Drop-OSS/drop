@@ -1,0 +1,73 @@
+name: Security
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop]
+  schedule:
+    # Weekly Monday 06:06 UTC — catches new advisories between PRs.
+    - cron: "6 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gitleaks:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history for leak detection
+      # Direct CLI invocation instead of gitleaks/gitleaks-action, which
+      # requires a paid license key for organization repos.
+      - name: Install gitleaks
+        run: |
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz | tar -xz -C /usr/local/bin gitleaks
+      - name: Run gitleaks
+        run: gitleaks detect --redact --verbose
+
+  cargo-audit:
+    name: Rust advisory audit
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        crate:
+          - cli
+          - torrential
+          - desktop/src-tauri
+          - libraries/droplet
+          - libraries/droplet_types
+          - libraries/libarchive
+          - libraries/native_model
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@7c8d7d138f5c09cef361f8214cf96882cd029cdb # dtolnay/rust-toolchain@nightly
+      - uses: taiki-e/install-action@4b8992af23a2be34fd58f8d9b50d3f4939ad1891 # taiki-e/install-action@cargo-audit
+      - name: Audit ${{ matrix.crate }}
+        # Some vendored crates gitignore their Cargo.lock; generate one on the
+        # fly so `cargo audit` has a manifest to scan.
+        run: |
+          if [ ! -f Cargo.lock ]; then cargo generate-lockfile; fi
+          cargo audit --file Cargo.lock
+        working-directory: ${{ matrix.crate }}
+
+  golangci:
+    name: Go lint (backend)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # actions/checkout@v4
+        with:
+          fetch-depth: 0 # needed for --new-from-rev against origin/develop
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # actions/setup-go@v5
+        with:
+          go-version-file: backend/go.work
+      - uses: golangci/golangci-lint-action@4afd733a84b1f43292c63897423277bb7f4313a9 # golangci/golangci-lint-action@v8
+        with:
+          working-directory: backend
+          # Rollout mode: only report issues on changed lines. Remove once the
+          # existing debt (2 issues in core/database.go) is cleaned up.
+          args: --new-from-rev=origin/develop ./core/...

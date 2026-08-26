@@ -1,0 +1,12 @@
+id: no-console-log
+message: Use the project logger (pino) instead of console.log
+severity: warning # promote to error once codebase is clean
+language: TypeScript
+rule:
+  pattern: console.log($$$ARGS)
+files:
+  - server/**
+ignores:
+  - "**/*.d.ts"
+  - "**/*.spec.ts"
+  - "**/*.test.ts"

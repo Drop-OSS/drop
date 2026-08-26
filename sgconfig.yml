@@ -1,0 +1,5 @@
+# ast-grep configuration. Rules live in ./rules.
+# Scan: pnpm exec ast-grep scan [paths]
+# Machine-readable: pnpm exec ast-grep scan --json
+ruleDirs:
+  - rules
