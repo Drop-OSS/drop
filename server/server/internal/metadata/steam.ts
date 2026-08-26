@@ -664,17 +664,34 @@ export class SteamProvider implements MetadataProvider {
   }
 
   private _decodeHtmlEntities(text: string): string {
-    return text
-      .replace(/&nbsp;/g, " ")
-      .replace(/&amp;/g, "&")
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
-      .replace(/&#x([0-9A-Fa-f]+);/g, (_, hex) =>
-        String.fromCharCode(parseInt(hex, 16)),
-      )
-      .replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(parseInt(dec, 10)));
+    // Decode in a single pass so decoded '&' characters cannot combine with
+    // later passes into new entities (double-unescaping).
+    return text.replace(
+      /&(?:nbsp|amp|lt|gt|quot|#39|#x[0-9A-Fa-f]+|#\d+);/g,
+      (entity) => {
+        switch (entity) {
+          case "&nbsp;":
+            return " ";
+          case "&amp;":
+            return "&";
+          case "&lt;":
+            return "<";
+          case "&gt;":
+            return ">";
+          case "&quot;":
+            return '"';
+          case "&#39;":
+            return "'";
+          default: {
+            const hex = entity.match(/&#x([0-9A-Fa-f]+);/);
+            if (hex) return String.fromCharCode(parseInt(hex[1]!, 16));
+            const dec = entity.match(/&#(\d+);/);
+            if (dec) return String.fromCharCode(parseInt(dec[1]!, 10));
+            return entity;
+          }
+        }
+      },
+    );
   }
 
   private async _fetchGameDetails(
@@ -908,8 +925,10 @@ export class SteamProvider implements MetadataProvider {
   }
 
   private _convertBasicHtmlElements(markdown: string): string {
-    // Remove HTML comments
-    markdown = markdown.replace(/<!--[\s\S]*?-->/g, "");
+    // Neutralize HTML comments by removing every '<!--' opener regardless of
+    // whether a matching '-->' exists, so no fragment of a comment can
+    // survive — including crafted input like "<!--><!-->".
+    markdown = markdown.replace(/<!--[\s\S]*?(?:-->|$)/g, "");
 
     // Convert the bullet points and tabs to markdown list format
     markdown = markdown.replace(/•\s*\t+/g, "\n- ");
@@ -1102,14 +1121,50 @@ export class SteamProvider implements MetadataProvider {
     return markdown;
   }
 
-  private _stripHtmlTags(html: string): string {
-    return html
-      .replace(/<[^>]*>/g, "")
-      .replace(/&nbsp;/g, " ")
-      .replace(/&amp;/g, "&")
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'");
+  private _stripHtmlTags(input: string): string {
+    // Remove every '<' character first — legitimate markup was already
+    // converted to Markdown earlier in the pipeline, so no tag openers are
+    // expected here. Removing the character itself (rather than matching
+    // whole tags) is complete by construction: with no '<' left in the
+    // string, a sequence like "<script" cannot exist.
+    let html = input;
+    while (html.includes("<")) {
+      html = html.replaceAll("<", "");
+    }
+
+    // Decode entities except &lt;/&gt;, which are dropped outright so angle
+    // brackets can never be resurrected. Single-pass replacement prevents
+    // crafted input like "&amp;lt;" from recombining into new entities.
+    // Numeric references encoding 0x3C/0x3E (&#60;, &#x3C;) are dropped too.
+    return html.replace(
+      /&(?:nbsp|amp|quot|#39|#x[0-9A-Fa-f]+|#\d+);/gi,
+      (entity) => {
+        switch (entity.toLowerCase()) {
+          case "&nbsp;":
+            return " ";
+          case "&amp;":
+            return "&";
+          case "&quot;":
+            return '"';
+          case "&#39;":
+            return "'";
+          default: {
+            const hex = entity.match(/&#x([0-9A-Fa-f]+);/i);
+            if (hex) {
+              const code = parseInt(hex[1]!, 16);
+              if (code === 0x3c || code === 0x3e) return "";
+              return String.fromCharCode(code);
+            }
+            const dec = entity.match(/&#(\d+);/);
+            if (dec) {
+              const code = parseInt(dec[1]!, 10);
+              if (code === 0x3c || code === 0x3e) return "";
+              return String.fromCharCode(code);
+            }
+            return entity;
+          }
+        }
+      },
+    );
   }
 }

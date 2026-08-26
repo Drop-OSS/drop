@@ -32,36 +32,75 @@ export class FsObjectBackend extends ObjectBackend {
 
   async fetch(id: ObjectReference) {
     const objectPath = path.join(this.baseObjectPath, id);
-    if (!fs.existsSync(objectPath)) return undefined;
-    return fs.createReadStream(objectPath);
+    // Open the file first and stream from the handle, so there is no window
+    // between checking the file and using it.
+    let handle: fs.promises.FileHandle;
+    try {
+      handle = await fs.promises.open(objectPath, "r");
+    } catch {
+      return undefined;
+    }
+    try {
+      const stat = await handle.stat();
+      if (!stat.isFile()) {
+        await handle.close();
+        return undefined;
+      }
+    } catch {
+      await handle.close();
+      return undefined;
+    }
+    // createReadStream on the fd keeps reads tied to the opened inode.
+    return fs
+      .createReadStream(undefined as unknown as string, {
+        fd: handle.fd,
+        autoClose: true,
+      })
+      .on("close", () => void handle.close().catch(() => {}));
   }
   async write(id: ObjectReference, source: Source): Promise<boolean> {
     const objectPath = path.join(this.baseObjectPath, id);
-    if (!fs.existsSync(objectPath)) return false;
+    // Open with 'r+' so we only write to a file that already exists (created
+    // via create()); the check and the write go through the same fd.
+    let handle: fs.promises.FileHandle;
+    try {
+      handle = await fs.promises.open(objectPath, "r+");
+    } catch {
+      return false;
+    }
 
     // remove item from cache
     await this.hashStore.delete(id);
 
-    if (source instanceof Readable) {
-      const outputStream = fs.createWriteStream(objectPath);
-      source.pipe(outputStream, { end: true });
-      await new Promise((r, _j) => source.on("end", r));
-      return true;
-    }
+    try {
+      if (source instanceof Readable) {
+        const outputStream = handle.createWriteStream();
+        source.pipe(outputStream, { end: true });
+        await new Promise((r, _j) => source.on("end", r));
+        return true;
+      }
 
-    if (source instanceof Buffer) {
-      fs.writeFileSync(objectPath, source);
-      return true;
-    }
+      if (source instanceof Buffer) {
+        await handle.write(source, 0, source.length);
+        return true;
+      }
 
-    return false;
+      return false;
+    } finally {
+      await handle.close().catch(() => {});
+    }
   }
   async startWriteStream(id: ObjectReference) {
     const objectPath = path.join(this.baseObjectPath, id);
-    if (!fs.existsSync(objectPath)) return undefined;
-    // remove item from cache
-    await this.hashStore.delete(id);
-    return fs.createWriteStream(objectPath);
+    // 'r+' fails when the file doesn't exist, replacing the existsSync pre-check.
+    try {
+      const handle = await fs.promises.open(objectPath, "r+");
+      // remove item from cache
+      await this.hashStore.delete(id);
+      return handle.createWriteStream({ autoClose: true });
+    } catch {
+      return undefined;
+    }
   }
   async create(
     id: string,
@@ -70,14 +109,18 @@ export class FsObjectBackend extends ObjectBackend {
   ): Promise<ObjectReference | undefined> {
     const objectPath = path.join(this.baseObjectPath, id);
     const metadataPath = path.join(this.baseMetadataPath, `${id}.json`);
-    if (fs.existsSync(objectPath) || fs.existsSync(metadataPath))
+
+    // Use exclusive-create flags so concurrent creates cannot clobber each
+    // other; failure here means the object already exists.
+    try {
+      // Write metadata
+      fs.writeFileSync(metadataPath, JSON.stringify(metadata), { flag: "wx" });
+
+      // Create file so write passes
+      fs.writeFileSync(objectPath, "", { flag: "wx" });
+    } catch {
       return undefined;
-
-    // Write metadata
-    fs.writeFileSync(metadataPath, JSON.stringify(metadata));
-
-    // Create file so write passes
-    fs.writeFileSync(objectPath, "");
+    }
 
     // Call write
     this.write(id, source);
@@ -87,14 +130,17 @@ export class FsObjectBackend extends ObjectBackend {
   async createWithWriteStream(id: string, metadata: ObjectMetadata) {
     const objectPath = path.join(this.baseObjectPath, id);
     const metadataPath = path.join(this.baseMetadataPath, `${id}.json`);
-    if (fs.existsSync(objectPath) || fs.existsSync(metadataPath))
+
+    // Exclusive-create flags prevent concurrent creates from clobbering.
+    try {
+      // Write metadata
+      fs.writeFileSync(metadataPath, JSON.stringify(metadata), { flag: "wx" });
+
+      // Create file so write passes
+      fs.writeFileSync(objectPath, "", { flag: "wx" });
+    } catch {
       return undefined;
-
-    // Write metadata
-    fs.writeFileSync(metadataPath, JSON.stringify(metadata));
-
-    // Create file so write passes
-    fs.writeFileSync(objectPath, "");
+    }
 
     const stream = await this.startWriteStream(id);
     if (!stream) throw new Error("Could not create write stream");
@@ -102,11 +148,17 @@ export class FsObjectBackend extends ObjectBackend {
   }
   async delete(id: ObjectReference): Promise<boolean> {
     const objectPath = path.join(this.baseObjectPath, id);
-    if (!fs.existsSync(objectPath)) return true;
-    fs.rmSync(objectPath);
+    try {
+      await fs.promises.rm(objectPath);
+    } catch {
+      return true;
+    }
     const metadataPath = path.join(this.baseMetadataPath, `${id}.json`);
-    if (!fs.existsSync(metadataPath)) return true;
-    fs.rmSync(metadataPath);
+    try {
+      await fs.promises.rm(metadataPath);
+    } catch {
+      // Metadata may already be gone; nothing to do.
+    }
     // remove item from caches
     await this.metadataCache.remove(id);
     await this.hashStore.delete(id);
@@ -119,9 +171,13 @@ export class FsObjectBackend extends ObjectBackend {
     if (cacheResult !== null) return cacheResult;
 
     const metadataPath = path.join(this.baseMetadataPath, `${id}.json`);
-    if (!fs.existsSync(metadataPath)) return undefined;
-    const metadataRaw = JSON.parse(fs.readFileSync(metadataPath, "utf-8"));
-    const metadata = objectMetadata(metadataRaw);
+    let metadataRaw: string;
+    try {
+      metadataRaw = await fs.promises.readFile(metadataPath, "utf-8");
+    } catch {
+      return undefined;
+    }
+    const metadata = objectMetadata(JSON.parse(metadataRaw));
     if (metadata instanceof type.errors) {
       logger.error(
         { summary: metadata.summary },
@@ -137,8 +193,13 @@ export class FsObjectBackend extends ObjectBackend {
     metadata: ObjectMetadata,
   ): Promise<boolean> {
     const metadataPath = path.join(this.baseMetadataPath, `${id}.json`);
-    if (!fs.existsSync(metadataPath)) return false;
-    fs.writeFileSync(metadataPath, JSON.stringify(metadata));
+    try {
+      await fs.promises.writeFile(metadataPath, JSON.stringify(metadata), {
+        flag: "r+",
+      });
+    } catch {
+      return false;
+    }
     await this.metadataCache.set(id, metadata);
     return true;
   }
