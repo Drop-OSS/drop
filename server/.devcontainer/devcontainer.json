@@ -19,7 +19,15 @@
         "arktypeio.arkdark",
         "EditorConfig.EditorConfig",
         "dbaeumer.vscode-eslint"
-      ]
+      ],
+      "settings": {
+        "[json]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[jsonc]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        }
+      }
     }
   },
 
@@ -42,11 +50,11 @@
   // "forwardPorts": [],
 
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "git submodule update --init --recursive",
-  "postStartCommand": "pnpm install && pnpm prisma migrate deploy && cd torrential && cargo build --release && cd ..",
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y --no-install-recommends pkg-config libarchive-dev",
+  "postStartCommand": "pnpm install && pnpm prisma migrate deploy && cd ../torrential && cargo build --release && cd ../server",
 
   "runServices": ["db", "app"],
   "service": "app",
   "shutdownAction": "stopCompose",
-  "workspaceFolder": "/workspaces/drop"
+  "workspaceFolder": "/workspaces/drop/server"
 }
