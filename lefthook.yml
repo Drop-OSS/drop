@@ -1,0 +1,74 @@
+# Lefthook git hooks for the Drop monorepo.
+# Docs: https://lefthook.dev
+# Escape hatches: git commit/push --no-verify, or LEFTHOOK=0
+#
+# Commands with a glob that matches no staged files are skipped entirely,
+# so e.g. a Markdown-only commit only runs prettier + gitleaks.
+
+pre-commit:
+  parallel: true
+  commands:
+    # Format only staged files, then re-stage them.
+    prettier:
+      glob: "*.{js,cjs,mjs,ts,tsx,vue,json,jsonc,css,scss,html,yaml,yml,md}"
+      exclude:
+        - "pnpm-lock.yaml"
+        - "**/generated/**"
+      run: pnpm exec prettier --write --ignore-unknown {staged_files}
+      stage_fixed: true
+
+    # Scoped to server/ — the only package with an eslint flat config today.
+    # root: makes {staged_files} relative to server/, so the config resolves.
+    eslint:
+      root: server/
+      glob: "server/**/*.{js,cjs,mjs,ts,tsx,vue}"
+      run: pnpm exec eslint --fix {staged_files}
+      stage_fixed: true
+
+    # Structural lint rules (sgconfig.yml). Warnings only during rollout.
+    ast-grep:
+      glob: "*.{ts,tsx,vue,go}"
+      run: pnpm exec ast-grep scan {staged_files}
+
+    # Secret scan on the diff about to be committed. Warns if the binary is
+    # missing locally — CI enforces this authoritatively (security.yml).
+    gitleaks:
+      run: |
+        if command -v gitleaks >/dev/null 2>&1; then
+          gitleaks protect --staged --redact --verbose
+        else
+          echo "::warning:: gitleaks not installed locally; CI enforces. Install: brew install gitleaks"
+          exit 0
+        fi
+
+pre-push:
+  parallel: true
+  commands:
+    # Whole-project typecheck; gated on any server TS/Vue change.
+    typecheck:
+      root: server/
+      glob: "server/**/*.{ts,tsx,vue}"
+      run: pnpm run typecheck
+
+    # Per-crate clippy over changed crates only (-D warnings, matching droplet-ci).
+    # desktop/src-tauri is excluded locally (needs Tauri system libs); CI covers it.
+    clippy:
+      glob: "*.rs"
+      run: ./scripts/clippy-changed.sh
+
+    # New-issues-only during rollout: backend/ has never been linted before.
+    # Compares against origin/develop; remove --new-from-rev once clean.
+    golangci-lint:
+      root: backend/
+      glob: "backend/**/*.go"
+      run: |
+        base="$(git rev-parse --verify origin/develop 2>/dev/null || echo "")"
+        if [ -n "$base" ]; then
+          golangci-lint run --new-from-rev="$base" ./...
+        else
+          golangci-lint run ./...
+        fi
+
+    # Report-only by design (rollout phase): prints findings, never fails.
+    knip:
+      run: pnpm exec knip --reporter compact || true

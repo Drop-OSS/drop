@@ -1,0 +1,27 @@
+name: Semgrep (scheduled)
+
+# Deep security scan on a weekly schedule — deliberately not wired into git
+# hooks or push/PR CI, where its runtime would be too disruptive.
+on:
+  schedule:
+    - cron: "30 5 * * 1" # weekly Monday 05:30 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  semgrep:
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # actions/checkout@v4
+      - name: Scan
+        run: semgrep scan --config p/default --sarif --output semgrep.sarif
+      - name: Upload SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@6d786de4d6f3531a740e445b53a42b622bbbace8 # github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: semgrep.sarif

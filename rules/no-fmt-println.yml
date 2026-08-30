@@ -1,0 +1,6 @@
+id: no-fmt-println
+message: Use a structured logger instead of fmt.Println
+severity: warning
+language: Go
+rule:
+  pattern: fmt.Println($$$ARGS)
