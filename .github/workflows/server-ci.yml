@@ -35,7 +35,7 @@ jobs:
         uses: pnpm/action-setup@v6
 
       - name: Setup Node.js environment
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: lts/*
           cache: "pnpm"
@@ -58,7 +58,7 @@ jobs:
         uses: pnpm/action-setup@v6
 
       - name: Setup Node.js environment
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: lts/*
           cache: "pnpm"
