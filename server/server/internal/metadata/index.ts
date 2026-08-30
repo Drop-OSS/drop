@@ -240,7 +240,7 @@ export class MetadataHandler {
             ReturnType<typeof metadataHandler.fetchCompany>
           >;
         } = {};
-        let metadata: GameMetadata | undefined = undefined;
+        let metadata: GameMetadata | undefined;
         try {
           metadata = await provider.fetchGame(
             {
