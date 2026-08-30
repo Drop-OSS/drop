@@ -3,7 +3,7 @@ services:
     image: mcr.microsoft.com/devcontainers/base:noble
     command: sleep infinity
     volumes:
-      - ..:/workspaces/drop:cached
+      - ../..:/workspaces/drop:cached
     depends_on:
       db:
         condition: service_healthy
