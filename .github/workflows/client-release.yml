@@ -36,7 +36,7 @@ jobs:
 
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -51,7 +51,6 @@ jobs:
           node-version: lts/*
           cache: pnpm
 
-
       - name: install Rust nightly
         uses: dtolnay/rust-toolchain@nightly
         with:
@@ -61,7 +60,7 @@ jobs:
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
-          workspaces: './desktop/src-tauri -> target'
+          workspaces: "./desktop/src-tauri -> target"
 
       - name: install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-22.04' || matrix.platform == 'ubuntu-22.04-arm' # This must match the platform value defined above.
@@ -137,4 +136,4 @@ jobs:
           releaseDraft: false
           prerelease: true
           args: ${{ matrix.args }}
-          projectPath: './desktop'
+          projectPath: "./desktop"
