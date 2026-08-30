@@ -129,7 +129,8 @@ interface SteamAppDetailsLarge extends SteamAppDetailsSmall {
       ordinal: number;
     }[];
   };
-  full_description: string;
+  // Can be undefined if the game is not available in the country of the request
+  full_description: string | undefined;
 }
 
 interface SteamAppDetailsPackage {
@@ -418,7 +419,7 @@ export class SteamProvider implements MetadataProvider {
       );
     } else {
       context?.logger.info("Using fallback description from basic game info");
-      description = currentGame.full_description;
+      description = currentGame.full_description ?? "";
     }
 
     context?.progress(90);
@@ -485,7 +486,7 @@ export class SteamProvider implements MetadataProvider {
       bannerId: banner,
       coverId: cover,
       images,
-    } as GameMetadata;
+    } satisfies GameMetadata;
   }
 
   async fetchCompany({
