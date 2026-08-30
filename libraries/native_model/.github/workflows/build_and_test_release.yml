@@ -2,9 +2,9 @@ name: Build Test Release
 
 on:
   push:
-    branches: [ main, next ]
+    branches: [main, next]
   pull_request:
-    branches: [ main, next ]
+    branches: [main, next]
   workflow_dispatch:
 
 jobs:
@@ -16,7 +16,7 @@ jobs:
         os: [ubuntu-latest, windows-latest, macOS-latest]
         toolchain: [stable]
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
+      - uses: actions/checkout@v7
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
         with:
@@ -25,7 +25,7 @@ jobs:
       - uses: extractions/setup-just@v3
       - uses: hustcer/setup-nu@v3.23
         with:
-          version: '0.105.1'
+          version: "0.105.1"
       - name: Just version
         run: just --version
       - name: Build
@@ -42,15 +42,15 @@ jobs:
       packages: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
+        uses: actions/checkout@v7
         with:
           ref: main
           fetch-depth: 0
 
       - name: install npm
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Semantic Release
         uses: cycjimmy/semantic-release-action@v4
