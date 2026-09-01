@@ -308,7 +308,7 @@ impl GameDownloadAgent {
         let current_file_tree = self.scan_filetree(base_path)?;
 
         for file in current_file_tree {
-            let filename = file.strip_prefix(base_path)?.to_string_lossy().to_string();
+            let filename = file.strip_prefix(base_path)?.to_string_lossy().replace('\\', "/");
             let needed = file_list.contains_key(&filename) || filename == ".dropdata";
             if !needed {
                 debug!("deleted {}", file.display());
