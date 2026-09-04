@@ -32,7 +32,7 @@
     "@prisma/adapter-pg": "7.7.0",
     "@prisma/client": "7.7.0",
     "@simplewebauthn/browser": "^13.2.2",
-    "@simplewebauthn/server": "^13.2.2",
+    "@simplewebauthn/server": "^13.3.2",
     "@tailwindcss/vite": "^4.0.6",
     "@vueuse/nuxt": "13.6.0",
     "argon2": "^0.43.0",
