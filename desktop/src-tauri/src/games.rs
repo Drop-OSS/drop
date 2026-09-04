@@ -248,7 +248,7 @@ pub async fn fetch_game_logic(
 
     let data = FetchGameStruct::new(game.clone(), status, version);
 
-    cache_object(&id, &game)?;
+    cache_object(&format!("game/{}", id), &game)?;
 
     Ok(data)
 }
@@ -341,7 +341,7 @@ pub async fn fetch_game_logic_offline(
     };
 
     let status = GameStatusManager::fetch_state(&id, &db_handle);
-    let game = get_cached_object::<Game>(&id)?;
+    let game = get_cached_object::<Game>(&format!("game/{}", id))?;
 
     drop(db_handle);
 
