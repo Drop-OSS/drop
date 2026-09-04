@@ -357,6 +357,7 @@ impl DownloadManagerBuilder {
         }
         self.push_ui_queue_update();
         self.set_status(DownloadManagerStatus::Error);
+        send!(self.sender, DownloadManagerSignal::Go);
     }
     async fn manage_cancel_signal(&mut self, meta: &DownloadableMetadata) {
         // If the current download is the one we're tryna cancel
