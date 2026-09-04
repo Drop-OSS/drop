@@ -95,6 +95,7 @@ async function install() {
       versionId: model.value.versionId,
       installDir: installDir.value,
       targetPlatform: version.platform,
+      enableUpdates: versionOptions.indexOf(version) === 0,
     });
     cancel();
   } catch (error) {
