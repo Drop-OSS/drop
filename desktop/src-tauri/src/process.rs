@@ -27,6 +27,7 @@ pub enum LaunchResult {
     Success,
     InstallRequired(String, String),
     FlagActionRequired { launch_id: String, flag: String },
+    FlagEnforcementFailed { launch_id: String, flag: String },
 }
 
 #[tauri::command]
@@ -50,6 +51,15 @@ pub fn launch_game(id: String, index: usize) -> Result<LaunchResult, ProcessErro
         && let ProcessError::FlagActionRequired { launch_id, flag } = err
     {
         return Ok(LaunchResult::FlagActionRequired {
+            launch_id: launch_id.to_string(),
+            flag: flag.to_string(),
+        });
+    }
+
+    if let Err(err) = &result
+        && let ProcessError::FlagEnforcementFailed { launch_id, flag } = err
+    {
+        return Ok(LaunchResult::FlagEnforcementFailed {
             launch_id: launch_id.to_string(),
             flag: flag.to_string(),
         });

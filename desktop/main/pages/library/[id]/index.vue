@@ -649,17 +649,13 @@
     >
       <div class="mx-4 w-full max-w-md rounded-xl bg-zinc-900 p-6 ring-1 ring-zinc-700">
         <h2 class="text-lg font-semibold text-zinc-100">
-          Launch Flag
+          Network Access Warning
         </h2>
         <p class="mt-3 text-sm text-zinc-400">
-          This game has a launch flag that needs your attention.
+          The server has marked this game as not needing internet access. The game may behave incorrectly or break if it connects to the internet.
         </p>
         <div class="mt-4 rounded-lg bg-zinc-950 p-3">
-          <p class="text-sm text-zinc-300">
-            <span class="font-medium text-zinc-200">Flag:</span>
-            {{ flagActionRequiredModal.flag }}
-          </p>
-          <p class="mt-2 text-xs text-zinc-500">
+          <p class="text-xs text-zinc-500">
             This setting will be remembered for future launches.
           </p>
         </div>
@@ -675,6 +671,36 @@
             class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
           >
             Block automatically
+          </button>
+        </div>
+      </div>
+    </div>
+  </Transition>
+
+  <Transition name="fade">
+    <div
+      v-if="flagEnforcementFailedModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+    >
+      <div class="mx-4 w-full max-w-md rounded-xl bg-zinc-900 p-6 ring-1 ring-zinc-700">
+        <h2 class="text-lg font-semibold text-zinc-100">
+          Network Blocking Failed
+        </h2>
+        <p class="mt-3 text-sm text-zinc-400">
+          Drop failed to block network access for this game. Starting with internet access — the game may behave incorrectly or break.
+        </p>
+        <div class="mt-6 flex justify-end gap-3">
+          <button
+            @click="() => flagEnforcementFailedModal = undefined"
+            class="rounded-lg px-4 py-2 text-sm font-medium text-zinc-400 hover:text-zinc-200"
+          >
+            Cancel
+          </button>
+          <button
+            @click="() => handleFlagEnforcementFailed()"
+            class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
+          >
+            Start Anyway
           </button>
         </div>
       </div>
@@ -853,6 +879,10 @@ const flagActionRequiredModal = ref<
   { launchId: string; flag: string } | undefined
 >(undefined);
 
+const flagEnforcementFailedModal = ref<
+  { launchId: string; flag: string } | undefined
+>(undefined);
+
 async function launchIndex(index: number) {
   launchOptions.value = undefined;
   try {
@@ -867,6 +897,11 @@ async function launchIndex(index: number) {
       };
     } else if (result.result == "FlagActionRequired") {
       flagActionRequiredModal.value = {
+        launchId: result.data.launchId,
+        flag: result.data.flag,
+      };
+    } else if (result.result == "FlagEnforcementFailed") {
+      flagEnforcementFailedModal.value = {
         launchId: result.data.launchId,
         flag: result.data.flag,
       };
@@ -902,6 +937,31 @@ async function handleFlagAction(autoHandled: boolean) {
       {
         title: `Couldn't acknowledge flag`,
         description: `Drop failed to process launch flag: ${e}`,
+        buttonText: "Close",
+      },
+      (e, c) => c(),
+    );
+  }
+}
+
+async function handleFlagEnforcementFailed() {
+  if (!flagEnforcementFailedModal.value) return;
+  const { launchId, flag } = flagEnforcementFailedModal.value;
+  try {
+    // Switch to manual handling so we don't fail again this session
+    await invoke("acknowledge_flag", {
+      launchId,
+      flag,
+      autoHandled: false,
+    });
+    flagEnforcementFailedModal.value = undefined;
+    await launchIndex(0);
+  } catch (e) {
+    createModal(
+      ModalType.Notification,
+      {
+        title: `Couldn't process launch flag`,
+        description: `Drop failed: ${e}`,
         buttonText: "Close",
       },
       (e, c) => c(),

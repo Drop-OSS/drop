@@ -22,7 +22,7 @@ pub enum ProcessError {
     NotExecutable(String),
     NoCompat,
     FlagActionRequired { launch_id: String, flag: String },
-    FlagEnforcementFailed(String),
+    FlagEnforcementFailed { launch_id: String, flag: String },
 }
 
 impl Display for ProcessError {
@@ -53,7 +53,9 @@ impl Display for ProcessError {
             ProcessError::FlagActionRequired { launch_id, flag } => {
                 &format!("Launch flag '{}' requires acknowledgment for launch '{}'", flag, launch_id)
             }
-            ProcessError::FlagEnforcementFailed(msg) => &format!("Failed to enforce launch flag: {}", msg),
+            ProcessError::FlagEnforcementFailed { launch_id, flag } => {
+                &format!("Failed to enforce launch flag '{}' for '{}'", flag, launch_id)
+            }
         };
         write!(f, "{s}")
     }

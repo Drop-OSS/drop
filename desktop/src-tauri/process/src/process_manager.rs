@@ -390,7 +390,7 @@ impl ProcessManager<'_> {
         )?;
         debug!("using process handler {:?}", process_handler.id());
 
-        let (target_command, emulator, launch_flags) = match game_status {
+        let (target_command, emulator, launch_flags, launch_id) = match game_status {
             GameDownloadStatus::Installed {
                 install_type: InstalledGameType::Installed,
                 ..
@@ -436,6 +436,7 @@ impl ProcessManager<'_> {
                     launch_config.command.clone(),
                     launch_config.emulator.as_ref(),
                     launch_config.flags.clone(),
+                    launch_config.launch_id.clone(),
                 )
             }
             GameDownloadStatus::Installed {
@@ -448,7 +449,7 @@ impl ProcessManager<'_> {
                     .find(|v| v.platform == target_platform)
                     .ok_or(ProcessError::NotInstalled)?;
 
-                (setup_config.command.clone(), None, Vec::new())
+                (setup_config.command.clone(), None, Vec::new(), String::new())
             }
             _ => unreachable!("Game registered as 'Partially Installed'"),
         };
@@ -559,7 +560,10 @@ impl ProcessManager<'_> {
                 }
                 Err(e) => {
                     warn!("Failed to apply network blocking: {}", e);
-                    target_launch_string
+                    return Err(ProcessError::FlagEnforcementFailed {
+                        launch_id,
+                        flag: "BLOCK_NETWORK".to_string(),
+                    });
                 }
             }
         } else {
