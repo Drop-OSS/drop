@@ -302,7 +302,7 @@ if (props.type && props.type === "Emulator")
 
 launchConfiguration.value.flags ??= [];
 
-function toggleFlag(flag: string, event: Event) {
+function toggleFlag(flag: "BLOCK_NETWORK", event: Event) {
   const checked = (event.target as HTMLInputElement).checked;
   const flags = launchConfiguration.value.flags || [];
   if (checked) {
