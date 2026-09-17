@@ -274,7 +274,7 @@ pub mod data {
             pub transient_statuses: HashMap<DownloadableMetadata, ApplicationTransientStatus>,
 
             /// Maps (launch_id, flag_name) -> FlagAcknowledgment
-            #[serde(skip)]
+            #[serde(default)]
             pub flag_acknowledgments: HashMap<(String, String), FlagAcknowledgment>,
         }
 
