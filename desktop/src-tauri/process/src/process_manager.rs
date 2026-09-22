@@ -390,7 +390,7 @@ impl ProcessManager<'_> {
         )?;
         debug!("using process handler {:?}", process_handler.id());
 
-        let (target_command, emulator, launch_flags, launch_id) = match game_status {
+        let (target_command, emulator, auto_handled_flags, launch_id) = match game_status {
             GameDownloadStatus::Installed {
                 install_type: InstalledGameType::Installed,
                 ..
@@ -403,7 +403,8 @@ impl ProcessManager<'_> {
                     .find(|(i, _)| *i == launch_process_index)
                     .ok_or(ProcessError::NotInstalled)?;
 
-                // Check launch flags before proceeding
+                // Check launch flags before proceeding; collect only auto-handled ones for enforcement
+                let mut auto_handled_flags: Vec<String> = Vec::new();
                 for flag in &launch_config.flags {
                     let acknowledgment = db_lock
                         .applications
@@ -411,7 +412,7 @@ impl ProcessManager<'_> {
                         .get(&(launch_config.launch_id.clone(), flag.clone()));
 
                     match acknowledgment {
-                        Some(FlagAcknowledgment::NotAcknowledged) | None => {
+                        None => {
                             return Err(ProcessError::FlagActionRequired {
                                 launch_id: launch_config.launch_id.clone(),
                                 flag: flag.clone(),
@@ -428,6 +429,7 @@ impl ProcessManager<'_> {
                                 "Launch flag '{}' auto-handled for '{}'",
                                 flag, launch_config.launch_id
                             );
+                            auto_handled_flags.push(flag.clone());
                         }
                     }
                 }
@@ -435,7 +437,7 @@ impl ProcessManager<'_> {
                 (
                     launch_config.command.clone(),
                     launch_config.emulator.as_ref(),
-                    launch_config.flags.clone(),
+                    auto_handled_flags,
                     launch_config.launch_id.clone(),
                 )
             }
@@ -551,8 +553,8 @@ impl ProcessManager<'_> {
             .map_err(|e| ProcessError::FormatError(e.to_string()))?
             .to_string();
 
-        // Apply network blocking for auto-handled BLOCK_NETWORK flag
-        let target_launch_string = if launch_flags.contains(&"BLOCK_NETWORK".to_string()) {
+        // Apply network blocking only when the user chose "Block automatically"
+        let target_launch_string = if auto_handled_flags.contains(&"BLOCK_NETWORK".to_string()) {
             match wrap_with_network_blocking(&target_launch_string) {
                 Ok(wrapped) => {
                     info!("Network blocking applied: {}", wrapped);

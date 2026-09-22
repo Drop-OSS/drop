@@ -140,7 +140,6 @@ pub mod data {
 
         #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
         pub enum FlagAcknowledgment {
-            NotAcknowledged,
             AutoHandled,
             ManuallyHandled,
         }

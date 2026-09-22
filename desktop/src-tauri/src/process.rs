@@ -108,19 +108,6 @@ pub fn acknowledge_flag(
 }
 
 #[tauri::command]
-pub fn get_flag_status(launch_id: String, flag: String) -> Result<Option<String>, ProcessError> {
-    use database::borrow_db_checked;
-    use database::FlagAcknowledgment;
-
-    let db = borrow_db_checked();
-    let acknowledgment = db
-        .applications
-        .flag_acknowledgments
-        .get(&(launch_id, flag));
-
-    Ok(match acknowledgment {
-        Some(FlagAcknowledgment::NotAcknowledged) | None => None,
-        Some(FlagAcknowledgment::AutoHandled) => Some("auto_handled".to_string()),
-        Some(FlagAcknowledgment::ManuallyHandled) => Some("manually_handled".to_string()),
-    })
+pub fn can_auto_block_network() -> bool {
+    process::network_block::check_unshare_available()
 }

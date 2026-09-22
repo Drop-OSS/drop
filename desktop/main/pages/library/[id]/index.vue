@@ -661,12 +661,19 @@
         </div>
         <div class="mt-6 flex justify-end gap-3">
           <button
-            @click="() => handleFlagAction(false)"
+            @click="() => flagActionRequiredModal = undefined"
             class="rounded-lg px-4 py-2 text-sm font-medium text-zinc-400 hover:text-zinc-200"
+          >
+            Cancel
+          </button>
+          <button
+            @click="() => handleFlagAction(false)"
+            class="rounded-lg px-4 py-2 text-sm font-medium text-zinc-300 hover:text-zinc-100"
           >
             I've handled it
           </button>
           <button
+            v-if="canAutoBlockNetwork"
             @click="() => handleFlagAction(true)"
             class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
           >
@@ -875,12 +882,17 @@ const dependencyRequiredModal = ref<
   { gameId: string; versionId: string } | undefined
 >(undefined);
 
+const canAutoBlockNetwork = ref(false);
+invoke<boolean>("can_auto_block_network").then((v) => {
+  canAutoBlockNetwork.value = v;
+});
+
 const flagActionRequiredModal = ref<
-  { launchId: string; flag: string } | undefined
+  { launchId: string; flag: string; originalIndex: number } | undefined
 >(undefined);
 
 const flagEnforcementFailedModal = ref<
-  { launchId: string; flag: string } | undefined
+  { launchId: string; flag: string; originalIndex: number } | undefined
 >(undefined);
 
 async function launchIndex(index: number) {
@@ -899,11 +911,13 @@ async function launchIndex(index: number) {
       flagActionRequiredModal.value = {
         launchId: result.data.launchId,
         flag: result.data.flag,
+        originalIndex: index,
       };
     } else if (result.result == "FlagEnforcementFailed") {
       flagEnforcementFailedModal.value = {
         launchId: result.data.launchId,
         flag: result.data.flag,
+        originalIndex: index,
       };
     }
   } catch (e) {
@@ -921,7 +935,7 @@ async function launchIndex(index: number) {
 
 async function handleFlagAction(autoHandled: boolean) {
   if (!flagActionRequiredModal.value) return;
-  const { launchId, flag } = flagActionRequiredModal.value;
+  const { launchId, flag, originalIndex } = flagActionRequiredModal.value;
   try {
     await invoke("acknowledge_flag", {
       launchId,
@@ -929,8 +943,7 @@ async function handleFlagAction(autoHandled: boolean) {
       autoHandled,
     });
     flagActionRequiredModal.value = undefined;
-    // Re-trigger launch after acknowledgment
-    await launchIndex(0);
+    await launchIndex(originalIndex);
   } catch (e) {
     createModal(
       ModalType.Notification,
@@ -946,16 +959,16 @@ async function handleFlagAction(autoHandled: boolean) {
 
 async function handleFlagEnforcementFailed() {
   if (!flagEnforcementFailedModal.value) return;
-  const { launchId, flag } = flagEnforcementFailedModal.value;
+  const { launchId, flag, originalIndex } = flagEnforcementFailedModal.value;
   try {
-    // Switch to manual handling so we don't fail again this session
+    // Switch to manual handling so we don't loop on enforcement failure
     await invoke("acknowledge_flag", {
       launchId,
       flag,
       autoHandled: false,
     });
     flagEnforcementFailedModal.value = undefined;
-    await launchIndex(0);
+    await launchIndex(originalIndex);
   } catch (e) {
     createModal(
       ModalType.Notification,

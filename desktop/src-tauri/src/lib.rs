@@ -271,7 +271,7 @@ pub fn run() {
             get_launch_options,
             get_process_handlers,
             acknowledge_flag,
-            get_flag_status,
+            can_auto_block_network,
             #[cfg(target_os = "linux")]
             ::process::compat::fetch_proton_paths,
             #[cfg(target_os = "linux")]
