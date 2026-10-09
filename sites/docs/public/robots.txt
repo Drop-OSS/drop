@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://docs-next.droposs.org/sitemap-index.xml
+Sitemap: https://droposs.org/docs/sitemap-index.xml
