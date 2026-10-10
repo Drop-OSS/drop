@@ -10,9 +10,9 @@ use std::{
 };
 
 use database::{
-    ApplicationTransientStatus, Database, DownloadableMetadata, GameDownloadStatus, GameVersion,
-    borrow_db_checked, borrow_db_mut_checked, db::DATA_ROOT_DIR, models::data::InstalledGameType,
-    platform::Platform,
+    ApplicationTransientStatus, Database, DownloadableMetadata, FlagAcknowledgment,
+    GameDownloadStatus, GameVersion, borrow_db_checked, borrow_db_mut_checked,
+    db::DATA_ROOT_DIR, models::data::InstalledGameType, platform::Platform,
 };
 use dynfmt::Format;
 use dynfmt::SimpleCurlyFormat;
@@ -26,6 +26,7 @@ use crate::{
     PROCESS_MANAGER,
     error::ProcessError,
     format::DropFormatArgs,
+    network_block::wrap_with_network_blocking,
     parser::{LaunchParameters, ParsedCommand},
     process_handlers::{
         AsahiMuvmLauncher, LinuxNativeLauncher, MacLauncher, UMUCompatLauncher, UMUNativeLauncher,
@@ -389,7 +390,7 @@ impl ProcessManager<'_> {
         )?;
         debug!("using process handler {:?}", process_handler.id());
 
-        let (target_command, emulator) = match game_status {
+        let (target_command, emulator, auto_handled_flags, launch_id) = match game_status {
             GameDownloadStatus::Installed {
                 install_type: InstalledGameType::Installed,
                 ..
@@ -401,9 +402,43 @@ impl ProcessManager<'_> {
                     .enumerate()
                     .find(|(i, _)| *i == launch_process_index)
                     .ok_or(ProcessError::NotInstalled)?;
+
+                // Check launch flags before proceeding; collect only auto-handled ones for enforcement
+                let mut auto_handled_flags: Vec<String> = Vec::new();
+                for flag in &launch_config.flags {
+                    let acknowledgment = db_lock
+                        .applications
+                        .flag_acknowledgments
+                        .get(&(launch_config.launch_id.clone(), flag.clone()));
+
+                    match acknowledgment {
+                        None => {
+                            return Err(ProcessError::FlagActionRequired {
+                                launch_id: launch_config.launch_id.clone(),
+                                flag: flag.clone(),
+                            });
+                        }
+                        Some(FlagAcknowledgment::ManuallyHandled) => {
+                            info!(
+                                "Launch flag '{}' manually handled for '{}'",
+                                flag, launch_config.launch_id
+                            );
+                        }
+                        Some(FlagAcknowledgment::AutoHandled) => {
+                            info!(
+                                "Launch flag '{}' auto-handled for '{}'",
+                                flag, launch_config.launch_id
+                            );
+                            auto_handled_flags.push(flag.clone());
+                        }
+                    }
+                }
+
                 (
                     launch_config.command.clone(),
                     launch_config.emulator.as_ref(),
+                    auto_handled_flags,
+                    launch_config.launch_id.clone(),
                 )
             }
             GameDownloadStatus::Installed {
@@ -416,7 +451,7 @@ impl ProcessManager<'_> {
                     .find(|v| v.platform == target_platform)
                     .ok_or(ProcessError::NotInstalled)?;
 
-                (setup_config.command.clone(), None)
+                (setup_config.command.clone(), None, Vec::new(), String::new())
             }
             _ => unreachable!("Game registered as 'Partially Installed'"),
         };
@@ -517,6 +552,25 @@ impl ProcessManager<'_> {
             .format(&target_launch_string, format_args)
             .map_err(|e| ProcessError::FormatError(e.to_string()))?
             .to_string();
+
+        // Apply network blocking only when the user chose "Block automatically"
+        let target_launch_string = if auto_handled_flags.contains(&"BLOCK_NETWORK".to_string()) {
+            match wrap_with_network_blocking(&target_launch_string) {
+                Ok(wrapped) => {
+                    info!("Network blocking applied: {}", wrapped);
+                    wrapped
+                }
+                Err(e) => {
+                    warn!("Failed to apply network blocking: {}", e);
+                    return Err(ProcessError::FlagEnforcementFailed {
+                        launch_id,
+                        flag: "BLOCK_NETWORK".to_string(),
+                    });
+                }
+            }
+        } else {
+            target_launch_string
+        };
 
         let launch_parameters = LaunchParameters(
             ParsedCommand::parse(target_launch_string)?,
