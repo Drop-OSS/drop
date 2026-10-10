@@ -36,7 +36,12 @@
         as="div"
         v-for="(nav, navIndex) in filteredNavigation"
         :key="nav.id"
-        :class="['first:pt-0 last:pb-0', nav.tools && !filteredNavigation[navIndex - 1].tools ? 'mt-auto' : '']"
+        :class="[
+          'first:pt-0 last:pb-0',
+          nav.tools && !filteredNavigation[navIndex - 1]?.tools
+            ? 'mt-auto'
+            : '',
+        ]"
         v-slot="{ open }"
         :default-open="nav.deft"
       >
@@ -90,10 +95,10 @@
                 <p
                   class="truncate text-[10px] font-bold uppercase font-display"
                   :class="[
-                    getGameStatusStyleText(games[item.id].status.value)[0],
+                    getGameStatusStyleText(games[item.id]!.status.value)[0],
                   ]"
                 >
-                  {{ getGameStatusStyleText(games[item.id].status.value)[1] }}
+                  {{ getGameStatusStyleText(games[item.id]!.status.value)[1] }}
                 </p>
               </div>
             </div>
@@ -295,7 +300,7 @@ await new Promise<void>((r) => {
 const navigation = computed(() =>
   collections.value.map((collection) => {
     const items = collection.entries.map(({ game }) => {
-      const status = games[game.id].status;
+      const status = games[game.id]!.status;
 
       const isInstalled = computed(() => status.value.type != "Remote");
 

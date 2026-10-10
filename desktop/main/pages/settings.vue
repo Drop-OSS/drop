@@ -7,7 +7,7 @@
     </div>
     <div class="mt-5 flex flex-row gap-12">
       <nav class="flex flex-col" aria-label="Sidebar">
-        <ul role="list" class="-mx-2 space-y-1">
+        <ul class="-mx-2 space-y-1">
           <li v-for="(item, itemIdx) in navigation" :key="item.prefix">
             <NuxtLink
               :href="item.route"
@@ -43,16 +43,12 @@
 <script setup lang="ts">
 import {
   ArrowDownTrayIcon,
-  CubeIcon,
   HomeIcon,
   RectangleGroupIcon,
   BugAntIcon,
 } from "@heroicons/vue/16/solid";
-import type { Component } from "vue";
-import type { NavigationItem } from "~/types";
-import { platform } from "@tauri-apps/plugin-os";
 import { invoke } from "@tauri-apps/api/core";
-import { UserIcon } from "@heroicons/vue/20/solid";
+import { UserIcon, PuzzlePieceIcon } from "@heroicons/vue/20/solid";
 
 const systemData = await invoke<{
   clientId: string;
@@ -112,6 +108,12 @@ const navigation = computed(() => [
     prefix: "/settings/downloads",
     icon: ArrowDownTrayIcon,
   },
+  {
+    label: "Plugins",
+    route: "/settings/plugins",
+    prefix: "/settings/plugins",
+    icon: PuzzlePieceIcon,
+  },
   ...(appState.value!.umuState !== "NotNeeded"
     ? [
         {
@@ -139,8 +141,6 @@ const navigation = computed(() => [
       ]
     : []),
 ]);
-
-const currentPlatform = platform();
 
 // Use .value to unwrap the computed ref
 const { currentNavigation } = useCurrentNavigationIndex(navigation.value);

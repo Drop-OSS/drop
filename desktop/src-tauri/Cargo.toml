@@ -13,6 +13,7 @@ members = [
   "database",
   "download_manager",
   "games",
+  "plugins",
   "process",
   "remote",
   "utils",
@@ -44,6 +45,7 @@ download_manager = { path = "./download_manager", version = "0.1.0" } # download
 filetime = "0.2.25"
 futures-core = "0.3.31"
 futures-lite = "2.6.0"
+futures-util = "0.3.31"
 games = { path = "./games", version = "0.1.0" } # games
 gethostname = "1.0.1"
 hex = "0.4.3"
@@ -58,6 +60,7 @@ native_model = { path = "../../libraries/native_model", features = [
 ] }
 page_size = "0.6.0"
 parking_lot = "0.12.3"
+plugins = { path = "./plugins", version = "0.1.0" } # client plugin host
 process = { path = "./process" } # process
 rand = "0.10.2"
 rayon = "1.10.0"
@@ -79,6 +82,7 @@ schemars = "0.8.22"
 serde_json = "1"
 serde_with = "3.12.0"
 sha1 = "0.10.6"
+sha2 = "0.10.8"
 shared_child = "1.0.1"
 slice-deque = "0.3.0"
 sysinfo = "0.36.1"
@@ -124,7 +128,7 @@ features = ["protocol-asset", "tray-icon", "unstable"]
 
 [dependencies.tokio]
 version = "1.40.0"
-features = ["rt", "signal", "tokio-macros"]
+features = ["rt", "signal", "tokio-macros", "process"]
 
 [dependencies.uuid]
 version = "1.10.0"

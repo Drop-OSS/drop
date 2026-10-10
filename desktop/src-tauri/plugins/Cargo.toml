@@ -1,0 +1,16 @@
+[package]
+name = "plugins"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+database = { path = "../database", version = "0.1.0" }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.145"
+sha2 = "0.10.9"
+tauri = "*"
+tokio = { version = "1.40.0", features = ["process", "time"] }
+walkdir = "2.5.0"
+
+[dev-dependencies]
+tempfile = "3"

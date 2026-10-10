@@ -272,6 +272,13 @@ pub mod data {
             pub applications: DatabaseApplications,
             pub cache_dir: PathBuf,
 
+            /// Per-plugin key/value storage for client plugins. Keyed by plugin
+            /// id first so plugin data stays isolated from other plugins. The
+            /// field is `#[serde(default)]` so databases written before it
+            /// existed still deserialize (versioned via `DatabaseVersionEnum`).
+            #[serde(default)]
+            pub plugin_storage: HashMap<String, HashMap<String, serde_json::Value>>,
+
             #[serde(skip)]
             pub prev_database: Option<PathBuf>,
         }
@@ -298,6 +305,7 @@ pub mod data {
                 auth: None,
                 settings: Settings::default(),
                 cache_dir,
+                plugin_storage: HashMap::new(),
             }
         }
     }

@@ -14,6 +14,7 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare && prisma generate && buf generate",
     "typecheck": "nuxt typecheck",
+    "test": "node dev-tools/run-tests.mjs",
     "lint": "pnpm run lint:eslint && pnpm run lint:prettier",
     "lint:eslint": "eslint .",
     "lint:prettier": "prettier . --check",
@@ -21,6 +22,7 @@
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.11.0",
+    "@drop/plugin-api": "workspace:*",
     "@discordapp/twemoji": "^16.0.1",
     "@headlessui/vue": "^1.7.23",
     "@heroicons/vue": "^2.1.5",
@@ -90,6 +92,7 @@
     "eslint-config-prettier": "^10.1.1",
     "golar": "^0.0.13",
     "h3": "^1.15.5",
+    "jiti": "^2.7.0",
     "nitropack": "^2.13.4",
     "ofetch": "^1.4.1",
     "prettier": "^3.5.3",

@@ -6,6 +6,8 @@
       <img
         :src="bannerUrl"
         class="w-full h-[24rem] object-cover blur-sm scale-105"
+        alt=""
+        aria-hidden="true"
       />
       <div
         class="absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/80 to-transparent opacity-90"
@@ -22,7 +24,13 @@
         >
           {{ game.mName }}
         </h1>
-        <div class="relative" v-if="status.type === 'Installed' && status.install_type.type != InstalledType.PartiallyInstalled">
+        <div
+          v-if="
+            status.type === 'Installed' &&
+            status.install_type.type != InstalledType.PartiallyInstalled
+          "
+          class="relative"
+        >
           <div
             v-if="!version?.userConfiguration?.enableUpdates"
             class="absolute mt-1 inline-flex items-center gap-x-1 text-xs text-zinc-400"
@@ -52,19 +60,24 @@
           >
             Update available <ArrowDownTrayIcon class="size-3 text-blue-600" />
           </div>
+          <div class="mt-2 flex items-center gap-x-2">
+            <PluginSlot name="game-detail:badges" :context="{ game, status }" />
+          </div>
         </div>
 
         <div class="mt-8 flex flex-row gap-x-4 items-stretch">
           <!-- Do not add scale animations to this: https://stackoverflow.com/a/35683068 -->
           <GameStatusButton
+            :status="status"
+            :play-actions="pluginPlayActions"
             @install="() => installFlow()"
             @launch="() => launch()"
+            @play-action="(action) => executeCustomPlayAction(action)"
             @queue="() => queue()"
             @uninstall="() => uninstall()"
             @kill="() => kill()"
             @options="() => (configureModalOpen = true)"
             @resume="() => resumeDownload()"
-            :status="status"
           />
           <button
             v-if="status.type === 'Installed' && status.update_available"
@@ -85,17 +98,38 @@
             <BuildingStorefrontIcon class="mr-2 size-5" aria-hidden="true" />
             Store
           </NuxtLink>
+
+          <!-- Plugin Slot: Game Detail Actions (e.g. Multiplayer Button, Mod Manager) -->
+          <PluginSlot name="game-detail:actions" :context="{ game, status }" />
+
+          <!--
+            Generic extension hint: an installed game with no plugin-provided
+            actions advertises that extra capabilities (multiplayer, mods, ...)
+            require installing an extension.
+          -->
+          <button
+            v-if="status.type === 'Installed' && !hasPluginActions"
+            type="button"
+            class="transition-transform duration-300 hover:scale-105 active:scale-95 inline-flex items-center gap-x-2 rounded-md bg-zinc-800/50 px-6 font-semibold text-white shadow-xl backdrop-blur-sm hover:bg-zinc-800/80 uppercase font-display"
+            @click="extensionsPromptOpen = true"
+          >
+            <UserGroupIcon class="size-5" aria-hidden="true" />
+            Multiplayer
+          </button>
         </div>
       </div>
 
       <!-- Main content -->
       <div class="mt-8 w-full bg-zinc-900 px-8">
+        <!-- Plugin Slot: Game Detail Panels -->
+        <PluginSlot name="game-detail:panels" :context="{ game, status }" />
+
         <div class="grid grid-cols-[2fr,1fr] gap-8">
           <div class="space-y-6">
             <div class="bg-zinc-800/50 rounded-xl p-6 backdrop-blur-sm">
               <div
-                v-html="htmlDescription"
                 class="prose prose-invert prose-blue overflow-y-auto custom-scrollbar max-w-none"
+                v-html="htmlDescription"
               ></div>
             </div>
           </div>
@@ -110,23 +144,26 @@
                   <div
                     class="relative aspect-video rounded-lg overflow-hidden cursor-pointer group"
                   >
-                    <div
-                      class="absolute inset-0"
+                    <TransitionGroup name="slide" tag="div" class="h-full">
+                      <img
+                        v-for="(url, index) in game.mImageCarouselObjectIds"
+                        v-show="index === currentImageIndex"
+                        :key="index"
+                        :src="useObject(url)"
+                        class="absolute inset-0 w-full h-full object-cover"
+                        :alt="`${game.mName} screenshot ${index + 1}`"
+                      />
+                    </TransitionGroup>
+                    <button
+                      type="button"
+                      class="absolute inset-0 w-full h-full"
+                      :aria-label="`Open image ${currentImageIndex + 1} fullscreen`"
                       @click="
                         fullscreenImage =
-                          game.mImageCarouselObjectIds[currentImageIndex]
+                          game.mImageCarouselObjectIds[currentImageIndex] ??
+                          null
                       "
-                    >
-                      <TransitionGroup name="slide" tag="div" class="h-full">
-                        <img
-                          v-for="(url, index) in game.mImageCarouselObjectIds"
-                          :key="index"
-                          :src="useObject(url)"
-                          class="absolute inset-0 w-full h-full object-cover"
-                          v-show="index === currentImageIndex"
-                        />
-                      </TransitionGroup>
-                    </div>
+                    ></button>
 
                     <div
                       class="absolute inset-0 flex items-center justify-between px-4 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
@@ -134,8 +171,9 @@
                       <div class="pointer-events-auto">
                         <button
                           v-if="game.mImageCarouselObjectIds.length > 1"
-                          @click.stop="previousImage()"
+                          type="button"
                           class="p-2 rounded-full bg-zinc-900/50 text-zinc-100 hover:bg-zinc-900/80 transition-all duration-300 hover:scale-110"
+                          @click.stop="previousImage()"
                         >
                           <ChevronLeftIcon class="size-5" />
                         </button>
@@ -143,8 +181,9 @@
                       <div class="pointer-events-auto">
                         <button
                           v-if="game.mImageCarouselObjectIds.length > 1"
-                          @click.stop="nextImage()"
+                          type="button"
                           class="p-2 rounded-full bg-zinc-900/50 text-zinc-100 hover:bg-zinc-900/80 transition-all duration-300 hover:scale-110"
+                          @click.stop="nextImage()"
                         >
                           <ChevronRightIcon class="size-5" />
                         </button>
@@ -168,13 +207,14 @@
                     <button
                       v-for="(_, index) in game.mImageCarouselObjectIds"
                       :key="index"
-                      @click.stop="currentImageIndex = index"
+                      type="button"
                       class="w-1.5 h-1.5 rounded-full transition-all"
                       :class="[
                         currentImageIndex === index
                           ? 'bg-zinc-100 scale-125'
                           : 'bg-zinc-600 hover:bg-zinc-500',
                       ]"
+                      @click.stop="currentImageIndex = index"
                     />
                   </div>
                 </div>
@@ -216,7 +256,7 @@
 
       <div class="space-y-6">
         <div v-if="versionOptions && versionOptions.length > 0">
-          <Listbox as="div" v-model="installVersionIndex">
+          <Listbox v-model="installVersionIndex" as="div">
             <ListboxLabel class="block text-sm/6 font-medium text-zinc-100"
               >Version</ListboxLabel
             >
@@ -288,9 +328,9 @@
                   class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
                 >
                   <ListboxOption
+                    v-slot="{ active, selected }"
                     as="template"
                     :value="-1"
-                    v-slot="{ active, selected }"
                   >
                     <li
                       :class="[
@@ -321,11 +361,11 @@
                   </ListboxOption>
 
                   <ListboxOption
-                    as="template"
                     v-for="(version, versionIdx) in versionOptions"
                     :key="version.versionId"
-                    :value="versionIdx"
                     v-slot="{ active, selected }"
+                    as="template"
+                    :value="versionIdx"
                   >
                     <li
                       :class="[
@@ -376,7 +416,7 @@
           </div>
         </div>
         <div v-else class="w-full flex items-center justify-center p-4">
-          <div role="status">
+          <output aria-label="Loading">
             <svg
               aria-hidden="true"
               class="w-7 h-7 text-transparent animate-spin fill-white"
@@ -394,12 +434,12 @@
               />
             </svg>
             <span class="sr-only">Loading...</span>
-          </div>
+          </output>
         </div>
         <div v-if="installDirs">
           <InstallDirectorySelector
-            :install-dirs="installDirs"
             v-model="installDir"
+            :install-dirs="installDirs"
           />
         </div>
         <div
@@ -417,7 +457,7 @@
               to automatically queue for download.
             </p>
           </div>
-          <ul role="list" class="mt-2 divide-y divide-white/5">
+          <ul class="mt-2 divide-y divide-white/5">
             <li
               v-for="content in currentVersionOption.requiredContent"
               :key="content.versionId"
@@ -437,6 +477,7 @@
                 <div class="min-w-0 flex-auto">
                   <p class="text-sm/6 font-semibold text-white">
                     <button
+                      type="button"
                       @click="
                         () =>
                           (installDepsDisabled[content.versionId] =
@@ -492,19 +533,19 @@
     </template>
     <template #buttons>
       <LoadingButton
-        @click="() => install()"
         :disabled="!(versionOptions && versionOptions.length > 0)"
         :loading="installLoading"
         type="submit"
         class="ml-2 w-full sm:w-fit"
+        @click="() => install()"
       >
         Install
       </LoadingButton>
       <button
+        ref="cancelButtonRef"
         type="button"
         class="mt-3 inline-flex w-full justify-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-700 hover:bg-zinc-900 sm:mt-0 sm:w-auto"
         @click="installFlowOpen = false"
-        ref="cancelButtonRef"
       >
         Cancel
       </button>
@@ -528,8 +569,9 @@
       </div>
 
       <ol class="space-y-2">
-        <li v-for="(launchData, launchIdx) in launchOptions!">
+        <li v-for="(launchData, launchIdx) in launchOptions!" :key="launchIdx">
           <button
+            type="button"
             class="transition w-full rounded-sm bg-zinc-800 inline-flex items-center text-sm py-2 px-3 gap-x-2 text-zinc-100 hover:text-zinc-300 hover:bg-zinc-700"
             @click="() => launchIndex(launchIdx)"
           >
@@ -543,10 +585,10 @@
     </template>
     <template #buttons>
       <button
+        ref="cancelButtonRef"
         type="button"
         class="mt-3 inline-flex w-full justify-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-700 hover:bg-zinc-900 sm:mt-0 sm:w-auto"
         @click="launchOptions = undefined"
-        ref="cancelButtonRef"
       >
         Cancel
       </button>
@@ -570,6 +612,15 @@
     :game-id="game.id"
   />
 
+  <GameSetupModal
+    v-if="installedData"
+    v-model="setupModalOpen"
+    :game-id="game.id"
+    :game-name="game.mName"
+    @play="() => launch()"
+    @fallback="() => launchIndex(0)"
+  />
+
   <Transition
     enter="transition ease-out duration-300"
     enter-from="opacity-0"
@@ -581,30 +632,37 @@
     <div
       v-if="fullscreenImage"
       class="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
-      @click="fullscreenImage = null"
     >
+      <button
+        type="button"
+        class="absolute inset-0"
+        aria-label="Close image viewer"
+        @click="fullscreenImage = null"
+      ></button>
       <div
-        class="relative w-full h-full flex items-center justify-center"
-        @click.stop
+        class="relative w-full h-full flex items-center justify-center pointer-events-none"
       >
         <button
-          class="absolute top-4 right-4 p-2 rounded-full bg-zinc-900/50 text-zinc-100 hover:bg-zinc-900 transition-colors"
-          @click.stop="fullscreenImage = null"
+          type="button"
+          class="absolute top-4 right-4 p-2 rounded-full bg-zinc-900/50 text-zinc-100 hover:bg-zinc-900 transition-colors pointer-events-auto"
+          @click="fullscreenImage = null"
         >
           <XMarkIcon class="size-6" />
         </button>
 
         <button
           v-if="game.mImageCarouselObjectIds.length > 1"
-          @click.stop="previousImage()"
-          class="absolute left-4 p-3 rounded-full bg-zinc-900/50 text-zinc-100 hover:bg-zinc-900 transition-colors"
+          type="button"
+          class="absolute left-4 p-3 rounded-full bg-zinc-900/50 text-zinc-100 hover:bg-zinc-900 transition-colors pointer-events-auto"
+          @click="previousImage()"
         >
           <ChevronLeftIcon class="size-6" />
         </button>
         <button
           v-if="game.mImageCarouselObjectIds.length > 1"
-          @click.stop="nextImage()"
-          class="absolute right-4 p-3 rounded-full bg-zinc-900/50 text-zinc-100 hover:bg-zinc-900 transition-colors"
+          type="button"
+          class="absolute right-4 p-3 rounded-full bg-zinc-900/50 text-zinc-100 hover:bg-zinc-900 transition-colors pointer-events-auto"
+          @click="nextImage()"
         >
           <ChevronRightIcon class="size-6" />
         </button>
@@ -612,8 +670,7 @@
         <TransitionGroup
           name="slide"
           tag="div"
-          class="w-full h-full flex items-center justify-center"
-          @click.stop
+          class="w-full h-full flex items-center justify-center pointer-events-auto"
         >
           <img
             v-for="(url, index) in game.mImageCarouselObjectIds"
@@ -626,7 +683,7 @@
         </TransitionGroup>
 
         <div
-          class="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-zinc-900/50 backdrop-blur-sm"
+          class="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-zinc-900/50 backdrop-blur-sm pointer-events-auto"
         >
           <p class="text-zinc-100 text-sm font-medium">
             {{ currentImageIndex + 1 }} /
@@ -641,6 +698,45 @@
     v-if="dependencyRequiredModal"
     v-model="dependencyRequiredModal"
   />
+
+  <ModalTemplate v-model="extensionsPromptOpen">
+    <template #default>
+      <div class="sm:flex sm:items-start">
+        <div class="mt-3 text-center sm:mt-0 sm:text-left">
+          <h3 class="text-base font-semibold text-zinc-100">
+            Extend {{ game.mName }}
+          </h3>
+          <div class="mt-2 space-y-2">
+            <p class="text-sm text-zinc-400">
+              This game has no extensions installed. Optional features such as
+              multiplayer are provided by Drop plugins.
+            </p>
+            <p class="text-sm text-zinc-400">
+              Open the Plugin Manager to browse the registry or install a
+              <code class="font-mono">.dropplugin</code> bundle.
+            </p>
+          </div>
+        </div>
+      </div>
+    </template>
+    <template #buttons>
+      <NuxtLink
+        to="/settings/plugins"
+        class="ml-2 inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 sm:w-auto"
+        @click="extensionsPromptOpen = false"
+      >
+        Open Plugin Manager
+      </NuxtLink>
+      <button
+        ref="cancelButtonRef"
+        type="button"
+        class="mt-3 inline-flex w-full justify-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-700 hover:bg-zinc-900 sm:mt-0 sm:w-auto"
+        @click="extensionsPromptOpen = false"
+      >
+        Close
+      </button>
+    </template>
+  </ModalTemplate>
 </template>
 
 <script setup lang="ts">
@@ -654,7 +750,6 @@ import {
 import {
   CheckIcon,
   ChevronUpDownIcon,
-  WrenchIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   XMarkIcon,
@@ -663,11 +758,13 @@ import {
   PlayIcon,
   InformationCircleIcon,
 } from "@heroicons/vue/20/solid";
-import { BuildingStorefrontIcon } from "@heroicons/vue/24/outline";
+import {
+  BuildingStorefrontIcon,
+  UserGroupIcon,
+} from "@heroicons/vue/24/outline";
 import {
   ArrowDownTrayIcon,
   CheckCircleIcon,
-  MapPinIcon,
   MinusIcon,
   ServerIcon,
   XCircleIcon,
@@ -675,12 +772,26 @@ import {
 import { invoke } from "@tauri-apps/api/core";
 import { micromark } from "micromark";
 import { InstalledType } from "~/types";
+import { usePlayActions, usePluginSlots } from "~/composables/usePlugins";
+import { clientPluginManager } from "~/internal/plugins/ClientPluginManager";
+import type { PlayAction } from "~/internal/plugins/types";
 
 const route = useRoute();
 const router = useRouter();
-const id = route.params.id.toString();
+const id = route.params.id?.toString() ?? "";
+
+const { actions: pluginPlayActions } = usePlayActions(() => id);
+const pluginSlotActions = usePluginSlots("game-detail:actions");
+const hasPluginActions = computed(
+  () =>
+    pluginPlayActions.value.length > 0 || pluginSlotActions.value.length > 0,
+);
+const extensionsPromptOpen = ref(false);
 
 const { game, status, version } = await useGame(id);
+const installedData = computed(() =>
+  status.value?.type === "Installed" ? status.value : undefined,
+);
 
 const bannerUrl = await useObject(game.mBannerObjectId);
 
@@ -692,6 +803,7 @@ const installDirs = ref<undefined | Array<string>>();
 const currentImageIndex = ref(0);
 
 const configureModalOpen = ref(false);
+const setupModalOpen = ref(false);
 
 async function installFlow() {
   installFlowOpen.value = true;
@@ -722,6 +834,7 @@ async function install() {
     installLoading.value = true;
     const versionOption =
       versionOptions.value[Math.max(installVersionIndex.value, 0)];
+    if (!versionOption) throw new Error("Version option not found");
     const isLatest = installVersionIndex.value == -1;
 
     const games = [
@@ -756,6 +869,7 @@ const currentVersionOption = computed(
 function formatVersionOptionText(index: number) {
   if (!versionOptions.value) return undefined;
   const versionOption = versionOptions.value[Math.max(index, 0)];
+  if (!versionOption) return undefined;
   const template = `${versionOption.displayName || versionOption.versionPath} on ${versionOption.platform}, ${formatKilobytes(versionOption.size.installSize / 1024)}B`;
   if (index == -1) {
     return `Latest (${template})`;
@@ -779,7 +893,7 @@ async function launch() {
     status.value.type == "Installed" &&
     status.value.install_type.type == InstalledType.SetupRequired
   ) {
-    await launchIndex(0);
+    setupModalOpen.value = true;
     return;
   }
   try {
@@ -810,13 +924,52 @@ const dependencyRequiredModal = ref<
   { gameId: string; versionId: string } | undefined
 >(undefined);
 
-async function launchIndex(index: number) {
+async function executeCustomPlayAction(action: PlayAction) {
+  const gameDir =
+    status.value?.type === "Installed" ? status.value.install_dir : "";
+  const launchContext = {
+    gameId: game.id,
+    gameTitle: game.mName,
+    gameDir,
+    actionId: action.id,
+  };
+  try {
+    await action.execute(launchContext);
+  } catch (err) {
+    createModal(
+      ModalType.Notification,
+      {
+        title: `Action "${action.name}" failed`,
+        description: `Drop encountered an error: ${err}`,
+        buttonText: "Close",
+      },
+      (e, c) => c(),
+    );
+  }
+}
+
+async function launchIndex(index: number, actionId?: string) {
   launchOptions.value = undefined;
   try {
-    const result = await invoke<LaunchResult>("launch_game", {
-      id: game.id,
-      index,
-    });
+    const gameDir =
+      status.value?.type === "Installed" ? status.value.install_dir : "";
+    const launchContext = {
+      gameId: game.id,
+      gameTitle: game.mName,
+      gameDir,
+      actionId,
+    };
+
+    const result = await clientPluginManager.executeLaunchPipeline(
+      launchContext,
+      async () => {
+        return await invoke<LaunchResult>("launch_game", {
+          id: game.id,
+          index,
+        });
+      },
+    );
+
     if (result.result == "InstallRequired") {
       dependencyRequiredModal.value = {
         gameId: result.data[0],
@@ -873,6 +1026,15 @@ function previousImage() {
 }
 
 const fullscreenImage = ref<string | null>(null);
+
+// Window-level Escape keeps the overlay divs free of interactive handlers.
+function onViewerKeydown(event: KeyboardEvent) {
+  if (event.key === "Escape" && fullscreenImage.value) {
+    fullscreenImage.value = null;
+  }
+}
+onMounted(() => window.addEventListener("keydown", onViewerKeydown));
+onUnmounted(() => window.removeEventListener("keydown", onViewerKeydown));
 </script>
 
 <style scoped>

@@ -333,7 +333,7 @@ async function deleteCustom(index: number) {
   if (!paths.data.value) return;
   await invoke("remove_proton_layer", { index });
   const deleted = paths.data.value.custom.splice(index);
-  if (paths.data.value.default == deleted[0].path) {
+  if (deleted[0] && paths.data.value.default == deleted[0].path) {
     paths.data.value.default = undefined;
   }
 }

@@ -6,6 +6,10 @@ enum MetadataSource {
   IGDB
   Metacritic
   OpenCritic
+  SteamGridDB
+  LaunchBox
+  ScreenScraper
+  MobyGames
 }
 
 enum GameType {

@@ -1,6 +1,7 @@
 packages:
   - "server/"
   - "libraries/base/"
+  - "libraries/plugin-api/"
   - "sites/*"
   - "desktop/"
 

@@ -1,5 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-export default defineNuxtConfig({
+import type { NuxtConfig } from "nuxt/schema";
+
+export default {
   compatibilityDate: "2024-04-03",
 
   postcss: {
@@ -18,5 +20,10 @@ export default defineNuxtConfig({
 
   app: {
     baseURL: "/main",
-  }
-});
+    head: {
+      meta: [
+        { name: "viewport", content: "width=device-width, initial-scale=1.0" },
+      ],
+    },
+  },
+} satisfies NuxtConfig;

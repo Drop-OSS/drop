@@ -22,6 +22,9 @@ importers:
 
   .:
     dependencies:
+      '@drop/plugin-api':
+        specifier: file:../../libraries/plugin-api
+        version: file:../../libraries/plugin-api
       '@headlessui/vue':
         specifier: ^1.7.23
         version: 1.7.23(vue@3.5.41(typescript@5.9.3))
@@ -80,6 +83,9 @@ importers:
       autoprefixer:
         specifier: ^10.4.20
         version: 10.5.0(postcss@8.5.24)
+      jiti:
+        specifier: ^2.7.0
+        version: 2.7.0
       postcss:
         specifier: ^8.5.18
         version: 8.5.24
@@ -293,6 +299,9 @@ packages:
     engines: {node: '>=18'}
     peerDependencies:
       postcss-selector-parser: ^7.0.0
+
+  '@drop/plugin-api@file:../../libraries/plugin-api':
+    resolution: {directory: ../../libraries/plugin-api, type: directory}
 
   '@dxup/nuxt@0.5.6':
     resolution: {integrity: sha512-uZjAFoocWtWHr7YP9jm6FqwI8kjX2QN9bjcncoZt0GS+zExIAP3Ewv6EqEUvVP7w9pjZE+T19QxLHeoacN/MNg==}
@@ -4460,6 +4469,8 @@ snapshots:
   '@csstools/selector-specificity@5.0.0(postcss-selector-parser@7.1.4)':
     dependencies:
       postcss-selector-parser: 7.1.4
+
+  '@drop/plugin-api@file:../../libraries/plugin-api': {}
 
   '@dxup/nuxt@0.5.6(esbuild@0.28.1)(magicast@0.5.4)(rolldown@1.2.3)(rollup@4.62.4)(vite@8.2.1(@types/node@25.5.0)(esbuild@0.28.1)(jiti@2.7.0)(sass-embedded@1.93.3)(sass@1.93.3)(terser@5.49.2)(yaml@2.9.0))':
     dependencies:

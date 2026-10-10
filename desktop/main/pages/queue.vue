@@ -33,18 +33,18 @@
           <div class="w-full flex items-center max-w-md gap-x-4 relative">
             <img
               class="size-24 flex-none bg-zinc-800 object-cover rounded"
-              :src="games[element.meta.id].cover"
+              :src="games[element.meta.id]!.cover"
               alt=""
             />
             <div class="min-w-0 flex-auto">
               <p class="text-xl font-semibold text-zinc-100">
                 <NuxtLink :href="`/library/${element.meta.id}`" class="">
                   <span class="absolute inset-x-0 -top-px bottom-0" />
-                  {{ games[element.meta.id].game.mName }}
+                  {{ games[element.meta.id]!.game.mName }}
                 </NuxtLink>
               </p>
               <p class="mt-1 flex text-xs/5 text-gray-500">
-                {{ games[element.meta.id].game.mShortDescription }}
+                {{ games[element.meta.id]!.game.mShortDescription }}
               </p>
             </div>
           </div>

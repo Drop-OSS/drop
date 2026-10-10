@@ -8,9 +8,11 @@
     "dev": "nuxt dev",
     "postinstall": "nuxt prepare",
     "tauri": "tauri",
-    "typecheck": "nuxt typecheck"
+    "typecheck": "nuxt typecheck",
+    "test": "node --test --import jiti/register internal/**/__tests__/*.test.ts"
   },
   "dependencies": {
+    "@drop/plugin-api": "file:../../libraries/plugin-api",
     "@headlessui/vue": "^1.7.23",
     "@heroicons/vue": "^2.1.5",
     "@nuxtjs/tailwindcss": "^6.12.2",
@@ -32,6 +34,7 @@
     "@tailwindcss/typography": "^0.5.15",
     "@types/markdown-it": "^14.1.2",
     "autoprefixer": "^10.4.20",
+    "jiti": "^2.7.0",
     "postcss": "^8.5.18",
     "sass-embedded": "^1.79.4",
     "tailwindcss": "^3.4.13",

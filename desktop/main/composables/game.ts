@@ -14,7 +14,6 @@ const gameRegistry: { [key: string]: { game: Game; version: Ref<GameVersion | un
 const gameStatusRegistry: { [key: string]: Ref<GameStatus> } = {};
 
 export const parseStatus = (status: RawGameStatus): GameStatus => {
-  console.log(status[0]);
   if (status[0]) {
     return status[0];
   }
@@ -33,16 +32,18 @@ export const useGame = async (gameId: string) => {
     } = await invoke("fetch_game", {
       gameId,
     });
-    gameRegistry[gameId] = { game: data.game, version: ref(data.version) };
+    const entry = { game: data.game, version: ref(data.version) };
+    gameRegistry[gameId] = entry;
     if (!gameStatusRegistry[gameId]) {
-      gameStatusRegistry[gameId] = ref(parseStatus(data.status));
+      const statusRef = ref(parseStatus(data.status));
+      gameStatusRegistry[gameId] = statusRef;
 
       listen(`update_game/${gameId}`, (event) => {
         const payload: {
           status: RawGameStatus;
           version?: GameVersion;
         } = event.payload as any;
-        gameStatusRegistry[gameId].value = parseStatus(payload.status);
+        statusRef.value = parseStatus(payload.status);
 
         /**
          * I am not super happy about this.
@@ -52,14 +53,14 @@ export const useGame = async (gameId: string) => {
          * on transient state updates.
          */
         if (payload.version) {
-          gameRegistry[gameId].version.value = payload.version;
+          entry.version.value = payload.version;
         }
       });
     }
   }
 
-  const game = gameRegistry[gameId];
-  const status = gameStatusRegistry[gameId];
+  const game = gameRegistry[gameId]!;
+  const status = gameStatusRegistry[gameId]!;
   return { ...game, status };
 };
 

@@ -1,0 +1,11 @@
+{
+  "apiVersion": 1,
+  "author": "Drop Community",
+  "capabilities": ["routes"],
+  "checksum": "3179792b98de1cc81bf4aa8f1218778c294664c4733023b31cf234cac9914b58",
+  "description": "Minimal external Drop plugin bundle (example)",
+  "entry": "index.js",
+  "id": "sample-plugin",
+  "name": "Sample Plugin",
+  "version": "1.0.0"
+}

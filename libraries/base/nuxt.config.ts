@@ -1,2 +1,4 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-export default defineNuxtConfig({});
+import type { NuxtConfig } from "nuxt/schema";
+
+export default {} satisfies NuxtConfig;

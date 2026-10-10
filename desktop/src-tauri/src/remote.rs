@@ -3,6 +3,7 @@ use std::{sync::nonpoison::Mutex, time::Duration};
 use client::app_status::AppStatus;
 use database::{borrow_db_checked, borrow_db_mut_checked};
 use futures_lite::StreamExt;
+use futures_util::SinkExt;
 use log::{debug, warn};
 use remote::{
     auth::{auth_initiate_logic, generate_authorization_header},
@@ -172,8 +173,8 @@ pub fn auth_initiate_code(app: AppHandle) -> Result<String, RemoteAccessError> {
                         .map_err(|e| RemoteAccessError::UnparseableResponse(e.to_string()))?;
                     match response.response_type.as_str() {
                         "token" => {
-                            let recieve_app = app.clone();
-                            manual_recieve_handshake(recieve_app, response.value).await;
+                            let receive_app = app.clone();
+                            manual_receive_handshake(receive_app, response.value).await;
                             return Ok(());
                         }
                         _ => return Err(RemoteAccessError::HandshakeFailed(response.value)),
@@ -199,3 +200,167 @@ pub fn auth_initiate_code(app: AppHandle) -> Result<String, RemoteAccessError> {
 pub async fn manual_recieve_handshake(app: AppHandle, token: String) {
     recieve_handshake(app, format!("handshake/{token}")).await;
 }
+
+#[tauri::command]
+pub async fn manual_receive_handshake(app: AppHandle, token: String) {
+    recieve_handshake(app, format!("handshake/{token}")).await;
+}
+
+#[tauri::command]
+pub async fn plugin_request(
+    plugin_id: String,
+    method: String,
+    path: String,
+    body: Option<serde_json::Value>,
+) -> Result<serde_json::Value, RemoteAccessError> {
+    let base_url = {
+        let db_lock = borrow_db_checked();
+        Url::parse(&db_lock.base_url.clone())?
+    };
+
+    let trimmed = path.trim_start_matches('/');
+    let target_path = if trimmed.is_empty() {
+        format!("/api/v1/plugins/{plugin_id}")
+    } else {
+        format!("/api/v1/plugins/{plugin_id}/{trimmed}")
+    };
+    let endpoint = base_url.join(&target_path)?;
+
+    let auth_header = generate_authorization_header();
+    let client = DROP_CLIENT_ASYNC.clone();
+
+    let request_builder = match method.to_uppercase().as_str() {
+        "POST" => {
+            let mut req = client
+                .post(endpoint.to_string())
+                .header("Authorization", auth_header);
+            if let Some(b) = body {
+                req = req.json(&b);
+            }
+            req
+        }
+        "DELETE" => {
+            let mut req = client
+                .delete(endpoint.to_string())
+                .header("Authorization", auth_header);
+            if let Some(b) = body {
+                req = req.json(&b);
+            }
+            req
+        }
+        "PATCH" => {
+            let mut req = client
+                .patch(endpoint.to_string())
+                .header("Authorization", auth_header);
+            if let Some(b) = body {
+                req = req.json(&b);
+            }
+            req
+        }
+        _ => client
+            .get(endpoint.to_string())
+            .header("Authorization", auth_header),
+    };
+
+    let response = request_builder.send().await?;
+    let status = response.status();
+    if !status.is_success() {
+        let err_text = response
+            .text()
+            .await
+            .unwrap_or_else(|_| "Unknown error".to_string());
+        return Err(RemoteAccessError::UnparseableResponse(format!(
+            "Plugin API error ({status}): {err_text}"
+        )));
+    }
+
+    let json_val = response.json::<serde_json::Value>().await?;
+    Ok(json_val)
+}
+
+/// Subscribe to a plugin WebSocket channel and emit each event as `plugin:event`.
+///
+/// The Tauri webview cannot reach the Drop server directly (TLS/auth), so the
+/// Rust side owns the socket and forwards decoded JSON to the frontend.
+#[tauri::command]
+pub fn plugin_subscribe(app: AppHandle, channel: String) -> Result<(), RemoteAccessError> {
+    let ws_url = generate_url(&["/api/v1/plugins/ws"], &[])?;
+    let auth_header = generate_authorization_header();
+
+    tauri::async_runtime::spawn(async move {
+        let load = async || -> Result<(), RemoteAccessError> {
+            let response = DROP_CLIENT_WS_CLIENT
+                .get(ws_url)
+                .header("Authorization", auth_header)
+                .upgrade()
+                .send()
+                .await?;
+            let mut websocket = response.into_websocket().await?;
+
+            let subscribe = serde_json::json!({ "type": "subscribe", "channel": channel });
+            websocket
+                .send(Message::Text(subscribe.to_string()))
+                .await
+                .map_err(|e| RemoteAccessError::HandshakeFailed(e.to_string()))?;
+
+            while let Some(message) = websocket.try_next().await? {
+                if let Message::Text(text) = message
+                    && let Ok(value) = serde_json::from_str::<serde_json::Value>(&text)
+                {
+                    app_emit!(&app, "plugin:event", value);
+                }
+            }
+            Ok(())
+        };
+
+        if let Err(err) = load().await {
+            warn!("plugin websocket for {channel} closed: {err}");
+        }
+    });
+
+    Ok(())
+}
+
+/// Send one message to a plugin WebSocket channel and return its reply.
+///
+/// Used for authenticated request/response flows (e.g. credential delivery)
+/// where the sandboxed webview cannot open a server WebSocket directly.
+#[tauri::command]
+pub async fn plugin_request_ws(
+    channel: String,
+    data: serde_json::Value,
+) -> Result<serde_json::Value, RemoteAccessError> {
+    let ws_url = generate_url(&["/api/v1/plugins/ws"], &[])?;
+    let auth_header = generate_authorization_header();
+
+    let response = DROP_CLIENT_WS_CLIENT
+        .get(ws_url)
+        .header("Authorization", auth_header)
+        .upgrade()
+        .send()
+        .await?;
+    let mut websocket = response.into_websocket().await?;
+
+    let request = serde_json::json!({
+        "type": "message",
+        "channel": channel,
+        "data": data,
+    });
+    websocket
+        .send(Message::Text(request.to_string()))
+        .await
+        .map_err(|e| RemoteAccessError::HandshakeFailed(e.to_string()))?;
+
+    while let Some(message) = websocket.try_next().await? {
+        if let Message::Text(text) = message {
+            let value: serde_json::Value = serde_json::from_str(&text)
+                .map_err(|e| RemoteAccessError::UnparseableResponse(e.to_string()))?;
+            return Ok(value.get("data").cloned().unwrap_or(value));
+        }
+    }
+
+    Err(RemoteAccessError::HandshakeFailed(
+        "plugin WebSocket closed before replying".to_string(),
+    ))
+}
+

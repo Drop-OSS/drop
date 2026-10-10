@@ -136,7 +136,7 @@ class ACLManager {
       throw new Error("Native web requests not available - weird deployment?");
     // Sessions automatically have all ACLs
     const session = await sessionHandler.getSession(request);
-    if (session && session.authenticated) {
+    if (session?.authenticated) {
       if (session.authenticated.level >= session.authenticated.requiredLevel)
         return session.authenticated.userId;
       return undefined;
@@ -164,6 +164,26 @@ class ACLManager {
     return undefined;
   }
 
+  /**
+   * Resolves a `Bearer` User/Client API token to its owning user id without
+   * requiring any specific ACL. Used by callers (e.g. the plugin gateway) that
+   * authenticate the token itself rather than gating on a permission.
+   */
+  async getUserIdFromBearer(
+    request: MinimumRequestObject | undefined,
+  ): Promise<string | undefined> {
+    if (!request) return undefined;
+    const authorizationToken = this.getAuthorizationToken(request);
+    if (!authorizationToken) return undefined;
+    const token = await prisma.aPIToken.findUnique({
+      where: {
+        token: authorizationToken,
+        mode: { in: [APITokenMode.User, APITokenMode.Client] },
+      },
+    });
+    return token?.userId ?? undefined;
+  }
+
   async getUserACL(request: MinimumRequestObject | undefined, acls: UserACL) {
     if (!request)
       throw new Error("Native web requests not available - weird deployment?");
@@ -178,7 +198,7 @@ class ACLManager {
     if (!request)
       throw new Error("Native web requests not available - weird deployment?");
     const session = await sessionHandler.getSession(request);
-    if (!session || !session.authenticated) return undefined;
+    if (!session?.authenticated) return undefined;
     if (session.authenticated.level < session.authenticated.requiredLevel)
       return undefined;
     if (session.authenticated.superleveledExpiry === undefined)
@@ -194,39 +214,41 @@ class ACLManager {
     if (!request)
       throw new Error("Native web requests not available - weird deployment?");
     const userSession = await sessionHandler.getSession(request);
-    if (userSession && userSession.authenticated) {
+    const authenticated = userSession?.authenticated;
+    if (authenticated) {
       const user = await prisma.user.findUnique({
-        where: { id: userSession.authenticated.userId },
+        where: { id: authenticated.userId },
       });
       if (user) {
-        if (!user) return false;
-        if (!user.admin) return false;
-        if (
-          userSession.authenticated.level <
-          userSession.authenticated.requiredLevel
-        )
-          return false;
-        return true;
+        return this.isAdminSession(authenticated, user.admin);
       }
     }
 
+    return this.allowSystemTokenACL(request, acls);
+  }
+
+  private isAdminSession(
+    authenticated: { level: number; requiredLevel: number },
+    admin: boolean,
+  ): boolean {
+    return admin && authenticated.level >= authenticated.requiredLevel;
+  }
+
+  private async allowSystemTokenACL(
+    request: MinimumRequestObject,
+    acls: SystemACL,
+  ) {
     const authorizationToken = this.getAuthorizationToken(request);
     if (!authorizationToken) return false;
     const token = await prisma.aPIToken.findUnique({
       where: { token: authorizationToken },
     });
-    if (!token) return false;
-    if (token.mode != APITokenMode.System) return false;
+    if (!token || token.mode != APITokenMode.System) return false;
 
     // If empty, we just want to check we are an admin *at all*, not specific ACLs
     if (acls.length == 0) return true;
 
-    for (const acl of acls) {
-      const tokenACLIndex = token.acls.findIndex((e) => e == acl);
-      if (tokenACLIndex != -1) return true;
-    }
-
-    return false;
+    return acls.some((acl) => token.acls.includes(acl));
   }
 
   async hasACL(request: MinimumRequestObject | undefined, acls: GlobalACL[]) {
@@ -255,7 +277,7 @@ class ACLManager {
     request: MinimumRequestObject,
   ): Promise<GlobalACL[] | undefined> {
     const userSession = await sessionHandler.getSession(request);
-    if (!userSession || !userSession.authenticated) {
+    if (!userSession?.authenticated) {
       const authorizationToken = this.getAuthorizationToken(request);
       if (!authorizationToken) return undefined;
       const token = await prisma.aPIToken.findUnique({

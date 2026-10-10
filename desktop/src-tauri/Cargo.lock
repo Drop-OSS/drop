@@ -1125,6 +1125,7 @@ dependencies = [
  "rand 0.10.2",
  "ron",
  "serde",
+ "serde_json",
  "serde_with",
  "url",
  "whoami",
@@ -1412,6 +1413,7 @@ dependencies = [
  "filetime",
  "futures-core",
  "futures-lite",
+ "futures-util",
  "games",
  "gethostname",
  "hex 0.4.3",
@@ -1426,6 +1428,7 @@ dependencies = [
  "native_model",
  "page_size",
  "parking_lot 0.12.5",
+ "plugins",
  "process",
  "rand 0.10.2",
  "rayon",
@@ -1442,6 +1445,7 @@ dependencies = [
  "serde_json",
  "serde_with",
  "sha1",
+ "sha2 0.10.9",
  "shared_child",
  "slice-deque",
  "sysinfo 0.36.1",
@@ -4449,6 +4453,20 @@ dependencies = [
  "quick-xml",
  "serde",
  "time",
+]
+
+[[package]]
+name = "plugins"
+version = "0.1.0"
+dependencies = [
+ "database",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "tauri",
+ "tempfile",
+ "tokio",
+ "walkdir",
 ]
 
 [[package]]

@@ -64,6 +64,7 @@ mod collections;
 mod download_manager;
 mod downloads;
 mod games;
+mod plugin_host;
 mod process;
 mod remote;
 mod scheduler;
@@ -74,6 +75,8 @@ use client::*;
 use download_manager::*;
 use downloads::*;
 use games::*;
+use plugin_host::*;
+use plugins::*;
 use process::*;
 use remote::*;
 use settings::*;
@@ -225,6 +228,7 @@ pub fn run() {
 
     let app = builder
         .plugin(tauri_plugin_deep_link::init())
+        .manage(PluginCommandAllowlist::default())
         .invoke_handler(tauri::generate_handler![
             // Core utils
             fetch_state,
@@ -245,6 +249,27 @@ pub fn run() {
             gen_drop_url,
             fetch_drop_object,
             check_online,
+            plugin_request,
+            plugin_subscribe,
+            plugin_request_ws,
+            // Client Plugins
+            plugin_game_fs_read,
+            plugin_game_fs_write,
+            plugin_game_fs_backup,
+            plugin_game_fs_restore,
+            plugin_game_fs_exists,
+            plugin_game_fs_delete,
+            plugin_game_scan_executables,
+            plugin_game_find_files,
+            plugin_register_commands,
+            plugin_system_run,
+            plugin_storage_get,
+            plugin_storage_set,
+            plugin_storage_delete,
+            plugin_storage_list_keys,
+            plugin_sidecar_stage,
+            plugin_sidecar_clear,
+            plugin_open_external,
             // Library
             fetch_library,
             fetch_game,
