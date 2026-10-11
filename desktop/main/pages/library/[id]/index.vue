@@ -22,6 +22,9 @@
         >
           {{ game.mName }}
         </h1>
+        <p v-if="game.playtime[0]" class="mt-2 text-sm text-zinc-300">
+          Playtime: {{ formatPlaytime(game.playtime[0].seconds) }}
+        </p>
         <div class="relative" v-if="status.type === 'Installed' && status.install_type.type != InstalledType.PartiallyInstalled">
           <div
             v-if="!version?.userConfiguration?.enableUpdates"
@@ -685,6 +688,10 @@ const { game, status, version } = await useGame(id);
 const bannerUrl = await useObject(game.mBannerObjectId);
 
 const htmlDescription = micromark(game.mDescription);
+
+function formatPlaytime(seconds: number): string {
+  return `${(seconds / 3600).toFixed(1)}h`;
+}
 
 const installFlowOpen = ref(false);
 const versionOptions = ref<undefined | Array<VersionOption>>();

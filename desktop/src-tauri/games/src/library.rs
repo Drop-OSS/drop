@@ -51,6 +51,13 @@ pub struct Game {
     pub m_image_library_object_ids: Vec<String>,
     pub m_image_carousel_object_ids: Vec<String>,
     pub library_path: String,
+    #[serde(default)]
+    pub playtime: Vec<GamePlaytime>,
+}
+#[derive(Serialize, Deserialize, Clone, Debug, Default, Encode, Decode)]
+#[serde(rename_all = "camelCase")]
+pub struct GamePlaytime {
+    pub seconds: i32,
 }
 impl Game {
     pub fn id(&self) -> &String {

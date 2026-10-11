@@ -39,6 +39,7 @@ export type Game = {
   mCoverObjectId: string;
   mImageLibraryObjectIds: string[];
   mImageCarouselObjectIds: string[];
+  playtime: Array<{ seconds: number }>;
 };
 
 export type Collection = {
