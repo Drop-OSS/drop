@@ -35,6 +35,13 @@
         >
           {{ game.mName }}
         </h1>
+        <p v-if="game.playtime?.[0]" class="mt-2 text-sm text-zinc-300">
+          {{
+            $t("library.playtime", {
+              time: formatPlaytime(game.playtime[0].seconds),
+            })
+          }}
+        </p>
         <p class="mt-4 mb-8 text-sm sm:text-lg text-zinc-400 max-w-3xl">
           {{ game.mShortDescription }}
         </p>
@@ -138,6 +145,10 @@ const game = computed(() => {
 const descriptionHTML = computed(() =>
   micromark(game.value.mDescription ?? ""),
 );
+
+function formatPlaytime(seconds: number): string {
+  return `${(seconds / 3600).toFixed(1)}`;
+}
 
 // const currentImageIndex = ref(0);
 

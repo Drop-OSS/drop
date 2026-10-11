@@ -57,6 +57,9 @@ export default defineEventHandler(async (h3) => {
       },
       tags: true,
       ageRatings: true,
+      playtime: {
+        where: { userId: user.id },
+      },
     },
   });
 

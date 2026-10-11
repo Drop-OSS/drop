@@ -610,6 +610,7 @@
     "launcherOpen": "Open in Launcher",
     "noGames": "No games in library",
     "notFound": "Game not found",
+    "playtime": "Playtime: {time} hours",
     "search": "Search library…",
     "subheader": "Organize your games into collections for easy access, and access all your games."
   },
