@@ -16,7 +16,7 @@ use database::{
 };
 use dynfmt::Format;
 use dynfmt::SimpleCurlyFormat;
-use games::{library::push_game_update, state::GameStatusManager};
+use games::{library::{push_game_update, report_playtime}, state::GameStatusManager};
 use log::{debug, info, warn};
 use serde::Serialize;
 use shared_child::SharedChild;
@@ -205,6 +205,18 @@ impl ProcessManager<'_> {
             Some(version_data.clone()),
             status,
         );
+
+        let elapsed_seconds = elapsed.as_secs();
+        if elapsed_seconds > 2 {
+            let playtime_game_id = game_id.clone();
+            tauri::async_runtime::spawn(async move {
+                if let Err(error) = report_playtime(playtime_game_id.clone(), elapsed_seconds).await
+                {
+                    warn!("failed to report playtime for game {playtime_game_id}: {error}");
+                }
+            });
+        }
+
         Ok(())
     }
 
