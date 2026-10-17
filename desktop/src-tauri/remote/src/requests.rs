@@ -28,3 +28,12 @@ pub async fn make_authenticated_get(url: Url) -> Result<reqwest::Response, Error
         .send()
         .await
 }
+
+pub async fn make_authenticated_post<T: serde::Serialize>(url: Url, body: &T) -> Result<reqwest::Response, Error> {
+    DROP_CLIENT_ASYNC
+        .post(url)
+        .header("Authorization", generate_authorization_header())
+        .json(body)
+        .send()
+        .await
+}

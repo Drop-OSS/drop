@@ -53,7 +53,13 @@ class UserLibraryManager {
       include: {
         entries: {
           where: gameFilter ? { game: gameFilter } : undefined,
-          include: { game: true },
+          include: {
+            game: {
+              include: {
+                playtime: { where: { userId } },
+              },
+            },
+          },
         },
       },
     });

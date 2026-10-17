@@ -6,7 +6,7 @@ use database::{
 };
 use log::{debug, error, warn};
 use remote::{
-    auth::generate_authorization_header, error::RemoteAccessError, requests::generate_url,
+    auth::generate_authorization_header, error::{DropServerError, RemoteAccessError}, requests::{generate_url, make_authenticated_post},
     utils::DROP_CLIENT_ASYNC,
 };
 use serde::{Deserialize, Serialize};
@@ -51,6 +51,17 @@ pub struct Game {
     pub m_image_library_object_ids: Vec<String>,
     pub m_image_carousel_object_ids: Vec<String>,
     pub library_path: String,
+    #[serde(default)]
+    pub playtime: Vec<GamePlaytime>,
+}
+#[derive(Serialize, Deserialize, Clone, Debug, Default, Encode, Decode)]
+#[serde(rename_all = "camelCase")]
+pub struct GamePlaytime {
+    pub seconds: i32,
+}
+#[derive(Serialize)]
+struct PlaytimeUpdate {
+    seconds: u64,
 }
 impl Game {
     pub fn id(&self) -> &String {
@@ -264,6 +275,18 @@ pub async fn on_game_complete(
     );
 
     app_emit!(app_handle, "update_library", ());
+
+    Ok(())
+}
+
+pub async fn report_playtime(game_id: String, seconds: u64) -> Result<(), RemoteAccessError> {
+    let endpoint = generate_url(&["/api/v1/client/playtime", &game_id], &[])?;
+    let response = make_authenticated_post(endpoint, &PlaytimeUpdate { seconds }).await?;
+
+    if !response.status().is_success() {
+        let error: DropServerError = response.json().await?;
+        return Err(RemoteAccessError::InvalidResponse(error));
+    }
 
     Ok(())
 }
