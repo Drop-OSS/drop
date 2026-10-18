@@ -557,10 +557,7 @@ export class IGDBProvider implements MetadataProvider {
 
     if (summary.length > storyline.length) {
       description = summary;
-      shortDescription = this.trimMessage(
-        storyline || summary,
-        280,
-      );
+      shortDescription = this.trimMessage(storyline || summary, 280);
     } else {
       description = storyline || summary;
       shortDescription = this.trimMessage(summary, 280);

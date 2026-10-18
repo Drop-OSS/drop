@@ -5,7 +5,7 @@
   "type": "module",
   "license": "AGPL-3.0-or-later",
   "engines": {
-    "node": ">=22.16.0"
+    "node": ">=24.0.0"
   },
   "scripts": {
     "build": "nuxt build",
