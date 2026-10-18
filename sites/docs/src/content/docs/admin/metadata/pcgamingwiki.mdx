@@ -1,0 +1,30 @@
+---
+title: PCGamingWiki
+---
+
+import { Steps } from "@astrojs/starlight/components";
+
+PCGamingWiki is a community-run game database. Drop uses a MediaWiki bot password to access its API.
+
+<Steps>
+
+1. **Create a bot password**
+
+   Sign in to PCGamingWiki and open [Special:BotPasswords](https://www.pcgamingwiki.com/wiki/Special:BotPasswords). Create a bot password and copy the bot username and generated password. Use these credentials, not your account's normal password.
+
+2. **Add the credentials to your `compose.yaml`**
+
+   Set `PCGAMINGWIKI_BOT_USERNAME` and `PCGAMINGWIKI_BOT_PASSWORD` in the Drop service environment:
+
+   ```diff
+   drop:
+     image: ghcr.io/drop-oss/drop:latest
+     ...
+     environment:
+       - DATABASE_URL=postgres://drop:drop@postgres:5432/drop
+       - EXTERNAL_URL=http://localhost:3000 # default, customise if accessing from another computer or behind a reverse proxy
+   +   - PCGAMINGWIKI_BOT_USERNAME=[bot username]
+   +   - PCGAMINGWIKI_BOT_PASSWORD=[bot password]
+   ```
+
+</Steps>
