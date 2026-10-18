@@ -1,0 +1,20 @@
+pkgbase = drop-oss-app-bin
+	pkgdesc = The client application for the open-source, self-hosted game distribution platform Drop
+	pkgver = DROP_PKG_VER
+	pkgrel = DROP_PKG_REL
+	url = https://droposs.org/
+	arch = any
+	license = LicenseRef-GPL-3.0
+	makedepends = libarchive
+	depends = glib2
+	depends = glibc
+	depends = gcc-libs
+	depends = webkit2gtk-4.1
+	depends = umu-launcher
+	depends = libappindicator
+	depends = libayatana-appindicator
+	conflicts = drop-oss-app
+	source = https://github.com/Drop-OSS/drop/releases/download/DROP_RELEASE_TAG/Drop.Desktop.Client_DROP_PKG_VER_amd64.deb
+	sha256sums = DROP_DEB_SHA256
+
+pkgname = drop-oss-app-bin
