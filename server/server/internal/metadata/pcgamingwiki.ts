@@ -621,7 +621,9 @@ export class PCGamingWikiProvider implements MetadataProvider {
     const icon = createObject(jdenticon.toPng(query, 512));
 
     for (let i = 0; i < res.cargoquery.length; i++) {
-      const company = res.cargoquery[i].title;
+      const row = res.cargoquery[i];
+      if (!row) continue;
+      const company = row.title;
 
       const fixedCompanyName =
         this.parseWikiStringArray(company.PageName)[0] ?? company.PageName;

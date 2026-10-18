@@ -88,7 +88,7 @@ interface IGDBSearchStub extends IGDBItem {
   name: string;
   cover?: IGDBID;
   first_release_date?: number; // unix timestamp
-  summary: string;
+  summary?: string;
 }
 
 interface IGDBAgeRating extends IGDBItem {
@@ -315,11 +315,12 @@ export class IGDBProvider implements MetadataProvider {
     const body = `where id = ${mediaID}; fields image_id;`;
     const response = await this.request<IGDBCover>(type, body);
 
-    if (!response.length || !response[0].image_id) {
+    const media = response[0];
+    if (!media?.image_id) {
       throw new Error(`No image_id found for ${type} with id ${mediaID}`);
     }
 
-    const imageId = response[0].image_id;
+    const imageId = media.image_id;
     const result = `https://images.igdb.com/igdb/image/upload/${size}/${imageId}.jpg`;
 
     return result;
@@ -395,7 +396,9 @@ export class IGDBProvider implements MetadataProvider {
         results.push({
           organization,
           rating,
-          ratingCoverUrl: ar.rating_cover_url,
+          ...(ar.rating_cover_url !== undefined && {
+            ratingCoverUrl: ar.rating_cover_url,
+          }),
         });
       }
     }
@@ -415,21 +418,21 @@ export class IGDBProvider implements MetadataProvider {
     const response = await this.request<IGDBSearchStub>("games", body);
 
     const results: GameMetadataSearchResult[] = [];
-    for (let i = 0; i < response.length; i++) {
+    for (const game of response) {
       let icon = "";
-      const cover = response[i].cover;
+      const cover = game.cover;
       if (cover !== undefined) {
         icon = await this.getIconURL(cover);
       } else {
         icon = "";
       }
 
-      const firstReleaseDate = response[i].first_release_date;
+      const firstReleaseDate = game.first_release_date;
       results.push({
-        id: "" + response[i].id,
-        name: response[i].name,
+        id: "" + game.id,
+        name: game.name,
         icon,
-        description: response[i].summary,
+        description: game.summary ?? "",
         year:
           firstReleaseDate === undefined
             ? 0
@@ -547,18 +550,20 @@ export class IGDBProvider implements MetadataProvider {
     const genres = await this.getGenres(currentGame.genres);
     const ageRatings = await this.getAgeRatings(currentGame.age_ratings);
 
+    const summary = currentGame.summary ?? "";
+    const storyline = currentGame.storyline ?? "";
     let description = "";
     let shortDescription = "";
 
-    if (currentGame.summary.length > (currentGame.storyline?.length ?? 0)) {
-      description = currentGame.summary;
+    if (summary.length > storyline.length) {
+      description = summary;
       shortDescription = this.trimMessage(
-        currentGame.storyline ?? currentGame.summary,
+        storyline || summary,
         280,
       );
     } else {
-      description = currentGame.storyline ?? currentGame.summary;
-      shortDescription = this.trimMessage(currentGame.summary, 280);
+      description = storyline || summary;
+      shortDescription = this.trimMessage(summary, 280);
     }
 
     const metadata = {

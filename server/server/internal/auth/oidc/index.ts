@@ -517,7 +517,7 @@ export class OIDCManager {
               where: { name: { in: oidcGroups } },
               select: { id: true },
             })
-          ).map((g) => ({ id: g.id }));
+          ).map((group: { id: string }) => ({ id: group.id }));
 
     const data = {
       groups: { set: groupsToSet },
