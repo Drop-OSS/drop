@@ -123,6 +123,8 @@ model UnimportedGameVersion {
 
   manifest Json
   fileList String[]
+
+  @@index([gameId])
 }
 
 // A particular set of files that relate to the version
@@ -150,6 +152,8 @@ model GameVersion {
 
   requiredContent  GameVersion[] @relation(name: "requiredContent")
   requiringContent GameVersion[] @relation(name: "requiredContent")
+
+  @@index([gameId])
 }
 
 model SetupConfiguration {

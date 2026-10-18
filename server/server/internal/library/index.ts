@@ -219,8 +219,17 @@ class LibraryManager {
       ...where,
       include: {
         library: true,
-        versions: true,
-        unimportedGameVersions: true,
+        versions: {
+          select: {
+            versionPath: true,
+          },
+        },
+        unimportedGameVersions: {
+          select: {
+            id: true,
+            versionName: true,
+          },
+        },
       },
     });
 
