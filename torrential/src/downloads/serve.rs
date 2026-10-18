@@ -14,7 +14,7 @@ use bytes::Bytes;
 use dashmap::{DashMap, mapref::one::RefMut};
 use droplet_rs::{
     manifest::ChunkData,
-    versions::types::{MinimumFileObject, VersionFile},
+    versions::types::{MinimumFileObject, VersionBackend, VersionFile},
 };
 use futures_util::{Stream, StreamExt, stream};
 use log::{error, info};
@@ -72,12 +72,13 @@ pub async fn serve_file(
     State(state): State<Arc<AppState>>,
     Path((game_id, version_name, chunk_id)): Path<(String, String, String)>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    let context_cache = &state.context_cache;
-
-    let mut context = get_or_create_context(&state, context_cache, game_id, version_name).await?;
-    context.reset_last_access();
-
-    let chunk_data = lookup_chunk(&chunk_id, &context)?;
+    let (backend, key, chunk_data) = {
+        let mut context =
+            get_or_create_context(&state, &state.context_cache, game_id, version_name).await?;
+        context.reset_last_access();
+        let chunk_data = lookup_chunk(&chunk_id, &context)?;
+        (context.backend.clone(), context.manifest.key, chunk_data)
+    };
     if chunk_data.files.len() >= *SEMPAHORE_COUNT {
         return Err(StatusCode::INSUFFICIENT_STORAGE);
     }
@@ -90,7 +91,7 @@ pub async fn serve_file(
 
     for file_entry in &chunk_data.files {
         let reader = get_file_reader(
-            &mut context,
+            &backend,
             file_entry.filename.clone(),
             file_entry.start,
             file_entry.start + file_entry.length,
@@ -103,7 +104,7 @@ pub async fn serve_file(
     }
 
     let stream = stream::iter(streams).flatten();
-    let mut cipher = Aes128Ctr64LE::new(&context.manifest.key.into(), &chunk_data.iv.into());
+    let mut cipher = Aes128Ctr64LE::new(&key.into(), &chunk_data.iv.into());
     let encrypted_stream = stream.chunks(16).map(move |raw| -> Result<Bytes, Error> {
         let data: Result<Vec<Bytes>, Error> = raw.into_iter().collect();
         let mut data = data?.concat();
@@ -142,13 +143,12 @@ fn lookup_chunk(
         .ok_or(StatusCode::NOT_FOUND)
 }
 async fn get_file_reader(
-    context: &mut RefMut<'_, (String, String), DownloadContext>,
+    backend: &Arc<dyn VersionBackend + Send + Sync + 'static>,
     relative_filename: String,
     start: usize,
     end: usize,
 ) -> Result<Box<dyn MinimumFileObject>, StatusCode> {
-    context
-        .backend
+    backend
         .reader(
             &VersionFile {
                 relative_filename: relative_filename.clone(),
