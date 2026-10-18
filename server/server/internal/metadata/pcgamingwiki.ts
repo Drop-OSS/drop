@@ -1,5 +1,6 @@
 import type { CompanyModel } from "~/prisma/client/models";
 import { MetadataSource } from "~/prisma/client/enums";
+import { MissingMetadataProviderConfig } from ".";
 import type { MetadataProvider } from ".";
 import type {
   GameMetadataSearchResult,
@@ -16,6 +17,8 @@ import { type } from "arktype";
 import type { TaskRunContext } from "../tasks";
 import { logger } from "~/server/internal/logging";
 import type { NitroFetchOptions, NitroFetchRequest } from "nitropack";
+import cacheHandler from "../cache";
+import { systemConfig } from "../config/sys-conf";
 
 interface PCGamingWikiParseRawPage {
   parse: {
@@ -83,6 +86,21 @@ interface PCGamingWikiCargoResult<T> {
   };
 }
 
+interface PCGamingWikiLoginToken {
+  query: {
+    tokens: {
+      logintoken: string;
+    };
+  };
+}
+
+interface PCGamingWikiLoginResult {
+  login: {
+    result: string;
+    reason?: string;
+  };
+}
+
 type StringArrayKeys<T> = {
   [K in keyof T]: T[K] extends string | string[] | null ? K : never;
 }[keyof T];
@@ -94,6 +112,32 @@ const ratingProviderReview = type({
 // Api Docs: https://www.pcgamingwiki.com/wiki/PCGamingWiki:API
 // Good tool for helping build cargo queries: https://www.pcgamingwiki.com/wiki/Special:CargoQuery
 export class PCGamingWikiProvider implements MetadataProvider {
+  private apiCache = cacheHandler.createCache<
+    PCGamingWikiParseRawPage | PCGamingWikiCargoResult<unknown>
+  >("PCGamingWiki");
+  private requestQueue: Promise<void> = Promise.resolve();
+  private nextRequestAt = 0;
+  private cookies = new Map<string, string>();
+  private loginPromise: Promise<void> | undefined;
+  private username: string;
+  private password: string;
+  private userAgent = `Drop/${systemConfig.getDropVersion()} (https://github.com/Drop-OSS/drop)`;
+
+  constructor() {
+    this.username = process.env.PCGAMINGWIKI_BOT_USERNAME ?? "";
+    this.password = process.env.PCGAMINGWIKI_BOT_PASSWORD ?? "";
+    if (!this.username)
+      throw new MissingMetadataProviderConfig(
+        "PCGAMINGWIKI_BOT_USERNAME",
+        this.name(),
+      );
+    if (!this.password)
+      throw new MissingMetadataProviderConfig(
+        "PCGAMINGWIKI_BOT_PASSWORD",
+        this.name(),
+      );
+  }
+
   name() {
     return "PCGamingWiki";
   }
@@ -106,16 +150,113 @@ export class PCGamingWikiProvider implements MetadataProvider {
     options?: NitroFetchOptions<NitroFetchRequest, "get" | "post">,
   ) {
     const finalURL = `https://www.pcgamingwiki.com/w/api.php?${query.toString()}`;
+    const cacheKey = `response:${finalURL}`;
+    const cacheable =
+      query.get("action") !== "login" &&
+      !(query.get("action") === "query" && query.get("meta") === "tokens");
+    if (cacheable) {
+      const cached = await this.apiCache.get(cacheKey);
+      if (cached !== null) return cached as T;
+    }
 
-    const response = await $fetch<T>(finalURL, options);
+    const response = await this.enqueueRequest<T>(finalURL, options);
+    const hasApiError =
+      typeof response === "object" && response !== null && "error" in response;
+    if (cacheable && !hasApiError) {
+      await this.apiCache.set(
+        cacheKey,
+        response as PCGamingWikiParseRawPage | PCGamingWikiCargoResult<unknown>,
+        {
+          ttl: 6 * 60 * 60 * 1000,
+        },
+      );
+    }
 
     return response;
+  }
+
+  private async enqueueRequest<T>(
+    url: string,
+    options?: NitroFetchOptions<NitroFetchRequest, "get" | "post">,
+  ) {
+    const request = this.requestQueue.then(async () => {
+      const delay = this.nextRequestAt - Date.now();
+      if (delay > 0) await new Promise((resolve) => setTimeout(resolve, delay));
+
+      const headers = new Headers(options?.headers);
+      headers.set("User-Agent", this.userAgent);
+      if (this.cookies.size > 0) {
+        headers.set(
+          "Cookie",
+          [...this.cookies.entries()]
+            .map(([name, value]) => `${name}=${value}`)
+            .join("; "),
+        );
+      }
+      this.nextRequestAt = Date.now() + 1000;
+
+      const response = await $fetch.raw<T>(url, { ...options, headers });
+      for (const setCookie of response.headers.getSetCookie()) {
+        const cookie = setCookie.split(";", 1)[0] ?? "";
+        if (cookie === "") continue;
+        const separator = cookie.indexOf("=");
+        if (separator > 0)
+          this.cookies.set(
+            cookie.slice(0, separator),
+            cookie.slice(separator + 1),
+          );
+      }
+      return response._data as T;
+    });
+
+    this.requestQueue = request.then(
+      () => undefined,
+      () => undefined,
+    );
+    return request;
+  }
+
+  private async authenticate() {
+    if (!this.loginPromise) {
+      this.loginPromise = this.login().catch((error: unknown) => {
+        this.loginPromise = undefined;
+        throw error;
+      });
+    }
+    await this.loginPromise;
+  }
+
+  private async login() {
+    const tokenResponse = await this.request<PCGamingWikiLoginToken>(
+      new URLSearchParams({
+        action: "query",
+        meta: "tokens",
+        type: "login",
+        format: "json",
+      }),
+    );
+    const loginResponse = await this.request<PCGamingWikiLoginResult>(
+      new URLSearchParams({ action: "login", format: "json" }),
+      {
+        method: "post",
+        body: new URLSearchParams({
+          lgname: this.username,
+          lgpassword: this.password,
+          lgtoken: tokenResponse.query.tokens.logintoken,
+        }),
+      },
+    );
+    if (loginResponse.login.result !== "Success")
+      throw new Error(
+        `PCGamingWiki login failed: ${loginResponse.login.reason ?? loginResponse.login.result}`,
+      );
   }
 
   private async cargoQuery<T>(
     query: URLSearchParams,
     options?: NitroFetchOptions<NitroFetchRequest, "get" | "post">,
   ) {
+    await this.authenticate();
     const response = await this.request<PCGamingWikiCargoResult<T>>(
       query,
       options,
@@ -480,7 +621,9 @@ export class PCGamingWikiProvider implements MetadataProvider {
     const icon = createObject(jdenticon.toPng(query, 512));
 
     for (let i = 0; i < res.cargoquery.length; i++) {
-      const company = res.cargoquery[i].title;
+      const row = res.cargoquery[i];
+      if (!row) continue;
+      const company = row.title;
 
       const fixedCompanyName =
         this.parseWikiStringArray(company.PageName)[0] ?? company.PageName;

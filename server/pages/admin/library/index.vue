@@ -496,19 +496,28 @@
         </button>
       </div>
       <div class="hidden md:-mt-px md:flex">
-        <button
-          v-for="page in maxPages"
-          :key="page"
-          :class="[
-            currentIndex == page - 1
-              ? 'border-blue-400 text-blue-400'
-              : 'border-transparent hover:not-disabled:text-zinc-white/20 text-zinc-400 hover:not-disabled:border-white/20',
-            'transition inline-flex items-center border-t-2 px-4 pt-4 text-sm font-medium',
-          ]"
-          @click="currentIndex = page - 1"
-        >
-          {{ page }}
-        </button>
+        <template v-for="(page, index) in pageItems" :key="`${page}-${index}`">
+          <span
+            v-if="page === '...'"
+            class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-zinc-400"
+            aria-hidden="true"
+          >
+            ...
+          </span>
+          <button
+            v-else
+            :class="[
+              currentIndex == page - 1
+                ? 'border-blue-400 text-blue-400'
+                : 'border-transparent hover:not-disabled:text-zinc-white/20 text-zinc-400 hover:not-disabled:border-white/20',
+              'transition inline-flex items-center border-t-2 px-4 pt-4 text-sm font-medium',
+            ]"
+            :aria-current="currentIndex == page - 1 ? 'page' : undefined"
+            @click="currentIndex = page - 1"
+          >
+            {{ page }}
+          </button>
+        </template>
       </div>
       <div class="-mt-px flex w-0 flex-1 justify-end">
         <button
@@ -578,6 +587,37 @@ const currentIndex = ref(
 );
 const maxIndex = ref(0);
 const maxPages = computed(() => Math.ceil(maxIndex.value / pageSize));
+const pageItems = computed((): (number | "...")[] => {
+  if (maxPages.value <= 7) {
+    return Array.from({ length: maxPages.value }, (_, index) => index + 1);
+  }
+
+  const currentPage = currentIndex.value + 1;
+  if (currentPage <= 4) {
+    return [1, 2, 3, 4, 5, "...", maxPages.value];
+  }
+  if (currentPage >= maxPages.value - 3) {
+    return [
+      1,
+      "...",
+      maxPages.value - 4,
+      maxPages.value - 3,
+      maxPages.value - 2,
+      maxPages.value - 1,
+      maxPages.value,
+    ];
+  }
+
+  return [
+    1,
+    "...",
+    currentPage - 1,
+    currentPage,
+    currentPage + 1,
+    "...",
+    maxPages.value,
+  ];
+});
 
 const games = ref<AdminLibraryGame[]>([]);
 const gamesLoading = ref(false);

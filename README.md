@@ -16,6 +16,9 @@
 
 Drop is an open-source game distribution platform, similar to GameVault or Steam. It's designed to distribute and share DRM-free games quickly, all while being incredibly flexible, beautiful, and fast.
 
+> [!NOTE]
+> Drop is in maintenance mode. Maintainers will not contribute new large features, but bugs will continue to be fixed and external contributions will continue to be merged.
+
 <div align="center">
 <img src="https://droposs.org/_ipx/f_webp&q_80/images/carousel/store.png" alt="Drop Screenshot" width="900rem"/>
 </div>

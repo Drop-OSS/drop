@@ -1,0 +1,48 @@
+# Maintainer: quexeky <aur@quexeky.dev>
+# Maintainer: DecDuck <declanahofmeyr@gmail.com>
+
+pkgname=drop-oss-app
+pkgver=DROP_PKG_VER
+pkgrel=DROP_PKG_REL
+pkgdesc="Desktop client for the Drop OSS project."
+arch=(any)
+url="https://droposs.org/"
+license=('AGPL-3.0-only')
+depends=('glib2' 'glibc' 'gcc-libs' 'webkit2gtk-4.1' 'umu-launcher' 'libappindicator' 'libayatana-appindicator')
+makedepends=('pnpm' 'cargo-nightly' 'gcc' 'pkgconf')
+source=("git+https://github.com/Drop-OSS/drop.git#tag=DROP_RELEASE_TAG")
+sha256sums=('SKIP')
+
+_desktop="
+[Desktop Entry]\n
+Type=Application\n
+Version=DROP_PKG_VER\n
+Name=Drop Desktop App\n
+Comment=Drop client for Linux\n
+Path=/usr/bin/\n
+Exec=drop-app\n
+Icon=drop-oss-app\n
+Terminal=false\n
+"
+
+prepare() {
+	echo "$_desktop" > drop-oss-app.desktop
+}
+
+build() {
+	cd drop
+	pnpm install
+	cd desktop
+	export RUSTUP_TOOLCHAIN=nightly
+	CFLAGS+=' -ffat-lto-objects'
+	pnpm tauri build --no-bundle
+}
+
+package() {
+	echo -e "$_desktop" > drop-oss-app.desktop
+	install -Dm0755 -t "$pkgdir/usr/share/applications" "drop-oss-app.desktop"
+	cd drop/desktop
+	cp src-tauri/icons/icon.png ./drop-oss-app.png
+	install -Dm0755 -t "$pkgdir/usr/share/pixmaps" "./drop-oss-app.png"
+	install -Dm0755 -t "$pkgdir/usr/bin" "src-tauri/target/release/drop-app"
+}

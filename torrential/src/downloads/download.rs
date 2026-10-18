@@ -1,4 +1,4 @@
-use std::{path::PathBuf, time::Instant};
+use std::{path::PathBuf, sync::Arc, time::Instant};
 
 use droplet_rs::{
     manifest::Manifest,
@@ -18,11 +18,11 @@ use crate::{
 
 pub struct DownloadContext {
     pub(crate) manifest: Manifest,
-    pub(crate) backend: Box<dyn VersionBackend + Send + Sync + 'static>,
+    pub(crate) backend: Arc<dyn VersionBackend + Send + Sync + 'static>,
     last_access: Instant,
 }
 impl DownloadContext {
-    #[must_use] 
+    #[must_use]
     pub fn last_access(&self) -> Instant {
         self.last_access
     }
@@ -42,7 +42,7 @@ pub async fn create_download_context(
 
     let download_context = DownloadContext {
         manifest: convert_protobuf_manifest(version_data.manifest.unwrap()),
-        backend,
+        backend: Arc::from(backend),
         last_access: Instant::now(),
     };
 

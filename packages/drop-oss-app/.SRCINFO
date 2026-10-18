@@ -1,0 +1,22 @@
+pkgbase = drop-oss-app
+	pkgdesc = Desktop client for the Drop OSS project.
+	pkgver = DROP_PKG_VER
+	pkgrel = DROP_PKG_REL
+	url = https://droposs.org/
+	arch = any
+	license = AGPL-3.0-only
+	makedepends = pnpm
+	makedepends = cargo-nightly
+	makedepends = gcc
+	makedepends = pkgconf
+	depends = glib2
+	depends = glibc
+	depends = gcc-libs
+	depends = webkit2gtk-4.1
+	depends = umu-launcher
+	depends = libappindicator
+	depends = libayatana-appindicator
+	source = git+https://github.com/Drop-OSS/drop.git#tag=DROP_RELEASE_TAG
+	sha256sums = SKIP
+
+pkgname = drop-oss-app

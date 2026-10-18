@@ -517,13 +517,20 @@ export class OIDCManager {
               where: { name: { in: oidcGroups } },
               select: { id: true },
             })
-          ).map((g) => ({ id: g.id }));
+          ).map((group: { id: string }) => ({ id: group.id }));
+
+    const data = {
+      groups: { set: groupsToSet },
+      ...(this.adminGroup !== undefined && {
+        admin: oidcGroups.includes(this.adminGroup),
+      }),
+    };
 
     // SAFETY: existence verified above via findUnique
     // eslint-disable-next-line drop/no-prisma-delete
     await prisma.user.update({
       where: { id: userId },
-      data: { groups: { set: groupsToSet } },
+      data,
     });
   }
 
