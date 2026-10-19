@@ -40,6 +40,7 @@ const files = [
   { packageName: "drop-oss-app", fileName: ".SRCINFO", tokenCounts: [1, 1, 1, 0] },
   { packageName: "drop-oss-app-bin", fileName: "PKGBUILD", tokenCounts: [2, 1, 1, 1] },
   { packageName: "drop-oss-app-bin", fileName: ".SRCINFO", tokenCounts: [2, 1, 1, 1] },
+  { packageName: "flatpak", fileName: "org.droposs.client.json", tokenCounts: [1, 0, 1, 1] },
 ];
 
 for (const { packageName, fileName, tokenCounts } of files) {
