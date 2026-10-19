@@ -18,6 +18,7 @@ To configure OIDC, you must set the following environment variables:
 | `OIDC_USERNAME_CLAIM` (optional)     | Change the field that Drop pulls the username claim from. Users are merged based on their usernames. Defaults to "preferred_username". |
 | `OIDC_PROVIDER_NAME` (optional)      | Change the name of the OIDC provider that is displayed on the sign-in page. Default is "external provider".                            |
 | `OIDC_DONT_REQUIRE_HTTPS` (optional) | Flag to disable HTTPS requirement for OIDC providers.                                                                                  |
+| `OIDC_PKCE` (optional)               | Enable PKCE for the authorization code flow. Defaults to `true`; set to `false` for providers that do not support PKCE.                |
 
 ---
 

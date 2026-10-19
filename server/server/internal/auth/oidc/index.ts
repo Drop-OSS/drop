@@ -1,4 +1,4 @@
-import { randomUUID } from "crypto";
+import { createHash, randomBytes, randomUUID } from "crypto";
 import prisma from "../../db/database";
 import type { UserModel } from "~/prisma/client/models";
 import { AuthMec } from "~/prisma/client/enums";
@@ -43,6 +43,7 @@ interface OIDCAuthSession {
   redirectUrl: string;
   callbackUrl: string;
   state: string;
+  codeVerifier: string | undefined;
   options: OIDCAuthSessionOptions;
   claims: OIDCAuthSessionClaims;
 }
@@ -283,18 +284,29 @@ export class OIDCManager {
 
   generateAuthSession(options?: OIDCAuthSessionOptions): OIDCAuthSession {
     const stateKey = randomUUID();
+    let codeVerifier: string | undefined;
+    let codeChallenge: string | undefined;
+    if (systemConfig.shouldOidcUsePkce()) {
+      codeVerifier = randomBytes(32).toString("base64url");
+      codeChallenge = createHash("sha256")
+        .update(codeVerifier)
+        .digest("base64url");
+    }
 
     const normalisedUrl = new URL(
       this.oidcConfiguration.authorization_endpoint,
     ).toString();
 
-    const queryParams = queryParamBuilder({
+    const authParams: { [key: string]: string | undefined } = {
       client_id: this.clientId,
       redirect_uri: this.redirectUrl.toString(),
       state: stateKey,
       response_type: "code",
       scope: this.oidcConfiguration.scopes_supported.join(" "),
-    });
+      code_challenge: codeChallenge,
+      code_challenge_method: codeChallenge && "S256",
+    };
+    const queryParams = queryParamBuilder(authParams);
 
     const finalUrl = `${normalisedUrl}?${queryParams}`;
 
@@ -302,6 +314,7 @@ export class OIDCManager {
       redirectUrl: finalUrl,
       callbackUrl: this.redirectUrl.toString(),
       state: stateKey,
+      codeVerifier,
       options: options ?? { redirect: undefined },
       claims: {
         iss: this.oidcConfiguration.issuer.toString(),
@@ -329,14 +342,17 @@ export class OIDCManager {
     const userinfoEndpoint =
       this.oidcConfiguration.userinfo_endpoint.toString();
 
-    const requestBody = new URLSearchParams({
-      client_id: this.clientId,
-      client_secret: this.clientSecret,
-      grant_type: "authorization_code",
-      code: code,
-      redirect_uri: session.callbackUrl,
-      scope: this.oidcConfiguration.scopes_supported.join(","),
-    });
+    const requestBody = new URLSearchParams(
+      queryParamBuilder({
+        client_id: this.clientId,
+        client_secret: this.clientSecret,
+        grant_type: "authorization_code",
+        code: code,
+        redirect_uri: session.callbackUrl,
+        scope: this.oidcConfiguration.scopes_supported.join(","),
+        code_verifier: session.codeVerifier,
+      }),
+    );
 
     try {
       const rawTokenResponse = await $fetch<unknown>(tokenEndpoint, {
