@@ -19,3 +19,4 @@ shell-words = "1.1.1"
 tauri = "*"
 tauri-plugin-opener = "*"
 utils = { path = "../utils", version = "0.1.0" }
+which = "8.0.0"

@@ -453,7 +453,9 @@
         "emulatorHint": "{rom} is replaced with the game's launch command for emulators.",
         "emulatorSelect": "Select new emulator",
         "emulatorTitle": "Emulator",
-        "noEmulatorSelected": "No emulator selected"
+        "noEmulatorSelected": "No emulator selected",
+        "flagsTitle": "Launch flags",
+        "flagBlockNetwork": "Block network access"
       },
       "launchSelector": {
         "description": "Select a launch option as an emulator for your new launch option.",
