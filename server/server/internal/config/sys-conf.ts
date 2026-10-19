@@ -13,6 +13,7 @@ class SystemConfig {
   private dropVersion: string;
   private gitRef: string;
   private oidcRequireHttps;
+  private oidcPkce;
 
   private checkForUpdates = getUpdateCheckConfig();
 
@@ -32,6 +33,8 @@ class SystemConfig {
       oidcRequireHttps.toLocaleLowerCase() === "false"
         ? false
         : true;
+
+    this.oidcPkce = process.env.OIDC_PKCE?.toLocaleLowerCase() !== "false";
   }
 
   getLibraryFolder() {
@@ -65,6 +68,10 @@ class SystemConfig {
   // if oidc should require https for endpoints
   shouldOidcRequireHttps() {
     return this.oidcRequireHttps;
+  }
+
+  shouldOidcUsePkce() {
+    return this.oidcPkce;
   }
 }
 
