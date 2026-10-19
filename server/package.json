@@ -66,6 +66,7 @@
     "turndown": "^7.2.0",
     "unstorage": "^1.15.0",
     "vue": "latest",
+    "vue-i18n": "^10.0.8",
     "vue-router": "latest",
     "vue3-carousel": "^0.16.0",
     "vue3-carousel-nuxt": "^1.1.5",
