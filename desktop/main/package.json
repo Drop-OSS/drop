@@ -20,7 +20,7 @@
     "@tauri-apps/plugin-shell": "^2.3.3",
     "@types/node": "^25.5.0",
     "koa": "^2.16.1",
-    "markdown-it": "^14.2.0",
+    "markdown-it": "^14.3.1",
     "micromark": "^4.0.1",
     "nuxt": "^4.5.1",
     "scss": "^0.2.4",

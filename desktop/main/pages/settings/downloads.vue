@@ -107,7 +107,7 @@
     </div>
   </div>
   <TransitionRoot as="template" :show="open">
-    <Dialog class="relative z-50" @close="open = false">
+    <Dialog class="relative z-50" @close="cancelDirectory">
       <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100"
         leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
         <div class="fixed inset-0 bg-zinc-950 bg-opacity-75 transition-opacity" />
@@ -135,7 +135,17 @@
                       </button>
                     </div>
                     <p class="mt-2 text-sm text-zinc-400" id="dir-description">
-                      Select an empty directory to add.
+                      Choose an empty directory, or allow a non-empty one below.
+                    </p>
+                    <div class="mt-4 flex items-start gap-2">
+                      <input id="allow-non-empty" v-model="allowNonEmpty" type="checkbox"
+                        class="mt-1 rounded border-zinc-600 bg-zinc-800 text-blue-600 focus:ring-blue-600" />
+                      <label for="allow-non-empty" class="text-sm text-zinc-300">
+                        Allow a non-empty directory
+                      </label>
+                    </div>
+                    <p class="mt-3 text-sm text-amber-300">
+                      Drop may delete folders and files in this directory, including items you created manually.
                     </p>
                   </div>
                 </div>
@@ -190,6 +200,7 @@ import { type Settings } from "~/types";
 
 const open = ref(false);
 const currentDirectory = ref<string | undefined>(undefined);
+const allowNonEmpty = ref(false);
 const error = ref<string | undefined>(undefined);
 const createDirectoryLoading = ref(false);
 
@@ -231,6 +242,7 @@ async function selectDirectory() {
 function cancelDirectory() {
   open.value = false;
   currentDirectory.value = undefined;
+  allowNonEmpty.value = false;
 }
 
 async function submitDirectory() {
@@ -241,12 +253,16 @@ async function submitDirectory() {
     createDirectoryLoading.value = true;
 
     // Add directory
-    await invoke("add_download_dir", { newDir: currentDirectory.value });
+    await invoke("add_download_dir", {
+      newDir: currentDirectory.value,
+      allowNonEmpty: allowNonEmpty.value,
+    });
 
     // Update list
     await updateDirs();
 
     currentDirectory.value = undefined;
+    allowNonEmpty.value = false;
     createDirectoryLoading.value = false;
     open.value = false;
   } catch (e) {
