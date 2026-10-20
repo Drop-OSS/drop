@@ -179,12 +179,15 @@ jobs:
           echo "prerelease=$prerelease" >> "$GITHUB_OUTPUT"
 
           deb_name="Drop.Desktop.Client_${version}_amd64.deb"
+          arm64_deb_name="Drop.Desktop.Client_${version}_arm64.deb"
           gh release download "$tag" \
             --repo "$GITHUB_REPOSITORY" \
             --pattern "$deb_name" \
+            --pattern "$arm64_deb_name" \
             --dir "$RUNNER_TEMP"
 
-          node packages/update-release-packages.mjs "$tag" "$version" "$RUNNER_TEMP/$deb_name"
+          node packages/update-release-packages.mjs "$tag" "$version" \
+            "$RUNNER_TEMP/$deb_name" "$RUNNER_TEMP/$arm64_deb_name"
 
       - name: Upload prepared package metadata
         uses: actions/upload-artifact@v7
@@ -300,7 +303,15 @@ jobs:
 
   publish-flatpak:
     needs: prepare-release-packages
-    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: ubuntu-24.04
+            arch: x86_64
+          - platform: ubuntu-24.04-arm
+            arch: aarch64
+    runs-on: ${{ matrix.platform }}
     permissions:
       contents: write
     steps:
@@ -318,24 +329,29 @@ jobs:
           sudo apt-get install -y flatpak flatpak-builder
 
       - name: Add Flathub and install build dependencies
+        env:
+          FLATPAK_ARCH: ${{ matrix.arch }}
         run: |
           flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          flatpak install --user --noninteractive flathub org.gnome.Platform//50 org.gnome.Sdk//50
+          flatpak install --user --noninteractive --arch="$FLATPAK_ARCH" \
+            flathub org.gnome.Platform//50 org.gnome.Sdk//50
 
       - name: Build and upload Flatpak bundle
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ needs.prepare-release-packages.outputs.release-tag }}
           RELEASE_VERSION: ${{ needs.prepare-release-packages.outputs.version }}
+          FLATPAK_ARCH: ${{ matrix.arch }}
         run: |
           set -euo pipefail
 
           repo="$RUNNER_TEMP/flatpak-repo"
           build_dir="$RUNNER_TEMP/flatpak-build"
-          bundle="$RUNNER_TEMP/Drop.Desktop.Client_${RELEASE_VERSION}_x86_64.flatpak"
-          flatpak-builder --user --force-clean --repo="$repo" \
+          bundle="$RUNNER_TEMP/Drop.Desktop.Client_${RELEASE_VERSION}_${FLATPAK_ARCH}.flatpak"
+          flatpak-builder --user --force-clean --arch="$FLATPAK_ARCH" --repo="$repo" \
             "$build_dir" packages/flatpak/org.droposs.client.json
           flatpak build-bundle \
+            --arch="$FLATPAK_ARCH" \
             --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo \
             "$repo" "$bundle" org.droposs.client master
 
