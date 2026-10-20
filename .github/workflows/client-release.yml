@@ -136,44 +136,85 @@ jobs:
           args: ${{ matrix.args }}
           projectPath: "./desktop"
 
-  publish-aur:
+  prepare-release-packages:
     needs: publish-tauri
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+    outputs:
+      release-tag: ${{ steps.release.outputs.tag }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+
+      - name: Prepare release package metadata
+        id: release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tagName }}
+        run: |
+          set -euo pipefail
+
+          version="$(jq -r '.version' desktop/src-tauri/tauri.conf.json)"
+          tag="${RELEASE_TAG:-v${version}}"
+          [[ "$version" =~ ^[0-9]+(\.[0-9]+)*$ ]]
+          [[ "$tag" =~ ^[A-Za-z0-9._-]+$ ]]
+
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+          deb_name="Drop.Desktop.Client_${version}_amd64.deb"
+          gh release download "$tag" \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern "$deb_name" \
+            --dir "$RUNNER_TEMP"
+
+          node packages/update-release-packages.mjs "$tag" "$version" "$RUNNER_TEMP/$deb_name"
+
+      - name: Upload prepared package metadata
+        uses: actions/upload-artifact@v7
+        with:
+          name: prepared-release-packages
+          path: |
+            packages/drop-oss-app/PKGBUILD
+            packages/drop-oss-app/.SRCINFO
+            packages/drop-oss-app-bin/PKGBUILD
+            packages/drop-oss-app-bin/.SRCINFO
+            packages/flatpak/org.droposs.client.json
+          if-no-files-found: error
+          retention-days: 1
+
+  publish-aur:
+    needs: prepare-release-packages
     runs-on: ubuntu-22.04
     permissions:
       contents: read
     steps:
       - uses: actions/checkout@v7
 
-      - name: Update and publish AUR packages
+      - name: Download prepared package metadata
+        uses: actions/download-artifact@v8
+        with:
+          name: prepared-release-packages
+          path: packages
+
+      - name: Publish AUR packages
         env:
           AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tagName }}
+          RELEASE_VERSION: ${{ needs.prepare-release-packages.outputs.version }}
         run: |
-          # stop the script on errors and unset variables
           set -euo pipefail
 
-          # require the ssh key used to publish to aur
           if [[ -z "$AUR_SSH_PRIVATE_KEY" ]]; then
             echo "AUR_SSH_PRIVATE_KEY is required to publish the AUR packages." >&2
             exit 1
           fi
 
-          # read the desktop version and choose the release tag
-          version="$(jq -r '.version' desktop/src-tauri/tauri.conf.json)"
-          tag="${RELEASE_TAG:-v${version}}"
-          [[ "$version" =~ ^[0-9]+(\.[0-9]+)*$ ]]
-          [[ "$tag" =~ ^[A-Za-z0-9._-]+$ ]]
-
-          # download the x86_64 deb package from the github release
-          deb_name="Drop.Desktop.Client_${version}_amd64.deb"
-          gh release download "$tag" \
-            --repo "$GITHUB_REPOSITORY" \
-            --pattern "$deb_name" \
-            --dir "$RUNNER_TEMP"
-          deb_path="$RUNNER_TEMP/$deb_name"
-
-          # configure ssh access to the aur git server
           mkdir -p "$HOME/.ssh"
           chmod 700 "$HOME/.ssh"
           printf '%s\n' "$AUR_SSH_PRIVATE_KEY" > "$HOME/.ssh/aur"
@@ -182,10 +223,6 @@ jobs:
           eval "$(ssh-agent -s)"
           ssh-add "$HOME/.ssh/aur"
 
-          # fill the release-specific values in both package recipes
-          node packages/update-release-packages.mjs "$tag" "$version" "$deb_path"
-
-          # publish each updated recipe to its aur repository
           for package in drop-oss-app-bin drop-oss-app; do
             package_dir="$RUNNER_TEMP/$package"
             git clone "ssh://aur@aur.archlinux.org/$package.git" "$package_dir"
@@ -195,24 +232,24 @@ jobs:
             git -C "$package_dir" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git -C "$package_dir" add PKGBUILD .SRCINFO
             if ! git -C "$package_dir" diff --cached --quiet; then
-              # create and push a commit only when the recipe changed
-              git -C "$package_dir" commit -m "Update to $version"
+              git -C "$package_dir" commit -m "Update to $RELEASE_VERSION"
               git -C "$package_dir" push origin HEAD:master
             fi
           done
 
   publish-flatpak:
-    needs: publish-tauri
+    needs: prepare-release-packages
     runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v7
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v7
+      - name: Download prepared package metadata
+        uses: actions/download-artifact@v8
         with:
-          node-version: lts/*
+          name: prepared-release-packages
+          path: packages
 
       - name: Install Flatpak build tools
         run: |
@@ -227,33 +264,20 @@ jobs:
       - name: Build and upload Flatpak bundle
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tagName }}
+          RELEASE_TAG: ${{ needs.prepare-release-packages.outputs.release-tag }}
+          RELEASE_VERSION: ${{ needs.prepare-release-packages.outputs.version }}
         run: |
           set -euo pipefail
 
-          version="$(jq -r '.version' desktop/src-tauri/tauri.conf.json)"
-          tag="${RELEASE_TAG:-v${version}}"
-          [[ "$version" =~ ^[0-9]+(\.[0-9]+)*$ ]]
-          [[ "$tag" =~ ^[A-Za-z0-9._-]+$ ]]
-
-          deb_name="Drop.Desktop.Client_${version}_amd64.deb"
-          gh release download "$tag" \
-            --repo "$GITHUB_REPOSITORY" \
-            --pattern "$deb_name" \
-            --dir "$RUNNER_TEMP"
-          deb_path="$RUNNER_TEMP/$deb_name"
-
-          node packages/update-release-packages.mjs "$tag" "$version" "$deb_path"
-
           repo="$RUNNER_TEMP/flatpak-repo"
           build_dir="$RUNNER_TEMP/flatpak-build"
-          bundle="$RUNNER_TEMP/Drop.Desktop.Client_${version}_x86_64.flatpak"
+          bundle="$RUNNER_TEMP/Drop.Desktop.Client_${RELEASE_VERSION}_x86_64.flatpak"
           flatpak-builder --user --force-clean --repo="$repo" \
             "$build_dir" packages/flatpak/org.droposs.client.json
           flatpak build-bundle \
             --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo \
             "$repo" "$bundle" org.droposs.client master
 
-          gh release upload "$tag" "$bundle" \
+          gh release upload "$RELEASE_TAG" "$bundle" \
             --repo "$GITHUB_REPOSITORY" \
             --clobber
