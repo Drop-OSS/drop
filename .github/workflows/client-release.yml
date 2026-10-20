@@ -9,9 +9,6 @@ on:
         description: "tagName to be associated with this release."
   release:
     types: [published]
-  # This can be used to automatically publish nightlies at UTC nighttime
-#  schedule:
-#    - cron: "0 2 * * *" # run at 2 AM UTC
 
 # This workflow will trigger on each push to the `release` branch to create or update a GitHub release, build your app, and upload the artifacts to the release.
 
@@ -186,7 +183,7 @@ jobs:
           ssh-add "$HOME/.ssh/aur"
 
           # fill the release-specific values in both package recipes
-          node packages/update-aur-packages.mjs "$tag" "$version" "$deb_path"
+          node packages/update-release-packages.mjs "$tag" "$version" "$deb_path"
 
           # publish each updated recipe to its aur repository
           for package in drop-oss-app-bin drop-oss-app; do
@@ -203,3 +200,60 @@ jobs:
               git -C "$package_dir" push origin HEAD:master
             fi
           done
+
+  publish-flatpak:
+    needs: publish-tauri
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+
+      - name: Install Flatpak build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder
+
+      - name: Add Flathub and install build dependencies
+        run: |
+          flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user --noninteractive flathub org.gnome.Platform//50 org.gnome.Sdk//50
+
+      - name: Build and upload Flatpak bundle
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tagName }}
+        run: |
+          set -euo pipefail
+
+          version="$(jq -r '.version' desktop/src-tauri/tauri.conf.json)"
+          tag="${RELEASE_TAG:-v${version}}"
+          [[ "$version" =~ ^[0-9]+(\.[0-9]+)*$ ]]
+          [[ "$tag" =~ ^[A-Za-z0-9._-]+$ ]]
+
+          deb_name="Drop.Desktop.Client_${version}_amd64.deb"
+          gh release download "$tag" \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern "$deb_name" \
+            --dir "$RUNNER_TEMP"
+          deb_path="$RUNNER_TEMP/$deb_name"
+
+          node packages/update-release-packages.mjs "$tag" "$version" "$deb_path"
+
+          repo="$RUNNER_TEMP/flatpak-repo"
+          build_dir="$RUNNER_TEMP/flatpak-build"
+          bundle="$RUNNER_TEMP/Drop.Desktop.Client_${version}_x86_64.flatpak"
+          flatpak-builder --user --force-clean --repo="$repo" \
+            "$build_dir" packages/flatpak/org.droposs.client.json
+          flatpak build-bundle \
+            --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo \
+            "$repo" "$bundle" org.droposs.client master
+
+          gh release upload "$tag" "$bundle" \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber

@@ -18,7 +18,7 @@ async function updateFile(path, transform) {
 
 const [tag, version, debPath, ...extraArgs] = process.argv.slice(2);
 if (!tag || !version || !debPath || extraArgs.length > 0) {
-  throw new Error("usage: update-aur-packages.mjs TAG VERSION DEB_PATH");
+  throw new Error("usage: update-release-packages.mjs TAG VERSION DEB_PATH");
 }
 if (!/^[A-Za-z0-9._-]+$/.test(tag)) {
   throw new Error("Release tag contains unsupported characters");

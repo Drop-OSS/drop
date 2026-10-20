@@ -26,8 +26,9 @@
         "mkdir -p extracted && tar -xf data.tar.* -C extracted",
         "mkdir -p /app/share/icons /app/share/pixmaps",
         "install -Dm755 extracted/usr/bin/drop-app /app/bin/drop-app",
-        "desktop_file=\"$(find extracted/usr/share/applications -maxdepth 1 -type f -name '*.desktop' -print -quit)\" && test -n \"$desktop_file\" && install -Dm644 \"$desktop_file\" /app/share/applications/org.droposs.client.desktop && sed -i -e 's|^Exec=.*|Exec=drop-app|' -e 's|^TryExec=.*|TryExec=drop-app|' /app/share/applications/org.droposs.client.desktop",
+        "desktop_file=\"$(find extracted/usr/share/applications -maxdepth 1 -type f -name '*.desktop' -print -quit)\" && test -n \"$desktop_file\" && install -Dm644 \"$desktop_file\" /app/share/applications/org.droposs.client.desktop && sed -i -e 's|^Exec=.*|Exec=drop-app|' -e 's|^TryExec=.*|TryExec=drop-app|' -e 's|^Icon=.*|Icon=org.droposs.client|' /app/share/applications/org.droposs.client.desktop",
         "if [ -d extracted/usr/share/icons ]; then cp -a extracted/usr/share/icons/. /app/share/icons/; fi",
+        "find /app/share/icons -type f -name 'drop-app.png' -exec sh -c 'for icon do mv \"$icon\" \"${icon%/*}/org.droposs.client.png\"; done' sh {} +",
         "if [ -d extracted/usr/share/pixmaps ]; then cp -a extracted/usr/share/pixmaps/. /app/share/pixmaps/; fi"
       ],
       "sources": [
