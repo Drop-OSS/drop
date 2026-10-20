@@ -1,0 +1,44 @@
+{
+  "app-id": "org.droposs.client",
+  "runtime": "org.gnome.Platform",
+  "runtime-version": "50",
+  "sdk": "org.gnome.Sdk",
+  "command": "drop-app",
+  "finish-args": [
+    "--share=network",
+    "--socket=wayland",
+    "--socket=fallback-x11",
+    "--socket=pulseaudio",
+    "--device=dri",
+    "--filesystem=home",
+    "--talk-name=org.freedesktop.Notifications",
+    "--talk-name=org.kde.StatusNotifierWatcher"
+  ],
+  "modules": [
+    {
+      "name": "drop-app",
+      "buildsystem": "simple",
+      "only-arches": [
+        "x86_64"
+      ],
+      "build-commands": [
+        "ar x drop.deb",
+        "mkdir -p extracted && tar -xf data.tar.* -C extracted",
+        "mkdir -p /app/share/icons /app/share/pixmaps",
+        "install -Dm755 extracted/usr/bin/drop-app /app/bin/drop-app",
+        "desktop_file=\"$(find extracted/usr/share/applications -maxdepth 1 -type f -name '*.desktop' -print -quit)\" && test -n \"$desktop_file\" && install -Dm644 \"$desktop_file\" /app/share/applications/org.droposs.client.desktop && sed -i -e 's|^Exec=.*|Exec=drop-app|' -e 's|^TryExec=.*|TryExec=drop-app|' -e 's|^Icon=.*|Icon=org.droposs.client|' /app/share/applications/org.droposs.client.desktop",
+        "if [ -d extracted/usr/share/icons ]; then cp -a extracted/usr/share/icons/. /app/share/icons/; fi",
+        "find /app/share/icons -type f -name 'drop-app.png' -exec sh -c 'for icon do mv \"$icon\" \"${icon%/*}/org.droposs.client.png\"; done' sh {} +",
+        "if [ -d extracted/usr/share/pixmaps ]; then cp -a extracted/usr/share/pixmaps/. /app/share/pixmaps/; fi"
+      ],
+      "sources": [
+        {
+          "type": "file",
+          "url": "https://github.com/Drop-OSS/drop/releases/download/DROP_RELEASE_TAG/Drop.Desktop.Client_DROP_PKG_VER_amd64.deb",
+          "sha256": "DROP_DEB_SHA256",
+          "dest-filename": "drop.deb"
+        }
+      ]
+    }
+  ]
+}
