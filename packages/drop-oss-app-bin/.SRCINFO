@@ -3,7 +3,7 @@ pkgbase = drop-oss-app-bin
 	pkgver = DROP_PKG_VER
 	pkgrel = DROP_PKG_REL
 	url = https://droposs.org/
-	arch = any
+	arch = x86_64
 	license = LicenseRef-GPL-3.0
 	makedepends = libarchive
 	depends = glib2
@@ -14,6 +14,8 @@ pkgbase = drop-oss-app-bin
 	depends = libappindicator
 	depends = libayatana-appindicator
 	conflicts = drop-oss-app
+	options = !strip
+	options = !debug
 	source = https://github.com/Drop-OSS/drop/releases/download/DROP_RELEASE_TAG/Drop.Desktop.Client_DROP_PKG_VER_amd64.deb
 	sha256sums = DROP_DEB_SHA256
 
