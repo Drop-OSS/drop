@@ -144,6 +144,7 @@ jobs:
     outputs:
       release-tag: ${{ steps.release.outputs.tag }}
       version: ${{ steps.release.outputs.version }}
+      prerelease: ${{ steps.release.outputs.prerelease }}
     steps:
       - uses: actions/checkout@v7
 
@@ -165,8 +166,17 @@ jobs:
           [[ "$version" =~ ^[0-9]+(\.[0-9]+)*$ ]]
           [[ "$tag" =~ ^[A-Za-z0-9._-]+$ ]]
 
+          prerelease="$(gh release view "$tag" \
+            --repo "$GITHUB_REPOSITORY" \
+            --json isPrerelease --jq '.isPrerelease')"
+          if [[ "$prerelease" != "true" && "$prerelease" != "false" ]]; then
+            echo "GitHub returned an invalid pre-release flag for $tag: $prerelease" >&2
+            exit 1
+          fi
+
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "prerelease=$prerelease" >> "$GITHUB_OUTPUT"
 
           deb_name="Drop.Desktop.Client_${version}_amd64.deb"
           gh release download "$tag" \
@@ -187,10 +197,12 @@ jobs:
             packages/drop-oss-app-bin/.SRCINFO
             packages/flatpak/org.droposs.client.json
           if-no-files-found: error
+          include-hidden-files: true
           retention-days: 1
 
   publish-aur:
     needs: prepare-release-packages
+    if: needs.prepare-release-packages.outputs.prerelease == 'true'
     runs-on: ubuntu-22.04
     permissions:
       contents: read
@@ -236,6 +248,55 @@ jobs:
               git -C "$package_dir" push origin HEAD:master
             fi
           done
+
+  publish-arch:
+    needs: prepare-release-packages
+    runs-on: ubuntu-24.04
+    container: archlinux:base
+    defaults:
+      run:
+        shell: bash
+    permissions:
+      contents: write
+    steps:
+      - name: Install Arch packaging tools
+        run: pacman -Syu --noconfirm --needed base-devel git libarchive github-cli
+
+      - uses: actions/checkout@v7
+
+      - name: Download prepared package metadata
+        uses: actions/download-artifact@v8
+        with:
+          name: prepared-release-packages
+          path: packages
+
+      - name: Build Arch package
+        working-directory: packages/drop-oss-app-bin
+        run: |
+          set -euo pipefail
+
+          useradd --create-home builder
+          chown -R builder:builder .
+          # Repackage the prebuilt Debian binary without installing its runtime dependencies.
+          runuser -u builder -- makepkg --nodeps --noconfirm
+
+      - name: Upload Arch package
+        working-directory: packages/drop-oss-app-bin
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ needs.prepare-release-packages.outputs.release-tag }}
+        run: |
+          set -euo pipefail
+
+          package_list="$(runuser -u builder -- makepkg --packagelist)"
+          mapfile -t packages <<< "$package_list"
+          if [[ "${#packages[@]}" -ne 1 || ! -f "${packages[0]}" ]]; then
+            echo "Expected one built Arch package, found: $package_list" >&2
+            exit 1
+          fi
+          gh release upload "$RELEASE_TAG" "${packages[@]}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber
 
   publish-flatpak:
     needs: prepare-release-packages
