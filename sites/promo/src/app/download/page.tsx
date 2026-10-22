@@ -3,7 +3,7 @@ import DownloadCards from '@/components/downloads'
 import { Footer } from '@/components/footer'
 import { GradientBackground } from '@/components/gradient'
 import { Navbar } from '@/components/navbar'
-import { Heading, Lead, Subheading } from '@/components/text'
+import { Heading, Lead } from '@/components/text'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -20,7 +20,6 @@ function Header() {
       <Lead className="mt-6 max-w-3xl">
         Download the latest version of the Drop Desktop Client for your platform.
       </Lead>
-      <Subheading className="mt-2">Last updated 15-11-2025</Subheading>
     </Container>
   )
 }
