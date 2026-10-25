@@ -167,6 +167,10 @@ model SetupConfiguration {
   gameVersion GameVersion @relation(fields: [versionId], references: [versionId], onDelete: Cascade, onUpdate: Cascade)
 }
 
+enum LaunchFlag {
+  BLOCK_NETWORK
+}
+
 model LaunchConfiguration {
   launchId String @id @default(uuid())
 
@@ -175,6 +179,8 @@ model LaunchConfiguration {
   command String
 
   platform Platform
+
+  flags LaunchFlag[]
 
   // For emulation targets
   emulatorId          String?

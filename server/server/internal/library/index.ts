@@ -567,6 +567,7 @@ class LibraryManager {
                         name: v.name,
                         command: v.launch,
                         platform: v.platform,
+                        flags: v.flags ?? [],
                         ...(v.emulatorId && game.type === "Game"
                           ? {
                               emulatorId: v.emulatorId,
