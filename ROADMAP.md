@@ -14,16 +14,18 @@ GameDepot is an open-source, community-driven game distribution and preservation
 
 ---
 
-### Phase 2: Multi-Store Ingestion (The Depot Pipeline)
-*Automate cataloging, updates, and ingestion from legal DRM-free stores.*
-- [ ] **GOG Store Ingestion:**
+### Phase 2: Multi-Store Ingestion & Stream Repackaging (The Depot Pipeline)
+*Automate cataloging, updates, and direct CDN streaming without offline setup wizards (Heroic / Legendary / GOGDL style).*
+- [ ] **GOG Galaxy CDN Ingestion:**
   - Headless OAuth flow for GOG accounts.
-  - Automatic download and sync of offline installer binaries, patches, DLC, and bonus content (via `gogdl` / GOG Galaxy APIs).
-- [ ] **Epic Games Store Integration:**
-  - Headless authentication and library sync using `legendary`.
-  - Automatic manifest fetching and game installation imports.
+  - Manifest-based direct depot stream via GOG Galaxy API (`galaxy.gog.com`).
+  - Stream raw game file chunks directly into Seekable Zstandard (`.tar.zst`), bypassing manual InnoSetup installation.
+- [ ] **Epic Games Store CDN Ingestion:**
+  - Headless authentication and library sync via `legendary` API.
+  - Stream chunked binary manifests (`.manifest` and `.chunk` blobs) concurrently over HTTP/2.
+  - On-the-fly decompress & repackage into Seekable Zstandard archives.
 - [ ] **Multi-part / Multi-disc Installer Support:**
-  - Automated scanning, grouping, and metadata tagging for multi-part installers (e.g. vintage 2+ CD-ROM `.bin` / `.exe` sets).
+  - Automated scanning, grouping, and metadata tagging for multi-part vintage installers (e.g. 2+ CD-ROM `.bin` / `.exe` sets).
 
 ---
 
