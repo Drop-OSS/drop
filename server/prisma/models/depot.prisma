@@ -1,0 +1,61 @@
+enum StoreProvider {
+    GOG
+    EPIC
+    STEAM
+}
+
+enum SyncStatus {
+    IDLE
+    SYNCING
+    ERROR
+    COMPLETED
+}
+
+model StoreConnection {
+    id        String        @id @default(uuid())
+    provider  StoreProvider
+    accountId String
+    username  String?
+    
+    // Encrypted OAuth / session tokens
+    accessToken  String?
+    refreshToken String?
+    expiresAt    DateTime?
+    
+    autoSync Boolean    @default(true)
+    status   SyncStatus @default(IDLE)
+    lastSync DateTime?
+    error    String?
+    
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    
+    manifests StoreManifest[]
+    
+    @@unique([provider, accountId])
+}
+
+model StoreManifest {
+    id                String          @id @default(uuid())
+    connectionId      String
+    connection        StoreConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+    
+    externalGameId    String
+    title             String
+    slug              String?
+    image             String?
+    version           String?
+    
+    // Raw store metadata payload (DLCs, build tags, installer parts)
+    payload           Json?
+    
+    // Download & local import states
+    imported          Boolean         @default(false)
+    localContentId    String?
+    
+    updatedAt         DateTime        @updatedAt
+    createdAt         DateTime        @default(now())
+    
+    @@unique([connectionId, externalGameId])
+    @@index([externalGameId])
+}
