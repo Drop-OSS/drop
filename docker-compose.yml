@@ -1,0 +1,42 @@
+services:
+  gamedepot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: gamedepot/server:latest
+    container_name: gamedepot-server
+    restart: unless-stopped
+    ports:
+      - "${PORT:-4000}:4000"
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-gamedepot}:${POSTGRES_PASSWORD:-gamedepot_secret}@postgres:5432/${POSTGRES_DB:-gamedepot}?schema=public
+      - NODE_ENV=production
+      - NUXT_TELEMETRY_DISABLED=1
+      - LIBRARY=/library
+      - DATA=/data
+      - PORT=4000
+    volumes:
+      - ${GAMEDEPOT_DATA_PATH:-./data}:/data
+      - ${GAMEDEPOT_LIBRARY_PATH:-./games}:/library
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: gamedepot-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-gamedepot}
+      POSTGRES_USER: ${POSTGRES_USER:-gamedepot}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-gamedepot_secret}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-gamedepot} -d ${POSTGRES_DB:-gamedepot}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres-data:
