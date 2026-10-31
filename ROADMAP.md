@@ -9,7 +9,7 @@ GameDepot is an open-source, community-driven game distribution and preservation
 ### Phase 1: Stabilization & Clean Independence
 *Decouple from upstream Drop OSS dependencies, clean up CI/CD, and streamline local developer onboarding.*
 - [x] **CI Silencing & Streamlining:** Removed automatic `push`/`pull_request` CI triggers, converted pipelines to manual `workflow_dispatch`, and deleted unused static pages deployments.
-- [ ] **Monorepo Cleanup:** Audit workspace dependencies (`pnpm`, Rust toolchains) and ensure clean builds for `server`, `desktop`, `torrential`, and `droplet`.
+- [x] **Monorepo Cleanup:** Audit workspace dependencies (`pnpm`, Rust toolchains), rebrand packages (`@gamedepot/server`, `@gamedepot/desktop`, `gamedepot-desktop` crate), and ensure clean independent builds for `server`, `desktop`, `torrential`, and `droplet`.
 - [x] **Turnkey Docker Stack:** Provide an all-in-one `docker-compose.yml` and `.env.example` bundling the GameDepot server (`@gamedepot/server` with Torrential daemon), PostgreSQL with automatic healthchecks, persistent data volumes, and reverse proxy for simple self-hosting.
 
 ---
