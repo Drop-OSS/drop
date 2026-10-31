@@ -1,24 +1,7 @@
 name: Server CI
 
 on:
-  push:
-    branches: [develop]
-    paths:
-      - "server/**"
-      - "libraries/base/**"
-      - "package.json"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
-      - ".github/workflows/server-ci.yml"
-  pull_request:
-    branches: [develop]
-    paths:
-      - "server/**"
-      - "libraries/base/**"
-      - "package.json"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
-      - ".github/workflows/server-ci.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
