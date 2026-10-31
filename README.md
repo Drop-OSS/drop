@@ -1,40 +1,50 @@
-<div align="center">
-<img src="https://raw.githubusercontent.com/Drop-OSS/media-sources/refs/heads/main/drop.svg" width="200rem"/>
-</div>
-<br/>
+# GameDepot
 
-# Drop
-
-[![Website](https://img.shields.io/badge/website-000000?style=for-the-badge&logo=About.me&logoColor=white)](https://droposs.org)
-[![Docs](https://img.shields.io/badge/DOCS-black?style=for-the-badge&logo=docusaurus)](https://droposs.org/docs)
-[![Static Badge](https://img.shields.io/badge/FORUM-blue?style=for-the-badge)](https://forum.droposs.org)
 [![GitHub License](https://img.shields.io/badge/AGPL--3.0-red?style=for-the-badge)](LICENSE)
-[![Discord](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/ACq4qZp4a9)
-[![Open Collective](https://img.shields.io/badge/OpenCollective-1F87FF?style=for-the-badge&logo=OpenCollective&logoColor=white)](https://opencollective.com/drop-oss)
-[![Weblate project translated](https://img.shields.io/weblate/progress/drop?server=https%3A%2F%2Ftranslate.droposs.org&style=for-the-badge&logo=weblate)
-](https://translate.droposs.org/engage/drop/)
 
-Drop is an open-source game distribution platform, similar to GameVault or Steam. It's designed to distribute and share DRM-free games quickly, all while being incredibly flexible, beautiful, and fast.
+GameDepot is a self-hosted, open-source game distribution platform and modern Steam/GameVault alternative. It allows you to preserve, store, and stream your DRM-free game library directly to your devices and friends with high transfer efficiency and zero-config mesh networking.
 
 > [!NOTE]
-> Drop is in maintenance mode. Maintainers will not contribute new large features, but bugs will continue to be fixed and external contributions will continue to be merged.
+> **GameDepot is an independent hard fork of [Drop OSS](https://github.com/Drop-OSS/drop).**
+> While upstream Drop has entered maintenance mode with a strict policy against AI contributions, GameDepot embraces AI-assisted engineering and rapid experimentation to evolve the platform with automated game ingestion, next-generation compression, and flexible mesh networking.
 
-<div align="center">
-<img src="https://droposs.org/_ipx/f_webp&q_80/images/carousel/store.png" alt="Drop Screenshot" width="900rem"/>
-</div>
+---
 
-## Philosophy
+## Key Features & Roadmap
 
-1. Drop is flexible. While abstractions and interfaces can complicate the codebase, the flexibility is worth it.
-2. Drop is secure. The nature of Drop means an instance can never be accessible without authentication. In line with #1, Drop also supports a huge variety of authentication mechanisms, from username/password to SSO.
-3. Drop is user-friendly. The interface is designed to be clean and simple to use, with advanced features available to users who want them.
+- **Multi-Store Game Ingestion & Updates:**
+  - Automated integration with **GOG** and **Epic Games Store** (via OAuth & CLI backends like `gogdl` and `legendary`).
+  - Keep game releases, patches, and DLC automatically downloaded and synchronized in your personal depot.
 
-## Deployment
+- **Next-Gen Storage & Chunked Delivery:**
+  - Fast chunking engine powered by **Zstandard (seekable zstd)** and content-addressed storage.
+  - Granular delta patching and deduplication inspired by Steam depots, saving massive bandwidth and disk space.
+  - Multi-disc and multi-part installer support (e.g. vintage 2+ CD-ROM games).
 
-See our documentation on how to [deploy Drop](https://droposs.org/docs/admin/quickstart) for more information.
+- **Pluggable Mesh Networking & Virtual LAN:**
+  - Integrated peer-to-peer mesh connectivity for zero-config remote downloads and LAN multiplayer.
+  - Pluggable VPN driver architecture supporting both **NetBird** and **Headscale**.
+
+- **Open & Unrestricted Engineering:**
+  - AI-assisted development friendly.
+  - Rapid release cycle without upstream bureaucracy.
+
+---
+
+## Architecture Overview
+
+GameDepot is structured as a modern monorepo:
+
+- **Desktop Client:** Tauri + Svelte/TypeScript client providing a native desktop experience.
+- **Backend Server:** Node.js/TypeScript backend managing depot metadata, authentication, storage providers, and mesh orchestration.
+- **Transfer Engine (`droplet`):** High-performance Rust binary handling chunked, concurrent game file streaming and extraction.
+
+---
 
 ## Contributing
 
-Please see the [in-depth contributing guide](https://developer.droposs.org/contributing). The guide includes information on how to set up the project, how to contribute code, how to report issues, and even how to effectively translate Drop.
+We welcome all community contributions, feature discussions, bug reports, and pull requests! AI-assisted tooling and contributions are fully permitted and supported.
 
-[![Drop Translation Progress](https://translate.droposs.org/widget/drop/horizontal-auto.svg)](https://translate.droposs.org/engage/drop/)
+## License
+
+This project is licensed under the [AGPL-3.0 License](LICENSE), honoring the original licensing of Drop OSS.
