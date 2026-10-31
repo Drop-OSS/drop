@@ -1,20 +1,6 @@
 name: Droplet CI
 
 on:
-  push:
-    branches: [develop]
-    paths:
-      - "libraries/droplet/**"
-      - "libraries/droplet_types/**"
-      - "libraries/libarchive/**"
-      - ".github/workflows/droplet-ci.yml"
-  pull_request:
-    branches: [develop]
-    paths:
-      - "libraries/droplet/**"
-      - "libraries/droplet_types/**"
-      - "libraries/libarchive/**"
-      - ".github/workflows/droplet-ci.yml"
   workflow_dispatch:
 
 env:
