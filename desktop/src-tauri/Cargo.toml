@@ -1,8 +1,8 @@
 [package]
-name = "drop-app"
+name = "gamedepot-desktop"
 version = "0.4.0"
-description = "The client application for the open-source, self-hosted game distribution platform Drop"
-authors = ["Drop OSS"]
+description = "The client desktop application for GameDepot, the open-source game distribution and preservation platform"
+authors = ["GameDepot Contributors"]
 edition = "2024"
 
 [workspace]
@@ -23,7 +23,7 @@ crate-type = ["cdylib", "rlib", "staticlib"]
 # The `_lib` suffix may seem redundant but it is necessary
 # to make the lib name unique and wouldn't conflict with the bin name.
 # This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
-name = "drop_app_lib"
+name = "gamedepot_desktop_lib"
 rustflags = ["-C", "target-feature=+aes,+sse2"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
