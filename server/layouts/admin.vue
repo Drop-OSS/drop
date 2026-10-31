@@ -202,6 +202,7 @@ import {
   UserGroupIcon,
   RectangleStackIcon,
   DocumentIcon,
+  ArrowDownTrayIcon,
 } from "@heroicons/vue/24/outline";
 import type { NavigationItem } from "~/composables/types";
 import { useCurrentNavigationIndex } from "~/composables/current-page-engine";
@@ -223,6 +224,12 @@ const navigation: Array<NavigationItem & { icon: Component }> = [
     route: "/admin/library",
     prefix: "/admin/library",
     icon: ServerStackIcon,
+  },
+  {
+    label: "Depot Ingestion",
+    route: "/admin/depot",
+    prefix: "/admin/depot",
+    icon: ArrowDownTrayIcon,
   },
   {
     label: $t("header.admin.metadata"),
