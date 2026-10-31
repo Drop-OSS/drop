@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2.0.0",
-  "productName": "Drop Desktop Client",
+  "productName": "GameDepot",
   "version": "0.4.0",
-  "identifier": "org.droposs.client",
+  "identifier": "io.gamedepot.client",
   "build": {
     "beforeDevCommand": "pnpm run -C main dev --port 1432",
     "devUrl": "http://localhost:1432/",
@@ -21,7 +21,7 @@
   "plugins": {
     "deep-link": {
       "desktop": {
-        "schemes": ["drop"]
+        "schemes": ["gamedepot", "drop"]
       }
     }
   },
