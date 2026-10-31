@@ -72,6 +72,10 @@ GameDepot is an open-source, community-driven game distribution and preservation
 
 ### Phase 6: Native Client Polish & Steam Deck Support
 *The ultimate unified desktop launcher experience.*
+- [ ] **Hardware Compatibility & System Spec Checker ("Can You Run It?"):**
+  - Native client hardware probe (CPU model/instructions, GPU VRAM & driver level, Total RAM, available disk space, OS/DirectX/Vulkan support via `sysinfo` / Rust).
+  - Automated parsing of scraped minimum & recommended requirements (from Steam, PCGamingWiki, or IGDB).
+  - Visual compatibility badge on game pages (e.g. *Meets Recommended*, *Meets Minimum*, *Insufficient Specs*, *Warning: Disk Space / GPU*).
 - [ ] **Rich Metadata & Scrapers:**
   - Automated cover art, hero banners, logos, and screenshots via IGDB and SteamGridDB.
 - [ ] **Decky Loader Plugin:**
