@@ -1,22 +1,6 @@
 name: Torrential CI
 
 on:
-  push:
-    branches: [develop]
-    paths:
-      - "torrential/**"
-      - "libraries/droplet/**"
-      - "libraries/droplet_types/**"
-      - "libraries/libarchive/**"
-      - ".github/workflows/torrential-ci.yml"
-  pull_request:
-    branches: [develop]
-    paths:
-      - "torrential/**"
-      - "libraries/droplet/**"
-      - "libraries/droplet_types/**"
-      - "libraries/libarchive/**"
-      - ".github/workflows/torrential-ci.yml"
   workflow_dispatch:
 
 permissions:
