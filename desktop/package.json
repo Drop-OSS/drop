@@ -1,5 +1,5 @@
 {
-  "name": "drop-app",
+  "name": "@gamedepot/desktop",
   "private": true,
   "type": "module",
   "scripts": {
