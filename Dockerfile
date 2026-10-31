@@ -41,7 +41,7 @@ FROM base AS build-system
 ENV NODE_ENV=production
 ENV NUXT_TELEMETRY_DISABLED=1
 
-## add git so drop can determine its git ref at build
+## add git so GameDepot can determine its git ref at build
 RUN apt-get update && apt-get install -y --no-install-recommends git \
     && rm -rf /var/lib/apt/lists/*
 
@@ -50,14 +50,14 @@ COPY . .
 COPY --from=deps /app/node_modules ./node_modules
 
 
-ARG BUILD_DROP_VERSION
+ARG BUILD_GAMEDEPOT_VERSION
 ARG BUILD_GIT_REF
 
-## build
-RUN pnpm run --filter=drop postinstall && pnpm run --filter=drop build
+## build using updated workspace name
+RUN pnpm run --filter=@gamedepot/server postinstall && pnpm run --filter=@gamedepot/server build
 
 
-# create run environment for Drop
+# create run environment for GameDepot
 FROM base AS run-system
 
 ENV NODE_ENV=production
@@ -71,7 +71,6 @@ ENV NUXT_TELEMETRY_DISABLED=1
 # binary installed on PATH (/usr/bin/torrential) below.
 RUN rm -rf /app/torrential
 
-# RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn yarn add --network-timeout 1000000 --no-lockfile --ignore-scripts prisma@6.11.1
 ## runtime deps:
 ##  - libarchive13: torrential now links libarchive dynamically (glibc build)
 ##  - p7zip-full: provides the 7z CLI
