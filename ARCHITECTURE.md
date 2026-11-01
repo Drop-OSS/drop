@@ -132,15 +132,19 @@ Worker safeguards: deduplicate by account, product, build and requested variant;
 
 As of Phase 2 implementation on `develop`:
 
-1. **GOG CDN Streaming Downloader (`server/server/utils/gog/downloader.ts`)**:
-   Streams binary installers (`.exe`, `.bin`, `.sh`) directly into staging with progress callbacks, avoiding in-memory buffer exhaustion, and cleans up partial files on failure.
-2. **GOG Installer Extraction (`server/server/utils/gog/extractor.ts`)**:
+1. **GOG CDN Content-System Client (`server/server/utils/gog/cdn.ts`)**:
+   Communicates directly with GOG Galaxy Content-System / CDN APIs (`cdn.gog.com`, `content-system.gog.com`) using user session tokens. Resolves repository builds, manifests, and file listings for raw, uncompressed game installations.
+2. **Direct Game Streamer & CAS Ingest (`server/server/utils/gog/game-streamer.ts`)**:
+   Streams the individual actual game files directly from the GOG content delivery network into GameDepot's 4 MiB fixed-window CAS chunk store and emits a canonical `DropletManifest`. Completely bypasses monolithic setup/installer downloads and unpacking when streaming direct depot builds.
+3. **GOG CDN Streaming Downloader (`server/server/utils/gog/downloader.ts`)**:
+   Streams standalone binary installers (`.exe`, `.bin`, `.sh`) directly into staging with progress callbacks, avoiding in-memory buffer exhaustion, and cleans up partial files on failure.
+4. **GOG Installer Extraction (`server/server/utils/gog/extractor.ts`)**:
    Stages installer extraction through `innoextract`, MojoSetup, or archive tools (`7z`, `unzip`, `tar`) using direct argument arrays rather than a shell. Isolates staging and validates path boundaries to prevent traversal attacks. Symlinks are rejected.
-3. **Fixed-Size SHA-256 CAS Chunking (`server/server/utils/depot/chunker.ts`)**:
+5. **Fixed-Size SHA-256 CAS Chunking (`server/server/utils/depot/chunker.ts`)**:
    Reads staged files in fixed 4 MiB chunks, calculates file and chunk SHA-256 digests, and writes immutable raw chunk objects to `depot/objects/{first-two-hex}/{sha256}`. Existing objects are reused to support content deduplication.
-4. **Droplet Manifest Builder (`server/server/utils/depot/manifest.ts`)**:
+6. **Droplet Manifest Builder (`server/server/utils/depot/manifest.ts`)**:
    Sorts normalized relative paths, builds the digest-indexed chunk table, and computes a SHA-256 over canonical JSON (excluding the digest field). Manifest output is atomically renamed into place as `depot/manifests/{manifestSha256}.json`.
-5. **GOG Ingest Task Worker (`server/server/tasks/gog/ingest.ts`)**:
+7. **GOG Ingest Task Worker (`server/server/tasks/gog/ingest.ts`)**:
    Coordinates extraction, CAS chunking, and manifest publication with progress and status reporting via an injectable job store.
 
 ## 3. Manifest-Driven Depot and Chunk Delivery
