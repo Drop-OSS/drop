@@ -10,9 +10,17 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, statusMessage: 'An Epic Games access token is required' })
   }
 
+  // Epic scopes entitlements to an account ID, which is not derivable from the
+  // bearer token; callers must supply it (same shape as the Ubisoft handler's
+  // required `userId`).
+  const accountId = typeof query.accountId === 'string' ? query.accountId.trim() : ''
+  if (!accountId) {
+    throw createError({ statusCode: 400, statusMessage: 'An Epic accountId query parameter is required' })
+  }
+
   let entitlements
   try {
-    entitlements = await getEpicEntitlements(token)
+    entitlements = await getEpicEntitlements(accountId, token)
   } catch (error) {
     const statusCode = (error as { statusCode?: number }).statusCode
     throw createError({
@@ -25,7 +33,8 @@ export default defineEventHandler(async (event) => {
 
   const title = typeof query.title === 'string' ? query.title.trim().toLocaleLowerCase() : ''
   const filtered = entitlements.filter((item) => {
-    const titleMatches = !title || item.title.toLocaleLowerCase().includes(title)
+    // Epic entitlements carry `entitlementName`, not a display `title`.
+    const titleMatches = !title || item.entitlementName.toLocaleLowerCase().includes(title)
     return titleMatches
   })
 

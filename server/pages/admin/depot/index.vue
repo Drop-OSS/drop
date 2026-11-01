@@ -223,6 +223,7 @@ interface OwnedGame {
   catalogItemId?: string;
   appName?: string;
   title?: string;
+  entitlementName?: string;
   // Ubisoft owned titles
   spaceId?: string;
   gameId?: string;
@@ -269,11 +270,14 @@ async function discoverGog() {
   loading.value = true;
   resetError();
   try {
-    const response = await $fetch<{ products: DiscoveredProduct[] }>(
-      '/api/v1/admin/depot/gog/discover',
-      { method: 'POST', body: { query: gogQuery.value } },
+    const response = await $fetch<{ games: Array<{ id: string; title: string }> }>(
+      '/api/admin/depot/gog/library',
+      { method: 'GET', query: { title: gogQuery.value } },
     );
-    products.value = response.products;
+    products.value = response.games.map((game) => ({
+      id: game.id,
+      title: game.title,
+    }));
   } catch (error) {
     products.value = [];
     errorMessage.value = error instanceof Error
@@ -294,14 +298,14 @@ async function loadLibrary() {
       : undefined;
     // Both endpoints return the list under `games`.
     const response = await $fetch<{ games: OwnedGame[] }>(
-      `/api/v1/admin/depot/${activeProviderId.value}/library`,
+      `/api/admin/depot/${activeProviderId.value}/library`,
       { method: 'GET', query },
     );
     products.value = response.games.map((game) => {
       if (activeProviderId.value === 'epic') {
         return {
           id: game.catalogItemId || game.appName || game.namespace || '',
-          title: game.title || game.appName || game.catalogItemId || 'Untitled',
+          title: game.title || game.entitlementName || game.appName || game.catalogItemId || 'Untitled',
           namespace: game.namespace,
           catalogItemId: game.catalogItemId,
           appName: game.appName,
@@ -331,12 +335,12 @@ async function ingest(product: DiscoveredProduct) {
   notice.value = '';
   try {
     if (activeProviderId.value === 'gog') {
-      await $fetch('/api/v1/admin/depot/gog/ingest', {
+      await $fetch('/api/admin/depot/gog/ingest', {
         method: 'POST',
-        body: { productId: product.id },
+        body: { gameId: product.id },
       });
     } else if (activeProviderId.value === 'epic') {
-      await $fetch('/api/v1/admin/depot/epic/ingest', {
+      await $fetch('/api/admin/depot/epic/ingest', {
         method: 'POST',
         body: {
           namespace: product.namespace,
@@ -345,7 +349,7 @@ async function ingest(product: DiscoveredProduct) {
         },
       });
     } else {
-      await $fetch('/api/v1/admin/depot/ubisoft/ingest', {
+      await $fetch('/api/admin/depot/ubisoft/ingest', {
         method: 'POST',
         body: {
           spaceId: product.spaceId,
