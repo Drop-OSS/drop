@@ -2,20 +2,16 @@
 
 # Pinned to bookworm so the glibc here matches the torrential build stage
 # and the libarchive runtime package is named `libarchive13` (trixie renames it to libarchive13t64).
-FROM node:lts-bookworm-slim AS base
+# Node is pinned to 22 rather than the floating `node:lts`: current Node images no
+# longer bundle corepack, so `corepack enable` fails with "not found".
+FROM node:22-bookworm-slim AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+# pnpm comes from npm, pinned to the root package.json `packageManager` version.
+RUN npm install --global pnpm@10.33.0 --no-fund --no-audit
 WORKDIR /app
 
-## so corepack knows pnpm's version
 COPY . .
-## prevent prompt to download
-ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
-## setup for offline
-RUN corepack pack
-## don't call out to network anymore
-ENV COREPACK_ENABLE_NETWORK=0
 
 ### INSTALL DEPS ONCE
 FROM base AS deps
@@ -50,7 +46,7 @@ COPY . .
 COPY --from=deps /app/node_modules ./node_modules
 
 
-ARG BUILD_GAMEDEPOT_VERSION
+ARG BUILD_DROP_VERSION
 ARG BUILD_GIT_REF
 
 ## build using updated workspace name
@@ -76,7 +72,8 @@ RUN rm -rf /app/torrential
 ##  - p7zip-full: provides the 7z CLI
 ##  - nginx: front-end proxy
 ##  - openssl + ca-certificates: required by Prisma's query engine on Debian
-## pnpm itself is provided by corepack (enabled in the base stage)
+## pnpm comes from the base stage, where it is installed with npm: Node 22
+## images no longer bundle corepack, so `corepack enable` is not an option.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libarchive13 \
     p7zip-full \

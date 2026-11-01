@@ -1,3 +1,7 @@
 dist/
 node_modules/
 .pnpm-store/
+
+# docker-compose.yml default volumes
+/data/
+/games/

@@ -63,7 +63,7 @@ jobs:
       - name: Determine final version
         id: get_final_ver
         run: |
-          BASE_VER=v$(jq -r '.version' package.json)
+          BASE_VER=v$(jq -r '.version' server/package.json)
           TODAY=$(date +'%Y.%m.%d')
 
           echo "Today will be: $TODAY"

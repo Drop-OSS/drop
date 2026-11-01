@@ -3,6 +3,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        # Shown in the UI/update check. Local builds default to a `-local` tag so
+        # they never look like a published release.
+        BUILD_DROP_VERSION: ${BUILD_DROP_VERSION:-v0.4.0-local}
+        BUILD_GIT_REF: ${BUILD_GIT_REF:-local}
     image: gamedepot/server:latest
     container_name: gamedepot-server
     restart: unless-stopped
@@ -15,6 +20,7 @@ services:
       - LIBRARY=/library
       - DATA=/data
       - PORT=4000
+      - EXTERNAL_URL=${EXTERNAL_URL:-http://localhost:4000}
     volumes:
       - ${GAMEDEPOT_DATA_PATH:-./data}:/data
       - ${GAMEDEPOT_LIBRARY_PATH:-./games}:/library

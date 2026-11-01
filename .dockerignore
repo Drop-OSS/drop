@@ -1,6 +1,12 @@
 /sites
 /cli
 /desktop
-/backend # go backend
+# Go backend (not part of the server image build).
+/backend
 
 node_modules
+
+# Runtime volumes created by docker-compose.yml: never copy a game library or
+# database files into a build context.
+/data
+/games
