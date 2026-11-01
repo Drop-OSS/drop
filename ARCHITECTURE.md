@@ -61,7 +61,7 @@ An adapter is a narrow provider-specific boundary that authenticates, discovers 
  +----------------------+                               |
  | Normalize / provenance|                               |
  | stable GameDepot IDs  |                               |
- +----------+-----------+                                |
+ +----------+-----------+                               |
             |                                            |
             v                                            |
  +----------------------+       +-----------------------+
@@ -79,13 +79,16 @@ An adapter is a narrow provider-specific boundary that authenticates, discovers 
 
 The shared contract is `authorize -> discover -> normalize -> acquire -> verify -> publish`. Use idempotent reconciliation; normalize provider product, edition, build, DLC, language and platform identifiers while retaining provider IDs as provenance. Keep OAuth/session state scoped and encrypted; redact credentials, tokens, cookies and signed URLs from logs. Adapter output remains untrusted until content checks complete. Stage partial downloads separately; handle expiring URLs, retries, range support and rate limits. Represent split archives/discs as one logical release with explicit order and completeness checks. Publish only after required metadata and bytes validate, atomically updating catalog availability.
 
+**Acquisition model note.** GameDepot's adapters stream *raw game data* (individual depot/deployment files) directly from provider CDNs into the depot CAS. We do not download, run, or repackage monolithic installer/setup files when a direct file-streaming path exists. Installer-download-and-extract paths are only a fallback for providers without a manifest/file API, and are treated as staged, validated input — never the primary ingestion mechanism.
+
 ### Provider adapter responsibilities
 
 | Candidate | Adapter role | Boundary / caveats |
 |---|---|---|
 | GOGDL / GOG interfaces | Owned library discovery and supported installers/updates/bonus assets. | Provider-specific API/session code stays isolated; preserve parts and provenance. |
 | Legendary / Epic interfaces | Epic library/build discovery and content acquisition. | Normalize manifest/build output; independently validate chunks and assembled files. |
-| Optima (`Starkka15/Optima`) | Candidate headless Ubisoft Connect ingestion implementation. | External/version-pinned adapter; protect account/session state and follow Ubisoft access terms. Map products/builds to common catalog, not provider-specific public APIs. |
+| Optima (`Starkka15/Optima`) | Headless Ubisoft Connect reference for the cleanroom adapter implemented in-repo. | External reference only; no code is copied. The in-repo implementation uses documented UbiServices HTTP endpoints (`public-ubiservices.ubi.com`, `api-uplayv2.ubi.com`, `uplaypc-dns.ubi.com`). Protect account/session state and follow Ubisoft access terms. |
+| `YoobieRE/ubisoft-demux-node` (MIT) | Protocol reference for Ubisoft Connect's protobuf Demux API (ownership licenses, download manifests, install runs). | Documentation/reference only, not a dependency. Useful to validate wire-format assumptions and as a fallback acquisition route if the HTTP endpoints change. Reading this MIT-licensed material means the Ubisoft adapter is reference-assisted rather than strictly cleanroom; this is an explicit, documented decision. |
 | Maxima (`ArmchairDevelopers/Maxima`) | Candidate headless EA Desktop ingestion implementation. | External/version-pinned adapter; isolate EA authorization/session handling and independently validate acquired assets. |
 | Manual import | User-provided installer/assets and metadata. | Same staging, path safety, grouping, validation and publication gates. |
 
@@ -191,6 +194,51 @@ Emit immutable DropletManifest (`depot/manifests/{sha256}.json`)
    - Built on Node's native test runner (`node:test`, `node:assert/strict`) without external test runner bloat.
    - Implements hermetic mocking of Epic's OAuth2 token endpoints (`exchangeEpicAuthCode`, `refreshEpicToken`), entitlements directory (`getEpicEntitlements`), and launcher public assets distribution service (`getEpicAssetInfo`).
    - Comprehensive worker task testing verifying state machine progression, token refresh failovers, cancellation via `AbortSignal`, and error quarantine.
+
+### Phase 2 Ubisoft Connect Ingestion (cleanroom, reference-assisted)
+
+Ubisoft Connect integration streams the raw game data files directly from Ubisoft's deployment CDN into the depot CAS. **No installer/setup files are downloaded or executed** — the adapter resolves the install manifest's file records and streams each file's bytes directly, mirroring the GOG/Epic direct-streaming architecture. The implementation was written cleanroom against documented UbiServices behavior, with `Starkka15/Optima` as the architecture reference and `YoobieRE/ubisoft-demux-node` (MIT) consulted as protocol documentation for the Demux surface.
+
+```text
+User links Ubisoft Connect account (session ticket)
+        |
+        v
+Discover owned titles (`public-ubiservices.ubi.com/v1/profiles/{userId}/ownedtitles`)
+        |
+        v
+Resolve install manifest (`api-uplayv2.ubi.com/v1/manifests/{version}/{appId}/branches/{branch}`)
+        |
+        v
+Fetch paginated file records (`uplaypc-dns.ubi.com/v1/manifests/{manifestId}/files`)
+        |
+        v
+Stream raw game data files directly to GameDepot CAS (4 MiB SHA-256 chunks)
+        |
+        v
+Emit immutable DropletManifest (`depot/manifests/{sha256}.json`)
+```
+
+#### Implemented Ubisoft Connect Modules
+
+1. **Ubisoft Connect API Client (`server/server/utils/ubisoft/client.ts`)**:
+   - Session authorize/refresh via `public-ubiservices.ubi.com/v3/profiles/sessions` (`Ubi_v1 t=<ticket>` tickets are never logged).
+   - Owned-titles discovery (`getUbisoftOwnedTitles`), product configuration normalization (`getUbisoftConfiguration`), install-manifest resolution (`resolveUbisoftManifest`), and paginated file-record fetching (`fetchUbisoftFileRecords`).
+   - File-record output (paths, sizes, sources) is treated as untrusted and re-validated during streaming.
+2. **Direct Game Streamer (`server/server/utils/ubisoft/game-streamer.ts`)**:
+   - `streamUbisoftGameToCas()`: Streams each manifest file's bytes directly from its CDN source into 4 MiB fixed-window CAS objects and writes an immutable `DropletManifest`.
+   - Validates provider-declared lengths, rejects non-HTTPS sources, duplicate paths, and traversal-style paths; bounded memory with cancellation support. No installer files are fetched or run.
+3. **API Endpoints (`server/server/api/admin/depot/ubisoft/`)**:
+   - `library.get.ts`: Retrieves and filters owned Ubisoft titles for the authenticated account, best-effort resolving display names via product configuration.
+   - `ingest.post.ts`: Dispatches an Ubisoft ingestion job with validation for space ID, user ID, and title. The dispatched job payload deliberately carries **no session ticket or credentials**; the ingestion pipeline resolves the account's scoped encrypted ticket from its own credential store when the worker runs.
+4. **Ubisoft Ingestion Worker Task (`server/server/tasks/ubisoft/ingest.ts`)**:
+   - `ingestUbisoftJob()`: Follows the shared adapter contract with status lifecycle reporting via an injectable `IngestJobStore`.
+   - **Ownership re-check before any byte is transferred**: the account must still own the title or the job fails closed (403) without acquiring.
+   - One 401 session-refresh retry during manifest/file-record acquisition; respects `AbortSignal` for cancellation.
+5. **Ubisoft Testing Suite (`server/server/utils/ubisoft/client.test.ts`, `server/server/tasks/ubisoft/ingest.test.ts`)**:
+   - Hermetic `node:test` suites with stubbed `fetch`; no network access. Cover session handling, pagination, ownership enforcement (no download phase may start before ownership confirms), abort-before-execution, missing-manifest and empty-manifest fail-closed paths, and single-retry session refresh.
+6. **Caveats / open items**:
+   - Ubisoft's HTTP endpoints are undocumented and may drift; `ubisoft-demux-node`'s Demux protobuf schemas are retained as the documented fallback acquisition route.
+   - Verification against live Ubisoft services is still outstanding; the hermetic suites validate contract behavior only.
 
 ## 3. Manifest-Driven Depot and Chunk Delivery
 
@@ -325,4 +373,4 @@ A provider-neutral launch request should carry executable path, arguments, worki
 
 ## 7. Roadmap Boundary
 
-Planned evolution includes headless GOG/Epic ingestion; candidate Ubisoft Connect (Optima) and EA Desktop (Maxima) adapters; a provider-neutral manifest/chunk depot informed by Steam-style DepotDownloader patterns; seekable-zstd packaging and delta updates; and optional UMU/Proton launch on Linux/Steam Deck. Mesh delivery and these external integrations should be marked implemented only after corresponding code, tests and security/operational controls exist. Update this document and the roadmap as each milestone changes status.
+Planned evolution includes headless GOG/Epic/Ubisoft ingestion; candidate EA Desktop (Maxima) adapters; a provider-neutral manifest/chunk depot informed by Steam-style DepotDownloader patterns; seekable-zstd packaging and delta updates; and optional UMU/Proton launch on Linux/Steam Deck. Ubisoft Connect ingestion is implemented on `develop` (cleanroom, reference-assisted by the MIT-licensed `ubisoft-demux-node` protocol schemas; Optima remains reference-only); a Demux-socket fallback acquisition route is retained as a documented contingency if the HTTP endpoints drift. Mesh delivery and these external integrations should be marked implemented only after corresponding code, tests and security/operational controls exist. Update this document and the roadmap as each milestone changes status.
