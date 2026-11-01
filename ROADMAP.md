@@ -1,6 +1,6 @@
 # GameDepot Roadmap
 
-GameDepot is an open-source, community-driven game distribution and preservation platform (hard-forked from Drop OSS). This roadmap combines our next-generation chunked delivery and multi-store ingestion pipelines with all the premium/plus features previously locked behind paywalls in platforms like GameVault+ (made 100% free and open-source).
+GameDepot is an open-source, community-driven game distribution and preservation platform (hard-forked from Drop OSS). This roadmap combines multi-store ingestion, chunked depot delivery, and native client capabilities. Store access and downstream redistribution must respect each provider's terms and users' legal rights.
 
 ---
 
@@ -10,77 +10,57 @@ GameDepot is an open-source, community-driven game distribution and preservation
 *Decouple from upstream Drop OSS dependencies, clean up CI/CD, and streamline local developer onboarding.*
 - [x] **CI Silencing & Streamlining:** Removed automatic `push`/`pull_request` CI triggers, converted pipelines to manual `workflow_dispatch`, and deleted unused static pages deployments.
 - [x] **Monorepo Cleanup:** Audit workspace dependencies (`pnpm`, Rust toolchains), rebrand packages (`@gamedepot/server`, `@gamedepot/desktop`, `gamedepot-desktop` crate), and ensure clean independent builds for `server`, `desktop`, `torrential`, and `droplet`.
-- [x] **Turnkey Docker Stack:** Provide an all-in-one `docker-compose.yml` and `.env.example` bundling the GameDepot server (`@gamedepot/server` with Torrential daemon), PostgreSQL with automatic healthchecks, persistent data volumes, and reverse proxy for simple self-hosting.
+- [x] **Turnkey Docker Stack:** Provide an all-in-one `docker-compose.yml` and `.env.example` bundling the GameDepot server, PostgreSQL with healthchecks, persistent data volumes, and reverse proxy for self-hosting.
 
 ---
 
-### Phase 2: Multi-Store Ingestion & Stream Repackaging (The Depot Pipeline)
-*Automate cataloging, updates, and direct CDN streaming without offline setup wizards (Heroic / Legendary / GOGDL style).*
-- [ ] **GOG Galaxy CDN Ingestion:**
-  - Headless OAuth flow for GOG accounts.
-  - Manifest-based direct depot stream via GOG Galaxy API (`galaxy.gog.com`).
-  - Stream raw game file chunks directly into Seekable Zstandard (`.tar.zst`), bypassing manual InnoSetup installation.
-- [ ] **Epic Games Store CDN Ingestion:**
-  - Headless authentication and library sync via `legendary` API.
-  - Stream chunked binary manifests (`.manifest` and `.chunk` blobs) concurrently over HTTP/2.
-  - On-the-fly decompress & repackage into Seekable Zstandard archives.
-- [ ] **Multi-part / Multi-disc Installer Support:**
-  - Automated scanning, grouping, and metadata tagging for multi-part vintage installers (e.g. 2+ CD-ROM `.bin` / `.exe` sets).
+### Phase 2: Multi-Store Ingestion & Depot Repackaging
+*Automate library discovery and reproducible acquisition from supported storefronts through isolated, headless adapters.*
+- [ ] **GOG Galaxy Ingestion:** Headless account authorization, library/build discovery, and acquisition of owned installers, updates, DLC, and bonus content via supported GOG interfaces / GOGDL.
+- [ ] **Epic Games Ingestion:** Headless authentication and library/build discovery through Legendary-compatible backend interfaces.
+- [ ] **Ubisoft Connect Ingestion (Optima adapter):** Evaluate `Starkka15/Optima` as a headless Ubisoft Connect acquisition adapter. Isolate account/session state; normalize owned products, editions and install/build metadata; stage only content the account is authorized to access. Treat it as an external, version-pinned adapter, not as GameDepot's catalog or trust boundary.
+- [ ] **EA App Ingestion (Maxima adapter):** Evaluate `ArmchairDevelopers/Maxima` as a headless EA Desktop acquisition adapter. Keep credentials and provider-specific session/token handling isolated; normalize library/build metadata and acquired assets into the common pipeline. Pin/validate the external tool and independently verify its output.
+- [ ] **Installer / Disc Set Support:** Group split archives and multi-disc installers into ordered logical releases; verify expected parts and preserve source provenance.
+- [ ] **Common Adapter Contract:** `authorize -> discover -> normalize -> acquire -> verify -> publish`; make resync idempotent, redact secrets, and keep provider-specific formats out of shared catalog APIs.
 
 ---
 
-### Phase 3: Premium Player Features (Formerly GameVault+ Paywalled)
-*Every premium convenience feature from GameVault+ built natively into GameDepot, free and unrestricted under AGPL-3.0.*
-- [ ] **Cross-Device Cloud Saves:**
-  - Automated save game backup and bidirectional synchronization between client devices.
-  - Versioned save history with conflict resolution and rollback support.
-- [ ] **Multi-Profile Support:**
-  - Switch between multiple user profiles / accounts per client installation with isolated configs, play stats, and save states.
-- [ ] **External Launcher Integrations:**
-  - **Playnite Integration:** Dedicated Playnite plugin to browse, install, and launch GameDepot titles.
-  - **Steam Non-Steam Game Sync:** Auto-add installed GameDepot games to local Steam client with grid/hero banners.
-  - **Discord Rich Presence:** Dynamic presence showing current game, playtime, and server/mesh status.
-- [ ] **Personalization & Theming:**
-  - Animated user profile pictures / avatars.
-  - Custom client themes (CSS / theme engine with community theme support).
-- [ ] **Open Client APIs & Webhooks:**
-  - Local REST / WebSocket Client APIs allowing third-party tools, deck plugins (Decky Loader), and launchers to control GameDepot installations.
+### Phase 3: Player Features
+*Native client functionality and integrations across devices.*
+- [ ] **Cross-Device Cloud Saves:** Versioned backup, bidirectional synchronization, conflict resolution and rollback.
+- [ ] **Multi-Profile Support:** Isolated configs, play stats, accounts, and save states per profile.
+- [ ] **External Launcher Integrations:** Playnite plugin, Steam Non-Steam game sync with artwork, Discord Rich Presence, and local client APIs/webhooks.
+- [ ] **Personalization & Theming:** Community themes and profile customization.
 
 ---
 
 ### Phase 4: Next-Gen Storage & Chunked Delivery
-*Fast, deduplicated, and seekable game streaming to replace monolithic archive downloads.*
-- [ ] **Seekable Zstandard (zstd) Chunking:**
-  - Segment games into content-addressed chunks compressed with seekable zstd.
-- [ ] **Steam-Style Delta Patching:**
-  - Compute chunk-level diffs between game versions; download only altered blocks during game updates.
-- [ ] **Transfer Engine Evolution (`droplet` / `torrential`):**
-  - High-throughput parallel block retrieval, verification, and on-the-fly decompression.
+*Deduplicated, verifiable delivery using manifest-driven depots and seekable compression.*
+- [ ] **Manifest / Chunk Depot Model:** Study DepotDownloader's Steam-style depot workflow: app/depot/build manifests enumerate paths, file metadata, chunk identities, offsets/sizes, and integrity data. Define a provider-neutral immutable manifest schema and explicit mapping from logical files to content objects; do not bind GameDepot to Steam's private protocol or require Steam credentials.
+- [ ] **Chunk Acquisition & Assembly:** Support concurrent, bounded and resumable retrieval of manifest-addressed chunks; validate lengths and hashes before caching; assemble files in staging and atomically publish only after final verification.
+- [ ] **Seekable Zstandard (zstd):** Repackage verified source files into independently decodable frames with an index mapping logical file ranges to compressed byte ranges. Version manifests and frame layout; verify compressed and decoded content and expose HTTP range reads where supported.
+- [ ] **Steam-Style Delta Patching:** Compare old/new file and chunk identities, reuse unchanged verified objects, acquire only missing/changed chunks, and preserve the old usable install until the new release passes validation.
+- [ ] **Transfer Engine Evolution (`droplet` / `torrential`):** Bounded parallel fetching, cancellation, retry, progress reporting, integrity verification, cache lifecycle, and on-demand decompression.
 
 ---
 
 ### Phase 5: Virtual LAN & Pluggable Mesh Networking
 *Zero-configuration peer-to-peer distribution and private LAN multiplayer.*
-- [ ] **Pluggable VPN / Mesh Driver Architecture:**
-  - Unified driver interface in server and desktop client for mesh coordinators.
-- [ ] **NetBird Integration:**
-  - Zero-config WireGuard mesh for private friends groups and low-latency virtual LAN play.
-- [ ] **Headscale / Tailscale Integration:**
-  - First-class support for self-hosted Headscale coordinators.
-- [ ] **P2P Swarming (LAN/Mesh Seeding):**
-  - Allow local or meshed peers to seed chunks directly to one another to eliminate depot bandwidth bottlenecks.
+- [ ] **Pluggable VPN / Mesh Driver Architecture:** Unified driver interface in server and desktop client.
+- [ ] **NetBird Integration:** WireGuard mesh for private groups and LAN play.
+- [ ] **Headscale / Tailscale Integration:** Self-hosted coordination support.
+- [ ] **P2P Swarming:** Seed verified content objects between eligible local/meshed peers with source authorization and integrity checks.
 
 ---
 
-### Phase 6: Native Client Polish & Steam Deck Support
-*The ultimate unified desktop launcher experience.*
-- [ ] **Hardware Compatibility & System Spec Checker ("Can You Run It?"):**
-  - Native client hardware probe (CPU model/instructions, GPU VRAM & driver level, Total RAM, available disk space, OS/DirectX/Vulkan support via `sysinfo` / Rust).
-  - Automated parsing of scraped minimum & recommended requirements (from Steam, PCGamingWiki, or IGDB).
-  - Visual compatibility badge on game pages (e.g. *Meets Recommended*, *Meets Minimum*, *Insufficient Specs*, *Warning: Disk Space / GPU*).
-- [ ] **Rich Metadata & Scrapers:**
-  - Automated cover art, hero banners, logos, and screenshots via IGDB and SteamGridDB.
-- [ ] **Decky Loader Plugin:**
-  - Native Decky plugin for Steam Deck users to install and manage games directly in Game Mode.
-- [ ] **Wine / Proton / Runner Management:**
-  - One-click launch scripts and Proton runner assignment for Linux and SteamOS.
+### Phase 6: Native Client Polish & Linux / Steam Deck
+*Unified desktop and handheld launch experience.*
+- [ ] **Rich Metadata & Scrapers:** Cover art, banners, logos and screenshots.
+- [ ] **Decky Loader Plugin:** Manage GameDepot library from Steam Deck Game Mode.
+- [ ] **Proton / Wine Execution Layer (umu-launcher):** Evaluate UMU as a runner integration for launching Windows games on Linux and SteamOS/Steam Deck. Resolve selected Proton runner, `umu` runtime, per-game prefix and environment through a provider-independent launch contract; capture exit status/logs and allow cancellation. Runner availability and per-title compatibility remain user-configurable. Do not couple store ingestion adapters to the execution layer.
+- [ ] **Linux Compatibility UX:** Detect OS/runtime and surface runner requirements, per-game launch options, prefix scope and compatibility notes.
+
+---
+
+## Implementation status
+All unchecked items above are planned work, not claims of shipped support. External projects are integration references/adapters; review licensing, provider terms, security, maintenance and compatibility before adopting or invoking them.
