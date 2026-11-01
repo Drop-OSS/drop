@@ -102,3 +102,31 @@ What is still upstream-branded, deliberately:
   that is attribution, not branding.
 
 Changing any of these is welcome as its own change; keep the fork-boundary guard green.
+
+## Dead code from the abandoned store-ingestion work
+
+Commit `20deede2` ("wire store connection persistence, admin UI, and API routes") added a
+store-ingestion API under `server/api/v1/` plus a matching page tree in `app/pages/`. Neither
+half ever compiled: the handlers imported `internal/authorization`, `internal/prisma`,
+`internal/auth` and helpers (`requireAdminUser`, `mustBeAdmin`) that exist nowhere in this
+repository, and imported `StoreProvider` from `@prisma/client` although this schema generates its
+client into `prisma/client`. The repo-root `app/` tree is not a workspace package (only `server/`
+is in `pnpm-workspace.yaml`) and has no config or manifest, so those pages are never built or
+served.
+
+The five uncompilable handlers were removed; `server/api/admin/depot/*` is the live surface and
+`server/pages/admin/depot/index.vue` the live page. The removed files stay on
+`wip/depot-ingestion-pipeline` for reference.
+
+The *intent* is still unimplemented and worth doing properly:
+
+- **Server-side store credentials.** `StoreConnection` exists in `prisma/models/depot.prisma`,
+  but nothing writes to it. Today `api/admin/depot/epic/auth.post.ts` returns
+  `access_token`/`refresh_token` in its HTTP response and persists nothing, so the library and
+  ingest handlers demand a token the browser never has. The fix is one admin-only endpoint that
+  stores encrypted credentials, handlers that read them from the database, and a page with no
+  credential field.
+- **Epic binary manifest decoding.** See `server/utils/epic/manifest.ts`: the transport is
+  tested, the decoder answers `501` until it is validated against a real manifest sample.
+- **`app/pages/`.** Either delete the tree or, if a second client is really planned, give it a
+  package manifest and add it to the workspace so it gets built and checked.
