@@ -129,7 +129,7 @@
           token) copied from an existing EA app / Origin installation.
         </p>
         <form class="flex flex-col gap-3" @submit.prevent="connect">
-          <div class="flex flex-col gap-3 sm:flex-row">
+          <div class="flex flex-col gap-3">
             <template v-if="activeProviderId === 'gog'">
               <label for="gog-connect-code" class="sr-only">
                 GOG sign-in code
@@ -142,14 +142,14 @@
                 placeholder="Sign-in code (from embed.gog.com) or full URL"
                 class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
-              <details class="w-full sm:basis-full">
+              <details class="w-full">
                 <summary
                   class="cursor-pointer select-none text-xs text-zinc-500"
                 >
                   Or paste an existing token (Heroic users: both live in
                   ~/.config/heroic/gog_store/auth.json)
                 </summary>
-                <div class="mt-3 flex flex-col gap-3 sm:flex-row">
+                <div class="mt-3 flex flex-col gap-3">
                   <label for="gog-connect-token" class="sr-only">
                     GOG access token
                   </label>
@@ -264,13 +264,13 @@
                   class="min-w-0 flex-1 rounded-lg border border-amber-500/40 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 />
               </label>
-              <details class="w-full sm:basis-full">
+              <details class="w-full">
                 <summary
                   class="cursor-pointer select-none text-xs text-zinc-500"
                 >
                   Or paste an existing Ubisoft Connect ticket
                 </summary>
-                <div class="mt-3 flex flex-col gap-3 sm:flex-row">
+                <div class="mt-3 flex flex-col gap-3">
                   <label for="ubisoft-ticket" class="sr-only">
                     Ubisoft session ticket
                   </label>
