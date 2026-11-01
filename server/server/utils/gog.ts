@@ -5,20 +5,25 @@ const GOG_TOKEN_URL = "https://auth.gog.com/token";
 const GOG_AUTH_URL = "https://auth.gog.com/auth";
 
 /**
- * GOG's Galaxy/embed public OAuth client. The pair is embedded unencrypted
- * in GOG's own launcher and is the same one used by gogrepo, gogcli and
- * similar open-source tools; it exists so third-party apps can use a user's
- * own refreshed tokens, which is exactly its use here.
+ * The GOG client Heroic's bundled gogdl binary authenticates under - the
+ * same pair that issued the working tokens in Heroic's gog_store/auth.json.
+ * Live-verified against auth.gog.com: dummy codes reach code validation
+ * ("invalid_grant"), while other public pairs GOG once tolerated now fail
+ * client auth outright ("The client credentials are invalid").
  */
-const GOG_PUBLIC_CLIENT_ID = "46f441d2-5409-4a03-95fd-39285c9db1c1";
-const GOG_PUBLIC_CLIENT_SECRET = "884406289756227531";
+const GOG_PUBLIC_CLIENT_ID = "46899977096215655";
+const GOG_PUBLIC_CLIENT_SECRET =
+  "9d85c43b1482497dbbce61f6e4aa173a433796eeae2ca8c5f6129f2dc4de46d9";
 
 /**
- * The only redirect GOG accepts for this client (live-verified; a localhost
- * callback yields GOG's "invalid client" page). Sign-in therefore ends on
- * embed.gog.com/auth?code=... and the code is copied back, the gogrepo flow.
+ * The only redirect this client is registered for (live-verified; every
+ * other redirect - localhost callbacks included - yields GOG's
+ * "invalid client" page). Sign-in therefore ends on
+ * embed.gog.com/on_login_success?origin=client&code=... and the code is
+ * copied back, the gogdl flow Heroic itself automates.
  */
-const GOG_EMBED_REDIRECT_URI = "https://embed.gog.com/auth";
+const GOG_EMBED_REDIRECT_URI =
+  "https://embed.gog.com/on_login_success?origin=client";
 
 export type GogTokenResponse = {
   access_token: string;
@@ -28,18 +33,19 @@ export type GogTokenResponse = {
   user_id?: string;
 };
 
-/** GOG's sign-in URL for the launcher client (see the redirect note above). */
+/** GOG's sign-in URL for the Heroic/gogdl client (see the redirect note). */
 export function buildGogAuthorizeUrl(): string {
   const url = new URL(GOG_AUTH_URL);
   url.searchParams.set("client_id", GOG_PUBLIC_CLIENT_ID);
   url.searchParams.set("redirect_uri", GOG_EMBED_REDIRECT_URI);
   url.searchParams.set("response_type", "code");
+  url.searchParams.set("layout", "galaxy");
   return url.toString();
 }
 
 /**
- * Accept a bare code or the full `embed.gog.com/auth?code=...` URL copied
- * from the address bar after sign-in.
+ * Accept a bare code or the full `embed.gog.com/on_login_success?...&code=...`
+ * URL copied from the address bar after sign-in.
  */
 export function extractGogAuthCode(input: string): string {
   const trimmed = input.trim();
@@ -63,7 +69,7 @@ export async function exchangeGogAuthorizationCode(
     throw createError({
       statusCode: 400,
       statusMessage:
-        "Paste the code from the embed.gog.com/auth page (or its full URL)",
+        "Paste the code from the embed.gog.com/on_login_success page (or its full URL)",
     });
   const url = new URL(GOG_TOKEN_URL);
   url.searchParams.set("client_id", GOG_PUBLIC_CLIENT_ID);
@@ -91,11 +97,28 @@ async function gogTokenFetch(url: URL, label: string): Promise<Response> {
       statusMessage: `Failed to contact ${label}`,
     });
   }
-  if (!response.ok)
+  if (!response.ok) {
+    // GOG explains rejections as {"error":...,"error_description":...};
+    // pass that through - swallowing it turns every failure into a guess.
+    const detail = await response
+      .text()
+      .then((body) => {
+        try {
+          const parsed = JSON.parse(body) as {
+            error_description?: string;
+            error?: string;
+          };
+          return parsed.error_description || parsed.error || "";
+        } catch {
+          return body.slice(0, 140);
+        }
+      })
+      .catch(() => "");
     throw createError({
       statusCode: response.status,
-      statusMessage: `${label} failed (${response.status})`,
+      statusMessage: `${label} failed (${response.status})${detail ? `: ${detail.slice(0, 200)}` : ""}`,
     });
+  }
   return response;
 }
 

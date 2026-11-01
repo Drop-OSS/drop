@@ -97,8 +97,9 @@
             Sign in with GOG
           </button>
           <span class="text-xs text-zinc-500">
-            after signing in, GOG lands on embed.gog.com/auth?code=... - copy
-            that code from the address bar and paste it below
+            after signing in, GOG lands on embed.gog.com/on_login_success?
+            origin=client&code=... - copy that code from the address bar and
+            paste it below
           </span>
         </div>
         <div
@@ -900,7 +901,7 @@ async function startGogSignIn() {
     );
     window.open(authorizeUrl, "_blank", "noopener");
     notice.value =
-      "Sign in at GOG in the new tab - it ends on embed.gog.com/auth?code=... - copy the code from the address bar into the field below.";
+      "Sign in at GOG in the new tab - it ends on embed.gog.com/on_login_success?origin=client&code=... - copy the code from the address bar into the field below.";
   } catch (error) {
     notice.value =
       error instanceof Error

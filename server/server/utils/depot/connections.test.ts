@@ -117,9 +117,9 @@ test("storing an opaque GOG token with an explicit account id works", async () =
   await saveConnection(store, {
     provider: "gog",
     accessToken: "opaque-launcher-token",
-    accountId: "46899977096215655",
+    accountId: "9900112233445566",
   });
-  assert.equal(rows[0]?.accountId, "46899977096215655");
+  assert.equal(rows[0]?.accountId, "9900112233445566");
   assert.equal(rows[0]?.expiresAt, null);
 });
 
@@ -130,18 +130,18 @@ test("a GOG sign-in code upgrades to a stored token set", async () => {
         access_token: "gog-at",
         refresh_token: "gog-rt",
         expires_in: 7200,
-        user_id: "46899977096215655",
+        user_id: "9900112233445566",
       },
     },
   ]);
   const { store, rows } = createStore();
   await saveConnection(store, {
     provider: "gog",
-    code: "https://embed.gog.com/auth?code=abc-123",
+    code: "https://embed.gog.com/on_login_success?origin=client&code=abc-123",
   });
   assert.equal(rows[0]?.accessToken, "gog-at");
   assert.equal(rows[0]?.refreshToken, "gog-rt");
-  assert.equal(rows[0]?.accountId, "46899977096215655");
+  assert.equal(rows[0]?.accountId, "9900112233445566");
   assert.ok(rows[0]?.expiresAt && rows[0].expiresAt.getTime() > Date.now());
 });
 

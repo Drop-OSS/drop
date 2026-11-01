@@ -11,20 +11,24 @@ afterEach(() => {
   globalThis.fetch = originalFetch;
 });
 
-test("the GOG authorize URL uses the public client and its embed redirect", () => {
+test("the GOG authorize URL uses the Heroic client and its registered redirect", () => {
   const url = new URL(buildGogAuthorizeUrl());
   assert.equal(url.origin + url.pathname, "https://auth.gog.com/auth");
   assert.equal(url.searchParams.get("response_type"), "code");
-  // GOG rejects any other redirect for this client with "invalid client".
+  assert.equal(url.searchParams.get("layout"), "galaxy");
+  // GOG rejects any other client/redirect combo with "invalid client".
+  assert.equal(url.searchParams.get("client_id"), "46899977096215655");
   assert.equal(
     url.searchParams.get("redirect_uri"),
-    "https://embed.gog.com/auth",
+    "https://embed.gog.com/on_login_success?origin=client",
   );
 });
 
 test("a full embed sign-in URL is reduced to its code", () => {
   assert.equal(
-    extractGogAuthCode("https://embed.gog.com/auth?code=abc-123"),
+    extractGogAuthCode(
+      "https://embed.gog.com/on_login_success?origin=client&code=abc-123",
+    ),
     "abc-123",
   );
   assert.equal(extractGogAuthCode(" abc-123 "), "abc-123");
@@ -45,7 +49,7 @@ test("the code exchange posts the code to GOG's token endpoint", async () => {
     );
   }) as typeof fetch;
   const tokens = await exchangeGogAuthorizationCode(
-    "https://embed.gog.com/auth?code=the-code",
+    "https://embed.gog.com/on_login_success?origin=client&code=the-code",
   );
   assert.equal(tokens.user_id, "999");
   const sent = new URL(calls[0] as string);
@@ -54,6 +58,6 @@ test("the code exchange posts the code to GOG's token endpoint", async () => {
   assert.equal(sent.searchParams.get("code"), "the-code");
   assert.equal(
     sent.searchParams.get("redirect_uri"),
-    "https://embed.gog.com/auth",
+    "https://embed.gog.com/on_login_success?origin=client",
   );
 });
