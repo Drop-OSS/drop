@@ -45,7 +45,7 @@ Keep control-plane metadata and high-volume bytes separate. Current repository c
 
 ## 2. Store Ingestion: Adapter Contract
 
-An adapter is a narrow provider-specific boundary that authenticates, discovers owned products/builds, acquires allowed source assets and reports normalized results. Candidate references include GOGDL/Legendary, `Starkka15/Optima` for Ubisoft Connect, and `ArmchairDevelopers/Maxima` for EA Desktop. These tools are external projects; evaluate their maintenance, licenses, provider terms, security posture and invocation requirements before adoption. Do not treat any adapter's success status as proof of verified content.
+An adapter is a narrow provider-specific boundary that authenticates, discovers owned products/builds, acquires allowed source assets and reports normalized results. External references include GOGDL/Legendary, `Starkka15/Optima` for Ubisoft Connect, and `ArmchairDevelopers/Maxima` for EA App. Optima and Maxima are reference-only for the in-repo Ubisoft and EA cleanroom implementations; no code is copied. Evaluate references for provider terms and security assumptions, and do not treat an adapter's success status as proof of verified content.
 
 ```text
  Account link / authorization
@@ -89,7 +89,7 @@ The shared contract is `authorize -> discover -> normalize -> acquire -> verify 
 | Legendary / Epic interfaces | Epic library/build discovery and content acquisition. | Normalize manifest/build output; independently validate chunks and assembled files. |
 | Optima (`Starkka15/Optima`) | Headless Ubisoft Connect reference for the cleanroom adapter implemented in-repo. | External reference only; no code is copied. The in-repo implementation uses documented UbiServices HTTP endpoints (`public-ubiservices.ubi.com`, `api-uplayv2.ubi.com`, `uplaypc-dns.ubi.com`). Protect account/session state and follow Ubisoft access terms. |
 | `YoobieRE/ubisoft-demux-node` (MIT) | Protocol reference for Ubisoft Connect's protobuf Demux API (ownership licenses, download manifests, install runs). | Documentation/reference only, not a dependency. Useful to validate wire-format assumptions and as a fallback acquisition route if the HTTP endpoints change. Reading this MIT-licensed material means the Ubisoft adapter is reference-assisted rather than strictly cleanroom; this is an explicit, documented decision. |
-| Maxima (`ArmchairDevelopers/Maxima`) | Candidate headless EA Desktop ingestion implementation. | External/version-pinned adapter; isolate EA authorization/session handling and independently validate acquired assets. |
+| Maxima (`ArmchairDevelopers/Maxima`) | EA App cleanroom DIP streamer design reference for the in-repo adapter. | Reference only; no code is copied. The in-repo implementation uses Nucleus OIDC, EA entitlement/discovery services, remote ZIP central-directory parsing and range-based DIP acquisition. |
 | Manual import | User-provided installer/assets and metadata. | Same staging, path safety, grouping, validation and publication gates. |
 
 These adapters describe ingestion of authorized assets; they do not bypass DRM or grant rights to redistribute content. Prefer supported interfaces and make account authorization and legal responsibility explicit.
@@ -240,6 +240,49 @@ Emit immutable DropletManifest (`depot/manifests/{sha256}.json`)
    - Ubisoft's HTTP endpoints are undocumented and may drift; `ubisoft-demux-node`'s Demux protobuf schemas are retained as the documented fallback acquisition route.
    - Verification against live Ubisoft services is still outstanding; the hermetic suites validate contract behavior only.
 
+### Phase 2 EA App Ingestion (cleanroom, reference-only)
+
+EA App ingestion is an in-repo provider adapter design targeting authorized account entitlements and raw DIP content files. The implementation is written cleanroom; `ArmchairDevelopers/Maxima` is an architecture reference only, and no code is copied. Authentication uses Nucleus OIDC over plain HTTP to `accounts.ea.com`; entitlement and discovery calls use `ecommerce2.dm.origin.com` and the Juno GraphQL service-aggregation layer at `service-aggregation-layer.juno.ea.com`.
+
+```text
+Authorize via Nucleus OIDC (`accounts.ea.com`, plain HTTP)
+        |
+        v
+Discover entitlements and title/build metadata
+(`ecommerce2.dm.origin.com` + Juno GraphQL)
+        |
+        v
+Resolve ContentService.download_url for DIP content
+        |
+        v
+Parse remote ZIP central directory (bounded memory)
+        |
+        v
+HTTP Range-fetch each entry -> inflate -> verify CRC32
+        |
+        v
+Stream raw files into 4 MiB GameDepot CAS
+        |
+        v
+Emit immutable DropletManifest
+```
+
+#### Planned EA App Modules (`server/server/utils/ea/`)
+
+1. **EA API Client (`client.ts`)**:
+   - Nucleus OIDC authentication, entitlement/discovery calls, and download-URL resolution through `ContentService.download_url`.
+   - Keep credentials, tokens and signed URLs scoped and redacted; treat provider responses as untrusted.
+2. **Remote ZIP Manifest Parser (`zip-manifest.ts`)**:
+   - Parse the remote ZIP end-of-central-directory and central-directory records using bounded memory, without downloading the full archive.
+   - Retain each entry's `dataOffset`, `compressedSize`, `uncompressedSize` and `compressionMethod`; validate offsets, lengths, paths and resource limits before acquisition.
+3. **DIP Game Streamer (`game-streamer.ts`)**:
+   - Use HTTP Range requests to fetch each entry's compressed bytes, inflate the entry, verify its declared uncompressed size and CRC32, then stream the raw file to the 4 MiB CAS and emit a `DropletManifest` like GOG, Epic and Ubisoft.
+   - CRC32 is checked per entry and any mismatch, malformed data, or exhausted retry fails closed. This improves on Maxima's commented-out CRC32 verification and its behavior of silently returning `Ok` after five failed tries.
+
+The per-file Deflate representation in EA's DIP is discarded at ingest; GameDepot applies its own documented compression and chunking policy. This yields provider-independent content objects, supports cross-provider deduplication, and makes idempotent resync depend on verified content rather than EA's source encoding. Skip the touchup installer and ingest the DIP files directly. Per-title caveat: a few games patch files after touchup, so directly streamed DIP bytes may not be byte-identical to the final touched-up installation.
+
+Maxima reference: [`ArmchairDevelopers/Maxima`](https://github.com/ArmchairDevelopers/Maxima), specifically `maxima-lib/src/content/downloader.rs`, `manager.rs`, `dip.rs` and `endpoints.rs`. Reference only; the EA adapter is cleanroom and no source code is copied.
+
 ## 3. Manifest-Driven Depot and Chunk Delivery
 
 DepotDownloader provides a useful reference for Steam-style depot/build manifests and chunk-based acquisition/assembly. GameDepot should adopt the general pattern—not assume access to Steam's private protocol, manifests, services or credentials. Define its own versioned, provider-neutral manifest schema. It should describe immutable release identity, logical file paths, sizes and digests, ordered chunk/object references and integrity metadata; where a provider manifest is available, retain its ID and source provenance.
@@ -373,4 +416,5 @@ A provider-neutral launch request should carry executable path, arguments, worki
 
 ## 7. Roadmap Boundary
 
-Planned evolution includes headless GOG/Epic/Ubisoft ingestion; candidate EA Desktop (Maxima) adapters; a provider-neutral manifest/chunk depot informed by Steam-style DepotDownloader patterns; seekable-zstd packaging and delta updates; and optional UMU/Proton launch on Linux/Steam Deck. Ubisoft Connect ingestion is implemented on `develop` (cleanroom, reference-assisted by the MIT-licensed `ubisoft-demux-node` protocol schemas; Optima remains reference-only); a Demux-socket fallback acquisition route is retained as a documented contingency if the HTTP endpoints drift. Mesh delivery and these external integrations should be marked implemented only after corresponding code, tests and security/operational controls exist. Update this document and the roadmap as each milestone changes status.
+Planned evolution includes headless GOG/Epic/Ubisoft/EA App ingestion; the EA DIP streamer is an in-repo cleanroom design with Maxima as reference-only and no code copied; a provider-neutral manifest/chunk depot informed by Steam-style DepotDownloader patterns; seekable-zstd packaging and delta updates; and optional UMU/Proton launch on Linux/Steam Deck. Ubisoft Connect ingestion is implemented on `develop` (cleanroom, reference-assisted by the MIT-licensed `ubisoft-demux-node` protocol schemas; Optima remains reference-only); a Demux-socket fallback acquisition route is retained as a documented contingency if the HTTP endpoints drift. Mesh delivery and these external integrations should be marked implemented only after corresponding code, tests and security/operational controls exist. Update this document and the roadmap as each milestone changes status.
+
