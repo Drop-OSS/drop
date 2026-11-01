@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Blocks pushes into the upstream Drop OSS repository. Activate per clone with:
+#   git config core.hooksPath .githooks
+# See CONTRIBUTING.md ("Fork boundary").
+#
+# Escape hatch for a deliberate, reviewed exception:
+#   GAMEDEPOT_ALLOW_UPSTREAM_PUSH=1 git push <remote>
+remote="$1"
+url="$2"
+
+case "${url,,}" in
+  *drop-oss/drop*)
+    if [ "${GAMEDEPOT_ALLOW_UPSTREAM_PUSH:-0}" = "1" ]; then
+      printf 'pre-push: allowing upstream push to %s (%s) because GAMEDEPOT_ALLOW_UPSTREAM_PUSH=1\n' "$remote" "$url" >&2
+      exit 0
+    fi
+    printf 'pre-push: refusing to push to %s (%s).\n' "$remote" "$url" >&2
+    printf 'This fork must not push to the upstream repository. Use origin instead, or see CONTRIBUTING.md.\n' >&2
+    exit 1
+    ;;
+esac
+
+exit 0

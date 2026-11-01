@@ -1,8 +1,8 @@
 pkgbase = drop-oss-app-bin
-	pkgdesc = The client application for the open-source, self-hosted game distribution platform Drop
+	pkgdesc = The client application for the self-hosted game distribution platform GameDepot
 	pkgver = DROP_PKG_VER
 	pkgrel = DROP_PKG_REL
-	url = https://droposs.org/
+	url = https://github.com/cmspeedau/GameDepot
 	arch = x86_64
 	license = LicenseRef-GPL-3.0
 	makedepends = libarchive
@@ -16,7 +16,7 @@ pkgbase = drop-oss-app-bin
 	conflicts = drop-oss-app
 	options = !strip
 	options = !debug
-	source = https://github.com/Drop-OSS/drop/releases/download/DROP_RELEASE_TAG/Drop.Desktop.Client_DROP_PKG_VER_amd64.deb
+	source = https://github.com/cmspeedau/GameDepot/releases/download/DROP_RELEASE_TAG/DROP_DEB_NAME
 	sha256sums = DROP_DEB_SHA256
 
 pkgname = drop-oss-app-bin

@@ -4,13 +4,13 @@
 pkgname=drop-oss-app
 pkgver=DROP_PKG_VER
 pkgrel=DROP_PKG_REL
-pkgdesc="Desktop client for the Drop OSS project."
+pkgdesc="Desktop client for GameDepot."
 arch=(any)
-url="https://droposs.org/"
+url="https://github.com/cmspeedau/GameDepot"
 license=('AGPL-3.0-only')
 depends=('glib2' 'glibc' 'gcc-libs' 'webkit2gtk-4.1' 'umu-launcher' 'libappindicator' 'libayatana-appindicator')
 makedepends=('pnpm' 'cargo-nightly' 'gcc' 'pkgconf')
-source=("git+https://github.com/Drop-OSS/drop.git#tag=DROP_RELEASE_TAG")
+source=("git+https://github.com/cmspeedau/GameDepot.git#tag=DROP_RELEASE_TAG")
 sha256sums=('SKIP')
 
 _desktop="

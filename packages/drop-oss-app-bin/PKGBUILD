@@ -4,15 +4,15 @@
 pkgname=drop-oss-app-bin
 pkgver=DROP_PKG_VER
 pkgrel=DROP_PKG_REL
-pkgdesc="The client application for the open-source, self-hosted game distribution platform Drop"
+pkgdesc="The client application for the self-hosted game distribution platform GameDepot"
 arch=('x86_64')
 conflicts=('drop-oss-app')
-url="https://droposs.org/"
+url="https://github.com/cmspeedau/GameDepot"
 license=('LicenseRef-GPL-3.0')
 depends=('glib2' 'glibc' 'gcc-libs' 'webkit2gtk-4.1' 'umu-launcher' 'libappindicator' 'libayatana-appindicator')
 makedepends=('libarchive')
 options=('!strip' '!debug')
-source=("https://github.com/Drop-OSS/drop/releases/download/DROP_RELEASE_TAG/Drop.Desktop.Client_DROP_PKG_VER_amd64.deb")
+source=("https://github.com/cmspeedau/GameDepot/releases/download/DROP_RELEASE_TAG/DROP_DEB_NAME")
 sha256sums=('DROP_DEB_SHA256')
 
 prepare() {

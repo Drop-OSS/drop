@@ -71,6 +71,22 @@ Package manager is **pnpm** (see `pnpm-workspace.yaml`). Use pnpm workflows, not
 - One logical change per commit/PR; explain *why* in the description.
 - Never include secrets, tokens, or personal data in commits, logs, or fixtures.
 
+## Fork Boundary (no upstream leakage)
+
+This repository is an independent fork; upstream (`Drop-OSS/drop`) must never receive our
+work. Before opening a PR or pushing:
+
+- Base PRs on **`cmspeedau/GameDepot`** / `develop` — never `Drop-OSS/drop`. `gh` uses a
+  per-clone default repository, so run `gh repo set-default cmspeedau/GameDepot` and keep
+  `git config core.hooksPath .githooks` active (the checked-in `pre-push` hook refuses
+  pushes to upstream).
+- Do not add an upstream remote; fetch reference code from a throwaway clone instead.
+- Never publish to upstream namespaces (`ghcr.io/drop-oss/*`, the `drop-oss-app*` AUR
+  packages, `droposs.org` assets).
+- Verify with `scripts/check-fork-target.sh` (also enforced by
+  `.github/workflows/fork-guard.yml`). Details in `CONTRIBUTING.md`.
+
+
 ## Branch Naming
 
 - Branches are named `feature/<short-kebab-case-slug>`, e.g. `feature/steam-adapter`.

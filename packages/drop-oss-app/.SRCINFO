@@ -1,8 +1,8 @@
 pkgbase = drop-oss-app
-	pkgdesc = Desktop client for the Drop OSS project.
+	pkgdesc = Desktop client for GameDepot.
 	pkgver = DROP_PKG_VER
 	pkgrel = DROP_PKG_REL
-	url = https://droposs.org/
+	url = https://github.com/cmspeedau/GameDepot
 	arch = any
 	license = AGPL-3.0-only
 	makedepends = pnpm
@@ -16,7 +16,7 @@ pkgbase = drop-oss-app
 	depends = umu-launcher
 	depends = libappindicator
 	depends = libayatana-appindicator
-	source = git+https://github.com/Drop-OSS/drop.git#tag=DROP_RELEASE_TAG
+	source = git+https://github.com/cmspeedau/GameDepot.git#tag=DROP_RELEASE_TAG
 	sha256sums = SKIP
 
 pkgname = drop-oss-app

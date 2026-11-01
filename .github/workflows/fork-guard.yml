@@ -1,0 +1,34 @@
+name: Fork guard
+
+# Cheap check that this repository never grows a path back to the upstream
+# Drop OSS project: no upstream remotes, no upstream container/AUR publish
+# targets, and (in CI) a repository identity that is this fork.
+on:
+  push:
+    branches: [develop]
+  pull_request:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  fork-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Assert repository identity
+        run: |
+          set -euo pipefail
+          echo "Building from: $GITHUB_REPOSITORY"
+          if [ "$GITHUB_REPOSITORY" = "Drop-OSS/drop" ]; then
+            echo "::error::This workflow ran in the upstream repository; fork work must stay in the fork."
+            exit 1
+          fi
+
+      - name: Check remotes, workflows and hooks
+        env:
+          # gh default-repo and hooksPath are per clone, not meaningful in CI.
+          FORK_GUARD_CI: "1"
+        run: bash scripts/check-fork-target.sh

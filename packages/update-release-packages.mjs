@@ -16,12 +16,15 @@ async function updateFile(path, transform) {
   await writeFile(path, transform(original));
 }
 
-const [tag, version, debPath, ...extraArgs] = process.argv.slice(2);
-if (!tag || !version || !debPath || extraArgs.length > 0) {
-  throw new Error("usage: update-release-packages.mjs TAG VERSION DEB_PATH");
+const [tag, version, debPath, debName, ...extraArgs] = process.argv.slice(2);
+if (!tag || !version || !debPath || !debName || extraArgs.length > 0) {
+  throw new Error("usage: update-release-packages.mjs TAG VERSION DEB_PATH DEB_NAME");
 }
 if (!/^[A-Za-z0-9._-]+$/.test(tag)) {
   throw new Error("Release tag contains unsupported characters");
+}
+if (!/^[A-Za-z0-9._+-]+$/.test(debName)) {
+  throw new Error("Debian asset name contains unsupported characters");
 }
 if (!/^[0-9]+(?:\.[0-9]+)*$/.test(version)) {
   throw new Error("Package version must contain numeric dot-separated components");
@@ -34,13 +37,13 @@ const tokens = [
   ["DROP_PKG_REL", "1"],
   ["DROP_RELEASE_TAG", tag],
   ["DROP_DEB_SHA256", checksum],
+  ["DROP_DEB_NAME", debName],
 ];
 const files = [
-  { packageName: "drop-oss-app", fileName: "PKGBUILD", tokenCounts: [2, 1, 1, 0] },
-  { packageName: "drop-oss-app", fileName: ".SRCINFO", tokenCounts: [1, 1, 1, 0] },
-  { packageName: "drop-oss-app-bin", fileName: "PKGBUILD", tokenCounts: [2, 1, 1, 1] },
-  { packageName: "drop-oss-app-bin", fileName: ".SRCINFO", tokenCounts: [2, 1, 1, 1] },
-  { packageName: "flatpak", fileName: "org.droposs.client.json", tokenCounts: [1, 0, 1, 1] },
+  { packageName: "drop-oss-app", fileName: "PKGBUILD", tokenCounts: [2, 1, 1, 0, 0] },
+  { packageName: "drop-oss-app", fileName: ".SRCINFO", tokenCounts: [1, 1, 1, 0, 0] },
+  { packageName: "drop-oss-app-bin", fileName: "PKGBUILD", tokenCounts: [1, 1, 1, 1, 1] },
+  { packageName: "drop-oss-app-bin", fileName: ".SRCINFO", tokenCounts: [1, 1, 1, 1, 1] },
 ];
 
 for (const { packageName, fileName, tokenCounts } of files) {

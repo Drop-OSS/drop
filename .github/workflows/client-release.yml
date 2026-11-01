@@ -67,11 +67,12 @@ jobs:
         # webkitgtk 4.0 is for Tauri v1 - webkitgtk 4.1 is for Tauri v2.
 
       - name: Import Apple Developer Certificate
-        if: matrix.platform == 'macos-14'
+        if: matrix.platform == 'macos-14' && vars.MACOS_SIGNING_IDENTITY != ''
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          MACOS_DEVELOPER_CERT_URL: ${{ vars.MACOS_DEVELOPER_CERT_URL }}
         run: |
           echo $APPLE_CERTIFICATE | base64 --decode > certificate.p12
           security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
@@ -86,18 +87,19 @@ jobs:
 
           echo "Created keychain"
 
-          curl https://droposs.org/drop.der --output drop.der
+          # Intermediate/root certificate trust is fork-specific. Point the
+          # repository variable MACOS_DEVELOPER_CERT_URL at a .der you control;
+          # never fetch upstream's droposs.org certificate here.
+          if [ -n "${MACOS_DEVELOPER_CERT_URL:-}" ]; then
+            curl -fsSL "$MACOS_DEVELOPER_CERT_URL" --output developer-id.der
 
-          # swiftc libs/appletrust/add-certificate.swift
-          # ./add-certificate drop.der
-          # rm add-certificate
-
-          # echo "Added certificate to keychain using swift util"
-
-          ## Script is equivalent to:
-          sudo security authorizationdb write com.apple.trust-settings.admin allow
-          sudo security add-trusted-cert -d -r trustRoot -k build.keychain -p codeSign -u -1 drop.der
-          sudo security authorizationdb remove com.apple.trust-settings.admin
+            ## Script is equivalent to:
+            sudo security authorizationdb write com.apple.trust-settings.admin allow
+            sudo security add-trusted-cert -d -r trustRoot -k build.keychain -p codeSign -u -1 developer-id.der
+            sudo security authorizationdb remove com.apple.trust-settings.admin
+          else
+            echo "MACOS_DEVELOPER_CERT_URL is not set: skipping certificate trust." >&2
+          fi
 
           security import certificate.p12 -k build.keychain -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
           echo "Imported certificate"
@@ -105,9 +107,9 @@ jobs:
           security find-identity -v -p codesigning build.keychain
 
       - name: Verify Certificate
-        if: matrix.platform == 'macos-14'
+        if: matrix.platform == 'macos-14' && vars.MACOS_SIGNING_IDENTITY != ''
         run: |
-          CERT_INFO=$(security find-identity -v -p codesigning build.keychain | grep "Drop OSS")
+          CERT_INFO=$(security find-identity -v -p codesigning build.keychain | grep "${{ vars.MACOS_SIGNING_IDENTITY }}")
           CERT_ID=$(echo "$CERT_INFO" | awk -F'"' '{print $2}')
           echo "CERT_ID=$CERT_ID" >> $GITHUB_ENV
           echo "Certificate imported. Using identity: $CERT_ID"
@@ -121,9 +123,11 @@ jobs:
           # Do NOT set APPLE_CERTIFICATE / APPLE_CERTIFICATE_PASSWORD here. Doing so
           # makes tauri-action import the cert into its own throwaway keychain and
           # look up the identity by Apple-only name prefixes (e.g.
-          # "Developer ID Application:"), which never matches our "Drop OSS" cert
-          # and fails with "failed to resolve signing identity". Instead we rely on
-          # the build.keychain prepared above and only pass the resolved identity.
+          # "Developer ID Application:"), which may not match a fork's own signing
+          # certificate and fails with "failed to resolve signing identity". Instead
+          # we rely on the build.keychain prepared above and only pass the resolved
+          # identity. Both steps are skipped when MACOS_SIGNING_IDENTITY is unset,
+          # which leaves macOS builds unsigned rather than failing the release.
           APPLE_SIGNING_IDENTITY: ${{ env.CERT_ID }}
           NO_STRIP: true
         with:
@@ -178,13 +182,23 @@ jobs:
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "prerelease=$prerelease" >> "$GITHUB_OUTPUT"
 
-          deb_name="Drop.Desktop.Client_${version}_amd64.deb"
+          # Tauri names the Debian bundle after `productName` (GameDepot), not after
+          # upstream's "Drop.Desktop.Client", so discover the asset instead of
+          # hardcoding a name that changes with branding.
+          rm -f "$RUNNER_TEMP"/*_amd64.deb
           gh release download "$tag" \
             --repo "$GITHUB_REPOSITORY" \
-            --pattern "$deb_name" \
+            --pattern '*_amd64.deb' \
             --dir "$RUNNER_TEMP"
+          deb_files=("$RUNNER_TEMP"/*_amd64.deb)
+          if [ "${#deb_files[@]}" -ne 1 ] || [ ! -f "${deb_files[0]}" ]; then
+            echo "Expected exactly one *_amd64.deb asset on release $tag, found ${#deb_files[@]}" >&2
+            exit 1
+          fi
+          deb_path="${deb_files[0]}"
+          deb_name="$(basename "$deb_path")"
 
-          node packages/update-release-packages.mjs "$tag" "$version" "$RUNNER_TEMP/$deb_name"
+          node packages/update-release-packages.mjs "$tag" "$version" "$deb_path" "$deb_name"
 
       - name: Upload prepared package metadata
         uses: actions/upload-artifact@v7
@@ -195,14 +209,17 @@ jobs:
             packages/drop-oss-app/.SRCINFO
             packages/drop-oss-app-bin/PKGBUILD
             packages/drop-oss-app-bin/.SRCINFO
-            packages/flatpak/org.droposs.client.json
           if-no-files-found: error
           include-hidden-files: true
           retention-days: 1
 
   publish-aur:
     needs: prepare-release-packages
-    if: needs.prepare-release-packages.outputs.prerelease == 'false'
+    # Disabled by default: `drop-oss-app` and `drop-oss-app-bin` are the *upstream*
+    # Drop OSS AUR packages. Publishing to them from this fork would push fork
+    # releases into upstream's package namespace. Enable only after renaming the
+    # packages to fork-owned names (and creating those AUR repos).
+    if: needs.prepare-release-packages.outputs.prerelease == 'false' && vars.PUBLISH_AUR == 'true'
     runs-on: ubuntu-22.04
     permissions:
       contents: read
@@ -298,47 +315,3 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --clobber
 
-  publish-flatpak:
-    needs: prepare-release-packages
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Download prepared package metadata
-        uses: actions/download-artifact@v8
-        with:
-          name: prepared-release-packages
-          path: packages
-
-      - name: Install Flatpak build tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y flatpak flatpak-builder
-
-      - name: Add Flathub and install build dependencies
-        run: |
-          flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          flatpak install --user --noninteractive flathub org.gnome.Platform//50 org.gnome.Sdk//50
-
-      - name: Build and upload Flatpak bundle
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: ${{ needs.prepare-release-packages.outputs.release-tag }}
-          RELEASE_VERSION: ${{ needs.prepare-release-packages.outputs.version }}
-        run: |
-          set -euo pipefail
-
-          repo="$RUNNER_TEMP/flatpak-repo"
-          build_dir="$RUNNER_TEMP/flatpak-build"
-          bundle="$RUNNER_TEMP/Drop.Desktop.Client_${RELEASE_VERSION}_x86_64.flatpak"
-          flatpak-builder --user --force-clean --repo="$repo" \
-            "$build_dir" packages/flatpak/org.droposs.client.json
-          flatpak build-bundle \
-            --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo \
-            "$repo" "$bundle" org.droposs.client master
-
-          gh release upload "$RELEASE_TAG" "$bundle" \
-            --repo "$GITHUB_REPOSITORY" \
-            --clobber

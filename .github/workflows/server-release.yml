@@ -9,7 +9,9 @@ on:
     - cron: "0 2 * * *" # run at 2 AM UTC
 
 env:
-  REGISTRY_IMAGE: ghcr.io/drop-oss/drop
+  # Publish only into this fork's namespace. Never point this at the upstream
+  # Drop OSS container registry — see CONTRIBUTING.md ("Fork boundary").
+  REGISTRY_IMAGE: ghcr.io/cmspeedau/gamedepot
 
 jobs:
   build:
@@ -133,7 +135,7 @@ jobs:
         uses: docker/metadata-action@v6
         with:
           images: |
-            ghcr.io/drop-OSS/drop
+            ${{ env.REGISTRY_IMAGE }}
           tags: |
             type=schedule,pattern=nightly
             type=schedule,pattern=nightly.${{ steps.get_final_ver.outputs.today }}
