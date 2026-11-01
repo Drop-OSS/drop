@@ -147,6 +147,43 @@ As of Phase 2 implementation on `develop`:
 7. **GOG Ingest Task Worker (`server/server/tasks/gog/ingest.ts`)**:
    Coordinates extraction, CAS chunking, and manifest publication with progress and status reporting via an injectable job store.
 
+### Phase 2 Epic Games Store Ingestion
+
+Epic Games Store integration streams unpacked game depot files directly from Epic's content delivery network, matching Heroic and Legendary architecture.
+
+```text
+User links Epic account (OAuth / exchange token)
+        |
+        v
+Discover user entitlements (`/entitlements/account/{accountId}`)
+        |
+        v
+Resolve product catalog & manifest download URLs (`/launcher/api/public/assets/...`)
+        |
+        v
+Fetch Epic Binary Manifest / file list
+        |
+        v
+Stream raw game files directly to GameDepot CAS (4 MiB SHA-256 chunks)
+        |
+        v
+Emit immutable DropletManifest (`depot/manifests/{sha256}.json`)
+```
+
+#### Implemented Epic Games Modules
+
+1. **Epic Games API Client (`server/server/utils/epic/client.ts`)**:
+   - Manages OAuth2 token exchanges using client credentials / authorization codes.
+   - Discovers owned game entitlements (`getUserEntitlements`).
+   - Resolves deployment assets, active build versions, and signed manifest URLs (`getAssetManifestUrl`).
+   - Parses manifest file records and distribution CDN chunk mirrors.
+2. **Direct Game Streamer (`server/server/utils/epic/game-streamer.ts`)**:
+   - `streamEpicGameToCas()`: Streams game files directly from Epic CDN chunk URLs into GameDepot 4 MiB fixed-window CAS objects (`depot/objects/{prefix}/{sha256}`) and writes an immutable `DropletManifest`.
+   - Bypasses monolithic installer files entirely; operates in bounded memory chunks with SHA-256 digest validation and cancellation support.
+3. **API Endpoints (`server/server/api/admin/depot/epic/`)**:
+   - `library.get.ts`: Retrieves and filters owned Epic entitlements for the authenticated account.
+   - `ingest.post.ts`: Dispatches an Epic ingestion job to the ingestion worker with validation for namespace, catalog item ID, and app name.
+
 ## 3. Manifest-Driven Depot and Chunk Delivery
 
 DepotDownloader provides a useful reference for Steam-style depot/build manifests and chunk-based acquisition/assembly. GameDepot should adopt the general pattern—not assume access to Steam's private protocol, manifests, services or credentials. Define its own versioned, provider-neutral manifest schema. It should describe immutable release identity, logical file paths, sizes and digests, ordered chunk/object references and integrity metadata; where a provider manifest is available, retain its ID and source provenance.
