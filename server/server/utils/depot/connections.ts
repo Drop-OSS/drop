@@ -2,6 +2,12 @@ import { createError } from "h3";
 import { refreshGogToken } from "../gog";
 import { exchangeEpicAuthCode, refreshEpicToken } from "../epic/client";
 import { fetchEaPid, refreshEaToken } from "../ea/client";
+import {
+  completeUbisoftTwoFactor,
+  createUbisoftSession,
+  loginUbisoftWithRememberTicket,
+  type UbisoftSession,
+} from "../ubisoft/client";
 
 /** Providers this fork's depot discovery understands. */
 export type DepotProvider = "gog" | "epic" | "ubisoft" | "ea";
@@ -73,7 +79,17 @@ export type SaveConnectionInput =
       accessToken?: string;
       username?: string;
     }
-  | { provider: "ubisoft"; ticket: string; userId: string; username?: string }
+  | {
+      provider: "ubisoft";
+      email?: string;
+      password?: string;
+      code?: string;
+      twoFactorTicket?: string;
+      rememberTicket?: string;
+      ticket?: string;
+      userId?: string;
+      username?: string;
+    }
   | {
       provider: "ea";
       accessToken?: string;
@@ -98,6 +114,18 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
 
 function str(value: unknown): string | undefined {
   return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+/**
+ * When a Ubisoft session ticket dies. Ubisoft states an absolute expiration;
+ * without one, assume the short web-session lifetime and renew early rather
+ * than letting discovery hit a dead ticket.
+ */
+function ubisoftSessionExpiry(session: UbisoftSession): Date {
+  const parsed = session.expiration ? new Date(session.expiration) : null;
+  return parsed && !Number.isNaN(parsed.getTime())
+    ? parsed
+    : new Date(Date.now() + 6 * 60 * 60 * 1000);
 }
 
 /**
@@ -184,20 +212,59 @@ export async function saveConnection(
       });
     }
     case "ubisoft": {
-      const ticket = input.ticket?.trim();
-      const userId = input.userId?.trim();
-      if (!ticket || !userId)
+      const email = input.email?.trim();
+      const code = input.code?.trim();
+      const twoFactorTicket = input.twoFactorTicket?.trim();
+      const rememberTicket = input.rememberTicket?.trim();
+      let session: UbisoftSession | null = null;
+      if (code && twoFactorTicket) {
+        session = await completeUbisoftTwoFactor(code, twoFactorTicket);
+      } else if (email && input.password) {
+        const result = await createUbisoftSession(email, input.password);
+        if ("twoFactorRequired" in result)
+          throw createError({
+            // Same 401 as bad credentials; the UI distinguishes by the
+            // challenge payload and asks for the code instead of a retry.
+            statusCode: 401,
+            statusMessage: "Ubisoft two-factor authentication required",
+            data: {
+              requiresTwoFactor: true,
+              twoFactorTicket: result.twoFactorTicket,
+              method: result.method,
+            },
+          });
+        session = result;
+      } else if (rememberTicket) {
+        session = await loginUbisoftWithRememberTicket(rememberTicket);
+      } else {
+        const ticket = input.ticket?.trim();
+        const userId = input.userId?.trim();
+        if (ticket && userId) {
+          // Legacy paste path: an externally obtained ticket, stored until it
+          // dies - there is no way to renew it without the login flows above.
+          return store.upsert({
+            provider: "ubisoft",
+            accountId: userId,
+            username: input.username ?? null,
+            accessToken: ticket,
+            refreshToken: null,
+            expiresAt: null,
+          });
+        }
         throw createError({
           statusCode: 400,
-          statusMessage: "A Ubisoft session ticket and userId are required",
+          statusMessage:
+            "Provide Ubisoft email and password, a 2FA code with its challenge, a remember-me ticket, or a ticket and userId pair",
         });
+      }
       return store.upsert({
         provider: "ubisoft",
-        accountId: userId,
-        username: input.username ?? null,
-        accessToken: ticket,
-        refreshToken: null,
-        expiresAt: null,
+        accountId: session.userId,
+        username:
+          input.username ?? session.profiles?.[0]?.nameOnPlatform ?? null,
+        accessToken: session.ticket,
+        refreshToken: session.rememberMeTicket ?? null,
+        expiresAt: ubisoftSessionExpiry(session),
       });
     }
     case "ea": {
@@ -292,6 +359,17 @@ async function tryRefresh(
         expiresAt,
       });
       return { token: tokens.access_token, accountId: row.accountId };
+    }
+    if (row.provider === "ubisoft" && row.refreshToken) {
+      // The remember-me ticket re-opens a session without the password;
+      // Ubisoft rotates it along with the new ticket.
+      const session = await loginUbisoftWithRememberTicket(row.refreshToken);
+      await store.updateTokens(row.id, {
+        accessToken: session.ticket,
+        refreshToken: session.rememberMeTicket ?? row.refreshToken,
+        expiresAt: ubisoftSessionExpiry(session),
+      });
+      return { token: session.ticket, accountId: row.accountId };
     }
     if (row.provider === "epic" && row.refreshToken) {
       const tokens = await refreshEpicToken(row.refreshToken);

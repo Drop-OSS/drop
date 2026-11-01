@@ -14,6 +14,17 @@ const UBISOFT_DNS_MANIFEST_URL = "https://uplaypc-dns.ubi.com/v1/manifests";
  */
 const UBISOFT_APP_ID = "3ad0af50-b1e5-4e5f-8c69-b1b17d3a4e9a";
 
+/**
+ * Ubisoft's web club app id. The v3 sessions endpoint accepts the login and
+ * remember-me flows under this id; open-source Ubisoft clients (unifideck,
+ * the GOG Galaxy uplay integration) all log in under it.
+ */
+const UBISOFT_SESSION_APP_ID = "82b650c0-6cb3-40c0-9f41-25a53b62b206";
+
+/** The sessions endpoint fronts the login with ordinary web bot checks. */
+const UBISOFT_LOGIN_USER_AGENT =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+
 const DEFAULT_BRANCH = "master";
 const DEFAULT_VERSION = "NEXT";
 
@@ -21,11 +32,24 @@ export type UbisoftSession = {
   ticket: string;
   sessionId: string;
   userId: string;
-  username: string;
-  nameOnPlatform: string;
-  expiration: string;
+  username?: string;
+  nameOnPlatform?: string;
+  expiration?: string;
+  serverTime?: string;
+  /** Long-lived ticket that re-opens sessions without the password. */
+  rememberMeTicket?: string;
+  profiles?: { nameOnPlatform?: string }[];
   platformType?: string;
 };
+
+/** Ubisoft demanded a 2FA code; the caller must supply one. */
+export type UbisoftTwoFactorRequired = {
+  twoFactorRequired: true;
+  twoFactorTicket: string;
+  method: string;
+};
+
+export type UbisoftLoginResult = UbisoftSession | UbisoftTwoFactorRequired;
 
 export type UbisoftOwnedTitle = {
   spaceId: string;
@@ -90,28 +114,151 @@ async function ubiFetch(
 /**
  * Create a Ubisoft Connect session from account credentials.
  * Equivalent to `authorize` in the shared adapter contract.
+ *
+ * Ubisoft's v3 sessions endpoint may answer the credential POST with a
+ * `Ubi-Challenge` nonce that must be echoed back on a retry (a device
+ * check, not 2FA), or with a two-factor challenge instead of a ticket;
+ * both are handled here. The password is used for this request only -
+ * the returned remember-me ticket renews the session from then on.
  */
 export async function createUbisoftSession(
   email: string,
   password: string,
-): Promise<UbisoftSession> {
+): Promise<UbisoftLoginResult> {
   const basic = Buffer.from(`${email}:${password}`).toString("base64");
-  const response = await ubiFetch(
-    UBISOFT_SESSIONS_URL,
-    {
-      method: "POST",
-      headers: {
-        ...ubiHeaders(),
-        Authorization: `Basic ${basic}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ rememberMe: true }),
-    },
-    "Failed to contact Ubisoft Connect authentication service",
-  );
+  const headers: Record<string, string> = {
+    ...sessionAuthHeaders(),
+    Authorization: `Basic ${basic}`,
+  };
+  let attempt = await ubisoftSessionPost(headers);
+  if (attempt.challenge && !isUbisoftTwoFactorBody(attempt.body)) {
+    attempt = await ubisoftSessionPost({
+      ...headers,
+      "Ubi-Challenge": attempt.challenge,
+    });
+  }
+  if (isUbisoftTwoFactorBody(attempt.body)) {
+    return {
+      twoFactorRequired: true,
+      twoFactorTicket: attempt.body.twoFactorAuthenticationTicket,
+      method:
+        typeof attempt.body.twoFactorAuthenticationMethod === "string"
+          ? attempt.body.twoFactorAuthenticationMethod
+          : "unknown",
+    };
+  }
+  return readUbisoftSession(attempt, "Ubisoft rejected the email or password");
+}
 
-  const data = (await response.json()) as UbisoftSession;
-  return data;
+/** Exchange the 2FA challenge's ticket plus a code for a real session. */
+export async function completeUbisoftTwoFactor(
+  code: string,
+  twoFactorTicket: string,
+): Promise<UbisoftSession> {
+  if (!code || !twoFactorTicket)
+    throw createError({
+      statusCode: 400,
+      statusMessage: "A Ubisoft 2FA code and challenge ticket are required",
+    });
+  const attempt = await ubisoftSessionPost({
+    ...sessionAuthHeaders(),
+    Authorization: `ubi_2fa_v1 t=${twoFactorTicket}`,
+    "Ubi-2FACode": code,
+  });
+  return readUbisoftSession(attempt, "The Ubisoft 2FA code was rejected");
+}
+
+/**
+ * Re-open a session with a long-lived remember-me ticket (`rm_v1`), the
+ * Ubisoft equivalent of a refresh-token login: no password involved.
+ */
+export async function loginUbisoftWithRememberTicket(
+  rememberTicket: string,
+): Promise<UbisoftSession> {
+  if (!rememberTicket)
+    throw createError({
+      statusCode: 400,
+      statusMessage: "A Ubisoft remember-me ticket is required",
+    });
+  const attempt = await ubisoftSessionPost({
+    ...sessionAuthHeaders(),
+    Authorization: `rm_v1 t=${rememberTicket}`,
+  });
+  return readUbisoftSession(
+    attempt,
+    "The Ubisoft remember-me ticket was rejected - sign in again",
+  );
+}
+
+function sessionAuthHeaders(): Record<string, string> {
+  return {
+    "Ubi-AppId": UBISOFT_SESSION_APP_ID,
+    "Content-Type": "application/json",
+    "User-Agent": UBISOFT_LOGIN_USER_AGENT,
+  };
+}
+
+type UbisoftSessionAttempt = {
+  status: number;
+  body: Record<string, unknown>;
+  challenge: string | null;
+};
+
+async function ubisoftSessionPost(
+  headers: Record<string, string>,
+): Promise<UbisoftSessionAttempt> {
+  let response: Response;
+  try {
+    response = await fetch(UBISOFT_SESSIONS_URL, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ rememberMe: true }),
+      signal: AbortSignal.timeout(20_000),
+    });
+  } catch {
+    throw createError({
+      statusCode: 502,
+      statusMessage: "Failed to contact Ubisoft Connect authentication service",
+    });
+  }
+  let body: Record<string, unknown> = {};
+  try {
+    body = (await response.json()) as Record<string, unknown>;
+  } catch {
+    // Error pages are not JSON; the status code below carries the verdict.
+  }
+  return {
+    status: response.status,
+    body,
+    challenge: response.headers.get("Ubi-Challenge"),
+  };
+}
+
+function isUbisoftTwoFactorBody(
+  body: Record<string, unknown>,
+): body is Record<string, unknown> & { twoFactorAuthenticationTicket: string } {
+  return typeof body?.twoFactorAuthenticationTicket === "string";
+}
+
+function readUbisoftSession(
+  attempt: UbisoftSessionAttempt,
+  rejectionMessage: string,
+): UbisoftSession {
+  const session = attempt.body as unknown as UbisoftSession;
+  if (attempt.status !== 200 || typeof session?.ticket !== "string")
+    throw createError({
+      statusCode: attempt.status === 401 ? 401 : 502,
+      statusMessage:
+        attempt.status === 401
+          ? rejectionMessage
+          : `Ubisoft authentication failed (${attempt.status})`,
+    });
+  if (typeof session.userId !== "string" || !session.userId)
+    throw createError({
+      statusCode: 502,
+      statusMessage: "Ubisoft returned a session without a user id",
+    });
+  return session;
 }
 
 /**

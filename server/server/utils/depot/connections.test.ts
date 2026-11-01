@@ -168,6 +168,19 @@ test("storing an EA access token resolves the account pid", async () => {
   assert.equal(rows[0]?.accountId, "987");
 });
 
+function mockQueueFetch(
+  responses: { status?: number; body?: unknown }[],
+): void {
+  let index = 0;
+  globalThis.fetch = (async () => {
+    const responder = responses[Math.min(index, responses.length - 1)];
+    index += 1;
+    return new Response(JSON.stringify(responder?.body ?? {}), {
+      status: responder?.status ?? 200,
+    });
+  }) as typeof fetch;
+}
+
 test("storing Ubisoft credentials keeps the ticket and user id together", async () => {
   const { store, rows } = createStore();
   await saveConnection(store, {
@@ -177,6 +190,124 @@ test("storing Ubisoft credentials keeps the ticket and user id together", async 
   });
   assert.equal(rows[0]?.accessToken, "ticket-abc");
   assert.equal(rows[0]?.accountId, "ubi-user");
+});
+
+test("Ubisoft email login stores ticket and remember-me ticket, never the password", async () => {
+  mockQueueFetch([
+    {
+      body: {
+        ticket: "ubi-t1",
+        sessionId: "s-1",
+        userId: "ubi-9",
+        rememberMeTicket: "rm-1",
+        expiration: "2030-01-01T00:00:00Z",
+        profiles: [{ nameOnPlatform: "PlayerOne" }],
+      },
+    },
+  ]);
+  const { store, rows } = createStore();
+  await saveConnection(store, {
+    provider: "ubisoft",
+    email: "player@example.com",
+    password: "swordfish",
+  });
+  assert.equal(rows[0]?.accountId, "ubi-9");
+  assert.equal(rows[0]?.accessToken, "ubi-t1");
+  assert.equal(rows[0]?.refreshToken, "rm-1");
+  assert.equal(rows[0]?.username, "PlayerOne");
+  assert.ok(rows[0]?.expiresAt && rows[0].expiresAt.getTime() > Date.now());
+  assert.ok(
+    !JSON.stringify(rows).includes("swordfish"),
+    "the password must never reach the store",
+  );
+});
+
+test("a Ubisoft 2FA challenge surfaces to the caller as connectable data", async () => {
+  mockQueueFetch([
+    {
+      body: {
+        twoFactorAuthenticationTicket: "2fa-x",
+        twoFactorAuthenticationMethod: "email",
+      },
+    },
+  ]);
+  const { store, rows } = createStore();
+  await assert.rejects(
+    () =>
+      saveConnection(store, {
+        provider: "ubisoft",
+        email: "player@example.com",
+        password: "pw",
+      }),
+    (error: unknown) => {
+      const thrown = error as {
+        statusCode?: number;
+        data?: { requiresTwoFactor?: boolean; twoFactorTicket?: string };
+      };
+      return (
+        thrown.statusCode === 401 &&
+        thrown.data?.requiresTwoFactor === true &&
+        thrown.data?.twoFactorTicket === "2fa-x"
+      );
+    },
+  );
+  assert.equal(rows.length, 0, "a pending 2FA must not store a connection");
+});
+
+test("a Ubisoft 2FA completion stores the resulting session", async () => {
+  mockQueueFetch([
+    {
+      body: {
+        ticket: "ubi-t2",
+        sessionId: "s-2",
+        userId: "ubi-9",
+        rememberMeTicket: "rm-2",
+      },
+    },
+  ]);
+  const { store, rows } = createStore();
+  await saveConnection(store, {
+    provider: "ubisoft",
+    code: "654321",
+    twoFactorTicket: "2fa-x",
+  });
+  assert.equal(rows[0]?.accessToken, "ubi-t2");
+  assert.equal(rows[0]?.refreshToken, "rm-2");
+  assert.ok(
+    rows[0]?.expiresAt && rows[0].expiresAt.getTime() > Date.now(),
+    "a session without an expiration gets a conservative renewal horizon",
+  );
+});
+
+test("an expired Ubisoft connection re-opens with its remember-me ticket", async () => {
+  mockQueueFetch([
+    {
+      body: {
+        ticket: "ubi-t1",
+        userId: "ubi-9",
+        rememberMeTicket: "rm-1",
+        expiration: "2000-01-01T00:00:00Z",
+      },
+    },
+    {
+      body: {
+        ticket: "ubi-t2",
+        userId: "ubi-9",
+        rememberMeTicket: "rm-2",
+        expiration: "2030-01-01T00:00:00Z",
+      },
+    },
+  ]);
+  const { store, rows } = createStore();
+  await saveConnection(store, {
+    provider: "ubisoft",
+    email: "player@example.com",
+    password: "pw",
+  });
+  const resolved = await resolveDepotToken(store, "ubisoft");
+  assert.equal(resolved.token, "ubi-t2");
+  assert.equal(rows[0]?.accessToken, "ubi-t2", "the fresh ticket must be kept");
+  assert.equal(rows[0]?.refreshToken, "rm-2", "Ubisoft rotates the rm ticket");
 });
 
 test("a caller token always wins over stored credentials", async () => {

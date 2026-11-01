@@ -182,28 +182,71 @@
               />
             </template>
             <template v-else-if="activeProviderId === 'ubisoft'">
-              <label for="ubisoft-ticket" class="sr-only">
-                Ubisoft session ticket
+              <label for="ubisoft-email" class="sr-only">
+                Ubisoft account email
               </label>
               <input
-                id="ubisoft-ticket"
-                v-model.trim="ubisoftTicket"
+                id="ubisoft-email"
+                v-model.trim="ubisoftEmail"
+                type="email"
+                autocomplete="off"
+                placeholder="Ubisoft account email"
+                class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
+              <label for="ubisoft-password" class="sr-only">
+                Ubisoft password
+              </label>
+              <input
+                id="ubisoft-password"
+                v-model.trim="ubisoftPassword"
                 type="password"
                 autocomplete="off"
-                placeholder="Ubisoft Connect session ticket"
+                placeholder="Password"
                 class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
-              <label for="ubisoft-user-id" class="sr-only">
-                Ubisoft account user ID
+              <label v-if="ubisoftTwoFactorTicket" for="ubisoft-code">
+                <span class="sr-only">Ubisoft 2FA code</span>
+                <input
+                  id="ubisoft-code"
+                  v-model.trim="ubisoftCode"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="one-time-code"
+                  placeholder="2FA code (Ubisoft asked for one)"
+                  class="min-w-0 flex-1 rounded-lg border border-amber-500/40 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                />
               </label>
-              <input
-                id="ubisoft-user-id"
-                v-model.trim="ubisoftUserId"
-                type="text"
-                autocomplete="off"
-                placeholder="Ubisoft user ID"
-                class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-              />
+              <details class="w-full sm:basis-full">
+                <summary
+                  class="cursor-pointer select-none text-xs text-zinc-500"
+                >
+                  Or paste an existing Ubisoft Connect ticket
+                </summary>
+                <div class="mt-3 flex flex-col gap-3 sm:flex-row">
+                  <label for="ubisoft-ticket" class="sr-only">
+                    Ubisoft session ticket
+                  </label>
+                  <input
+                    id="ubisoft-ticket"
+                    v-model.trim="ubisoftTicket"
+                    type="password"
+                    autocomplete="off"
+                    placeholder="Ubisoft Connect session ticket"
+                    class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                  <label for="ubisoft-user-id" class="sr-only">
+                    Ubisoft account user ID
+                  </label>
+                  <input
+                    id="ubisoft-user-id"
+                    v-model.trim="ubisoftUserId"
+                    type="text"
+                    autocomplete="off"
+                    placeholder="Ubisoft user ID"
+                    class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+              </details>
             </template>
             <template v-else>
               <label for="ea-connect-token" class="sr-only"
@@ -245,8 +288,9 @@
           </div>
           <p class="text-xs leading-5 text-zinc-500">
             Credentials are stored on the server, never sent back to this page.
-            Epic refresh tokens are renewed automatically; GOG and Ubisoft
-            sessions must be pasted again once they expire.
+            Where the store supports it (Epic, EA, GOG with a refresh token,
+            Ubisoft sign-in) stored credentials renew themselves; pasted
+            sessions that expire must be connected again.
           </p>
         </form>
       </template>
@@ -594,6 +638,12 @@ const gogAccountId = ref("");
 const epicConnectCode = ref("");
 const epicAccountId = ref("");
 const epicRefreshToken = ref("");
+const ubisoftEmail = ref("");
+const ubisoftPassword = ref("");
+const ubisoftCode = ref("");
+// Set when Ubisoft answers a login with a 2FA challenge; the next Connect
+// sends this ticket plus the user's code instead of credentials.
+const ubisoftTwoFactorTicket = ref("");
 const ubisoftTicket = ref("");
 const eaConnectToken = ref("");
 const eaRefreshToken = ref("");
@@ -623,7 +673,7 @@ const providerDescription = computed(() =>
     ? "Connect an Epic account with a refresh token so the server can keep its entitlements fresh. Loads the entitlements owned by that account; ingest streams the raw depot files directly into the depot."
     : activeProviderId.value === "ea"
       ? "Connect an EA account with an access token (plus refresh token when available). Discovery lists entitled games and can be widened by a catalog search; ingest streams the game archive into the depot from a provided download link."
-      : "Connect an Ubisoft account with a session ticket and user ID. Loads the titles owned by that account; ingest streams the raw game files directly into the depot.",
+      : "Sign in with your Ubisoft email and password - the password is used for the single sign-in and never stored; the session ticket and a remember-me ticket are kept and renewed automatically. A two-factor code may be requested once. Loads the titles owned by that account; ingest streams the raw game files directly into the depot.",
 );
 
 const canConnect = computed(() => {
@@ -633,7 +683,11 @@ const canConnect = computed(() => {
     case "epic":
       return Boolean(epicConnectCode.value || epicRefreshToken.value);
     case "ubisoft":
-      return Boolean(ubisoftTicket.value && ubisoftUserId.value);
+      return Boolean(
+        (ubisoftEmail.value && ubisoftPassword.value) ||
+        (ubisoftTwoFactorTicket.value && ubisoftCode.value) ||
+        (ubisoftTicket.value && ubisoftUserId.value),
+      );
     default:
       return Boolean(eaConnectToken.value || eaRefreshToken.value);
   }
@@ -676,8 +730,16 @@ async function connect() {
     if (epicRefreshToken.value) body.refreshToken = epicRefreshToken.value;
   }
   if (provider === "ubisoft") {
-    body.ticket = ubisoftTicket.value;
-    body.userId = ubisoftUserId.value;
+    if (ubisoftTwoFactorTicket.value && ubisoftCode.value) {
+      body.twoFactorTicket = ubisoftTwoFactorTicket.value;
+      body.code = ubisoftCode.value;
+    } else if (ubisoftEmail.value && ubisoftPassword.value) {
+      body.email = ubisoftEmail.value;
+      body.password = ubisoftPassword.value;
+    } else {
+      body.ticket = ubisoftTicket.value;
+      body.userId = ubisoftUserId.value;
+    }
   }
   if (provider === "ea") {
     if (eaConnectToken.value) body.accessToken = eaConnectToken.value;
@@ -692,16 +754,38 @@ async function connect() {
     gogRefreshToken.value = "";
     epicConnectCode.value = "";
     epicRefreshToken.value = "";
+    ubisoftPassword.value = "";
+    ubisoftCode.value = "";
+    ubisoftTwoFactorTicket.value = "";
     ubisoftTicket.value = "";
     eaConnectToken.value = "";
     eaRefreshToken.value = "";
     await loadConnections();
     notice.value = `Connected ${activeProvider.value.label} account ${response.connection.accountId}.`;
   } catch (error) {
-    errorMessage.value =
-      error instanceof Error
-        ? `Could not connect the ${activeProvider.value.label} account: ${error.message}`
-        : `Could not connect the ${activeProvider.value.label} account.`;
+    const challenge = (
+      error as {
+        data?: {
+          requiresTwoFactor?: boolean;
+          twoFactorTicket?: string;
+          method?: string;
+        };
+      }
+    )?.data;
+    if (
+      provider === "ubisoft" &&
+      challenge?.requiresTwoFactor &&
+      challenge.twoFactorTicket
+    ) {
+      // Ubisoft wants a 2FA code; keep the email/password out of the next
+      // attempt and send the challenge ticket plus the user's code instead.
+      ubisoftTwoFactorTicket.value = challenge.twoFactorTicket;
+      errorMessage.value = `Ubisoft requires a two-factor code (${challenge?.method ?? "unknown method"} - check your authenticator app or email), then press Connect again.`;
+    } else
+      errorMessage.value =
+        error instanceof Error
+          ? `Could not connect the ${activeProvider.value.label} account: ${error.message}`
+          : `Could not connect the ${activeProvider.value.label} account.`;
   } finally {
     connecting.value = false;
   }
