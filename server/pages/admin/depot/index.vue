@@ -166,7 +166,9 @@
             {{
               activeProviderId === "epic"
                 ? "Loads the entitlements owned by the linked Epic account. Ingest streams the raw depot files directly into the depot."
-                : "Loads the titles owned by the linked Ubisoft account. Ingest streams the raw game files directly into the depot."
+                : activeProviderId === "ea"
+                  ? "Loads the games entitled to an EA account from an access token, optionally widened by a catalog search. Ingest streams the game archive into the depot from a provided download link."
+                  : "Loads the titles owned by the linked Ubisoft account. Ingest streams the raw game files directly into the depot."
             }}
           </p>
         </div>
@@ -190,11 +192,37 @@
             class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           />
         </div>
+        <!-- EA discovery has no stored connection yet: the caller supplies an
+             access token, and an optional catalog search widens the owned list. -->
+        <div
+          v-if="activeProviderId === 'ea'"
+          class="flex flex-col gap-3 sm:flex-row"
+        >
+          <label for="ea-token" class="sr-only">EA access token</label>
+          <input
+            id="ea-token"
+            v-model.trim="eaToken"
+            type="password"
+            autocomplete="off"
+            placeholder="EA access token (required to list owned titles)"
+            class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          />
+          <label for="ea-search" class="sr-only">EA catalog search</label>
+          <input
+            id="ea-search"
+            v-model.trim="eaSearch"
+            type="search"
+            placeholder="Optional: also search the EA catalog"
+            class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          />
+        </div>
         <div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
           <button
             type="submit"
             :disabled="
-              loading || (activeProviderId === 'ubisoft' && !ubisoftUserId)
+              loading ||
+              (activeProviderId === 'ubisoft' && !ubisoftUserId) ||
+              (activeProviderId === 'ea' && !eaToken)
             "
             class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
           >
@@ -276,10 +304,29 @@
                 product.releaseCount === 1 ? "" : "s"
               }}
             </p>
+            <div v-if="activeProviderId === 'ea'" class="mt-3">
+              <label
+                :for="`ea-archive-${product.id}`"
+                class="mb-1.5 block text-xs text-zinc-500"
+                >Game archive URL (HTTPS; pre-filled from the entitlement
+                link)</label
+              >
+              <input
+                :id="`ea-archive-${product.id}`"
+                v-model.trim="product.archiveUrl"
+                type="url"
+                autocomplete="off"
+                placeholder="https:// …/archive.zip"
+                class="w-full min-w-0 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-xs text-zinc-100 placeholder:text-zinc-600 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
+            </div>
           </div>
           <button
             type="button"
-            :disabled="product.ingesting"
+            :disabled="
+              product.ingesting ||
+              (activeProviderId === 'ea' && !product.archiveUrl)
+            "
             class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-zinc-700 px-3.5 py-2 text-sm font-medium text-zinc-200 transition hover:border-blue-500/60 hover:bg-blue-500/10 disabled:opacity-50"
             @click="ingest(product)"
           >
@@ -314,7 +361,7 @@ definePageMeta({
   layout: "admin",
 });
 
-type ProviderId = "gog" | "epic" | "ubisoft";
+type ProviderId = "gog" | "epic" | "ubisoft" | "ea";
 
 interface DiscoveredProduct {
   id: string;
@@ -330,6 +377,10 @@ interface DiscoveredProduct {
   spaceId?: string;
   userId?: string;
   gameTitle?: string;
+  // EA: the ingest endpoint needs a title plus an HTTPS archive URL. The
+  // entitlement's download link pre-fills it; it stays editable because EA
+  // links are short-lived.
+  archiveUrl?: string;
 }
 
 // Shape returned by the Epic and Ubisoft library endpoints.
@@ -345,12 +396,17 @@ interface OwnedGame {
   gameId?: string;
   name?: string;
   ownedDate?: string;
+  // EA owned games (normalized by the library utility)
+  id?: string;
+  offerId?: string;
+  downloadLink?: string;
 }
 
 const providers: Array<{ id: ProviderId; label: string }> = [
   { id: "gog", label: "GOG" },
   { id: "epic", label: "Epic" },
   { id: "ubisoft", label: "Ubisoft" },
+  { id: "ea", label: "EA" },
 ];
 
 const activeProviderId = ref<ProviderId>("gog");
@@ -360,6 +416,8 @@ const activeProvider = computed(
 
 const gogQuery = ref("");
 const ubisoftUserId = ref("");
+const eaToken = ref("");
+const eaSearch = ref("");
 const loading = ref(false);
 const errorMessage = ref("");
 const notice = ref("");
@@ -420,14 +478,20 @@ async function discoverGog() {
 
 async function loadLibrary() {
   if (activeProviderId.value === "ubisoft" && !ubisoftUserId.value) return;
+  if (activeProviderId.value === "ea" && !eaToken.value) return;
   loading.value = true;
   resetError();
   try {
     const query =
       activeProviderId.value === "ubisoft"
         ? { userId: ubisoftUserId.value }
-        : undefined;
-    // Both endpoints return the list under `games`.
+        : activeProviderId.value === "ea"
+          ? {
+              token: eaToken.value,
+              ...(eaSearch.value ? { search: eaSearch.value } : {}),
+            }
+          : undefined;
+    // All non-GOG endpoints return the list under `games`.
     const response = await $fetch<{ games: OwnedGame[] }>(
       `/api/admin/depot/${activeProviderId.value}/library`,
       { method: "GET", query },
@@ -446,6 +510,15 @@ async function loadLibrary() {
             namespace: game.namespace,
             catalogItemId: game.catalogItemId,
             appName: game.appName,
+          };
+        }
+        if (activeProviderId.value === "ea") {
+          // The EA endpoint returns rows already normalized by the utility.
+          return {
+            id: game.id || game.offerId || "",
+            title: game.title || game.offerId || "Untitled",
+            gameTitle: game.title || game.offerId,
+            archiveUrl: game.downloadLink ?? "",
           };
         }
         return {
@@ -485,6 +558,14 @@ async function ingest(product: DiscoveredProduct) {
           namespace: product.namespace,
           catalogItemId: product.catalogItemId,
           appName: product.appName,
+        },
+      });
+    } else if (activeProviderId.value === "ea") {
+      await $fetch("/api/admin/depot/ea/ingest", {
+        method: "POST",
+        body: {
+          gameTitle: product.gameTitle || product.title,
+          archiveUrl: product.archiveUrl,
         },
       });
     } else {
