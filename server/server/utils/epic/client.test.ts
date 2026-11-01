@@ -7,6 +7,22 @@ import {
   getEpicAssetInfo,
 } from "./client.js";
 
+/** Assert an h3-style typed error: a status code and, optionally, a message fragment. */
+function typedError(statusCode: number, message?: RegExp) {
+  return (error: unknown): boolean => {
+    const thrown = error as {
+      statusCode?: number;
+      statusMessage?: string;
+      message?: string;
+    } | null;
+    const text = thrown?.statusMessage ?? thrown?.message ?? "";
+    return (
+      thrown?.statusCode === statusCode &&
+      (message === undefined || message.test(text))
+    );
+  };
+}
+
 test("Epic Client Integration & Mock Suite", async (t) => {
   const originalFetch = globalThis.fetch;
 
@@ -65,14 +81,9 @@ test("Epic Client Integration & Mock Suite", async (t) => {
         );
       };
 
-      await assert.rejects(
-        async () => {
-          await exchangeEpicAuthCode("invalid-code");
-        },
-        (err: any) => {
-          return err.statusCode === 400;
-        },
-      );
+      await assert.rejects(async () => {
+        await exchangeEpicAuthCode("invalid-code");
+      }, typedError(400));
     },
   );
 
@@ -83,14 +94,9 @@ test("Epic Client Integration & Mock Suite", async (t) => {
         throw new Error("Network timeout / connection reset");
       };
 
-      await assert.rejects(
-        async () => {
-          await exchangeEpicAuthCode("any-code");
-        },
-        (err: any) => {
-          return err.statusCode === 502;
-        },
-      );
+      await assert.rejects(async () => {
+        await exchangeEpicAuthCode("any-code");
+      }, typedError(502));
     },
   );
 

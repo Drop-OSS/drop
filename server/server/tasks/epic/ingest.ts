@@ -8,6 +8,20 @@ import {
 import type { EpicAssetManifestInfo } from "../../utils/epic/manifest";
 import { refreshEpicToken } from "../../utils/epic/client";
 
+/**
+ * Provider failures arrive as h3 errors carrying a status code; anything else
+ * is an opaque failure that must not be inspected further.
+ */
+function statusCodeOf(error: unknown): number | undefined {
+  return (error as { statusCode?: number } | null | undefined)?.statusCode;
+}
+
+/** Failure text for a job record: h3 errors carry a status message, and nothing
+ * may leak an unfamiliar error shape into the job log. */
+function messageOf(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
 export interface EpicIngestJobPayload {
   jobId: string;
   accountId: string;
@@ -102,8 +116,8 @@ export async function ingestEpicJob(
         signal,
         onProgress,
       });
-    } catch (err: any) {
-      if (err?.statusCode === 401 && payload.refreshToken) {
+    } catch (err) {
+      if (statusCodeOf(err) === 401 && payload.refreshToken) {
         const refreshed = await refreshEpicToken(payload.refreshToken);
         accessToken = refreshed.access_token;
         result = await streamEpicGameToCas({
@@ -132,12 +146,12 @@ export async function ingestEpicJob(
     }
 
     return completionData;
-  } catch (error: any) {
+  } catch (error) {
     if (jobStore) {
       await jobStore.updateStatus(
         jobId,
         "failed",
-        error?.message || "Ingest failed",
+        messageOf(error) || "Ingest failed",
       );
     }
     throw error;

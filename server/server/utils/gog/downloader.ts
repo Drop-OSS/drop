@@ -53,7 +53,9 @@ export async function downloadGogFiles(
     let written = 0;
 
     // ReadableStream to Node.js Readable adapter
-    const nodeStream = Readable.fromWeb(response.body as any);
+    const nodeStream = Readable.fromWeb(
+      response.body as unknown as import("node:stream/web").ReadableStream<Uint8Array>,
+    );
 
     nodeStream.on("data", (chunk: Buffer) => {
       written += chunk.length;

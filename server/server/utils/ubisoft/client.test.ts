@@ -6,6 +6,22 @@ import {
   getUbisoftOwnedTitles,
 } from "./client";
 
+/** Assert an h3-style typed error: a status code and, optionally, a message fragment. */
+function typedError(statusCode: number, message?: RegExp) {
+  return (error: unknown): boolean => {
+    const thrown = error as {
+      statusCode?: number;
+      statusMessage?: string;
+      message?: string;
+    } | null;
+    const text = thrown?.statusMessage ?? thrown?.message ?? "";
+    return (
+      thrown?.statusCode === statusCode &&
+      (message === undefined || message.test(text))
+    );
+  };
+}
+
 // Hermetic tests: no network access. Global fetch is stubbed per test.
 const originalFetch = globalThis.fetch;
 let fetchCalls: { url: string; init: RequestInit }[] = [];
@@ -17,9 +33,10 @@ function stubFetch(
     body: unknown;
   }[],
 ) {
-  globalThis.fetch = (async (url: any, init: any) => {
-    fetchCalls.push({ url: String(url), init });
-    const responder = responses.find((r) => r.match(String(url)));
+  globalThis.fetch = (async (input: unknown, init?: RequestInit) => {
+    const url = String(input);
+    fetchCalls.push({ url, init: init ?? {} });
+    const responder = responses.find((r) => r.match(url));
     if (!responder) {
       return new Response("{}", { status: 404 });
     }
@@ -123,6 +140,6 @@ test("owned titles failure surfaces a typed error, not raw response data", async
 
   await assert.rejects(
     () => getUbisoftOwnedTitles("expired-ticket", "user-1"),
-    (err: any) => err?.statusCode === 401,
+    typedError(401),
   );
 });
