@@ -83,133 +83,173 @@
           Disconnect
         </button>
       </div>
-      <form v-else class="flex flex-col gap-3" @submit.prevent="connect">
-        <div class="flex flex-col gap-3 sm:flex-row">
-          <template v-if="activeProviderId === 'gog'">
-            <label for="gog-connect-token" class="sr-only">
-              GOG access token
-            </label>
-            <input
-              id="gog-connect-token"
-              v-model.trim="gogConnectToken"
-              type="password"
-              autocomplete="off"
-              placeholder="GOG access token"
-              class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-            />
-            <label for="gog-connect-refresh" class="sr-only">
-              GOG refresh token (optional)
-            </label>
-            <input
-              id="gog-connect-refresh"
-              v-model.trim="gogRefreshToken"
-              type="password"
-              autocomplete="off"
-              placeholder="Refresh token (optional - enables auto-renewal)"
-              class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-            />
-            <label for="gog-connect-account" class="sr-only">
-              GOG account ID (optional)
-            </label>
-            <input
-              id="gog-connect-account"
-              v-model.trim="gogAccountId"
-              type="text"
-              autocomplete="off"
-              placeholder="Account id (only for non-JWT tokens)"
-              class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-            />
-          </template>
-          <template v-else-if="activeProviderId === 'epic'">
-            <label for="epic-account-id" class="sr-only">Epic account ID</label>
-            <input
-              id="epic-account-id"
-              v-model.trim="epicAccountId"
-              type="text"
-              autocomplete="off"
-              placeholder="Epic account ID"
-              class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-            />
-            <label for="epic-refresh-token" class="sr-only">
-              Epic refresh token
-            </label>
-            <input
-              id="epic-refresh-token"
-              v-model.trim="epicRefreshToken"
-              type="password"
-              autocomplete="off"
-              placeholder="Epic refresh token"
-              class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-            />
-          </template>
-          <template v-else-if="activeProviderId === 'ubisoft'">
-            <label for="ubisoft-ticket" class="sr-only">
-              Ubisoft session ticket
-            </label>
-            <input
-              id="ubisoft-ticket"
-              v-model.trim="ubisoftTicket"
-              type="password"
-              autocomplete="off"
-              placeholder="Ubisoft Connect session ticket"
-              class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-            />
-            <label for="ubisoft-user-id" class="sr-only">
-              Ubisoft account user ID
-            </label>
-            <input
-              id="ubisoft-user-id"
-              v-model.trim="ubisoftUserId"
-              type="text"
-              autocomplete="off"
-              placeholder="Ubisoft user ID"
-              class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-            />
-          </template>
-          <template v-else>
-            <label for="ea-connect-token" class="sr-only"
-              >EA access token</label
-            >
-            <input
-              id="ea-connect-token"
-              v-model.trim="eaConnectToken"
-              type="password"
-              autocomplete="off"
-              placeholder="EA access token"
-              class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-            />
-            <label for="ea-refresh-token" class="sr-only">
-              EA refresh token (optional)
-            </label>
-            <input
-              id="ea-refresh-token"
-              v-model.trim="eaRefreshToken"
-              type="password"
-              autocomplete="off"
-              placeholder="EA refresh token (optional)"
-              class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-            />
-          </template>
+      <template v-else>
+        <div
+          v-if="activeProviderId === 'gog'"
+          class="mb-4 flex flex-wrap items-center gap-3"
+        >
           <button
-            type="submit"
-            :disabled="connecting || !canConnect"
-            class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+            type="button"
+            class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500"
+            @click="startGogSignIn"
           >
-            <ArrowPathIcon
-              v-if="connecting"
-              class="h-4 w-4 animate-spin"
-              aria-hidden="true"
-            />
-            <ShieldCheckIcon v-else class="h-4 w-4" aria-hidden="true" />
-            {{ connecting ? "Connecting…" : "Connect account" }}
+            <ShieldCheckIcon class="h-4 w-4" aria-hidden="true" />
+            Sign in with GOG
           </button>
+          <span class="text-xs text-zinc-500">
+            or paste tokens below (Heroic users: both live in
+            ~/.config/heroic/gog_store/auth.json)
+          </span>
         </div>
-        <p class="text-xs leading-5 text-zinc-500">
-          Credentials are stored on the server, never sent back to this page.
-          Epic refresh tokens are renewed automatically; GOG and Ubisoft
-          sessions must be pasted again once they expire.
-        </p>
-      </form>
+        <form class="flex flex-col gap-3" @submit.prevent="connect">
+          <div class="flex flex-col gap-3 sm:flex-row">
+            <template v-if="activeProviderId === 'gog'">
+              <label for="gog-connect-token" class="sr-only">
+                GOG access token
+              </label>
+              <input
+                id="gog-connect-token"
+                v-model.trim="gogConnectToken"
+                type="password"
+                autocomplete="off"
+                placeholder="GOG access token"
+                class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
+              <label for="gog-connect-refresh" class="sr-only">
+                GOG refresh token (optional)
+              </label>
+              <input
+                id="gog-connect-refresh"
+                v-model.trim="gogRefreshToken"
+                type="password"
+                autocomplete="off"
+                placeholder="Refresh token (optional - enables auto-renewal)"
+                class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
+              <label for="gog-connect-account" class="sr-only">
+                GOG account ID (optional)
+              </label>
+              <input
+                id="gog-connect-account"
+                v-model.trim="gogAccountId"
+                type="text"
+                autocomplete="off"
+                placeholder="Account id (only for non-JWT tokens)"
+                class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
+            </template>
+            <template v-else-if="activeProviderId === 'epic'">
+              <button
+                type="button"
+                class="inline-flex items-center gap-2 rounded-lg border border-zinc-700 px-3.5 py-2.5 text-sm font-medium text-zinc-200 transition hover:border-blue-500/60 hover:bg-blue-500/10"
+                @click="openEpicLoginPage"
+              >
+                <ShieldCheckIcon class="h-4 w-4" aria-hidden="true" />
+                Open Epic sign-in page
+              </button>
+              <label for="epic-connect-code" class="sr-only">
+                Epic authorization code
+              </label>
+              <input
+                id="epic-connect-code"
+                v-model.trim="epicConnectCode"
+                type="password"
+                autocomplete="off"
+                placeholder="Authorization code (from the page above)"
+                class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
+              <label for="epic-refresh-token" class="sr-only">
+                Epic refresh token
+              </label>
+              <input
+                id="epic-refresh-token"
+                v-model.trim="epicRefreshToken"
+                type="password"
+                autocomplete="off"
+                placeholder="Refresh token (if you already have one)"
+                class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
+              <label for="epic-account-id" class="sr-only"
+                >Epic account ID</label
+              >
+              <input
+                id="epic-account-id"
+                v-model.trim="epicAccountId"
+                type="text"
+                autocomplete="off"
+                placeholder="Account id (optional - derived from the code)"
+                class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
+            </template>
+            <template v-else-if="activeProviderId === 'ubisoft'">
+              <label for="ubisoft-ticket" class="sr-only">
+                Ubisoft session ticket
+              </label>
+              <input
+                id="ubisoft-ticket"
+                v-model.trim="ubisoftTicket"
+                type="password"
+                autocomplete="off"
+                placeholder="Ubisoft Connect session ticket"
+                class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
+              <label for="ubisoft-user-id" class="sr-only">
+                Ubisoft account user ID
+              </label>
+              <input
+                id="ubisoft-user-id"
+                v-model.trim="ubisoftUserId"
+                type="text"
+                autocomplete="off"
+                placeholder="Ubisoft user ID"
+                class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
+            </template>
+            <template v-else>
+              <label for="ea-connect-token" class="sr-only"
+                >EA access token</label
+              >
+              <input
+                id="ea-connect-token"
+                v-model.trim="eaConnectToken"
+                type="password"
+                autocomplete="off"
+                placeholder="EA access token"
+                class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
+              <label for="ea-refresh-token" class="sr-only">
+                EA refresh token (optional)
+              </label>
+              <input
+                id="ea-refresh-token"
+                v-model.trim="eaRefreshToken"
+                type="password"
+                autocomplete="off"
+                placeholder="EA refresh token (optional)"
+                class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
+            </template>
+            <button
+              type="submit"
+              :disabled="connecting || !canConnect"
+              class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <ArrowPathIcon
+                v-if="connecting"
+                class="h-4 w-4 animate-spin"
+                aria-hidden="true"
+              />
+              <ShieldCheckIcon v-else class="h-4 w-4" aria-hidden="true" />
+              {{ connecting ? "Connecting…" : "Connect account" }}
+            </button>
+          </div>
+          <p class="text-xs leading-5 text-zinc-500">
+            Credentials are stored on the server, never sent back to this page.
+            Epic refresh tokens are renewed automatically; GOG and Ubisoft
+            sessions must be pasted again once they expire.
+          </p>
+        </form>
+      </template>
     </section>
 
     <section
@@ -551,6 +591,7 @@ const eaSearch = ref("");
 const gogConnectToken = ref("");
 const gogRefreshToken = ref("");
 const gogAccountId = ref("");
+const epicConnectCode = ref("");
 const epicAccountId = ref("");
 const epicRefreshToken = ref("");
 const ubisoftTicket = ref("");
@@ -590,7 +631,7 @@ const canConnect = computed(() => {
     case "gog":
       return Boolean(gogConnectToken.value);
     case "epic":
-      return Boolean(epicAccountId.value && epicRefreshToken.value);
+      return Boolean(epicConnectCode.value || epicRefreshToken.value);
     case "ubisoft":
       return Boolean(ubisoftTicket.value && ubisoftUserId.value);
     default:
@@ -630,8 +671,9 @@ async function connect() {
     if (gogAccountId.value) body.accountId = gogAccountId.value;
   }
   if (provider === "epic") {
-    body.accountId = epicAccountId.value;
-    body.refreshToken = epicRefreshToken.value;
+    if (epicAccountId.value) body.accountId = epicAccountId.value;
+    if (epicConnectCode.value) body.code = epicConnectCode.value;
+    if (epicRefreshToken.value) body.refreshToken = epicRefreshToken.value;
   }
   if (provider === "ubisoft") {
     body.ticket = ubisoftTicket.value;
@@ -648,6 +690,7 @@ async function connect() {
     }>("/api/admin/depot/connection", { method: "POST", body });
     gogConnectToken.value = "";
     gogRefreshToken.value = "";
+    epicConnectCode.value = "";
     epicRefreshToken.value = "";
     ubisoftTicket.value = "";
     eaConnectToken.value = "";
@@ -661,6 +704,38 @@ async function connect() {
         : `Could not connect the ${activeProvider.value.label} account.`;
   } finally {
     connecting.value = false;
+  }
+}
+
+async function startGogSignIn() {
+  try {
+    const { authorizeUrl } = await $fetch<{ authorizeUrl: string }>(
+      "/api/admin/depot/connection/gog/authorize",
+    );
+    window.open(authorizeUrl, "_blank", "noopener");
+    notice.value =
+      "Complete the sign-in at gog.com in the new tab - it returns here with the account connected.";
+  } catch (error) {
+    notice.value =
+      error instanceof Error
+        ? `Could not start the GOG sign-in: ${error.message}`
+        : "Could not start the GOG sign-in.";
+  }
+}
+
+async function openEpicLoginPage() {
+  try {
+    const { loginUrl } = await $fetch<{ loginUrl: string }>(
+      "/api/admin/depot/connection/epic/login-url",
+    );
+    window.open(loginUrl, "_blank", "noopener");
+    notice.value =
+      "After signing in, Epic shows a page of JSON - copy the code value into the authorization code field.";
+  } catch (error) {
+    notice.value =
+      error instanceof Error
+        ? `Could not get the Epic sign-in URL: ${error.message}`
+        : "Could not get the Epic sign-in URL.";
   }
 }
 

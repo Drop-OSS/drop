@@ -37,6 +37,20 @@ export type EpicAssetInfo = {
 };
 
 /**
+ * Browser sign-in URL that ends on Epic's JSON redirect endpoint, whose
+ * body carries the authcode the desktop launchers intercept via custom
+ * scheme. Copying that code is the web-only equivalent of a launcher login.
+ */
+export function buildEpicAuthCodeLoginUrl(): string {
+  const redirectTarget = new URL("https://www.epicgames.com/id/api/redirect");
+  redirectTarget.searchParams.set("clientId", EPIC_CLIENT_ID);
+  redirectTarget.searchParams.set("responseType", "code");
+  const url = new URL("https://www.epicgames.com/id/login");
+  url.searchParams.set("redirectUrl", redirectTarget.toString());
+  return url.toString();
+}
+
+/**
  * Exchange an Epic authorization code (obtained from Epic login portal) for access and refresh tokens.
  */
 export async function exchangeEpicAuthCode(

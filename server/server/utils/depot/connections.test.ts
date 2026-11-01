@@ -132,6 +132,18 @@ test("an expired GOG connection renews itself from the refresh token", async () 
   assert.equal(rows[0]?.refreshToken, "rt-next");
 });
 
+test("an Epic connection derives the account id from the redeemed token", async () => {
+  mockTokenFetch({
+    access_token: "at",
+    refresh_token: "rt2",
+    expires_in: 3600,
+    account_id: "epic-acc-77",
+  });
+  const { store, rows } = createStore();
+  await saveConnection(store, { provider: "epic", refreshToken: "rt1" });
+  assert.equal(rows[0]?.accountId, "epic-acc-77");
+});
+
 test("storing an Epic refresh token upgrades it to a full token set", async () => {
   mockTokenFetch({
     access_token: "at",

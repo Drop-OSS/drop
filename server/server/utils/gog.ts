@@ -2,6 +2,7 @@ import { createError } from "h3";
 
 const GOG_LIBRARY_URL = "https://embed.gog.com/user/data/games";
 const GOG_TOKEN_URL = "https://auth.gog.com/token";
+const GOG_AUTH_URL = "https://auth.gog.com/auth";
 
 /**
  * GOG's Galaxy/embed public OAuth client. The pair is embedded unencrypted
@@ -17,7 +18,82 @@ export type GogTokenResponse = {
   refresh_token?: string;
   expires_in: number;
   token_type?: string;
+  user_id?: string;
 };
+
+/**
+ * Build GOG's sign-in URL. GOG's public Galaxy client accepts a localhost
+ * redirect, which is how gogcli and Heroic complete the flow; this server
+ * uses its own callback URL so the code can be exchanged without a desktop
+ * launcher in the loop.
+ */
+export function buildGogAuthorizeUrl(
+  redirectUri: string,
+  state: string,
+): string {
+  const url = new URL(GOG_AUTH_URL);
+  url.searchParams.set("client_id", GOG_PUBLIC_CLIENT_ID);
+  url.searchParams.set("redirect_uri", redirectUri);
+  url.searchParams.set("response_type", "code");
+  url.searchParams.set("scope", "all");
+  url.searchParams.set("state", state);
+  return url.toString();
+}
+
+/** Exchange the sign-in callback's code for a token set. */
+export async function exchangeGogAuthorizationCode(
+  code: string,
+  redirectUri: string,
+): Promise<GogTokenResponse> {
+  if (!code)
+    throw createError({
+      statusCode: 400,
+      statusMessage: "A GOG authorization code is required",
+    });
+  const url = new URL(GOG_TOKEN_URL);
+  url.searchParams.set("client_id", GOG_PUBLIC_CLIENT_ID);
+  url.searchParams.set("client_secret", GOG_PUBLIC_CLIENT_SECRET);
+  url.searchParams.set("grant_type", "authorization_code");
+  url.searchParams.set("code", code);
+  url.searchParams.set("redirect_uri", redirectUri);
+  const response = await gogTokenFetch(url, "GOG code exchange");
+  return gogTokenShape(await response.json());
+}
+
+async function gogTokenFetch(url: URL, label: string): Promise<Response> {
+  let response: Response;
+  try {
+    response = await fetch(url.toString(), {
+      headers: { accept: "application/json" },
+      signal: AbortSignal.timeout(15_000),
+    });
+  } catch {
+    throw createError({
+      statusCode: 502,
+      statusMessage: `Failed to contact ${label}`,
+    });
+  }
+  if (!response.ok)
+    throw createError({
+      statusCode: response.status,
+      statusMessage: `${label} failed (${response.status})`,
+    });
+  return response;
+}
+
+function gogTokenShape(raw: unknown): GogTokenResponse {
+  const tokens = raw as GogTokenResponse;
+  if (
+    !tokens ||
+    typeof tokens.access_token !== "string" ||
+    typeof tokens.expires_in !== "number"
+  )
+    throw createError({
+      statusCode: 502,
+      statusMessage: "GOG returned an invalid token response",
+    });
+  return tokens;
+}
 
 /** Renew a GOG access token from its refresh token (launcher-style flow). */
 export async function refreshGogToken(
@@ -33,34 +109,8 @@ export async function refreshGogToken(
   url.searchParams.set("client_secret", GOG_PUBLIC_CLIENT_SECRET);
   url.searchParams.set("grant_type", "refresh_token");
   url.searchParams.set("refresh_token", refreshToken);
-  let response: Response;
-  try {
-    response = await fetch(url.toString(), {
-      headers: { accept: "application/json" },
-      signal: AbortSignal.timeout(15_000),
-    });
-  } catch {
-    throw createError({
-      statusCode: 502,
-      statusMessage: "Failed to contact GOG token endpoint",
-    });
-  }
-  if (!response.ok)
-    throw createError({
-      statusCode: response.status,
-      statusMessage: `GOG token refresh failed (${response.status})`,
-    });
-  const tokens = (await response.json()) as GogTokenResponse;
-  if (
-    !tokens ||
-    typeof tokens.access_token !== "string" ||
-    typeof tokens.expires_in !== "number"
-  )
-    throw createError({
-      statusCode: 502,
-      statusMessage: "GOG returned an invalid token response",
-    });
-  return tokens;
+  const response = await gogTokenFetch(url, "GOG token refresh");
+  return gogTokenShape(await response.json());
 }
 
 type GogResponse = {

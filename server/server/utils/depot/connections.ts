@@ -67,7 +67,7 @@ export type SaveConnectionInput =
     }
   | {
       provider: "epic";
-      accountId: string;
+      accountId?: string;
       code?: string;
       refreshToken?: string;
       accessToken?: string;
@@ -147,12 +147,7 @@ export async function saveConnection(
       });
     }
     case "epic": {
-      const accountId = input.accountId?.trim();
-      if (!accountId)
-        throw createError({
-          statusCode: 400,
-          statusMessage: "An Epic accountId is required to connect",
-        });
+      let accountId = input.accountId?.trim() || "";
       let accessToken = input.accessToken?.trim() || null;
       let refreshToken = input.refreshToken?.trim() || null;
       let expiresAt: Date | null = null;
@@ -163,12 +158,21 @@ export async function saveConnection(
         accessToken = tokens.access_token;
         refreshToken = tokens.refresh_token ?? refreshToken;
         expiresAt = new Date(Date.now() + tokens.expires_in * 1000);
+        // Epic returns the account id with every token set - the same one
+        // Heroic reads, so pasting a code or refresh token is enough.
+        if (!accountId) accountId = tokens.account_id?.trim() || "";
       }
       if (!accessToken)
         throw createError({
           statusCode: 400,
           statusMessage:
             "Provide an Epic code, refresh token, or access token to connect",
+        });
+      if (!accountId)
+        throw createError({
+          statusCode: 400,
+          statusMessage:
+            "Could not derive the Epic account id; supply accountId when pasting a bare access token",
         });
       return store.upsert({
         provider: "epic",
