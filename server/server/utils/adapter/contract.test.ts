@@ -1,9 +1,10 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import { createHash } from 'node:crypto'
 import { mkdtemp, readFile, readdir } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { readDropletManifest } from '../../depot/manifest'
+import { readDropletManifest } from '../depot/manifest'
 import { stageAdapterRelease, safeLogicalPath, type AdapterFile } from './contract'
 
 const chunk = (n: number) => Buffer.alloc(n, 7)
@@ -14,9 +15,12 @@ async function dirs() {
 }
 
 function acquireBytes(bytes: Buffer) {
-  return async function* (_file: AdapterFile) {
-    for (let i = 0; i < bytes.length; i += 100) yield bytes.subarray(i, i + 100)
-  }
+  // The contract wants Promise<AsyncIterable<Buffer>>; an async generator
+  // *function* returns the iterable directly, so wrap it.
+  return async (_file: AdapterFile) =>
+    (async function* () {
+      for (let i = 0; i < bytes.length; i += 100) yield bytes.subarray(i, i + 100)
+    })()
 }
 
 const baseFile: AdapterFile = { fileId: 'f1', path: 'game/bin/data.pak', size: 250 }
@@ -26,7 +30,7 @@ test('stageAdapterRelease streams, verifies and publishes a manifest', async () 
   const bytes = chunk(250)
   const { manifest, manifestPath, files } = await stageAdapterRelease({
     gameTitle: 'Test Game',
-    files: [{ ...baseFile, sha256: Buffer.from(bytes.toString('hex')).toString() }],
+    files: [{ ...baseFile, sha256: createHash('sha256').update(bytes).digest('hex') }],
     objectsDir,
     manifestsDir,
     acquire: acquireBytes(bytes),

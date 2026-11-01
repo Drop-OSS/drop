@@ -120,7 +120,9 @@ async function streamFileToCas(
 ): Promise<{ size: number; sha256: string; chunks: DepotChunk[] }> {
   const hash = createHash('sha256')
   const chunks: DepotChunk[] = []
-  let pending = Buffer.alloc(0)
+  // Buffer is generic over its ArrayBuffer kind; stream chunks may carry a
+  // SharedArrayBuffer-backed Buffer, so the accumulator must accept both.
+  let pending: Buffer<ArrayBufferLike> = Buffer.alloc(0)
   let offset = 0
   let index = 0
   let size = 0

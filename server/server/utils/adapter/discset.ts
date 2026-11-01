@@ -41,7 +41,10 @@ function matchPart(name: string): { base: string; kind: PartKind; index: number 
   // game.rar + game.r00 / game.r01 ... (legacy RAR split)
   const legacyRar = /^(.+)\.r(\d{2,})$/i.exec(name)
   if (legacyRar) return { base: LOWER(legacyRar[1]), kind: 'rar-rNN', index: Number(legacyRar[2]) + 1 }
-  if (/\.rar$/i.test(name)) return { base: LOWER(name), kind: 'rar-rNN', index: 0 }
+  // game.rar + game.r00 / game.r01 ... (legacy RAR split). The base .rar is
+  // index 0 of the same set, so it must share the stem used by the .rNN parts
+  // (`movie`), not keep its own filename as the base.
+  if (/\.rar$/i.test(name)) return { base: LOWER(name.replace(/\.rar$/i, '')), kind: 'rar-rNN', index: 0 }
   // game.zip.001 / game.001 ... (generic split)
   const generic = /^(.+)\.(\d{3})$/i.exec(name)
   if (generic) return { base: LOWER(generic[1]), kind: 'generic-split', index: Number(generic[2]) }
