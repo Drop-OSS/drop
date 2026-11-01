@@ -119,9 +119,9 @@ test("createUbisoftSession exchanges credentials for a session ticket", async ()
   const call = fetchCalls[0];
   assert.equal(call.init.method, "POST");
   const headers = call.init.headers as Record<string, string>;
-  // The login flow runs under Ubisoft's web club app id, the one open
-  // source clients authenticate with, not the uplay API app id.
-  assert.equal(headers["Ubi-AppId"], "82b650c0-6cb3-40c0-9f41-25a53b62b206");
+  // The v3 login runs under the sessions app id that reaches the auth
+  // service directly; the web club id sits behind a DataDome bot wall.
+  assert.equal(headers["Ubi-AppId"], "f68a4bb5-608a-4ff2-8123-be8ef797e0a6");
   // Credentials must travel as Basic auth, never as query params or body text.
   assert.ok(headers["Authorization"]?.startsWith("Basic "));
   assert.ok(!call.url.includes("hunter2"));
@@ -164,12 +164,32 @@ test("createUbisoftSession surfaces the 2FA challenge instead of a session", asy
   assert.equal(result.method, "email");
 });
 
-test("createUbisoftSession reports rejected credentials as 401", async () => {
-  stubFetchQueue([{ status: 401, body: { message: "bad" } }]);
+test("createUbisoftSession passes Ubisoft's own rejection reason through", async () => {
+  stubFetchQueue([
+    {
+      status: 401,
+      body: {
+        message: "Invalid credentials",
+        errorContext: "Shipyard.Profiles.Services",
+        httpCode: 401,
+      },
+    },
+  ]);
 
   await assert.rejects(
     createUbisoftSession("user@example.com", "wrong"),
-    typedError(401, /rejected/i),
+    typedError(401, /invalid credentials/i),
+  );
+});
+
+test("a non-JSON 403 is named as the bot wall, not a credential verdict", async () => {
+  // DataDome answers with captcha HTML (the stub yields an empty parsed
+  // body), which must not be reported as a wrong password.
+  stubFetchQueue([{ status: 403, body: undefined }]);
+
+  await assert.rejects(
+    createUbisoftSession("user@example.com", "hunter2"),
+    typedError(403, /bot protection/i),
   );
 });
 

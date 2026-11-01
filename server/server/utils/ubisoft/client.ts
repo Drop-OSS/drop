@@ -15,15 +15,20 @@ const UBISOFT_DNS_MANIFEST_URL = "https://uplaypc-dns.ubi.com/v1/manifests";
 const UBISOFT_APP_ID = "3ad0af50-b1e5-4e5f-8c69-b1b17d3a4e9a";
 
 /**
- * Ubisoft's web club app id. The v3 sessions endpoint accepts the login and
- * remember-me flows under this id; open-source Ubisoft clients (unifideck,
- * the GOG Galaxy uplay integration) all log in under it.
+ * Application id used for the v3 sessions (login/2FA/remember-me) flow.
+ * Live-verified 2026-11: the web club app id (82b650c0-...) sits behind
+ * Ubisoft's DataDome bot protection, which answers server-side logins with
+ * a 403 captcha page before credentials are ever checked; this id reaches
+ * the real auth service (dummy credentials correctly return 401 "Invalid
+ * credentials") and is the one ubisoft-demux-node's HTTP helper uses.
  */
-const UBISOFT_SESSION_APP_ID = "82b650c0-6cb3-40c0-9f41-25a53b62b206";
+const UBISOFT_SESSION_APP_ID = "f68a4bb5-608a-4ff2-8123-be8ef797e0a6";
 
-/** The sessions endpoint fronts the login with ordinary web bot checks. */
-const UBISOFT_LOGIN_USER_AGENT =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+/**
+ * Plain client marker: the sessions API accepts any non-browser client
+ * under this app id, so there is no need to impersonate a browser.
+ */
+const UBISOFT_LOGIN_USER_AGENT = "GameDepot/1.0 (Ubisoft Connect sessions API)";
 
 const DEFAULT_BRANCH = "master";
 const DEFAULT_VERSION = "NEXT";
@@ -245,14 +250,34 @@ function readUbisoftSession(
   rejectionMessage: string,
 ): UbisoftSession {
   const session = attempt.body as unknown as UbisoftSession;
-  if (attempt.status !== 200 || typeof session?.ticket !== "string")
+  if (attempt.status !== 200 || typeof session?.ticket !== "string") {
+    // Ubisoft's auth service returns a JSON `message` ("Invalid
+    // credentials", "The Ubi-AppId header is invalid", ...) that is far
+    // more useful than a bare status; pass it through. A 403 whose body is
+    // not the auth-service JSON is the DataDome bot wall, not a credential
+    // verdict, so name it as such rather than implying a wrong password.
+    const ubiMessage =
+      typeof attempt.body?.message === "string" ? attempt.body.message : "";
+    if (attempt.status === 401)
+      throw createError({
+        statusCode: 401,
+        statusMessage: ubiMessage || rejectionMessage,
+      });
+    const botWall =
+      attempt.status === 403 &&
+      (attempt.body.message === undefined ||
+        attempt.body.environment === undefined);
     throw createError({
-      statusCode: attempt.status === 401 ? 401 : 502,
-      statusMessage:
-        attempt.status === 401
-          ? rejectionMessage
-          : `Ubisoft authentication failed (${attempt.status})`,
+      statusCode: attempt.status,
+      statusMessage: `Ubisoft authentication failed (${attempt.status})${
+        botWall
+          ? ": blocked by Ubisoft's bot protection"
+          : ubiMessage
+            ? `: ${ubiMessage}`
+            : ""
+      }`,
     });
+  }
   if (typeof session.userId !== "string" || !session.userId)
     throw createError({
       statusCode: 502,
@@ -272,7 +297,11 @@ export async function refreshUbisoftSession(
     UBISOFT_SESSIONS_URL,
     {
       method: "POST",
-      headers: { ...ubiHeaders(ticket) },
+      headers: {
+        ...sessionAuthHeaders(),
+        // Session tickets travel as `Ubi_v1 t=<ticket>`; never log them.
+        Authorization: `Ubi_v1 t=${ticket}`,
+      },
     },
     "Failed to refresh Ubisoft Connect session",
   );
