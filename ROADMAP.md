@@ -16,8 +16,8 @@ GameDepot is an open-source, community-driven game distribution and preservation
 
 ### Phase 2: Multi-Store Ingestion & Depot Repackaging
 *Automate library discovery and reproducible acquisition from supported storefronts through isolated, headless adapters.*
-- [ ] **GOG Galaxy Ingestion:** Headless account authorization, library/build discovery, and acquisition of owned installers, updates, DLC, and bonus content via supported GOG interfaces / GOGDL.
-- [ ] **Epic Games Ingestion:** Headless authentication and library/build discovery through Legendary-compatible backend interfaces.
+- [x] **GOG Galaxy Ingestion:** Headless account authorization, library/build discovery, direct depot file streaming via Galaxy CDN / Content-System into 4 MiB Content-Addressable Storage (CAS), and immutable DropletManifest emission.
+- [x] **Epic Games Ingestion:** Headless authentication (OAuth / Legendary exchange codes), entitlement discovery, asset manifest resolution, direct chunk/file streaming into 4 MiB CAS, and worker ingestion tasks with full test suites.
 - [ ] **Ubisoft Connect Ingestion (Optima adapter):** Evaluate `Starkka15/Optima` as a headless Ubisoft Connect acquisition adapter. Isolate account/session state; normalize owned products, editions and install/build metadata; stage only content the account is authorized to access. Treat it as an external, version-pinned adapter, not as GameDepot's catalog or trust boundary.
 - [ ] **EA App Ingestion (Maxima adapter):** Evaluate `ArmchairDevelopers/Maxima` as a headless EA Desktop acquisition adapter. Keep credentials and provider-specific session/token handling isolated; normalize library/build metadata and acquired assets into the common pipeline. Pin/validate the external tool and independently verify its output.
 - [ ] **Installer / Disc Set Support:** Group split archives and multi-disc installers into ordered logical releases; verify expected parts and preserve source provenance.
@@ -27,10 +27,10 @@ GameDepot is an open-source, community-driven game distribution and preservation
 
 ### Phase 3: Player Features
 *Native client functionality and integrations across devices.*
-- [ ] **Cross-Device Cloud Saves:** Versioned backup, bidirectional synchronization, conflict resolution and rollback.
+- [ ] **Cross-Device Cloud Saves:** Versioned backup, bidirectional synchronization, conflict resolution and rollback (incorporating Ludusavi manifest specifications).
 - [ ] **Multi-Profile Support:** Isolated configs, play stats, accounts, and save states per profile.
 - [ ] **External Launcher Integrations:** Playnite plugin, Steam Non-Steam game sync with artwork, Discord Rich Presence, and local client APIs/webhooks.
-- [ ] **Personalization & Theming:** Community themes and profile customization.
+- [ ] **Personalization & Theming:** Community themes and profile customization adhering to GameDepot design system.
 
 ---
 
