@@ -3,13 +3,45 @@ import assert from "node:assert/strict";
 import {
   buildEaLoginUrl,
   exchangeEaAuthorizationCode,
-  exchangeEaDesktopAuthCode,
+  exchangeEaLoginCode,
+  extractEaAuthCode,
   getEaEntitlements,
   refreshEaToken,
   searchEaCatalog,
 } from "./client";
 
 const originalFetch = globalThis.fetch;
+
+/** EA grants no public clients; tests fake the deployment's confidential one. */
+function clearEaClientEnv() {
+  delete process.env.EA_OAUTH_CLIENT_ID;
+  delete process.env.EA_OAUTH_CLIENT_SECRET;
+  delete process.env.EA_OAUTH_REDIRECT_URI;
+}
+
+function withEaClientEnv(run: () => Promise<void> | void) {
+  const saved = {
+    EA_OAUTH_CLIENT_ID: process.env.EA_OAUTH_CLIENT_ID,
+    EA_OAUTH_CLIENT_SECRET: process.env.EA_OAUTH_CLIENT_SECRET,
+    EA_OAUTH_REDIRECT_URI: process.env.EA_OAUTH_REDIRECT_URI,
+  };
+  process.env.EA_OAUTH_CLIENT_ID = "confidential-id";
+  process.env.EA_OAUTH_CLIENT_SECRET = "confidential-secret";
+  process.env.EA_OAUTH_REDIRECT_URI = "https://app.example/callback";
+  return (async () => {
+    try {
+      await run();
+    } finally {
+      clearEaClientEnv();
+      if (saved.EA_OAUTH_CLIENT_ID !== undefined)
+        process.env.EA_OAUTH_CLIENT_ID = saved.EA_OAUTH_CLIENT_ID;
+      if (saved.EA_OAUTH_CLIENT_SECRET !== undefined)
+        process.env.EA_OAUTH_CLIENT_SECRET = saved.EA_OAUTH_CLIENT_SECRET;
+      if (saved.EA_OAUTH_REDIRECT_URI !== undefined)
+        process.env.EA_OAUTH_REDIRECT_URI = saved.EA_OAUTH_REDIRECT_URI;
+    }
+  })();
+}
 const calls: { url: string; init: RequestInit }[] = [];
 function mockFetch(status: number, body: unknown) {
   calls.length = 0;
@@ -26,6 +58,7 @@ function mockFetch(status: number, body: unknown) {
 }
 afterEach(() => {
   globalThis.fetch = originalFetch;
+  clearEaClientEnv();
 });
 
 test("exchanges EA authorization code with form fields and client auth", async () => {
@@ -61,41 +94,74 @@ test("refreshes EA tokens and accepts rotated refresh token", async () => {
   assert.match(String(calls[0].init.body), /grant_type=refresh_token/);
 });
 
-test("builds an EA desktop sign-in URL for the launcher code flow", () => {
-  const url = buildEaLoginUrl();
-  assert.match(url, /^https:\/\/accounts\.ea\.com\/connect\/auth/);
-  assert.match(url, /client_id=origin-desktop/);
-  assert.match(url, /response_type=code/);
-  assert.match(url, /redirect_uri=code%3A%2F%2FEA-desktop/);
+test("no EA sign-in URL is offered without a configured OAuth client", () => {
+  clearEaClientEnv();
+  assert.equal(buildEaLoginUrl(), null);
 });
 
-test("exchanges a bare EA desktop code without a client secret", async () => {
-  mockFetch(200, {
-    access_token: "desktop-access",
-    refresh_token: "desktop-refresh",
-    expires_in: 7200,
+test("builds an EA sign-in URL from the configured confidential client", async () => {
+  await withEaClientEnv(() => {
+    const url = buildEaLoginUrl();
+    assert.ok(url);
+    const parsed = new URL(url);
+    assert.equal(
+      parsed.origin + parsed.pathname,
+      "https://accounts.ea.com/connect/auth",
+    );
+    assert.equal(parsed.searchParams.get("client_id"), "confidential-id");
+    assert.equal(
+      parsed.searchParams.get("redirect_uri"),
+      "https://app.example/callback",
+    );
+    assert.equal(parsed.searchParams.get("response_type"), "code");
   });
-  const token = await exchangeEaDesktopAuthCode("  abc-123  ");
-  assert.equal(token.access_token, "desktop-access");
-  assert.equal(calls[0].url, "https://accounts.ea.com/connect/token");
-  const headers = calls[0].init.headers as Record<string, string>;
-  assert.ok(
-    !headers.Authorization,
-    "a public client must not send client Basic auth",
-  );
-  const body = new URLSearchParams(String(calls[0].init.body));
-  assert.equal(body.get("grant_type"), "authorization_code");
-  assert.equal(body.get("client_id"), "origin-desktop");
-  assert.equal(body.get("code"), "abc-123");
 });
 
-test("extracts the code from a full code:// EA desktop link", async () => {
+test("sign-in codes redeem only under the configured client's Basic auth", async () => {
+  await withEaClientEnv(async () => {
+    mockFetch(200, {
+      access_token: "ea-access",
+      refresh_token: "ea-refresh",
+      expires_in: 7200,
+    });
+    const token = await exchangeEaLoginCode("  abc-123  ");
+    assert.equal(token.access_token, "ea-access");
+    assert.equal(calls[0].url, "https://accounts.ea.com/connect/token");
+    const headers = calls[0].init.headers as Record<string, string>;
+    assert.equal(
+      headers.Authorization,
+      `Basic ${Buffer.from("confidential-id:confidential-secret").toString("base64")}`,
+    );
+    const body = new URLSearchParams(String(calls[0].init.body));
+    assert.equal(body.get("grant_type"), "authorization_code");
+    assert.equal(body.get("code"), "abc-123");
+    assert.equal(body.get("redirect_uri"), "https://app.example/callback");
+  });
+});
+
+test("a custom-scheme redirect link is reduced to its code", async () => {
+  await withEaClientEnv(async () => {
+    mockFetch(200, { access_token: "x", expires_in: 1 });
+    await exchangeEaLoginCode("ea-desktop://callback?code=deadbeef&state=abc");
+    const body = new URLSearchParams(String(calls[0].init.body));
+    assert.equal(body.get("code"), "deadbeef");
+  });
+  assert.equal(extractEaAuthCode(" plain-code "), "plain-code");
+});
+
+test("without a configured client, code exchange says so clearly", async () => {
+  clearEaClientEnv();
   mockFetch(200, { access_token: "x", expires_in: 1 });
-  await exchangeEaDesktopAuthCode(
-    "code://EA-desktop/authenticate?code=deadbeef&state=abc",
+  await assert.rejects(
+    () => exchangeEaLoginCode("abc-123"),
+    (err: unknown) => {
+      const e = err as { statusCode?: number; statusMessage?: string };
+      assert.equal(e.statusCode, 400);
+      assert.match(e.statusMessage ?? "", /EA_OAUTH_CLIENT_ID/);
+      assert.equal(calls.length, 0, "must not call EA with a made-up client");
+      return true;
+    },
   );
-  const body = new URLSearchParams(String(calls[0].init.body));
-  assert.equal(body.get("code"), "deadbeef");
 });
 
 test("shapes EA entitlement response", async () => {

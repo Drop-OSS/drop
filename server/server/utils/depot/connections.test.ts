@@ -57,7 +57,17 @@ function createStore() {
 const originalFetch = globalThis.fetch;
 afterEach(() => {
   globalThis.fetch = originalFetch;
+  delete process.env.EA_OAUTH_CLIENT_ID;
+  delete process.env.EA_OAUTH_CLIENT_SECRET;
+  delete process.env.EA_OAUTH_REDIRECT_URI;
 });
+
+/** EA has no public OAuth client; tests opt into a configured one. */
+function setEaClientEnv() {
+  process.env.EA_OAUTH_CLIENT_ID = "confidential-id";
+  process.env.EA_OAUTH_CLIENT_SECRET = "confidential-secret";
+  process.env.EA_OAUTH_REDIRECT_URI = "https://app.example/callback";
+}
 
 function mockTokenFetch(body: unknown) {
   globalThis.fetch = (async (url: string | URL | Request) => {
@@ -190,7 +200,8 @@ test("storing an EA access token resolves the account pid", async () => {
   assert.equal(rows[0]?.accountId, "987");
 });
 
-test("an EA launcher code upgrades to a stored token set", async () => {
+test("an EA sign-in code upgrades with the configured client", async () => {
+  setEaClientEnv();
   mockQueueFetch([
     {
       body: {
@@ -204,14 +215,30 @@ test("an EA launcher code upgrades to a stored token set", async () => {
   const { store, rows } = createStore();
   await saveConnection(store, {
     provider: "ea",
-    code: "code://EA-desktop/authenticate?code=xyz&state=1",
+    code: "https://app.example/callback?code=xyz&state=1",
   });
   assert.equal(rows[0]?.accessToken, "ea-at");
   assert.equal(rows[0]?.refreshToken, "ea-rt");
   assert.equal(rows[0]?.accountId, "4242");
 });
 
-test("an EA refresh token upgrades with the public desktop client", async () => {
+test("an EA sign-in code without a configured client fails honestly", async () => {
+  mockQueueFetch([{ status: 400, body: { error: "invalid_client" } }]);
+  const { store, rows } = createStore();
+  await assert.rejects(
+    () => saveConnection(store, { provider: "ea", code: "abc-123" }),
+    (err: unknown) => {
+      const e = err as { statusCode?: number; statusMessage?: string };
+      assert.equal(e.statusCode, 400);
+      assert.match(e.statusMessage ?? "", /EA_OAUTH_CLIENT_ID/);
+      return true;
+    },
+  );
+  assert.equal(rows.length, 0);
+});
+
+test("an EA refresh token upgrades with the configured client", async () => {
+  setEaClientEnv();
   mockTokenFetch({
     access_token: "at",
     refresh_token: "rt2",
@@ -223,12 +250,22 @@ test("an EA refresh token upgrades with the public desktop client", async () => 
   assert.equal(rows[0]?.refreshToken, "rt2");
 });
 
-test("an expired EA connection refreshes without OAuth client env config", async () => {
-  mockTokenFetch({
-    access_token: "at2",
-    refresh_token: "rt3",
-    expires_in: 3600,
-  });
+test("an EA refresh without a configured client is refused, not guessed", async () => {
+  mockQueueFetch([{ status: 400, body: { error: "invalid_client" } }]);
+  const { store } = createStore();
+  await assert.rejects(
+    () => saveConnection(store, { provider: "ea", refreshToken: "rt1" }),
+    (err: unknown) => {
+      const e = err as { statusCode?: number; statusMessage?: string };
+      assert.equal(e.statusCode, 400);
+      assert.match(e.statusMessage ?? "", /EA_OAUTH_CLIENT_ID/);
+      return true;
+    },
+  );
+});
+
+test("an expired EA connection cannot self-renew without a configured client", async () => {
+  mockQueueFetch([{ status: 400, body: { error: "invalid_client" } }]);
   const { store, rows } = createStore();
   await saveConnection(store, {
     provider: "ea",
@@ -237,8 +274,35 @@ test("an expired EA connection refreshes without OAuth client env config", async
     accountId: "55",
   });
   rows[0]!.expiresAt = new Date(Date.now() - 1000);
+  // No env: refresh is impossible, so resolve reports "reconnect" (410)
+  // instead of firing a request at a client EA would reject.
+  await assert.rejects(
+    () => resolveDepotToken(store, "ea"),
+    (err: unknown) => {
+      assert.equal((err as { statusCode?: number }).statusCode, 410);
+      return true;
+    },
+  );
+});
+
+test("an expired EA connection refreshes with the configured client", async () => {
+  const { store, rows } = createStore();
+  await saveConnection(store, {
+    provider: "ea",
+    accessToken: "stale",
+    refreshToken: "rt",
+    accountId: "55",
+  });
+  rows[0]!.expiresAt = new Date(Date.now() - 1000);
+  setEaClientEnv();
+  mockTokenFetch({
+    access_token: "at2",
+    refresh_token: "rt3",
+    expires_in: 3600,
+  });
   const resolved = await resolveDepotToken(store, "ea");
   assert.equal(resolved.token, "at2");
+  assert.equal(rows[0]?.refreshToken, "rt3");
 });
 
 function mockQueueFetch(

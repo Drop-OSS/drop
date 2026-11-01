@@ -1,12 +1,7 @@
 import { createError } from "h3";
 import { exchangeGogAuthorizationCode, refreshGogToken } from "../gog";
 import { exchangeEpicAuthCode, refreshEpicToken } from "../epic/client";
-import {
-  EA_DESKTOP_CLIENT_ID,
-  exchangeEaDesktopAuthCode,
-  fetchEaPid,
-  refreshEaToken,
-} from "../ea/client";
+import { exchangeEaLoginCode, fetchEaPid, refreshEaToken } from "../ea/client";
 import {
   completeUbisoftTwoFactor,
   createUbisoftSession,
@@ -297,24 +292,25 @@ export async function saveConnection(
       let accessToken = input.accessToken?.trim() || null;
       let refreshToken = input.refreshToken?.trim() || null;
       let expiresAt: Date | null = null;
-      const eaClient = process.env.EA_OAUTH_CLIENT_ID
-        ? {
-            id: process.env.EA_OAUTH_CLIENT_ID,
-            secret: process.env.EA_OAUTH_CLIENT_SECRET,
-          }
-        : { id: EA_DESKTOP_CLIENT_ID };
       if (input.code?.trim()) {
-        // Launcher-style browser sign-in: exchange the copyable code with
-        // EA's public desktop client. No secret, no pasted bearer token.
-        const tokens = await exchangeEaDesktopAuthCode(input.code);
+        // Browser sign-in with the deployment's configured EA OAuth client.
+        const tokens = await exchangeEaLoginCode(input.code);
         accessToken = tokens.access_token;
         refreshToken = tokens.refresh_token ?? refreshToken;
         expiresAt = new Date(Date.now() + tokens.expires_in * 1000);
       } else if (!accessToken && refreshToken) {
+        const clientId = process.env.EA_OAUTH_CLIENT_ID;
+        const clientSecret = process.env.EA_OAUTH_CLIENT_SECRET;
+        if (!clientId || !clientSecret)
+          throw createError({
+            statusCode: 400,
+            statusMessage:
+              "Refreshing an EA token requires EA_OAUTH_CLIENT_ID/EA_OAUTH_CLIENT_SECRET on the server; paste a fresh access token instead",
+          });
         const tokens = await refreshEaToken(
           refreshToken,
-          eaClient.id,
-          eaClient.secret,
+          clientId,
+          clientSecret,
         );
         accessToken = tokens.access_token;
         refreshToken = tokens.refresh_token ?? refreshToken;
@@ -422,12 +418,15 @@ async function tryRefresh(
       return { token: tokens.access_token, accountId: row.accountId };
     }
     if (row.provider === "ea" && row.refreshToken) {
-      // Prefer a configured confidential client; EA's public desktop
-      // client refreshes launcher-issued tokens without any secret.
+      // Renewal needs the deployment's confidential EA client; without it
+      // the connection cannot self-renew and reports "reconnect" (410).
+      const clientId = process.env.EA_OAUTH_CLIENT_ID;
+      const clientSecret = process.env.EA_OAUTH_CLIENT_SECRET;
+      if (!clientId || !clientSecret) return null;
       const tokens = await refreshEaToken(
         row.refreshToken,
-        process.env.EA_OAUTH_CLIENT_ID ?? EA_DESKTOP_CLIENT_ID,
-        process.env.EA_OAUTH_CLIENT_SECRET,
+        clientId,
+        clientSecret,
       );
       const expiresAt = new Date(Date.now() + tokens.expires_in * 1000);
       await store.updateTokens(row.id, {

@@ -1,7 +1,9 @@
 import { createError } from "h3";
 
-// UNVERIFIED-LIVE: EA Nucleus OAuth, ecommerce2 entitlement routes, and Juno GraphQL schema
-// vary by client; confirm these service details against an active EA account before production.
+// UNVERIFIED-LIVE: ecommerce2 entitlement routes and the Juno GraphQL schema
+// vary by client; confirm these service details against an active EA account
+// before production. (OAuth itself is live-verified: connect/token accepts
+// only confidential clients.)
 const NUCLEUS_TOKEN_URL = "https://accounts.ea.com/connect/token";
 const NUCLEUS_AUTH_URL = "https://accounts.ea.com/connect/auth";
 const ENTITLEMENTS_URL =
@@ -9,14 +11,23 @@ const ENTITLEMENTS_URL =
 const JUNO_GRAPHQL_URL = "https://gateway.ea.com/proxy/identity/pids/me";
 
 /**
- * The EA desktop launcher's OAuth client. It is public (no secret) and is
- * what the launcher itself, eastore-style tooling and giveaway scripts
- * authenticate under; its redirect is the `code://` custom scheme the
- * launcher registers, which a browser surfaces as a copyable URL.
+ * EA grants no public OAuth clients: live probing of connect/token answers
+ * `invalid_client / unknown client` for launcher-style public ids, unlike
+ * GOG's Galaxy client. Browser sign-in for EA therefore works only with a
+ * confidential OAuth client (id + secret + registered redirect) that the
+ * deployment provides; without one the EA tab falls back to pasting
+ * launcher-issued tokens.
  */
-export const EA_DESKTOP_CLIENT_ID = "origin-desktop";
-const EA_DESKTOP_REDIRECT_URI = "code://EA-desktop/authenticate";
-const EA_DESKTOP_SCOPE =
+export type EaOauthClient = { id: string; secret: string; redirectUri: string };
+
+export function eaConfiguredClient(): EaOauthClient | null {
+  const id = process.env.EA_OAUTH_CLIENT_ID?.trim();
+  const secret = process.env.EA_OAUTH_CLIENT_SECRET?.trim();
+  const redirectUri = process.env.EA_OAUTH_REDIRECT_URI?.trim();
+  return id && secret && redirectUri ? { id, secret, redirectUri } : null;
+}
+
+const EA_LOGIN_SCOPE =
   "basic user.identity userinfo.persona userinfo.accountprofile user.relation.usergroups";
 export type EaTokenResponse = {
   access_token: string;
@@ -53,8 +64,9 @@ function form(
   if (clientId && clientSecret)
     headers.Authorization = `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString("base64")}`;
   else if (clientId)
-    // Public/native clients (e.g. origin-desktop) authenticate with a form
-    // client_id and no secret.
+    // Form client_id for clients without a secret. Live probing showed EA
+    // rejects every such public id ("unknown client"), but the generic
+    // exchange helpers keep supporting it for configured clients.
     body.client_id = clientId;
   return { headers, body: new URLSearchParams(body).toString() };
 }
@@ -146,28 +158,35 @@ export async function refreshEaToken(
 }
 
 /**
- * Browser sign-in URL for the EA desktop launcher's own login. After
- * signing in (the page handles 2FA and captchas natively) the browser ends
- * on the launcher's `code://` redirect; the address bar holds the code the
- * server exchanges below - the web-only twin of a launcher login.
+ * Browser sign-in URL for EA's own login page (handles 2FA/captchas
+ * natively). Only offered when the deployment configures a confidential
+ * EA OAuth client; after sign-in the browser lands on the client's
+ * registered redirect, whose code the admin copies back.
  */
-export function buildEaLoginUrl(): string {
+export function buildEaLoginUrl(): string | null {
+  const client = eaConfiguredClient();
+  if (!client) return null;
   const url = new URL(NUCLEUS_AUTH_URL);
-  url.searchParams.set("client_id", EA_DESKTOP_CLIENT_ID);
-  url.searchParams.set("redirect_uri", EA_DESKTOP_REDIRECT_URI);
+  url.searchParams.set("client_id", client.id);
+  url.searchParams.set("redirect_uri", client.redirectUri);
   url.searchParams.set("response_type", "code");
-  url.searchParams.set("scope", EA_DESKTOP_SCOPE);
+  url.searchParams.set("scope", EA_LOGIN_SCOPE);
   return url.toString();
 }
 
-/** Accept a bare code or the full `code://...?code=X` URL from the address bar. */
+/** Accept a bare code or the full `<redirect>?code=X` URL from the address bar. */
 export function extractEaAuthCode(input: string): string {
   const trimmed = input.trim();
   if (trimmed.includes("code=")) {
     try {
+      // Custom-scheme redirects (code://...) are not URL-parseable; swap the
+      // scheme for a dummy https origin to read the query.
       const parsed = new URL(
-        trimmed.startsWith("code://")
-          ? trimmed.replace("code://", "https://code.invalid/")
+        /^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed)
+          ? trimmed.replace(
+              /^[a-z][a-z0-9+.-]*:\/\//i,
+              "https://redirect.invalid/",
+            )
           : trimmed,
       );
       const code = parsed.searchParams.get("code");
@@ -179,31 +198,33 @@ export function extractEaAuthCode(input: string): string {
   return trimmed;
 }
 
-/** Exchange the launcher-flow auth code with EA's public desktop client. */
-export async function exchangeEaDesktopAuthCode(
+/**
+ * Redeem a copied sign-in code with the configured confidential client.
+ * The configured client's id, secret and redirect must match what the
+ * authorization URL used, which buildEaLoginUrl guarantees.
+ */
+export async function exchangeEaLoginCode(
   input: string,
 ): Promise<EaTokenResponse> {
+  const client = eaConfiguredClient();
+  if (!client)
+    throw createError({
+      statusCode: 400,
+      statusMessage:
+        "EA sign-in needs EA_OAUTH_CLIENT_ID/EA_OAUTH_CLIENT_SECRET/EA_OAUTH_REDIRECT_URI configured on the server - or paste tokens instead",
+    });
   const code = extractEaAuthCode(input);
   if (!code)
     throw createError({
       statusCode: 400,
-      statusMessage:
-        "Paste the code from the EA sign-in page (or the full code:// link)",
+      statusMessage: "Paste the code from the EA sign-in redirect",
     });
-  const request = form(
-    {
-      grant_type: "authorization_code",
-      code,
-      redirect_uri: EA_DESKTOP_REDIRECT_URI,
-    },
-    EA_DESKTOP_CLIENT_ID,
+  return exchangeEaAuthorizationCode(
+    code,
+    client.redirectUri,
+    client.id,
+    client.secret,
   );
-  const response = await eaFetch(
-    NUCLEUS_TOKEN_URL,
-    { method: "POST", headers: request.headers, body: request.body },
-    "Nucleus sign-in code exchange (the code is single-use - fetch a fresh one)",
-  );
-  return tokenShape(await response.json());
 }
 /** Return one bounded entitlement page. */
 export async function getEaEntitlements(

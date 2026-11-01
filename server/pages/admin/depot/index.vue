@@ -102,7 +102,7 @@
           </span>
         </div>
         <div
-          v-if="activeProviderId === 'ea'"
+          v-if="activeProviderId === 'ea' && eaLoginAvailable"
           class="mb-4 flex flex-wrap items-center gap-3"
         >
           <button
@@ -114,10 +114,20 @@
             Open EA sign-in page
           </button>
           <span class="text-xs text-zinc-500">
-            after signing in, the browser lands on an unopenable
-            code://EA-desktop address - copy the code= value from it
+            after signing in, the browser lands on your configured redirect -
+            copy the code= value from its address into the field below
           </span>
         </div>
+        <p
+          v-else-if="activeProviderId === 'ea'"
+          class="mb-4 text-xs text-zinc-500"
+        >
+          EA offers no public sign-in client for third-party apps, so browser
+          sign-in is only available when this server is configured with an EA
+          OAuth client (EA_OAUTH_CLIENT_ID, EA_OAUTH_CLIENT_SECRET and
+          EA_OAUTH_REDIRECT_URI). Otherwise paste an access token (plus refresh
+          token) copied from an existing EA app / Origin installation.
+        </p>
         <form class="flex flex-col gap-3" @submit.prevent="connect">
           <div class="flex flex-col gap-3 sm:flex-row">
             <template v-if="activeProviderId === 'gog'">
@@ -287,17 +297,19 @@
               </details>
             </template>
             <template v-else>
-              <label for="ea-connect-code" class="sr-only">
-                EA sign-in code
-              </label>
-              <input
-                id="ea-connect-code"
-                v-model.trim="eaConnectCode"
-                type="password"
-                autocomplete="off"
-                placeholder="Sign-in code (from the EA page) or full code:// link"
-                class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-              />
+              <template v-if="eaLoginAvailable">
+                <label for="ea-connect-code" class="sr-only">
+                  EA sign-in code
+                </label>
+                <input
+                  id="ea-connect-code"
+                  v-model.trim="eaConnectCode"
+                  type="password"
+                  autocomplete="off"
+                  placeholder="Sign-in code (from the EA redirect) or its full URL"
+                  class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                />
+              </template>
               <label for="ea-connect-token" class="sr-only"
                 >EA access token</label
               >
@@ -306,7 +318,9 @@
                 v-model.trim="eaConnectToken"
                 type="password"
                 autocomplete="off"
-                placeholder="…or EA access token"
+                :placeholder="
+                  eaLoginAvailable ? '…or EA access token' : 'EA access token'
+                "
                 class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
               <label for="ea-refresh-token" class="sr-only">
@@ -735,7 +749,7 @@ const providerDescription = computed(() =>
   activeProviderId.value === "epic"
     ? "Connect an Epic account with a refresh token so the server can keep its entitlements fresh. Loads the entitlements owned by that account; ingest streams the raw depot files directly into the depot."
     : activeProviderId.value === "ea"
-      ? "Open the EA sign-in page, log in, and copy the code from the code:// link the browser lands on - the server exchanges it with EA's launcher client and renews the connection by itself afterwards. Discovery lists entitled games and can be widened by a catalog search; ingest streams the game archive into the depot from a provided download link."
+      ? "EA grants no public sign-in client, so browser sign-in works only when this server is configured with an EA OAuth client; otherwise paste an access token (and refresh token) from an existing EA app installation. Discovery lists entitled games and can be widened by a catalog search; ingest streams the game archive into the depot from a provided download link."
       : "Sign in with your Ubisoft email and password - the password is used for the single sign-in and never stored; the session ticket and a remember-me ticket are kept and renewed automatically. A two-factor code may be requested once. Loads the titles owned by that account; ingest streams the raw game files directly into the depot.",
 );
 
@@ -771,7 +785,25 @@ async function loadConnections() {
   }
 }
 
-onMounted(loadConnections);
+onMounted(() => {
+  loadConnections();
+  probeEaLogin();
+});
+
+// EA grants no public OAuth clients, so browser sign-in is only offered when
+// the server has a confidential client configured; probe once on mount.
+const eaLoginAvailable = ref(false);
+
+async function probeEaLogin() {
+  try {
+    const { loginUrl } = await $fetch<{ loginUrl: string | null }>(
+      "/api/admin/depot/connection/ea/login-url",
+    );
+    eaLoginAvailable.value = Boolean(loginUrl);
+  } catch {
+    eaLoginAvailable.value = false;
+  }
+}
 
 function formatExpiry(value: string) {
   const date = new Date(value);
@@ -895,12 +927,18 @@ async function openEpicLoginPage() {
 
 async function openEaLoginPage() {
   try {
-    const { loginUrl } = await $fetch<{ loginUrl: string }>(
+    const { loginUrl } = await $fetch<{ loginUrl: string | null }>(
       "/api/admin/depot/connection/ea/login-url",
     );
+    if (!loginUrl) {
+      eaLoginAvailable.value = false;
+      notice.value =
+        "This server has no EA OAuth client configured, so browser sign-in is unavailable - paste an access token from an existing EA app installation, or configure EA_OAUTH_CLIENT_ID/EA_OAUTH_CLIENT_SECRET/EA_OAUTH_REDIRECT_URI on the server.";
+      return;
+    }
     window.open(loginUrl, "_blank", "noopener");
     notice.value =
-      "Sign in at EA - the browser then tries to open a code:// link. Copy the code= value from that address (or the whole link) into the sign-in code field.";
+      "Sign in at EA - the browser then lands on your configured redirect address. Copy the code= value from it (or the whole address) into the sign-in code field.";
   } catch (error) {
     notice.value =
       error instanceof Error
