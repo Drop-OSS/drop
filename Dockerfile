@@ -37,6 +37,14 @@ FROM base AS build-system
 ENV NODE_ENV=production
 ENV NUXT_TELEMETRY_DISABLED=1
 
+## Nuxt's server bundle peaks above V8's default old-space limit here, because
+## nuxt.config.ts enables production sourcemaps for the server and client
+## bundles. V8 also lowers its own limit when the host reports memory pressure,
+## which made `nuxt build` abort with "Reached heap limit ... Exit status 134"
+## long before it finished. Build stage only: the runtime stage keeps the
+## default heap.
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
 ## add git so GameDepot can determine its git ref at build
 RUN apt-get update && apt-get install -y --no-install-recommends git \
     && rm -rf /var/lib/apt/lists/*
