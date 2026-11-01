@@ -70,3 +70,10 @@ Package manager is **pnpm** (see `pnpm-workspace.yaml`). Use pnpm workflows, not
 - Descriptive, conventional-style commit messages.
 - One logical change per commit/PR; explain *why* in the description.
 - Never include secrets, tokens, or personal data in commits, logs, or fixtures.
+
+## Branch Naming
+
+- Branches are named `feature/<short-kebab-case-slug>`, e.g. `feature/steam-adapter`.
+- Use `fix/<slug>` for bug fixes and `chore/<slug>` for tooling/docs-only work.
+- Branch off the default branch (`develop`), not `main`, unless told otherwise.
+- Keep slugs short, lowercase, and descriptive; no issue numbers in the branch name.
