@@ -91,6 +91,45 @@ The shared contract is `authorize -> discover -> normalize -> acquire -> verify 
 
 These adapters describe ingestion of authorized assets; they do not bypass DRM or grant rights to redistribute content. Prefer supported interfaces and make account authorization and legal responsibility explicit.
 
+### Phase 2 GOG acquisition worker
+
+The GOG worker is a provider-specific ingestion adapter behind the shared `authorize -> discover -> normalize -> acquire -> verify -> publish` contract. It is an architectural target, not an assertion that the server currently has a registered worker implementation. Keep GOG session/API details inside the adapter; the control plane should enqueue an account-scoped product/build job and receive normalized metadata, staged asset references, progress and typed failure state—not provider credentials or raw signed URLs.
+
+```text
+User links GOG account
+        |
+        v
+Scoped credential store -> enqueue idempotent acquisition job
+                                  |
+                                  v
+                       GOG worker claims job
+                       | refresh/validate auth
+                       | discover owned product + build
+                       | resolve language/platform files
+                       v
+                    bounded downloads
+                    (retry / resume / rate limit)
+                       |
+                       v
+          isolated staging + part/order metadata
+                       |
+                       v
+        validate paths, sizes, hashes, completeness
+                       |
+                       v
+      normalize release + immutable source provenance
+                       |
+                       v
+        depot chunking/manifest -> atomic publish
+                       |
+                       v
+              job result / catalog status
+```
+
+Worker safeguards: deduplicate by account, product, build and requested variant; persist job state so restart can resume only after revalidating partial bytes; cap parallel products/files/chunks and temporary disk use; use bounded backoff for transient network/API failures and stop on authorization, policy or integrity failures. Keep multipart installers as ordered logical assets and do not mark a release available until every required part and manifest entry passes verification. Redact tokens, cookies and expiring URLs from progress, errors and logs; store only scoped encrypted credentials. Support cancellation and distinguish discovery, authentication, transfer, verification and publication status.
+
+The current server tree has a GOG helper at `server/server/utils/gog.ts`, but the inspected paths `server/server/tasks/gog/` and `server/server/utils/depot/` are absent on `develop`. Do not treat the helper as a complete queued acquisition worker or claim the planned depot chunker/publisher is implemented. Keep these as explicit implementation gaps until worker registration, persistent job state, verification and publication are covered by code and tests.
+
 ## 3. Manifest-Driven Depot and Chunk Delivery
 
 DepotDownloader provides a useful reference for Steam-style depot/build manifests and chunk-based acquisition/assembly. GameDepot should adopt the general pattern—not assume access to Steam's private protocol, manifests, services or credentials. Define its own versioned, provider-neutral manifest schema. It should describe immutable release identity, logical file paths, sizes and digests, ordered chunk/object references and integrity metadata; where a provider manifest is available, retain its ID and source provenance.
@@ -125,6 +164,35 @@ Provider metadata/build manifest or staged files
 ```
 
 Separate three identities: the provider's source manifest/build ID, GameDepot's immutable release manifest ID, and content-object identity/digest. Chunks are reusable only when identity and integrity checks match; do not infer equality from filename or size alone. Support resumability only when partial state can be revalidated. Bound worker count, memory, disk use, retry rates and path lengths. Reject traversal, unsafe links, duplicate/conflicting paths and malformed offsets. Cache verified objects by digest and garbage-collect only when no live manifest or job references them.
+
+### Ingestion-to-depot chunking boundary
+
+Zstandard depot chunking happens only after provider bytes have been acquired into staging and validated. It is a GameDepot packaging operation; do not assume GOG's download chunks are zstd frames or reuse provider chunk hashes as depot object identities.
+
+```text
+GOG resolved files -> staged bytes -> source size/hash verification
+                                              |
+                                              v
+                                logical file / part normalization
+                                              |
+                                              v
+                          fixed policy chunking + independent zstd frames
+                                              |
+                              +---------------+---------------+
+                              |                               |
+                              v                               v
+                    content digest/object              versioned index
+                    (compressed + plain)       (file offsets, frame ranges)
+                              |                               |
+                              +---------------+---------------+
+                                              v
+                             immutable release manifest
+                                              |
+                                              v
+                                 atomic catalog publication
+```
+
+Use a versioned, deterministic chunking policy and record codec parameters, uncompressed/compressed lengths, offsets and cryptographic digests in the depot manifest. Verify each generated frame and the reconstructed logical file against the staged source before publication. Keep source-provider provenance distinct from depot object identity and release-manifest identity. A changed chunk layout produces a new immutable manifest; unreferenced objects can be garbage-collected only after active jobs/releases no longer reference them.
 
 ### Seekable zstd representation
 
