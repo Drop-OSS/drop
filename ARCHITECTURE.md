@@ -147,6 +147,29 @@ As of Phase 2 implementation on `develop`:
 7. **GOG Ingest Task Worker (`server/server/tasks/gog/ingest.ts`)**:
    Coordinates extraction, CAS chunking, and manifest publication with progress and status reporting via an injectable job store.
 
+### Phase 2 Epic Games Store Ingestion
+
+Epic Games Store integration streams unpacked game depot files directly from Epic's content delivery network, matching Heroic and Legendary architecture.
+
+```text
+User links Epic account (OAuth / exchange token)
+        |
+        v
+Discover user entitlements (`/entitlements/account/{accountId}`)
+        |
+        v
+Resolve product catalog & manifest download URLs (`/launcher/api/public/assets/...`)
+        |
+        v
+Fetch Epic Binary Manifest / file list
+        |
+        v
+Stream raw game files directly to GameDepot CAS (4 MiB SHA-256 chunks)
+        |
+        v
+Emit immutable DropletManifest (`depot/manifests/{sha256}.json`)
+```
+
 #### Implemented Epic Games Modules
 
 1. **Epic Games API Client (`server/server/utils/epic/client.ts`)**:
@@ -160,20 +183,76 @@ As of Phase 2 implementation on `develop`:
 3. **API Endpoints (`server/server/api/admin/depot/epic/`)**:
    - `library.get.ts`: Retrieves and filters owned Epic entitlements for the authenticated account.
    - `ingest.post.ts`: Dispatches an Epic ingestion job to the ingestion worker with validation for namespace, catalog item ID, and app name.
-4. **Epic Integration Testing & Mocking Suite (`server/server/utils/epic/client.test.ts`)**:
+4. **Epic Ingestion Worker Task (`server/server/tasks/epic/ingest.ts`)**:
+   - `ingestEpicJob()`: Coordinates streaming jobs with status lifecycle reporting (`pending` -> `downloading` -> `completed` / `failed`) via an injectable job store interface (`IngestJobStore`).
+   - Built-in token resilience: automatically detects upstream `401 Unauthorized` token expiry, rotates credentials via `refreshEpicToken()`, and retries the stream without failing the job.
+   - Respects `AbortSignal` for cancellation, ensuring no corrupted manifests or leaked operations.
+5. **Epic Integration Testing & Mocking Suite (`server/server/utils/epic/client.test.ts`, `server/server/tasks/epic/ingest.test.ts`)**:
    - Built on Node's native test runner (`node:test`, `node:assert/strict`) without external test runner bloat.
    - Implements hermetic mocking of Epic's OAuth2 token endpoints (`exchangeEpicAuthCode`, `refreshEpicToken`), entitlements directory (`getEpicEntitlements`), and launcher public assets distribution service (`getEpicAssetInfo`).
-   - Verifies error propagation, network timeout translation (`502 Bad Gateway`), 404 unreleased asset safety, and parameter normalization.
+   - Comprehensive worker task testing verifying state machine progression, token refresh failovers, cancellation via `AbortSignal`, and error quarantine.
 
 ## 3. Manifest-Driven Depot and Chunk Delivery
 
 DepotDownloader provides a useful reference for Steam-style depot/build manifests and chunk-based acquisition/assembly. GameDepot should adopt the general pattern—not assume access to Steam's private protocol, manifests, services or credentials. Define its own versioned, provider-neutral manifest schema. It should describe immutable release identity, logical file paths, sizes and digests, ordered chunk/object references and integrity metadata; where a provider manifest is available, retain its ID and source provenance.
+
+```text
+Provider metadata/build manifest or staged files
+                         |
+                         v
+       Parse & normalize into GameDepot manifest
+                         |
+        +----------------+-----------------+
+        |                                  |
+        v                                  v
+ logical file map                 chunk/object index
+ path, length, digest             id, offset, size, digest
+        |                                  |
+        +----------------+-----------------+
+                         v
+                 immutable release
+                         |
+             authorized transfer request
+                         v
+       concurrent bounded chunk retrieval/cache
+                         |
+                verify each object
+                         |
+             assemble into staging files
+                         |
+             verify final file digest
+                         v
+                 atomic publish/install
+```
 
 Separate three identities: the provider's source manifest/build ID, GameDepot's immutable release manifest ID, and content-object identity/digest. Chunks are reusable only when identity and integrity checks match; do not infer equality from filename or size alone. Support resumability only when partial state can be revalidated. Bound worker count, memory, disk use, retry rates and path lengths. Reject traversal, unsafe links, duplicate/conflicting paths and malformed offsets. Cache verified objects by digest and garbage-collect only when no live manifest or job references them.
 
 ### Ingestion-to-depot chunking boundary
 
 Zstandard depot chunking happens only after provider bytes have been acquired into staging and validated. It is a GameDepot packaging operation; do not assume GOG's download chunks are zstd frames or reuse provider chunk hashes as depot object identities.
+
+```text
+GOG resolved files -> staged bytes -> source size/hash verification
+                                              |
+                                              v
+                                logical file / part normalization
+                                              |
+                                              v
+                          fixed policy chunking + independent zstd frames
+                                              |
+                              +---------------+---------------+
+                              |                               |
+                              v                               v
+                    content digest/object              versioned index
+                    (compressed + plain)       (file offsets, frame ranges)
+                              |                               |
+                              +---------------+---------------+
+                                              v
+                             immutable release manifest
+                                              |
+                                              v
+                                 atomic catalog publication
+```
 
 Use a versioned, deterministic chunking policy and record codec parameters, uncompressed/compressed lengths, offsets and cryptographic digests in the depot manifest. Verify each generated frame and the reconstructed logical file against the staged source before publication. Keep source-provider provenance distinct from depot object identity and release-manifest identity. A changed chunk layout produces a new immutable manifest; unreferenced objects can be garbage-collected only after active jobs/releases no longer reference them.
 
