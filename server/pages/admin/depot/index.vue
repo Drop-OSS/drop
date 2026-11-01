@@ -97,8 +97,8 @@
             Sign in with GOG
           </button>
           <span class="text-xs text-zinc-500">
-            or paste tokens below (Heroic users: both live in
-            ~/.config/heroic/gog_store/auth.json)
+            after signing in, GOG lands on embed.gog.com/auth?code=... - copy
+            that code from the address bar and paste it below
           </span>
         </div>
         <div
@@ -121,39 +121,60 @@
         <form class="flex flex-col gap-3" @submit.prevent="connect">
           <div class="flex flex-col gap-3 sm:flex-row">
             <template v-if="activeProviderId === 'gog'">
-              <label for="gog-connect-token" class="sr-only">
-                GOG access token
+              <label for="gog-connect-code" class="sr-only">
+                GOG sign-in code
               </label>
               <input
-                id="gog-connect-token"
-                v-model.trim="gogConnectToken"
+                id="gog-connect-code"
+                v-model.trim="gogConnectCode"
                 type="password"
                 autocomplete="off"
-                placeholder="GOG access token"
+                placeholder="Sign-in code (from embed.gog.com) or full URL"
                 class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
-              <label for="gog-connect-refresh" class="sr-only">
-                GOG refresh token (optional)
-              </label>
-              <input
-                id="gog-connect-refresh"
-                v-model.trim="gogRefreshToken"
-                type="password"
-                autocomplete="off"
-                placeholder="Refresh token (optional - enables auto-renewal)"
-                class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-              />
-              <label for="gog-connect-account" class="sr-only">
-                GOG account ID (optional)
-              </label>
-              <input
-                id="gog-connect-account"
-                v-model.trim="gogAccountId"
-                type="text"
-                autocomplete="off"
-                placeholder="Account id (only for non-JWT tokens)"
-                class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-              />
+              <details class="w-full sm:basis-full">
+                <summary
+                  class="cursor-pointer select-none text-xs text-zinc-500"
+                >
+                  Or paste an existing token (Heroic users: both live in
+                  ~/.config/heroic/gog_store/auth.json)
+                </summary>
+                <div class="mt-3 flex flex-col gap-3 sm:flex-row">
+                  <label for="gog-connect-token" class="sr-only">
+                    GOG access token
+                  </label>
+                  <input
+                    id="gog-connect-token"
+                    v-model.trim="gogConnectToken"
+                    type="password"
+                    autocomplete="off"
+                    placeholder="GOG access token"
+                    class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                  <label for="gog-connect-refresh" class="sr-only">
+                    GOG refresh token (optional)
+                  </label>
+                  <input
+                    id="gog-connect-refresh"
+                    v-model.trim="gogRefreshToken"
+                    type="password"
+                    autocomplete="off"
+                    placeholder="Refresh token (optional - enables auto-renewal)"
+                    class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                  <label for="gog-connect-account" class="sr-only">
+                    GOG account ID (optional)
+                  </label>
+                  <input
+                    id="gog-connect-account"
+                    v-model.trim="gogAccountId"
+                    type="text"
+                    autocomplete="off"
+                    placeholder="Account id (only for non-JWT tokens)"
+                    class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+              </details>
             </template>
             <template v-else-if="activeProviderId === 'epic'">
               <button
@@ -671,6 +692,7 @@ const gogQuery = ref("");
 const ubisoftUserId = ref("");
 const eaSearch = ref("");
 // Connect-form fields, cleared as soon as the server accepts the credentials.
+const gogConnectCode = ref("");
 const gogConnectToken = ref("");
 const gogRefreshToken = ref("");
 const gogAccountId = ref("");
@@ -720,7 +742,7 @@ const providerDescription = computed(() =>
 const canConnect = computed(() => {
   switch (activeProviderId.value) {
     case "gog":
-      return Boolean(gogConnectToken.value);
+      return Boolean(gogConnectCode.value || gogConnectToken.value);
     case "epic":
       return Boolean(epicConnectCode.value || epicRefreshToken.value);
     case "ubisoft":
@@ -763,7 +785,8 @@ async function connect() {
   const provider = activeProviderId.value;
   const body: Record<string, string> = { provider };
   if (provider === "gog") {
-    body.accessToken = gogConnectToken.value;
+    if (gogConnectCode.value) body.code = gogConnectCode.value;
+    if (gogConnectToken.value) body.accessToken = gogConnectToken.value;
     if (gogRefreshToken.value) body.refreshToken = gogRefreshToken.value;
     if (gogAccountId.value) body.accountId = gogAccountId.value;
   }
@@ -795,6 +818,7 @@ async function connect() {
       connected: boolean;
       connection: StoredConnection;
     }>("/api/admin/depot/connection", { method: "POST", body });
+    gogConnectCode.value = "";
     gogConnectToken.value = "";
     gogRefreshToken.value = "";
     epicConnectCode.value = "";
@@ -844,7 +868,7 @@ async function startGogSignIn() {
     );
     window.open(authorizeUrl, "_blank", "noopener");
     notice.value =
-      "Complete the sign-in at gog.com in the new tab - it returns here with the account connected.";
+      "Sign in at GOG in the new tab - it ends on embed.gog.com/auth?code=... - copy the code from the address bar into the field below.";
   } catch (error) {
     notice.value =
       error instanceof Error

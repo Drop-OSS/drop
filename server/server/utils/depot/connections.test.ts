@@ -113,6 +113,28 @@ test("storing an opaque GOG token with an explicit account id works", async () =
   assert.equal(rows[0]?.expiresAt, null);
 });
 
+test("a GOG sign-in code upgrades to a stored token set", async () => {
+  mockQueueFetch([
+    {
+      body: {
+        access_token: "gog-at",
+        refresh_token: "gog-rt",
+        expires_in: 7200,
+        user_id: "46899977096215655",
+      },
+    },
+  ]);
+  const { store, rows } = createStore();
+  await saveConnection(store, {
+    provider: "gog",
+    code: "https://embed.gog.com/auth?code=abc-123",
+  });
+  assert.equal(rows[0]?.accessToken, "gog-at");
+  assert.equal(rows[0]?.refreshToken, "gog-rt");
+  assert.equal(rows[0]?.accountId, "46899977096215655");
+  assert.ok(rows[0]?.expiresAt && rows[0].expiresAt.getTime() > Date.now());
+});
+
 test("an expired GOG connection renews itself from the refresh token", async () => {
   mockTokenFetch({
     access_token: "fresh-opaque-token",

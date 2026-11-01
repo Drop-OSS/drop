@@ -1,5 +1,5 @@
 import { createError } from "h3";
-import { refreshGogToken } from "../gog";
+import { exchangeGogAuthorizationCode, refreshGogToken } from "../gog";
 import { exchangeEpicAuthCode, refreshEpicToken } from "../epic/client";
 import {
   EA_DESKTOP_CLIENT_ID,
@@ -71,7 +71,8 @@ export interface ConnectionStore {
 export type SaveConnectionInput =
   | {
       provider: "gog";
-      accessToken: string;
+      code?: string;
+      accessToken?: string;
       refreshToken?: string;
       accountId?: string;
       username?: string;
@@ -146,6 +147,25 @@ export async function saveConnection(
 ): Promise<ConnectionRow> {
   switch (input.provider) {
     case "gog": {
+      if (input.code?.trim()) {
+        // Browser sign-in under the launcher client: GOG returns the fresh
+        // token set including the account id, plus a refresh token.
+        const tokens = await exchangeGogAuthorizationCode(input.code);
+        const accountId = tokens.user_id?.trim() || input.accountId?.trim();
+        if (!accountId)
+          throw createError({
+            statusCode: 502,
+            statusMessage: "GOG did not return an account id with the token",
+          });
+        return store.upsert({
+          provider: "gog",
+          accountId,
+          username: input.username ?? null,
+          accessToken: tokens.access_token,
+          refreshToken: tokens.refresh_token ?? null,
+          expiresAt: new Date(Date.now() + tokens.expires_in * 1000),
+        });
+      }
       const accessToken = input.accessToken?.trim();
       if (!accessToken)
         throw createError({

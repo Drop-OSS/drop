@@ -13,6 +13,13 @@ const GOG_AUTH_URL = "https://auth.gog.com/auth";
 const GOG_PUBLIC_CLIENT_ID = "46f441d2-5409-4a03-95fd-39285c9db1c1";
 const GOG_PUBLIC_CLIENT_SECRET = "884406289756227531";
 
+/**
+ * The only redirect GOG accepts for this client (live-verified; a localhost
+ * callback yields GOG's "invalid client" page). Sign-in therefore ends on
+ * embed.gog.com/auth?code=... and the code is copied back, the gogrepo flow.
+ */
+const GOG_EMBED_REDIRECT_URI = "https://embed.gog.com/auth";
+
 export type GogTokenResponse = {
   access_token: string;
   refresh_token?: string;
@@ -21,42 +28,53 @@ export type GogTokenResponse = {
   user_id?: string;
 };
 
-/**
- * Build GOG's sign-in URL. GOG's public Galaxy client accepts a localhost
- * redirect, which is how gogcli and Heroic complete the flow; this server
- * uses its own callback URL so the code can be exchanged without a desktop
- * launcher in the loop.
- */
-export function buildGogAuthorizeUrl(
-  redirectUri: string,
-  state: string,
-): string {
+/** GOG's sign-in URL for the launcher client (see the redirect note above). */
+export function buildGogAuthorizeUrl(): string {
   const url = new URL(GOG_AUTH_URL);
   url.searchParams.set("client_id", GOG_PUBLIC_CLIENT_ID);
-  url.searchParams.set("redirect_uri", redirectUri);
+  url.searchParams.set("redirect_uri", GOG_EMBED_REDIRECT_URI);
   url.searchParams.set("response_type", "code");
-  url.searchParams.set("scope", "all");
-  url.searchParams.set("state", state);
   return url.toString();
 }
 
-/** Exchange the sign-in callback's code for a token set. */
+/**
+ * Accept a bare code or the full `embed.gog.com/auth?code=...` URL copied
+ * from the address bar after sign-in.
+ */
+export function extractGogAuthCode(input: string): string {
+  const trimmed = input.trim();
+  if (trimmed.includes("code=")) {
+    try {
+      const code = new URL(trimmed).searchParams.get("code");
+      if (code) return code;
+    } catch {
+      // Not a URL; treat as a bare code below.
+    }
+  }
+  return trimmed;
+}
+
+/** Exchange the sign-in code for a token set. */
 export async function exchangeGogAuthorizationCode(
-  code: string,
-  redirectUri: string,
+  input: string,
 ): Promise<GogTokenResponse> {
+  const code = extractGogAuthCode(input);
   if (!code)
     throw createError({
       statusCode: 400,
-      statusMessage: "A GOG authorization code is required",
+      statusMessage:
+        "Paste the code from the embed.gog.com/auth page (or its full URL)",
     });
   const url = new URL(GOG_TOKEN_URL);
   url.searchParams.set("client_id", GOG_PUBLIC_CLIENT_ID);
   url.searchParams.set("client_secret", GOG_PUBLIC_CLIENT_SECRET);
   url.searchParams.set("grant_type", "authorization_code");
   url.searchParams.set("code", code);
-  url.searchParams.set("redirect_uri", redirectUri);
-  const response = await gogTokenFetch(url, "GOG code exchange");
+  url.searchParams.set("redirect_uri", GOG_EMBED_REDIRECT_URI);
+  const response = await gogTokenFetch(
+    url,
+    "GOG code exchange (the code is single-use - fetch a fresh one)",
+  );
   return gogTokenShape(await response.json());
 }
 
