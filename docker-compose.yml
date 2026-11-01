@@ -21,6 +21,13 @@ services:
       - DATA=/data
       - PORT=4000
       - EXTERNAL_URL=${EXTERNAL_URL:-http://localhost:4000}
+      # EA grants no public OAuth clients. Provide your own registered
+      # EA/Origin OAuth client only if you want browser sign-in and automatic
+      # token renewal for the EA tab; without these, paste launcher-issued
+      # tokens in the admin UI instead.
+      # - EA_OAUTH_CLIENT_ID=${EA_OAUTH_CLIENT_ID}
+      # - EA_OAUTH_CLIENT_SECRET=${EA_OAUTH_CLIENT_SECRET}
+      # - EA_OAUTH_REDIRECT_URI=${EA_OAUTH_REDIRECT_URI}
     volumes:
       - ${GAMEDEPOT_DATA_PATH:-./data}:/data
       - ${GAMEDEPOT_LIBRARY_PATH:-./games}:/library
