@@ -101,6 +101,23 @@
             ~/.config/heroic/gog_store/auth.json)
           </span>
         </div>
+        <div
+          v-if="activeProviderId === 'ea'"
+          class="mb-4 flex flex-wrap items-center gap-3"
+        >
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500"
+            @click="openEaLoginPage"
+          >
+            <ShieldCheckIcon class="h-4 w-4" aria-hidden="true" />
+            Open EA sign-in page
+          </button>
+          <span class="text-xs text-zinc-500">
+            after signing in, the browser lands on an unopenable
+            code://EA-desktop address - copy the code= value from it
+          </span>
+        </div>
         <form class="flex flex-col gap-3" @submit.prevent="connect">
           <div class="flex flex-col gap-3 sm:flex-row">
             <template v-if="activeProviderId === 'gog'">
@@ -249,6 +266,17 @@
               </details>
             </template>
             <template v-else>
+              <label for="ea-connect-code" class="sr-only">
+                EA sign-in code
+              </label>
+              <input
+                id="ea-connect-code"
+                v-model.trim="eaConnectCode"
+                type="password"
+                autocomplete="off"
+                placeholder="Sign-in code (from the EA page) or full code:// link"
+                class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
               <label for="ea-connect-token" class="sr-only"
                 >EA access token</label
               >
@@ -257,7 +285,7 @@
                 v-model.trim="eaConnectToken"
                 type="password"
                 autocomplete="off"
-                placeholder="EA access token"
+                placeholder="…or EA access token"
                 class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
               <label for="ea-refresh-token" class="sr-only">
@@ -269,6 +297,17 @@
                 type="password"
                 autocomplete="off"
                 placeholder="EA refresh token (optional)"
+                class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
+              <label for="ea-account-id" class="sr-only">
+                EA account pid (optional)
+              </label>
+              <input
+                id="ea-account-id"
+                v-model.trim="eaAccountId"
+                type="text"
+                autocomplete="off"
+                placeholder="EA pid (optional - derived from token)"
                 class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </template>
@@ -645,8 +684,10 @@ const ubisoftCode = ref("");
 // sends this ticket plus the user's code instead of credentials.
 const ubisoftTwoFactorTicket = ref("");
 const ubisoftTicket = ref("");
+const eaConnectCode = ref("");
 const eaConnectToken = ref("");
 const eaRefreshToken = ref("");
+const eaAccountId = ref("");
 const loading = ref(false);
 const connecting = ref(false);
 const errorMessage = ref("");
@@ -672,7 +713,7 @@ const providerDescription = computed(() =>
   activeProviderId.value === "epic"
     ? "Connect an Epic account with a refresh token so the server can keep its entitlements fresh. Loads the entitlements owned by that account; ingest streams the raw depot files directly into the depot."
     : activeProviderId.value === "ea"
-      ? "Connect an EA account with an access token (plus refresh token when available). Discovery lists entitled games and can be widened by a catalog search; ingest streams the game archive into the depot from a provided download link."
+      ? "Open the EA sign-in page, log in, and copy the code from the code:// link the browser lands on - the server exchanges it with EA's launcher client and renews the connection by itself afterwards. Discovery lists entitled games and can be widened by a catalog search; ingest streams the game archive into the depot from a provided download link."
       : "Sign in with your Ubisoft email and password - the password is used for the single sign-in and never stored; the session ticket and a remember-me ticket are kept and renewed automatically. A two-factor code may be requested once. Loads the titles owned by that account; ingest streams the raw game files directly into the depot.",
 );
 
@@ -689,7 +730,9 @@ const canConnect = computed(() => {
         (ubisoftTicket.value && ubisoftUserId.value),
       );
     default:
-      return Boolean(eaConnectToken.value || eaRefreshToken.value);
+      return Boolean(
+        eaConnectCode.value || eaConnectToken.value || eaRefreshToken.value,
+      );
   }
 });
 
@@ -742,8 +785,10 @@ async function connect() {
     }
   }
   if (provider === "ea") {
+    if (eaConnectCode.value) body.code = eaConnectCode.value;
     if (eaConnectToken.value) body.accessToken = eaConnectToken.value;
     if (eaRefreshToken.value) body.refreshToken = eaRefreshToken.value;
+    if (eaAccountId.value) body.accountId = eaAccountId.value;
   }
   try {
     const response = await $fetch<{
@@ -758,6 +803,7 @@ async function connect() {
     ubisoftCode.value = "";
     ubisoftTwoFactorTicket.value = "";
     ubisoftTicket.value = "";
+    eaConnectCode.value = "";
     eaConnectToken.value = "";
     eaRefreshToken.value = "";
     await loadConnections();
@@ -820,6 +866,22 @@ async function openEpicLoginPage() {
       error instanceof Error
         ? `Could not get the Epic sign-in URL: ${error.message}`
         : "Could not get the Epic sign-in URL.";
+  }
+}
+
+async function openEaLoginPage() {
+  try {
+    const { loginUrl } = await $fetch<{ loginUrl: string }>(
+      "/api/admin/depot/connection/ea/login-url",
+    );
+    window.open(loginUrl, "_blank", "noopener");
+    notice.value =
+      "Sign in at EA - the browser then tries to open a code:// link. Copy the code= value from that address (or the whole link) into the sign-in code field.";
+  } catch (error) {
+    notice.value =
+      error instanceof Error
+        ? `Could not get the EA sign-in URL: ${error.message}`
+        : "Could not get the EA sign-in URL.";
   }
 }
 

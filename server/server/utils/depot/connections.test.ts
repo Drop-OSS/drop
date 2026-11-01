@@ -168,6 +168,57 @@ test("storing an EA access token resolves the account pid", async () => {
   assert.equal(rows[0]?.accountId, "987");
 });
 
+test("an EA launcher code upgrades to a stored token set", async () => {
+  mockQueueFetch([
+    {
+      body: {
+        access_token: "ea-at",
+        refresh_token: "ea-rt",
+        expires_in: 7200,
+      },
+    },
+    { body: { person: { pid: 4242 } } },
+  ]);
+  const { store, rows } = createStore();
+  await saveConnection(store, {
+    provider: "ea",
+    code: "code://EA-desktop/authenticate?code=xyz&state=1",
+  });
+  assert.equal(rows[0]?.accessToken, "ea-at");
+  assert.equal(rows[0]?.refreshToken, "ea-rt");
+  assert.equal(rows[0]?.accountId, "4242");
+});
+
+test("an EA refresh token upgrades with the public desktop client", async () => {
+  mockTokenFetch({
+    access_token: "at",
+    refresh_token: "rt2",
+    expires_in: 3600,
+  });
+  const { store, rows } = createStore();
+  await saveConnection(store, { provider: "ea", refreshToken: "rt1" });
+  assert.equal(rows[0]?.accessToken, "at");
+  assert.equal(rows[0]?.refreshToken, "rt2");
+});
+
+test("an expired EA connection refreshes without OAuth client env config", async () => {
+  mockTokenFetch({
+    access_token: "at2",
+    refresh_token: "rt3",
+    expires_in: 3600,
+  });
+  const { store, rows } = createStore();
+  await saveConnection(store, {
+    provider: "ea",
+    accessToken: "stale",
+    refreshToken: "rt",
+    accountId: "55",
+  });
+  rows[0]!.expiresAt = new Date(Date.now() - 1000);
+  const resolved = await resolveDepotToken(store, "ea");
+  assert.equal(resolved.token, "at2");
+});
+
 function mockQueueFetch(
   responses: { status?: number; body?: unknown }[],
 ): void {

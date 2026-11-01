@@ -1,7 +1,12 @@
 import { createError } from "h3";
 import { refreshGogToken } from "../gog";
 import { exchangeEpicAuthCode, refreshEpicToken } from "../epic/client";
-import { fetchEaPid, refreshEaToken } from "../ea/client";
+import {
+  EA_DESKTOP_CLIENT_ID,
+  exchangeEaDesktopAuthCode,
+  fetchEaPid,
+  refreshEaToken,
+} from "../ea/client";
 import {
   completeUbisoftTwoFactor,
   createUbisoftSession,
@@ -92,6 +97,7 @@ export type SaveConnectionInput =
     }
   | {
       provider: "ea";
+      code?: string;
       accessToken?: string;
       refreshToken?: string;
       accountId?: string;
@@ -271,11 +277,24 @@ export async function saveConnection(
       let accessToken = input.accessToken?.trim() || null;
       let refreshToken = input.refreshToken?.trim() || null;
       let expiresAt: Date | null = null;
-      if (!accessToken && refreshToken) {
+      const eaClient = process.env.EA_OAUTH_CLIENT_ID
+        ? {
+            id: process.env.EA_OAUTH_CLIENT_ID,
+            secret: process.env.EA_OAUTH_CLIENT_SECRET,
+          }
+        : { id: EA_DESKTOP_CLIENT_ID };
+      if (input.code?.trim()) {
+        // Launcher-style browser sign-in: exchange the copyable code with
+        // EA's public desktop client. No secret, no pasted bearer token.
+        const tokens = await exchangeEaDesktopAuthCode(input.code);
+        accessToken = tokens.access_token;
+        refreshToken = tokens.refresh_token ?? refreshToken;
+        expiresAt = new Date(Date.now() + tokens.expires_in * 1000);
+      } else if (!accessToken && refreshToken) {
         const tokens = await refreshEaToken(
           refreshToken,
-          process.env.EA_OAUTH_CLIENT_ID ?? "",
-          process.env.EA_OAUTH_CLIENT_SECRET ?? "",
+          eaClient.id,
+          eaClient.secret,
         );
         accessToken = tokens.access_token;
         refreshToken = tokens.refresh_token ?? refreshToken;
@@ -284,7 +303,8 @@ export async function saveConnection(
       if (!accessToken)
         throw createError({
           statusCode: 400,
-          statusMessage: "Provide an EA access token or refresh token",
+          statusMessage:
+            "Provide an EA sign-in code, access token, or refresh token",
         });
       let accountId = input.accountId?.trim();
       if (!accountId) {
@@ -381,15 +401,12 @@ async function tryRefresh(
       });
       return { token: tokens.access_token, accountId: row.accountId };
     }
-    if (
-      row.provider === "ea" &&
-      row.refreshToken &&
-      process.env.EA_OAUTH_CLIENT_ID &&
-      process.env.EA_OAUTH_CLIENT_SECRET
-    ) {
+    if (row.provider === "ea" && row.refreshToken) {
+      // Prefer a configured confidential client; EA's public desktop
+      // client refreshes launcher-issued tokens without any secret.
       const tokens = await refreshEaToken(
         row.refreshToken,
-        process.env.EA_OAUTH_CLIENT_ID,
+        process.env.EA_OAUTH_CLIENT_ID ?? EA_DESKTOP_CLIENT_ID,
         process.env.EA_OAUTH_CLIENT_SECRET,
       );
       const expiresAt = new Date(Date.now() + tokens.expires_in * 1000);
