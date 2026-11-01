@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    drop_app_lib::run();
+    gamedepot_desktop_lib::run();
 }

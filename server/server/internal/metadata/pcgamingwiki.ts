@@ -121,7 +121,7 @@ export class PCGamingWikiProvider implements MetadataProvider {
   private loginPromise: Promise<void> | undefined;
   private username: string;
   private password: string;
-  private userAgent = `Drop/${systemConfig.getDropVersion()} (https://github.com/Drop-OSS/drop)`;
+  private userAgent = `GameDepot/${systemConfig.getDropVersion()} (https://github.com/cmspeedau/GameDepot)`;
 
   constructor() {
     this.username = process.env.PCGAMINGWIKI_BOT_USERNAME ?? "";

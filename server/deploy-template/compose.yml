@@ -15,7 +15,9 @@ services:
       - POSTGRES_USER=drop
       - POSTGRES_DB=drop
   drop:
-    image: ghcr.io/drop-oss/drop:nightly
+    # This fork's image. Never pull upstream's ghcr.io/drop-oss/drop here —
+    # see CONTRIBUTING.md ("Fork boundary").
+    image: ghcr.io/cmspeedau/gamedepot:nightly
     stdin_open: true
     tty: true
     init: true

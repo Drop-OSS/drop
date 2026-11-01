@@ -36,14 +36,16 @@ export default defineDropTask({
     const currVerStr = systemConfig.getDropVersion();
     const currVer = semver.coerce(currVerStr);
     if (currVer === null) {
-      const msg = "Drop provided a invalid semver tag";
+      const msg = "GameDepot provided an invalid semver tag";
       logger.info(msg);
       throw new Error(msg);
     }
     progress(30);
 
+    // This fork ships its own releases; never advertise upstream's.
     const response = await fetch(
-      "https://api.github.com/repos/Drop-OSS/drop/releases/latest",
+      "https://api.github.com/repos/cmspeedau/GameDepot/releases/latest",
+      { headers: { Accept: "application/vnd.github+json" } },
     );
     progress(50);
 
@@ -87,9 +89,9 @@ export default defineDropTask({
     if (semver.gt(latestVer, currVer)) {
       logger.info("Update available");
       notificationSystem.systemPush({
-        nonce: `drop-update-available-${currVer}-to-${latestVer}`,
+        nonce: `gamedepot-update-available-${currVer}-to-${latestVer}`,
         title: `Update available to v${latestVer}`,
-        description: `A new version of Drop is available v${latestVer}`,
+        description: `A new version of GameDepot is available v${latestVer}`,
         actions: [`View|${body.html_url}`],
         acls: ["system:notifications:read"],
       });
