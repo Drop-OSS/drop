@@ -79,6 +79,12 @@ An adapter is a narrow provider-specific boundary that authenticates, discovers 
 
 The shared contract is `authorize -> discover -> normalize -> acquire -> verify -> publish`. Use idempotent reconciliation; normalize provider product, edition, build, DLC, language and platform identifiers while retaining provider IDs as provenance. Keep OAuth/session state scoped and encrypted; redact credentials, tokens, cookies and signed URLs from logs. Adapter output remains untrusted until content checks complete. Stage partial downloads separately; handle expiring URLs, retries, range support and rate limits. Represent split archives/discs as one logical release with explicit order and completeness checks. Publish only after required metadata and bytes validate, atomically updating catalog availability.
 
+The shared contract module `server/server/utils/adapter/contract.ts` is implemented on `develop`. `stageAdapterRelease` provides duplicate-path pre-checks, centralized path safety, 4 MiB CAS chunking via `DEPOT_CHUNK_SIZE`/`chunkFileToCas`/`createDropletManifest`/`writeDropletManifest`, fail-closed declared-size/digest verification, abort support, and publish-after-verify behavior. Migrating existing adapters onto this module is follow-up work.
+
+#### Disc-set grouping (`server/server/utils/adapter/discset.ts`)
+
+The `feat/disc-set-support` branch adds split-archive detection for `.7z.001` chains, `.partN.rar`, legacy `.rar`/`.rNN`, and generic `.001` splits. It orders parts and checks contiguity/gaps, first/base-part enforcement and duplicate-part rejection; original filenames are retained as provenance.
+
 **Acquisition model note.** GameDepot's adapters stream *raw game data* (individual depot/deployment files) directly from provider CDNs into the depot CAS. We do not download, run, or repackage monolithic installer/setup files when a direct file-streaming path exists. Installer-download-and-extract paths are only a fallback for providers without a manifest/file API, and are treated as staged, validated input — never the primary ingestion mechanism.
 
 ### Provider adapter responsibilities
@@ -242,7 +248,7 @@ Emit immutable DropletManifest (`depot/manifests/{sha256}.json`)
 
 ### Phase 2 EA App Ingestion (cleanroom, reference-only)
 
-EA App ingestion is an in-repo provider adapter design targeting authorized account entitlements and raw DIP content files. The implementation is written cleanroom; `ArmchairDevelopers/Maxima` is an architecture reference only, and no code is copied. Authentication uses Nucleus OIDC over plain HTTP to `accounts.ea.com`; entitlement and discovery calls use `ecommerce2.dm.origin.com` and the Juno GraphQL service-aggregation layer at `service-aggregation-layer.juno.ea.com`.
+EA App ingestion is implemented as an in-repo provider adapter for authorized account entitlements and raw DIP content files. The implementation was written cleanroom; `ArmchairDevelopers/Maxima` is an architecture reference only, and no code is copied. Authentication uses Nucleus OIDC over plain HTTP to `accounts.ea.com`; entitlement and discovery calls use `ecommerce2.dm.origin.com` and the Juno GraphQL service-aggregation layer at `service-aggregation-layer.juno.ea.com`.
 
 ```text
 Authorize via Nucleus OIDC (`accounts.ea.com`, plain HTTP)
@@ -267,7 +273,9 @@ Stream raw files into 4 MiB GameDepot CAS
 Emit immutable DropletManifest
 ```
 
-#### Planned EA App Modules (`server/server/utils/ea/`)
+#### Implemented EA App Modules (`server/server/utils/ea/`)
+
+The following EA modules are implemented under `server/server/utils/ea/`:
 
 1. **EA API Client (`client.ts`)**:
    - Nucleus OIDC authentication, entitlement/discovery calls, and download-URL resolution through `ContentService.download_url`.
@@ -280,6 +288,8 @@ Emit immutable DropletManifest
    - CRC32 is checked per entry and any mismatch, malformed data, or exhausted retry fails closed. This improves on Maxima's commented-out CRC32 verification and its behavior of silently returning `Ok` after five failed tries.
 
 The per-file Deflate representation in EA's DIP is discarded at ingest; GameDepot applies its own documented compression and chunking policy. This yields provider-independent content objects, supports cross-provider deduplication, and makes idempotent resync depend on verified content rather than EA's source encoding. Skip the touchup installer and ingest the DIP files directly. Per-title caveat: a few games patch files after touchup, so directly streamed DIP bytes may not be byte-identical to the final touched-up installation.
+
+Live EA services (Nucleus, ecommerce2 and Juno) are unverified; hermetic `node:test` suites validate contract behavior only.
 
 Maxima reference: [`ArmchairDevelopers/Maxima`](https://github.com/ArmchairDevelopers/Maxima), specifically `maxima-lib/src/content/downloader.rs`, `manager.rs`, `dip.rs` and `endpoints.rs`. Reference only; the EA adapter is cleanroom and no source code is copied.
 
@@ -417,4 +427,3 @@ A provider-neutral launch request should carry executable path, arguments, worki
 ## 7. Roadmap Boundary
 
 Planned evolution includes headless GOG/Epic/Ubisoft/EA App ingestion; the EA DIP streamer is an in-repo cleanroom design with Maxima as reference-only and no code copied; a provider-neutral manifest/chunk depot informed by Steam-style DepotDownloader patterns; seekable-zstd packaging and delta updates; and optional UMU/Proton launch on Linux/Steam Deck. Ubisoft Connect ingestion is implemented on `develop` (cleanroom, reference-assisted by the MIT-licensed `ubisoft-demux-node` protocol schemas; Optima remains reference-only); a Demux-socket fallback acquisition route is retained as a documented contingency if the HTTP endpoints drift. Mesh delivery and these external integrations should be marked implemented only after corresponding code, tests and security/operational controls exist. Update this document and the roadmap as each milestone changes status.
-
