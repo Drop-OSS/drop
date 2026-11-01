@@ -100,7 +100,7 @@
         <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-300">
           <MagnifyingGlassIcon class="h-5 w-5" aria-hidden="true" />
         </div>
-        <div>
+        <div class="grow">
           <h2 class="text-base font-semibold">Owned {{ activeProvider.label }} titles</h2>
           <p class="mt-1 text-sm leading-6 text-zinc-400">
             {{ activeProviderId === 'epic'
@@ -110,18 +110,31 @@
         </div>
       </div>
 
-      <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
-        <button
-          type="button"
-          :disabled="loading"
-          class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
-          @click="loadLibrary"
-        >
-          <ArrowPathIcon v-if="loading" class="h-4 w-4 animate-spin" aria-hidden="true" />
-          <MagnifyingGlassIcon v-else class="h-4 w-4" aria-hidden="true" />
-          {{ loading ? 'Loading…' : 'Load owned titles' }}
-        </button>
-      </div>
+      <form class="mt-6 flex flex-col gap-3" @submit.prevent="loadLibrary">
+        <!-- The Ubisoft library endpoint requires the account's Ubisoft userId. -->
+        <div v-if="activeProviderId === 'ubisoft'" class="flex flex-col gap-3 sm:flex-row">
+          <label for="ubisoft-user-id" class="sr-only">Ubisoft account user ID</label>
+          <input
+            id="ubisoft-user-id"
+            v-model.trim="ubisoftUserId"
+            type="text"
+            autocomplete="off"
+            placeholder="Ubisoft account user ID (required to list owned titles)"
+            class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          />
+        </div>
+        <div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
+          <button
+            type="submit"
+            :disabled="loading || (activeProviderId === 'ubisoft' && !ubisoftUserId)"
+            class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <ArrowPathIcon v-if="loading" class="h-4 w-4 animate-spin" aria-hidden="true" />
+            <MagnifyingGlassIcon v-else class="h-4 w-4" aria-hidden="true" />
+            {{ loading ? 'Loading…' : 'Load owned titles' }}
+          </button>
+        </div>
+      </form>
       <p v-if="errorMessage" role="alert" class="mt-4 rounded-lg border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm leading-6 text-amber-200">
         {{ errorMessage }}
       </p>
@@ -203,6 +216,20 @@ interface DiscoveredProduct {
   gameTitle?: string;
 }
 
+// Shape returned by the Epic and Ubisoft library endpoints.
+interface OwnedGame {
+  // Epic entitlements
+  namespace?: string;
+  catalogItemId?: string;
+  appName?: string;
+  title?: string;
+  // Ubisoft owned titles
+  spaceId?: string;
+  gameId?: string;
+  name?: string;
+  ownedDate?: string;
+}
+
 const providers: Array<{ id: ProviderId; label: string }> = [
   { id: 'gog', label: 'GOG' },
   { id: 'epic', label: 'Epic' },
@@ -213,6 +240,7 @@ const activeProviderId = ref<ProviderId>('gog');
 const activeProvider = computed(() => providers.find((p) => p.id === activeProviderId.value) || providers[0]);
 
 const gogQuery = ref('');
+const ubisoftUserId = ref('');
 const loading = ref(false);
 const errorMessage = ref('');
 const notice = ref('');
@@ -257,14 +285,36 @@ async function discoverGog() {
 }
 
 async function loadLibrary() {
+  if (activeProviderId.value === 'ubisoft' && !ubisoftUserId.value) return;
   loading.value = true;
   resetError();
   try {
-    const response = await $fetch<{ titles: DiscoveredProduct[] }>(
+    const query = activeProviderId.value === 'ubisoft'
+      ? { userId: ubisoftUserId.value }
+      : undefined;
+    // Both endpoints return the list under `games`.
+    const response = await $fetch<{ games: OwnedGame[] }>(
       `/api/v1/admin/depot/${activeProviderId.value}/library`,
-      { method: 'GET' },
+      { method: 'GET', query },
     );
-    products.value = response.titles;
+    products.value = response.games.map((game) => {
+      if (activeProviderId.value === 'epic') {
+        return {
+          id: game.catalogItemId || game.appName || game.namespace || '',
+          title: game.title || game.appName || game.catalogItemId || 'Untitled',
+          namespace: game.namespace,
+          catalogItemId: game.catalogItemId,
+          appName: game.appName,
+        };
+      }
+      return {
+        id: game.spaceId || game.gameId || '',
+        title: game.name || game.spaceId || 'Untitled',
+        spaceId: game.spaceId,
+        userId: ubisoftUserId.value,
+        gameTitle: game.name || game.spaceId,
+      };
+    }).filter((product) => product.id);
   } catch (error) {
     products.value = [];
     const label = activeProvider.value.label;
