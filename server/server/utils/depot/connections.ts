@@ -1,4 +1,5 @@
 import { createError } from "h3";
+import { refreshGogToken } from "../gog";
 import { exchangeEpicAuthCode, refreshEpicToken } from "../epic/client";
 import { fetchEaPid, refreshEaToken } from "../ea/client";
 
@@ -60,6 +61,7 @@ export type SaveConnectionInput =
   | {
       provider: "gog";
       accessToken: string;
+      refreshToken?: string;
       accountId?: string;
       username?: string;
     }
@@ -110,32 +112,37 @@ export async function saveConnection(
 ): Promise<ConnectionRow> {
   switch (input.provider) {
     case "gog": {
-      const claims = decodeJwtPayload(input.accessToken ?? "");
-      if (!claims)
+      const accessToken = input.accessToken?.trim();
+      if (!accessToken)
         throw createError({
           statusCode: 400,
-          statusMessage:
-            "The GOG credential is not a readable JWT access token",
+          statusMessage: "A GOG access token is required",
         });
+      // Modern storefront tokens are JWTs carrying the user id; the classic
+      // Galaxy/launcher tokens this fork's API calls use are opaque, so the
+      // account id must come from the caller for those.
+      const claims = decodeJwtPayload(accessToken);
       const accountId =
-        input.accountId ??
-        str(claims.user) ??
-        str(claims.user_id) ??
-        str(claims.sub);
+        input.accountId?.trim() ||
+        (claims
+          ? (str(claims.user) ?? str(claims.user_id) ?? str(claims.sub))
+          : undefined);
       if (!accountId)
         throw createError({
           statusCode: 400,
           statusMessage:
-            "Could not derive the GOG account id from the token; supply accountId explicitly",
+            "This GOG token is not a JWT; supply the account id (gog.com/userData.json shows it as userId)",
         });
       const expires =
-        typeof claims.exp === "number" ? new Date(claims.exp * 1000) : null;
+        claims && typeof claims.exp === "number"
+          ? new Date(claims.exp * 1000)
+          : null;
       return store.upsert({
         provider: "gog",
         accountId,
         username: input.username ?? null,
-        accessToken: input.accessToken,
-        refreshToken: null,
+        accessToken,
+        refreshToken: input.refreshToken?.trim() || null,
         expiresAt: expires,
       });
     }
@@ -272,6 +279,16 @@ async function tryRefresh(
   row: ConnectionRow,
 ): Promise<{ token: string; accountId?: string } | null> {
   try {
+    if (row.provider === "gog" && row.refreshToken) {
+      const tokens = await refreshGogToken(row.refreshToken);
+      const expiresAt = new Date(Date.now() + tokens.expires_in * 1000);
+      await store.updateTokens(row.id, {
+        accessToken: tokens.access_token,
+        refreshToken: tokens.refresh_token ?? row.refreshToken,
+        expiresAt,
+      });
+      return { token: tokens.access_token, accountId: row.accountId };
+    }
     if (row.provider === "epic" && row.refreshToken) {
       const tokens = await refreshEpicToken(row.refreshToken);
       const expiresAt = new Date(Date.now() + tokens.expires_in * 1000);

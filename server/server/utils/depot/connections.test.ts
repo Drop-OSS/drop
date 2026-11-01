@@ -94,12 +94,42 @@ test("storing a GOG JWT derives the account id and expiry from its claims", asyn
   );
 });
 
-test("storing a non-JWT GOG credential is rejected", async () => {
+test("storing an opaque GOG token without an account id is rejected", async () => {
   const { store } = createStore();
   await assert.rejects(
     () => saveConnection(store, { provider: "gog", accessToken: "opaque" }),
     (error: unknown) => (error as { statusCode?: number }).statusCode === 400,
   );
+});
+
+test("storing an opaque GOG token with an explicit account id works", async () => {
+  const { store, rows } = createStore();
+  await saveConnection(store, {
+    provider: "gog",
+    accessToken: "opaque-launcher-token",
+    accountId: "46899977096215655",
+  });
+  assert.equal(rows[0]?.accountId, "46899977096215655");
+  assert.equal(rows[0]?.expiresAt, null);
+});
+
+test("an expired GOG connection renews itself from the refresh token", async () => {
+  mockTokenFetch({
+    access_token: "fresh-opaque-token",
+    refresh_token: "rt-next",
+    expires_in: 7200,
+  });
+  const { store, rows } = createStore();
+  await saveConnection(store, {
+    provider: "gog",
+    accessToken: "stale-token",
+    refreshToken: "rt",
+    accountId: "777",
+  });
+  rows[0]!.expiresAt = new Date(Date.now() - 1000);
+  const resolved = await resolveDepotToken(store, "gog");
+  assert.equal(resolved.token, "fresh-opaque-token");
+  assert.equal(rows[0]?.refreshToken, "rt-next");
 });
 
 test("storing an Epic refresh token upgrades it to a full token set", async () => {

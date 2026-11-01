@@ -94,7 +94,29 @@
               v-model.trim="gogConnectToken"
               type="password"
               autocomplete="off"
-              placeholder="GOG JWT access token (from your gog.com session)"
+              placeholder="GOG access token"
+              class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            />
+            <label for="gog-connect-refresh" class="sr-only">
+              GOG refresh token (optional)
+            </label>
+            <input
+              id="gog-connect-refresh"
+              v-model.trim="gogRefreshToken"
+              type="password"
+              autocomplete="off"
+              placeholder="Refresh token (optional - enables auto-renewal)"
+              class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            />
+            <label for="gog-connect-account" class="sr-only">
+              GOG account ID (optional)
+            </label>
+            <input
+              id="gog-connect-account"
+              v-model.trim="gogAccountId"
+              type="text"
+              autocomplete="off"
+              placeholder="Account id (only for non-JWT tokens)"
               class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             />
           </template>
@@ -527,6 +549,8 @@ const ubisoftUserId = ref("");
 const eaSearch = ref("");
 // Connect-form fields, cleared as soon as the server accepts the credentials.
 const gogConnectToken = ref("");
+const gogRefreshToken = ref("");
+const gogAccountId = ref("");
 const epicAccountId = ref("");
 const epicRefreshToken = ref("");
 const ubisoftTicket = ref("");
@@ -600,7 +624,11 @@ async function connect() {
   resetError();
   const provider = activeProviderId.value;
   const body: Record<string, string> = { provider };
-  if (provider === "gog") body.accessToken = gogConnectToken.value;
+  if (provider === "gog") {
+    body.accessToken = gogConnectToken.value;
+    if (gogRefreshToken.value) body.refreshToken = gogRefreshToken.value;
+    if (gogAccountId.value) body.accountId = gogAccountId.value;
+  }
   if (provider === "epic") {
     body.accountId = epicAccountId.value;
     body.refreshToken = epicRefreshToken.value;
@@ -619,6 +647,7 @@ async function connect() {
       connection: StoredConnection;
     }>("/api/admin/depot/connection", { method: "POST", body });
     gogConnectToken.value = "";
+    gogRefreshToken.value = "";
     epicRefreshToken.value = "";
     ubisoftTicket.value = "";
     eaConnectToken.value = "";
