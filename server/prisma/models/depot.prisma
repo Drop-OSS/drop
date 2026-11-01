@@ -2,6 +2,8 @@ enum StoreProvider {
     GOG
     EPIC
     STEAM
+    UBISOFT
+    EA
 }
 
 enum SyncStatus {

@@ -8,6 +8,7 @@ import {
   getUbisoftConfiguration,
   getUbisoftOwnedTitles,
 } from "../../../../utils/ubisoft/client";
+import { resolveDepotToken } from "../../../../utils/depot/connections";
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
@@ -15,12 +16,32 @@ export default defineEventHandler(async (event) => {
   // Ubisoft session tickets travel as `Ubi_v1 t=<ticket>`; accept that or a
   // plain Bearer token, but never log the ticket value.
   const rawAuth = getRequestHeader(event, "authorization") ?? "";
-  const ticket = (
+  let ticket = (
     rawAuth.startsWith("Ubi_v1 ") ? rawAuth.slice("Ubi_v1 ".length) : rawAuth
   )
     .replace(/^t=/, "")
     .replace(/^Bearer\s+/i, "")
     .trim();
+
+  let userId = typeof query.userId === "string" ? query.userId.trim() : "";
+  if (!ticket) {
+    try {
+      // Lazy import keeps the prisma-backed store out of the module graph
+      // until a request actually needs a stored connection.
+      const { prismaConnectionStore } =
+        await import("../../../../utils/depot/connection-store");
+      const resolved = await resolveDepotToken(
+        prismaConnectionStore,
+        "ubisoft",
+      );
+      ticket = resolved.token;
+      if (!userId) userId = resolved.accountId ?? "";
+    } catch (error) {
+      // Expired stored connections say so directly; everything else falls
+      // through to the caller-credential checks below.
+      if ((error as { statusCode?: number }).statusCode === 410) throw error;
+    }
+  }
 
   if (!ticket) {
     throw createError({
@@ -29,7 +50,6 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const userId = typeof query.userId === "string" ? query.userId.trim() : "";
   if (!userId) {
     throw createError({
       statusCode: 400,

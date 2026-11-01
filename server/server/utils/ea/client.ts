@@ -170,6 +170,31 @@ export async function getEaEntitlements(
     statusMessage: "EA returned an invalid entitlement list",
   });
 }
+/** Resolve the account pid for a token; used as the stored EA accountId. */
+export async function fetchEaPid(accessToken: string): Promise<string> {
+  if (!accessToken)
+    throw createError({
+      statusCode: 400,
+      statusMessage: "An EA access token is required",
+    });
+  const response = await eaFetch(
+    JUNO_GRAPHQL_URL,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/json",
+      },
+    },
+    "identity profile",
+  );
+  const data = (await response.json()) as { person?: { pid?: number } };
+  if (typeof data?.person?.pid !== "number")
+    throw createError({
+      statusCode: 502,
+      statusMessage: "EA returned an invalid identity profile",
+    });
+  return String(data.person.pid);
+}
 /** Search Juno's GraphQL catalog. Operation/fields are provisional pending live verification. */
 export async function searchEaCatalog(
   accessToken: string,

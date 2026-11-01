@@ -1,0 +1,104 @@
+import prisma from "~/server/internal/db/database";
+import { StoreProvider } from "~/prisma/client/enums";
+import type {
+  ConnectionRow,
+  ConnectionStore,
+  DepotProvider,
+} from "./connections";
+
+const TO_ENUM: Record<DepotProvider, StoreProvider> = {
+  gog: StoreProvider.GOG,
+  epic: StoreProvider.EPIC,
+  ubisoft: StoreProvider.UBISOFT,
+  ea: StoreProvider.EA,
+};
+
+const FROM_ENUM: Partial<Record<StoreProvider, DepotProvider>> = {
+  [StoreProvider.GOG]: "gog",
+  [StoreProvider.EPIC]: "epic",
+  [StoreProvider.UBISOFT]: "ubisoft",
+  [StoreProvider.EA]: "ea",
+};
+
+type StoreRow = {
+  id: string;
+  provider: StoreProvider;
+  accountId: string;
+  username: string | null;
+  accessToken: string | null;
+  refreshToken: string | null;
+  expiresAt: Date | null;
+  updatedAt: Date;
+};
+
+function toRow(row: StoreRow): ConnectionRow {
+  return {
+    id: row.id,
+    // STEAM rows have no depot provider yet; the lowercase fallback keeps
+    // future enum additions from breaking the read path.
+    provider: (FROM_ENUM[row.provider] ??
+      String(row.provider).toLowerCase()) as ConnectionRow["provider"],
+    accountId: row.accountId,
+    username: row.username,
+    accessToken: row.accessToken,
+    refreshToken: row.refreshToken,
+    expiresAt: row.expiresAt,
+    updatedAt: row.updatedAt,
+  };
+}
+
+export const prismaConnectionStore: ConnectionStore = {
+  async upsert(row) {
+    const saved = await prisma.storeConnection.upsert({
+      where: {
+        provider_accountId: {
+          provider: TO_ENUM[row.provider],
+          accountId: row.accountId,
+        },
+      },
+      update: {
+        username: row.username ?? null,
+        accessToken: row.accessToken,
+        refreshToken: row.refreshToken,
+        expiresAt: row.expiresAt ?? null,
+        error: null,
+      },
+      create: {
+        provider: TO_ENUM[row.provider],
+        accountId: row.accountId,
+        username: row.username ?? null,
+        accessToken: row.accessToken,
+        refreshToken: row.refreshToken,
+        expiresAt: row.expiresAt ?? null,
+      },
+    });
+    return toRow(saved);
+  },
+  async newest(provider) {
+    const row = await prisma.storeConnection.findFirst({
+      where: { provider: TO_ENUM[provider] },
+      orderBy: { updatedAt: "desc" },
+    });
+    return row ? toRow(row) : null;
+  },
+  async list() {
+    const rows = await prisma.storeConnection.findMany({
+      orderBy: [{ provider: "asc" }, { updatedAt: "desc" }],
+    });
+    return rows.map(toRow);
+  },
+  async remove(id) {
+    const deleted = await prisma.storeConnection.deleteMany({ where: { id } });
+    return deleted.count > 0;
+  },
+  async updateTokens(id, patch) {
+    await prisma.storeConnection.updateMany({
+      where: { id },
+      data: {
+        accessToken: patch.accessToken,
+        refreshToken: patch.refreshToken ?? null,
+        expiresAt: patch.expiresAt ?? null,
+      },
+    });
+  },
+};

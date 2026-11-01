@@ -19,10 +19,22 @@
         </p>
       </div>
       <span
-        class="inline-flex w-fit items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-200"
+        class="inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium"
+        :class="
+          activeConnection
+            ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200'
+            : 'border-amber-500/30 bg-amber-500/10 text-amber-200'
+        "
       >
-        <span class="h-1.5 w-1.5 rounded-full bg-amber-400" />
-        {{ activeProvider.label }} provider not connected
+        <span
+          class="h-1.5 w-1.5 rounded-full"
+          :class="activeConnection ? 'bg-emerald-400' : 'bg-amber-400'"
+        />
+        {{
+          activeConnection
+            ? `${activeProvider.label} connected: ${activeConnection.accountId}`
+            : `${activeProvider.label} provider not connected`
+        }}
       </span>
     </header>
 
@@ -44,6 +56,139 @@
         {{ provider.label }}
       </button>
     </nav>
+
+    <!-- Stored store-account connection, shared by every provider section. -->
+    <section
+      class="rounded-xl border border-zinc-800 bg-zinc-950/70 p-5 sm:p-6"
+    >
+      <div
+        v-if="activeConnection"
+        class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-4 py-3"
+      >
+        <p class="text-sm text-emerald-200">
+          Connected to {{ activeProvider.label }} as
+          <span class="font-semibold">{{ activeConnection.accountId }}</span>
+          <span v-if="activeConnection.expiresAt">
+            · expires {{ formatExpiry(activeConnection.expiresAt) }}</span
+          >
+          <span v-if="activeConnection.hasRefreshToken">
+            · refreshes automatically</span
+          >
+        </p>
+        <button
+          type="button"
+          class="rounded-lg border border-emerald-500/40 px-3 py-1.5 text-xs font-medium text-emerald-200 transition hover:bg-emerald-500/10"
+          @click="disconnect"
+        >
+          Disconnect
+        </button>
+      </div>
+      <form v-else class="flex flex-col gap-3" @submit.prevent="connect">
+        <div class="flex flex-col gap-3 sm:flex-row">
+          <template v-if="activeProviderId === 'gog'">
+            <label for="gog-connect-token" class="sr-only">
+              GOG access token
+            </label>
+            <input
+              id="gog-connect-token"
+              v-model.trim="gogConnectToken"
+              type="password"
+              autocomplete="off"
+              placeholder="GOG JWT access token (from your gog.com session)"
+              class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            />
+          </template>
+          <template v-else-if="activeProviderId === 'epic'">
+            <label for="epic-account-id" class="sr-only">Epic account ID</label>
+            <input
+              id="epic-account-id"
+              v-model.trim="epicAccountId"
+              type="text"
+              autocomplete="off"
+              placeholder="Epic account ID"
+              class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            />
+            <label for="epic-refresh-token" class="sr-only">
+              Epic refresh token
+            </label>
+            <input
+              id="epic-refresh-token"
+              v-model.trim="epicRefreshToken"
+              type="password"
+              autocomplete="off"
+              placeholder="Epic refresh token"
+              class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            />
+          </template>
+          <template v-else-if="activeProviderId === 'ubisoft'">
+            <label for="ubisoft-ticket" class="sr-only">
+              Ubisoft session ticket
+            </label>
+            <input
+              id="ubisoft-ticket"
+              v-model.trim="ubisoftTicket"
+              type="password"
+              autocomplete="off"
+              placeholder="Ubisoft Connect session ticket"
+              class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            />
+            <label for="ubisoft-user-id" class="sr-only">
+              Ubisoft account user ID
+            </label>
+            <input
+              id="ubisoft-user-id"
+              v-model.trim="ubisoftUserId"
+              type="text"
+              autocomplete="off"
+              placeholder="Ubisoft user ID"
+              class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            />
+          </template>
+          <template v-else>
+            <label for="ea-connect-token" class="sr-only"
+              >EA access token</label
+            >
+            <input
+              id="ea-connect-token"
+              v-model.trim="eaConnectToken"
+              type="password"
+              autocomplete="off"
+              placeholder="EA access token"
+              class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            />
+            <label for="ea-refresh-token" class="sr-only">
+              EA refresh token (optional)
+            </label>
+            <input
+              id="ea-refresh-token"
+              v-model.trim="eaRefreshToken"
+              type="password"
+              autocomplete="off"
+              placeholder="EA refresh token (optional)"
+              class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            />
+          </template>
+          <button
+            type="submit"
+            :disabled="connecting || !canConnect"
+            class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <ArrowPathIcon
+              v-if="connecting"
+              class="h-4 w-4 animate-spin"
+              aria-hidden="true"
+            />
+            <ShieldCheckIcon v-else class="h-4 w-4" aria-hidden="true" />
+            {{ connecting ? "Connecting…" : "Connect account" }}
+          </button>
+        </div>
+        <p class="text-xs leading-5 text-zinc-500">
+          Credentials are stored on the server, never sent back to this page.
+          Epic refresh tokens are renewed automatically; GOG and Ubisoft
+          sessions must be pasted again once they expire.
+        </p>
+      </form>
+    </section>
 
     <section
       v-if="activeProviderId === 'gog'"
@@ -142,8 +287,9 @@
         <p
           class="mt-5 border-t border-zinc-800 pt-4 text-xs leading-5 text-zinc-500"
         >
-          Store credentials and acquisition belong in a server-side adapter.
-          Never paste account passwords or tokens here.
+          Store credentials belong on the server: use Connect account above and
+          discovery endpoints will pick the stored credential up by themselves.
+          Tokens are never echoed back to the browser.
         </p>
       </aside>
     </section>
@@ -163,50 +309,16 @@
             Owned {{ activeProvider.label }} titles
           </h2>
           <p class="mt-1 text-sm leading-6 text-zinc-400">
-            {{
-              activeProviderId === "epic"
-                ? "Loads the entitlements owned by the linked Epic account. Ingest streams the raw depot files directly into the depot."
-                : activeProviderId === "ea"
-                  ? "Loads the games entitled to an EA account from an access token, optionally widened by a catalog search. Ingest streams the game archive into the depot from a provided download link."
-                  : "Loads the titles owned by the linked Ubisoft account. Ingest streams the raw game files directly into the depot."
-            }}
+            {{ providerDescription }}
           </p>
         </div>
       </div>
 
       <form class="mt-6 flex flex-col gap-3" @submit.prevent="loadLibrary">
-        <!-- The Ubisoft library endpoint requires the account's Ubisoft userId. -->
-        <div
-          v-if="activeProviderId === 'ubisoft'"
-          class="flex flex-col gap-3 sm:flex-row"
-        >
-          <label for="ubisoft-user-id" class="sr-only"
-            >Ubisoft account user ID</label
-          >
-          <input
-            id="ubisoft-user-id"
-            v-model.trim="ubisoftUserId"
-            type="text"
-            autocomplete="off"
-            placeholder="Ubisoft account user ID (required to list owned titles)"
-            class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-          />
-        </div>
-        <!-- EA discovery has no stored connection yet: the caller supplies an
-             access token, and an optional catalog search widens the owned list. -->
         <div
           v-if="activeProviderId === 'ea'"
           class="flex flex-col gap-3 sm:flex-row"
         >
-          <label for="ea-token" class="sr-only">EA access token</label>
-          <input
-            id="ea-token"
-            v-model.trim="eaToken"
-            type="password"
-            autocomplete="off"
-            placeholder="EA access token (required to list owned titles)"
-            class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-          />
           <label for="ea-search" class="sr-only">EA catalog search</label>
           <input
             id="ea-search"
@@ -219,11 +331,7 @@
         <div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
           <button
             type="submit"
-            :disabled="
-              loading ||
-              (activeProviderId === 'ubisoft' && !ubisoftUserId) ||
-              (activeProviderId === 'ea' && !eaToken)
-            "
+            :disabled="loading || !activeConnection"
             class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <ArrowPathIcon
@@ -348,7 +456,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import {
   ArchiveBoxIcon,
   ArrowDownTrayIcon,
@@ -416,12 +524,133 @@ const activeProvider = computed(
 
 const gogQuery = ref("");
 const ubisoftUserId = ref("");
-const eaToken = ref("");
 const eaSearch = ref("");
+// Connect-form fields, cleared as soon as the server accepts the credentials.
+const gogConnectToken = ref("");
+const epicAccountId = ref("");
+const epicRefreshToken = ref("");
+const ubisoftTicket = ref("");
+const eaConnectToken = ref("");
+const eaRefreshToken = ref("");
 const loading = ref(false);
+const connecting = ref(false);
 const errorMessage = ref("");
 const notice = ref("");
 const products = ref<DiscoveredProduct[]>([]);
+
+interface StoredConnection {
+  id: string;
+  provider: string;
+  accountId: string;
+  username: string | null;
+  expiresAt: string | null;
+  hasRefreshToken: boolean;
+  updatedAt: string | null;
+}
+
+const connections = ref<StoredConnection[]>([]);
+const activeConnection = computed(() =>
+  connections.value.find((c) => c.provider === activeProviderId.value),
+);
+
+const providerDescription = computed(() =>
+  activeProviderId.value === "epic"
+    ? "Connect an Epic account with a refresh token so the server can keep its entitlements fresh. Loads the entitlements owned by that account; ingest streams the raw depot files directly into the depot."
+    : activeProviderId.value === "ea"
+      ? "Connect an EA account with an access token (plus refresh token when available). Discovery lists entitled games and can be widened by a catalog search; ingest streams the game archive into the depot from a provided download link."
+      : "Connect an Ubisoft account with a session ticket and user ID. Loads the titles owned by that account; ingest streams the raw game files directly into the depot.",
+);
+
+const canConnect = computed(() => {
+  switch (activeProviderId.value) {
+    case "gog":
+      return Boolean(gogConnectToken.value);
+    case "epic":
+      return Boolean(epicAccountId.value && epicRefreshToken.value);
+    case "ubisoft":
+      return Boolean(ubisoftTicket.value && ubisoftUserId.value);
+    default:
+      return Boolean(eaConnectToken.value || eaRefreshToken.value);
+  }
+});
+
+async function loadConnections() {
+  try {
+    const response = await $fetch<{ connections: StoredConnection[] }>(
+      "/api/admin/depot/connection",
+    );
+    connections.value = response.connections;
+  } catch {
+    // The connection store may be unreachable on a fresh install; the
+    // endpoints still accept one-off caller tokens, so stay quiet here.
+    connections.value = [];
+  }
+}
+
+onMounted(loadConnections);
+
+function formatExpiry(value: string) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
+}
+
+async function connect() {
+  if (!canConnect.value || connecting.value) return;
+  connecting.value = true;
+  resetError();
+  const provider = activeProviderId.value;
+  const body: Record<string, string> = { provider };
+  if (provider === "gog") body.accessToken = gogConnectToken.value;
+  if (provider === "epic") {
+    body.accountId = epicAccountId.value;
+    body.refreshToken = epicRefreshToken.value;
+  }
+  if (provider === "ubisoft") {
+    body.ticket = ubisoftTicket.value;
+    body.userId = ubisoftUserId.value;
+  }
+  if (provider === "ea") {
+    if (eaConnectToken.value) body.accessToken = eaConnectToken.value;
+    if (eaRefreshToken.value) body.refreshToken = eaRefreshToken.value;
+  }
+  try {
+    const response = await $fetch<{
+      connected: boolean;
+      connection: StoredConnection;
+    }>("/api/admin/depot/connection", { method: "POST", body });
+    gogConnectToken.value = "";
+    epicRefreshToken.value = "";
+    ubisoftTicket.value = "";
+    eaConnectToken.value = "";
+    eaRefreshToken.value = "";
+    await loadConnections();
+    notice.value = `Connected ${activeProvider.value.label} account ${response.connection.accountId}.`;
+  } catch (error) {
+    errorMessage.value =
+      error instanceof Error
+        ? `Could not connect the ${activeProvider.value.label} account: ${error.message}`
+        : `Could not connect the ${activeProvider.value.label} account.`;
+  } finally {
+    connecting.value = false;
+  }
+}
+
+async function disconnect() {
+  const connection = activeConnection.value;
+  if (!connection) return;
+  try {
+    await $fetch(`/api/admin/depot/connection/${connection.id}`, {
+      method: "DELETE",
+    });
+    await loadConnections();
+    notice.value = `Disconnected the stored ${connection.accountId} account.`;
+  } catch (error) {
+    notice.value =
+      error instanceof Error
+        ? `Could not disconnect: ${error.message}`
+        : "Could not disconnect the stored account.";
+  }
+}
 const steps = [
   {
     title: "Discover",
@@ -477,19 +706,16 @@ async function discoverGog() {
 }
 
 async function loadLibrary() {
-  if (activeProviderId.value === "ubisoft" && !ubisoftUserId.value) return;
-  if (activeProviderId.value === "ea" && !eaToken.value) return;
   loading.value = true;
   resetError();
   try {
+    // Credentials come from the stored connection; only per-query options
+    // travel here.
     const query =
-      activeProviderId.value === "ubisoft"
+      activeProviderId.value === "ubisoft" && ubisoftUserId.value
         ? { userId: ubisoftUserId.value }
-        : activeProviderId.value === "ea"
-          ? {
-              token: eaToken.value,
-              ...(eaSearch.value ? { search: eaSearch.value } : {}),
-            }
+        : activeProviderId.value === "ea" && eaSearch.value
+          ? { search: eaSearch.value }
           : undefined;
     // All non-GOG endpoints return the list under `games`.
     const response = await $fetch<{ games: OwnedGame[] }>(
@@ -525,7 +751,7 @@ async function loadLibrary() {
           id: game.spaceId || game.gameId || "",
           title: game.name || game.spaceId || "Untitled",
           spaceId: game.spaceId,
-          userId: ubisoftUserId.value,
+          userId: ubisoftUserId.value || activeConnection.value?.accountId,
           gameTitle: game.name || game.spaceId,
         };
       })

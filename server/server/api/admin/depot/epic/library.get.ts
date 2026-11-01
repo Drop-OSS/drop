@@ -5,12 +5,34 @@ import {
   getRequestHeader,
 } from "h3";
 import { getEpicEntitlements } from "../../../../utils/epic/client";
+import { resolveDepotToken } from "../../../../utils/depot/connections";
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
-  const token =
+  let token =
     (typeof query.token === "string" ? query.token : undefined) ??
     getRequestHeader(event, "authorization")?.replace(/^Bearer\s+/i, "");
+
+  // Epic scopes entitlements to an account ID, which is not derivable from the
+  // bearer token; callers must supply it (same shape as the Ubisoft handler's
+  // required `userId`) unless a stored connection provides it.
+  let accountId =
+    typeof query.accountId === "string" ? query.accountId.trim() : "";
+  if (!token) {
+    try {
+      // Lazy import keeps the prisma-backed store out of the module graph
+      // until a request actually needs a stored connection.
+      const { prismaConnectionStore } =
+        await import("../../../../utils/depot/connection-store");
+      const resolved = await resolveDepotToken(prismaConnectionStore, "epic");
+      token = resolved.token;
+      if (!accountId) accountId = resolved.accountId ?? "";
+    } catch (error) {
+      // Expired stored connections say so directly; everything else falls
+      // through to the caller-token checks below.
+      if ((error as { statusCode?: number }).statusCode === 410) throw error;
+    }
+  }
 
   if (!token) {
     throw createError({
@@ -19,11 +41,6 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Epic scopes entitlements to an account ID, which is not derivable from the
-  // bearer token; callers must supply it (same shape as the Ubisoft handler's
-  // required `userId`).
-  const accountId =
-    typeof query.accountId === "string" ? query.accountId.trim() : "";
   if (!accountId) {
     throw createError({
       statusCode: 400,
