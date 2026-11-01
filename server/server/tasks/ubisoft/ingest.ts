@@ -1,30 +1,44 @@
-import { createError } from 'h3'
-import { mkdir } from 'node:fs/promises'
-import { resolve } from 'node:path'
+import { createError } from "h3";
+import { mkdir } from "node:fs/promises";
+import { resolve } from "node:path";
 import {
   streamUbisoftGameToCas,
   type UbisoftStreamProgress,
-} from '../../utils/ubisoft/game-streamer'
+} from "../../utils/ubisoft/game-streamer";
 import {
   getUbisoftOwnedTitles,
   refreshUbisoftSession,
   resolveUbisoftManifest,
   fetchUbisoftFileRecords,
-} from '../../utils/ubisoft/client'
+} from "../../utils/ubisoft/client";
 
 export interface UbisoftIngestJobPayload {
-  jobId: string
-  ticket: string
-  userId: string
-  spaceId: string
-  gameTitle: string
-  appVersion?: string
+  jobId: string;
+  ticket: string;
+  userId: string;
+  spaceId: string;
+  gameTitle: string;
+  appVersion?: string;
 }
 
 export interface IngestJobStore {
-  updateStatus: (jobId: string, status: 'pending' | 'downloading' | 'processing' | 'completed' | 'failed', error?: string) => Promise<void>
-  updateProgress: (jobId: string, progress: { transferredBytes: number; totalBytes: number; currentFile: string }) => Promise<void>
-  setCompleted: (jobId: string, result: { manifestPath: string; totalBytes: number; fileCount: number }) => Promise<void>
+  updateStatus: (
+    jobId: string,
+    status: "pending" | "downloading" | "processing" | "completed" | "failed",
+    error?: string,
+  ) => Promise<void>;
+  updateProgress: (
+    jobId: string,
+    progress: {
+      transferredBytes: number;
+      totalBytes: number;
+      currentFile: string;
+    },
+  ) => Promise<void>;
+  setCompleted: (
+    jobId: string,
+    result: { manifestPath: string; totalBytes: number; fileCount: number },
+  ) => Promise<void>;
 }
 
 /**
@@ -40,85 +54,97 @@ export interface IngestJobStore {
 export async function ingestUbisoftJob(
   payload: UbisoftIngestJobPayload,
   jobStore?: IngestJobStore,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<{ manifestPath: string; totalBytes: number; fileCount: number }> {
-  const { jobId, userId, spaceId, gameTitle, appVersion } = payload
-  let activeTicket = payload.ticket
+  const { jobId, userId, spaceId, gameTitle, appVersion } = payload;
+  let activeTicket = payload.ticket;
 
-  const depotBase = resolve(process.env.GAMEDEPOT_DATA_DIR || './data', 'depot')
-  const objectsDir = resolve(depotBase, 'objects')
-  const manifestsDir = resolve(depotBase, 'manifests')
+  const depotBase = resolve(
+    process.env.GAMEDEPOT_DATA_DIR || "./data",
+    "depot",
+  );
+  const objectsDir = resolve(depotBase, "objects");
+  const manifestsDir = resolve(depotBase, "manifests");
 
-  await mkdir(objectsDir, { recursive: true })
-  await mkdir(manifestsDir, { recursive: true })
+  await mkdir(objectsDir, { recursive: true });
+  await mkdir(manifestsDir, { recursive: true });
 
   try {
     if (signal?.aborted) {
-      throw createError({ statusCode: 499, statusMessage: 'Job aborted before execution' })
+      throw createError({
+        statusCode: 499,
+        statusMessage: "Job aborted before execution",
+      });
     }
 
     if (jobStore) {
-      await jobStore.updateStatus(jobId, 'pending')
+      await jobStore.updateStatus(jobId, "pending");
     }
 
     // 1. Discover: confirm the account still owns this title.
-    const ownedTitles = await getUbisoftOwnedTitles(activeTicket, userId)
+    const ownedTitles = await getUbisoftOwnedTitles(activeTicket, userId);
     if (!ownedTitles.some((t) => t.spaceId === spaceId)) {
       throw createError({
         statusCode: 403,
-        statusMessage: 'Account does not own this Ubisoft title',
-      })
+        statusMessage: "Account does not own this Ubisoft title",
+      });
     }
 
     if (jobStore) {
-      await jobStore.updateStatus(jobId, 'downloading')
+      await jobStore.updateStatus(jobId, "downloading");
     }
 
-    let totalBytesTransferred = 0
+    let totalBytesTransferred = 0;
     const onProgress = (progress: UbisoftStreamProgress) => {
-      totalBytesTransferred = progress.transferredBytes
+      totalBytesTransferred = progress.transferredBytes;
       if (jobStore) {
-        jobStore.updateProgress(jobId, {
-          transferredBytes: progress.transferredBytes,
-          totalBytes: progress.totalBytes,
-          currentFile: progress.currentFile,
-        }).catch(() => {
-          // non-blocking progress updates
-        })
+        jobStore
+          .updateProgress(jobId, {
+            transferredBytes: progress.transferredBytes,
+            totalBytes: progress.totalBytes,
+            currentFile: progress.currentFile,
+          })
+          .catch(() => {
+            // non-blocking progress updates
+          });
       }
-    }
+    };
 
     // 2-3. Normalize/acquire: resolve the manifest and fetch file records,
     // refreshing the session once on ticket expiry (401).
     const runAcquisition = async (sessionTicket: string) => {
-      const manifestInfo = await resolveUbisoftManifest(sessionTicket, spaceId)
+      const manifestInfo = await resolveUbisoftManifest(sessionTicket, spaceId);
       if (!manifestInfo) {
         throw createError({
           statusCode: 404,
-          statusMessage: 'No Ubisoft install manifest found for this title',
-        })
+          statusMessage: "No Ubisoft install manifest found for this title",
+        });
       }
-      return fetchUbisoftFileRecords(sessionTicket, manifestInfo.manifestId, signal)
-    }
+      return fetchUbisoftFileRecords(
+        sessionTicket,
+        manifestInfo.manifestId,
+        signal,
+      );
+    };
 
-    let fileRecords
+    let fileRecords;
     try {
-      fileRecords = await runAcquisition(activeTicket)
+      fileRecords = await runAcquisition(activeTicket);
     } catch (err: any) {
       if (err?.statusCode === 401) {
-        const refreshed = await refreshUbisoftSession(activeTicket)
-        activeTicket = refreshed.ticket
-        fileRecords = await runAcquisition(activeTicket)
+        const refreshed = await refreshUbisoftSession(activeTicket);
+        activeTicket = refreshed.ticket;
+        fileRecords = await runAcquisition(activeTicket);
       } else {
-        throw err
+        throw err;
       }
     }
 
     if (fileRecords.length === 0) {
       throw createError({
         statusCode: 404,
-        statusMessage: 'Ubisoft manifest contains no installable files',
-      })
+        statusMessage: "Ubisoft manifest contains no installable files",
+      });
     }
 
     // 4-6. Acquire, verify and publish atomically.
@@ -130,23 +156,27 @@ export async function ingestUbisoftJob(
       manifestsDir,
       signal,
       onProgress,
-    })
+    });
 
     const completionData = {
       manifestPath: result.manifestPath,
       totalBytes: totalBytesTransferred,
       fileCount: result.manifest.files.length,
-    }
+    };
 
     if (jobStore) {
-      await jobStore.setCompleted(jobId, completionData)
+      await jobStore.setCompleted(jobId, completionData);
     }
 
-    return completionData
+    return completionData;
   } catch (error: any) {
     if (jobStore) {
-      await jobStore.updateStatus(jobId, 'failed', error?.message || 'Ingest failed')
+      await jobStore.updateStatus(
+        jobId,
+        "failed",
+        error?.message || "Ingest failed",
+      );
     }
-    throw error
+    throw error;
   }
 }
