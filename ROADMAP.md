@@ -19,7 +19,13 @@ GameDepot is an open-source, community-driven game distribution and preservation
 - [x] **GOG Galaxy Ingestion:** Headless account authorization, library/build discovery, direct depot file streaming via Galaxy CDN / Content-System into 4 MiB Content-Addressable Storage (CAS), and immutable DropletManifest emission.
 - [x] **Epic Games Ingestion:** Headless authentication (OAuth / Legendary exchange codes), entitlement discovery, asset manifest resolution, direct chunk/file streaming into 4 MiB CAS, and worker ingestion tasks with full test suites.
 - [ ] **Ubisoft Connect Ingestion (Optima adapter):** Evaluate `Starkka15/Optima` as a headless Ubisoft Connect acquisition adapter. Isolate account/session state; normalize owned products, editions and install/build metadata; stage only content the account is authorized to access. Treat it as an external, version-pinned adapter, not as GameDepot's catalog or trust boundary.
-- [ ] **EA App Ingestion (Maxima adapter):** Evaluate `ArmchairDevelopers/Maxima` as a headless EA Desktop acquisition adapter. Keep credentials and provider-specific session/token handling isolated; normalize library/build metadata and acquired assets into the common pipeline. Pin/validate the external tool and independently verify its output.
+- [ ] **EA App Ingestion (in-house cleanroom DIP streamer):** Implement a headless in-repo provider adapter; `ArmchairDevelopers/Maxima` (`maxima-lib/src/content/downloader.rs`, `manager.rs`, `dip.rs`, `endpoints.rs`) is reference-only, with no code copied, following the `Starkka15/Optima` Ubisoft precedent already documented in `ARCHITECTURE.md`.
+  1. Nucleus OIDC authentication via `accounts.ea.com` (plain HTTP).
+  2. Entitlements/discovery via `ecommerce2.dm.origin.com` and Juno GraphQL at `service-aggregation-layer.juno.ea.com`.
+  3. Resolve DIP URLs through `ContentService.download_url`; parse the remote ZIP central directory to obtain entry offsets, compressed/uncompressed sizes and compression methods without downloading the whole archive.
+  4. Acquire each entry with HTTP Range requests, inflate it, then stream raw files into the 4 MiB CAS; verify each entry's CRC32 and fail closed on corruption or exhausted retries.
+  5. Skip the touchup installer. Caveat: a few titles patch files post-touchup, so streamed DIP bytes may not be byte-identical to the final touched-up files.
+  6. Emit an immutable `DropletManifest` like GOG/Epic/Ubisoft; discard EA per-file Deflate so GameDepot's own documented compression/chunking, cross-provider dedupe and idempotent resync apply.
 - [ ] **Installer / Disc Set Support:** Group split archives and multi-disc installers into ordered logical releases; verify expected parts and preserve source provenance.
 - [ ] **Common Adapter Contract:** `authorize -> discover -> normalize -> acquire -> verify -> publish`; make resync idempotent, redact secrets, and keep provider-specific formats out of shared catalog APIs.
 
@@ -64,3 +70,4 @@ GameDepot is an open-source, community-driven game distribution and preservation
 
 ## Implementation status
 All unchecked items above are planned work, not claims of shipped support. External projects are integration references/adapters; review licensing, provider terms, security, maintenance and compatibility before adopting or invoking them.
+
