@@ -1,6 +1,17 @@
 import { test, beforeEach, afterEach } from 'node:test'
 import assert from 'node:assert/strict'
+import { mkdtemp, rm } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { ingestUbisoftJob, type IngestJobStore } from './ingest'
+/** Assert an h3-style typed error: a status code and, optionally, a message fragment. */
+function typedError(statusCode: number, message?: RegExp) {
+  return (error: unknown): boolean => {
+    const thrown = error as { statusCode?: number; statusMessage?: string; message?: string } | null
+    const text = thrown?.statusMessage ?? thrown?.message ?? ''
+    return thrown?.statusCode === statusCode && (message === undefined || message.test(text))
+  }
+}
 
 /**
  * Hermetic worker tests using Node's native test runner. The global fetch is
@@ -37,7 +48,7 @@ const originalFetch = globalThis.fetch
 type FetchHandler = (url: string, init?: RequestInit) => Response
 
 function stubFetch(handler: FetchHandler) {
-  globalThis.fetch = ((input: any, init?: any) => {
+  globalThis.fetch = ((input: unknown, init?: RequestInit) => {
     const url = typeof input === 'string' ? input : String(input)
     return Promise.resolve(handler(url, init))
   }) as typeof fetch
@@ -61,12 +72,19 @@ function basePayload(overrides: Record<string, unknown> = {}) {
   }
 }
 
-beforeEach(() => {
-  // default: everything 404; individual tests install their own routes
+let depotDir = ''
+
+beforeEach(async () => {
+  // CAS writes land under GAMEDEPOT_DATA_DIR; point it at a temp dir so tests
+  // never create directories inside the repository.
+  depotDir = await mkdtemp(join(tmpdir(), 'gamedepot-ubi-'))
+  process.env.GAMEDEPOT_DATA_DIR = depotDir
 })
 
-afterEach(() => {
+afterEach(async () => {
   globalThis.fetch = originalFetch
+  delete process.env.GAMEDEPOT_DATA_DIR
+  await rm(depotDir, { recursive: true, force: true })
 })
 
 test('rejects when the account does not own the title', async () => {
@@ -80,7 +98,7 @@ test('rejects when the account does not own the title', async () => {
   const { store, state } = makeJobStore()
   await assert.rejects(
     ingestUbisoftJob(basePayload(), store),
-    (err: any) => err?.statusCode === 403,
+    typedError(403),
   )
   assert.ok(state.statuses.includes('failed'))
   // No download phase may begin before ownership is confirmed.
@@ -94,7 +112,7 @@ test('rejects when aborted before execution', async () => {
   const { store, state } = makeJobStore()
   await assert.rejects(
     ingestUbisoftJob(basePayload(), store, controller.signal),
-    (err: any) => err?.statusCode === 499,
+    typedError(499),
   )
   assert.ok(state.statuses.includes('failed'))
 })
@@ -113,7 +131,7 @@ test('fails closed when no install manifest resolves', async () => {
   const { store, state } = makeJobStore()
   await assert.rejects(
     ingestUbisoftJob(basePayload(), store),
-    (err: any) => err?.statusCode === 404,
+    typedError(404),
   )
   assert.ok(state.statuses.includes('failed'))
 })
@@ -135,7 +153,7 @@ test('fails closed when the manifest contains no files', async () => {
   const { store, state } = makeJobStore()
   await assert.rejects(
     ingestUbisoftJob(basePayload(), store),
-    (err: any) => err?.statusCode === 404,
+    typedError(404),
   )
   assert.ok(state.statuses.includes('failed'))
 })
@@ -167,7 +185,7 @@ test('refreshes the session once on 401 during acquisition', async () => {
   const { store } = makeJobStore()
   await assert.rejects(
     ingestUbisoftJob(basePayload(), store),
-    (err: any) => err?.statusCode === 404,
+    typedError(404),
   )
   assert.equal(refreshes, 1, 'session should be refreshed exactly once')
   assert.ok(manifestCalls >= 2, 'acquisition should be retried with the refreshed ticket')

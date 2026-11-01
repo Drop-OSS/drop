@@ -1,6 +1,6 @@
 import { createError } from 'h3'
-import { writeChunkObject, CHUNK_SIZE } from '../depot/chunker'
-import { buildManifest, writeManifest, type DropletManifest } from '../depot/manifest'
+import { stageAdapterRelease, type AdapterFile } from '../adapter/contract'
+import type { DropletManifest } from '../depot/manifest'
 import type { UbisoftFileRecord } from './client'
 
 export type UbisoftStreamProgress = {
@@ -22,16 +22,14 @@ export type UbisoftStreamOptions = {
 }
 
 /**
- * Downloads one Ubisoft file from its resolved source URL, streaming it into
- * bounded buffers. Verifies declared length when the manifest provides one;
- * all manifest metadata is untrusted, so mismatches fail the acquisition.
+ * Open one Ubisoft file source as a stream of Buffers. All manifest metadata is
+ * untrusted, so the declared length is verified by the adapter contract after
+ * transfer, and non-HTTPS sources are refused outright.
  */
-async function streamUbisoftFile(
+async function acquireUbisoftFile(
   record: UbisoftFileRecord,
-  objectsDir: string,
-  signal: AbortSignal | undefined,
-  onBytes: (bytes: number) => void
-): Promise<{ size: number; chunkShas: string[] }> {
+  signal: AbortSignal | undefined
+): Promise<AsyncIterable<Buffer>> {
   if (!record.source || !/^https:\/\//.test(record.source)) {
     throw createError({
       statusCode: 502,
@@ -51,138 +49,83 @@ async function streamUbisoftFile(
     })
   }
 
-  const chunkShas: string[] = []
-  let accumulator = Buffer.alloc(0)
-  let size = 0
-
   const reader = response.body.getReader()
-  try {
-    while (true) {
-      if (signal?.aborted) {
-        throw createError({ statusCode: 499, statusMessage: 'Ubisoft file stream aborted' })
-      }
-      const { done, value } = await reader.read()
-      if (done) break
 
-      const incoming = Buffer.from(value)
-      size += incoming.length
-      accumulator = Buffer.concat([accumulator, incoming])
-      onBytes(incoming.length)
-
-      while (accumulator.length >= CHUNK_SIZE) {
-        const slice = accumulator.subarray(0, CHUNK_SIZE)
-        accumulator = accumulator.subarray(CHUNK_SIZE)
-        chunkShas.push(await writeChunkObject(objectsDir, slice))
+  async function* bytes(): AsyncGenerator<Buffer> {
+    try {
+      while (true) {
+        if (signal?.aborted) {
+          throw createError({ statusCode: 499, statusMessage: 'Ubisoft file stream aborted' })
+        }
+        const { done, value } = await reader.read()
+        if (done) break
+        yield Buffer.from(value)
       }
+    } finally {
+      // Cancel the underlying transfer on abort/error so no orphaned streams leak.
+      reader.cancel().catch(() => {})
     }
-  } finally {
-    // Cancel the underlying transfer on abort/error so no orphaned streams leak.
-    reader.cancel().catch(() => {})
   }
 
-  if (accumulator.length > 0) {
-    chunkShas.push(await writeChunkObject(objectsDir, accumulator))
-  }
-
-  // Provider-declared size is metadata we must not trust: verify it.
-  if (typeof record.size === 'number' && record.size > 0 && record.size !== size) {
-    throw createError({
-      statusCode: 502,
-      statusMessage: `Ubisoft file ${record.fileId} length mismatch (expected ${record.size}, got ${size})`,
-    })
-  }
-
-  return { size, chunkShas }
+  return bytes()
 }
 
 /**
- * Streams a Ubisoft Connect title directly into GameDepot's 4 MiB CAS and
- * emits an immutable DropletManifest, bypassing monolithic installer files.
- * Mirrors the Epic/GOG streamer boundary: manifest metadata is validated,
- * never trusted, and nothing is published until every file is written.
+ * Streams a Ubisoft Connect title directly into GameDepot's CAS and emits an
+ * immutable DropletManifest, bypassing monolithic installer files.
+ *
+ * Chunking, length/digest verification and atomic publication are the shared
+ * adapter contract's job (`stageAdapterRelease`); this module only maps Ubisoft
+ * file records onto adapter files and knows how to open their sources.
  */
 export async function streamUbisoftGameToCas(
   options: UbisoftStreamOptions
 ): Promise<{ manifest: DropletManifest; manifestPath: string }> {
   const { fileRecords, gameTitle, appVersion, objectsDir, manifestsDir, signal, onProgress } = options
 
-  // Reject duplicate/conflicting logical paths before transferring anything.
-  const seen = new Set<string>()
-  for (const record of fileRecords) {
+  if (signal?.aborted) {
+    throw createError({ statusCode: 499, statusMessage: 'Ubisoft ingestion stream was aborted' })
+  }
+
+  // Reject duplicate logical paths before transferring anything. The manifest
+  // builder also fails closed, but failing here avoids a doomed download.
+  const recordsById = new Map<string, UbisoftFileRecord>()
+  const seenPaths = new Set<string>()
+  const files: AdapterFile[] = fileRecords.map((record) => {
     const path = record.path ?? `unknown/${record.fileId}`
-    if (seen.has(path)) {
+    if (seenPaths.has(path)) {
       throw createError({ statusCode: 502, statusMessage: `Duplicate Ubisoft file path: ${path}` })
     }
-    seen.add(path)
-  }
-
-  const totalFiles = fileRecords.length
-  const totalBytes = fileRecords.reduce((sum, r) => sum + (r.size ?? 0), 0)
-  let transferredBytes = 0
-
-  const stagedFiles: { path: string; size: number; sha256: string; chunkShas: string[] }[] = []
-
-  for (let fileIdx = 0; fileIdx < totalFiles; fileIdx++) {
-    if (signal?.aborted) {
-      throw createError({ statusCode: 499, statusMessage: 'Ubisoft ingestion stream was aborted' })
-    }
-
-    const record = fileRecords[fileIdx]
-    const logicalPath = record.path ?? `unknown/${record.fileId}`
-
-    onProgress?.({
-      transferredBytes,
-      totalBytes,
-      currentFile: logicalPath,
-      fileIndex: fileIdx + 1,
-      totalFiles,
-    })
-
-    if (record.size === 0) {
-      stagedFiles.push({
-        path: logicalPath,
-        size: 0,
-        sha256: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
-        chunkShas: [],
-      })
-      continue
-    }
-
-    const result = await streamUbisoftFile(record, objectsDir, signal, (bytes) => {
-      transferredBytes += bytes
-      onProgress?.({
-        transferredBytes,
-        totalBytes,
-        currentFile: logicalPath,
-        fileIndex: fileIdx + 1,
-        totalFiles,
-      })
-    })
-
-    if (result.chunkShas.length === 0) {
-      throw createError({
-        statusCode: 502,
-        statusMessage: `Ubisoft file ${record.fileId} produced no CAS chunks`,
-      })
-    }
-
-    // The Ubisoft manifest carries no per-file digest; the file identity in
-    // the release manifest is derived from its verified CAS chunk set.
-    const derivedSha = result.chunkShas[result.chunkShas.length - 1]
-    stagedFiles.push({
-      path: logicalPath,
-      size: result.size,
-      sha256: derivedSha,
-      chunkShas: result.chunkShas,
-    })
-  }
-
-  const dropletManifest = buildManifest({
-    title: gameTitle,
-    version: appVersion ?? 'latest',
-    files: stagedFiles,
+    seenPaths.add(path)
+    recordsById.set(record.fileId, record)
+    // The Ubisoft manifest carries no per-file digest, so the contract verifies
+    // the declared size and records the digest it computes during transfer.
+    return { fileId: record.fileId, path, size: record.size }
   })
 
-  const manifestPath = await writeManifest(manifestsDir, dropletManifest)
-  return { manifest: dropletManifest, manifestPath }
+  const { manifest, manifestPath } = await stageAdapterRelease({
+    gameTitle,
+    appVersion,
+    files,
+    objectsDir,
+    manifestsDir,
+    signal,
+    onProgress: (progress) =>
+      onProgress?.({
+        transferredBytes: progress.transferredBytes,
+        totalBytes: progress.totalBytes,
+        currentFile: progress.currentFile,
+        fileIndex: progress.fileIndex,
+        totalFiles: progress.totalFiles,
+      }),
+    acquire: async (file, acquireSignal) => {
+      const record = recordsById.get(file.fileId)
+      if (!record) {
+        throw createError({ statusCode: 500, statusMessage: `No Ubisoft record for adapter file ${file.fileId}` })
+      }
+      return acquireUbisoftFile(record, acquireSignal)
+    },
+  })
+
+  return { manifest, manifestPath }
 }

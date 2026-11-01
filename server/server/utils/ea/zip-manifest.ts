@@ -52,6 +52,10 @@ export async function fetchZipRange(url: string, start: number, end: number, sig
 }
 /** Fetch the trailer and directory separately. Total allocation is capped at 64 MiB plus ZIP trailer. */
 export async function fetchEaZipEntries(url: string, signal?: AbortSignal): Promise<EaZipEntry[]> {
+  // Refuse a non-HTTPS archive before any request leaves the process: the URL
+  // comes from store metadata, so probing it first would be an outbound fetch
+  // to an attacker-chosen host.
+  if (!/^https:\/\//i.test(url)) throw createError({ statusCode: 400, statusMessage: 'EA archive URL must use HTTPS' })
   let head: Response
   try { head = await fetch(url, { method: 'HEAD', signal: signal ?? AbortSignal.timeout(15_000) }) }
   catch { throw createError({ statusCode: 502, statusMessage: 'Failed to inspect EA ZIP archive' }) }
