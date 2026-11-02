@@ -52,6 +52,7 @@ model Game {
 
   collections CollectionEntry[]
   saves       SaveSlot[]
+  saveManifest SaveManifest?
   screenshots Screenshot[]
   tags        GameTag[]
   playtime    Playtime[]
@@ -208,6 +209,28 @@ model SaveSlot {
   historyChecksums String[] // list of hashes
 
   @@id([gameId, userId, index], name: "id")
+}
+
+/// The save layout of one library game in Ludusavi-manifest-entry shape
+/// (`files`/`registry`/`installDir`/`when`/`tags` with `<placeholder>`
+/// templates). Kept as JSON on purpose: new fields in upstream Ludusavi data
+/// pass through untouched instead of forcing a migration per spec revision.
+model SaveManifest {
+  id     String @id @default(uuid())
+  gameId String @unique
+  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  /// One Ludusavi manifest entry (the value under the game's title key).
+  entry Json
+
+  /// Provenance: "curated" (hand-authored for this fork), "ludusavi" (imported
+  /// from upstream manifest data), "user" (hand-edited through the UI).
+  source String @default("curated")
+  /// The upstream Ludusavi manifest title this entry was taken from, if any.
+  ludusaviName String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Screenshot {
