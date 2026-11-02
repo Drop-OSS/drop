@@ -54,6 +54,8 @@ export default defineEventHandler(async (event) => {
       statusMessage: "executable is required: a relative path like nfsc.exe",
     });
   }
+  // Captured for the task closure below: TS cannot carry the narrowing in.
+  const executable = body.executable;
   if (
     body.arguments !== undefined &&
     (!Array.isArray(body.arguments) ||
@@ -169,7 +171,7 @@ export default defineEventHandler(async (event) => {
                 ? Platform.macOS
                 : Platform.Windows;
           const launch = [
-            body.executable.replace(/\//g, "\\"),
+            executable.replace(/\//g, "\\"),
             ...(body.arguments ?? []),
           ].join(" ");
           await libraryManager.importVersion(
