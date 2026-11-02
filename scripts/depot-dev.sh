@@ -36,6 +36,10 @@ case "${1:-}" in
       # node_modules volume (nested ones are symlinks into it).
       tar -C /src --exclude node_modules --exclude .git --exclude .output \
           --exclude .dev-app -cf - . | tar -C /app -xf -
+      # nuxt.config stamps the build with `git rev-parse`; the tar-synced
+      # .git is host-owned and git refuses foreign ownership inside the
+      # container. Trust it (this is our own synced checkout, dev only).
+      git config --global --add safe.directory /app >/dev/null 2>&1 || true
       [ "$CHANGED" = 1 ] && pnpm install --frozen-lockfile
       cd /app/server && pnpm build
       find /out -mindepth 1 -maxdepth 1 -exec rm -rf {} +
