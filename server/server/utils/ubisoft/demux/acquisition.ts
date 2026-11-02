@@ -1,10 +1,7 @@
 import { create } from "@bufbuild/protobuf";
 import { createError } from "h3";
 import { DemuxClient } from "./client";
-import {
-  deriveUbisoftLaunches,
-  type UbisoftLaunchDocument,
-} from "../manifest";
+import { deriveUbisoftLaunches, type UbisoftLaunchDocument } from "../manifest";
 import {
   UpstreamSchema as OwnershipUpstreamSchema,
   DownstreamSchema as OwnershipDownstreamSchema,
@@ -128,10 +125,15 @@ export class UbisoftAcquisitionClient {
     return rsp.ownedGames.ownedGames.map((game) => {
       const config = game.configuration ?? "";
       const derived = deriveUbisoftLaunches(config);
+      // Some entitlement rows ship a whitespace-only manifest (the Far Cry 6
+      // GoTY-upgrade row carries 40 spaces, live Nov 2026): no manifest is
+      // published there, and counting blanks as one produces misleading
+      // "no launchable executable" reasons for an unpublished edition.
+      const manifest = (game.latestManifest ?? "").trim().toUpperCase();
       return {
         productId: game.productId,
         downloadId: game.downloadId || game.productId,
-        latestManifest: game.latestManifest || null,
+        latestManifest: /^[0-9A-F]{40}$/.test(manifest) ? manifest : null,
         branchId: game.activeBranchId || null,
         configuration: game.configuration || null,
         title: derived.title ?? null,

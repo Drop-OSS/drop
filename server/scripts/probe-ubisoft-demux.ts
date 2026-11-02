@@ -9,7 +9,7 @@
  *
  * Every secret is length-truncated; nothing printable identifies the account.
  */
-import { create, toBinary, fromBinary, toJson } from "@bufbuild/protobuf";
+import { create, toBinary, fromBinary } from "@bufbuild/protobuf";
 import { DemuxSocket } from "../server/utils/ubisoft/demux/socket";
 import { loginUbisoftWithRememberTicket } from "../server/utils/ubisoft/client";
 import {

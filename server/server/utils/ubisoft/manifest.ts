@@ -80,13 +80,27 @@ export function parseUbisoftManifest(blob: Buffer): Manifest {
 export const sha1Hex = (bytes: Buffer): string =>
   createHash("sha1").update(bytes).digest("hex").toUpperCase();
 
+/** Upper-case hex SHA-1 as the plan stores it. */
+const HEX40 = /^[0-9A-F]{40}$/;
+
 /**
  * The single-character CDN directory between `slices_v3/` and the slice hash.
  * Ported byte-for-byte from the launcher-side reference (ubisoft-demux util):
  * the first two hex digits, byte-swapped, decide a base32 alphabet position;
  * odd bytes land in the alphabet's second half.
+ *
+ * The hex decode is unforgiving: a non-hex prefix (an empty hash, or a whole
+ * CDN path passed by mistake) decodes to a zero-length buffer and `readUInt8`
+ * throws a raw `ERR_BUFFER_OUT_OF_BOUNDS`. Refuse with a descriptive 502
+ * before that can happen.
  */
 export function fileHashToPathChar(hashHexUpper: string): string {
+  if (!/^[0-9a-fA-F]{2}/.test(hashHexUpper ?? "")) {
+    throw createError({
+      statusCode: 502,
+      statusMessage: `Ubisoft slice hash "${String(hashHexUpper).slice(0, 48)}" is not a hex SHA-1 - cannot derive a CDN path`,
+    });
+  }
   const base32 = "0123456789abcdefghijklmnopqrstuv";
   const reversed = Buffer.from(
     `${hashHexUpper[1]}${hashHexUpper[0]}`,
@@ -184,6 +198,12 @@ export function buildUbisoftDownloadPlan(
       }
       if (descriptors.length === 0) {
         if (contentHashes.length === 1) {
+          if (!HEX40.test(contentHashes[0])) {
+            throw createError({
+              statusCode: 502,
+              statusMessage: `Ubisoft manifest file ${path} carries a slice with no content hash - unsupported manifest generation`,
+            });
+          }
           files.push({
             path,
             size,
@@ -222,6 +242,21 @@ export function buildUbisoftDownloadPlan(
           descriptor.downloadSha1.byteLength > 0
             ? Buffer.from(descriptor.downloadSha1).toString("hex").toUpperCase()
             : contentHashes[i];
+        // Plan-time gate: a slice missing either hash cannot be fetched or
+        // verified, and deriving a CDN path from a non-hash crashes the
+        // worker pool with a raw RangeError. Name the file and slice here.
+        if (!HEX40.test(downloadSha1)) {
+          throw createError({
+            statusCode: 502,
+            statusMessage: `Ubisoft manifest file ${path} slice ${i} has no download or content hash - unsupported manifest generation`,
+          });
+        }
+        if (!HEX40.test(contentHashes[i])) {
+          throw createError({
+            statusCode: 502,
+            statusMessage: `Ubisoft manifest file ${path} slice ${i} declares no content hash to verify against - unsupported manifest generation`,
+          });
+        }
         slices.push({
           cdnPath: sliceCdnPath(downloadSha1),
           verifySha1: contentHashes[i],
@@ -329,9 +364,10 @@ export function deriveUbisoftLaunches(configYaml: string): {
     }
     if (text === "online:" || text === "offline:") {
       finishEntry();
-      blockIndent = blockDone || (text === "offline:" && launches.length > 0)
-        ? -2 // already have launches: skip this whole block
-        : indent;
+      blockIndent =
+        blockDone || (text === "offline:" && launches.length > 0)
+          ? -2 // already have launches: skip this whole block
+          : indent;
       executablesIndent = -1;
       continue;
     }
@@ -364,18 +400,24 @@ export function deriveUbisoftLaunches(configYaml: string): {
     if (item.startsWith("shortcut_name:")) {
       current.name = stripQuotes(item.slice("shortcut_name:".length));
     } else if (item.startsWith("description:")) {
-      current.label = current.label || stripQuotes(item.slice("description:".length));
+      current.label =
+        current.label || stripQuotes(item.slice("description:".length));
     } else if (item === "path:") {
       inPath = true;
     } else if (item.startsWith("working_directory:")) {
       inPath = false;
     } else if (inPath && item.startsWith("relative:")) {
-      current.exe = stripQuotes(item
-        .slice("relative:".length)
-        .replaceAll("\\", "/")
-        .replace(/^\/+/, ""));
+      current.exe = stripQuotes(
+        item
+          .slice("relative:".length)
+          .replaceAll("\\", "/")
+          .replace(/^\/+/, ""),
+      );
       inPath = false;
-    } else if (inPath && (item.startsWith("register:") || item.startsWith("absolute:"))) {
+    } else if (
+      inPath &&
+      (item.startsWith("register:") || item.startsWith("absolute:"))
+    ) {
       inPath = false;
     } else if (item.startsWith("arguments:")) {
       const raw = stripQuotes(item.slice("arguments:".length));

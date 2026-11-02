@@ -34,7 +34,13 @@ try {
           )
         )
           continue;
-        if (i > sg + 1 && line.trimEnd() !== "" && (line.length - line.trimStart().length <= 4) && !line.trim().endsWith(":")) break;
+        if (
+          i > sg + 1 &&
+          line.trimEnd() !== "" &&
+          line.length - line.trimStart().length <= 4 &&
+          !line.trim().endsWith(":")
+        )
+          break;
         console.log(line);
         if (i - sg > 60) break;
       }

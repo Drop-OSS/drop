@@ -323,7 +323,9 @@ test("buildUbisoftDownloadPlan keeps empty placeholder files", () => {
       ],
     }),
   );
-  assert.deepEqual(plan.files, [{ path: "data/config/game/dump.txt", size: 0, slices: [] }]);
+  assert.deepEqual(plan.files, [
+    { path: "data/config/game/dump.txt", size: 0, slices: [] },
+  ]);
   assert.equal(plan.totalBytes, 0);
   assert.equal(plan.totalSlices, 0);
 });
@@ -382,6 +384,104 @@ test("buildUbisoftDownloadPlan rejects slice descriptor/hash mismatch", () => {
         }),
       ),
     (error: { statusCode?: number }) => error?.statusCode === 502,
+  );
+});
+
+// Live ShootMania ingest crash (Nov 2026): a hash-free slice reached
+// fileHashToPathChar and the worker pool died on a raw
+// ERR_BUFFER_OUT_OF_BOUNDS. Every shape that cannot name a hash now says
+// so at plan time with a 502 instead.
+test("fileHashToPathChar refuses non-hex input with a descriptive 502", () => {
+  for (const bad of ["", "slices_v3/j/33416BDD", "zz", undefined as never]) {
+    assert.throws(
+      () => fileHashToPathChar(bad),
+      (error: { statusCode?: number; statusMessage?: string }) =>
+        error?.statusCode === 502 &&
+        !String(error?.statusMessage).includes("OUT_OF_BOUNDS"),
+      JSON.stringify(bad),
+    );
+  }
+});
+
+test("buildUbisoftDownloadPlan refuses slices without any hash", () => {
+  const emptyHashManifest = create(ManifestSchema, {
+    chunks: [
+      create(ChunkSchema, {
+        id: 1,
+        type: Chunk_ChunkType.ChunkType_Required,
+        files: [
+          create(FileSchema, {
+            name: "legacy.bin",
+            size: 10n,
+            isDir: false,
+            slices: [new Uint8Array()],
+            sliceList: [create(SliceSchema, { size: 10 })],
+          }),
+        ],
+      }),
+    ],
+  });
+  assert.throws(
+    () => buildUbisoftDownloadPlan(emptyHashManifest),
+    (error: { statusCode?: number; statusMessage?: string }) =>
+      error?.statusCode === 502 &&
+      String(error?.statusMessage).includes("no download or content hash"),
+  );
+});
+
+test("buildUbisoftDownloadPlan refuses slices with no content hash to verify", () => {
+  const manifest = create(ManifestSchema, {
+    chunks: [
+      create(ChunkSchema, {
+        id: 1,
+        type: Chunk_ChunkType.ChunkType_Required,
+        files: [
+          create(FileSchema, {
+            name: "unverifiable.bin",
+            size: 10n,
+            isDir: false,
+            slices: [new Uint8Array()],
+            sliceList: [
+              create(SliceSchema, {
+                size: 10,
+                downloadSha1: sha1Bytes("wire-bytes"),
+              }),
+            ],
+          }),
+        ],
+      }),
+    ],
+  });
+  assert.throws(
+    () => buildUbisoftDownloadPlan(manifest),
+    (error: { statusCode?: number; statusMessage?: string }) =>
+      error?.statusCode === 502 &&
+      String(error?.statusMessage).includes("no content hash to verify"),
+  );
+});
+
+test("buildUbisoftDownloadPlan refuses a descriptorless empty slice hash", () => {
+  const manifest = create(ManifestSchema, {
+    chunks: [
+      create(ChunkSchema, {
+        id: 1,
+        type: Chunk_ChunkType.ChunkType_Required,
+        files: [
+          create(FileSchema, {
+            name: "orphan.bin",
+            size: 10n,
+            isDir: false,
+            slices: [new Uint8Array()],
+          }),
+        ],
+      }),
+    ],
+  });
+  assert.throws(
+    () => buildUbisoftDownloadPlan(manifest),
+    (error: { statusCode?: number; statusMessage?: string }) =>
+      error?.statusCode === 502 &&
+      String(error?.statusMessage).includes("no content hash"),
   );
 });
 
@@ -531,7 +631,7 @@ test("deriveUbisoftLaunches labels legacy entries from description and keeps onl
 
 test("deriveUbisoftLaunches carries offline arguments when offline is used", () => {
   const offlineOnly = AC3_CONFIG.replace(
-    /    online:\n[\s\S]*?\n    offline:/,
+    / {4}online:\n[\s\S]*?\n {4}offline:/,
     "    offline:",
   );
   const { launches } = deriveUbisoftLaunches(offlineOnly);

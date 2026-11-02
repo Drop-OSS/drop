@@ -86,6 +86,20 @@ export interface UbisoftAcquisitionResult {
   launches: UbisoftLaunchOption[];
 }
 
+/**
+ * pwrite one slice body at its declared file offset. `FileHandle.write`
+ * takes (buffer, bufferOffset, length, filePosition) - the 2-argument form
+ * passes the file offset as a *buffer* offset, which either writes the tail
+ * of the slice at position zero or throws ERR_OUT_OF_RANGE. Be explicit.
+ */
+export async function writeSliceAt(
+  handle: FileHandle,
+  body: Buffer,
+  fileOffset: number,
+): Promise<void> {
+  await handle.write(body, 0, body.length, fileOffset);
+}
+
 /** Decompress one slice body by its magic; unrecognised bytes pass through. */
 export function decompressSliceBody(body: Buffer): Buffer {
   if (body.length >= 4 && body.readUInt32LE(0) === 0xfd2fb528)
@@ -177,6 +191,19 @@ class SliceUrlPool {
 }
 
 /**
+ * Directory fallback walk for a planned CDN path. `sliceCdnPathCandidates`
+ * derives every path from a bare slice SHA-1; the plan hands slices their
+ * full `slices_v3/<char>/<HASH>` path, so the hash is taken back off the
+ * final segment first. Feeding the path itself in derives the directory
+ * char from the literal "sl" of "slices_v3/" - a hex decode of nothing, and
+ * a raw `ERR_BUFFER_OUT_OF_BOUNDS` on the very first slice of every ingest.
+ */
+export function slicePathFallbacks(cdnPath: string): string[] {
+  const hash = cdnPath.slice(cdnPath.lastIndexOf("/") + 1);
+  return sliceCdnPathCandidates(hash).slice(0, MAX_DIRECTORY_CANDIDATES);
+}
+
+/**
  * Fetch one slice with the launcher's own fallback ladder: pooled signed URL
  * for the computed directory first; HTTP 403 re-mints the same path (URLs
  * age); 404 walks the candidate directories. SHA-1-verifies the body.
@@ -187,10 +214,7 @@ async function acquireSlice(
   target: SliceTarget,
   signal: AbortSignal | undefined,
 ): Promise<Buffer> {
-  const candidates = sliceCdnPathCandidates(cdnPath).slice(
-    0,
-    MAX_DIRECTORY_CANDIDATES,
-  );
+  const candidates = slicePathFallbacks(cdnPath);
   let lastStatus = "no attempt";
   for (const candidate of candidates) {
     // A 403 means the URL, not the path, went stale: re-mint and retry once.
@@ -411,7 +435,7 @@ export async function streamUbisoftGameToDepot(
           const body = await acquireSlice(pool, cdnPath, target, signal);
           for (const write of target.writes) {
             const handle = await handleFor(write.file);
-            await handle.write(body, write.offset);
+            await writeSliceAt(handle, body, write.offset);
             writtenBytes.set(
               write.file.path,
               (writtenBytes.get(write.file.path) ?? 0) + body.length,
