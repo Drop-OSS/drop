@@ -54,9 +54,13 @@ case "${1:-}" in
       CHANGED=0
       cmp -s /src/pnpm-lock.yaml /app/pnpm-lock.yaml || CHANGED=1
       # Sync working tree into the image workspace, keeping the container
-      # node_modules volume (nested ones are symlinks into it).
+      # node_modules volume (nested ones are symlinks into it). .nuxt is
+      # builder-owned: syncing the host-side .nuxt (e.g. written by a host
+      # nuxt typecheck that overlapped a build) reintroduces exactly the
+      # poisoned-state class this loop kept hitting - the builder regenerates
+      # it via nuxt prepare/build regardless.
       tar -C /src --exclude node_modules --exclude .git --exclude .output \
-          --exclude .dev-app -cf - . | tar -C /app -xf -
+          --exclude .dev-app --exclude .nuxt -cf - . | tar -C /app -xf -
       # nuxt.config stamps the build with `git rev-parse`; the tar-synced
       # .git is host-owned and git refuses foreign ownership inside the
       # container. Trust it (this is our own synced checkout, dev only).
