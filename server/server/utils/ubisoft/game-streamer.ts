@@ -141,10 +141,10 @@ function abortError(): never {
   });
 }
 
+/** Only the task's own cancellation is an abort; a per-request timeout is a hiccup. */
 function isAbortLike(error: unknown, signal: AbortSignal | undefined): boolean {
-  if (signal?.aborted) return true;
-  const name = (error as { name?: string } | null)?.name ?? "";
-  return name === "AbortError" || name === "TimeoutError";
+  void error;
+  return signal?.aborted === true;
 }
 
 /** One unique CDN slice object and every place its bytes belong. */
@@ -224,7 +224,12 @@ async function acquireSlice(
       let response: Response;
       try {
         response = await fetch(url, {
-          signal: signal ?? AbortSignal.timeout(SLICE_TIMEOUT_MS),
+          // Task cancellation AND a per-request stall limit, always both:
+          // a slice whose body stops moving must fail this attempt, not hang
+          // the acquisition until the task itself is cancelled.
+          signal: signal
+            ? AbortSignal.any([signal, AbortSignal.timeout(SLICE_TIMEOUT_MS)])
+            : AbortSignal.timeout(SLICE_TIMEOUT_MS),
         });
       } catch (error) {
         if (isAbortLike(error, signal)) abortError();
@@ -245,9 +250,17 @@ async function acquireSlice(
           statusMessage: `Ubisoft CDN returned HTTP ${response.status} for slice ${candidate}`,
         });
       }
-      const body = decompressSliceBody(
-        Buffer.from(await response.arrayBuffer()),
-      );
+      let body: Buffer;
+      try {
+        body = decompressSliceBody(Buffer.from(await response.arrayBuffer()));
+      } catch (error) {
+        // The signal timed out mid-body (or the connection died while the
+        // bytes were still arriving). That is a network hiccup, not a wrong
+        // directory: keep walking the ladder instead of killing the task.
+        if (isAbortLike(error, signal)) abortError();
+        lastStatus = "body read failed";
+        break; // fresh URL from the next candidate
+      }
       const digest = createHash("sha1")
         .update(body)
         .digest("hex")
@@ -282,17 +295,32 @@ async function fetchManifestBytes(
   session: UbisoftDownloadSession,
   manifestSha1: string,
 ): Promise<Buffer> {
-  const [url] = await session.mintUrls([`manifests/${manifestSha1}.manifest`]);
-  const response = await fetch(url, {
-    signal: AbortSignal.timeout(SLICE_TIMEOUT_MS),
-  });
-  if (!response.ok) {
-    throw createError({
-      statusCode: 502,
-      statusMessage: `Ubisoft CDN returned HTTP ${response.status} for install manifest ${manifestSha1}`,
-    });
+  let lastError: unknown;
+  // One retry, freshly minted: the whole pipeline is gated on this object,
+  // and a transient CDN stall (timed-out body read under disk pressure)
+  // must not abort an acquisition that has not even started downloading.
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const [url] = await session.mintUrls([
+        `manifests/${manifestSha1}.manifest`,
+      ]);
+      const response = await fetch(url, {
+        signal: AbortSignal.timeout(SLICE_TIMEOUT_MS),
+      });
+      if (!response.ok) {
+        throw createError({
+          statusCode: 502,
+          statusMessage: `Ubisoft CDN returned HTTP ${response.status} for install manifest ${manifestSha1}`,
+        });
+      }
+      return Buffer.from(await response.arrayBuffer());
+    } catch (error) {
+      // A refused manifest (non-2xx) is a decision, not a hiccup: no retry.
+      if ((error as { statusCode?: number }).statusCode === 502) throw error;
+      lastError = error;
+    }
   }
-  return Buffer.from(await response.arrayBuffer());
+  throw lastError;
 }
 
 /**
