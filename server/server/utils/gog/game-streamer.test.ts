@@ -4,10 +4,24 @@ import { createHash } from "node:crypto";
 import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { deflateRawSync } from "node:zlib";
+import { deflateSync } from "node:zlib";
 import { streamGogGameToDepot, type StreamJobStore } from "./game-streamer";
 import { readDropletManifest } from "../depot/manifest";
-import type { GogBuildDetails, GogManifestFile } from "./cdn";
+
+/**
+ * Hermetic streamer tests against the live-verified (Nov 2026) content-system
+ * shapes: the build list (`items[]`, snake_case) links a zlib build meta that
+ * carries depots[], each depot manifest is a zlib {depot:{items}} document on
+ * the content CDN, chunks are fetched through secure_link-signed endpoints,
+ * stored zlib-compressed and MD5-verified in both forms. A release must never
+ * be published unless every chunk verified.
+ */
+
+const PRODUCT_ID = "1207658776";
+const BUILD_LINK = "https://meta.cdn.invalid/content-system/v2/meta/aa/bb/buildmeta";
+const DEPOT_MANIFEST = "aabbccddeeff00112233445566778899";
+const CHUNK_BASE = "https://chunk.cdn.invalid";
+
 /** Assert an h3-style typed error: a status code and, optionally, a message fragment. */
 function typedError(statusCode: number, message?: RegExp) {
   return (error: unknown): boolean => {
@@ -23,52 +37,50 @@ function typedError(statusCode: number, message?: RegExp) {
     );
   };
 }
-/** Some lib configurations do not type Buffer as a valid Response body. */
-function binaryResponse(bytes: Buffer, init?: ResponseInit): Response {
-  return new Response(new Uint8Array(bytes), init);
-}
-
-/**
- * Hermetic streamer tests: GOG's content-system endpoints (builds, depot
- * manifest, chunks) are fetch stubs, so nothing here touches the network. The
- * point of these tests is the decode/verify boundary — GOG gives us MD5s and
- * deflate-compressed chunks, the depot stores SHA-256 chunks, and a release
- * must never be published unless every chunk verified.
- */
 
 const md5 = (bytes: Buffer) => createHash("md5").update(bytes).digest("hex");
 const sha256 = (bytes: Buffer) =>
   createHash("sha256").update(bytes).digest("hex");
 
-/** A depot chunk stub plus the exact bytes the CDN serves for it. */
+/** Some lib configurations do not type Buffer as a valid Response body. */
+function binaryResponse(bytes: Buffer, init?: ResponseInit): Response {
+  return new Response(new Uint8Array(bytes), init);
+}
+
+function zlibJson(value: unknown): Buffer {
+  return deflateSync(Buffer.from(JSON.stringify(value)));
+}
+
+/** A v2 depot chunk: served bytes are the stored (zlib) form. */
 type ChunkStub = {
   md5: string;
-  compressedMd5: string;
   size: number;
+  compressedMd5: string;
   compressedSize: number;
   served: Buffer;
 };
 
-/** Stored (uncompressed) chunk: the CDN key is the MD5 of the bytes themselves. */
-function storedChunk(bytes: Buffer): ChunkStub {
+function gogChunk(
+  bytes: Buffer,
+  overrides: Partial<ChunkStub> = {},
+): ChunkStub {
+  const served = deflateSync(bytes);
   return {
     md5: md5(bytes),
-    compressedMd5: md5(bytes),
     size: bytes.length,
-    compressedSize: bytes.length,
-    served: bytes,
+    compressedMd5: md5(served),
+    compressedSize: served.length,
+    served,
+    ...overrides,
   };
 }
 
-/** Deflate chunk: the CDN key is the MD5 of the *compressed* payload. */
-function deflateChunk(bytes: Buffer): ChunkStub {
-  const compressed = deflateRawSync(bytes);
+function depotFileItem(path: string, chunks: ChunkStub[]) {
   return {
-    md5: md5(bytes),
-    compressedMd5: md5(compressed),
-    size: bytes.length,
-    compressedSize: compressed.length,
-    served: compressed,
+    type: "DepotFile",
+    path,
+    md5: md5(Buffer.concat([])), // unused by the streamer; shape parity
+    chunks,
   };
 }
 
@@ -96,47 +108,82 @@ function jsonResponse(body: unknown): Response {
   });
 }
 
-/** Serves a chunk by its CDN key (compressedMd5); unknown keys 404. */
-function chunkRoutes(chunks: ChunkStub[]) {
-  return [
-    {
-      match: /\/chunks\//,
-      respond: (url: string) => {
-        const key = url.split("/").pop()!;
-        const chunk = chunks.find((c) => c.compressedMd5 === key);
-        return chunk
-          ? binaryResponse(chunk.served)
-          : new Response("gone", { status: 404 });
-      },
-    },
-  ];
-}
-
-const MANIFEST_HASH = "aabbccddeeff00112233445566778899";
-
-function buildsRoute(builds: GogBuildDetails[]) {
-  return { match: /\/builds/, respond: () => jsonResponse({ items: builds }) };
-}
-
-const ONE_BUILD: GogBuildDetails[] = [
-  {
-    buildId: "build-1",
-    productId: "1207658776",
-    versionName: "1.0.0",
-    depots: [{ id: "depot-1", manifest: MANIFEST_HASH }],
-  },
-];
-
-function manifestRoute(files: GogManifestFile[]) {
+function buildsRoute(items: unknown[]) {
   return {
-    match: /\/manifests\//,
+    match: /content-system\.gog\.com\/products\/.*\/builds/,
+    respond: () => jsonResponse({ items }),
+  };
+}
+
+function buildMetaRoute(depots: unknown[]) {
+  return {
+    match: /^https:\/\/meta\.cdn\.invalid\//,
+    respond: () =>
+      binaryResponse(
+        zlibJson({
+          version: 2,
+          baseProductId: PRODUCT_ID,
+          buildId: "build-1",
+          installDirectory: "Test Game",
+          depots,
+        }),
+        { headers: { "content-type": "application/octet-stream" } },
+      ),
+  };
+}
+
+const BASE_DEPOT = {
+  manifest: DEPOT_MANIFEST,
+  productId: PRODUCT_ID,
+  languages: ["*"],
+};
+
+function depotManifestRoute(items: unknown[]) {
+  return {
+    match: /gog-cdn-fastly\.gog\.com\/content-system\/v2\/meta\//,
+    respond: () =>
+      binaryResponse(zlibJson({ version: 2, depot: { items } }), {
+        headers: { "content-type": "application/octet-stream" },
+      }),
+  };
+}
+
+function secureLinkRoute(urls?: unknown[]) {
+  return {
+    match: /content-system\.gog\.com\/products\/.*\/secure_link/,
     respond: () =>
       jsonResponse({
-        depotId: "depot-1",
-        manifestId: MANIFEST_HASH,
-        totalSize: files.reduce((n, f) => n + f.size, 0),
-        files,
+        product_id: PRODUCT_ID,
+        type: "store",
+        urls:
+          urls ?? [
+            {
+              endpoint_name: "default",
+              url_format: "{base_url}/{path}?wsSecret={token}&wsTime={time}&prefix={prefix}",
+              parameters: {
+                base_url: CHUNK_BASE,
+                path: `content-system/v2/store/${PRODUCT_ID}`,
+                token: "sekret",
+                time: "deadbeef",
+                prefix: `/content-system/v2/store/${PRODUCT_ID}/`,
+              },
+            },
+          ],
       }),
+  };
+}
+
+/** Serves chunks by the galaxy path appended to the signed URL. */
+function chunkRoutes(chunks: ChunkStub[]) {
+  return {
+    match: /chunk\.cdn\.invalid/,
+    respond: (url: string) => {
+      const key = url.split("?")[0].split("/").pop()!;
+      const chunk = chunks.find((c) => c.compressedMd5 === key);
+      return chunk
+        ? binaryResponse(chunk.served)
+        : new Response("gone", { status: 404 });
+    },
   };
 }
 
@@ -166,37 +213,37 @@ async function publishedManifests(dir: string): Promise<string[]> {
   }
 }
 
-test("streamGogGameToDepot publishes a release from stored and deflate chunks", async () => {
+test("streamGogGameToDepot publishes a release through the secure-link chain", async () => {
   const { root, path } = await depotRoot();
   const plain = Buffer.from("gog-stored-chunk-content".repeat(4));
   const zipped = Buffer.from("deflated-chunk-payload".repeat(8));
-  const stored = storedChunk(plain);
-  const deflated = deflateChunk(zipped);
+  const first = gogChunk(plain);
+  const second = gogChunk(zipped);
 
-  const files: GogManifestFile[] = [
-    {
-      path: "game/data.bin",
-      size: plain.length,
-      md5: stored.md5,
-      chunks: [stored],
-    },
-    {
-      path: "game/text.dat",
-      size: zipped.length,
-      md5: deflated.md5,
-      chunks: [deflated],
-    },
-  ];
   stubFetch([
-    buildsRoute(ONE_BUILD),
-    manifestRoute(files),
-    ...chunkRoutes([stored, deflated]),
+    buildsRoute([
+      {
+        build_id: "build-1",
+        product_id: PRODUCT_ID,
+        os: "windows",
+        version_name: "1.0.0",
+        generation: 2,
+        link: BUILD_LINK,
+      },
+    ]),
+    buildMetaRoute([BASE_DEPOT]),
+    depotManifestRoute([
+      depotFileItem("game/data.bin", [first]),
+      depotFileItem("game/text.dat", [second]),
+    ]),
+    secureLinkRoute(),
+    chunkRoutes([first, second]),
   ]);
 
   const { store, updates } = makeStore();
   const manifestPath = await streamGogGameToDepot({
     jobId: "job-1",
-    productId: "1207658776",
+    productId: PRODUCT_ID,
     accessToken: "token",
     depotRoot: path,
     store,
@@ -231,27 +278,23 @@ test("streamGogGameToDepot concatenates provider chunks in manifest order", asyn
   const { root, path } = await depotRoot();
   const a = Buffer.from("A".repeat(70000));
   const b = Buffer.from("B".repeat(30000));
-  const ca = storedChunk(a);
-  const cb = storedChunk(b);
+  const ca = gogChunk(a);
+  const cb = gogChunk(b);
 
-  const files: GogManifestFile[] = [
-    {
-      path: "game/big.pak",
-      size: a.length + b.length,
-      md5: md5(Buffer.concat([a, b])),
-      chunks: [ca, cb],
-    },
-  ];
   stubFetch([
-    buildsRoute(ONE_BUILD),
-    manifestRoute(files),
-    ...chunkRoutes([ca, cb]),
+    buildsRoute([
+      { build_id: "build-1", product_id: PRODUCT_ID, link: BUILD_LINK },
+    ]),
+    buildMetaRoute([BASE_DEPOT]),
+    depotManifestRoute([depotFileItem("game/big.pak", [ca, cb])]),
+    secureLinkRoute(),
+    chunkRoutes([ca, cb]),
   ]);
 
   const { store } = makeStore();
   const manifestPath = await streamGogGameToDepot({
     jobId: "job-multi",
-    productId: "p",
+    productId: PRODUCT_ID,
     accessToken: "token",
     depotRoot: path,
     store,
@@ -268,30 +311,82 @@ test("streamGogGameToDepot concatenates provider chunks in manifest order", asyn
   await rm(root, { recursive: true, force: true });
 });
 
+test("a later depot overwrites an earlier path instead of failing", async () => {
+  const { root, path } = await depotRoot();
+  const base = Buffer.from("base-config-bytes");
+  const override = Buffer.from("override-config-bytes!!");
+  const c1 = gogChunk(base);
+  const c2 = gogChunk(override);
+
+  let manifestCalls = 0;
+  stubFetch([
+    buildsRoute([
+      { build_id: "build-1", product_id: PRODUCT_ID, link: BUILD_LINK },
+    ]),
+    buildMetaRoute([
+      BASE_DEPOT,
+      { ...BASE_DEPOT, manifest: "ffeeddccbbaa99887766554433221100", isGogDepot: true },
+    ]),
+    {
+      match: /gog-cdn-fastly\.gog\.com\/content-system\/v2\/meta\//,
+      respond: () =>
+        binaryResponse(
+          zlibJson({
+            version: 2,
+            depot: {
+              items:
+                manifestCalls++ === 0
+                  ? [depotFileItem("game/config.json", [c1])]
+                  : [depotFileItem("game/config.json", [c2])],
+            },
+          }),
+        ),
+    },
+    secureLinkRoute(),
+    chunkRoutes([c1, c2]),
+  ]);
+
+  const { store } = makeStore();
+  const manifestPath = await streamGogGameToDepot({
+    jobId: "job-merge",
+    productId: PRODUCT_ID,
+    accessToken: "token",
+    depotRoot: path,
+    store,
+  });
+
+  const published = await readDropletManifest(manifestPath);
+  assert.equal(published.files.length, 1);
+  assert.equal(published.files[0].sha256, sha256(override));
+
+  await rm(root, { recursive: true, force: true });
+});
+
 test("streamGogGameToDepot fails closed on a chunk MD5 mismatch and publishes nothing", async () => {
   const { root, path } = await depotRoot();
   const good = Buffer.from("AAAA");
-  // Same declared length, different bytes served: only an MD5 check can catch it.
-  const corrupt = {
-    ...storedChunk(Buffer.from("BBBB")),
+  // Valid zlib bytes, wrong payload for the declared digest: only an MD5
+  // check can catch it.
+  const corrupt = gogChunk(Buffer.from("BBBB"), {
     md5: md5(good),
     size: good.length,
-  };
+  });
 
-  const files: GogManifestFile[] = [
-    { path: "bad.bin", size: good.length, md5: md5(good), chunks: [corrupt] },
-  ];
   stubFetch([
-    buildsRoute(ONE_BUILD),
-    manifestRoute(files),
-    ...chunkRoutes([corrupt]),
+    buildsRoute([
+      { build_id: "build-1", product_id: PRODUCT_ID, link: BUILD_LINK },
+    ]),
+    buildMetaRoute([BASE_DEPOT]),
+    depotManifestRoute([depotFileItem("bad.bin", [corrupt])]),
+    secureLinkRoute(),
+    chunkRoutes([corrupt]),
   ]);
 
   const { store, updates } = makeStore();
   await assert.rejects(
     streamGogGameToDepot({
       jobId: "job-bad",
-      productId: "p",
+      productId: PRODUCT_ID,
       accessToken: "token",
       depotRoot: path,
       store,
@@ -313,23 +408,25 @@ test("streamGogGameToDepot fails closed on a chunk MD5 mismatch and publishes no
 test("streamGogGameToDepot fails closed when chunks cannot satisfy the declared size", async () => {
   const { root, path } = await depotRoot();
   const body = Buffer.from("short");
-  const chunk = storedChunk(body);
+  // The manifest entry claims 500 uncompressed bytes for this chunk; the
+  // real inflated payload is 5. The contract must not pad or publish it.
+  const chunk = gogChunk(body, { size: 500 });
 
-  // The manifest declares 500 bytes; the chunk list only carries 5.
-  const files: GogManifestFile[] = [
-    { path: "lying.bin", size: 500, md5: chunk.md5, chunks: [chunk] },
-  ];
   stubFetch([
-    buildsRoute(ONE_BUILD),
-    manifestRoute(files),
-    ...chunkRoutes([chunk]),
+    buildsRoute([
+      { build_id: "build-1", product_id: PRODUCT_ID, link: BUILD_LINK },
+    ]),
+    buildMetaRoute([BASE_DEPOT]),
+    depotManifestRoute([depotFileItem("lying.bin", [chunk])]),
+    secureLinkRoute(),
+    chunkRoutes([chunk]),
   ]);
 
   const { store, updates } = makeStore();
   await assert.rejects(
     streamGogGameToDepot({
       jobId: "job-size",
-      productId: "p",
+      productId: PRODUCT_ID,
       accessToken: "token",
       depotRoot: path,
       store,
@@ -350,7 +447,7 @@ test("streamGogGameToDepot reports typed 404s for a missing build or depot manif
   await assert.rejects(
     streamGogGameToDepot({
       jobId: "job-empty",
-      productId: "p",
+      productId: PRODUCT_ID,
       accessToken: "token",
       depotRoot: path,
       store,
@@ -360,12 +457,15 @@ test("streamGogGameToDepot reports typed 404s for a missing build or depot manif
   assert.equal(updates.at(-1)!.status, "FAILED");
 
   stubFetch([
-    buildsRoute([{ buildId: "b", productId: "p", depots: [{ id: "d" }] }]),
+    buildsRoute([
+      { build_id: "build-2", product_id: PRODUCT_ID, link: BUILD_LINK },
+    ]),
+    buildMetaRoute([]),
   ]);
   await assert.rejects(
     streamGogGameToDepot({
       jobId: "job-none",
-      productId: "p",
+      productId: PRODUCT_ID,
       accessToken: "token",
       depotRoot: path,
       store,
@@ -374,22 +474,16 @@ test("streamGogGameToDepot reports typed 404s for a missing build or depot manif
   );
 
   stubFetch([
-    buildsRoute(ONE_BUILD),
-    {
-      match: /\/manifests\//,
-      respond: () =>
-        jsonResponse({
-          depotId: "d",
-          manifestId: MANIFEST_HASH,
-          totalSize: 0,
-          files: [],
-        }),
-    },
+    buildsRoute([
+      { build_id: "build-1", product_id: PRODUCT_ID, link: BUILD_LINK },
+    ]),
+    buildMetaRoute([BASE_DEPOT]),
+    depotManifestRoute([]),
   ]);
   await assert.rejects(
     streamGogGameToDepot({
       jobId: "job-nofiles",
-      productId: "p",
+      productId: PRODUCT_ID,
       accessToken: "token",
       depotRoot: path,
       store,
@@ -400,34 +494,49 @@ test("streamGogGameToDepot reports typed 404s for a missing build or depot manif
   await rm(root, { recursive: true, force: true });
 });
 
-test("streamGogGameToDepot refuses duplicate paths before transferring anything", async () => {
+test("depot language and bitness filters keep unrelated depots out", async () => {
   const { root, path } = await depotRoot();
-  const chunk = storedChunk(Buffer.from("x"));
-
-  const files: GogManifestFile[] = [
-    { path: "dup.bin", size: 1, md5: chunk.md5, chunks: [chunk] },
-    { path: "dup.bin", size: 1, md5: chunk.md5, chunks: [chunk] },
-  ];
+  const chunk = gogChunk(Buffer.from("en-US content"));
   const requested = stubFetch([
-    buildsRoute(ONE_BUILD),
-    manifestRoute(files),
-    ...chunkRoutes([chunk]),
+    buildsRoute([
+      { build_id: "build-1", product_id: PRODUCT_ID, link: BUILD_LINK },
+    ]),
+    buildMetaRoute([
+      { manifest: "dead000000000000000000000000beef", languages: ["de-DE"] },
+      { manifest: "32000000000000000000000000000032", osBitness: ["32"] },
+      { manifest: "otherproduct000000000000000000dl", productId: "999" },
+      BASE_DEPOT,
+    ]),
+    {
+      match: /gog-cdn-fastly\.gog\.com\/content-system\/v2\/meta\//,
+      respond: (url) => {
+        // Only the base depot may be requested; anything else fails loudly
+        // through the URL in the thrown manifest error.
+        assert.ok(url.includes(DEPOT_MANIFEST), `unexpected depot: ${url}`);
+        return binaryResponse(
+          zlibJson({
+            version: 2,
+            depot: { items: [depotFileItem("f.bin", [chunk])] },
+          }),
+        );
+      },
+    },
+    secureLinkRoute(),
+    chunkRoutes([chunk]),
   ]);
 
-  await assert.rejects(
-    streamGogGameToDepot({
-      jobId: "job-dup",
-      productId: "p",
-      accessToken: "token",
-      depotRoot: path,
-    }),
-    typedError(502, /Duplicate GOG file path/),
+  const { store } = makeStore();
+  await streamGogGameToDepot({
+    jobId: "job-filter",
+    productId: PRODUCT_ID,
+    accessToken: "token",
+    depotRoot: path,
+    store,
+  });
+  const manifestRequests = requested.filter((url) =>
+    url.includes("gog-cdn-fastly"),
   );
-  assert.equal(
-    requested.some((u) => u.includes("/chunks/")),
-    false,
-    "a rejected release must not download anything",
-  );
+  assert.equal(manifestRequests.length, 1);
 
   await rm(root, { recursive: true, force: true });
 });
