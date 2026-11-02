@@ -118,7 +118,12 @@ case "${1:-}" in
       echo "no .dev-app/current - run depot-dev.sh build (or migrate-bundle) first" >&2
       exit 1
     fi
-    COMPOSE_PROFILES=dev $DEV restart gamedepot
+    # Recreate, not `restart`: compose `restart` reuses the container's
+    # creation-time command, so a container created before this loop served
+    # `current` (or before any docker-compose.dev.yml change) keeps booting
+    # whatever path it was created with - the symlink flips and the route
+    # table stop taking effect while everything still looks healthy.
+    COMPOSE_PROFILES=dev $DEV up -d --force-recreate gamedepot
     echo "now serving: $(readlink .dev-app/current)"
     ;;
 
