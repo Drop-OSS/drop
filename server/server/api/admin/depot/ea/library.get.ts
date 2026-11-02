@@ -3,11 +3,13 @@ import {
   defineEventHandler,
   getQuery,
   getRequestHeader,
+  type H3Event,
 } from "h3";
 import { discoverEaLibrary } from "../../../../utils/ea/library";
 import { resolveDepotToken } from "../../../../utils/depot/connections";
 
-export default defineEventHandler(async (event) => {
+/** Exported unauthenticated for hermetic tests; the route gates with ACLs. */
+export async function eaLibraryHandler(event: H3Event) {
   const query = getQuery(event);
   // Same token-acquisition model as the Epic library handler: caller-supplied
   // via query parameter or Authorization header first, then the connection
@@ -44,4 +46,13 @@ export default defineEventHandler(async (event) => {
     typeof query.search === "string" ? query.search.trim() : undefined;
 
   return discoverEaLibrary(token, { title, search });
+}
+
+export default defineEventHandler(async (event) => {
+  // Lazy import keeps the session/prisma module graph out of hermetic tests
+  // of the library logic (eaLibraryHandler).
+  const { default: aclManager } = await import("~/server/internal/acls");
+  if (!(await aclManager.allowSystemACL(event, ["depot:read"])))
+    throw createError({ statusCode: 403, statusMessage: "Admin only" });
+  return eaLibraryHandler(event);
 });

@@ -1,7 +1,7 @@
 import { test, afterEach } from "node:test";
 import assert from "node:assert/strict";
 import { H3Event } from "h3";
-import handler from "./library.get";
+import { eaLibraryHandler } from "./library.get";
 
 const originalFetch = globalThis.fetch;
 afterEach(() => {
@@ -14,7 +14,7 @@ function event(url: string, headers: Record<string, string> = {}) {
 
 test("rejects requests without a token", async () => {
   await assert.rejects(
-    () => handler(event("/api/admin/depot/ea/library")),
+    () => eaLibraryHandler(event("/api/admin/depot/ea/library")),
     (error: unknown) => (error as { statusCode?: number }).statusCode === 401,
   );
 });
@@ -32,7 +32,7 @@ test("returns owned games when a token is supplied", async () => {
       ]),
       { status: 200, headers: { "content-type": "application/json" } },
     )) as typeof fetch;
-  const result = (await handler(
+  const result = (await eaLibraryHandler(
     event("/api/admin/depot/ea/library?token=abc"),
   )) as { games: unknown[]; total: number };
   assert.equal(result.total, 1);

@@ -1,4 +1,5 @@
 import { createError, defineEventHandler, readBody } from "h3";
+import aclManager from "~/server/internal/acls";
 import { randomUUID } from "node:crypto";
 
 type IngestEpicBody = {
@@ -12,6 +13,8 @@ type IngestEpicBody = {
 };
 
 export default defineEventHandler(async (event) => {
+  if (!(await aclManager.allowSystemACL(event, ["depot:new"])))
+    throw createError({ statusCode: 403, statusMessage: "Admin only" });
   const body = await readBody<IngestEpicBody>(event);
   if (!body || typeof body !== "object") {
     throw createError({

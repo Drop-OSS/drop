@@ -1,4 +1,5 @@
 import { defineEventHandler, readBody, createError } from "h3";
+import aclManager from "~/server/internal/acls";
 import {
   exchangeEpicAuthCode,
   refreshEpicToken,
@@ -11,6 +12,8 @@ interface EpicAuthBody {
 }
 
 export default defineEventHandler(async (event) => {
+  if (!(await aclManager.allowSystemACL(event, ["depot:new"])))
+    throw createError({ statusCode: 403, statusMessage: "Admin only" });
   const body = await readBody<EpicAuthBody>(event).catch(() => null);
   if (!body) {
     throw createError({

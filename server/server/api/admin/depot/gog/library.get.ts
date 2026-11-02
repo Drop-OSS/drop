@@ -4,10 +4,13 @@ import {
   getQuery,
   getRequestHeader,
 } from "h3";
+import aclManager from "~/server/internal/acls";
 import { getGogLibrary } from "../../../../utils/gog";
 import { resolveDepotToken } from "../../../../utils/depot/connections";
 
 export default defineEventHandler(async (event) => {
+  if (!(await aclManager.allowSystemACL(event, ["depot:read"])))
+    throw createError({ statusCode: 403, statusMessage: "Admin only" });
   const query = getQuery(event);
   let token =
     (typeof query.token === "string" ? query.token : undefined) ??
