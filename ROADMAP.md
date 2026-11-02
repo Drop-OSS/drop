@@ -28,6 +28,8 @@ GameDepot is an open-source, community-driven game distribution and preservation
   6. Emit an immutable `DropletManifest` like GOG/Epic/Ubisoft; discard EA per-file Deflate so GameDepot's own documented compression/chunking, cross-provider dedupe and idempotent resync apply.
 - [x] **Installer / Disc Set Support:** Group split archives and multi-disc installers into ordered logical releases; verify expected parts and preserve source provenance.
 - [x] **Common Adapter Contract:** `authorize -> discover -> normalize -> acquire -> verify -> publish`; make resync idempotent, redact secrets, and keep provider-specific formats out of shared catalog APIs.
+  - All four provider streamers (GOG, Epic, Ubisoft, EA) are ported onto it: each module keeps only provider knowledge and hands files to `stageAdapterRelease()` (`server/server/utils/adapter/contract.ts`), which owns path validation, chunk re-framing, size/digest verification and atomic publication.
+- [x] **Store Connection Flows:** Heroic-style one-time sign-in for GOG and Epic persists an account connection (`api/admin/depot/connection/{gog,epic}` authorize/callback; EA offers the `login-url` initiator), lifecycle routes are gated with system ACLs, and GOG acquisition runs as a real persisted task.
 
 ---
 
@@ -81,7 +83,7 @@ GameDepot is an open-source, community-driven game distribution and preservation
 
 ## Implementation status
 All unchecked items above are planned work, not claims of shipped support. External projects are integration references/adapters; review licensing, provider terms, security, maintenance and compatibility before adopting or invoking them.
-EA App endpoints are implemented, but live-service verification remains outstanding (hermetic tests only). The common adapter contract module exists on `develop`; migration of existing adapters onto it is follow-up work.
+EA App endpoints are implemented, but live-service verification remains outstanding (hermetic tests only). The common adapter contract is in force: every provider streamer acquires through `stageAdapterRelease()`; Epic's binary build manifests remain undecoded on purpose (proprietary format) and are resolved via the launcher content API instead.
 Cross-device cloud saves: the server half is implemented (versioned save history, sync decisions, Ludusavi manifest reads, versioned client API) and verified against live infrastructure — 32 end-to-end checks (`pnpm e2e:saves`, `pnpm e2e:saves-http`) drive the service against a real PostgreSQL 16 plus object store and the HTTP contract against a live server. The desktop half is a prototype crate that no code depends on.
 Every tick carries a note naming the files behind it and what is still missing, so a tick can be re-checked without auditing the tree again.
 
@@ -106,6 +108,6 @@ A small node that sits between clients and the main GameDepot server so LAN part
 - Pin games (never evict); everything else LRU.
 - Node status view: disk usage, what's resident, cache hit stats.
 
-**Suggested placement:** after the Epic appName gap (that's a correctness fix) and before/alongside user libraries — the cache key design (game vs. per-chunk) should be decided early because it affects the ingest manifest format.
+**Suggested placement:** before/alongside user libraries — the Epic appName correctness fix already landed (appName is required by the ingest route, sent in the launcher-assets query and used in the manifest download URL `/appName/<name>/manifest/`), so it no longer gates this work. The cache key design (game vs. per-chunk) should still be decided early because it affects the ingest manifest format.
 
 **Design decision to settle first:** per-chunk caching vs. whole-file caching. Per-chunk is what makes pre-caching and bandwidth-sharing cheap, but it couples to the depot download protocol more tightly. Current lean: per-chunk, since the protocol already streams in chunks.
