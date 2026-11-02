@@ -291,6 +291,13 @@ pub mod data {
             pub settings: Settings,
             pub auth: Option<DatabaseAuth>,
             pub base_url: String,
+            /// The server-side profile this device plays as: playtime reports
+            /// and cloud saves are attributed to it. `None` means "the
+            /// account's default profile" - requests then omit the selector
+            /// and the server resolves it, which is exactly the pre-profile
+            /// behaviour, so databases written before this field stay valid.
+            #[serde(default)]
+            pub current_profile_id: Option<String>,
             pub applications: DatabaseApplications,
             pub cache_dir: PathBuf,
 
@@ -319,6 +326,7 @@ pub mod data {
                 prev_database,
                 base_url: String::new(),
                 auth: None,
+                current_profile_id: None,
                 settings: Settings::default(),
                 cache_dir,
             }

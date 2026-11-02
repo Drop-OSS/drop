@@ -136,6 +136,12 @@ impl DatabaseInterface {
             .unwrap_or_else(|_| panic!("Failed to parse base url {}", handle.base_url))
     }
 
+    /// The profile this device speaks for, or `None` for "the server should
+    /// use this account's default profile".
+    pub fn fetch_current_profile_id(&self) -> Option<String> {
+        borrow_db_checked().current_profile_id.clone()
+    }
+
     fn save(&self) -> Result<(), Error> {
         let lock = self.data.read().expect("failed to lock database to save");
         DatabaseInterface::create_at_path(&self.path, lock.clone())?;

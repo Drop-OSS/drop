@@ -93,6 +93,10 @@ pub struct SaveClient {
     base: Url,
     client: HttpClient,
     auth_header: fn() -> String,
+    /// The active profile, consulted per request so a profile switch takes
+    /// effect without rebuilding any client. `None` omits the selector and
+    /// the server resolves the account's default profile.
+    profile_header: fn() -> Option<String>,
 }
 
 #[derive(Clone)]
@@ -151,6 +155,7 @@ impl SaveClient {
             base: database::DB.fetch_base_url(),
             client: HttpClient::Shared,
             auth_header: remote::auth::generate_authorization_header,
+            profile_header: || database::DB.fetch_current_profile_id(),
         })
     }
 
@@ -166,6 +171,7 @@ impl SaveClient {
                     .expect("reqwest client"),
             ),
             auth_header,
+            profile_header: || None,
         }
     }
 
@@ -191,7 +197,11 @@ impl SaveClient {
             ),
             HttpClient::Plain(client) => RequestBuilder::Plain(client.request(method, url)),
         };
-        request.header("Authorization", &(self.auth_header)())
+        let request = request.header("Authorization", &(self.auth_header)())?;
+        match (self.profile_header)() {
+            Some(profile) => request.header("x-profile-id", &profile),
+            None => Ok(request),
+        }
     }
 
     async fn respond(

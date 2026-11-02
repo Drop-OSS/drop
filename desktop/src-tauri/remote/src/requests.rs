@@ -1,4 +1,4 @@
-use database::{DB};
+use database::DB;
 use reqwest_middleware::Error;
 use url::Url;
 
@@ -21,19 +21,47 @@ pub fn generate_url(
     Ok(base_url)
 }
 
-pub async fn make_authenticated_get(url: Url) -> Result<reqwest::Response, Error> {
-    DROP_CLIENT_ASYNC
-        .get(url)
-        .header("Authorization", generate_authorization_header())
-        .send()
-        .await
+/// The profile this device plays as, in header form. `None` omits the
+/// selector, which the server reads as "the account's default profile" -
+/// the same thing it read before profiles existed.
+pub fn profile_header() -> Option<String> {
+    DB.fetch_current_profile_id()
 }
 
-pub async fn make_authenticated_post<T: serde::Serialize>(url: Url, body: &T) -> Result<reqwest::Response, Error> {
-    DROP_CLIENT_ASYNC
+pub async fn make_authenticated_get(url: Url) -> Result<reqwest::Response, Error> {
+    let mut request = DROP_CLIENT_ASYNC
+        .get(url)
+        .header("Authorization", generate_authorization_header());
+    if let Some(profile) = profile_header() {
+        request = request.header("x-profile-id", profile);
+    }
+    request.send().await
+}
+
+pub async fn make_authenticated_post<T: serde::Serialize>(
+    url: Url,
+    body: &T,
+) -> Result<reqwest::Response, Error> {
+    let mut request = DROP_CLIENT_ASYNC
         .post(url)
         .header("Authorization", generate_authorization_header())
-        .json(body)
-        .send()
-        .await
+        .json(body);
+    if let Some(profile) = profile_header() {
+        request = request.header("x-profile-id", profile);
+    }
+    request.send().await
+}
+
+pub async fn make_authenticated_patch<T: serde::Serialize>(
+    url: Url,
+    body: &T,
+) -> Result<reqwest::Response, Error> {
+    let mut request = DROP_CLIENT_ASYNC
+        .patch(url)
+        .header("Authorization", generate_authorization_header())
+        .json(body);
+    if let Some(profile) = profile_header() {
+        request = request.header("x-profile-id", profile);
+    }
+    request.send().await
 }

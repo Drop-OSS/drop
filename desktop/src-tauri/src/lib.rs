@@ -65,6 +65,7 @@ mod download_manager;
 mod downloads;
 mod games;
 mod process;
+mod profiles;
 mod remote;
 mod saves;
 mod scheduler;
@@ -272,6 +273,12 @@ pub fn run() {
             saves::restore_save_version,
             saves::set_save_version_pinned,
             saves::resolve_save_conflict,
+            // Profiles
+            profiles::fetch_profiles,
+            profiles::create_profile,
+            profiles::rename_profile,
+            profiles::set_current_profile,
+            profiles::get_current_profile,
             toggle_autostart,
             get_autostart_enabled,
             open_process_logs,

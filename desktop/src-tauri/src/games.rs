@@ -18,7 +18,7 @@ use remote::{
     cache::{cache_object, cache_object_db, get_cached_object},
     error::{DropServerError, RemoteAccessError},
     offline,
-    requests::generate_url,
+    requests::{generate_url, make_authenticated_get},
     utils::DROP_CLIENT_ASYNC,
 };
 use serde::{Deserialize, Serialize};
@@ -61,13 +61,10 @@ pub async fn fetch_library_logic(
         return Ok(library);
     }
 
+    // Library rows embed the viewing profile's playtime, so this goes through
+    // the shared authenticated GET, which attaches the profile selector.
     let response = generate_url(&["/api/v1/client/user/library"], &[])?;
-    let auth_header = generate_authorization_header();
-    let response = DROP_CLIENT_ASYNC
-        .get(response)
-        .header("Authorization", auth_header)
-        .send()
-        .await?;
+    let response = make_authenticated_get(response).await?;
 
     if response.status() != 200 {
         let err = response.json().await.unwrap_or(DropServerError {

@@ -83,6 +83,10 @@ pub struct SyncPlan {
     pub client: SaveClient,
     pub game_id: String,
     pub slot: u32,
+    /// The profile the sync acts as, snapshotted with the plan so every
+    /// journal row of one flow is keyed consistently even if the user
+    /// switches profiles mid-sync. `None` = the account's default profile.
+    pub profile_id: Option<String>,
     pub context: ResolutionContext,
     pub journal: SaveJournal,
 }
@@ -105,10 +109,11 @@ pub fn build_plan(game_id: &str, slot: u32) -> Option<SyncPlan> {
         // `<data root>/pfx/<game_id>`; saves live inside it.
         context = context.with_prefix(database::db::DATA_ROOT_DIR.join("pfx").join(game_id));
     }
+    let profile_id = db.current_profile_id.clone();
     let journal = db
         .applications
         .cloud_saves
-        .get(&journal_key(game_id, slot))
+        .get(&journal_key(profile_id.as_deref(), game_id, slot))
         .cloned()
         .unwrap_or_default();
     let client = SaveClient::from_desktop().ok()?;
@@ -116,20 +121,30 @@ pub fn build_plan(game_id: &str, slot: u32) -> Option<SyncPlan> {
         client,
         game_id: game_id.to_string(),
         slot,
+        profile_id,
         context,
         journal,
     })
 }
 
-fn journal_key(game_id: &str, slot: u32) -> String {
-    format!("{game_id}/{slot}")
+/// Journals are keyed by player as well as game and slot: what one profile
+/// last synced says nothing about another's. `None` keeps the pre-profile
+/// key, so an account that never touches the switcher is undisturbed; first
+/// use of a named profile starts a fresh journal (a harmless one-off
+/// re-sync, since the server timeline is the source of truth).
+fn journal_key(profile: Option<&str>, game_id: &str, slot: u32) -> String {
+    match profile {
+        Some(profile) => format!("{profile}/{game_id}/{slot}"),
+        None => format!("{game_id}/{slot}"),
+    }
 }
 
-fn store_journal(game_id: &str, slot: u32, journal: &SaveJournal) {
+fn store_journal(plan: &SyncPlan, journal: &SaveJournal) {
     let mut db = borrow_db_mut_checked();
+    let key = journal_key(plan.profile_id.as_deref(), &plan.game_id, plan.slot);
     db.applications
         .cloud_saves
-        .insert(journal_key(game_id, slot), journal.clone());
+        .insert(key, journal.clone());
 }
 
 fn now_secs() -> u64 {
@@ -222,7 +237,7 @@ async fn step(plan: &SyncPlan, at: &str) -> Result<Option<SaveSyncOutcome>, Save
                 journal.base_version_id = Some(head.id.clone());
             }
             journal.last_synced_at = Some(now_secs());
-            store_journal(&plan.game_id, plan.slot, &journal);
+            store_journal(plan, &journal);
             SaveSyncOutcome::Clean {
                 decision: sync.decision.to_string(),
             }
@@ -272,7 +287,7 @@ async fn apply_pull(
     journal.entry_hash = Some(manifest.entry_hash.clone());
     journal.pending_idempotency = None;
     journal.last_synced_at = Some(now_secs());
-    store_journal(&plan.game_id, plan.slot, &journal);
+    store_journal(plan, &journal);
 
     Ok(SaveSyncOutcome::Pulled {
         version_id: head.id.clone(),
@@ -327,7 +342,7 @@ async fn push(
         .unwrap_or_else(|| uuid::Uuid::new_v4().to_string());
     let mut journal = plan.journal.clone();
     journal.pending_idempotency = Some(attempt_key.clone());
-    store_journal(&plan.game_id, plan.slot, &journal);
+    store_journal(plan, &journal);
 
     let outcome = plan
         .client
@@ -352,7 +367,7 @@ async fn push(
             journal.entry_hash = Some(manifest.entry_hash.clone());
             journal.pending_idempotency = None;
             journal.last_synced_at = Some(now_secs());
-            store_journal(&plan.game_id, plan.slot, &journal);
+            store_journal(plan, &journal);
             Ok(SaveSyncOutcome::Pushed {
                 version_id: version.id,
                 content_hash: built.content_hash,
@@ -365,7 +380,7 @@ async fn push(
             let mut journal = plan.journal.clone();
             journal.pending_idempotency = None;
             journal.last_content_hash = Some(local_hash.to_string());
-            store_journal(&plan.game_id, plan.slot, &journal);
+            store_journal(plan, &journal);
             Ok(SaveSyncOutcome::Conflict {
                 head_version_id,
                 head_content_hash: None,
@@ -545,8 +560,13 @@ mod tests {
 
     #[test]
     fn journal_key_includes_slot() {
-        assert_eq!(journal_key("g1", 0), "g1/0");
-        assert_ne!(journal_key("g1", 0), journal_key("g1", 1));
+        assert_eq!(journal_key(None, "g1", 0), "g1/0");
+        assert_ne!(journal_key(None, "g1", 0), journal_key(None, "g1", 1));
+        // A named player's journal is disjoint from the default's and from
+        // any other player's.
+        assert_eq!(journal_key(Some("p1"), "g1", 0), "p1/g1/0");
+        assert_ne!(journal_key(Some("p1"), "g1", 0), journal_key(None, "g1", 0));
+        assert_ne!(journal_key(Some("p1"), "g1", 0), journal_key(Some("p2"), "g1", 0));
     }
 
     #[test]
