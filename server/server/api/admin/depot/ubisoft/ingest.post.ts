@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 503,
       statusMessage:
-        "Ubisoft acquisition is not wired: the launcher's former manifest hosts (api-uplayv2.ubi.com, uplaypc-dns.ubi.com) no longer resolve, so there is no download path to run until a replacement is found. Login and library work.",
+        "Ubisoft acquisition is not wired: the launcher's manifests and file lists come from its protobuf socket protocol (dmx.upc.ubisoft.com, demux), not HTTP - the old api-uplayv2/uplaypc-dns hosts are gone forever. A demux socket client is the only real path. Login and library work.",
     });
   }
 
