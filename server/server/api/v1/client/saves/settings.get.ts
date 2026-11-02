@@ -13,5 +13,18 @@ export default defineClientEventHandler(async (_h3, { fetchClient }) => {
   const slotLimit = await applicationSettings.get("saveSlotCountLimit");
   const sizeLimit = await applicationSettings.get("saveSlotSizeLimit");
   const history = await applicationSettings.get("saveSlotHistoryLimit");
-  return { slotLimit, sizeLimit, history };
+  return {
+    slotLimit,
+    sizeLimit,
+    history,
+    // Versioned saves are always on in this release; clients still gate on
+    // `features.versionedSaves` so older servers stay usable.
+    features: {
+      versionedSaves: true,
+      conflictResolution: true,
+      restore: true,
+      pinning: true,
+    },
+    apiVersion: 2,
+  };
 });

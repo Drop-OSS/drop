@@ -1,23 +1,12 @@
-import { ClientCapabilities } from "~/prisma/client/enums";
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
-import prisma from "~/server/internal/db/database";
+import saveManager from "~/server/internal/saves";
+import { assertCloudSaves } from "~/server/internal/saves/http";
 
 export default defineClientEventHandler(
-  async (h3, { fetchClient, fetchUser }) => {
+  async (_h3, { fetchClient, fetchUser }) => {
     const client = await fetchClient();
-    if (!client.capabilities.includes(ClientCapabilities.CloudSaves))
-      throw createError({
-        statusCode: 403,
-        statusMessage: "Capability not allowed.",
-      });
+    assertCloudSaves(client);
     const user = await fetchUser();
-
-    const saves = await prisma.saveSlot.findMany({
-      where: {
-        userId: user.id,
-      },
-    });
-
-    return saves;
+    return saveManager.listSlots(user.id);
   },
 );

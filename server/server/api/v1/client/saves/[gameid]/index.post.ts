@@ -1,62 +1,34 @@
-import { ClientCapabilities } from "~/prisma/client/enums";
+import { createError, readBody } from "h3";
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
-import { applicationSettings } from "~/server/internal/config/application-configuration";
-import prisma from "~/server/internal/db/database";
+import saveManager from "~/server/internal/saves";
+import { assertGameExists } from "~/server/internal/saves/access";
+import { assertCloudSaves, getGameId } from "~/server/internal/saves/http";
 
 export default defineClientEventHandler(
   async (h3, { fetchClient, fetchUser }) => {
     const client = await fetchClient();
-    if (!client.capabilities.includes(ClientCapabilities.CloudSaves))
-      throw createError({
-        statusCode: 403,
-        statusMessage: "Capability not allowed.",
-      });
+    assertCloudSaves(client);
     const user = await fetchUser();
-    const gameId = getRouterParam(h3, "gameid");
-    if (!gameId)
+    const gameId = getGameId(h3);
+    await assertGameExists(gameId);
+
+    const body = (await readBody(h3).catch(() => ({}))) as {
+      index?: unknown;
+      label?: unknown;
+    };
+    const label = typeof body.label === "string" ? body.label : null;
+
+    // No index means "give me the next slot", as before versioning.
+    if (body.index === undefined || body.index === null)
+      return saveManager.createNextSlot(user.id, gameId, label, client.id);
+
+    const index = Number(body.index);
+    if (!Number.isSafeInteger(index) || index < 0)
       throw createError({
         statusCode: 400,
-        statusMessage: "No gameID in route params",
+        statusMessage: "index must be a non-negative integer",
       });
 
-    const game = await prisma.game.findUnique({
-      where: { id: gameId },
-      select: { id: true },
-    });
-    if (!game)
-      throw createError({ statusCode: 400, statusMessage: "Invalid game ID" });
-
-    const saves = await prisma.saveSlot.findMany({
-      where: {
-        userId: user.id,
-        gameId: gameId,
-      },
-      orderBy: {
-        index: "asc",
-      },
-    });
-
-    const limit = await applicationSettings.get("saveSlotCountLimit");
-    if (saves.length + 1 > limit)
-      throw createError({
-        statusCode: 400,
-        statusMessage: "Out of save slots",
-      });
-
-    let firstIndex = 0;
-    for (const save of saves) {
-      if (firstIndex == save.index) firstIndex++;
-    }
-
-    const newSlot = await prisma.saveSlot.create({
-      data: {
-        userId: user.id,
-        gameId: gameId,
-        index: firstIndex,
-        lastUsedClientId: client.id,
-      },
-    });
-
-    return newSlot;
+    return saveManager.createSlot(user.id, gameId, index, label, client.id);
   },
 );

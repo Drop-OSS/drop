@@ -1,52 +1,26 @@
-import { ClientCapabilities } from "~/prisma/client/enums";
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
-import prisma from "~/server/internal/db/database";
 import saveManager from "~/server/internal/saves";
+import { assertGameExists } from "~/server/internal/saves/access";
+import {
+  assertCloudSaves,
+  getGameId,
+  getSlotIndex,
+} from "~/server/internal/saves/http";
 
+/**
+ * Legacy push endpoint. New clients upload through /versions with an
+ * If-Match base version so concurrent edits surface as conflicts.
+ */
 export default defineClientEventHandler(
   async (h3, { fetchClient, fetchUser }) => {
     const client = await fetchClient();
-    if (!client.capabilities.includes(ClientCapabilities.CloudSaves))
-      throw createError({
-        statusCode: 403,
-        statusMessage: "Capability not allowed.",
-      });
+    assertCloudSaves(client);
     const user = await fetchUser();
-    const gameId = getRouterParam(h3, "gameid");
-    if (!gameId)
-      throw createError({
-        statusCode: 400,
-        statusMessage: "No gameID in route params",
-      });
+    const gameId = getGameId(h3);
+    const index = getSlotIndex(h3);
+    await assertGameExists(gameId);
 
-    const slotIndexString = getRouterParam(h3, "slotindex");
-    if (!slotIndexString)
-      throw createError({
-        statusCode: 400,
-        statusMessage: "No slotIndex in route params",
-      });
-    const slotIndex = parseInt(slotIndexString);
-    if (Number.isNaN(slotIndex))
-      throw createError({
-        statusCode: 400,
-        statusMessage: "Invalid slotIndex",
-      });
-
-    const game = await prisma.game.findUnique({
-      where: { id: gameId },
-      select: { id: true },
-    });
-    if (!game)
-      throw createError({ statusCode: 400, statusMessage: "Invalid game ID" });
-
-    await saveManager.pushSave(
-      gameId,
-      user.id,
-      slotIndex,
-      h3.node.req,
-      client.id,
-    );
-
-    return;
+    await saveManager.pushSave(gameId, user.id, index, h3.node.req, client.id);
+    return {};
   },
 );

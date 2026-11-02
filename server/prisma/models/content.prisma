@@ -191,7 +191,10 @@ model LaunchConfiguration {
   emulations LaunchConfiguration[] @relation("emulator")
 }
 
-// A save slot for a game
+// A save slot for a game. The slot is the logical save set (one auto slot per
+// game for v1); SaveVersion holds the immutable history. `headVersionId` is a
+// soft reference so the slot and its head can be written in one transaction
+// without a circular foreign key; the service enforces it.
 model SaveSlot {
   gameId String
   game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
@@ -199,16 +202,69 @@ model SaveSlot {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   index  Int
 
+  label String?
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   playtime  Float    @default(0) // hours
 
   lastUsedClientId String?
   lastUsedClient   Client? @relation(fields: [lastUsedClientId], references: [id])
 
+  headVersionId String? @unique
+  versions      SaveVersion[]
+
+  // Legacy upstream storage. Kept read-only for one release while
+  // SaveVersion is backfilled; new code never writes these.
   historyObjectIds String[] // list of objects
   historyChecksums String[] // list of hashes
 
   @@id([gameId, userId, index], name: "id")
+}
+
+enum SaveVersionKind {
+  Backup
+  Restore
+  ConflictKeepLocal
+  Import
+  Legacy
+  Safety
+}
+
+/// One immutable snapshot of a save slot. `contentHash` identifies the save
+/// content (canonical file list) and is used for conflict detection and
+/// dedupe; `archiveSha256` is the transport integrity hash of the archive
+/// object. `parentVersionId` and `restoredFromVersionId` are soft references.
+model SaveVersion {
+  id        String @id @default(uuid())
+  gameId    String
+  userId    String
+  slotIndex Int
+  slot      SaveSlot @relation(fields: [gameId, userId, slotIndex], references: [gameId, userId, index], onDelete: Cascade)
+
+  objectId String
+  archiveSha256 String
+  contentHash   String
+
+  sizeBytes Int?
+  fileCount Int?
+
+  parentVersionId       String?
+  restoredFromVersionId String?
+  createdByClientId     String?
+  clientMutationId      String?
+
+  kind          SaveVersionKind @default(Backup)
+  archiveFormat String         @default("tar.zstd.v1")
+  manifestHash  String?
+  metadata      Json           @default("{}")
+  pinned        Boolean        @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@unique([gameId, userId, slotIndex, clientMutationId])
+  @@index([gameId, userId, slotIndex, createdAt])
+  @@index([objectId])
+  @@index([contentHash])
 }
 
 /// The save layout of one library game in Ludusavi-manifest-entry shape
