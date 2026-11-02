@@ -90,12 +90,6 @@ export default defineNuxtConfig({
     dropVersion: dropVersion,
   },
 
-  app: {
-    head: {
-      link: [{ rel: "icon", href: "/favicon.ico" }],
-    },
-  },
-
   routeRules: {
     "/api/**": { cors: true },
 
