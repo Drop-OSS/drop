@@ -1,6 +1,5 @@
 import { createError } from "h3";
 
-const GOG_LIBRARY_URL = "https://embed.gog.com/user/data/games";
 const GOG_TOKEN_URL = "https://auth.gog.com/token";
 const GOG_AUTH_URL = "https://auth.gog.com/auth";
 
@@ -154,9 +153,10 @@ export async function refreshGogToken(
   return gogTokenShape(await response.json());
 }
 
-type GogResponse = {
-  owned?: unknown[];
-  games?: unknown[];
+type GogProductsPage = {
+  products?: unknown[];
+  totalPages?: number;
+  page?: number;
 };
 
 export type GogGame = {
@@ -174,68 +174,89 @@ export function isValidGogGameId(value: unknown): value is string | number {
   );
 }
 
-/** Fetches the authenticated user's owned titles from the GOG Galaxy embed API. */
-export async function getGogLibrary(accessToken: string): Promise<GogGame[]> {
-  const url = new URL(GOG_LIBRARY_URL);
-  url.searchParams.set("access_token", accessToken);
-  let response: Response;
-  try {
-    response = await fetch(url, {
-      headers: { accept: "application/json" },
-      signal: AbortSignal.timeout(10_000),
-    });
-  } catch {
-    throw createError({
-      statusCode: 502,
-      statusMessage: "GOG library request failed",
-    });
-  }
-  if (response.status === 401 || response.status === 403) {
-    throw createError({
-      statusCode: response.status,
-      statusMessage: "GOG access token is invalid or expired",
-    });
-  }
-  if (!response.ok) {
-    throw createError({
-      statusCode: 502,
-      statusMessage: `GOG library request failed (${response.status})`,
-    });
-  }
+/** getFilteredProducts rejects some query params with HTTP 500; stick to
+ * the two Heroic/gogdl tooling is known to send. */
+const GOG_PRODUCTS_PAGE_URL =
+  "https://embed.gog.com/account/getFilteredProducts";
 
-  let payload: GogResponse;
-  try {
-    payload = (await response.json()) as GogResponse;
-  } catch {
-    throw createError({
-      statusCode: 502,
-      statusMessage: "GOG returned an invalid library response",
-    });
+/**
+ * Fetch the account's owned products with titles. This endpoint only
+ * accepts the token as an `Authorization: Bearer` header (query-parameter
+ * forms 302-redirect to the login page); the older /user/data/games
+ * endpoint answers with bare numeric ids, which carry no title to search.
+ */
+export async function getGogLibrary(accessToken: string): Promise<GogGame[]> {
+  const games: GogGame[] = [];
+  const maxPages = 20;
+  for (let page = 1; page <= maxPages; page++) {
+    const url = new URL(GOG_PRODUCTS_PAGE_URL);
+    url.searchParams.set("pageSize", "500");
+    url.searchParams.set("page", String(page));
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        redirect: "manual",
+        signal: AbortSignal.timeout(15_000),
+      });
+    } catch {
+      throw createError({
+        statusCode: 502,
+        statusMessage: "GOG library request failed",
+      });
+    }
+    if (
+      response.status === 302 ||
+      response.status === 401 ||
+      response.status === 403
+    )
+      throw createError({
+        statusCode: 403,
+        statusMessage: "GOG rejected the access token - sign in again",
+      });
+    if (!response.ok)
+      throw createError({
+        statusCode: 502,
+        statusMessage: `GOG library request failed (${response.status})`,
+      });
+    let payload: GogProductsPage;
+    try {
+      payload = (await response.json()) as GogProductsPage;
+    } catch {
+      throw createError({
+        statusCode: 502,
+        statusMessage: "GOG returned an invalid library response",
+      });
+    }
+    const products = Array.isArray(payload.products) ? payload.products : [];
+    for (const product of products) games.push(...shapeGogProduct(product));
+    const totalPages =
+      typeof payload.totalPages === "number" ? payload.totalPages : page;
+    if (products.length === 0 || page >= totalPages) break;
   }
-  const records = Array.isArray(payload.owned)
-    ? payload.owned
-    : Array.isArray(payload.games)
-      ? payload.games
-      : [];
-  return records.flatMap((record): GogGame[] => {
-    if (!record || typeof record !== "object") return [];
-    const item = record as Record<string, unknown>;
-    const rawId = item.id ?? item.gameId;
-    const rawTitle = item.title ?? item.name;
-    if (!isValidGogGameId(rawId) || typeof rawTitle !== "string") return [];
-    const rawPlatforms = item.worksOn ?? item.platforms;
-    const platforms = Array.isArray(rawPlatforms)
-      ? rawPlatforms.filter(
-          (platform): platform is string => typeof platform === "string",
-        )
+  return games;
+}
+
+function shapeGogProduct(record: unknown): GogGame[] {
+  if (!record || typeof record !== "object") return [];
+  const item = record as Record<string, unknown>;
+  if (!isValidGogGameId(item.id) || typeof item.title !== "string") return [];
+  // getFilteredProducts reports platforms as { Windows: true, Mac: false, ... }.
+  const flags = item.worksOn;
+  const platforms =
+    flags && typeof flags === "object" && !Array.isArray(flags)
+      ? Object.entries(flags as Record<string, unknown>)
+          .filter(([, supported]) => supported === true)
+          .map(([platform]) => platform.toLowerCase())
       : undefined;
-    return [
-      {
-        ...item,
-        id: String(rawId),
-        title: rawTitle,
-        ...(platforms ? { worksOn: platforms, platforms } : {}),
-      },
-    ];
-  });
+  return [
+    {
+      ...item,
+      id: String(item.id),
+      ...(platforms ? { worksOn: platforms, platforms } : {}),
+    },
+  ];
 }

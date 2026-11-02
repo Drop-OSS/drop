@@ -4,6 +4,7 @@ import {
   buildGogAuthorizeUrl,
   exchangeGogAuthorizationCode,
   extractGogAuthCode,
+  getGogLibrary,
 } from "./gog";
 
 const originalFetch = globalThis.fetch;
@@ -59,5 +60,77 @@ test("the code exchange posts the code to GOG's token endpoint", async () => {
   assert.equal(
     sent.searchParams.get("redirect_uri"),
     "https://embed.gog.com/on_login_success?origin=client",
+  );
+});
+
+test("the library uses the Bearer header and shapes products with platforms", async () => {
+  const calls: { url: string; headers: Record<string, string> }[] = [];
+  globalThis.fetch = (async (
+    url: string | URL | Request,
+    init?: RequestInit,
+  ) => {
+    calls.push({
+      url: String(url),
+      headers: (init?.headers ?? {}) as Record<string, string>,
+    });
+    return new Response(
+      JSON.stringify({
+        totalPages: 1,
+        products: [
+          {
+            id: 1711765822,
+            title: "Timberborn",
+            worksOn: { Windows: true, Mac: true, Linux: false },
+          },
+          { id: "junk", title: "Broken entry" },
+        ],
+      }),
+      { status: 200 },
+    );
+  }) as typeof fetch;
+  const games = await getGogLibrary("token-123");
+  assert.match(calls[0]!.url, /account\/getFilteredProducts/);
+  assert.equal(calls[0]!.headers.Authorization, "Bearer token-123");
+  assert.equal(games.length, 1, "invalid ids are dropped");
+  assert.equal(games[0]?.id, "1711765822");
+  assert.equal(games[0]?.title, "Timberborn");
+  assert.deepEqual(games[0]?.worksOn, ["windows", "mac"]);
+});
+
+test("a login-page redirect from the library means the token is dead", async () => {
+  globalThis.fetch = (async () =>
+    new Response(null, {
+      status: 302,
+      headers: { location: "https://gog.com/login" },
+    })) as typeof fetch;
+  await assert.rejects(
+    () => getGogLibrary("expired-token"),
+    (err: unknown) => {
+      const e = err as { statusCode?: number; statusMessage?: string };
+      assert.equal(e.statusCode, 403);
+      assert.match(e.statusMessage ?? "", /rejected the access token/);
+      return true;
+    },
+  );
+});
+
+test("library pages are followed until totalPages", async () => {
+  let pages = 0;
+  globalThis.fetch = (async (url: string | URL | Request) => {
+    pages += 1;
+    const page = new URL(String(url)).searchParams.get("page");
+    return new Response(
+      JSON.stringify({
+        totalPages: 2,
+        products: [{ id: 100 + Number(page), title: `Game ${page}` }],
+      }),
+      { status: 200 },
+    );
+  }) as typeof fetch;
+  const games = await getGogLibrary("token");
+  assert.equal(pages, 2);
+  assert.deepEqual(
+    games.map((g) => g.title),
+    ["Game 1", "Game 2"],
   );
 });
