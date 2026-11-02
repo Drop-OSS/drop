@@ -1,6 +1,7 @@
 # Fast adapter-debug loop (used by scripts/depot-dev.sh - not for production):
-# the server container serves the *mounted* compiled bundle from ./.dev-app
-# instead of the baked-in /app/app, and a persistent `builder` container holds
+# the server container serves the *mounted* compiled bundle from
+# ./.dev-app/current (the blue-green symlink depot-dev.sh maintains) instead of
+# the baked-in /app/app, and a persistent `builder` container holds
 # the full toolchain (source-synced from the repo) so one-line parser fixes
 # only cost a nitro rebuild + container restart - no image is built or tagged
 # until the download flow actually succeeds.
@@ -8,6 +9,11 @@ services:
   gamedepot:
     volumes:
       - ./.dev-app:/app/app
+    # Mirrors server/build/launch.sh from the image, with /app/app/current
+    # (depot-dev.sh publishes releases/<stamp> and flips this symlink - a
+    # running server keeps the bundle it booted from; the switch lands on
+    # the next restart, and rollback is flipping it back).
+    command: ["bash", "-c", "pnpm prisma migrate deploy && node /app/app/current/server/index.mjs"]
 
   builder:
     image: gamedepot/builder:dev
