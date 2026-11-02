@@ -34,6 +34,10 @@ GameDepot is an open-source, community-driven game distribution and preservation
 ### Phase 3: Player Features
 *Native client functionality and integrations across devices.*
 - [ ] **Cross-Device Cloud Saves:** Versioned backup, bidirectional synchronization, conflict resolution and rollback (incorporating Ludusavi manifest specifications).
+  1. Server foundation (implemented): immutable `SaveVersion` history behind a movable slot head, content-identity hashes separate from archive checksums, `If-Match` optimistic concurrency with `409` conflicts, `Idempotency-Key` upload replays, restore-as-a-new-version, pinning, retention pruning with reference-counted object GC, a `sync` decision endpoint (`noop | push | pull | converged | conflict`, never decided by clocks), and per-game Ludusavi manifest reads. Legacy `historyObjectIds` arrays are backfilled and kept read-only for one release.
+  2. Server verification: exercise the save service end to end against a live Postgres and object store — upload, timeline, stale-`If-Match` conflict, restore, pin, prune and object GC. The migration and its backfill are verified against PostgreSQL 16 and the pure modules (content hashing, retention, sync decision) are unit-tested; the service itself is only compile-verified, because the server suite has no database fixture yet.
+  3. Desktop engine: resolve Ludusavi placeholders per platform and Proton prefix, build deterministic `tar.zstd` archives keyed by the manifest template tail, back up on process exit and pull before launch only when the local save is clean. `desktop/src-tauri/cloud_saves` holds an unwired prototype of this (placeholder expansion, path normalisation, tar/zstd helpers): it is a workspace member nothing depends on, has no tests, and never talks to the server.
+  4. Client UX: version timeline per slot, rollback, and the always-ask conflict choice (keep local, keep server, or keep both).
 - [ ] **Multi-Profile Support:** Isolated configs, play stats, accounts, and save states per profile.
 - [ ] **External Launcher Integrations:** Playnite plugin, Steam Non-Steam game sync with artwork, Discord Rich Presence, and local client APIs/webhooks.
 - [ ] **Personalization & Theming:** Community themes and profile customization adhering to GameDepot design system.
@@ -42,8 +46,11 @@ GameDepot is an open-source, community-driven game distribution and preservation
 
 ### Phase 4: Next-Gen Storage & Chunked Delivery
 *Deduplicated, verifiable delivery using manifest-driven depots and seekable compression.*
-- [ ] **Manifest / Chunk Depot Model:** Study DepotDownloader's Steam-style depot workflow: app/depot/build manifests enumerate paths, file metadata, chunk identities, offsets/sizes, and integrity data. Define a provider-neutral immutable manifest schema and explicit mapping from logical files to content objects; do not bind GameDepot to Steam's private protocol or require Steam credentials.
+- [x] **Manifest / Chunk Depot Model:** Study DepotDownloader's Steam-style depot workflow: app/depot/build manifests enumerate paths, file metadata, chunk identities, offsets/sizes, and integrity data. Define a provider-neutral immutable manifest schema and explicit mapping from logical files to content objects; do not bind GameDepot to Steam's private protocol or require Steam credentials.
+  - Shipped as `gamedepot-droplet` v1: fixed 4 MiB content-addressed chunks, per-file `path`/`size`/`sha256` with ordered chunk identities, a `chunkIndex` mapping each chunk digest to its content object, and a canonical-JSON digest making every manifest self-digesting. Provider adapters emit it; nothing in the schema is store-specific.
+  - Still open: the desktop download agent (`droplet`) speaks upstream's own 64 MiB chunk manifest, so the two formats are not yet unified — that is what the next item has to close.
 - [ ] **Chunk Acquisition & Assembly:** Support concurrent, bounded and resumable retrieval of manifest-addressed chunks; validate lengths and hashes before caching; assemble files in staging and atomically publish only after final verification.
+  - Bounded concurrency and resume already exist in `desktop/src-tauri/download_manager` (`SyncSemaphore` over active downloads, `resume_downloads`). What is missing is the verification order the item asks for: hash and length checks before a blob is treated as cached, and staging plus an atomic publish instead of writing into place, so an interrupted download can never leave a usable-looking half file.
 - [ ] **Seekable Zstandard (zstd):** Repackage verified source files into independently decodable frames with an index mapping logical file ranges to compressed byte ranges. Version manifests and frame layout; verify compressed and decoded content and expose HTTP range reads where supported.
 - [ ] **Steam-Style Delta Patching:** Compare old/new file and chunk identities, reuse unchanged verified objects, acquire only missing/changed chunks, and preserve the old usable install until the new release passes validation.
 - [ ] **Transfer Engine Evolution (`droplet` / `torrential`):** Bounded parallel fetching, cancellation, retry, progress reporting, integrity verification, cache lifecycle, and on-demand decompression.
@@ -55,22 +62,28 @@ GameDepot is an open-source, community-driven game distribution and preservation
 - [ ] **Pluggable VPN / Mesh Driver Architecture:** Unified driver interface in server and desktop client.
 - [ ] **NetBird Integration:** WireGuard mesh for private groups and LAN play.
 - [ ] **Headscale / Tailscale Integration:** Self-hosted coordination support.
+  - `desktop/src-tauri/tailscale` is an orphan from upstream: it is not a workspace member, no crate depends on it and no page calls it. Treat it as dead code to revive or delete, not as an existing integration.
 - [ ] **P2P Swarming:** Seed verified content objects between eligible local/meshed peers with source authorization and integrity checks.
 
 ---
 
 ### Phase 6: Native Client Polish & Linux / Steam Deck
 *Unified desktop and handheld launch experience.*
-- [ ] **Rich Metadata & Scrapers:** Cover art, banners, logos and screenshots.
+- [x] **Rich Metadata & Scrapers:** Cover art, banners, logos and screenshots.
+  - Fetched by `server/server/internal/metadata` (IGDB, Giant Bomb, Steam, PCGamingWiki, manual) into the `m*` cache fields (`mIconObjectId`, `mBannerObjectId`, `mCoverObjectId`, `mImageCarouselObjectIds`), with user-uploaded screenshots alongside. There is no dedicated logo asset field; logos ride on the icon and cover set.
 - [ ] **Decky Loader Plugin:** Manage GameDepot library from Steam Deck Game Mode.
-- [ ] **Proton / Wine Execution Layer (umu-launcher):** Evaluate UMU as a runner integration for launching Windows games on Linux and SteamOS/Steam Deck. Resolve selected Proton runner, `umu` runtime, per-game prefix and environment through a provider-independent launch contract; capture exit status/logs and allow cancellation. Runner availability and per-title compatibility remain user-configurable. Do not couple store ingestion adapters to the execution layer.
-- [ ] **Linux Compatibility UX:** Detect OS/runtime and surface runner requirements, per-game launch options, prefix scope and compatibility notes.
+- [x] **Proton / Wine Execution Layer (umu-launcher):** Evaluate UMU as a runner integration for launching Windows games on Linux and SteamOS/Steam Deck. Resolve selected Proton runner, `umu` runtime, per-game prefix and environment through a provider-independent launch contract; capture exit status/logs and allow cancellation. Runner availability and per-title compatibility remain user-configurable. Do not couple store ingestion adapters to the execution layer.
+  - `desktop/src-tauri/client/src/compat.rs` resolves an installed `umu` launcher and builds the compat environment, `process/src/compat.rs` discovers Proton installs, and `process/src/process_handlers.rs` launches native Linux builds directly and Windows builds through `umu-run` with a per-game app ID override; prefixes stay per game under the desktop data root, and `process/src/process_manager.rs` kills the whole process tree and records the exit status.
+- [x] **Linux Compatibility UX:** Detect OS/runtime and surface runner requirements, per-game launch options, prefix scope and compatibility notes.
+  - `desktop/main/pages/settings/compat.vue` reports whether the UMU launcher is installed and configures the compat layer, `components/GameOptions/ProtonSelector.vue` picks a discovered or custom Proton path per game, `GameOptions/Launch.vue` overrides the launch string, and `HeaderProtonSupportWidget.vue` surfaces whether the selected title is expected to run.
 
 ---
 
 ## Implementation status
 All unchecked items above are planned work, not claims of shipped support. External projects are integration references/adapters; review licensing, provider terms, security, maintenance and compatibility before adopting or invoking them.
 EA App endpoints are implemented, but live-service verification remains outstanding (hermetic tests only). The common adapter contract module exists on `develop`; migration of existing adapters onto it is follow-up work.
+Cross-device cloud saves: the server half is implemented (versioned save history, sync decisions, Ludusavi manifest reads, versioned client API) and its migration is verified against PostgreSQL 16; the save service has not been driven against a live database plus object store, so treat it as code-complete rather than verified. The desktop half is a prototype crate that no code depends on.
+Every tick carries a note naming the files behind it and what is still missing, so a tick can be re-checked without auditing the tree again.
 
 ---
 
