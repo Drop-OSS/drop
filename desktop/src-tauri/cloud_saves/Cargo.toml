@@ -5,15 +5,30 @@ edition = "2024"
 
 [dependencies]
 database = { version = "0.1.0", path = "../database" }
+hex = "0.4.3"
+remote = { version = "0.1.0", path = "../remote" }
+reqwest = { version = "0.12.28", default-features = false, features = [
+  "blocking",
+  "http2",
+  "json",
+  "rustls-tls",
+  "rustls-tls-native-roots",
+  "stream",
+] }
+reqwest-middleware = "0.4.2"
+serde = { version = "1.0.228", features = ["derive"] }
+sha2 = "0.10.9"
+url = "2.5.7"
 dirs = "6.0.0"
 log = "0.4.28"
 regex = "1.11.3"
 rustix = "1.1.2"
-serde = "1.0.228"
 serde_json = "1.0.145"
 serde_with = "3.15.0"
 tar = "0.4.46"
-tempfile = "3.23.0"
-uuid = "1.18.1"
+uuid = { version = "1.18.1", features = ["v4"] }
 whoami = "1.6.1"
 zstd = "0.13.3"
+
+[dev-dependencies]
+tempfile = "3.23.0"

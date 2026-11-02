@@ -37,6 +37,7 @@ bytes = "1.10.1"
 cacache = "13.1.0"
 chrono = "0.4.38"
 client = { path = "./client", version = "0.1.0" } # client
+cloud_saves = { path = "./cloud_saves", version = "0.1.0" } # cloud saves
 database = { path = "./database" } # database
 deranged = "=0.4.0"
 dirs = "6.0.0"

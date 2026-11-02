@@ -21,6 +21,7 @@ pub mod data {
     pub type DownloadType = v1::DownloadType;
     pub type DatabaseApplications = v1::DatabaseApplications;
     pub type UserConfiguration = v1::UserConfiguration;
+    pub type SaveJournal = v1::SaveJournal;
 
     use std::collections::HashMap;
 
@@ -259,8 +260,29 @@ pub mod data {
             pub additional_proton_paths: Vec<String>,
             pub default_proton_path: Option<String>,
 
+            // Cloud-save sync state, keyed "<game_id>/<slot>". What the engine
+            // last agreed with the server: which version, which content, which
+            // manifest. Rebuilt harmlessly if lost - the server is the source
+            // of truth, the journal only avoids re-hashing and stale-If-Match.
+            #[serde(default)]
+            pub cloud_saves: HashMap<String, SaveJournal>,
+
             #[serde(skip)]
             pub transient_statuses: HashMap<DownloadableMetadata, ApplicationTransientStatus>,
+        }
+
+        #[derive(Serialize, Clone, Deserialize, Default, Debug, PartialEq, Eq)]
+        #[serde(rename_all = "camelCase")]
+        pub struct SaveJournal {
+            pub base_version_id: Option<String>,
+            pub last_content_hash: Option<String>,
+            pub entry_hash: Option<String>,
+            pub last_synced_at: Option<u64>,
+            /// The `Idempotency-Key` of an upload that started but has not
+            /// been confirmed yet: retried instead of repeated, so a crash
+            /// between request and response cannot double-version the slot.
+            #[serde(default)]
+            pub pending_idempotency: Option<String>,
         }
 
         #[derive(Serialize, Deserialize, Clone, Default)]
@@ -292,6 +314,7 @@ pub mod data {
                     transient_statuses: HashMap::new(),
                     additional_proton_paths: Vec::new(),
                     default_proton_path: None,
+                    cloud_saves: HashMap::new(),
                 },
                 prev_database,
                 base_url: String::new(),

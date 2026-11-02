@@ -66,6 +66,7 @@ mod downloads;
 mod games;
 mod process;
 mod remote;
+mod saves;
 mod scheduler;
 mod settings;
 mod updates;
@@ -265,6 +266,8 @@ pub fn run() {
             // Processes
             launch_game,
             kill_game,
+            // Cloud saves
+            saves::sync_game_saves,
             toggle_autostart,
             get_autostart_enabled,
             open_process_logs,

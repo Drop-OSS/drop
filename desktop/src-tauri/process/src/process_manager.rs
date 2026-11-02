@@ -217,6 +217,26 @@ impl ProcessManager<'_> {
             });
         }
 
+        // Cloud saves: the game is done writing its saves - back them up now.
+        // Same detached, best-effort pattern as playtime: a sync failure must
+        // never affect the exit path, and games without a curated manifest
+        // (the overwhelmingly common case) return None without any network
+        // traffic at all.
+        let saves_game_id = game_id.clone();
+        let saves_app_handle = self.app_handle.clone();
+        tauri::async_runtime::spawn(async move {
+            if let Some(outcome) = cloud_saves::engine::post_exit(&saves_game_id).await {
+                let _ = saves_app_handle.emit(
+                    "saves_state",
+                    cloud_saves::engine::SaveStateEvent {
+                        game_id: saves_game_id,
+                        slot: cloud_saves::engine::AUTO_SLOT,
+                        outcome,
+                    },
+                );
+            }
+        });
+
         Ok(())
     }
 

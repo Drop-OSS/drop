@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 chrono = "0.4.42"
 client = { path = "../client", version = "0.1.0" }
+cloud_saves = { path = "../cloud_saves", version = "0.1.0" }
 database = { path = "../database", version = "0.1.0" }
 dynfmt = { version = "0.1.5", features = ["curly"] }
 games = { path = "../games", version = "0.1.0" }

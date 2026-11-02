@@ -29,7 +29,30 @@ pub enum LaunchResult {
 }
 
 #[tauri::command]
-pub fn launch_game(id: String, index: usize) -> Result<LaunchResult, ProcessError> {
+pub async fn launch_game(
+    app_handle: AppHandle,
+    id: String,
+    index: usize,
+) -> Result<LaunchResult, ProcessError> {
+    use tauri::Emitter as _;
+
+    // Cloud saves first: a newer server copy must be on disk before the game
+    // opens its saves. Never blocks playing - the engine turns every network
+    // or manifest problem into a `Failed`/`Conflict` outcome instead of an
+    // error, and games without a curated manifest get `None` instantly. The
+    // database lock inside `build_plan` is taken and released before this
+    // await chain, and PROCESS_MANAGER is only locked after it completes.
+    if let Some(outcome) = cloud_saves::engine::pre_launch(&id).await {
+        let _ = app_handle.emit(
+            "saves_state",
+            cloud_saves::engine::SaveStateEvent {
+                game_id: id.clone(),
+                slot: cloud_saves::engine::AUTO_SLOT,
+                outcome,
+            },
+        );
+    }
+
     let result = {
         let mut process_manager_lock = PROCESS_MANAGER.lock();
 
