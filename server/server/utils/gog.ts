@@ -256,6 +256,7 @@ function shapeGogProduct(record: unknown): GogGame[] {
     {
       ...item,
       id: String(item.id),
+      title: item.title,
       ...(platforms ? { worksOn: platforms, platforms } : {}),
     },
   ];
