@@ -71,3 +71,28 @@ GameDepot is an open-source, community-driven game distribution and preservation
 ## Implementation status
 All unchecked items above are planned work, not claims of shipped support. External projects are integration references/adapters; review licensing, provider terms, security, maintenance and compatibility before adopting or invoking them.
 EA App endpoints are implemented, but live-service verification remains outstanding (hermetic tests only). The common adapter contract module exists on `develop`; migration of existing adapters onto it is follow-up work.
+
+---
+
+## 💡 Future idea: Cache Node (read-through depot cache for LAN/offline use)
+A small node that sits between clients and the main GameDepot server so LAN parties and offline setups pull bytes locally instead of over the WAN.
+
+### Milestone 1 — Proxy node (plumbing, low risk)
+- Small Docker image (the repo-root `Dockerfile`/`docker-compose.yml` can be extended or run in parallel) that fronts the main GameDepot server.
+- Manifest + metadata requests: always forwarded live to upstream (tiny, keeps versions in sync automatically).
+- Content/blob requests: forwarded upstream (no caching yet); auth tokens validated against upstream so the node can't act as an open proxy.
+- Client gets a "cache URL" config that overrides the server URL.
+
+### Milestone 2 — Blob cache
+- Content-addressed cache on the node's volume — since the depot layer is content-addressed, a cached blob can never be stale; eviction = drop a file, no invalidation logic.
+- LRU eviction with a disk quota.
+- Serve-on-miss (proxy) vs. cache-only mode (only serve what's pre-cached).
+
+### Milestone 3 — Admin control of what's cached
+- Server-side admin UI action: "pre-cache game/version → node X" so the cache can be filled over the home connection before the LAN party.
+- Pin games (never evict); everything else LRU.
+- Node status view: disk usage, what's resident, cache hit stats.
+
+**Suggested placement:** after the Epic appName gap (that's a correctness fix) and before/alongside user libraries — the cache key design (game vs. per-chunk) should be decided early because it affects the ingest manifest format.
+
+**Design decision to settle first:** per-chunk caching vs. whole-file caching. Per-chunk is what makes pre-caching and bandwidth-sharing cheap, but it couples to the depot download protocol more tightly. Current lean: per-chunk, since the protocol already streams in chunks.
