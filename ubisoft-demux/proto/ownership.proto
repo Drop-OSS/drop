@@ -1,0 +1,644 @@
+syntax = "proto2";
+
+package mg.protocol.ownership;
+
+message StoreData {
+    optional string store_ref = 1;
+    optional string configuration = 2;
+    repeated uint32 associations = 3;
+    optional uint32 promotion_score = 4;
+}
+
+message UbiServicesDynamicConfig {
+    optional string luna_app_id = 1;
+    optional string gfn_app_id = 2;
+}
+
+message OwnedGame {
+    required uint32 product_id = 1;
+    optional string cd_key = 2;
+    optional bool owned = 20;
+    optional uint32 orbit_product_id = 3;
+    optional uint32 config_version = 11;
+    optional uint32 download_id = 5;
+    optional uint32 download_version = 12;
+    optional uint32 title_id = 6;
+    optional uint32 platform = 7;
+    optional uint32 product_type = 8;
+    optional uint32 state = 13;
+    optional uint32 orbit_game_version = 9;
+    optional string orbit_game_version_url = 10;
+    repeated uint32 product_associations = 16;
+    optional string configuration = 17;
+    optional bool deprecated_test_config = 18;
+    optional uint32 uplay_id = 19;
+    optional string latest_manifest = 21;
+    optional string game_code = 22;
+    optional uint32 balance = 23;
+    optional string encryption_key = 24;
+    optional uint32 active_branch_id = 25;
+    
+    repeated ProductBranch available_branches = 26;
+    message ProductBranch {
+        required uint32 branch_id = 1;
+        required string branch_name = 2;
+    }
+    
+    repeated uint32 activation_ids = 27;
+    optional uint32 brand_id = 28;
+    optional bool pending_keystorage_ownership = 29 [default = false];
+    optional string ubiservices_space_id = 30;
+    optional string ubiservices_app_id = 31;
+    optional StoreData store_data = 32;
+    
+    optional PackageOwnershipState package_ownership_state = 33;
+    enum PackageOwnershipState {
+        PackageOwnershipState_Full = 0;
+        PackageOwnershipState_Trial = 1;
+        PackageOwnershipState_Suspended = 2;
+    }
+    
+    optional SuspensionType suspension_type = 34;
+    enum SuspensionType {
+        SuspensionType_None = 0;
+        SuspensionType_Cheating = 1;
+        SuspensionType_Harassment = 2;
+    }
+    
+    optional StoreData ingame_store_data = 35;
+    
+    optional ActivationType activation_type = 36;
+    enum ActivationType {
+        ActivationType_Purchase = 0;
+        ActivationType_Subscription = 2;
+    }
+    
+    optional bool locked_by_subscription = 37;
+    
+    optional TargetPartner target_partner = 38;
+    enum TargetPartner {
+        TargetPartner_None = 0;
+        TargetPartner_EpicGames = 1;
+        TargetPartner_Neowiz = 2;
+        TargetPartner_Microsoft = 3;
+    }
+    
+    optional DenuvoActivationOverwrite denuvo_activation_overwrite = 39;
+    enum DenuvoActivationOverwrite {
+        DenuvoActivationOverwrite_Default = 0;
+        DenuvoActivationOverwrite_TimeTrial = 1;
+    }
+    
+    repeated uint32 subscription_types = 40;
+    optional UbiServicesDynamicConfig ubiservices_dynamic_config = 41;
+    
+    enum ProductType {
+        ProductType_Game = 0;
+        ProductType_AddOn = 1;
+        ProductType_PreOrderGame = 2;
+        ProductType_PreOrderAddOn = 3;
+        ProductType_Trial = 4;
+        ProductType_Template = 5;
+        ProductType_Bundle = 6;
+        ProductType_SeasonPass = 7;
+        ProductType_Consumable = 8;
+        ProductType_Preorder = 9;
+        ProductType_ConsumablePacks = 10;
+        ProductType_BundlePackage = 11;
+    }
+    
+    enum State {
+        State_Unavailable = 0;
+        State_PreReleased = 1;
+        State_Downloadable = 2;
+        State_Released = 3;
+        State_Expired = 4;
+    }
+}
+
+message OwnedGamesContainer {
+    repeated uint32 product_ids = 1;
+    required bytes signature = 2;
+    repeated uint32 visible_or_installable_product_ids = 3;
+}
+
+message OwnedGames {
+    repeated OwnedGame owned_games = 1;
+}
+
+message InitializeReq {
+    optional bool deprecated_test_config = 1;
+    optional bool get_associations = 2;
+    optional uint32 proto_version = 3;
+    
+    repeated ProductBranchData branches = 4;
+    message ProductBranchData {
+        required uint32 product_id = 1;
+        optional uint32 active_branch_id = 2;
+        repeated string passwords = 3;
+    }
+    
+    optional bool use_staging = 5 [default = false];
+    repeated string claims = 6;
+    optional uint32 client_ip_override = 99 [deprecated = true];
+}
+
+message InitializeRsp {
+    required bool success = 1;
+    optional OwnedGames owned_games = 2;
+    optional OwnedGamesContainer owned_games_container = 3;
+    optional uint32 key_spam_ban_seconds = 4;
+    optional SubscriptionState subscription_state = 5;
+    optional uint32 subscription_type = 6;
+    optional OwnedGames claimed_games = 7;
+}
+
+message DeprecatedGetProductFromCdKeyReq {
+    required string cd_key = 1;
+    optional bool deprecated_test_config = 2;
+}
+
+message DeprecatedGetProductFromCdKeyRsp {
+    required Result result = 1;
+    enum Result {
+        Result_Success = 1;
+        Result_BadCdKey = 2;
+        Result_BannedKey = 3;
+        Result_BannedForCdKeySpam = 4;
+        Result_ServerError = 5;
+        Result_UsedCdKeyOtherAccount = 6;
+        Result_NotAvailableYet = 7;
+        Result_NoLongerAvailable = 8;
+        Result_NotAvailableInRegion = 9;
+        Result_UsedCdKeyThisAccount = 10;
+    }
+    
+    optional OwnedGame product = 2;
+    repeated OwnedGame product_associations = 3;
+}
+
+message RegisterOwnershipReq {
+    required uint32 product_id = 1;
+    optional string cd_key = 2;
+    optional bool deprecated_test_config = 3;
+}
+
+message RegisterOwnershipByCdKeyReq {
+    required string cd_key = 1;
+    optional bool deprecated_test_config = 2;
+    optional uint32 uplay_id = 3;
+}
+
+message RegisterOwnershipSteamPopReq {
+    repeated string ticket = 1;
+    required bool confirm = 2;
+}
+
+message RegisterOwnershipSteamPopRsp {
+    required Result result = 1;
+    enum Result {
+        Result_Success = 1;
+        Result_InvalidTicket = 2;
+        Result_TicketsAlreadyClaimed = 3;
+        Result_NoPackagesFound = 4;
+    }
+    
+    repeated string configuration = 2;
+    repeated string tickets_claimed_by_other = 3;
+}
+
+message RegisterOwnershipFromOculusReq {
+    optional string access_token = 1;
+    optional string oculus_app_id = 2;
+    optional string oculus_user_id = 3;
+    optional string user_id = 4;
+}
+
+message RegisterOwnershipFromOculusRsp {
+    required Result result = 1;
+    enum Result {
+        Result_Success = 1;
+        Result_InvalidAccessToken = 2;
+        Result_InvalidAppId = 3;
+        Result_InvalidUserId = 4;
+        Result_AlreadyClaimed = 5;
+        Result_NoPackagesFound = 6;
+        Result_ServerTimeout = 7;
+        Result_NothingOwned = 8;
+        Result_UnknownFailure = 9;
+        Result_AddOwnershipFailure = 10;
+    }
+    
+    optional string claimed_account_id = 2;
+    optional OwnedGames owned_games = 3;
+    optional OwnedGamesContainer owned_games_container = 4;
+}
+
+message RegisterOwnershipFromWeGameReq {
+    optional string json_web_token = 1;
+}
+
+message RegisterOwnershipFromWeGameRsp {
+    optional Result result = 1;
+    enum Result {
+        Result_Success = 1;
+        Result_InvalidToken = 2;
+        Result_ServerError = 3;
+        Result_UnknownProduct = 4;
+        Result_NotAvailable = 5;
+        Result_ServerTimeout = 6;
+    }
+    
+    optional OwnedGames owned_games = 2;
+    optional OwnedGamesContainer owned_games_container = 3;
+}
+
+message RegisterOwnershipRsp {
+    required Result result = 1;
+    enum Result {
+        Result_Success = 1;
+        Result_BadCdKey = 2;
+        Result_BannedKey = 3;
+        Result_BannedForCdKeySpam = 4;
+        Result_ServerError = 5;
+        Result_UsedCdKeyOtherAccount = 6;
+        Result_OutOfKeys = 7;
+        Result_NotAvailableYet = 8;
+        Result_NoLongerAvailable = 9;
+        Result_NotAvailableInRegion = 10;
+        Result_UsedCdKeyThisAccount = 11;
+        Result_BadUbiTicket = 12;
+        Result_AgeGateRestricted = 13;
+        Result_BadRequest = 14;
+    }
+    
+    optional OwnedGamesContainer owned_games_container = 4;
+    optional OwnedGames owned_games = 5;
+    optional uint32 banned_time = 6;
+    optional string cdkey_claimed_date = 7;
+}
+
+message ClaimKeystorageKeyReq {
+    repeated uint32 product_ids = 1;
+}
+
+message ClaimKeystorageKeyRsp {
+    required Result result = 1;
+    enum Result {
+        Result_Success = 1;
+        Result_Failure = 2;
+    }
+    
+    repeated ProductKeyPair product_key_pairs = 2;
+    message ProductKeyPair {
+        required uint32 product_id = 1;
+        required string cd_key = 2;
+    }
+}
+
+message GetBatchDownloadUrlsReq {
+    repeated UrlRequest url_requests = 1;
+    message UrlRequest {
+        required uint32 product_id = 1;
+        repeated string relative_file_paths = 2;
+        optional bool deprecated_test_config = 3;
+    }
+}
+
+message GetBatchDownloadUrlsRsp {
+    repeated UrlResponse url_responses = 1;
+    message UrlResponse {
+        required Result result = 1;
+        repeated string deprecated_download_urls = 2;
+        repeated DownloadUrls download_urls = 3;
+    }
+    
+    required uint32 ttl_seconds = 2;
+    
+    message DownloadUrls {
+        repeated string urls = 1;
+    }
+    
+    enum Result {
+        Result_Success = 1;
+        Result_ProductNotOwned = 2;
+    }
+}
+
+message DeprecatedGetLatestManifestsReq {
+    repeated uint32 deprecated_product_ids = 1;
+    optional bool deprecated_test_config = 2;
+}
+
+message DeprecatedGetLatestManifestsRsp {
+    required Result result = 1;
+    enum Result {
+        Result_Success = 1;
+        Result_ServerError = 2;
+    }
+    
+    repeated Manifest manifests = 2;
+    message Manifest {
+        required Result result = 1;
+        enum Result {
+            Result_Success = 1;
+            Result_NotFound = 2;
+        }
+        
+        required uint32 product_id = 2;
+        optional string manifest = 3;
+        optional bool deprecated_test_config = 4;
+    }
+}
+
+message GetProductConfigReq {
+    required uint32 product_id = 1;
+    optional bool deprecated_test_config = 2;
+}
+
+message GetProductConfigRsp {
+    required Result result = 1;
+    enum Result {
+        Result_Success = 1;
+        Result_NotFound = 2;
+        Result_InternalServerError = 3;
+    }
+    
+    optional bool deprecated_test_config = 2;
+    optional string configuration = 3;
+}
+
+message SwitchProductBranchReq {
+    optional SpecifiedProductBranch specified_branch = 1;
+    message SpecifiedProductBranch {
+        required uint32 product_id = 1;
+        required uint32 branch_id = 2;
+        optional string password = 3;
+    }
+    
+    optional DefaultProductBranch default_branch = 2;
+    message DefaultProductBranch {
+        required uint32 product_id = 1;
+    }
+}
+
+message SwitchProductBranchRsp {
+    required Result result = 1;
+    enum Result {
+        Result_Success = 1;
+        Result_Denied = 2;
+    }
+    
+    optional OwnedGames products = 2;
+}
+
+message UnlockProductBranchReq {
+    required ProductBranch branch = 1;
+    message ProductBranch {
+        required uint32 product_id = 1;
+        required string password = 2;
+    }
+}
+
+message UnlockProductBranchRsp {
+    required Result result = 1;
+    enum Result {
+        Result_Success = 1;
+        Result_Denied = 2;
+    }
+    
+    repeated ProductBranch branch = 2;
+    message ProductBranch {
+        required uint32 branch_id = 1;
+        required string branch_name = 2;
+    }
+}
+
+message GetUplayPCTicketReq {
+    required uint32 uplay_id = 1;
+    
+    optional Platform platform = 2;
+    enum Platform {
+        Normal = 0;
+        Luna = 1;
+        GFN = 2;
+    }
+}
+
+message GetUplayPCTicketRsp {
+    required bool success = 1;
+    optional string uplay_pc_ticket = 2;
+    
+    optional ErrorCode error_code = 3 [default = ErrorCode_Unknown];
+    enum ErrorCode {
+        ErrorCode_Unknown = 1;
+        ErrorCode_ProductNotOwned = 2;
+        ErrorCode_ProductSuspended = 3;
+        ErrorCode_ProductSubscriptionLocked = 4;
+        ErrorCode_ProductNotReleased = 5;
+    }
+}
+
+message UplayCoreGameInitializedPush {
+    required bool success = 1;
+    required uint32 product_id = 2;
+}
+
+message RetryUplayCoreInitializeReq {
+    repeated uint32 product_id = 1;
+    required bool deprecated_test_config = 2;
+}
+
+message ConsumeOwnershipReq {
+    required uint32 product_id = 1;
+    required uint32 quantity = 2;
+    required string transaction_id = 3;
+    required uint32 game_product_id = 4;
+    required string signature = 5;
+}
+
+message ConsumeOwnershipRsp {
+    required Result result = 1;
+    enum Result {
+        Result_Ok = 0;
+        Result_NotEnoughItems = 1;
+        Result_Failed = 2;
+    }
+    
+    optional string signature = 2;
+}
+
+message GetGameTokenReq {
+    optional bytes activation_token = 1;
+    optional uint32 product_id = 2;
+}
+
+message GetGameTokenRsp {
+    required Result result = 1;
+    enum Result {
+        Result_Success = 0;
+        Result_NotOwned = 1;
+        Result_Failure = 2;
+        Result_ExceededActivations = 3;
+        Result_TimeOut = 4;
+        Result_ServerError = 5;
+    }
+    
+    optional bytes game_token = 2;
+}
+
+message GetGameTimeTicketReq {
+    optional uint32 product_id = 1;
+    optional bytes request_ticket = 2;
+}
+
+message GetGameTimeTicketRsp {
+    required Result result = 1;
+    enum Result {
+        Result_Success = 0;
+        Result_NotOwned = 1;
+        Result_Failure = 2;
+        Result_TimeOut = 3;
+        Result_ServerError = 4;
+    }
+    
+    optional bytes time_ticket = 2;
+}
+
+message GetGameWithdrawalRightsReq {
+    optional uint32 product_id = 1;
+}
+
+message GetGameWithdrawalRightsRsp {
+    optional bool success = 1;
+    optional bool withdrawal_rights = 2;
+}
+
+message WaiveGameWithdrawalRightsReq {
+    optional uint32 product_id = 1;
+}
+
+message WaiveGameWithdrawalRightsRsp {
+    optional bool success = 1;
+}
+
+message SignOwnershipReq {
+    optional uint32 product_id = 1;
+}
+
+message SignOwnershipRsp {
+    optional bool success = 1;
+    optional uint32 branch_id = 2;
+    optional uint64 expiration = 3;
+    optional bytes signature = 4;
+}
+
+message OwnershipTokenReq {
+    optional uint32 product_id = 1;
+}
+
+message OwnershipTokenRsp {
+    optional bool success = 1;
+    optional string token = 2;
+    optional uint64 expiration = 3;
+}
+
+message RegisterTemporaryOwnershipReq {
+    optional string token = 1;
+}
+
+message RegisterTemporaryOwnershipRsp {
+    optional bool success = 1;
+    optional string error_msg = 2;
+    repeated uint32 product_ids = 3;
+}
+
+message Req {
+    required uint32 request_id = 1;
+    optional InitializeReq initialize_req = 2;
+    optional RegisterOwnershipReq register_ownership_req = 3;
+    optional RegisterOwnershipByCdKeyReq register_ownership_by_cd_key_req = 5;
+    optional DeprecatedGetProductFromCdKeyReq deprecated_get_product_from_cd_key_req = 6;
+    optional GetProductConfigReq get_product_config_req = 9;
+    optional DeprecatedGetLatestManifestsReq deprecated_get_latest_manifests_req = 10;
+    optional GetBatchDownloadUrlsReq get_batch_download_urls_req = 12;
+    optional GetUplayPCTicketReq get_uplay_pc_ticket_req = 14;
+    optional RetryUplayCoreInitializeReq retry_uplay_core_initialize_req = 15;
+    optional ConsumeOwnershipReq consume_ownership_req = 16;
+    optional SwitchProductBranchReq switch_product_branch_req = 17;
+    optional UnlockProductBranchReq unlock_product_branch_req = 18;
+    optional RegisterOwnershipSteamPopReq register_ownership_steam_pop_req = 19;
+    optional RegisterOwnershipFromOculusReq register_ownership_from_oculus_req = 20;
+    optional GetGameTokenReq get_game_token_req = 21;
+    optional ClaimKeystorageKeyReq claim_keystorage_key_req = 22;
+    optional GetGameTimeTicketReq get_game_time_ticket_req = 23;
+    optional GetGameWithdrawalRightsReq get_game_withdrawal_rights_req = 24;
+    optional WaiveGameWithdrawalRightsReq waive_game_withdrawal_rights_req = 25;
+    optional SignOwnershipReq sign_ownership_req = 26;
+    optional RegisterOwnershipFromWeGameReq register_ownership_from_wegame_req = 27;
+    optional OwnershipTokenReq ownership_token_req = 28;
+    optional RegisterTemporaryOwnershipReq register_temporary_ownership_req = 29;
+    optional string ubi_ticket = 30;
+    optional string ubi_session_id = 31;
+    
+    reserved 11, 13;
+}
+
+message Rsp {
+    required uint32 request_id = 1;
+    optional InitializeRsp initialize_rsp = 2;
+    optional RegisterOwnershipRsp register_ownership_rsp = 3;
+    optional DeprecatedGetProductFromCdKeyRsp deprecated_get_product_from_cd_key_rsp = 5;
+    optional GetProductConfigRsp get_product_config_rsp = 9;
+    optional DeprecatedGetLatestManifestsRsp deprecated_get_latest_manifests_rsp = 10;
+    optional GetBatchDownloadUrlsRsp get_batch_download_urls_rsp = 12;
+    optional GetUplayPCTicketRsp get_uplay_pc_ticket_rsp = 13;
+    optional ConsumeOwnershipRsp consume_ownership_rsp = 15;
+    optional SwitchProductBranchRsp switch_product_branch_rsp = 16;
+    optional UnlockProductBranchRsp unlock_product_branch_rsp = 17;
+    optional RegisterOwnershipSteamPopRsp register_ownership_steam_pop_rsp = 18;
+    optional RegisterOwnershipFromOculusRsp register_ownership_from_oculus_rsp = 19;
+    optional GetGameTokenRsp get_game_token_rsp = 20;
+    optional ClaimKeystorageKeyRsp claim_keystorage_key_rsp = 21;
+    optional GetGameTimeTicketRsp get_game_time_ticket_rsp = 22;
+    optional GetGameWithdrawalRightsRsp get_game_withdrawal_rights_rsp = 23;
+    optional WaiveGameWithdrawalRightsRsp waive_game_withdrawal_rights_rsp = 24;
+    optional SignOwnershipRsp sign_ownership_rsp = 25;
+    optional RegisterOwnershipFromWeGameRsp register_ownership_from_wegame_rsp = 26;
+    optional OwnershipTokenRsp ownership_token_rsp = 27;
+    optional RegisterTemporaryOwnershipRsp register_temporary_ownership_rsp = 28;
+    
+    reserved 11, 14;
+}
+
+message OwnedGamePush {
+    optional OwnedGamesContainer owned_games_container = 2;
+    optional OwnedGames owned_games = 4;
+    repeated uint32 removed_products = 5;
+}
+
+message SubscriptionPush {
+    optional SubscriptionState subscription_state = 1;
+    optional uint32 subscription_type = 2;
+}
+
+message Push {
+    optional OwnedGamePush owned_game_push = 1;
+    optional UplayCoreGameInitializedPush uplay_core_game_initialized_push = 2;
+    optional SubscriptionPush subscription_push = 3;
+}
+
+message Upstream {
+    optional Req request = 1;
+}
+
+message Downstream {
+    optional Rsp response = 1;
+    optional Push push = 2;
+}
+
+enum SubscriptionState {
+    SubscriptionState_NoState = 0;
+    SubscriptionState_Subscribed = 1;
+    SubscriptionState_Expired = 2;
+}

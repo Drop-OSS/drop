@@ -1,0 +1,129 @@
+syntax = "proto2";
+
+package mg.protocol.demux;
+
+message Token {
+    optional string ubi_ticket = 3;
+    optional string orbit_token = 1;
+    optional bytes ubi_token = 2;
+}
+
+message AuthenticateReq {
+    required Token token = 1;
+    optional bool send_keep_alive = 4 [default = true];
+    optional string client_id = 2;
+    optional string logout_push_group_id = 3;
+}
+
+message AuthenticateRsp {
+    required bool success = 1;
+    optional bool expired = 2;
+    optional bool banned = 3;
+}
+
+message OpenConnectionReq {
+    required string service_name = 2;
+}
+
+message OpenConnectionRsp {
+    required uint32 connection_id = 1;
+    required bool success = 2;
+}
+
+message KeepAlivePush {
+    
+}
+
+message DataMessage {
+    required uint32 connection_id = 1;
+    required bytes data = 2;
+}
+
+message ClientVersionPush {
+    required uint32 version = 1;
+}
+
+message ClientOutdatedPush {
+    
+}
+
+message ProductStartedPush {
+    required uint32 product_id = 1;
+}
+
+message ProductEndedPush {
+    required uint32 product_id = 1;
+}
+
+message ConnectionClosedPush {
+    required uint32 connection_id = 1;
+    
+    optional Connection_ErrorCode error_code = 2;
+    enum Connection_ErrorCode {
+        Connection_ForceQuit = 1;
+        Connection_MultipleLogin = 2;
+        Connection_Banned = 3;
+    }
+}
+
+message GetPatchInfoReq {
+    required string patch_track_id = 1;
+    required bool test_config = 2;
+    optional uint32 track_type = 3;
+}
+
+message GetPatchInfoRsp {
+    required bool success = 1;
+    required string patch_track_id = 2;
+    required bool test_config = 3;
+    required string patch_base_url = 4;
+    required uint32 latest_version = 5;
+    optional uint32 track_type = 6;
+}
+
+message ServiceReq {
+    required string service = 1;
+    required bytes data = 2;
+}
+
+message ServiceRsp {
+    required bool success = 1;
+    optional bytes data = 2;
+}
+
+message Req {
+    required uint32 request_id = 1;
+    optional AuthenticateReq authenticate_req = 2;
+    optional GetPatchInfoReq get_patch_info_req = 5;
+    optional ServiceReq service_request = 6;
+    optional OpenConnectionReq open_connection_req = 3;
+    optional uint32 client_ip_override = 99;
+}
+
+message Rsp {
+    required uint32 request_id = 1;
+    optional AuthenticateRsp authenticate_rsp = 2;
+    optional OpenConnectionRsp open_connection_rsp = 3;
+    optional GetPatchInfoRsp get_patch_info_rsp = 5;
+    optional ServiceRsp service_rsp = 6;
+}
+
+message Push {
+    optional DataMessage data = 1;
+    optional ConnectionClosedPush connection_closed = 2;
+    optional KeepAlivePush keep_alive = 3;
+    optional ClientVersionPush client_version = 4;
+    optional ClientOutdatedPush client_outdated = 5;
+    optional ProductStartedPush product_started = 6;
+    optional ProductEndedPush product_ended = 7;
+}
+
+message Upstream {
+    optional Req request = 1;
+    optional Push push = 2;
+}
+
+message Downstream {
+    optional Rsp response = 1;
+    optional Push push = 2;
+}

@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package mg.protocol.download_service;
+
+message UrlReq {
+    repeated Request url_requests = 1;
+    message Request {
+        uint32 product_id = 1;
+        repeated string relative_file_path = 2;
+    }
+}
+
+message UrlRsp {
+    repeated UrlResponse url_responses = 1;
+    message UrlResponse {
+        Result result = 1;
+        repeated DownloadUrls download_urls = 2;
+    }
+    
+    uint32 ttl_seconds = 2;
+    
+    message DownloadUrls {
+        repeated string urls = 1;
+    }
+    
+    enum Result {
+        Result_Success = 0;
+        Result_NotOwned = 1;
+    }
+}
+
+message InitializeReq {
+    uint32 product_id = 1;
+    uint32 branch_id = 2;
+    uint64 expiration = 3;
+    string signature = 4;
+    string ownership_token = 5;
+    string network_id = 6;
+}
+
+message InitializeRsp {
+    bool ok = 1;
+}
+
+message Req {
+    uint32 request_id = 1;
+    InitializeReq initialize_req = 2;
+    UrlReq url_req = 3;
+    UrlReq url_req_covid = 4;
+}
+
+message Rsp {
+    uint32 request_id = 1;
+    InitializeRsp initialize_rsp = 2;
+    UrlRsp url_rsp = 3;
+}
+
+message Upstream {
+    Req request = 1;
+}
+
+message Downstream {
+    Rsp response = 1;
+}

@@ -5,4 +5,9 @@ plugins:
     opt: target=ts
 
 inputs:
+  # Scope the scan to the vendored proto trees: a full-root walk trips over
+  # runtime data/ directories that exist only on developer hosts.
   - directory: ../
+    paths:
+      - ../torrential
+      - ../ubisoft-demux
