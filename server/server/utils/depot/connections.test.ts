@@ -1,6 +1,7 @@
 import { test, afterEach } from "node:test";
 import assert from "node:assert/strict";
 import {
+  isUbisoftTwoFactorChallenge,
   maskConnection,
   resolveDepotToken,
   saveConnection,
@@ -359,7 +360,7 @@ test("Ubisoft email login stores ticket and remember-me ticket, never the passwo
   );
 });
 
-test("a Ubisoft 2FA challenge surfaces to the caller as connectable data", async () => {
+test("a Ubisoft 2FA challenge comes back as a challenge, not an error", async () => {
   mockQueueFetch([
     {
       body: {
@@ -369,25 +370,16 @@ test("a Ubisoft 2FA challenge surfaces to the caller as connectable data", async
     },
   ]);
   const { store, rows } = createStore();
-  await assert.rejects(
-    () =>
-      saveConnection(store, {
-        provider: "ubisoft",
-        email: "player@example.com",
-        password: "pw",
-      }),
-    (error: unknown) => {
-      const thrown = error as {
-        statusCode?: number;
-        data?: { requiresTwoFactor?: boolean; twoFactorTicket?: string };
-      };
-      return (
-        thrown.statusCode === 401 &&
-        thrown.data?.requiresTwoFactor === true &&
-        thrown.data?.twoFactorTicket === "2fa-x"
-      );
-    },
-  );
+  // The challenge travels in a normal 200 response: error bodies lose
+  // custom fields in production, and the ticket must survive to the UI.
+  const result = await saveConnection(store, {
+    provider: "ubisoft",
+    email: "player@example.com",
+    password: "pw",
+  });
+  assert.ok(isUbisoftTwoFactorChallenge(result));
+  assert.equal(result.twoFactorTicket, "2fa-x");
+  assert.equal(result.method, "email");
   assert.equal(rows.length, 0, "a pending 2FA must not store a connection");
 });
 

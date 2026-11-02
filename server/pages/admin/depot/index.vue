@@ -849,8 +849,23 @@ async function connect() {
   try {
     const response = await $fetch<{
       connected: boolean;
-      connection: StoredConnection;
+      connection?: StoredConnection;
+      twoFactor?: {
+        requiresTwoFactor: true;
+        twoFactorTicket: string;
+        method: string;
+      };
     }>("/api/admin/depot/connection", { method: "POST", body });
+    if (response.twoFactor) {
+      // Ubisoft wants a one-time code; the next Connect sends the ticket
+      // and the typed code, not the password again.
+      ubisoftTwoFactorTicket.value = response.twoFactor.twoFactorTicket;
+      ubisoftPassword.value = "";
+      errorMessage.value = `Ubisoft requires a two-factor code (${response.twoFactor.method} - check your authenticator app or email), then press Connect again.`;
+      return;
+    }
+    if (!response.connection)
+      throw new Error("The server accepted the request without a connection.");
     gogConnectCode.value = "";
     gogConnectToken.value = "";
     gogRefreshToken.value = "";

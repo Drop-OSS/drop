@@ -2,6 +2,7 @@ import { createError, defineEventHandler, readBody } from "h3";
 import aclManager from "~/server/internal/acls";
 import {
   DEPOT_PROVIDERS,
+  isUbisoftTwoFactorChallenge,
   maskConnection,
   saveConnection,
   type SaveConnectionInput,
@@ -27,5 +28,9 @@ export default defineEventHandler(async (h3) => {
       statusMessage: `provider must be one of: ${DEPOT_PROVIDERS.join(", ")}`,
     });
   const saved = await saveConnection(prismaConnectionStore, body);
+  if (isUbisoftTwoFactorChallenge(saved))
+    // A 200 carrying the challenge: an error body's custom fields can be
+    // stripped in production, and the code cannot be completed without it.
+    return { connected: false, twoFactor: saved };
   return { connected: true, connection: maskConnection(saved) };
 });

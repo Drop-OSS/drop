@@ -136,10 +136,30 @@ function ubisoftSessionExpiry(session: UbisoftSession): Date {
  * the account id from the JWT claims; EA derives the pid via the identity
  * profile endpoint.
  */
+/**
+ * Ubisoft answered the password login by demanding a two-factor code.
+ * Returned (not thrown) so the challenge survives to the browser: h3/nitro
+ * may strip `error.data` from responses in production, and the UI cannot
+ * complete 2FA without the ticket.
+ */
+export type UbisoftTwoFactorChallenge = {
+  requiresTwoFactor: true;
+  twoFactorTicket: string;
+  method: string;
+};
+
+export type SaveConnectionResult = ConnectionRow | UbisoftTwoFactorChallenge;
+
+export function isUbisoftTwoFactorChallenge(
+  result: SaveConnectionResult,
+): result is UbisoftTwoFactorChallenge {
+  return "requiresTwoFactor" in result;
+}
+
 export async function saveConnection(
   store: ConnectionStore,
   input: SaveConnectionInput,
-): Promise<ConnectionRow> {
+): Promise<SaveConnectionResult> {
   switch (input.provider) {
     case "gog": {
       if (input.code?.trim()) {
@@ -243,17 +263,11 @@ export async function saveConnection(
       } else if (email && input.password) {
         const result = await createUbisoftSession(email, input.password);
         if ("twoFactorRequired" in result)
-          throw createError({
-            // Same 401 as bad credentials; the UI distinguishes by the
-            // challenge payload and asks for the code instead of a retry.
-            statusCode: 401,
-            statusMessage: "Ubisoft two-factor authentication required",
-            data: {
-              requiresTwoFactor: true,
-              twoFactorTicket: result.twoFactorTicket,
-              method: result.method,
-            },
-          });
+          return {
+            requiresTwoFactor: true,
+            twoFactorTicket: result.twoFactorTicket,
+            method: result.method,
+          };
         session = result;
       } else if (rememberTicket) {
         session = await loginUbisoftWithRememberTicket(rememberTicket);
