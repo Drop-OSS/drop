@@ -10,3 +10,8 @@ node_modules
 # database files into a build context.
 /data
 /games
+
+# Compiled artifacts: must never ride into the build context, or stale
+# server bundles can mask fresh source in cached layers (seen 2026-11-02).
+server/.output
+server/.nuxt
