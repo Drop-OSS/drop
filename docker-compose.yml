@@ -21,6 +21,11 @@ services:
       - DATA=/data
       - PORT=4000
       - EXTERNAL_URL=${EXTERNAL_URL:-http://localhost:4000}
+      # 32-byte key (openssl rand -hex 32) that encrypts stored store
+      # credentials (OAuth/refresh tokens, tickets, session cookies) at
+      # rest. Required: credential writes fail closed without it. Put it in
+      # .env (git-ignored); rotating it orphans existing sealed rows.
+      - GAMEDEPOT_CREDENTIAL_KEY=${GAMEDEPOT_CREDENTIAL_KEY}
       # EA grants no public OAuth clients. Provide your own registered
       # EA/Origin OAuth client only if you want browser sign-in and automatic
       # token renewal for the EA tab; without these, paste launcher-issued
@@ -46,7 +51,11 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-gamedepot} -d ${POSTGRES_DB:-gamedepot}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-gamedepot} -d ${POSTGRES_DB:-gamedepot}",
+        ]
       interval: 5s
       timeout: 5s
       retries: 5

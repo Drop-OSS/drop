@@ -36,6 +36,10 @@ export type ConnectionRow = {
   accessToken?: string | null;
   refreshToken?: string | null;
   expiresAt?: Date | null;
+  /** "ERROR" marks a connection whose stored credential was rejected by the
+   * provider and needs the admin to sign in again. */
+  status?: string | null;
+  error?: string | null;
   updatedAt?: Date | null;
 };
 
@@ -48,6 +52,9 @@ export function maskConnection(row: ConnectionRow) {
     username: row.username ?? null,
     expiresAt: row.expiresAt ?? null,
     hasRefreshToken: Boolean(row.refreshToken),
+    status: row.status ?? null,
+    error: row.error ?? null,
+    needsReauth: row.status === "ERROR",
     updatedAt: row.updatedAt ?? null,
   };
 }
@@ -66,10 +73,15 @@ export interface ConnectionStore {
     id: string,
     patch: {
       accessToken: string;
-      refreshToken?: string | null;
+      /** Required: providers rotate refresh tokens on use, so callers must
+       * state the value explicitly (pass the old one when unchanged). */
+      refreshToken: string | null;
       expiresAt?: Date | null;
     },
   ): Promise<void>;
+  /** Flag a connection whose stored credential the provider rejected: the
+   * admin UI shows "needs re-auth" and no further refreshes are attempted. */
+  markNeedsReauth(id: string, reason: string): Promise<void>;
 }
 
 export type SaveConnectionInput =
@@ -415,7 +427,16 @@ export async function resolveDepotToken(
     row.expiresAt !== undefined &&
     row.expiresAt.getTime() < Date.now() + 60_000;
   if (expiringSoon) {
-    const refreshed = await tryRefresh(store, row);
+    if (row.status === "ERROR")
+      throw createError({
+        // The last refresh proved the stored credential dead; retrying it
+        // only hammers the provider. Re-authentication is the only way out.
+        statusCode: 410,
+        statusMessage: `The stored ${provider.toUpperCase()} connection needs re-authentication${
+          row.error ? `: ${row.error}` : ""
+        }`,
+      });
+    const refreshed = await refreshOnce(store, row);
     if (!refreshed)
       throw createError({
         // Distinct from the 401 "no connection": the caller must re-authenticate
@@ -430,6 +451,70 @@ export async function resolveDepotToken(
     accountId: row.accountId,
     connectionId: row.id,
   };
+}
+
+/**
+ * In-flight refreshes by connection id. GOG and Ubisoft rotate the refresh
+ * token on every use, so two concurrent callers renewing with the same old
+ * token would make the second one (or the loser of the write race) dead on
+ * arrival. Concurrent resolutions coalesce into one provider call.
+ */
+const refreshInFlight = new Map<
+  string,
+  Promise<{ token: string; accountId?: string } | null>
+>();
+
+function refreshOnce(
+  store: ConnectionStore,
+  row: ConnectionRow,
+): Promise<{ token: string; accountId?: string } | null> {
+  let flight = refreshInFlight.get(row.id);
+  if (!flight) {
+    flight = tryRefresh(store, row).finally(() => {
+      refreshInFlight.delete(row.id);
+    });
+    refreshInFlight.set(row.id, flight);
+  }
+  return flight;
+}
+
+/**
+ * A 4xx from the token endpoint (other than rate limiting and transient
+ * 408/425) means the provider looked at the credential and refused it -
+ * revoked, rotated away, or account-changed. Retrying can never succeed;
+ * only a network failure (no statusCode) or a 5xx can.
+ */
+function isDeadTokenRejection(error: unknown): boolean {
+  const status = (error as { statusCode?: number } | null)?.statusCode;
+  return (
+    typeof status === "number" &&
+    status >= 400 &&
+    status < 500 &&
+    status !== 408 &&
+    status !== 425 &&
+    status !== 429
+  );
+}
+
+/** Provider failure text fit for the admin UI and logs: never includes
+ * secrets we sent; keep the message, drop control characters. */
+function rejectionReason(error: unknown): string {
+  const message =
+    (error as { statusMessage?: string; message?: string } | null)
+      ?.statusMessage ??
+    (error as { message?: string } | null)?.message ??
+    "";
+  const clean = Array.from(message, (ch) => {
+    const code = ch.codePointAt(0) ?? 0;
+    return code < 0x20 || code === 0x7f ? " " : ch;
+  })
+    .join("")
+    .replace(/\s+/g, " ")
+    .trim();
+  return (
+    (clean || "the store rejected the saved credential").slice(0, 300) ||
+    "the store rejected the saved credential"
+  );
 }
 
 async function tryRefresh(
@@ -511,7 +596,18 @@ async function tryRefresh(
       return { token: tokens.access_token, accountId: row.accountId };
     }
     return null;
-  } catch {
+  } catch (error) {
+    // A provider refusal (4xx) is final: flag the row so the admin sees
+    // "needs re-auth" and resolveDepotToken stops calling the provider with
+    // the dead token. Network faults stay unflagged so the next call can
+    // try again. Tokens never appear in the recorded reason.
+    if (isDeadTokenRejection(error)) {
+      try {
+        await store.markNeedsReauth(row.id, rejectionReason(error));
+      } catch {
+        // Flagging must not change the caller's outcome: still 410.
+      }
+    }
     return null;
   }
 }

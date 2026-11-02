@@ -9,3 +9,5 @@ node_modules/
 # depot dev-loop state
 .dev-app/
 .depot-deploy-count
+
+.env

@@ -1,10 +1,11 @@
 import prisma from "~/server/internal/db/database";
-import { StoreProvider } from "~/prisma/client/enums";
+import { StoreProvider, SyncStatus } from "~/prisma/client/enums";
 import type {
   ConnectionRow,
   ConnectionStore,
   DepotProvider,
 } from "./connections";
+import { openSecret, sealSecret } from "./credential-crypto";
 
 const TO_ENUM: Record<DepotProvider, StoreProvider> = {
   gog: StoreProvider.GOG,
@@ -28,6 +29,8 @@ type StoreRow = {
   accessToken: string | null;
   refreshToken: string | null;
   expiresAt: Date | null;
+  status?: SyncStatus;
+  error?: string | null;
   updatedAt: Date;
 };
 
@@ -40,15 +43,21 @@ function toRow(row: StoreRow): ConnectionRow {
       String(row.provider).toLowerCase()) as ConnectionRow["provider"],
     accountId: row.accountId,
     username: row.username,
-    accessToken: row.accessToken,
-    refreshToken: row.refreshToken,
+    // Credentials are sealed at rest; legacy plaintext rows read through
+    // and get re-sealed by the next token write.
+    accessToken: openSecret(row.accessToken),
+    refreshToken: openSecret(row.refreshToken),
     expiresAt: row.expiresAt,
+    status: row.status ?? null,
+    error: row.error ?? null,
     updatedAt: row.updatedAt,
   };
 }
 
 export const prismaConnectionStore: ConnectionStore = {
   async upsert(row) {
+    // A fresh connect (or reconnect) proves the credentials again, so the
+    // re-auth flag written by a failed refresh is cleared here.
     const saved = await prisma.storeConnection.upsert({
       where: {
         provider_accountId: {
@@ -58,17 +67,18 @@ export const prismaConnectionStore: ConnectionStore = {
       },
       update: {
         username: row.username ?? null,
-        accessToken: row.accessToken,
-        refreshToken: row.refreshToken,
+        accessToken: sealSecret(row.accessToken ?? null),
+        refreshToken: sealSecret(row.refreshToken ?? null),
         expiresAt: row.expiresAt ?? null,
+        status: SyncStatus.IDLE,
         error: null,
       },
       create: {
         provider: TO_ENUM[row.provider],
         accountId: row.accountId,
         username: row.username ?? null,
-        accessToken: row.accessToken,
-        refreshToken: row.refreshToken,
+        accessToken: sealSecret(row.accessToken ?? null),
+        refreshToken: sealSecret(row.refreshToken ?? null),
         expiresAt: row.expiresAt ?? null,
       },
     });
@@ -92,13 +102,28 @@ export const prismaConnectionStore: ConnectionStore = {
     return deleted.count > 0;
   },
   async updateTokens(id, patch) {
+    // patch.refreshToken is required (never implicit null): GOG and Ubisoft
+    // rotate refresh tokens on use, and dropping the new one would brick the
+    // connection. A successful renewal also clears a stale re-auth flag.
     await prisma.storeConnection.updateMany({
       where: { id },
       data: {
-        accessToken: patch.accessToken,
-        refreshToken: patch.refreshToken ?? null,
+        accessToken: sealSecret(patch.accessToken),
+        refreshToken: sealSecret(patch.refreshToken),
         expiresAt: patch.expiresAt ?? null,
+        status: SyncStatus.IDLE,
+        error: null,
       },
+    });
+  },
+  async markNeedsReauth(id, reason) {
+    // The refresh token was rejected outright (revoked, expired, password
+    // changed). Nothing the server can retry will fix that; the admin must
+    // sign in again, and resolveDepotToken stops knocking on the provider
+    // until then.
+    await prisma.storeConnection.updateMany({
+      where: { id },
+      data: { status: SyncStatus.ERROR, error: reason.slice(0, 300) },
     });
   },
 };

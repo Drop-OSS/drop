@@ -18,10 +18,19 @@ function createStore() {
         (r) => r.provider === row.provider && r.accountId === row.accountId,
       );
       if (existing) {
-        Object.assign(existing, row, { updatedAt: new Date() });
+        Object.assign(existing, row, {
+          updatedAt: new Date(),
+          status: null,
+          error: null,
+        });
         return { ...existing };
       }
-      const created: ConnectionRow = { id: `c${++seq}`, ...row };
+      const created: ConnectionRow = {
+        id: `c${++seq}`,
+        status: null,
+        error: null,
+        ...row,
+      };
       rows.push(created);
       return { ...created };
     },
@@ -47,8 +56,17 @@ function createStore() {
       const row = rows.find((r) => r.id === id);
       if (row) {
         row.accessToken = patch.accessToken;
-        row.refreshToken = patch.refreshToken ?? null;
+        row.refreshToken = patch.refreshToken;
         row.expiresAt = patch.expiresAt ?? null;
+        row.status = null;
+        row.error = null;
+      }
+    },
+    async markNeedsReauth(id, reason) {
+      const row = rows.find((r) => r.id === id);
+      if (row) {
+        row.status = "ERROR";
+        row.error = reason;
       }
     },
   };
@@ -164,6 +182,121 @@ test("an expired GOG connection renews itself from the refresh token", async () 
   assert.equal(resolved.token, "fresh-opaque-token");
   assert.equal(resolved.connectionId, rows[0]?.id);
   assert.equal(rows[0]?.refreshToken, "rt-next");
+});
+
+test("concurrent resolutions coalesce into one provider refresh and keep the rotated token", async () => {
+  // GOG rotates the refresh token on use: if two callers refreshed with the
+  // same old token, the provider (or the row write) would race and one of
+  // them would poison the connection. Single-flight must mean ONE call.
+  let refreshCalls = 0;
+  globalThis.fetch = (async () => {
+    refreshCalls += 1;
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    return new Response(
+      JSON.stringify({
+        access_token: "at-2",
+        refresh_token: "rt-2",
+        expires_in: 3600,
+      }),
+      { status: 200 },
+    );
+  }) as typeof fetch;
+  const { store, rows } = createStore();
+  await saveConnection(store, {
+    provider: "gog",
+    accessToken: "stale",
+    refreshToken: "rt-1",
+    accountId: "7",
+  });
+  rows[0]!.expiresAt = new Date(Date.now() - 1000);
+  const [first, second] = await Promise.all([
+    resolveDepotToken(store, "gog"),
+    resolveDepotToken(store, "gog"),
+  ]);
+  assert.equal(refreshCalls, 1, "concurrent refreshes must coalesce");
+  assert.equal(first.token, "at-2");
+  assert.equal(second.token, "at-2");
+  assert.equal(rows[0]?.refreshToken, "rt-2", "the rotated token must persist");
+  // The next resolution sees a fresh row and does not refresh again.
+  const third = await resolveDepotToken(store, "gog");
+  assert.equal(third.token, "at-2");
+  assert.equal(refreshCalls, 1);
+});
+
+test("a revoked refresh token flags the connection for re-auth and is never retried", async () => {
+  let calls = 0;
+  globalThis.fetch = (async () => {
+    calls += 1;
+    return new Response(
+      JSON.stringify({
+        error: "invalid_grant",
+        error_description: "token revoked",
+      }),
+      { status: 400 },
+    );
+  }) as typeof fetch;
+  const { store, rows } = createStore();
+  await saveConnection(store, {
+    provider: "gog",
+    accessToken: "stale",
+    refreshToken: "revoked-token",
+    accountId: "7",
+  });
+  rows[0]!.expiresAt = new Date(Date.now() - 1000);
+  await assert.rejects(
+    () => resolveDepotToken(store, "gog"),
+    (error: unknown) => (error as { statusCode?: number }).statusCode === 410,
+  );
+  assert.equal(rows[0]?.status, "ERROR", "revoked credentials must be flagged");
+  assert.match(rows[0]?.error ?? "", /token refresh failed/);
+  const callsAfterFirst = calls;
+  const masked = maskConnection(rows[0] as ConnectionRow);
+  assert.equal(masked.needsReauth, true);
+  assert.equal(
+    JSON.stringify(masked).includes("revoked-token"),
+    false,
+    "the masked row must not leak the dead token",
+  );
+  // A second resolution short-circuits on the flag: no further provider call.
+  await assert.rejects(
+    () => resolveDepotToken(store, "gog"),
+    (error: unknown) => {
+      const e = error as { statusCode?: number; statusMessage?: string };
+      assert.equal(e.statusCode, 410);
+      assert.match(e.statusMessage ?? "", /needs re-authentication/);
+      return true;
+    },
+  );
+  assert.equal(calls, callsAfterFirst, "a dead token must not be retried");
+});
+
+test("reconnecting a flagged connection clears the re-auth flag", async () => {
+  mockQueueFetch([
+    {
+      body: {
+        access_token: "at-new",
+        refresh_token: "rt-new",
+        expires_in: 7200,
+        user_id: "7",
+      },
+    },
+  ]);
+  const { store, rows } = createStore();
+  await saveConnection(store, {
+    provider: "gog",
+    accessToken: "stale",
+    refreshToken: "dead",
+    accountId: "7",
+  });
+  rows[0]!.status = "ERROR";
+  rows[0]!.error = "token revoked";
+  await saveConnection(store, {
+    provider: "gog",
+    code: "https://embed.gog.com/on_login_success?code=fresh",
+  });
+  assert.equal(rows[0]?.status, null);
+  assert.equal(rows[0]?.error, null);
+  assert.equal(rows[0]?.refreshToken, "rt-new");
 });
 
 test("an Epic connection derives the account id from the redeemed token", async () => {

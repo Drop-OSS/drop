@@ -21,19 +21,23 @@
       <span
         class="inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium"
         :class="
-          activeConnection
+          connectionTone === 'connected'
             ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200'
             : 'border-amber-500/30 bg-amber-500/10 text-amber-200'
         "
       >
         <span
           class="h-1.5 w-1.5 rounded-full"
-          :class="activeConnection ? 'bg-emerald-400' : 'bg-amber-400'"
+          :class="
+            connectionTone === 'connected' ? 'bg-emerald-400' : 'bg-amber-400'
+          "
         />
         {{
-          activeConnection
-            ? `${activeProvider.label} connected: ${activeConnection.accountId}`
-            : `${activeProvider.label} provider not connected`
+          connectionTone === "connected"
+            ? `${activeProvider.label} connected: ${activeConnection?.accountId}`
+            : connectionTone === "reauth"
+              ? `${activeProvider.label} needs re-authentication`
+              : `${activeProvider.label} provider not connected`
         }}
       </span>
     </header>
@@ -63,17 +67,39 @@
     >
       <div
         v-if="activeConnection"
-        class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-4 py-3"
+        class="flex flex-wrap items-center justify-between gap-3 rounded-lg border px-4 py-3"
+        :class="
+          activeConnection.needsReauth
+            ? 'border-amber-500/30 bg-amber-500/10'
+            : 'border-emerald-500/25 bg-emerald-500/10'
+        "
       >
-        <p class="text-sm text-emerald-200">
-          Connected to {{ activeProvider.label }} as
-          <span class="font-semibold">{{ activeConnection.accountId }}</span>
-          <span v-if="activeConnection.expiresAt">
-            · expires {{ formatExpiry(activeConnection.expiresAt) }}</span
-          >
-          <span v-if="activeConnection.hasRefreshToken">
-            · refreshes automatically</span
-          >
+        <p
+          class="text-sm"
+          :class="
+            activeConnection.needsReauth ? 'text-amber-200' : 'text-emerald-200'
+          "
+        >
+          <template v-if="activeConnection.needsReauth">
+            Re-authentication needed for {{ activeProvider.label }} account
+            <span class="font-semibold">{{ activeConnection.accountId }}</span>
+            · sign in again below; automatic renewal stopped after the store
+            rejected the saved credential<span
+              v-if="activeConnection.error"
+              class="block pt-1 text-xs text-amber-300/80"
+              >Store said: {{ activeConnection.error }}</span
+            >
+          </template>
+          <template v-else>
+            Connected to {{ activeProvider.label }} as
+            <span class="font-semibold">{{ activeConnection.accountId }}</span>
+            <span v-if="activeConnection.expiresAt">
+              · expires {{ formatExpiry(activeConnection.expiresAt) }}</span
+            >
+            <span v-if="activeConnection.hasRefreshToken">
+              · refreshes automatically</span
+            >
+          </template>
         </p>
         <button
           type="button"
@@ -755,12 +781,25 @@ interface StoredConnection {
   username: string | null;
   expiresAt: string | null;
   hasRefreshToken: boolean;
+  status: string | null;
+  error: string | null;
+  needsReauth: boolean;
   updatedAt: string | null;
 }
 
 const connections = ref<StoredConnection[]>([]);
 const activeConnection = computed(() =>
   connections.value.find((c) => c.provider === activeProviderId.value),
+);
+// Three honest states: a live connection, one the store rejected (the
+// admin must sign in again), or none at all. The server sets needsReauth
+// when a refresh attempt proved the stored credential dead.
+const connectionTone = computed(() =>
+  activeConnection.value
+    ? activeConnection.value.needsReauth
+      ? "reauth"
+      : "connected"
+    : "none",
 );
 
 const providerDescription = computed(() =>
