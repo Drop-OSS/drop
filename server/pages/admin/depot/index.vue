@@ -656,7 +656,8 @@
             type="button"
             :disabled="
               product.ingesting ||
-              (activeProviderId === 'ea' && !product.archiveUrl)
+              (activeProviderId === 'ea' && !product.archiveUrl) ||
+              (activeProviderId === 'ubisoft' && product.installable === false)
             "
             class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-zinc-700 px-3.5 py-2 text-sm font-medium text-zinc-200 transition hover:border-blue-500/60 hover:bg-blue-500/10 disabled:opacity-50"
             @click="ingest(product)"
@@ -708,6 +709,10 @@ interface DiscoveredProduct {
   spaceId?: string;
   userId?: string;
   gameTitle?: string;
+  /** Demux numeric product id - what the Ubisoft ingest endpoint takes. */
+  productId?: string;
+  /** False when the ownership service says this row cannot be acquired. */
+  installable?: boolean;
   // EA: the ingest endpoint needs a title plus an HTTPS archive URL. The
   // entitlement's download link pre-fills it; it stays editable because EA
   // links are short-lived.
@@ -727,6 +732,10 @@ interface OwnedGame {
   gameId?: string;
   name?: string;
   ownedDate?: string;
+  releaseDate?: string;
+  latestManifest?: string;
+  installable?: boolean;
+  reason?: string;
   // EA owned games (normalized by the library utility)
   id?: string;
   offerId?: string;
@@ -1137,9 +1146,12 @@ async function loadLibrary() {
           };
         }
         return {
-          id: game.spaceId || game.gameId || "",
+          id: game.gameId || game.spaceId || "",
           title: game.name || game.spaceId || "Untitled",
           spaceId: game.spaceId,
+          productId: game.gameId,
+          installable: game.installable !== false,
+          description: game.reason,
           userId: ubisoftUserId.value || activeConnection.value?.accountId,
           gameTitle: game.name || game.spaceId,
         };
@@ -1187,8 +1199,7 @@ async function ingest(product: DiscoveredProduct) {
       await $fetch("/api/admin/depot/ubisoft/ingest", {
         method: "POST",
         body: {
-          spaceId: product.spaceId,
-          userId: product.userId,
+          productId: product.productId ?? product.id,
           gameTitle: product.gameTitle || product.title,
         },
       });

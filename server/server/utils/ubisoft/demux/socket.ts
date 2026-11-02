@@ -157,9 +157,7 @@ export class DemuxSocket {
 
   /** Send a top-level request and await the matching Rsp. */
   public async request(
-    build: (
-      requestId: number,
-    ) => Partial<Omit<Req, "$typeName" | "requestId">>,
+    build: (requestId: number) => Partial<Omit<Req, "$typeName" | "requestId">>,
   ): Promise<Rsp> {
     const requestId = this.nextRequestId++;
     const upstream = create(UpstreamSchema, {
