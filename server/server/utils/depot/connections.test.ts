@@ -499,3 +499,77 @@ test("no stored connection asks for a caller token", async () => {
     (error: unknown) => (error as { statusCode?: number }).statusCode === 401,
   );
 });
+
+test("an EA session cookie connects with a JWT and keeps the cookie for renewal", async () => {
+  const token = jwt({ exp: Math.floor(Date.now() / 1000) + 3600 });
+  globalThis.fetch = (async () =>
+    new Response(JSON.stringify({ data: { jwt: token, user_id: 4242 } }), {
+      status: 200,
+    })) as typeof fetch;
+  const { store, rows } = createStore();
+  const saved = await saveConnection(store, {
+    provider: "ea",
+    sessionCookie: "cookie-value",
+  });
+  assert.ok(!isUbisoftTwoFactorChallenge(saved));
+  assert.equal(
+    saved.accountId,
+    "4242",
+    "the exchange's user id is the account",
+  );
+  assert.equal(rows[0]?.accessToken, token);
+  assert.equal(
+    rows[0]?.refreshToken,
+    "sid:cookie-value",
+    "the cookie is kept, marked as the renewing credential",
+  );
+  assert.ok(rows[0]?.expiresAt && rows[0].expiresAt.getTime() > Date.now());
+});
+
+test("a cookie-backed EA token renews by re-exchanging the sid", async () => {
+  const expired = jwt({ exp: 1 });
+  const fresh = jwt({ exp: Math.floor(Date.now() / 1000) + 3600 });
+  let exchanges = 0;
+  globalThis.fetch = (async () => {
+    exchanges += 1;
+    return new Response(
+      JSON.stringify({
+        data: { jwt: exchanges === 1 ? expired : fresh, user_id: 42 },
+      }),
+      { status: 200 },
+    );
+  }) as typeof fetch;
+  const { store, rows } = createStore();
+  await saveConnection(store, { provider: "ea", sessionCookie: "c" });
+  assert.ok(
+    rows[0]?.expiresAt && rows[0].expiresAt.getTime() < Date.now(),
+    "the minted JWT is already expired",
+  );
+  const result = await resolveDepotToken(store, "ea");
+  assert.equal(result.token, fresh);
+  assert.equal(exchanges, 2);
+  assert.equal(rows[0]?.accessToken, fresh, "the renewed JWT replaces the old");
+  assert.equal(
+    rows[0]?.refreshToken,
+    "sid:c",
+    "the cookie stays for next time",
+  );
+});
+
+test("a killed EA cookie turns the connection into a dead end, not a crash", async () => {
+  const token = jwt({ exp: 1 });
+  globalThis.fetch = (async (url: string | URL | Request) =>
+    String(url).includes("xhr/auth") && String(url).includes("isAjax")
+      ? new Response(JSON.stringify({ data: { jwt: token, user_id: 42 } }), {
+          status: 200,
+        })
+      : new Response("", { status: 401 })) as typeof fetch;
+  const { store } = createStore();
+  await saveConnection(store, { provider: "ea", sessionCookie: "dying" });
+  globalThis.fetch = (async () =>
+    new Response("", { status: 401 })) as typeof fetch;
+  await assert.rejects(
+    () => resolveDepotToken(store, "ea"),
+    (error: unknown) => (error as { statusCode?: number }).statusCode === 410,
+  );
+});

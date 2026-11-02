@@ -226,6 +226,88 @@ export async function exchangeEaLoginCode(
     client.secret,
   );
 }
+/**
+ * EA's own web-identity endpoint: exchanges an `sid` cookie from an ea.com
+ * browser session for an EA JWT. No OAuth client involved, so it works for
+ * accounts the confidential-client path cannot serve (EA grants none to
+ * third parties). Anonymous probes answer 200 with an empty body; the JWT
+ * and user id only appear with a live session cookie.
+ */
+const EA_SESSION_AUTH_URL = "https://signin.ea.com/p/identitynucleus/xhr/auth";
+
+export type EaSession = {
+  jwt: string;
+  userId: string;
+  expiresAt: Date | null;
+};
+
+/** Unverified JWT expiry claim - only used to schedule re-exchange. */
+export function eaJwtExpiry(token: string): Date | null {
+  const payload = token.split(".")[1];
+  if (!payload) return null;
+  try {
+    const claims = JSON.parse(
+      Buffer.from(payload, "base64url").toString("utf8"),
+    ) as { exp?: number };
+    return typeof claims.exp === "number" && Number.isFinite(claims.exp)
+      ? new Date(claims.exp * 1000)
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Exchange the ea.com `sid` session cookie for an EA JWT. The connection
+ * keeps the cookie as its renewing credential: the short-lived JWT is
+ * re-minted from it until EA kills the cookie itself, at which point the
+ * user pastes a fresh one.
+ */
+export async function exchangeEaSessionCookie(sid: string): Promise<EaSession> {
+  const cookie = sid.trim();
+  if (!cookie)
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Paste the ea.com session cookie (sid) value",
+    });
+  const url = new URL(EA_SESSION_AUTH_URL);
+  url.searchParams.set("isAjax", "true");
+  const response = await eaFetch(
+    url.toString(),
+    {
+      headers: {
+        Accept: "application/json",
+        Cookie: `sid=${cookie}`,
+      },
+    },
+    "session sign-in",
+  );
+  const raw = (await response.json().catch(() => null)) as unknown;
+  const root =
+    raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+  const bag =
+    root.data && typeof root.data === "object"
+      ? (root.data as Record<string, unknown>)
+      : root;
+  const jwt =
+    typeof bag.jwt === "string"
+      ? bag.jwt
+      : typeof bag.token === "string"
+        ? bag.token
+        : null;
+  const userId =
+    typeof bag.user_id === "string" || typeof bag.user_id === "number"
+      ? String(bag.user_id)
+      : "";
+  if (!jwt)
+    throw createError({
+      statusCode: 401,
+      statusMessage:
+        "EA gave no session token for that cookie - sign in to ea.com in your browser, then copy the sid cookie value afresh",
+    });
+  return { jwt, userId, expiresAt: eaJwtExpiry(jwt) };
+}
+
 /** Return one bounded entitlement page. */
 export async function getEaEntitlements(
   accessToken: string,

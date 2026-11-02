@@ -123,11 +123,14 @@
           v-else-if="activeProviderId === 'ea'"
           class="mb-4 text-xs text-zinc-500"
         >
-          EA offers no public sign-in client for third-party apps, so browser
-          sign-in is only available when this server is configured with an EA
-          OAuth client (EA_OAUTH_CLIENT_ID, EA_OAUTH_CLIENT_SECRET and
-          EA_OAUTH_REDIRECT_URI). Otherwise paste an access token (plus refresh
-          token) copied from an existing EA app / Origin installation.
+          EA grants no third-party sign-in clients, so connect with your own
+          browser session: sign in at ea.com, open DevTools → Application →
+          Cookies → ea.com, copy the <code>sid</code> cookie value and paste it
+          below. The server exchanges it for tokens server-side and renews the
+          exchange automatically until EA expires the cookie; only then does it
+          ask for a fresh paste. (Alternatively paste tokens from an EA app
+          installation, or use browser sign-in when an EA_OAUTH_CLIENT_* is
+          configured on the server.)
         </p>
         <form class="flex flex-col gap-3" @submit.prevent="connect">
           <div class="flex flex-col gap-3">
@@ -298,6 +301,17 @@
               </details>
             </template>
             <template v-else>
+              <label for="ea-connect-session" class="sr-only">
+                EA session cookie (sid)
+              </label>
+              <input
+                id="ea-connect-session"
+                v-model.trim="eaConnectSession"
+                type="password"
+                autocomplete="off"
+                placeholder="ea.com session cookie (sid) - recommended"
+                class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
               <template v-if="eaLoginAvailable">
                 <label for="ea-connect-code" class="sr-only">
                   EA sign-in code
@@ -721,6 +735,7 @@ const ubisoftCode = ref("");
 // sends this ticket plus the user's code instead of credentials.
 const ubisoftTwoFactorTicket = ref("");
 const ubisoftTicket = ref("");
+const eaConnectSession = ref("");
 const eaConnectCode = ref("");
 const eaConnectToken = ref("");
 const eaRefreshToken = ref("");
@@ -750,7 +765,7 @@ const providerDescription = computed(() =>
   activeProviderId.value === "epic"
     ? "Connect an Epic account with a refresh token so the server can keep its entitlements fresh. Loads the entitlements owned by that account; ingest streams the raw depot files directly into the depot."
     : activeProviderId.value === "ea"
-      ? "EA grants no public sign-in client, so browser sign-in works only when this server is configured with an EA OAuth client; otherwise paste an access token (and refresh token) from an existing EA app installation. Discovery lists entitled games and can be widened by a catalog search; ingest streams the game archive into the depot from a provided download link."
+      ? "Paste the ea.com session cookie (sid) to connect: the server exchanges it for tokens at EA's own identity endpoint and renews the exchange automatically. Discovery lists entitled games and can be widened by a catalog search; ingest streams the game archive into the depot from a provided download link."
       : "Sign in with your Ubisoft email and password - the password is used for the single sign-in and never stored; the session ticket and a remember-me ticket are kept and renewed automatically. A two-factor code may be requested once. Loads the titles owned by that account; ingest streams the raw game files directly into the depot.",
 );
 
@@ -768,7 +783,10 @@ const canConnect = computed(() => {
       );
     default:
       return Boolean(
-        eaConnectCode.value || eaConnectToken.value || eaRefreshToken.value,
+        eaConnectSession.value ||
+        eaConnectCode.value ||
+        eaConnectToken.value ||
+        eaRefreshToken.value,
       );
   }
 });
@@ -841,6 +859,7 @@ async function connect() {
     }
   }
   if (provider === "ea") {
+    if (eaConnectSession.value) body.sessionCookie = eaConnectSession.value;
     if (eaConnectCode.value) body.code = eaConnectCode.value;
     if (eaConnectToken.value) body.accessToken = eaConnectToken.value;
     if (eaRefreshToken.value) body.refreshToken = eaRefreshToken.value;
@@ -875,6 +894,7 @@ async function connect() {
     ubisoftCode.value = "";
     ubisoftTwoFactorTicket.value = "";
     ubisoftTicket.value = "";
+    eaConnectSession.value = "";
     eaConnectCode.value = "";
     eaConnectToken.value = "";
     eaRefreshToken.value = "";

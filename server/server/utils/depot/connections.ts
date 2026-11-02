@@ -1,7 +1,12 @@
 import { createError } from "h3";
 import { exchangeGogAuthorizationCode, refreshGogToken } from "../gog";
 import { exchangeEpicAuthCode, refreshEpicToken } from "../epic/client";
-import { exchangeEaLoginCode, fetchEaPid, refreshEaToken } from "../ea/client";
+import {
+  exchangeEaLoginCode,
+  exchangeEaSessionCookie,
+  fetchEaPid,
+  refreshEaToken,
+} from "../ea/client";
 import {
   completeUbisoftTwoFactor,
   createUbisoftSession,
@@ -94,11 +99,16 @@ export type SaveConnectionInput =
   | {
       provider: "ea";
       code?: string;
+      sessionCookie?: string;
       accessToken?: string;
       refreshToken?: string;
       accountId?: string;
       username?: string;
     };
+
+/** Stored in refreshToken to mark an EA connection that renews by
+ * re-exchanging the pasted ea.com session cookie, not by OAuth. */
+export const EA_SESSION_COOKIE_PREFIX = "sid:";
 
 function decodeJwtPayload(token: string): Record<string, unknown> | null {
   const parts = token.split(".");
@@ -306,7 +316,16 @@ export async function saveConnection(
       let accessToken = input.accessToken?.trim() || null;
       let refreshToken = input.refreshToken?.trim() || null;
       let expiresAt: Date | null = null;
-      if (input.code?.trim()) {
+      let accountId = input.accountId?.trim();
+      if (input.sessionCookie?.trim()) {
+        // Web-session sign-in: mint a JWT from the pasted ea.com cookie now,
+        // keep the cookie itself as the credential that mints the next one.
+        const session = await exchangeEaSessionCookie(input.sessionCookie);
+        accessToken = session.jwt;
+        refreshToken = `${EA_SESSION_COOKIE_PREFIX}${input.sessionCookie.trim()}`;
+        expiresAt = session.expiresAt;
+        accountId = accountId || session.userId || undefined;
+      } else if (input.code?.trim()) {
         // Browser sign-in with the deployment's configured EA OAuth client.
         const tokens = await exchangeEaLoginCode(input.code);
         accessToken = tokens.access_token;
@@ -336,7 +355,6 @@ export async function saveConnection(
           statusMessage:
             "Provide an EA sign-in code, access token, or refresh token",
         });
-      let accountId = input.accountId?.trim();
       if (!accountId) {
         try {
           accountId = await fetchEaPid(accessToken);
@@ -432,6 +450,20 @@ async function tryRefresh(
       return { token: tokens.access_token, accountId: row.accountId };
     }
     if (row.provider === "ea" && row.refreshToken) {
+      if (row.refreshToken.startsWith(EA_SESSION_COOKIE_PREFIX)) {
+        // Cookie-backed connection: re-exchange the ea.com sid for a fresh
+        // JWT. When EA kills the cookie the exchange 401s, the catch below
+        // returns null, and callers surface "sign in again" (410).
+        const session = await exchangeEaSessionCookie(
+          row.refreshToken.slice(EA_SESSION_COOKIE_PREFIX.length),
+        );
+        await store.updateTokens(row.id, {
+          accessToken: session.jwt,
+          refreshToken: row.refreshToken,
+          expiresAt: session.expiresAt,
+        });
+        return { token: session.jwt, accountId: row.accountId };
+      }
       // Renewal needs the deployment's confidential EA client; without it
       // the connection cannot self-renew and reports "reconnect" (410).
       const clientId = process.env.EA_OAUTH_CLIENT_ID;

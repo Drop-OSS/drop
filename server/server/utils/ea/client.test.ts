@@ -4,6 +4,7 @@ import {
   buildEaLoginUrl,
   exchangeEaAuthorizationCode,
   exchangeEaLoginCode,
+  exchangeEaSessionCookie,
   extractEaAuthCode,
   getEaEntitlements,
   refreshEaToken,
@@ -182,5 +183,54 @@ test("shapes Juno GraphQL catalog product list", async () => {
   assert.equal(
     (calls[0].init.headers as Record<string, string>).Authorization,
     "Bearer bearer",
+  );
+});
+
+function sessionJwt(secondsFromNow: number): string {
+  const b64 = (value: unknown) =>
+    Buffer.from(JSON.stringify(value)).toString("base64url");
+  return `${b64({ alg: "none" })}.${b64({ exp: Math.floor(Date.now() / 1000) + secondsFromNow })}.sig`;
+}
+
+test("an ea.com sid cookie exchanges for an EA JWT at EA's identity endpoint", async () => {
+  const token = sessionJwt(3600);
+  mockFetch(200, { data: { jwt: token, user_id: 123456 } });
+  const session = await exchangeEaSessionCookie("  cookie-value  ");
+  assert.equal(session.jwt, token);
+  assert.equal(session.userId, "123456");
+  assert.ok(session.expiresAt && session.expiresAt.getTime() > Date.now());
+  assert.match(calls[0].url, /signin\.ea\.com\/p\/identitynucleus\/xhr\/auth/);
+  assert.equal(
+    (calls[0].init.headers as Record<string, string>).Cookie,
+    "sid=cookie-value",
+  );
+});
+
+test("a top-level token field is accepted too", async () => {
+  mockFetch(200, { token: sessionJwt(60) });
+  const session = await exchangeEaSessionCookie("c");
+  assert.match(session.jwt, /^eyJ/);
+});
+
+test("an empty session answer (dead cookie) is reported as a sign-in failure", async () => {
+  mockFetch(200, {});
+  await assert.rejects(
+    () => exchangeEaSessionCookie("stale-cookie"),
+    (error: unknown) => {
+      const e = error as { statusCode?: number; statusMessage?: string };
+      assert.equal(e.statusCode, 401);
+      assert.match(e.statusMessage ?? "", /sign in to ea\.com/i);
+      return true;
+    },
+  );
+});
+
+test("an empty cookie never reaches EA", async () => {
+  mockFetch(200, {});
+  await assert.rejects(
+    () => exchangeEaSessionCookie("   "),
+    (error: unknown) =>
+      (error as { statusCode?: number }).statusCode === 400 &&
+      calls.length === 0,
   );
 });
