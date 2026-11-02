@@ -1,4 +1,3 @@
-import tailwindcss from "@tailwindcss/vite";
 import { execSync } from "node:child_process";
 import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
@@ -60,7 +59,7 @@ export default defineNuxtConfig({
       enabled: false,
     },
   },
-  css: ["~/assets/tailwindcss.css", "~/assets/core.scss"],
+  css: ["~/assets/generated/tailwind.css", "~/assets/core.scss"],
 
   sourcemap: {
     server: true,
@@ -78,12 +77,10 @@ export default defineNuxtConfig({
   //   compatibilityVersion: 4,
   // },
 
-  vite: {
-    plugins: [
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      tailwindcss() as any,
-    ],
-  },
+  // Tailwind is precompiled by the `build`/`dev` scripts (@tailwindcss/cli
+  // -> assets/generated/tailwind.css); @tailwindcss/vite passed the raw
+  // directives through uncompiled here, see assets/tailwindcss.css. The
+  // compiled sheet lands in JS chunks, not a .css asset (Nuxt >= 3.21).
 
   runtimeConfig: {
     gitRef: commitHash,

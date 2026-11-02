@@ -39,3 +39,6 @@ deploy-template/*
 /prisma/validate
 
 /server/internal/proto
+
+# precompiled tailwind stylesheet (scripts/prebuild)
+/assets/generated/

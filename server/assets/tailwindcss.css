@@ -1,4 +1,13 @@
 @import "tailwindcss";
+/* The build precompiles this file with @tailwindcss/cli (see `build`/`dev`
+ * in package.json) instead of @tailwindcss/vite: in this workspace the vite
+ * plugin never compiles, it passes these raw directives through as if they
+ * were browser CSS, so pages ship unstyled with zero errors. Note that
+ * since Nuxt 3.21 global css[] lands in the client JS chunk and the server
+ * entry-styles chunk - NOT as a standalone .css file - so check those (not
+ * the emitted *.css list) when verifying stylesheets. Auto source detection
+ * starts at server/, so list the workspace's other template homes. */
+@source "../libraries";
 @plugin "@tailwindcss/typography";
 @plugin "@tailwindcss/forms";
 @config "../tailwind.config.js";
