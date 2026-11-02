@@ -277,7 +277,14 @@ export async function streamGogGameToDepot(
       os,
     },
   );
-  const build = buildId ? builds.find((b) => b.buildId === buildId) : builds[0];
+  // Newest-first across *all* branches (gogdb.org ground truth); an
+  // Experimental build published after the latest Master must not hijack
+  // the acquisition. Fall back to the overall newest when nothing looks
+  // like the stable branch.
+  const stable = builds.filter((b) => !b.branch || b.branch === "Master");
+  const build = buildId
+    ? builds.find((b) => b.buildId === buildId)
+    : (stable[0] ?? builds[0]);
   if (!build) {
     throw createError({
       statusCode: 404,

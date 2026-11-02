@@ -495,6 +495,50 @@ test("content-system .info documents with playTasks launch the game", async () =
   }
 });
 
+test("prefers the stable branch over a newer experimental build", async () => {
+  const store = makeChunkStore();
+  const depotItems = [
+    depotFileItem(`goggame-${PRODUCT_ID}.info`, [
+      store.add(Buffer.from(infoDoc([GAME_EXECUTABLE]))),
+    ]),
+    depotFileItem("a.txt", [store.add(Buffer.from("a"))]),
+  ];
+  const branchBuilds = {
+    match: /content-system\.gog\.com\/products\/.*\/builds/,
+    respond: () =>
+      new Response(
+        JSON.stringify({
+          items: [
+            {
+              build_id: "build-exp",
+              product_id: PRODUCT_ID,
+              branch: "Experimental",
+              version_name: "9.0-experimental",
+              link: BUILD_LINK,
+            },
+            {
+              build_id: "build-stable",
+              product_id: PRODUCT_ID,
+              branch: "Master",
+              version_name: "1.0-stable",
+              link: BUILD_LINK,
+            },
+          ],
+        }),
+        { status: 200 },
+      ),
+  };
+  stubFetch([branchBuilds, ...baseRoutes(store, depotItems).slice(1)]);
+
+  const gameDir = await mkdtemp(join(tmpdir(), "gog-tree-"));
+  try {
+    const result = await streamGogGameToDepot(streamOptions(gameDir));
+    assert.equal(result.versionName, "1.0-stable");
+  } finally {
+    await rm(gameDir, { recursive: true, force: true });
+  }
+});
+
 test("parseGogInfo reads Galaxy-era and plateau schemas", () => {
   const galaxy = parseGogInfo(
     infoDoc([
