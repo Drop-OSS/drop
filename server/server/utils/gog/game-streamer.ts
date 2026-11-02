@@ -1,9 +1,11 @@
 import { createError } from "h3";
 import { createHash } from "node:crypto";
-import { mkdir } from "node:fs/promises";
-import { resolve } from "node:path";
+import { createWriteStream } from "node:fs";
+import { mkdir, rm } from "node:fs/promises";
+import { dirname, join, resolve, sep } from "node:path";
+import { Readable } from "node:stream";
+import { pipeline } from "node:stream/promises";
 import { inflateSync } from "node:zlib";
-import { stageAdapterRelease, type AdapterFile } from "../adapter/contract";
 import {
   buildGogChunkUrl,
   getGogBuildMeta,
@@ -17,23 +19,9 @@ import {
   type GogSecureEndpoint,
 } from "./cdn";
 
-export type StreamJobStatus = "RUNNING" | "COMPLETED" | "FAILED";
-
-export interface StreamJobStore {
-  update(input: {
-    id: string;
-    status: StreamJobStatus;
-    progress?: number;
-    phase?: string;
-    manifestPath?: string;
-    error?: string;
-  }): Promise<unknown>;
-}
-
 export interface StreamGogGameOptions {
-  jobId: string;
   productId: string;
-  /** Product title recorded in the release meta; the id is the fallback. */
+  /** Product title recorded with the acquisition; the id is the fallback. */
   gameTitle?: string;
   /** Selects a specific build; the newest returned build is used when omitted. */
   buildId?: string;
@@ -42,17 +30,55 @@ export interface StreamGogGameOptions {
   /** Depot language selector; "*" depots always match. Default "en-US". */
   language?: string;
   accessToken: string;
-  /** Depot CAS root; chunk objects and the release manifest live under it. */
-  depotRoot: string;
-  store?: StreamJobStore;
-  onProgress?: (progress: {
+  /**
+   * The library game directory (`<libraryBaseDir>/<libraryPath>`). A fresh
+   * per-build subdirectory is created inside it and holds the assembled
+   * game tree - exactly the layout Drop's Filesystem library imports.
+   */
+  gameDir: string;
+  onProgress?: (update: {
     phase: string;
     progress: number;
     currentItem?: string;
   }) => void;
 }
 
+export interface GogLaunchOption {
+  name: string;
+  /** Path relative to the install directory, as GOG ships it. */
+  executable: string;
+  arguments: string[];
+}
+
+export interface GogAcquisitionResult {
+  /** Sanitized build version; names the imported version directory. */
+  versionName: string;
+  versionDir: string;
+  installDirectory?: string;
+  fileCount: number;
+  totalBytes: number;
+  /** Windows executables declared `Game` in the GOG game info. */
+  launches: GogLaunchOption[];
+}
+
 const md5Hex = (bytes: Buffer) => createHash("md5").update(bytes).digest("hex");
+
+/** Reject anything that could escape the version directory. */
+function safeRelativePath(path: string): string {
+  const clean = path.replace(/^\/+/, "");
+  if (
+    clean.length === 0 ||
+    clean.includes(":") ||
+    clean.startsWith(sep) ||
+    clean.split(/[\\/]/).some((seg) => seg === "..")
+  ) {
+    throw createError({
+      statusCode: 502,
+      statusMessage: `GOG depot contains an unsafe file path: ${path}`,
+    });
+  }
+  return clean;
+}
 
 /**
  * Fetch one content-system chunk and return its *uncompressed* bytes.
@@ -61,7 +87,7 @@ const md5Hex = (bytes: Buffer) => createHash("md5").update(bytes).digest("hex");
  * in the URL; the request itself carries no Authorization header), stored
  * zlib-compressed with two declared digests: `compressedMd5` over the wire
  * bytes and `md5` over the inflated ones. Both are verified - a mismatch
- * fails the release rather than publishing suspect bytes. Endpoint rotation
+ * fails the acquisition rather than writing suspect bytes. Endpoint rotation
  * mirrors the launcher: retry against the next returned endpoint.
  */
 async function acquireGogChunk(
@@ -132,178 +158,244 @@ async function acquireGogChunk(
   });
 }
 
+/** Concatenate every chunk of a manifest file into memory (small files only). */
+async function acquireWholeFile(
+  endpoints: GogSecureEndpoint[],
+  file: GogManifestFile,
+  signal: AbortSignal | undefined,
+): Promise<Buffer> {
+  const parts: Buffer[] = [];
+  for (const chunk of file.chunks) {
+    parts.push(await acquireGogChunk(endpoints, file, chunk, signal));
+  }
+  return Buffer.concat(parts);
+}
+
+type GogInfoExecutable = {
+  name?: string;
+  path?: string;
+  type?: string;
+  arguments?: string | string[];
+};
+
 /**
- * Streams unpacked game files directly from GOG's content-system CDN into the
- * depot CAS and publishes a DropletManifest, bypassing installer extraction.
+ * Parse GOG's `goggame-<id>.info.json` for launchable executables. The
+ * Galaxy-era schema has a top-level `executables[]`; older titles nest them
+ * under `plateau.executables`. Only `Game`-typed entries count.
+ */
+export function parseGogInfo(json: string): {
+  installDirectory?: string;
+  launches: GogLaunchOption[];
+} {
+  let doc: {
+    installDirectory?: string;
+    executables?: GogInfoExecutable[];
+    plateau?: { executables?: GogInfoExecutable[] };
+  };
+  try {
+    doc = JSON.parse(json);
+  } catch {
+    throw createError({
+      statusCode: 502,
+      statusMessage: "The GOG game info document is not readable JSON",
+    });
+  }
+  const declared = [
+    ...(doc.executables ?? []),
+    ...(doc.plateau?.executables ?? []),
+  ];
+  const launches: GogLaunchOption[] = [];
+  for (const executable of declared) {
+    if (executable.type !== "Game" || !executable.path) continue;
+    const args = Array.isArray(executable.arguments)
+      ? executable.arguments
+      : executable.arguments
+        ? [executable.arguments]
+        : [];
+    launches.push({
+      name: executable.name || "Play",
+      executable: executable.path.replace(/\\/g, "/").replace(/^\/+/, ""),
+      arguments: args,
+    });
+  }
+  return { installDirectory: doc.installDirectory, launches };
+}
+
+/**
+ * Acquires a GOG game by streaming its content-system depot chunks directly
+ * into an assembled game tree under the Drop library directory - no
+ * installer extraction, no intermediate archive. The tree layout matches
+ * what Drop's Filesystem library and torrential droplet import expect:
+ * `<gameDir>/<versionName>/<files>`. The caller (the ingest task) then
+ * runs the standard version import to make the game a library game.
  *
- * Re-framing into depot chunks, whole-file digest computation and atomic
- * publication are handled by the shared adapter contract; this module only knows
- * how to resolve a GOG build and address its chunks.
+ * The tiny `goggame-<id>.info.json` is fetched before the bulk download and
+ * must declare at least one `Game` executable: without a launch command the
+ * standard importer would refuse the version anyway.
  */
 export async function streamGogGameToDepot(
   options: StreamGogGameOptions,
-): Promise<string> {
+): Promise<GogAcquisitionResult> {
   const {
-    jobId,
     productId,
-    gameTitle,
     buildId,
     generation,
     os,
     language = "en-US",
     accessToken,
-    depotRoot,
-    store,
+    gameDir,
     onProgress,
   } = options;
 
-  const report = async (
-    status: StreamJobStatus,
-    progress: number,
-    phase: string,
-    extra: Record<string, unknown> = {},
-  ) => {
-    if (store) {
-      await store.update({ id: jobId, status, progress, phase, ...extra });
-    }
-    onProgress?.({
-      phase,
-      progress,
-      currentItem: extra.currentItem as string | undefined,
+  const report = (progress: number, phase: string, currentItem?: string) =>
+    onProgress?.({ phase, progress, currentItem });
+
+  report(2, "manifest_discovery");
+  const builds = await getGogProductBuilds(
+    productId,
+    { accessToken },
+    {
+      generation,
+      os,
+    },
+  );
+  const build = buildId ? builds.find((b) => b.buildId === buildId) : builds[0];
+  if (!build) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: `No GOG build${buildId ? ` ${buildId}` : ""} for product ${productId}`,
     });
-  };
-
-  const depot = resolve(depotRoot);
-  const objectsDir = resolve(depot, "objects");
-  const manifestsDir = resolve(depot, "manifests");
-  await mkdir(objectsDir, { recursive: true });
-  await mkdir(manifestsDir, { recursive: true });
-
-  try {
-    await report("RUNNING", 2, "manifest_discovery");
-
-    const builds = await getGogProductBuilds(
-      productId,
-      { accessToken },
-      { generation, os },
-    );
-    const build = buildId
-      ? builds.find((b) => b.buildId === buildId)
-      : builds[0];
-    if (!build) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: `No GOG build${buildId ? ` ${buildId}` : ""} for product ${productId}`,
-      });
-    }
-
-    // Nov 2026 live ground truth: the build item's `link` document carries
-    // the depots; the former build-list `depots[]` and the /manifests/<hash>
-    // route no longer exist.
-    const meta = await getGogBuildMeta(build.link, { accessToken });
-    const baseProductId = meta.baseProductId ?? productId;
-    const wantedDepots = meta.depots.filter((depot: GogMetaDepot) => {
-      if (!depot.manifest) return false;
-      // Depots belonging to other products are DLCs; their entitlement is
-      // separate and out of scope for base-game acquisition.
-      if (depot.productId && depot.productId !== baseProductId) return false;
-      const languages = depot.languages ?? [];
-      if (
-        languages.length > 0 &&
-        !languages.includes("*") &&
-        !languages.includes(language)
-      )
-        return false;
-      const bitness = depot.osBitness ?? [];
-      // The server acquires 64-bit content; 32-bit-only depots are skipped.
-      return bitness.length === 0 || bitness.includes("64");
-    });
-    if (wantedDepots.length === 0) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: `GOG build ${build.buildId} exposes no depot manifest for ${os ?? "windows"}/${language}/x64`,
-      });
-    }
-
-    // Multiple depots (content + small config overlays) apply in order;
-    // a later depot overwriting an earlier path is how GOG ships updates.
-    const filesByPath = new Map<string, GogManifestFile>();
-    for (const depot of wantedDepots) {
-      const depotManifest = await getGogDepotManifest(depot.manifest);
-      for (const file of depotManifest.files) {
-        filesByPath.set(file.path, file);
-      }
-    }
-
-    const downloadable = [...filesByPath.values()].filter(
-      (file) => file.chunks.length > 0,
-    );
-    if (downloadable.length === 0) {
-      throw createError({
-        statusCode: 404,
-        statusMessage:
-          "No files found in the GOG depot manifests for this build",
-      });
-    }
-
-    const secureEndpoints = await getGogSecureLinks(productId, {
-      accessToken,
-    });
-
-    const files: AdapterFile[] = downloadable.map((file) => ({
-      fileId: file.path,
-      path: file.path,
-      size: file.size,
-    }));
-
-    await report("RUNNING", 6, "streaming_game_files", {
-      currentItem: files[0]?.path,
-    });
-
-    const { manifestPath } = await stageAdapterRelease({
-      gameTitle: gameTitle ?? productId,
-      appVersion: build.versionName,
-      files,
-      objectsDir,
-      manifestsDir,
-      onProgress: (progress) => {
-        // 6%..96% across the acquisition phase; the contract owns the publish step.
-        const within = progress.totalFiles
-          ? progress.fileIndex / progress.totalFiles
-          : 1;
-        void report(
-          "RUNNING",
-          Math.min(96, 6 + Math.floor(within * 90)),
-          "streaming_game_files",
-          {
-            currentItem: progress.currentFile,
-          },
-        );
-      },
-      acquire: async (file, signal) => {
-        const entry: GogManifestFile | undefined = filesByPath.get(file.fileId);
-        if (!entry) {
-          throw createError({
-            statusCode: 500,
-            statusMessage: `No GOG manifest entry for ${file.fileId}`,
-          });
-        }
-        const source: GogManifestFile = entry;
-        const parts = source.chunks ?? [];
-        async function* chunks(): AsyncGenerator<Buffer> {
-          for (const chunk of parts) {
-            yield await acquireGogChunk(secureEndpoints, source, chunk, signal);
-          }
-        }
-        return chunks();
-      },
-    });
-
-    await report("COMPLETED", 100, "published", { manifestPath });
-    return manifestPath;
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    await report("FAILED", 0, "failed", { error: message });
-    throw error;
   }
+
+  // Nov 2026 live ground truth: the build item's `link` document carries
+  // the depots; the former build-list `depots[]` and the /manifests/<hash>
+  // route no longer exist.
+  const meta = await getGogBuildMeta(build.link, { accessToken });
+  const baseProductId = meta.baseProductId ?? productId;
+  const wantedDepots: GogMetaDepot[] = meta.depots.filter((depot) => {
+    if (!depot.manifest) return false;
+    // Depots belonging to other products are DLCs; their entitlement is
+    // separate and out of scope for base-game acquisition.
+    if (depot.productId && depot.productId !== baseProductId) return false;
+    const languages = depot.languages ?? [];
+    if (
+      languages.length > 0 &&
+      !languages.includes("*") &&
+      !languages.includes(language)
+    )
+      return false;
+    const bitness = depot.osBitness ?? [];
+    // The server acquires 64-bit content; 32-bit-only depots are skipped.
+    return bitness.length === 0 || bitness.includes("64");
+  });
+  if (wantedDepots.length === 0) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: `GOG build ${build.buildId} exposes no depot manifest for ${os ?? "windows"}/${language}/x64`,
+    });
+  }
+
+  // Multiple depots (content + small config overlays) apply in order;
+  // a later depot overwriting an earlier path is how GOG ships updates.
+  const filesByPath = new Map<string, GogManifestFile>();
+  for (const depot of wantedDepots) {
+    const depotManifest = await getGogDepotManifest(depot.manifest);
+    for (const file of depotManifest.files) {
+      filesByPath.set(safeRelativePath(file.path), file);
+    }
+  }
+
+  const downloadable = [...filesByPath.values()].filter(
+    (file) => file.chunks.length > 0,
+  );
+  if (downloadable.length === 0) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: "No files found in the GOG depot manifests for this build",
+    });
+  }
+
+  const secureEndpoints = await getGogSecureLinks(productId, { accessToken });
+
+  // Launch metadata first: a game nobody can launch is not worth 2 GB.
+  report(4, "launch_metadata");
+  const infoPath = [...filesByPath.keys()].find(
+    (p) =>
+      p.toLowerCase() === `goggame-${productId}.info.json` ||
+      p.toLowerCase().endsWith(`/goggame-${productId}.info.json`),
+  );
+  if (!infoPath) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: `GOG build ${build.buildId} ships no goggame-${productId}.info.json`,
+    });
+  }
+  const infoFile = filesByPath.get(infoPath)!;
+  const { installDirectory, launches } = parseGogInfo(
+    (await acquireWholeFile(secureEndpoints, infoFile, undefined)).toString(
+      "utf8",
+    ),
+  );
+  if (launches.length === 0) {
+    throw createError({
+      statusCode: 422,
+      statusMessage: `goggame-${productId}.info.json declares no launchable Game executable`,
+    });
+  }
+
+  const versionName = (build.versionName || build.buildId).replace(
+    /[^A-Za-z0-9._+-]/g,
+    "_",
+  );
+  const versionDir = resolve(join(resolve(gameDir), versionName));
+  await rm(versionDir, { recursive: true, force: true });
+  await mkdir(versionDir, { recursive: true });
+
+  const sorted = downloadable.sort((a, b) => a.path.localeCompare(b.path));
+  let totalBytes = 0;
+  let done = 0;
+  for (const file of sorted) {
+    const target = join(versionDir, safeRelativePath(file.path));
+    await mkdir(dirname(target), { recursive: true });
+    let written = 0;
+    const stream = createWriteStream(target);
+    const source = Readable.from(
+      (async function* () {
+        for (const chunk of file.chunks) {
+          const bytes = await acquireGogChunk(
+            secureEndpoints,
+            file,
+            chunk,
+            undefined,
+          );
+          written += bytes.length;
+          yield bytes;
+        }
+      })(),
+    );
+    await pipeline(source, stream);
+    if (file.size > 0 && written !== file.size) {
+      throw createError({
+        statusCode: 502,
+        statusMessage: `GOG file ${file.path} size mismatch: wrote ${written}, manifest declared ${file.size}`,
+      });
+    }
+    totalBytes += written;
+    done += 1;
+    report(
+      Math.min(90, 5 + Math.floor((done / sorted.length) * 85)),
+      "assembling_game_files",
+      file.path,
+    );
+  }
+
+  report(92, "assembled");
+  return {
+    versionName,
+    versionDir,
+    ...(installDirectory ? { installDirectory } : {}),
+    fileCount: sorted.length,
+    totalBytes,
+    launches,
+  };
 }

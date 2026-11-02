@@ -1,6 +1,6 @@
 import { createError, defineEventHandler, readBody } from "h3";
 import { randomUUID } from "node:crypto";
-import { basename, join } from "node:path";
+import { join } from "node:path";
 import { isValidGogGameId } from "../../../../utils/gog";
 
 type IngestBody = {
@@ -14,14 +14,6 @@ type IngestBody = {
     platform?: string;
   };
 };
-
-/** Depot CAS root: mirrors the Drop data folder the server already owns. */
-function depotRoot(): string {
-  return join(
-    process.env.GAMEDEPOT_DATA_DIR ?? process.env.DATA ?? "./.data/data",
-    "depot",
-  );
-}
 
 export default defineEventHandler(async (event) => {
   const body = await readBody<IngestBody>(event);
@@ -157,14 +149,35 @@ async function queueLocalGogIngest(
   const [
     { prismaConnectionStore, markStoreManifestImported },
     { resolveDepotToken },
+    { default: prisma },
   ] = await Promise.all([
     import("../../../../utils/depot/connection-store"),
     import("../../../../utils/depot/connections"),
+    import("~/server/internal/db/database"),
   ]);
   const resolved = await resolveDepotToken(prismaConnectionStore, "gog");
-  const root = depotRoot();
 
-  const { taskHandler } = await import("~/server/internal/tasks");
+  // The acquisition lands inside a real Drop library: the Filesystem
+  // backend's baseDir is where the game tree is assembled, which is then
+  // what torrential's droplet import reads. FlatFilesystem is not a target
+  // here; it has no per-game version directories to import.
+  const library = await prisma.library.findFirst({
+    where: { backend: "Filesystem" },
+    orderBy: { id: "asc" },
+  });
+  const baseDir = (library?.options as { baseDir?: string } | null)?.baseDir;
+  if (!library || !baseDir) {
+    throw createError({
+      statusCode: 500,
+      statusMessage:
+        "Acquisition needs a Filesystem library with a baseDir - add one in the admin panel first.",
+    });
+  }
+  const libraryPath = `gog-${productId}`;
+  const gameDir = join(baseDir, libraryPath);
+
+  const { taskHandler, wrapTaskContext } =
+    await import("~/server/internal/tasks");
   const { streamGogGameToDepot } =
     await import("../../../../utils/gog/game-streamer");
 
@@ -175,20 +188,21 @@ async function queueLocalGogIngest(
       taskGroup: "depot:ingest",
       acls: ["system:import:game:read"],
       name: `Ingesting GOG game ${gameTitle ?? productId}`,
-      async run({ progress, logger }) {
+      async run(context) {
+        const { progress, logger } = context;
         logger.info(
-          `Acquiring GOG product ${productId} from the stored GOG connection into ${root}`,
+          `Acquiring GOG product ${productId} from the stored GOG connection into ${gameDir}`,
         );
         let lastPhase = "";
-        const manifestPath = await streamGogGameToDepot({
-          jobId: randomUUID(),
+        const result = await streamGogGameToDepot({
           productId,
           gameTitle,
           accessToken: resolved.token,
-          depotRoot: root,
+          gameDir,
           ...(os ? { os } : {}),
           onProgress: (update) => {
-            progress(update.progress);
+            // Acquisition covers 0..80; the droplet import owns 80..99.
+            progress(Math.min(80, Math.round(update.progress * 0.8)));
             if (update.phase !== lastPhase) {
               lastPhase = update.phase;
               logger.info(
@@ -197,20 +211,105 @@ async function queueLocalGogIngest(
             }
           },
         });
-        // The published manifest is named after its digest - that digest is
-        // what `localContentId` refers to.
-        const digest = basename(manifestPath, ".json");
-        logger.info(`Published depot release ${digest}`);
+        logger.info(
+          `Assembled ${result.fileCount} files (${result.totalBytes} bytes) under ${result.versionDir}`,
+        );
+
+        // Surface the release as a library game. The row only exists once
+        // bytes actually landed, so the library never shows a phantom game.
+        const storeManifest = await prisma.storeManifest.findFirst({
+          where: { externalGameId: productId },
+          orderBy: { updatedAt: "desc" },
+        });
+        const title = gameTitle ?? storeManifest?.title ?? productId;
+        const game = await prisma.game.upsert({
+          where: {
+            metadataKey: {
+              metadataSource: "Manual",
+              metadataId: `gog-${productId}`,
+            },
+          },
+          update: { libraryId: library.id, libraryPath, mName: title },
+          create: {
+            metadataSource: "Manual",
+            metadataId: `gog-${productId}`,
+            libraryId: library.id,
+            libraryPath,
+            mName: title,
+            mShortDescription: `GOG product ${productId}.`,
+            mDescription: `Acquired from GOG (product ${productId}) by the depot pipeline.`,
+            mReleased: releaseDateOf(storeManifest?.payload),
+            mIconObjectId: "",
+            mBannerObjectId: "",
+            mCoverObjectId: "",
+            mImageLibraryObjectIds: [],
+          },
+        });
+
+        // Idempotent re-runs: a same-named version already imported stays.
+        const existing = await prisma.gameVersion.findFirst({
+          where: { gameId: game.id, versionPath: result.versionName },
+          select: { versionId: true },
+        });
+        if (existing) {
+          logger.info(
+            `Version ${result.versionName} is already imported (${existing.versionId}) - skipping the droplet import`,
+          );
+        } else {
+          const { libraryManager } = await import("~/server/internal/library");
+          const { Platform } = await import("~/prisma/client/enums");
+          const platform =
+            os?.toLowerCase() === "linux"
+              ? Platform.Linux
+              : os?.toLowerCase() === "macos" || os?.toLowerCase() === "osx"
+                ? Platform.macOS
+                : Platform.Windows;
+          await libraryManager.importVersion(
+            game.id,
+            {
+              type: "local",
+              identifier: result.versionName,
+              name: result.versionName,
+            },
+            {
+              id: game.id,
+              version: {
+                type: "local",
+                identifier: result.versionName,
+                name: result.versionName,
+              },
+              launches: result.launches.map((launch) => ({
+                platform,
+                name: launch.name,
+                launch: [
+                  launch.executable.replace(/\//g, "\\"),
+                  ...launch.arguments,
+                ].join(" "),
+              })),
+              setups: [],
+              onlySetup: false,
+              delta: false,
+              requiredContent: [],
+            },
+            wrapTaskContext(context, {
+              min: 80,
+              max: 99,
+              prefix: "[import] ",
+            }),
+          );
+        }
+
+        progress(99);
         if (resolved.connectionId) {
           try {
             await markStoreManifestImported(
               resolved.connectionId,
               productId,
-              digest,
-              gameTitle,
+              `gog-${productId}#${result.versionName}`,
+              title,
             );
           } catch (error) {
-            // The bytes are published; only the library cache line failed.
+            // The game is in the library; only the cache line failed.
             logger.warn(
               `Could not record the import in the library cache: ${
                 error instanceof Error ? error.message : String(error)
@@ -218,6 +317,7 @@ async function queueLocalGogIngest(
             );
           }
         }
+        logger.info(`${title} is now in the game library.`);
       },
     });
   } catch (error) {
@@ -236,4 +336,15 @@ async function queueLocalGogIngest(
   }
 
   return { accepted: true, jobId: taskId, taskId, queued: "local-task" };
+}
+
+/** Best-effort release date from the cached store listing; epoch when unknown. */
+function releaseDateOf(payload: unknown): Date {
+  const doc = payload as {
+    releaseDate?: string;
+    releaseGlobal?: { releaseDate?: string };
+  } | null;
+  const raw = doc?.releaseGlobal?.releaseDate ?? doc?.releaseDate;
+  const parsed = raw ? new Date(raw) : undefined;
+  return parsed && !Number.isNaN(parsed.getTime()) ? parsed : new Date(0);
 }

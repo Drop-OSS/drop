@@ -1,26 +1,26 @@
 import { afterEach, test } from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile, mkdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { deflateSync } from "node:zlib";
-import { streamGogGameToDepot, type StreamJobStore } from "./game-streamer";
-import { readDropletManifest } from "../depot/manifest";
+import { parseGogInfo, streamGogGameToDepot } from "./game-streamer";
 
 /**
  * Hermetic streamer tests against the live-verified (Nov 2026) content-system
  * shapes: the build list (`items[]`, snake_case) links a zlib build meta that
  * carries depots[], each depot manifest is a zlib {depot:{items}} document on
  * the content CDN, chunks are fetched through secure_link-signed endpoints,
- * stored zlib-compressed and MD5-verified in both forms. A release must never
- * be published unless every chunk verified.
+ * stored zlib-compressed and MD5-verified in both forms. The streamer must
+ * assemble an honest Filesystem-library tree and refuse to start the bulk
+ * download for a build it cannot launch.
  */
 
 const PRODUCT_ID = "1207658776";
-const BUILD_LINK = "https://meta.cdn.invalid/content-system/v2/meta/aa/bb/buildmeta";
+const BUILD_LINK =
+  "https://meta.cdn.invalid/content-system/v2/meta/aa/bb/buildmeta";
 const DEPOT_MANIFEST = "aabbccddeeff00112233445566778899";
-const CHUNK_BASE = "https://chunk.cdn.invalid";
 
 /** Assert an h3-style typed error: a status code and, optionally, a message fragment. */
 function typedError(statusCode: number, message?: RegExp) {
@@ -39,8 +39,6 @@ function typedError(statusCode: number, message?: RegExp) {
 }
 
 const md5 = (bytes: Buffer) => createHash("md5").update(bytes).digest("hex");
-const sha256 = (bytes: Buffer) =>
-  createHash("sha256").update(bytes).digest("hex");
 
 /** Some lib configurations do not type Buffer as a valid Response body. */
 function binaryResponse(bytes: Buffer, init?: ResponseInit): Response {
@@ -51,37 +49,51 @@ function zlibJson(value: unknown): Buffer {
   return deflateSync(Buffer.from(JSON.stringify(value)));
 }
 
-/** A v2 depot chunk: served bytes are the stored (zlib) form. */
+/** Served chunk bytes are the stored (zlib) form; both digests are honest by default. */
 type ChunkStub = {
   md5: string;
   size: number;
   compressedMd5: string;
   compressedSize: number;
-  served: Buffer;
 };
 
-function gogChunk(
-  bytes: Buffer,
-  overrides: Partial<ChunkStub> = {},
-): ChunkStub {
-  const served = deflateSync(bytes);
+function makeChunkStore() {
+  /** compressedMd5 (galaxy hash) -> bytes actually served */
+  const served = new Map<string, Buffer>();
   return {
-    md5: md5(bytes),
-    size: bytes.length,
-    compressedMd5: md5(served),
-    compressedSize: served.length,
-    served,
-    ...overrides,
+    /** Register honest chunk bytes; returns the depot-manifest chunk entry. */
+    add(bytes: Buffer, overrides: Partial<ChunkStub> = {}): ChunkStub {
+      const wire = deflateSync(bytes);
+      const entry: ChunkStub = {
+        md5: md5(bytes),
+        size: bytes.length,
+        compressedMd5: md5(wire),
+        compressedSize: wire.length,
+        ...overrides,
+      };
+      served.set(entry.compressedMd5, wire);
+      return entry;
+    },
+    /** Tamper the wire bytes for a registered chunk without changing digests. */
+    corrupt(chunk: ChunkStub) {
+      served.set(chunk.compressedMd5, Buffer.from("tampered-bytes"));
+    },
+    route: {
+      match: /chunk\.cdn\.invalid/,
+      respond: (url: string): Response => {
+        const hash = new URL(url).pathname.split("/").pop() ?? "";
+        const bytes = served.get(hash);
+        if (!bytes) {
+          return new Response("no such chunk", { status: 404 });
+        }
+        return binaryResponse(bytes);
+      },
+    },
   };
 }
 
 function depotFileItem(path: string, chunks: ChunkStub[]) {
-  return {
-    type: "DepotFile",
-    path,
-    md5: md5(Buffer.concat([])), // unused by the streamer; shape parity
-    chunks,
-  };
+  return { type: "DepotFile", path, chunks };
 }
 
 const originalFetch = globalThis.fetch;
@@ -92,7 +104,7 @@ function stubFetch(
 ) {
   const requested: string[] = [];
   globalThis.fetch = (async (input: unknown) => {
-    const url = String(input);
+    const url = String(input instanceof URL ? input.toString() : input);
     requested.push(url);
     const route = routes.find((r) => r.match.test(url));
     if (!route) throw new Error(`Unexpected network request in test: ${url}`);
@@ -101,446 +113,353 @@ function stubFetch(
   return requested;
 }
 
-function jsonResponse(body: unknown): Response {
-  return new Response(JSON.stringify(body), {
-    status: 200,
-    headers: { "content-type": "application/json" },
+afterEach(() => {
+  globalThis.fetch = originalFetch;
+});
+
+function infoDoc(executables: unknown[]) {
+  return JSON.stringify({
+    version: "1.0",
+    taskId: `${PRODUCT_ID}.int.1`,
+    installDirectory: "Test Game",
+    executables,
   });
 }
 
-function buildsRoute(items: unknown[]) {
-  return {
-    match: /content-system\.gog\.com\/products\/.*\/builds/,
-    respond: () => jsonResponse({ items }),
-  };
-}
-
-function buildMetaRoute(depots: unknown[]) {
-  return {
-    match: /^https:\/\/meta\.cdn\.invalid\//,
-    respond: () =>
-      binaryResponse(
-        zlibJson({
-          version: 2,
-          baseProductId: PRODUCT_ID,
-          buildId: "build-1",
-          installDirectory: "Test Game",
-          depots,
-        }),
-        { headers: { "content-type": "application/octet-stream" } },
-      ),
-  };
-}
-
-const BASE_DEPOT = {
-  manifest: DEPOT_MANIFEST,
-  productId: PRODUCT_ID,
-  languages: ["*"],
+const GAME_EXECUTABLE = {
+  name: "Play the game",
+  path: "Test Game\\TestGame.exe",
+  type: "Game",
+  arguments: ["-skipintro"],
 };
 
-function depotManifestRoute(items: unknown[]) {
-  return {
-    match: /gog-cdn-fastly\.gog\.com\/content-system\/v2\/meta\//,
-    respond: () =>
-      binaryResponse(zlibJson({ version: 2, depot: { items } }), {
-        headers: { "content-type": "application/octet-stream" },
-      }),
-  };
-}
-
-function secureLinkRoute(urls?: unknown[]) {
-  return {
-    match: /content-system\.gog\.com\/products\/.*\/secure_link/,
-    respond: () =>
-      jsonResponse({
-        product_id: PRODUCT_ID,
-        type: "store",
-        urls:
-          urls ?? [
-            {
-              endpoint_name: "default",
-              url_format: "{base_url}/{path}?wsSecret={token}&wsTime={time}&prefix={prefix}",
-              parameters: {
-                base_url: CHUNK_BASE,
-                path: `content-system/v2/store/${PRODUCT_ID}`,
-                token: "sekret",
-                time: "deadbeef",
-                prefix: `/content-system/v2/store/${PRODUCT_ID}/`,
-              },
-            },
-          ],
-      }),
-  };
-}
-
-/** Serves chunks by the galaxy path appended to the signed URL. */
-function chunkRoutes(chunks: ChunkStub[]) {
-  return {
-    match: /chunk\.cdn\.invalid/,
-    respond: (url: string) => {
-      const key = url.split("?")[0].split("/").pop()!;
-      const chunk = chunks.find((c) => c.compressedMd5 === key);
-      return chunk
-        ? binaryResponse(chunk.served)
-        : new Response("gone", { status: 404 });
-    },
-  };
-}
-
-function makeStore() {
-  const updates: Array<Record<string, unknown>> = [];
-  const store: StreamJobStore = {
-    async update(input) {
-      updates.push(input as unknown as Record<string, unknown>);
-    },
-  };
-  return { store, updates };
-}
-
-async function depotRoot() {
-  const root = await mkdtemp(join(tmpdir(), "gamedepot-gog-"));
-  return { root, path: join(root, "depot") };
-}
-
-/** Nothing may be published on a failed acquisition: the manifests dir stays
- * absent or empty. */
-async function publishedManifests(dir: string): Promise<string[]> {
-  try {
-    return await readdir(dir);
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
-    throw error;
-  }
-}
-
-test("streamGogGameToDepot publishes a release through the secure-link chain", async () => {
-  const { root, path } = await depotRoot();
-  const plain = Buffer.from("gog-stored-chunk-content".repeat(4));
-  const zipped = Buffer.from("deflated-chunk-payload".repeat(8));
-  const first = gogChunk(plain);
-  const second = gogChunk(zipped);
-
-  stubFetch([
-    buildsRoute([
-      {
-        build_id: "build-1",
-        product_id: PRODUCT_ID,
-        os: "windows",
-        version_name: "1.0.0",
-        generation: 2,
-        link: BUILD_LINK,
-      },
-    ]),
-    buildMetaRoute([BASE_DEPOT]),
-    depotManifestRoute([
-      depotFileItem("game/data.bin", [first]),
-      depotFileItem("game/text.dat", [second]),
-    ]),
-    secureLinkRoute(),
-    chunkRoutes([first, second]),
-  ]);
-
-  const { store, updates } = makeStore();
-  const manifestPath = await streamGogGameToDepot({
-    jobId: "job-1",
-    productId: PRODUCT_ID,
-    accessToken: "token",
-    depotRoot: path,
-    store,
-  });
-
-  const published = await readDropletManifest(manifestPath);
-  assert.equal(published.format, "gamedepot-droplet");
-  const byPath = new Map(published.files.map((f) => [f.path, f]));
-  assert.equal(byPath.get("game/data.bin")!.sha256, sha256(plain));
-  assert.equal(byPath.get("game/text.dat")!.sha256, sha256(zipped));
-  assert.equal(byPath.get("game/text.dat")!.size, zipped.length);
-
-  assert.equal(updates.at(-1)!.status, "COMPLETED");
-  assert.equal(updates.at(-1)!.progress, 100);
-  assert.equal(updates.at(-1)!.manifestPath, manifestPath);
-
-  // Every chunk the manifest points at must really exist and digest to its key.
-  for (const [sha, entry] of Object.entries(published.chunkIndex)) {
-    const stored = await readFile(join(path, entry.object));
-    assert.equal(
-      sha256(stored),
-      sha,
-      `CAS object ${entry.object} must match its key`,
-    );
-    assert.equal(stored.length, entry.size);
-  }
-
-  await rm(root, { recursive: true, force: true });
-});
-
-test("streamGogGameToDepot concatenates provider chunks in manifest order", async () => {
-  const { root, path } = await depotRoot();
-  const a = Buffer.from("A".repeat(70000));
-  const b = Buffer.from("B".repeat(30000));
-  const ca = gogChunk(a);
-  const cb = gogChunk(b);
-
-  stubFetch([
-    buildsRoute([
-      { build_id: "build-1", product_id: PRODUCT_ID, link: BUILD_LINK },
-    ]),
-    buildMetaRoute([BASE_DEPOT]),
-    depotManifestRoute([depotFileItem("game/big.pak", [ca, cb])]),
-    secureLinkRoute(),
-    chunkRoutes([ca, cb]),
-  ]);
-
-  const { store } = makeStore();
-  const manifestPath = await streamGogGameToDepot({
-    jobId: "job-multi",
-    productId: PRODUCT_ID,
-    accessToken: "token",
-    depotRoot: path,
-    store,
-  });
-
-  const published = await readDropletManifest(manifestPath);
-  assert.equal(published.files[0].sha256, sha256(Buffer.concat([a, b])));
-  assert.equal(published.files[0].size, a.length + b.length);
-  // Depot chunking follows DEPOT_CHUNK_SIZE, not GOG's chunk boundaries: two
-  // provider chunks under 4 MiB reassemble into one whole file and one CAS chunk.
-  assert.equal(published.files[0].chunks.length, 1);
-  assert.equal(published.files[0].chunks[0].size, a.length + b.length);
-
-  await rm(root, { recursive: true, force: true });
-});
-
-test("a later depot overwrites an earlier path instead of failing", async () => {
-  const { root, path } = await depotRoot();
-  const base = Buffer.from("base-config-bytes");
-  const override = Buffer.from("override-config-bytes!!");
-  const c1 = gogChunk(base);
-  const c2 = gogChunk(override);
-
-  let manifestCalls = 0;
-  stubFetch([
-    buildsRoute([
-      { build_id: "build-1", product_id: PRODUCT_ID, link: BUILD_LINK },
-    ]),
-    buildMetaRoute([
-      BASE_DEPOT,
-      { ...BASE_DEPOT, manifest: "ffeeddccbbaa99887766554433221100", isGogDepot: true },
-    ]),
+/** Everything the streamer calls, minus the depot items which tests supply. */
+function baseRoutes(
+  store: ReturnType<typeof makeChunkStore>,
+  depotItems: unknown[],
+  options: { versionName?: string } = {},
+) {
+  return [
     {
-      match: /gog-cdn-fastly\.gog\.com\/content-system\/v2\/meta\//,
+      match: /content-system\.gog\.com\/products\/.*\/builds/,
+      respond: () =>
+        new Response(
+          JSON.stringify({
+            items: [
+              {
+                build_id: "build-1",
+                product_id: PRODUCT_ID,
+                os: "windows",
+                version_name: options.versionName ?? "1.0.0-gog",
+                link: BUILD_LINK,
+              },
+            ],
+          }),
+          { status: 200 },
+        ),
+    },
+    {
+      match: /^https:\/\/meta\.cdn\.invalid\//,
       respond: () =>
         binaryResponse(
           zlibJson({
             version: 2,
-            depot: {
-              items:
-                manifestCalls++ === 0
-                  ? [depotFileItem("game/config.json", [c1])]
-                  : [depotFileItem("game/config.json", [c2])],
-            },
+            baseProductId: PRODUCT_ID,
+            buildId: "build-1",
+            depots: [
+              {
+                manifest: DEPOT_MANIFEST,
+                productId: PRODUCT_ID,
+                languages: ["*"],
+              },
+            ],
           }),
         ),
     },
-    secureLinkRoute(),
-    chunkRoutes([c1, c2]),
-  ]);
-
-  const { store } = makeStore();
-  const manifestPath = await streamGogGameToDepot({
-    jobId: "job-merge",
-    productId: PRODUCT_ID,
-    accessToken: "token",
-    depotRoot: path,
-    store,
-  });
-
-  const published = await readDropletManifest(manifestPath);
-  assert.equal(published.files.length, 1);
-  assert.equal(published.files[0].sha256, sha256(override));
-
-  await rm(root, { recursive: true, force: true });
-});
-
-test("streamGogGameToDepot fails closed on a chunk MD5 mismatch and publishes nothing", async () => {
-  const { root, path } = await depotRoot();
-  const good = Buffer.from("AAAA");
-  // Valid zlib bytes, wrong payload for the declared digest: only an MD5
-  // check can catch it.
-  const corrupt = gogChunk(Buffer.from("BBBB"), {
-    md5: md5(good),
-    size: good.length,
-  });
-
-  stubFetch([
-    buildsRoute([
-      { build_id: "build-1", product_id: PRODUCT_ID, link: BUILD_LINK },
-    ]),
-    buildMetaRoute([BASE_DEPOT]),
-    depotManifestRoute([depotFileItem("bad.bin", [corrupt])]),
-    secureLinkRoute(),
-    chunkRoutes([corrupt]),
-  ]);
-
-  const { store, updates } = makeStore();
-  await assert.rejects(
-    streamGogGameToDepot({
-      jobId: "job-bad",
-      productId: PRODUCT_ID,
-      accessToken: "token",
-      depotRoot: path,
-      store,
-    }),
-    /MD5 mismatch/,
-  );
-
-  assert.equal(updates.at(-1)!.status, "FAILED");
-  assert.match(String(updates.at(-1)!.error), /MD5 mismatch/);
-  assert.deepEqual(
-    await publishedManifests(join(path, "manifests")),
-    [],
-    "no manifest may be published",
-  );
-
-  await rm(root, { recursive: true, force: true });
-});
-
-test("streamGogGameToDepot fails closed when chunks cannot satisfy the declared size", async () => {
-  const { root, path } = await depotRoot();
-  const body = Buffer.from("short");
-  // The manifest entry claims 500 uncompressed bytes for this chunk; the
-  // real inflated payload is 5. The contract must not pad or publish it.
-  const chunk = gogChunk(body, { size: 500 });
-
-  stubFetch([
-    buildsRoute([
-      { build_id: "build-1", product_id: PRODUCT_ID, link: BUILD_LINK },
-    ]),
-    buildMetaRoute([BASE_DEPOT]),
-    depotManifestRoute([depotFileItem("lying.bin", [chunk])]),
-    secureLinkRoute(),
-    chunkRoutes([chunk]),
-  ]);
-
-  const { store, updates } = makeStore();
-  await assert.rejects(
-    streamGogGameToDepot({
-      jobId: "job-size",
-      productId: PRODUCT_ID,
-      accessToken: "token",
-      depotRoot: path,
-      store,
-    }),
-    /length mismatch/,
-  );
-  assert.equal(updates.at(-1)!.status, "FAILED");
-  assert.deepEqual(await publishedManifests(join(path, "manifests")), []);
-
-  await rm(root, { recursive: true, force: true });
-});
-
-test("streamGogGameToDepot reports typed 404s for a missing build or depot manifest", async () => {
-  const { root, path } = await depotRoot();
-  const { store, updates } = makeStore();
-
-  stubFetch([buildsRoute([])]);
-  await assert.rejects(
-    streamGogGameToDepot({
-      jobId: "job-empty",
-      productId: PRODUCT_ID,
-      accessToken: "token",
-      depotRoot: path,
-      store,
-    }),
-    typedError(404, /No GOG build/),
-  );
-  assert.equal(updates.at(-1)!.status, "FAILED");
-
-  stubFetch([
-    buildsRoute([
-      { build_id: "build-2", product_id: PRODUCT_ID, link: BUILD_LINK },
-    ]),
-    buildMetaRoute([]),
-  ]);
-  await assert.rejects(
-    streamGogGameToDepot({
-      jobId: "job-none",
-      productId: PRODUCT_ID,
-      accessToken: "token",
-      depotRoot: path,
-      store,
-    }),
-    typedError(404, /no depot manifest/),
-  );
-
-  stubFetch([
-    buildsRoute([
-      { build_id: "build-1", product_id: PRODUCT_ID, link: BUILD_LINK },
-    ]),
-    buildMetaRoute([BASE_DEPOT]),
-    depotManifestRoute([]),
-  ]);
-  await assert.rejects(
-    streamGogGameToDepot({
-      jobId: "job-nofiles",
-      productId: PRODUCT_ID,
-      accessToken: "token",
-      depotRoot: path,
-      store,
-    }),
-    typedError(404, /No files found/),
-  );
-
-  await rm(root, { recursive: true, force: true });
-});
-
-test("depot language and bitness filters keep unrelated depots out", async () => {
-  const { root, path } = await depotRoot();
-  const chunk = gogChunk(Buffer.from("en-US content"));
-  const requested = stubFetch([
-    buildsRoute([
-      { build_id: "build-1", product_id: PRODUCT_ID, link: BUILD_LINK },
-    ]),
-    buildMetaRoute([
-      { manifest: "dead000000000000000000000000beef", languages: ["de-DE"] },
-      { manifest: "32000000000000000000000000000032", osBitness: ["32"] },
-      { manifest: "otherproduct000000000000000000dl", productId: "999" },
-      BASE_DEPOT,
-    ]),
     {
       match: /gog-cdn-fastly\.gog\.com\/content-system\/v2\/meta\//,
-      respond: (url) => {
-        // Only the base depot may be requested; anything else fails loudly
-        // through the URL in the thrown manifest error.
-        assert.ok(url.includes(DEPOT_MANIFEST), `unexpected depot: ${url}`);
-        return binaryResponse(
-          zlibJson({
-            version: 2,
-            depot: { items: [depotFileItem("f.bin", [chunk])] },
-          }),
-        );
-      },
+      respond: () => binaryResponse(zlibJson({ depot: { items: depotItems } })),
     },
-    secureLinkRoute(),
-    chunkRoutes([chunk]),
-  ]);
+    {
+      match: /content-system\.gog\.com\/products\/.*\/secure_link/,
+      respond: () =>
+        new Response(
+          JSON.stringify({
+            urls: [
+              {
+                endpoint_name: "primary",
+                url_format:
+                  "https://chunk.cdn.invalid/{path}?wsSecret=tok&wsTime=1700000000",
+                parameters: { path: "/content-system/v2/galaxy" },
+                priority: 1,
+              },
+            ],
+          }),
+          { status: 200 },
+        ),
+    },
+    store.route,
+  ];
+}
 
-  const { store } = makeStore();
-  await streamGogGameToDepot({
-    jobId: "job-filter",
+function streamOptions(gameDir: string) {
+  return {
     productId: PRODUCT_ID,
-    accessToken: "token",
-    depotRoot: path,
-    store,
-  });
-  const manifestRequests = requested.filter((url) =>
-    url.includes("gog-cdn-fastly"),
-  );
-  assert.equal(manifestRequests.length, 1);
+    gameTitle: "Test Game",
+    accessToken: "test-token",
+    gameDir,
+  };
+}
 
-  await rm(root, { recursive: true, force: true });
+test("assembles a Filesystem-library tree and reports launches", async () => {
+  const store = makeChunkStore();
+  const infoBytes = Buffer.from(infoDoc([GAME_EXECUTABLE]));
+  const header = store.add(Buffer.from("SIGNATURE"));
+  const payloadA = store.add(Buffer.from("AAA"));
+  const payloadB = store.add(Buffer.from("BB"));
+  const depotItems = [
+    depotFileItem(`goggame-${PRODUCT_ID}.info.json`, [store.add(infoBytes)]),
+    depotFileItem("Test Game\\TestGame.exe", [header, payloadA, payloadB]),
+    depotFileItem("README.txt", [store.add(Buffer.from("readme"))]),
+  ];
+  const requested = stubFetch(
+    baseRoutes(store, depotItems, {
+      versionName: "1.1.2.8-ffc2de0-gw",
+    }),
+  );
+
+  const gameDir = await mkdtemp(join(tmpdir(), "gog-tree-"));
+  try {
+    // A stale import from a previous run must be wiped for the fresh build.
+    const staleDir = join(gameDir, "1.1.2.8-ffc2de0-gw");
+    await mkdir(join(staleDir, "old"), { recursive: true });
+    await writeFile(join(staleDir, "old", "stale.txt"), "delete me");
+
+    const events: Array<{ phase: string; progress: number }> = [];
+    const result = await streamGogGameToDepot({
+      ...streamOptions(gameDir),
+      onProgress: (update) =>
+        events.push({ phase: update.phase, progress: update.progress }),
+    });
+
+    assert.equal(result.versionName, "1.1.2.8-ffc2de0-gw");
+    assert.equal(result.versionDir, staleDir);
+    assert.equal(result.installDirectory, "Test Game");
+    assert.equal(result.fileCount, 3);
+    assert.equal(
+      result.totalBytes,
+      infoBytes.length + "SIGNATURE".length + 3 + 2 + "readme".length,
+    );
+    assert.deepEqual(result.launches, [
+      {
+        name: "Play the game",
+        executable: "Test Game/TestGame.exe",
+        arguments: ["-skipintro"],
+      },
+    ]);
+
+    // The tree landed on disk with exactly the assembled content.
+    assert.equal(
+      (await readFile(join(staleDir, "Test Game", "TestGame.exe"))).toString(),
+      "SIGNATURE" + "AAA" + "BB",
+    );
+    assert.equal(
+      (await readFile(join(staleDir, "README.txt"))).toString(),
+      "readme",
+    );
+    assert.equal(
+      (
+        await readFile(join(staleDir, `goggame-${PRODUCT_ID}.info.json`))
+      ).toString(),
+      infoBytes.toString(),
+    );
+    await assert.rejects(readFile(join(staleDir, "old", "stale.txt")));
+
+    // Launch metadata was acquired before any content file streamed.
+    const infoHash = md5(deflateSync(infoBytes));
+    const exeHash = md5(deflateSync(Buffer.from("SIGNATURE")));
+    const infoAt = requested.findIndex((url) => url.includes(infoHash));
+    const exeAt = requested.findIndex((url) => url.includes(exeHash));
+    assert.ok(infoAt >= 0 && exeAt >= 0);
+    assert.ok(infoAt < exeAt, "info.json must be fetched before game files");
+
+    // Progress: honest lifecycle, monotonic, ends assembled.
+    assert.equal(events[0]!.phase, "manifest_discovery");
+    assert.ok(events.some((e) => e.phase === "launch_metadata"));
+    assert.ok(events.some((e) => e.phase === "assembling_game_files"));
+    assert.equal(events.at(-1)!.phase, "assembled");
+    for (let i = 1; i < events.length; i++) {
+      assert.ok(
+        events[i]!.progress >= events[i - 1]!.progress,
+        "progress must never run backwards",
+      );
+    }
+  } finally {
+    await rm(gameDir, { recursive: true, force: true });
+  }
 });
 
-afterEach(() => {
-  globalThis.fetch = originalFetch;
+test("sanitizes the version directory name", async () => {
+  const store = makeChunkStore();
+  const depotItems = [
+    depotFileItem(`goggame-${PRODUCT_ID}.info.json`, [
+      store.add(Buffer.from(infoDoc([GAME_EXECUTABLE]))),
+    ]),
+    depotFileItem("a.txt", [store.add(Buffer.from("a"))]),
+  ];
+  stubFetch(baseRoutes(store, depotItems, { versionName: "1.0 <build 5>:2" }));
+
+  const gameDir = await mkdtemp(join(tmpdir(), "gog-tree-"));
+  try {
+    const result = await streamGogGameToDepot(streamOptions(gameDir));
+    assert.equal(result.versionName, "1.0__build_5__2");
+    assert.equal(
+      (await readFile(join(result.versionDir, "a.txt"))).toString(),
+      "a",
+    );
+  } finally {
+    await rm(gameDir, { recursive: true, force: true });
+  }
+});
+
+test("refuses depot paths that escape the version directory", async () => {
+  const store = makeChunkStore();
+  const requested = stubFetch(
+    baseRoutes(store, [
+      depotFileItem("../../../etc/passwd", [store.add(Buffer.from("x"))]),
+    ]),
+  );
+
+  const gameDir = await mkdtemp(join(tmpdir(), "gog-tree-"));
+  try {
+    await assert.rejects(
+      streamGogGameToDepot(streamOptions(gameDir)),
+      typedError(502, /unsafe file path/),
+    );
+    assert.ok(
+      !requested.some((url) => url.includes("chunk.cdn.invalid")),
+      "no chunk may be downloaded once a path is unsafe",
+    );
+  } finally {
+    await rm(gameDir, { recursive: true, force: true });
+  }
+});
+
+test("aborts before the bulk download when the game declares no launch", async () => {
+  const store = makeChunkStore();
+  const infoBytes = Buffer.from(
+    infoDoc([{ name: "Editor", path: "editor.exe", type: "Tool" }]),
+  );
+  const gameChunk = store.add(Buffer.from("huge-game-payload"));
+  const depotItems = [
+    depotFileItem(`goggame-${PRODUCT_ID}.info.json`, [store.add(infoBytes)]),
+    depotFileItem("Test Game/TestGame.exe", [gameChunk]),
+  ];
+  const requested = stubFetch(baseRoutes(store, depotItems));
+
+  const gameDir = await mkdtemp(join(tmpdir(), "gog-tree-"));
+  try {
+    await assert.rejects(
+      streamGogGameToDepot(streamOptions(gameDir)),
+      typedError(422, /no launchable Game executable/),
+    );
+    assert.ok(
+      !requested.some((url) => url.includes(gameChunk.compressedMd5)),
+      "the game payload must never be fetched for an unlaunchable build",
+    );
+  } finally {
+    await rm(gameDir, { recursive: true, force: true });
+  }
+});
+
+test("fails when the build ships no game info document", async () => {
+  const store = makeChunkStore();
+  stubFetch(
+    baseRoutes(store, [depotFileItem("a.txt", [store.add(Buffer.from("a"))])]),
+  );
+
+  const gameDir = await mkdtemp(join(tmpdir(), "gog-tree-"));
+  try {
+    await assert.rejects(
+      streamGogGameToDepot(streamOptions(gameDir)),
+      typedError(404, /ships no goggame/),
+    );
+  } finally {
+    await rm(gameDir, { recursive: true, force: true });
+  }
+});
+
+test("rejects a file whose assembled size disagrees with the manifest", async () => {
+  const store = makeChunkStore();
+  const lyingChunk = store.add(Buffer.from("three"), { size: 999 });
+  const depotItems = [
+    depotFileItem(`goggame-${PRODUCT_ID}.info.json`, [
+      store.add(Buffer.from(infoDoc([GAME_EXECUTABLE]))),
+    ]),
+    depotFileItem("a.txt", [lyingChunk]),
+  ];
+  stubFetch(baseRoutes(store, depotItems));
+
+  const gameDir = await mkdtemp(join(tmpdir(), "gog-tree-"));
+  try {
+    await assert.rejects(
+      streamGogGameToDepot(streamOptions(gameDir)),
+      typedError(502, /size mismatch/),
+    );
+  } finally {
+    await rm(gameDir, { recursive: true, force: true });
+  }
+});
+
+test("verifies chunk digests against tampered wire bytes", async () => {
+  const store = makeChunkStore();
+  const chunk = store.add(Buffer.from("pristine"));
+  const depotItems = [
+    depotFileItem(`goggame-${PRODUCT_ID}.info.json`, [
+      store.add(Buffer.from(infoDoc([GAME_EXECUTABLE]))),
+    ]),
+    depotFileItem("a.txt", [chunk]),
+  ];
+  stubFetch(baseRoutes(store, depotItems));
+  store.corrupt(chunk);
+
+  const gameDir = await mkdtemp(join(tmpdir(), "gog-tree-"));
+  try {
+    await assert.rejects(
+      streamGogGameToDepot(streamOptions(gameDir)),
+      typedError(502, /Failed to fetch GOG chunk/),
+    );
+  } finally {
+    await rm(gameDir, { recursive: true, force: true });
+  }
+});
+
+test("parseGogInfo reads Galaxy-era and plateau schemas", () => {
+  const galaxy = parseGogInfo(
+    infoDoc([
+      GAME_EXECUTABLE,
+      { name: "Config", path: "config.exe", type: "Configuration" },
+    ]),
+  );
+  assert.equal(galaxy.installDirectory, "Test Game");
+  assert.equal(galaxy.launches.length, 1);
+  assert.equal(galaxy.launches[0]!.executable, "Test Game/TestGame.exe");
+
+  const plateau = parseGogInfo(
+    JSON.stringify({
+      plateau: {
+        executables: [
+          {
+            name: "Play",
+            path: "/game.elf",
+            type: "Game",
+            arguments: "-fullscreen",
+          },
+        ],
+      },
+    }),
+  );
+  assert.deepEqual(plateau.launches, [
+    { name: "Play", executable: "game.elf", arguments: ["-fullscreen"] },
+  ]);
 });
