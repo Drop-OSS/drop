@@ -6,9 +6,18 @@
 #
 #   scripts/depot-dev.sh prepare    # one-off: builder image + seeded mount
 #   scripts/depot-dev.sh build      # sync sources -> nitro build -> ./.dev-app
+#   scripts/depot-dev.sh clean      # drop builder Vite/Nuxt caches
 #   scripts/depot-dev.sh up         # run the server from the mounted bundle
 #   scripts/depot-dev.sh restart    # pick up a freshly built bundle
 #   scripts/depot-dev.sh down       # back onto the real :latest image
+#
+# Two builds overlapping in the builder (e.g. a `pnpm typecheck` still writing
+# .nuxt when a build starts, or a SIGKILLed build) poison the Vite/Nuxt caches
+# there. Every bundle from poisoned caches serves an unstyled, subtly broken
+# client with ZERO console errors - the HTML and asset hashes all check out, so
+# only the rendered page shows it. If the web UI goes naked after a rebuild:
+# `depot-dev.sh clean && depot-dev.sh build`. Never run two builds/typechecks
+# in the builder at once.
 set -euo pipefail
 cd "$(git -C "$(dirname "${BASH_SOURCE[0]}")/.." rev-parse --show-toplevel)"
 
@@ -28,8 +37,20 @@ case "${1:-}" in
     echo "Dev loop ready: depot-dev.sh build && depot-dev.sh up"
     ;;
 
-  build)
+  clean)
     COMPOSE_PROFILES=dev $DEV exec -T builder sh -euc '
+      rm -rf /app/server/.nuxt /app/.nuxt /app/server/.output \
+             /app/node_modules/.vite /app/server/node_modules/.vite \
+             /app/node_modules/.cache /app/server/node_modules/.cache
+      echo "builder caches cleared"
+    '
+    ;;
+
+  build)
+    # NODE_OPTIONS mirrors the Dockerfile build stage: nuxt build exceeds V8's
+    # default heap here, and an OOM-killed vite step is exactly what poisons
+    # the caches (unstyled UI from then on, zero console errors).
+    COMPOSE_PROFILES=dev $DEV exec -T -e NODE_OPTIONS=--max-old-space-size=4096 builder sh -euc '
       CHANGED=0
       cmp -s /src/pnpm-lock.yaml /app/pnpm-lock.yaml || CHANGED=1
       # Sync working tree into the image workspace, keeping the container
@@ -63,7 +84,7 @@ case "${1:-}" in
     ;;
 
   *)
-    echo "usage: depot-dev.sh prepare|build|up|restart|down" >&2
+    echo "usage: depot-dev.sh prepare|build|clean|up|restart|down" >&2
     exit 1
     ;;
 esac
