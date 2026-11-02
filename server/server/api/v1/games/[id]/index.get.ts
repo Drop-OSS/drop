@@ -1,11 +1,14 @@
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
+import profileManager from "~/server/internal/profiles";
 import gameSizeManager from "~/server/internal/gamesize";
 import { getAgeRestrictionFilter } from "~/server/internal/utils/ageRestrictions";
 
 export default defineEventHandler(async (h3) => {
   const user = await aclManager.getUserACL(h3, ["store:read"]);
   if (!user) throw createError({ statusCode: 403 });
+  // The web has no profile switcher yet: it shows the default player's stats.
+  const profile = await profileManager.defaultProfile(user.id);
 
   const gameId = getRouterParam(h3, "id");
   if (!gameId)
@@ -58,7 +61,7 @@ export default defineEventHandler(async (h3) => {
       tags: true,
       ageRatings: true,
       playtime: {
-        where: { userId: user.id },
+        where: { userId: user.id, profileId: profile.id },
       },
     },
   });

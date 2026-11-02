@@ -3,6 +3,7 @@ import { ClientCapabilities } from "~/prisma/client/enums";
 import { readDropValidatedBody, throwingArktype } from "~/server/arktype";
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import prisma from "~/server/internal/db/database";
+import { getProfile } from "~/server/internal/profiles/http";
 
 const maxElapsedSeconds = 31536000;
 const PlaytimeBody = type({
@@ -40,16 +41,23 @@ export default defineClientEventHandler(
         statusMessage: `seconds must be between 1 and ${maxElapsedSeconds}.`,
       });
 
+    // Playtime belongs to the player who was at the controls, not the raw
+    // account: the selector (query/header/default-profile) is validated
+    // against this user.
+    const profile = await getProfile(h3, user.id);
+
     return prisma.playtime.upsert({
       where: {
-        gameId_userId: {
+        gameId_userId_profileId: {
           gameId,
           userId: user.id,
+          profileId: profile.id,
         },
       },
       create: {
         gameId,
         userId: user.id,
+        profileId: profile.id,
         seconds: elapsedSeconds,
       },
       update: {

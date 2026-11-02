@@ -1,5 +1,6 @@
 import { readBody } from "h3";
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
+import { getProfile } from "~/server/internal/profiles/http";
 import saveManager from "~/server/internal/saves";
 import { assertGameExists } from "~/server/internal/saves/access";
 import {
@@ -14,6 +15,7 @@ export default defineClientEventHandler(
     const client = await fetchClient();
     assertCloudSaves(client);
     const user = await fetchUser();
+    const profile = await getProfile(h3, user.id);
     const gameId = getGameId(h3);
     const index = getSlotIndex(h3);
     const versionId = getVersionId(h3);
@@ -24,6 +26,6 @@ export default defineClientEventHandler(
     };
     const pinned = typeof body.pinned === "boolean" ? body.pinned : true;
 
-    return saveManager.setPinned(user.id, gameId, index, versionId, pinned);
+    return saveManager.setPinned(user.id, profile.id, gameId, index, versionId, pinned);
   },
 );

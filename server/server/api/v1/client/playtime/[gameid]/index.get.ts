@@ -1,6 +1,7 @@
 import { ClientCapabilities } from "~/prisma/client/enums";
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import prisma from "~/server/internal/db/database";
+import { getProfile } from "~/server/internal/profiles/http";
 
 export default defineClientEventHandler(
   async (h3, { fetchClient, fetchUser }) => {
@@ -25,11 +26,13 @@ export default defineClientEventHandler(
     if (!game)
       throw createError({ statusCode: 400, statusMessage: "Invalid game ID" });
 
+    const profile = await getProfile(h3, user.id);
     const playtime = await prisma.playtime.findUnique({
       where: {
-        gameId_userId: {
+        gameId_userId_profileId: {
           gameId,
           userId: user.id,
+          profileId: profile.id,
         },
       },
     });

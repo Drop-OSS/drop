@@ -46,7 +46,11 @@ class UserLibraryManager {
     await this.collectionRemove(gameId, userLibraryId, userId);
   }
 
-  async fetchLibrary(userId: string, gameFilter?: Prisma.GameWhereInput) {
+  async fetchLibrary(
+    userId: string,
+    profileId: string,
+    gameFilter?: Prisma.GameWhereInput,
+  ) {
     const userLibraryId = await this.fetchUserLibrary(userId);
     const userLibrary = await prisma.collection.findUnique({
       where: { id: userLibraryId },
@@ -56,7 +60,9 @@ class UserLibraryManager {
           include: {
             game: {
               include: {
-                playtime: { where: { userId } },
+                // Play stats are per player: the caller names the profile
+                // this library view is rendered for.
+                playtime: { where: { userId, profileId } },
               },
             },
           },

@@ -200,6 +200,8 @@ model SaveSlot {
   game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   index  Int
 
   label String?
@@ -218,7 +220,29 @@ model SaveSlot {
   historyObjectIds String[] // list of objects
   historyChecksums String[] // list of hashes
 
-  @@id([gameId, userId, index], name: "id")
+  @@id([gameId, userId, profileId, index], name: "id")
+}
+
+/// One player within a user's account: the unit playtime and cloud saves are
+/// attributed to. A user always has at least one (the default, created by the
+/// 20261104000000 migration and lazily recreated if data predates it), so
+/// nothing has to reason about "no profile".
+model Profile {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name String
+  /// The profile a request without an explicit selector falls back to.
+  isDefault Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  playtime Playtime[]
+  saves    SaveSlot[]
+
+  @@index([userId])
 }
 
 enum SaveVersionKind {
@@ -238,8 +262,9 @@ model SaveVersion {
   id        String @id @default(uuid())
   gameId    String
   userId    String
+  profileId String
   slotIndex Int
-  slot      SaveSlot @relation(fields: [gameId, userId, slotIndex], references: [gameId, userId, index], onDelete: Cascade)
+  slot      SaveSlot @relation(fields: [gameId, userId, profileId, slotIndex], references: [gameId, userId, profileId, index], onDelete: Cascade)
 
   objectId String
   archiveSha256 String
@@ -261,8 +286,8 @@ model SaveVersion {
 
   createdAt DateTime @default(now())
 
-  @@unique([gameId, userId, slotIndex, clientMutationId])
-  @@index([gameId, userId, slotIndex, createdAt])
+  @@unique([gameId, userId, profileId, slotIndex, clientMutationId])
+  @@index([gameId, userId, profileId, slotIndex, createdAt])
   @@index([objectId])
   @@index([contentHash])
 }
@@ -311,14 +336,20 @@ model Playtime {
   game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // The profile that accrued these seconds. Every user carries at least a
+  // default profile (migration 20261104000000 backfills one), so this is
+  // required: a nullable profile would let unattributed stats sneak in.
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
   seconds Int // seconds user has spent playing the game
 
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
   createdAt DateTime @default(now()) @db.Timestamptz(6)
 
-  @@id([gameId, userId])
+  @@id([gameId, userId, profileId])
   @@index([userId])
+  @@index([profileId])
 }
 
 model Company {

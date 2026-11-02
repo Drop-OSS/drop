@@ -20,6 +20,7 @@ import { Readable } from "node:stream";
 import type { IncomingMessage } from "node:http";
 import { canonicalize } from "json-canonicalize";
 import prisma from "~/server/internal/db/database";
+import profileManager from "~/server/internal/profiles";
 import saveManager from "~/server/internal/saves";
 import { SaveConflictError } from "~/server/internal/saves/errors";
 import { contentHash } from "~/server/internal/saves/hash";
@@ -172,7 +173,11 @@ async function main() {
     }),
   ]);
 
-  const base = { userId, gameId, index: 0, clientId };
+  // Everything a player owns hangs off their profile; asking for the
+  // default also proves it self-heals for a brand-new account.
+  const profile = await profileManager.defaultProfile(userId);
+
+  const base = { userId, profileId: profile.id, gameId, index: 0, clientId };
   const uploaded: Array<{ id: string; objectId: string; contentHash: string }> =
     [];
 
@@ -194,7 +199,7 @@ async function main() {
       });
       uploaded.push(version);
       assert(existsSync(file(version.objectId)), "archive object never landed");
-      const slot = await saveManager.getSlot(userId, gameId, 0);
+      const slot = await saveManager.getSlot(userId, profile.id, gameId, 0);
       equal(slot.head?.id, version.id, "slot head");
       equal(slot.versionCount, 1, "version count");
     },
@@ -217,7 +222,7 @@ async function main() {
         kind: SaveVersionKind.Backup,
       });
       uploaded.push(version);
-      const slot = await saveManager.getSlot(userId, gameId, 0);
+      const slot = await saveManager.getSlot(userId, profile.id, gameId, 0);
       equal(slot.head?.id, version.id, "slot head");
       equal(version.parentVersionId, uploaded[0]!.id, "parent version");
     },
@@ -250,7 +255,7 @@ async function main() {
         uploaded[1]!.id,
         "conflict head",
       );
-      const slot = await saveManager.getSlot(userId, gameId, 0);
+      const slot = await saveManager.getSlot(userId, profile.id, gameId, 0);
       equal(slot.versionCount, 2, "version count after a rejected write");
       assert(
         (await prisma.saveVersion.count({ where: { userId } })) === 2,
@@ -289,7 +294,7 @@ async function main() {
         stream: archive([{ key: "save/slot1.sav", body: "three" }]).stream(),
       });
       equal(replay.id, first.id, "replayed version id");
-      const slot = await saveManager.getSlot(userId, gameId, 0);
+      const slot = await saveManager.getSlot(userId, profile.id, gameId, 0);
       equal(slot.versionCount, 3, "version count after replay");
     },
   );
@@ -314,7 +319,7 @@ async function main() {
   });
 
   await check("the sync decision answers every device state", async () => {
-    const head = (await saveManager.getSlot(userId, gameId, 0)).head!;
+    const head = (await saveManager.getSlot(userId, profile.id, gameId, 0)).head!;
     // A version older than the head whose content also differs from it: the
     // only baseline that can tell "pull" from "converged".
     const stale = await prisma.saveVersion.findFirst({
@@ -338,7 +343,7 @@ async function main() {
     ]);
 
     const cases: Array<
-      [string, Parameters<typeof saveManager.syncState>[3], string]
+      [string, Parameters<typeof saveManager.syncState>[4], string]
     > = [
       [
         "device matches the server",
@@ -372,7 +377,7 @@ async function main() {
       ],
     ];
     for (const [name, state, expected] of cases) {
-      const seen = await saveManager.syncState(userId, gameId, 0, state);
+      const seen = await saveManager.syncState(userId, profile.id, gameId, 0, state);
       equal(seen.decision, expected, `sync decision (${name})`);
     }
   });
@@ -380,11 +385,11 @@ async function main() {
   await check(
     "the version timeline pages without gaps or repeats",
     async () => {
-      const pageOne = await saveManager.listVersions(userId, gameId, 0, {
+      const pageOne = await saveManager.listVersions(userId, profile.id, gameId, 0, {
         limit: 2,
       });
       equal(pageOne.length, 2, "first page size");
-      const pageTwo = await saveManager.listVersions(userId, gameId, 0, {
+      const pageTwo = await saveManager.listVersions(userId, profile.id, gameId, 0, {
         limit: 2,
         cursor: pageOne.at(-1)!.id,
       });
@@ -392,7 +397,7 @@ async function main() {
       equal(new Set(ids).size, ids.length, "cursor repeated a version");
       let seen: unknown;
       try {
-        await saveManager.listVersions(userId, gameId, 0, {
+        await saveManager.listVersions(userId, profile.id, gameId, 0, {
           cursor: randomUUID(),
         });
       } catch (error) {
@@ -405,7 +410,7 @@ async function main() {
   await check(
     "restore publishes a new version and keeps the version it came from",
     async () => {
-      const before = (await saveManager.getSlot(userId, gameId, 0)).head!;
+      const before = (await saveManager.getSlot(userId, profile.id, gameId, 0)).head!;
       const target = await prisma.saveVersion.findFirst({
         where: { userId, gameId, slotIndex: 0, id: { not: before.id } },
         orderBy: [{ createdAt: "asc" }, { id: "asc" }],
@@ -413,11 +418,12 @@ async function main() {
       assert(target !== null, "no older version to restore");
       // Retention runs on every write, so pin it: what a user rolls back to has
       // to survive the history limit.
-      await saveManager.setPinned(userId, gameId, 0, target!.id, false);
-      await saveManager.setPinned(userId, gameId, 0, target!.id, true);
+      await saveManager.setPinned(userId, profile.id, gameId, 0, target!.id, false);
+      await saveManager.setPinned(userId, profile.id, gameId, 0, target!.id, true);
 
       const restored = await saveManager.restoreVersion(
         userId,
+        profile.id,
         gameId,
         0,
         target!.id,
@@ -428,7 +434,7 @@ async function main() {
       equal(restored.restoredFromVersionId, target!.id, "restored from");
       equal(restored.contentHash, target!.contentHash, "restored content");
       equal(restored.objectId, target!.objectId, "restored object reuse");
-      const after = await saveManager.getSlot(userId, gameId, 0);
+      const after = await saveManager.getSlot(userId, profile.id, gameId, 0);
       equal(after.head?.id, restored.id, "head after restore");
       equal(
         await prisma.saveVersion.count({ where: { id: target!.id } }),
@@ -448,10 +454,10 @@ async function main() {
   );
 
   await check("the head version cannot be deleted", async () => {
-    const head = (await saveManager.getSlot(userId, gameId, 0)).head!;
+    const head = (await saveManager.getSlot(userId, profile.id, gameId, 0)).head!;
     let seen: unknown;
     try {
-      await saveManager.deleteVersion(userId, gameId, 0, head.id);
+      await saveManager.deleteVersion(userId, profile.id, gameId, 0, head.id);
     } catch (error) {
       seen = error;
     }
@@ -461,7 +467,7 @@ async function main() {
   await check(
     "pruning keeps head and pinned, and frees exactly the objects nothing points at",
     async () => {
-      const head0 = (await saveManager.getSlot(userId, gameId, 0)).head!;
+      const head0 = (await saveManager.getSlot(userId, profile.id, gameId, 0)).head!;
       const keep = await prisma.saveVersion.findFirst({
         where: { userId, gameId, slotIndex: 0, id: { not: head0.id } },
         orderBy: [{ createdAt: "asc" }, { id: "asc" }],
@@ -469,6 +475,7 @@ async function main() {
       assert(keep !== null, "nothing to pin");
       const pinFlagged = await saveManager.setPinned(
         userId,
+        profile.id,
         gameId,
         0,
         keep!.id,
@@ -484,7 +491,7 @@ async function main() {
       // saveSlotHistoryLimit defaults to 3, so this pushes well past it.
       for (let i = 0; i < 6; i++) {
         const save = archive([{ key: "save/slot1.sav", body: `filler-${i}` }]);
-        const head = (await saveManager.getSlot(userId, gameId, 0)).head!;
+        const head = (await saveManager.getSlot(userId, profile.id, gameId, 0)).head!;
         await saveManager.createVersion({
           ...base,
           stream: save.stream(),
@@ -504,7 +511,7 @@ async function main() {
         select: { id: true, objectId: true, pinned: true },
       });
       const remainingIds = new Set(remaining.map((v) => v.id));
-      const head = (await saveManager.getSlot(userId, gameId, 0)).head!;
+      const head = (await saveManager.getSlot(userId, profile.id, gameId, 0)).head!;
       assert(remainingIds.has(head.id), "pruning removed the head");
       assert(remainingIds.has(keep!.id), "pruning removed a pinned version");
       assert(remaining.length <= 4, `prune kept ${remaining.length} versions`);
@@ -537,9 +544,10 @@ async function main() {
   await check(
     "a download returns exactly the bytes that were stored",
     async () => {
-      const head = (await saveManager.getSlot(userId, gameId, 0)).head!;
+      const head = (await saveManager.getSlot(userId, profile.id, gameId, 0)).head!;
       const { data } = await saveManager.downloadVersion(
         userId,
+        profile.id,
         gameId,
         0,
         head.id,
@@ -558,8 +566,15 @@ async function main() {
 
   await check("the legacy push keeps last-write-wins semantics", async () => {
     const save = archive([{ key: "save/slot1.sav", body: "legacy" }]);
-    await saveManager.pushSave(gameId, userId, 0, save.stream(), clientId);
-    const head = (await saveManager.getSlot(userId, gameId, 0)).head!;
+    await saveManager.pushSave(
+      gameId,
+      userId,
+      profile.id,
+      0,
+      save.stream(),
+      clientId,
+    );
+    const head = (await saveManager.getSlot(userId, profile.id, gameId, 0)).head!;
     equal(head.kind, SaveVersionKind.Backup, "legacy push kind");
     assert(
       JSON.stringify(head.metadata).includes("legacyPush"),
@@ -612,7 +627,7 @@ async function main() {
           select: { objectId: true },
         })
       ).map((v) => v.objectId);
-      await saveManager.deleteSlot(userId, gameId, 0);
+      await saveManager.deleteSlot(userId, profile.id, gameId, 0);
       equal(
         await prisma.saveVersion.count({ where: { userId } }),
         0,
@@ -639,6 +654,7 @@ async function main() {
       // must be 0 rather than highest-plus-one.
       const first = await saveManager.createNextSlot(
         userId,
+        profile.id,
         gameId,
         null,
         clientId,
@@ -646,6 +662,7 @@ async function main() {
       equal(first.index, 0, "createNextSlot index");
       const second = await saveManager.createNextSlot(
         userId,
+        profile.id,
         gameId,
         "cloud save slot label ".repeat(8),
         clientId,
@@ -654,11 +671,11 @@ async function main() {
       equal(second.label?.length, 100, "label truncated to 100 characters");
 
       while ((await prisma.saveSlot.count({ where: { userId, gameId } })) < 5)
-        await saveManager.createNextSlot(userId, gameId, null, clientId);
+        await saveManager.createNextSlot(userId, profile.id, gameId, null, clientId);
 
       let overLimit: unknown;
       try {
-        await saveManager.createNextSlot(userId, gameId, null, clientId);
+        await saveManager.createNextSlot(userId, profile.id, gameId, null, clientId);
       } catch (error) {
         overLimit = error;
       }
@@ -666,7 +683,7 @@ async function main() {
 
       let clash: unknown;
       try {
-        await saveManager.createSlot(userId, gameId, 0, null, clientId);
+        await saveManager.createSlot(userId, profile.id, gameId, 0, null, clientId);
       } catch (error) {
         clash = error;
       }
@@ -766,7 +783,7 @@ async function main() {
       }
       equal(status(lying), 400, "archive checksum mismatch status");
 
-      const slot = await saveManager.getSlot(userId, gameId, 0);
+      const slot = await saveManager.getSlot(userId, profile.id, gameId, 0);
       equal(slot.head, null, "head after refused uploads");
       equal(slot.versionCount, 0, "versions after refused uploads");
 
@@ -782,7 +799,7 @@ async function main() {
         clientMutationId: null,
         kind: SaveVersionKind.Backup,
       });
-      const after = await saveManager.getSlot(userId, gameId, 0);
+      const after = await saveManager.getSlot(userId, profile.id, gameId, 0);
       equal(after.head?.id, created.id, "head after a good upload");
     },
   );

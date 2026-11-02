@@ -22,6 +22,7 @@ model User {
     saves       SaveSlot[]
     screenshots Screenshot[]
     playtime    Playtime[]
+    profiles    Profile[]
 
     groups UserGroup[]
 }

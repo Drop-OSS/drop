@@ -1,4 +1,5 @@
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
+import { getProfile } from "~/server/internal/profiles/http";
 import saveManager from "~/server/internal/saves";
 import { assertGameExists } from "~/server/internal/saves/access";
 import {
@@ -12,10 +13,11 @@ export default defineClientEventHandler(
     const client = await fetchClient();
     assertCloudSaves(client);
     const user = await fetchUser();
+    const profile = await getProfile(h3, user.id);
     const gameId = getGameId(h3);
     const index = getSlotIndex(h3);
     await assertGameExists(gameId);
-    await saveManager.deleteSlot(user.id, gameId, index);
+    await saveManager.deleteSlot(user.id, profile.id, gameId, index);
     return {};
   },
 );

@@ -31,6 +31,7 @@ export type SaveVersionDto = {
   id: string;
   gameId: string;
   userId: string;
+  profileId: string;
   slotIndex: number;
   objectId: string;
   archiveSha256: string;
@@ -52,6 +53,7 @@ export type SaveVersionDto = {
 export type SaveSlotDto = {
   gameId: string;
   userId: string;
+  profileId: string;
   index: number;
   label: string | null;
   createdAt: Date;
@@ -65,6 +67,7 @@ export type SaveSlotDto = {
 export type CreateVersionInput = {
   gameId: string;
   userId: string;
+  profileId: string;
   index: number;
   clientId: string;
   clientName?: string;
@@ -89,6 +92,7 @@ export function toSaveVersionDto(version: SaveVersionModel): SaveVersionDto {
     id: version.id,
     gameId: version.gameId,
     userId: version.userId,
+    profileId: version.profileId,
     slotIndex: version.slotIndex,
     objectId: version.objectId,
     archiveSha256: version.archiveSha256,
@@ -115,6 +119,7 @@ function toSaveSlotDto(
   return {
     gameId: slot.gameId,
     userId: slot.userId,
+    profileId: slot.profileId,
     index: slot.index,
     label: slot.label,
     createdAt: slot.createdAt,
@@ -142,11 +147,12 @@ class SaveManager {
 
   private async requireSlot(
     userId: string,
+    profileId: string,
     gameId: string,
     index: number,
   ): Promise<SlotWithCount> {
     const slot = await prisma.saveSlot.findUnique({
-      where: { id: { userId, gameId, index } },
+      where: { id: { userId, profileId, gameId, index } },
       include: { _count: { select: { versions: true } } },
     });
     if (!slot)
@@ -156,6 +162,7 @@ class SaveManager {
 
   private async requireVersion(
     userId: string,
+    profileId: string,
     gameId: string,
     index: number,
     versionId: string,
@@ -165,6 +172,7 @@ class SaveManager {
         id: versionId,
         gameId,
         userId,
+        profileId,
         slotIndex: index,
       },
     });
@@ -189,9 +197,9 @@ class SaveManager {
     return new Map(heads.map((head) => [head.id, head]));
   }
 
-  async listSlots(userId: string): Promise<SaveSlotDto[]> {
+  async listSlots(userId: string, profileId: string): Promise<SaveSlotDto[]> {
     const slots = await prisma.saveSlot.findMany({
-      where: { userId },
+      where: { userId, profileId },
       include: { _count: { select: { versions: true } } },
       orderBy: [{ gameId: "asc" }, { index: "asc" }],
     });
@@ -204,9 +212,13 @@ class SaveManager {
     );
   }
 
-  async listGameSlots(userId: string, gameId: string): Promise<SaveSlotDto[]> {
+  async listGameSlots(
+    userId: string,
+    profileId: string,
+    gameId: string,
+  ): Promise<SaveSlotDto[]> {
     const slots = await prisma.saveSlot.findMany({
-      where: { userId, gameId },
+      where: { userId, profileId, gameId },
       include: { _count: { select: { versions: true } } },
       orderBy: { index: "asc" },
     });
@@ -221,10 +233,11 @@ class SaveManager {
 
   async getSlot(
     userId: string,
+    profileId: string,
     gameId: string,
     index: number,
   ): Promise<SaveSlotDto> {
-    const slot = await this.requireSlot(userId, gameId, index);
+    const slot = await this.requireSlot(userId, profileId, gameId, index);
     const head = slot.headVersionId
       ? await prisma.saveVersion.findUnique({
           where: { id: slot.headVersionId },
@@ -241,6 +254,7 @@ class SaveManager {
    */
   async syncState(
     userId: string,
+    profileId: string,
     gameId: string,
     index: number,
     options: { baseVersionId: string | null; localContentHash: string | null },
@@ -259,7 +273,7 @@ class SaveManager {
       });
 
     const slot = await prisma.saveSlot.findUnique({
-      where: { id: { userId, gameId, index } },
+      where: { id: { userId, profileId, gameId, index } },
       select: { headVersionId: true },
     });
     const headVersionId = slot?.headVersionId ?? null;
@@ -277,6 +291,7 @@ class SaveManager {
             where: {
               id: options.baseVersionId,
               userId,
+              profileId,
               gameId,
               slotIndex: index,
             },
@@ -306,6 +321,7 @@ class SaveManager {
 
   async createSlot(
     userId: string,
+    profileId: string,
     gameId: string,
     index: number,
     label: string | null,
@@ -319,7 +335,7 @@ class SaveManager {
     const cleanLabel = label?.trim().slice(0, 100) || null;
 
     const existing = await prisma.saveSlot.findUnique({
-      where: { id: { userId, gameId, index } },
+      where: { id: { userId, profileId, gameId, index } },
       select: { gameId: true },
     });
     if (existing)
@@ -328,7 +344,9 @@ class SaveManager {
         statusMessage: "Save slot already exists",
       });
 
-    const count = await prisma.saveSlot.count({ where: { userId, gameId } });
+    const count = await prisma.saveSlot.count({
+      where: { userId, profileId, gameId },
+    });
     if (count >= (await this.slotLimit()))
       throw createError({
         statusCode: 400,
@@ -338,6 +356,7 @@ class SaveManager {
     const slot = await prisma.saveSlot.create({
       data: {
         userId,
+        profileId,
         gameId,
         index,
         label: cleanLabel,
@@ -356,12 +375,13 @@ class SaveManager {
    */
   async createNextSlot(
     userId: string,
+    profileId: string,
     gameId: string,
     label: string | null,
     clientId: string,
   ): Promise<SaveSlotDto> {
     const slots = await prisma.saveSlot.findMany({
-      where: { userId, gameId },
+      where: { userId, profileId, gameId },
       select: { index: true },
       orderBy: { index: "asc" },
     });
@@ -369,17 +389,18 @@ class SaveManager {
     for (const slot of slots) {
       if (slot.index === index) index++;
     }
-    return this.createSlot(userId, gameId, index, label, clientId);
+    return this.createSlot(userId, profileId, gameId, index, label, clientId);
   }
 
   private async ensureAutoSlot(
     userId: string,
+    profileId: string,
     gameId: string,
     index: number,
     clientId: string,
   ): Promise<void> {
     const existing = await prisma.saveSlot.findUnique({
-      where: { id: { userId, gameId, index } },
+      where: { id: { userId, profileId, gameId, index } },
       select: { gameId: true },
     });
     if (existing) return;
@@ -387,11 +408,11 @@ class SaveManager {
       throw createError({ statusCode: 404, statusMessage: "Save not found" });
 
     try {
-      await this.createSlot(userId, gameId, 0, null, clientId);
+      await this.createSlot(userId, profileId, gameId, 0, null, clientId);
     } catch (error) {
       // Another device created the auto slot between the lookup and create.
       const now = await prisma.saveSlot.findUnique({
-        where: { id: { userId, gameId, index } },
+        where: { id: { userId, profileId, gameId, index } },
         select: { gameId: true },
       });
       if (!now) throw error;
@@ -400,11 +421,12 @@ class SaveManager {
 
   async listVersions(
     userId: string,
+    profileId: string,
     gameId: string,
     index: number,
     options: { cursor?: string | null; limit?: number } = {},
   ): Promise<SaveVersionDto[]> {
-    await this.requireSlot(userId, gameId, index);
+    await this.requireSlot(userId, profileId, gameId, index);
     const limit = Math.min(Math.max(options.limit ?? 50, 1), 100);
 
     // Page by createdAt rather than by Prisma cursor: a version may be pruned
@@ -412,7 +434,7 @@ class SaveManager {
     let before: { createdAt: Date; id: string } | null = null;
     if (options.cursor) {
       const cursor = await prisma.saveVersion.findFirst({
-        where: { id: options.cursor, userId, gameId, slotIndex: index },
+        where: { id: options.cursor, userId, profileId, gameId, slotIndex: index },
         select: { id: true, createdAt: true },
       });
       if (!cursor)
@@ -426,6 +448,7 @@ class SaveManager {
     const versions = await prisma.saveVersion.findMany({
       where: {
         userId,
+        profileId,
         gameId,
         slotIndex: index,
         ...(before
@@ -447,22 +470,30 @@ class SaveManager {
 
   async getVersion(
     userId: string,
+    profileId: string,
     gameId: string,
     index: number,
     versionId: string,
   ): Promise<SaveVersionDto> {
     return toSaveVersionDto(
-      await this.requireVersion(userId, gameId, index, versionId),
+      await this.requireVersion(userId, profileId, gameId, index, versionId),
     );
   }
 
   async downloadVersion(
     userId: string,
+    profileId: string,
     gameId: string,
     index: number,
     versionId: string,
   ) {
-    const version = await this.requireVersion(userId, gameId, index, versionId);
+    const version = await this.requireVersion(
+      userId,
+      profileId,
+      gameId,
+      index,
+      versionId,
+    );
     const object = await objectHandler.fetchWithPermissions(
       version.objectId,
       userId,
@@ -492,12 +523,13 @@ class SaveManager {
   private async pruneVersions(
     tx: Prisma.TransactionClient,
     userId: string,
+    profileId: string,
     gameId: string,
     index: number,
     headVersionId: string,
   ): Promise<string[]> {
     const candidates = await tx.saveVersion.findMany({
-      where: { userId, gameId, slotIndex: index },
+      where: { userId, profileId, gameId, slotIndex: index },
       select: {
         id: true,
         pinned: true,
@@ -522,6 +554,7 @@ class SaveManager {
   async createVersion(input: CreateVersionInput): Promise<SaveVersionDto> {
     await this.ensureAutoSlot(
       input.userId,
+      input.profileId,
       input.gameId,
       input.index,
       input.clientId,
@@ -531,6 +564,7 @@ class SaveManager {
       const existing = await prisma.saveVersion.findFirst({
         where: {
           userId: input.userId,
+          profileId: input.profileId,
           gameId: input.gameId,
           slotIndex: input.index,
           clientMutationId: input.clientMutationId,
@@ -562,6 +596,7 @@ class SaveManager {
       {
         saveSlot: JSON.stringify({
           userId: input.userId,
+          profileId: input.profileId,
           gameId: input.gameId,
           index: input.index,
         }),
@@ -628,6 +663,7 @@ class SaveManager {
     const twin = await prisma.saveVersion.findFirst({
       where: {
         userId: input.userId,
+        profileId: input.profileId,
         gameId: input.gameId,
         slotIndex: input.index,
         archiveSha256,
@@ -654,6 +690,7 @@ class SaveManager {
         const updated = await tx.saveSlot.updateMany({
           where: {
             userId: input.userId,
+            profileId: input.profileId,
             gameId: input.gameId,
             index: input.index,
             headVersionId: input.baseVersionId,
@@ -669,6 +706,7 @@ class SaveManager {
             where: {
               id: {
                 userId: input.userId,
+                profileId: input.profileId,
                 gameId: input.gameId,
                 index: input.index,
               },
@@ -683,6 +721,7 @@ class SaveManager {
             id: versionId,
             gameId: input.gameId,
             userId: input.userId,
+            profileId: input.profileId,
             slotIndex: input.index,
             objectId: storedObjectId,
             archiveSha256,
@@ -701,6 +740,7 @@ class SaveManager {
         prunedObjectIds = await this.pruneVersions(
           tx,
           input.userId,
+          input.profileId,
           input.gameId,
           input.index,
           versionId,
@@ -716,6 +756,7 @@ class SaveManager {
         const existing = await prisma.saveVersion.findFirst({
           where: {
             userId: input.userId,
+            profileId: input.profileId,
             gameId: input.gameId,
             slotIndex: input.index,
             clientMutationId: input.clientMutationId,
@@ -738,14 +779,16 @@ class SaveManager {
   async pushSave(
     gameId: string,
     userId: string,
+    profileId: string,
     index: number,
     stream: IncomingMessage,
     clientId: string,
   ): Promise<void> {
-    const slot = await this.requireSlot(userId, gameId, index);
+    const slot = await this.requireSlot(userId, profileId, gameId, index);
     await this.createVersion({
       gameId,
       userId,
+      profileId,
       index,
       clientId,
       stream,
@@ -763,14 +806,21 @@ class SaveManager {
 
   async restoreVersion(
     userId: string,
+    profileId: string,
     gameId: string,
     index: number,
     versionId: string,
     baseVersionId: string | null,
     clientId: string,
   ): Promise<SaveVersionDto> {
-    const source = await this.requireVersion(userId, gameId, index, versionId);
-    await this.requireSlot(userId, gameId, index);
+    const source = await this.requireVersion(
+      userId,
+      profileId,
+      gameId,
+      index,
+      versionId,
+    );
+    await this.requireSlot(userId, profileId, gameId, index);
 
     const restoredId = randomUUID();
     const metadata: Prisma.InputJsonValue = {
@@ -784,6 +834,7 @@ class SaveManager {
       const updated = await tx.saveSlot.updateMany({
         where: {
           userId,
+          profileId,
           gameId,
           index,
           headVersionId: baseVersionId,
@@ -796,7 +847,7 @@ class SaveManager {
       });
       if (updated.count !== 1) {
         const current = await tx.saveSlot.findUnique({
-          where: { id: { userId, gameId, index } },
+          where: { id: { userId, profileId, gameId, index } },
           select: { headVersionId: true },
         });
         throw new SaveConflictError(current?.headVersionId ?? null);
@@ -807,6 +858,7 @@ class SaveManager {
           id: restoredId,
           gameId,
           userId,
+          profileId,
           slotIndex: index,
           objectId: source.objectId,
           archiveSha256: source.archiveSha256,
@@ -826,6 +878,7 @@ class SaveManager {
       prunedObjectIds = await this.pruneVersions(
         tx,
         userId,
+        profileId,
         gameId,
         index,
         restoredId,
@@ -839,14 +892,21 @@ class SaveManager {
 
   async setPinned(
     userId: string,
+    profileId: string,
     gameId: string,
     index: number,
     versionId: string,
     pinned: boolean,
   ): Promise<SaveVersionDto> {
-    const version = await this.requireVersion(userId, gameId, index, versionId);
+    const version = await this.requireVersion(
+      userId,
+      profileId,
+      gameId,
+      index,
+      versionId,
+    );
     const updated = await prisma.saveVersion.updateManyAndReturn({
-      where: { id: version.id, userId, gameId, slotIndex: index },
+      where: { id: version.id, userId, profileId, gameId, slotIndex: index },
       data: { pinned },
     });
     const [pinnedVersion] = updated;
@@ -860,17 +920,24 @@ class SaveManager {
 
   async deleteVersion(
     userId: string,
+    profileId: string,
     gameId: string,
     index: number,
     versionId: string,
   ): Promise<void> {
-    const version = await this.requireVersion(userId, gameId, index, versionId);
+    const version = await this.requireVersion(
+      userId,
+      profileId,
+      gameId,
+      index,
+      versionId,
+    );
 
     // Re-read the head inside the transaction: a concurrent restore must not be
     // able to make this delete remove the version a device just promoted.
     const deleted = await prisma.$transaction(async (tx) => {
       const slot = await tx.saveSlot.findUnique({
-        where: { id: { userId, gameId, index } },
+        where: { id: { userId, profileId, gameId, index } },
         select: { headVersionId: true },
       });
       if (!slot)
@@ -881,7 +948,7 @@ class SaveManager {
           statusMessage: "Cannot delete the current save version",
         });
       return tx.saveVersion.deleteMany({
-        where: { id: version.id, userId, gameId, slotIndex: index },
+        where: { id: version.id, userId, profileId, gameId, slotIndex: index },
       });
     });
     if (deleted.count === 0)
@@ -895,16 +962,17 @@ class SaveManager {
 
   async deleteSlot(
     userId: string,
+    profileId: string,
     gameId: string,
     index: number,
   ): Promise<void> {
-    await this.requireSlot(userId, gameId, index);
+    await this.requireSlot(userId, profileId, gameId, index);
     const versions = await prisma.saveVersion.findMany({
-      where: { userId, gameId, slotIndex: index },
+      where: { userId, profileId, gameId, slotIndex: index },
       select: { objectId: true },
     });
     const { count } = await prisma.saveSlot.deleteMany({
-      where: { userId, gameId, index },
+      where: { userId, profileId, gameId, index },
     });
     if (count === 0)
       throw createError({ statusCode: 404, statusMessage: "Save not found" });

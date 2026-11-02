@@ -1,5 +1,6 @@
 import { createError, readBody } from "h3";
 import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
+import { getProfile } from "~/server/internal/profiles/http";
 import saveManager from "~/server/internal/saves";
 import { assertGameExists } from "~/server/internal/saves/access";
 import { assertCloudSaves, getGameId } from "~/server/internal/saves/http";
@@ -9,6 +10,7 @@ export default defineClientEventHandler(
     const client = await fetchClient();
     assertCloudSaves(client);
     const user = await fetchUser();
+    const profile = await getProfile(h3, user.id);
     const gameId = getGameId(h3);
     await assertGameExists(gameId);
 
@@ -20,7 +22,7 @@ export default defineClientEventHandler(
 
     // No index means "give me the next slot", as before versioning.
     if (body.index === undefined || body.index === null)
-      return saveManager.createNextSlot(user.id, gameId, label, client.id);
+      return saveManager.createNextSlot(user.id, profile.id, gameId, label, client.id);
 
     const index = Number(body.index);
     if (!Number.isSafeInteger(index) || index < 0)
@@ -29,6 +31,6 @@ export default defineClientEventHandler(
         statusMessage: "index must be a non-negative integer",
       });
 
-    return saveManager.createSlot(user.id, gameId, index, label, client.id);
+    return saveManager.createSlot(user.id, profile.id, gameId, index, label, client.id);
   },
 );
