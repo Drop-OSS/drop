@@ -16,7 +16,8 @@ import {
  *    space id (its own product ids are not demux product ids).
  * `ubiservices_space_id` is the reconciliation key. When demux is
  * unreachable the listing degrades to GraphQL rows with installable=false
- * rather than failing.
+ * rather than failing. Rows the ownership service does not confirm as owned
+ * (DLC associations, catalogue extras) are hidden unless `?all=1` is passed.
  */
 
 type ListingGame = {
@@ -94,7 +95,29 @@ export default defineEventHandler(async (event) => {
 
   const games: ListingGame[] = [];
   const matchedSpaces = new Set<string>();
+  const showAll = query.all === "1" || query.all === "true";
+  // Owned rows sharing a space id with an edition that has a published
+  // manifest (pid 71 Anno 2070 duplicating pid 22, live Nov 2026) can never
+  // ingest and only clutter the panel.
+  const manifestSpaces = new Set(
+    demux.status === "fulfilled"
+      ? demux.value
+          .filter((g) => g.owned && g.latestManifest && g.spaceId)
+          .map((g) => g.spaceId!.toLowerCase())
+      : [],
+  );
   for (const entry of demux.status === "fulfilled" ? demux.value : []) {
+    // The ownership socket answers with the whole catalogue around the
+    // account (owned=false DLC, 664 rows against 173 owned, live Nov 2026).
+    // Only purchased products are the library.
+    if (!entry.owned && !showAll) continue;
+    if (
+      !showAll &&
+      !entry.latestManifest &&
+      entry.spaceId &&
+      manifestSpaces.has(entry.spaceId.toLowerCase())
+    )
+      continue;
     const spaceKey = entry.spaceId?.toLowerCase() ?? "";
     const graphql = spaceKey ? bySpace.get(spaceKey) : undefined;
     if (graphql) matchedSpaces.add(spaceKey);
@@ -122,20 +145,22 @@ export default defineEventHandler(async (event) => {
   }
   // GraphQL rows without a demux match: entitled somewhere public-facing but
   // not acquirable through the download pipeline (pre-demux era catalogue
-  // entries, subscriptions, cloud-only titles).
-  for (const title of titles.value) {
-    const spaceKey = title.spaceId?.toLowerCase() ?? "";
-    if (matchedSpaces.has(spaceKey)) continue;
-    games.push({
-      spaceId: title.spaceId,
-      name: title.name || title.spaceId,
-      releaseDate: title.releaseDate,
-      installable: demux.status !== "fulfilled",
-      ...(demux.status === "fulfilled"
-        ? { reason: "not listed by the ownership service" }
-        : { reason: `ownership service unavailable: ${demuxError}` }),
-    });
-  }
+  // entries, subscriptions, cloud-only titles). While the ownership service
+  // is answering these are noise - hidden unless ?all=1 or demux is down.
+  if (demux.status !== "fulfilled" || showAll)
+    for (const title of titles.value) {
+      const spaceKey = title.spaceId?.toLowerCase() ?? "";
+      if (matchedSpaces.has(spaceKey)) continue;
+      games.push({
+        spaceId: title.spaceId,
+        name: title.name || title.spaceId,
+        releaseDate: title.releaseDate,
+        installable: demux.status !== "fulfilled",
+        ...(demux.status === "fulfilled"
+          ? { reason: "not listed by the ownership service" }
+          : { reason: `ownership service unavailable: ${demuxError}` }),
+      });
+    }
 
   // Cache the listing for the stored connection so the panel shows what is
   // local even between live refreshes; keyed by demux product id, the same

@@ -3,6 +3,7 @@
  * (required + wanted-language chunks) straight from its live manifest.
  */
 import { openSecret } from "../server/utils/depot/credential-crypto";
+import { getUbisoftOwnedTitles } from "../server/utils/ubisoft/client";
 import { UbisoftAcquisitionClient } from "../server/utils/ubisoft/demux/acquisition";
 import {
   buildUbisoftDownloadPlan,
@@ -16,6 +17,34 @@ if (!ticket) throw new Error("UBI_TICKET (sealed value) required");
 const client = await UbisoftAcquisitionClient.connect(ticket);
 try {
   const games = await client.listOwnedGames();
+  const graphql = await getUbisoftOwnedTitles(ticket).catch((e) => {
+    console.log("graphql failed:", String(e).slice(0, 120));
+    return [];
+  });
+  const gqlSpaces = new Set(
+    graphql.map((t) => (t.spaceId ?? "").toLowerCase()).filter(Boolean),
+  );
+  const demuxSpaces = new Set(
+    games
+      .map((g) => (g.spaceId ?? "").toLowerCase())
+      .filter(Boolean) as string[],
+  );
+  console.log(
+    `demux entries: ${games.length}  (owned=true: ${games.filter((g) => g.owned).length})`,
+  );
+  for (const game of games) {
+    const name = game.title ?? `pid ${game.productId}`;
+    console.log(
+      `pid ${game.productId}  ${name}  owned=${game.owned}  space=${game.spaceId ?? "-"}  manifest=${game.latestManifest ? "yes" : "no"}`,
+    );
+  }
+  console.log(`\ngraphql rows: ${graphql.length}`);
+  for (const t of graphql) {
+    const key = (t.spaceId ?? "").toLowerCase();
+    if (!key || !demuxSpaces.has(key))
+      console.log(`  GQL-ONLY  ${t.spaceId}  ${t.name}`);
+  }
+  void gqlSpaces;
   for (const game of games) {
     const name = game.title ?? `pid ${game.productId}`;
     if (!game.owned || !game.latestManifest) {
