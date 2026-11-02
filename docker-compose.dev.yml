@@ -1,0 +1,24 @@
+# Fast adapter-debug loop (used by scripts/depot-dev.sh - not for production):
+# the server container serves the *mounted* compiled bundle from ./.dev-app
+# instead of the baked-in /app/app, and a persistent `builder` container holds
+# the full toolchain (source-synced from the repo) so one-line parser fixes
+# only cost a nitro rebuild + container restart - no image is built or tagged
+# until the download flow actually succeeds.
+services:
+  gamedepot:
+    volumes:
+      - ./.dev-app:/app/app
+
+  builder:
+    image: gamedepot/builder:dev
+    profiles: ["dev"]
+    container_name: gamedepot-builder
+    working_dir: /app
+    volumes:
+      - .:/src:ro
+      - ./.dev-app:/out
+      - builder-modules:/app/node_modules
+    command: ["sleep", "infinity"]
+
+volumes:
+  builder-modules:

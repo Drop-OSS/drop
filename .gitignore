@@ -5,3 +5,7 @@ node_modules/
 # docker-compose.yml default volumes
 /data/
 /games/
+
+# depot dev-loop state
+.dev-app/
+.depot-deploy-count
