@@ -11,17 +11,16 @@
 //! answer to a conflict is to keep both worlds intact and say so.
 
 use std::{
-    collections::BTreeMap,
     path::PathBuf,
     time::{SystemTime, UNIX_EPOCH},
 };
 
 use database::{GameDownloadStatus, SaveJournal, borrow_db_mut_checked, platform::Platform};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::archive::{build_archive, extract_archive};
 use crate::canonical::content_hash;
-use crate::client::{SaveClient, SyncDecision, SyncState, UploadOutcome};
+use crate::client::{MutationOutcome, SaveClient, SaveVersion, SyncDecision, SyncState};
 use crate::context::{ResolutionContext, resolve_manifest, write_targets};
 use crate::error::SaveError;
 use crate::manifest::SaveManifest;
@@ -202,7 +201,15 @@ async fn step(plan: &SyncPlan, at: &str) -> Result<Option<SaveSyncOutcome>, Save
         // we have saves): back it up. At launch this recovers a session whose
         // exit backup never completed.
         (SyncDecision::Push, _) => {
-            push(plan, &manifest, &context, &resolved.files, &local_hash).await?
+            push(
+                plan,
+                &manifest,
+                &context,
+                &resolved.files,
+                &local_hash,
+                plan.journal.base_version_id.as_deref(),
+            )
+            .await?
         }
         // A head that moved while our copy stayed put is safe to pull at
         // either point: nothing local can be lost.
@@ -299,6 +306,7 @@ async fn push(
     context: &ResolutionContext,
     files: &[crate::context::ResolvedFile],
     local_hash: &str,
+    base_version_id: Option<&str>,
 ) -> Result<SaveSyncOutcome, SaveError> {
     let built = build_archive(
         files,
@@ -327,7 +335,7 @@ async fn push(
             &plan.game_id,
             plan.slot,
             built.bytes,
-            plan.journal.base_version_id.as_deref(),
+            base_version_id,
             &attempt_key,
             &built.content_hash,
             &built.archive_sha256,
@@ -337,7 +345,7 @@ async fn push(
         .await;
 
     match outcome {
-        Ok(UploadOutcome::Stored(version)) => {
+        Ok(MutationOutcome::Stored(version)) => {
             let mut journal = plan.journal.clone();
             journal.base_version_id = Some(version.id.clone());
             journal.last_content_hash = Some(local_hash.to_string());
@@ -351,7 +359,7 @@ async fn push(
                 file_count: built.file_count,
             })
         }
-        Ok(UploadOutcome::Conflict { head_version_id }) => {
+        Ok(MutationOutcome::Conflict { head_version_id }) => {
             // A firm answer: this attempt is over; a future sync starts a new
             // attempt (with a new key) after the user decides.
             let mut journal = plan.journal.clone();
@@ -385,17 +393,150 @@ pub async fn inspect(plan: &SyncPlan) -> Result<SyncState, SaveError> {
         .await
 }
 
-/// Used by the UI (step 4) to seed a conflict dialog: everything known about
-/// both sides, without choosing. (Lives here so the type the event carries is
-/// defined next to the event; not constructed until the UI exists.)
-#[allow(dead_code)]
-#[derive(Clone, Debug, Serialize)]
+/// The user's answer to a conflict - the engine never guesses one.
+/// Serialized as `"keepLocal" | "keepServer" | "keepBoth"` for the UI.
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
-pub struct ConflictSides {
-    pub head_version_id: Option<String>,
-    pub head_content_hash: Option<String>,
-    pub local_content_hash: String,
-    pub files: BTreeMap<String, u64>,
+pub enum ConflictChoice {
+    /// Upload this device's save on top of the server head (the server
+    /// version stays in history and is restorable from the timeline).
+    KeepLocal,
+    /// Write the server head to disk, replacing this device's save. The
+    /// conflict dialog must have made the user say that out loud.
+    KeepServer,
+    /// Pin the server head (retention can never prune it) and push the
+    /// local save on top: both worlds live on in the timeline, the disk
+    /// keeps the local one, and the user can pick either later.
+    KeepBoth,
+}
+
+/// Manifest, resolution environment and on-disk state, freshly read.
+/// Resolution re-derives the game dir from the manifest's `installDir`.
+struct LocalSave {
+    manifest: SaveManifest,
+    context: ResolutionContext,
+    resolved: crate::context::ResolvedSave,
+    local_hash: String,
+}
+
+async fn read_local(plan: &SyncPlan) -> Result<Option<LocalSave>, SaveError> {
+    let Some(manifest) = plan.client.manifest(&plan.game_id).await? else {
+        return Ok(None);
+    };
+    let mut context = plan.context.clone();
+    context.game_dir = manifest.install_dirs.first().cloned();
+    let resolved = resolve_manifest(&context, &manifest)?;
+    let local_hash = content_hash(
+        &resolved
+            .files
+            .iter()
+            .map(|f| f.content_file())
+            .collect::<Vec<_>>(),
+    );
+    Ok(Some(LocalSave {
+        manifest,
+        context,
+        resolved,
+        local_hash,
+    }))
+}
+
+/// Publish `version_id`'s content as the new head and write it to disk.
+/// History is never rewritten (the server creates a fresh `Restore`
+/// version); the `If-Match` baseline is the *current* head, because the
+/// user's intent is "this becomes the save" - if the head moves between
+/// reading it and restoring, the 409 is honest and surfaces as a conflict.
+pub async fn restore_to_version(
+    plan: &SyncPlan,
+    version_id: &str,
+) -> Result<SaveSyncOutcome, SaveError> {
+    let Some(local) = read_local(plan).await? else {
+        return Ok(SaveSyncOutcome::NotManaged);
+    };
+    let head = current_head(plan).await?;
+    match plan
+        .client
+        .restore(
+            &plan.game_id,
+            plan.slot,
+            version_id,
+            head.as_ref().map(|h| h.id.as_str()),
+        )
+        .await?
+    {
+        MutationOutcome::Stored(version) => {
+            apply_pull(plan, &local.manifest, &local.resolved.sites, &version).await
+        }
+        MutationOutcome::Conflict { head_version_id } => Ok(SaveSyncOutcome::Conflict {
+            head_version_id,
+            head_content_hash: head.and_then(|h| h.content_hash),
+            local_content_hash: local.local_hash,
+            at: "restore".to_string(),
+        }),
+    }
+}
+
+/// The always-ask answer, applied. Whatever the user chose, this ends with
+/// disk and journal agreeing with exactly one version - and no data ever
+/// leaving history, since versions are immutable and `KeepBoth` pins.
+pub async fn resolve_conflict(
+    plan: &SyncPlan,
+    choice: ConflictChoice,
+) -> Result<SaveSyncOutcome, SaveError> {
+    let Some(local) = read_local(plan).await? else {
+        return Ok(SaveSyncOutcome::NotManaged);
+    };
+    let Some(head) = current_head(plan).await? else {
+        // Nothing on the server (anymore): every choice converges on
+        // "back the local save up", which is the normal push flow.
+        return push(
+            plan,
+            &local.manifest,
+            &local.context,
+            &local.resolved.files,
+            &local.local_hash,
+            plan.journal.base_version_id.as_deref(),
+        )
+        .await;
+    };
+    match choice {
+        ConflictChoice::KeepServer => {
+            apply_pull(plan, &local.manifest, &local.resolved.sites, &head).await
+        }
+        ConflictChoice::KeepLocal => {
+            push(
+                plan,
+                &local.manifest,
+                &local.context,
+                &local.resolved.files,
+                &local.local_hash,
+                Some(&head.id),
+            )
+            .await
+        }
+        ConflictChoice::KeepBoth => {
+            plan.client
+                .set_pinned(&plan.game_id, plan.slot, &head.id, true)
+                .await?;
+            push(
+                plan,
+                &local.manifest,
+                &local.context,
+                &local.resolved.files,
+                &local.local_hash,
+                Some(&head.id),
+            )
+            .await
+        }
+    }
+}
+
+async fn current_head(plan: &SyncPlan) -> Result<Option<SaveVersion>, SaveError> {
+    Ok(plan
+        .client
+        .slot(&plan.game_id, plan.slot)
+        .await?
+        .and_then(|slot| slot.head))
 }
 
 #[cfg(test)]

@@ -194,6 +194,8 @@
                 </div>
               </div>
             </div>
+
+            <GameSaves :game-id="id" />
           </div>
         </div>
       </div>

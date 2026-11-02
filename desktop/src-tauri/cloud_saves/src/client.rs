@@ -17,17 +17,31 @@ use crate::manifest::{ManifestResponse, SaveManifest};
 
 const API_ROOT: &str = "api/v1/client/saves";
 
-/// The server's serialized `SaveVersion` (pruned - only the fields the engine
-/// reasons about).
-#[derive(Clone, Debug, Deserialize)]
+/// The server's serialized `SaveVersion` (`toSaveVersionDto` in
+/// `server/internal/saves/index.ts`) - field names must track that function.
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SaveVersion {
     pub id: String,
     pub content_hash: Option<String>,
     pub archive_sha256: Option<String>,
-    pub size: i64,
-    pub file_count: i64,
+    // Nullable on the server for legacy-backfilled versions.
+    pub size_bytes: Option<i64>,
+    pub file_count: Option<i64>,
     pub kind: String,
+    pub pinned: bool,
+    pub restored_from_version_id: Option<String>,
+    /// ISO timestamp as h3 serializes `Date`.
+    pub created_at: String,
+}
+
+/// `GET .../{gameId}/{slot}` response (`toSaveSlotDto`), pruned to what the
+/// device reasons about.
+#[derive(Clone, Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SaveSlot {
+    pub head: Option<SaveVersion>,
+    pub version_count: i64,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -60,9 +74,10 @@ pub struct SyncState {
     pub head: Option<SaveVersion>,
 }
 
-/// Outcome of an upload attempt - `Conflict` is an answer, not a failure.
+/// Outcome of a head-moving call (upload or restore) - `Conflict` is an
+/// answer, not a failure.
 #[derive(Debug)]
-pub enum UploadOutcome {
+pub enum MutationOutcome {
     Stored(SaveVersion),
     /// Our `If-Match` baseline is stale; the server named the real head.
     Conflict {
@@ -105,6 +120,13 @@ impl RequestBuilder {
         match self {
             Self::Shared(b) => Self::Shared(b.body(body)),
             Self::Plain(b) => Self::Plain(b.body(body)),
+        }
+    }
+
+    fn json(self, body: &serde_json::Value) -> Self {
+        match self {
+            Self::Shared(b) => Self::Shared(b.json(body)),
+            Self::Plain(b) => Self::Plain(b.json(body)),
         }
     }
 
@@ -249,7 +271,7 @@ impl SaveClient {
         archive_sha256: &str,
         file_count: usize,
         manifest_hash: &str,
-    ) -> Result<UploadOutcome, SaveError> {
+    ) -> Result<MutationOutcome, SaveError> {
         let mut request = self.request(
             reqwest::Method::POST,
             &format!("{game_id}/{slot}/versions"),
@@ -280,12 +302,12 @@ impl SaveClient {
                 .and_then(|data| data.get("headVersionId"))
                 .and_then(serde_json::Value::as_str)
                 .map(str::to_string);
-            return Ok(UploadOutcome::Conflict {
+            return Ok(MutationOutcome::Conflict {
                 head_version_id: head,
             });
         }
         let response = Self::respond(response, "upload save version").await?;
-        Ok(UploadOutcome::Stored(response.json().await?))
+        Ok(MutationOutcome::Stored(response.json().await?))
     }
 
     /// `GET .../{gameId}/{slot}/versions/{versionId}/download` -> archive
@@ -305,5 +327,111 @@ impl SaveClient {
         let headers = response.headers().clone();
         let bytes = response.bytes().await?;
         Ok((bytes.to_vec(), headers))
+    }
+
+    /// `GET .../{gameId}/{slot}` - the slot with its current head. `None`
+    /// when the slot does not exist (nothing has ever synced).
+    pub async fn slot(&self, game_id: &str, slot: u32) -> Result<Option<SaveSlot>, SaveError> {
+        let response = self
+            .request(reqwest::Method::GET, &format!("{game_id}/{slot}"), &[])?
+            .send()
+            .await?;
+        if response.status() == reqwest::StatusCode::NOT_FOUND {
+            return Ok(None);
+        }
+        let response = Self::respond(response, "fetch save slot").await?;
+        Ok(Some(response.json().await?))
+    }
+
+    /// `GET .../{gameId}/{slot}/versions` - newest first; the last element's
+    /// `id` is the cursor for the next page.
+    pub async fn list_versions(
+        &self,
+        game_id: &str,
+        slot: u32,
+        cursor: Option<&str>,
+        limit: Option<usize>,
+    ) -> Result<Vec<SaveVersion>, SaveError> {
+        let limit_text;
+        let mut query: Vec<(&str, &str)> = Vec::new();
+        if let Some(cursor) = cursor {
+            query.push(("cursor", cursor));
+        }
+        if let Some(limit) = limit {
+            limit_text = limit.to_string();
+            query.push(("limit", &limit_text));
+        }
+        let response = self
+            .request(
+                reqwest::Method::GET,
+                &format!("{game_id}/{slot}/versions"),
+                &query,
+            )?
+            .send()
+            .await?;
+        // No slot yet (nothing ever synced) is an empty timeline, not an error.
+        if response.status() == reqwest::StatusCode::NOT_FOUND {
+            return Ok(Vec::new());
+        }
+        let response = Self::respond(response, "list save versions").await?;
+        Ok(response.json().await?)
+    }
+
+    /// `POST .../versions/{versionId}/restore` - publish `versionId`'s content
+    /// as a brand-new head. Never rewrites history.
+    pub async fn restore(
+        &self,
+        game_id: &str,
+        slot: u32,
+        version_id: &str,
+        base_version_id: Option<&str>,
+    ) -> Result<MutationOutcome, SaveError> {
+        let mut request = self.request(
+            reqwest::Method::POST,
+            &format!("{game_id}/{slot}/versions/{version_id}/restore"),
+            &[],
+        )?;
+        if let Some(base) = base_version_id {
+            request = request.header("If-Match", base)?;
+        }
+        let response = request.send().await?;
+        if response.status() == reqwest::StatusCode::CONFLICT {
+            let body: serde_json::Value = response
+                .json()
+                .await
+                .unwrap_or_else(|_| serde_json::json!({}));
+            let head = body
+                .get("data")
+                .and_then(|data| data.get("headVersionId"))
+                .and_then(serde_json::Value::as_str)
+                .map(str::to_string);
+            return Ok(MutationOutcome::Conflict {
+                head_version_id: head,
+            });
+        }
+        let response = Self::respond(response, "restore save version").await?;
+        Ok(MutationOutcome::Stored(response.json().await?))
+    }
+
+    /// `POST .../versions/{versionId}/pin` - protected versions are never
+    /// pruned by retention.
+    pub async fn set_pinned(
+        &self,
+        game_id: &str,
+        slot: u32,
+        version_id: &str,
+        pinned: bool,
+    ) -> Result<SaveVersion, SaveError> {
+        let response = self
+            .request(
+                reqwest::Method::POST,
+                &format!("{game_id}/{slot}/versions/{version_id}/pin"),
+                &[],
+            )?
+            .json(&serde_json::json!({ "pinned": pinned }))
+            .send()
+            .await?;
+        let response = Self::respond(response, "pin save version").await?;
+        Ok(response.json().await?)
     }
 }

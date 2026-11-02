@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { data } from "autoprefixer";
+import type { SaveSyncOutcome } from "~/composables/saves";
 import { AppStatus, type AppState } from "~/types";
 
 export function setupHooks() {
@@ -49,6 +50,37 @@ export function setupHooks() {
       async (e, c) => {
         if (e == "confirm") {
           await invoke("open_process_logs", { gameId: event.payload });
+        }
+        c();
+      }
+    );
+  });
+
+  // Cloud saves v1 always asks: a conflict (usually noticed when the game
+  // just exited) needs the user, wherever they are in the app. Record it on
+  // the per-game saves registry first, so the game page's own conflict
+  // dialog is already open when they arrive; only prompt from here when
+  // that page is not the one they are looking at.
+  listen("saves_state", (event) => {
+    const payload = event.payload as {
+      gameId: string;
+      slot: number;
+      outcome: SaveSyncOutcome;
+    };
+    if (payload.outcome.kind !== "conflict") return;
+    useSaves(payload.gameId).outcome.value = payload.outcome;
+    if (router.currentRoute.value.path === `/library/${payload.gameId}`) return;
+    createModal(
+      ModalType.Confirmation,
+      {
+        title: "Cloud save conflict",
+        description:
+          "This device and the server each changed a game's save since the last sync. Nothing was overwritten - review the versions and choose which to keep.",
+        buttonText: "Review",
+      },
+      async (e, c) => {
+        if (e == "confirm") {
+          router.push(`/library/${payload.gameId}`);
         }
         c();
       }

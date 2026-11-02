@@ -268,6 +268,10 @@ pub fn run() {
             kill_game,
             // Cloud saves
             saves::sync_game_saves,
+            saves::fetch_save_timeline,
+            saves::restore_save_version,
+            saves::set_save_version_pinned,
+            saves::resolve_save_conflict,
             toggle_autostart,
             get_autostart_enabled,
             open_process_logs,
