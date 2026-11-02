@@ -1,7 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  buildEpicAuthCodeLoginUrl,
   exchangeEpicAuthCode,
+  extractEpicAuthCode,
   refreshEpicToken,
   getEpicEntitlements,
   getEpicAssetInfo,
@@ -232,4 +234,90 @@ test("Epic Client Integration & Mock Suite", async (t) => {
     );
     assert.equal(asset, null);
   });
+});
+
+test("the Epic login URL points at the launcher client's code redirect", () => {
+  const url = new URL(buildEpicAuthCodeLoginUrl());
+  assert.equal(url.origin + url.pathname, "https://www.epicgames.com/id/login");
+  const redirect = new URL(url.searchParams.get("redirectUrl") as string);
+  assert.equal(
+    redirect.origin + redirect.pathname,
+    "https://www.epicgames.com/id/api/redirect",
+  );
+  assert.equal(
+    redirect.searchParams.get("clientId"),
+    "34a02cf8f4414e29b15921876da36f9a",
+  );
+  assert.equal(redirect.searchParams.get("responseType"), "code");
+});
+
+test("extractEpicAuthCode accepts code, URL, or the full pasted JSON page", () => {
+  assert.equal(extractEpicAuthCode("  bare-code "), "bare-code");
+  assert.equal(
+    extractEpicAuthCode("https://www.epicgames.com/id/api/redirect?code=xyz-1"),
+    "xyz-1",
+  );
+  assert.equal(
+    extractEpicAuthCode(
+      '{"code":"json-code","sid":"s","prefix":"p","correlationId":"c"}',
+    ),
+    "json-code",
+  );
+});
+
+test("an error page JSON (correlationId, no code) explains itself", () => {
+  assert.throws(
+    () =>
+      extractEpicAuthCode('{"error":"invalid_request","correlationId":"abc"}'),
+    (error: unknown) => {
+      const e = error as { statusCode?: number; statusMessage?: string };
+      return (
+        e.statusCode === 400 && /correlationId abc/.test(e.statusMessage ?? "")
+      );
+    },
+  );
+});
+
+test("the code exchange asks for the eg1 token type", async () => {
+  const originalFetch = globalThis.fetch;
+  try {
+    globalThis.fetch = async (_url, init) => {
+      const body = new URLSearchParams(init?.body as string);
+      assert.equal(body.get("token_type"), "eg1");
+      return new Response(
+        JSON.stringify({
+          access_token: "a",
+          refresh_token: "r",
+          expires_in: 60,
+          account_id: "acc",
+          token_type: "bearer",
+        }),
+        { status: 200 },
+      );
+    };
+    const tokens = await exchangeEpicAuthCode("some-code");
+    assert.equal(tokens.account_id, "acc");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("Epic's errorCode/errorMessage reach the user verbatim", async () => {
+  const originalFetch = globalThis.fetch;
+  try {
+    globalThis.fetch = async () =>
+      new Response(
+        JSON.stringify({
+          errorCode: "errors.com.epicgames.oauth.invalid_code",
+          errorMessage: "Authorization code is invalid",
+        }),
+        { status: 400 },
+      );
+    await assert.rejects(
+      () => exchangeEpicAuthCode("burned-code"),
+      typedError(400, /Authorization code is invalid/),
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });

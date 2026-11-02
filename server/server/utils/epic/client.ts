@@ -7,9 +7,11 @@ const EPIC_ENTITLEMENTS_URL =
 const EPIC_LAUNCHER_ASSETS_URL =
   "https://launcher-public-service-prod06.ol.epicgames.com/launcher/api/public/assets/v2/platform";
 
-// Basic Epic Games client credentials used by Legendary/Heroic
-const EPIC_CLIENT_ID = "34a02cf8f4414e29b15921875d68712d";
-const EPIC_CLIENT_SECRET = "daafbccc737745039d07ba77304609b5";
+// Epic launcher client, live-verified: identical to the pair Legendary's
+// EPCAPI authenticates with (its predecessor answered "invalid client
+// credentials" to the same probe).
+const EPIC_CLIENT_ID = "34a02cf8f4414e29b15921876da36f9a";
+const EPIC_CLIENT_SECRET = "daafbccc737745039dffe53d94fc76cf";
 
 export type EpicTokenResponse = {
   access_token: string;
@@ -51,18 +53,99 @@ export function buildEpicAuthCodeLoginUrl(): string {
 }
 
 /**
+ * Accept the bare code, the redirect page's URL, or the entire JSON body
+ * the browser shows at /id/api/redirect (users commonly select all text).
+ */
+export function extractEpicAuthCode(input: string): string {
+  const trimmed = input.trim();
+  if (trimmed.startsWith("{")) {
+    try {
+      const parsed = JSON.parse(trimmed) as {
+        code?: string;
+        error?: string;
+        correlationId?: string;
+      };
+      if (typeof parsed.code === "string" && parsed.code) return parsed.code;
+      if (parsed.error || parsed.correlationId) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: `Epic's sign-in page reported an error instead of a code (${parsed.error ?? "unknown error"}${parsed.correlationId ? `, correlationId ${parsed.correlationId}` : ""}) - open the sign-in page again and copy the "code" value.`,
+        });
+      }
+    } catch (error) {
+      if (error && typeof error === "object" && "statusCode" in error)
+        throw error;
+      // Not valid JSON; fall through to the generic handling below.
+    }
+  }
+  if (trimmed.includes("code=")) {
+    try {
+      const code = new URL(trimmed).searchParams.get("code");
+      if (code) return code;
+    } catch {
+      // Not a URL; treat as a bare code below.
+    }
+  }
+  return trimmed;
+}
+
+/**
+ * Epic answers failures with { errorCode, errorMessage } JSON - pass it
+ * through, including corrective actions (device approval links), instead
+ * of a bare status code.
+ */
+async function epicThrowFailed(
+  response: Response,
+  label: string,
+): Promise<never> {
+  const detail = await response
+    .text()
+    .then((body) => {
+      try {
+        const parsed = JSON.parse(body) as {
+          errorCode?: string;
+          errorMessage?: string;
+          correctiveAction?: string;
+          continuationUrl?: string;
+        };
+        const parts = [parsed.errorCode, parsed.errorMessage]
+          .filter((s) => typeof s === "string" && s)
+          .join(": ");
+        if (parsed.correctiveAction && parsed.continuationUrl)
+          return `${parts || "corrective action required"} (${parsed.correctiveAction}) - open ${parsed.continuationUrl} to approve, then retry`;
+        return parts;
+      } catch {
+        return body.slice(0, 140);
+      }
+    })
+    .catch(() => "");
+  throw createError({
+    statusCode: response.status,
+    statusMessage: `${label} failed (${response.status})${detail ? `: ${detail.slice(0, 300)}` : ""}`,
+  });
+}
+
+/**
  * Exchange an Epic authorization code (obtained from Epic login portal) for access and refresh tokens.
  */
 export async function exchangeEpicAuthCode(
-  code: string,
+  input: string,
 ): Promise<EpicTokenResponse> {
+  const code = extractEpicAuthCode(input);
   const credentials = Buffer.from(
     `${EPIC_CLIENT_ID}:${EPIC_CLIENT_SECRET}`,
   ).toString("base64");
   const params = new URLSearchParams({
     grant_type: "authorization_code",
     code,
+    token_type: "eg1",
   });
+  if (!code)
+    throw createError({
+      statusCode: 400,
+      statusMessage:
+        'Paste the "code" value from the Epic sign-in page (the whole page also works)',
+    });
 
   let response: Response;
   try {
@@ -82,12 +165,11 @@ export async function exchangeEpicAuthCode(
     });
   }
 
-  if (!response.ok) {
-    throw createError({
-      statusCode: response.status,
-      statusMessage: `Epic token exchange failed (${response.status})`,
-    });
-  }
+  if (!response.ok)
+    await epicThrowFailed(
+      response,
+      "Epic code exchange (the code is single-use - sign in again for a fresh one)",
+    );
 
   return (await response.json()) as EpicTokenResponse;
 }
@@ -104,6 +186,7 @@ export async function refreshEpicToken(
   const params = new URLSearchParams({
     grant_type: "refresh_token",
     refresh_token: refreshToken,
+    token_type: "eg1",
   });
 
   let response: Response;
@@ -124,12 +207,7 @@ export async function refreshEpicToken(
     });
   }
 
-  if (!response.ok) {
-    throw createError({
-      statusCode: response.status,
-      statusMessage: `Epic token refresh failed (${response.status})`,
-    });
-  }
+  if (!response.ok) await epicThrowFailed(response, "Epic token refresh");
 
   return (await response.json()) as EpicTokenResponse;
 }

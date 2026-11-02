@@ -204,7 +204,7 @@
                 v-model.trim="epicConnectCode"
                 type="password"
                 autocomplete="off"
-                placeholder="Authorization code (from the page above)"
+                placeholder="Authorization code (or paste the whole JSON page)"
                 class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
               <label for="epic-refresh-token" class="sr-only">
@@ -932,7 +932,7 @@ async function openEpicLoginPage() {
     );
     window.open(loginUrl, "_blank", "noopener");
     notice.value =
-      "After signing in, Epic shows a page of JSON - copy the code value into the authorization code field.";
+      "After signing in, Epic shows a page of JSON - select all of it and paste it below (or just the code value), then press Connect.";
   } catch (error) {
     notice.value =
       error instanceof Error
