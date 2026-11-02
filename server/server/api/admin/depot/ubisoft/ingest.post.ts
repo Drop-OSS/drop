@@ -201,7 +201,10 @@ async function queueLocalUbisoftIngest(
               launches: result.launches.map((launch) => ({
                 platform: Platform.Windows,
                 name: launch.name,
-                launch: launch.executable.replace(/\//g, "\\"),
+                launch: [
+                  launch.executable.replace(/\//g, "\\"),
+                  ...launch.arguments,
+                ].join(" "),
               })),
               setups: [],
               onlySetup: false,

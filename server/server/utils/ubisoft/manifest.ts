@@ -170,6 +170,18 @@ export function buildUbisoftDownloadPlan(
         Buffer.from(slice).toString("hex").toUpperCase(),
       );
       const descriptors = file.sliceList;
+      if (descriptors.length === 0 && contentHashes.length === 0) {
+        // Live manifests carry empty placeholder files (dump.txt,
+        // placeholder.txt) with no slices at all: they land as empty files.
+        if (size === 0) {
+          files.push({ path, size: 0, slices: [] });
+          continue;
+        }
+        throw createError({
+          statusCode: 502,
+          statusMessage: `Ubisoft manifest file ${path} declares ${size} bytes but carries no slices`,
+        });
+      }
       if (descriptors.length === 0) {
         if (contentHashes.length === 1) {
           files.push({
@@ -232,23 +244,57 @@ export function buildUbisoftDownloadPlan(
  * `start_game.online.executables[]` entries (falling back to `offline`) are
  * the launchers - Ubisoft's counterpart to GOG's playTasks. Only
  * install-relative executables count; register/absolute paths are skipped.
+ *
+ * Two config generations exist live (both verified Nov 2026): modern titles
+ * label entries with `- shortcut_name:` (Anno 2070), older ones start
+ * entries with `- path:` and only carry `description:` labels plus optional
+ * `arguments:` (AC3, Rayman). Entries may sit at the same indent as their
+ * `executables:` key.
  */
+export type UbisoftLaunchDocument = {
+  name: string;
+  executable: string;
+  arguments: string[];
+};
+
 export function deriveUbisoftLaunches(configYaml: string): {
   title?: string;
-  launches: { name: string; executable: string }[];
+  launches: UbisoftLaunchDocument[];
 } {
   const lines = configYaml.split(/\r?\n/);
   let title: string | undefined;
-  const launches: { name: string; executable: string }[] = [];
+  const launches: UbisoftLaunchDocument[] = [];
   const seen = new Set<string>();
 
   let titleIndent = -1;
   let startGameIndent = -1;
-  let blockIndent = -1; // online:/offline: anchor
+  let blockIndent = -1; // online:/offline: anchor; -2 = skipping this block
   let blockDone = false; // online already produced launches
   let executablesIndent = -1;
-  let current: { name: string } | null = null;
+  let current: {
+    name: string;
+    label: string;
+    exe: string;
+    args: string[];
+  } | null = null;
   let inPath = false;
+
+  const finishEntry = () => {
+    if (current && current.exe) {
+      const key = `${current.name || current.label}\u0000${current.exe}\u0000${current.args.join(" ")}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        launches.push({
+          name: current.name || current.label || "Play",
+          executable: current.exe,
+          arguments: current.args,
+        });
+        if (blockIndent >= 0) blockDone = true;
+      }
+    }
+    current = null;
+    inPath = false;
+  };
 
   const deeper = (indent: number, anchor: number) =>
     anchor >= 0 && indent > anchor;
@@ -266,7 +312,7 @@ export function deriveUbisoftLaunches(configYaml: string): {
         deeper(indent, titleIndent) &&
         text.startsWith("name:")
       ) {
-        title = text.slice("name:".length).trim() || undefined;
+        title = stripQuotes(text.slice("name:".length)) || undefined;
       }
       if (text === "start_game:") startGameIndent = indent;
       continue;
@@ -274,76 +320,75 @@ export function deriveUbisoftLaunches(configYaml: string): {
 
     // Inside start_game: leaving the block closes everything above its indent.
     if (indent <= startGameIndent) {
+      finishEntry();
       startGameIndent = -1;
       blockIndent = -1;
       blockDone = false;
       executablesIndent = -1;
-      current = null;
-      inPath = false;
       continue;
     }
     if (text === "online:" || text === "offline:") {
-      blockIndent =
-        blockDone || (text === "offline:" && launches.length > 0)
-          ? -2 // already have launches: skip this whole block
-          : indent;
+      finishEntry();
+      blockIndent = blockDone || (text === "offline:" && launches.length > 0)
+        ? -2 // already have launches: skip this whole block
+        : indent;
       executablesIndent = -1;
-      current = null;
-      inPath = false;
       continue;
     }
     if (blockIndent === -2) continue;
     if (text === "executables:") {
+      finishEntry();
       executablesIndent = indent;
-      current = null;
-      inPath = false;
       continue;
     }
     // A dash at the key's own indent is a list ITEM of that key (YAML block
     // sequences may share indentation), so it must not close the block.
-    if (
-      executablesIndent >= 0 &&
-      indent <= executablesIndent &&
-      !text.startsWith("-")
-    ) {
+    const isItem = text.startsWith("- ");
+    if (executablesIndent >= 0 && indent <= executablesIndent && !isItem) {
+      finishEntry();
       executablesIndent = -1;
-      current = null;
-      inPath = false;
     }
     if (executablesIndent < 0) continue;
 
-    // List items arrive as `- key: value`; strip the marker once so every
-    // nested key of the entry matches the same way as on plain lines.
-    const item = text.startsWith("- ") ? text.slice(2).trim() : text;
+    const item = isItem ? text.slice(2).trim() : text;
+    if (isItem) {
+      finishEntry();
+      current = { name: "", label: "", exe: "", args: [] };
+      if (item === "") continue;
+    }
+    if (!current) {
+      // A config that nests fields without dashes: start an implicit entry.
+      current = { name: "", label: "", exe: "", args: [] };
+    }
+
     if (item.startsWith("shortcut_name:")) {
-      current = { name: item.slice("shortcut_name:".length).trim() };
-      inPath = false;
-      continue;
-    }
-    if (item === "path:") {
+      current.name = stripQuotes(item.slice("shortcut_name:".length));
+    } else if (item.startsWith("description:")) {
+      current.label = current.label || stripQuotes(item.slice("description:".length));
+    } else if (item === "path:") {
       inPath = true;
-      continue;
-    }
-    if (inPath && item.startsWith("relative:")) {
-      const relative = item.slice("relative:".length).trim();
-      if (current && relative) {
-        const executable = relative.replaceAll("\\", "/").replace(/^\/+/, "");
-        const key = `${current.name}\u0000${executable}`;
-        if (!seen.has(key)) {
-          seen.add(key);
-          launches.push({ name: current.name || "Play", executable });
-          if (blockIndent >= 0) blockDone = true;
-        }
-        current = null;
-      }
+    } else if (item.startsWith("working_directory:")) {
       inPath = false;
-      continue;
-    }
-    if (
-      inPath &&
-      (item.startsWith("register:") || item.startsWith("absolute:"))
-    )
+    } else if (inPath && item.startsWith("relative:")) {
+      current.exe = stripQuotes(item
+        .slice("relative:".length)
+        .replaceAll("\\", "/")
+        .replace(/^\/+/, ""));
       inPath = false;
+    } else if (inPath && (item.startsWith("register:") || item.startsWith("absolute:"))) {
+      inPath = false;
+    } else if (item.startsWith("arguments:")) {
+      const raw = stripQuotes(item.slice("arguments:".length));
+      current.args = current.args.concat(
+        raw === "" ? [] : raw.split(/\s+/).filter(Boolean),
+      );
+    }
   }
+  finishEntry();
   return { title, launches };
+}
+
+/** Trim surrounding quotes from a YAML scalar. */
+function stripQuotes(value: string): string {
+  return value.trim().replace(/^["'](.*)["']$/, "$1");
 }

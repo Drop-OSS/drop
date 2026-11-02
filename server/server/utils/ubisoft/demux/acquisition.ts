@@ -1,7 +1,10 @@
 import { create } from "@bufbuild/protobuf";
 import { createError } from "h3";
 import { DemuxClient } from "./client";
-import { deriveUbisoftLaunches } from "../manifest";
+import {
+  deriveUbisoftLaunches,
+  type UbisoftLaunchDocument,
+} from "../manifest";
 import {
   UpstreamSchema as OwnershipUpstreamSchema,
   DownstreamSchema as OwnershipDownstreamSchema,
@@ -9,9 +12,7 @@ import {
   InitializeReqSchema,
   SignOwnershipReqSchema,
   OwnershipTokenReqSchema,
-  type InitializeRsp,
-  type SignOwnershipRsp,
-  type OwnershipTokenRsp,
+  type Rsp as OwnershipRsp,
 } from "../../../internal/proto/ubisoft-demux/proto/ownership_pb";
 import {
   UpstreamSchema as DownloadUpstreamSchema,
@@ -19,8 +20,7 @@ import {
   ReqSchema as DownloadReqSchema,
   InitializeReqSchema as DownloadInitializeReqSchema,
   UrlReqSchema,
-  type InitializeRsp as DownloadInitializeRsp,
-  type UrlRsp,
+  type Rsp as DownloadRsp,
 } from "../../../internal/proto/ubisoft-demux/proto/download_service_pb";
 
 /**
@@ -52,7 +52,7 @@ export type UbisoftOwnedGame = {
   /** Public-services space id: the reconciliation key with GraphQL rows. */
   spaceId: string | null;
   /** Relative launch executables from the configuration (may be empty). */
-  launches: { name: string; executable: string }[];
+  launches: UbisoftLaunchDocument[];
   owned: boolean;
 };
 
@@ -96,7 +96,7 @@ export class UbisoftAcquisitionClient {
 
   /** Initialise the ownership service and return the account's games. */
   public async listOwnedGames(): Promise<UbisoftOwnedGame[]> {
-    const rsp = (await this.client.serviceRequest(
+    const envelope = (await this.client.serviceRequest(
       this.ownershipConnectionId,
       create(OwnershipUpstreamSchema, {
         request: create(OwnershipReqSchema, {
@@ -107,8 +107,9 @@ export class UbisoftAcquisitionClient {
           }),
         }),
       }),
-    )) as InitializeRsp;
-    if (!rsp.success) {
+    )) as OwnershipRsp;
+    const rsp = envelope.initializeRsp;
+    if (!rsp?.success) {
       throw createError({
         statusCode: 502,
         statusMessage: "Ubisoft ownership service refused initialisation",
@@ -145,29 +146,31 @@ export class UbisoftAcquisitionClient {
   public async getDownloadCredentials(
     productId: number,
   ): Promise<UbisoftDownloadCredentials> {
-    const sign = (await this.client.serviceRequest(
+    const signEnvelope = (await this.client.serviceRequest(
       this.ownershipConnectionId,
       create(OwnershipUpstreamSchema, {
         request: create(OwnershipReqSchema, {
           signOwnershipReq: create(SignOwnershipReqSchema, { productId }),
         }),
       }),
-    )) as SignOwnershipRsp;
-    if (!sign.success || !sign.signature) {
+    )) as OwnershipRsp;
+    const sign = signEnvelope.signOwnershipRsp;
+    if (!sign?.success || !sign.signature) {
       throw createError({
         statusCode: 502,
         statusMessage: `Ubisoft refused to sign ownership for product ${productId}`,
       });
     }
-    const token = (await this.client.serviceRequest(
+    const tokenEnvelope = (await this.client.serviceRequest(
       this.ownershipConnectionId,
       create(OwnershipUpstreamSchema, {
         request: create(OwnershipReqSchema, {
           ownershipTokenReq: create(OwnershipTokenReqSchema, { productId }),
         }),
       }),
-    )) as OwnershipTokenRsp;
-    if (!token.success || !token.token) {
+    )) as OwnershipRsp;
+    const token = tokenEnvelope.ownershipTokenRsp;
+    if (!token?.success || !token.token) {
       throw createError({
         statusCode: 502,
         statusMessage: `Ubisoft refused an ownership token for product ${productId}`,
@@ -195,7 +198,7 @@ export class UbisoftAcquisitionClient {
       DownloadUpstreamSchema,
       DownloadDownstreamSchema,
     );
-    const rsp = (await this.client.serviceRequest(
+    const envelope = (await this.client.serviceRequest(
       connectionId,
       create(DownloadUpstreamSchema, {
         request: create(DownloadReqSchema, {
@@ -209,8 +212,8 @@ export class UbisoftAcquisitionClient {
           }),
         }),
       }),
-    )) as DownloadInitializeRsp;
-    if (!rsp.ok) {
+    )) as DownloadRsp;
+    if (!envelope.initializeRsp?.ok) {
       throw createError({
         statusCode: 502,
         statusMessage: `Ubisoft download service refused initialisation for product ${productId}`,
@@ -234,7 +237,7 @@ export class UbisoftDownloadSession {
    */
   public async mintUrls(paths: string[]): Promise<string[]> {
     if (paths.length === 0) return [];
-    const rsp = (await this.client.serviceRequest(
+    const envelope = (await this.client.serviceRequest(
       this.connectionId,
       create(DownloadUpstreamSchema, {
         request: create(DownloadReqSchema, {
@@ -245,8 +248,8 @@ export class UbisoftDownloadSession {
           }),
         }),
       }),
-    )) as UrlRsp;
-    const group = rsp.urlResponses[0];
+    )) as DownloadRsp;
+    const group = envelope.urlRsp?.urlResponses[0];
     if (!group || group.result !== 0) {
       throw createError({
         statusCode: 502,

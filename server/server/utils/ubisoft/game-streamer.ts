@@ -52,6 +52,8 @@ export interface UbisoftLaunchOption {
   name: string;
   /** Path relative to the install directory, as the config ships it. */
   executable: string;
+  /** CLI arguments from the install configuration (may be empty). */
+  arguments: string[];
 }
 
 export interface StreamUbisoftGameOptions {
@@ -365,7 +367,8 @@ export async function streamUbisoftGameToDepot(
       }
     }
 
-    // Pre-create sparse files so writers only ever pwrite real bytes.
+    // Pre-create sparse files so writers only ever pwrite real bytes; files
+    // without slices (empty placeholders) just need to exist on disk.
     const handles = new Map<string, Promise<FileHandle>>();
     const handleFor = (file: UbisoftPlanFile): Promise<FileHandle> => {
       let handle = handles.get(file.path);
@@ -383,6 +386,8 @@ export async function streamUbisoftGameToDepot(
     };
 
     report(8, "assembling_game_files", `${slices.size} slices`);
+    for (const file of plan.files)
+      if (file.slices.length === 0) await handleFor(file);
     const pool = new SliceUrlPool(session);
     await pool.prime([...slices.keys()]);
     const writtenBytes = new Map<string, number>();
@@ -414,7 +419,7 @@ export async function streamUbisoftGameToDepot(
           }
           doneSlices += 1;
           report(
-            8 + Math.floor((doneSlices / slices.size) * 70),
+            8 + Math.floor((doneSlices / Math.max(1, slices.size)) * 70),
             "assembling_game_files",
             `${doneSlices}/${slices.size} slices`,
           );

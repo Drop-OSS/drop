@@ -305,7 +305,30 @@ test("buildUbisoftDownloadPlan skips optional chunks but keeps the wanted langua
   );
 });
 
-test("buildUbisoftDownloadPlan refuses unsafe manifest paths", () => {
+test("buildUbisoftDownloadPlan keeps empty placeholder files", () => {
+  const plan = buildUbisoftDownloadPlan(
+    create(ManifestSchema, {
+      chunks: [
+        create(ChunkSchema, {
+          id: 1,
+          type: Chunk_ChunkType.ChunkType_Required,
+          files: [
+            create(FileSchema, {
+              name: "data/config/game/dump.txt",
+              size: 0n,
+              isDir: false,
+            }),
+          ],
+        }),
+      ],
+    }),
+  );
+  assert.deepEqual(plan.files, [{ path: "data/config/game/dump.txt", size: 0, slices: [] }]);
+  assert.equal(plan.totalBytes, 0);
+  assert.equal(plan.totalSlices, 0);
+});
+
+test("buildUbisoftDownloadPlan rejects unsafe manifest paths", () => {
   for (const name of ["../escape.exe", "/etc/passed.exe", "game/../evil.bin"]) {
     assert.throws(
       () =>
@@ -395,7 +418,9 @@ test("deriveUbisoftLaunches reads title and relative executables from the real c
   const { title, launches } = deriveUbisoftLaunches(ANNO_2070_CONFIG);
   assert.equal(title, "Anno 2070");
   // online wins; the offline twin dedupes to one entry.
-  assert.deepEqual(launches, [{ name: "Anno2070", executable: "Anno5.exe" }]);
+  assert.deepEqual(launches, [
+    { name: "Anno2070", executable: "Anno5.exe", arguments: [] },
+  ]);
 });
 
 test("deriveUbisoftLaunches falls back to offline executables", () => {
@@ -411,7 +436,7 @@ test("deriveUbisoftLaunches falls back to offline executables", () => {
   const { title, launches } = deriveUbisoftLaunches(yaml);
   assert.equal(title, "Offline Game");
   assert.deepEqual(launches, [
-    { name: "PlayOffline", executable: "game_offline.exe" },
+    { name: "PlayOffline", executable: "game_offline.exe", arguments: [] },
   ]);
 });
 
@@ -436,8 +461,82 @@ test("deriveUbisoftLaunches skips register-path executables and dedupes", () => 
 `;
   const { launches } = deriveUbisoftLaunches(yaml);
   assert.deepEqual(launches, [
-    { name: "Dup", executable: "a.exe" },
-    { name: "Second", executable: "sub/b.exe" },
+    { name: "Dup", executable: "a.exe", arguments: [] },
+    { name: "Second", executable: "sub/b.exe", arguments: [] },
+  ]);
+});
+
+// The legacy config generation (Rayman Origins pid 80 / AC3 pid 54,
+// captured live Nov 2026): entries start at `- path:`, labels arrive via
+// `description:`, and entries may carry `arguments:`. Trailing spaces after
+// `path:` appear in the real service output.
+const LEGACY_CONFIG = `root:
+  name: "Rayman Origins"
+  sort_string: "Rayman 5"
+  start_game:
+    online:
+      after_game_report_enabled: no
+      executables:
+        - path: 
+            relative: Rayman Origins.exe
+          working_directory:
+            register: HKEY_LOCAL_MACHINE\\SOFTWARE\\UBISOFT\\Rayman Origins\\GameUpdate\\InstallDir
+    offline:
+      executables:
+        - path:
+            relative: Rayman Origins.exe
+          arguments: -offline
+`;
+
+const AC3_CONFIG = `root:
+  name: l1
+  sort_string: Assassin's Creed 05.1
+  start_game:
+    online:
+      legacy_ticket_enabled: yes
+      executables:
+        - path:
+            relative: AC3SP.exe
+          working_directory:
+            register: HKEY_LOCAL_MACHINE\\SOFTWARE\\UBISOFT\\Assassin's Creed 3\\GameUpdate\\installdir
+          internal_name: Executable
+          description: Single Player
+        - path:
+            relative: AC3MP.exe
+          internal_name: Executable
+          description: Multi Player
+    offline:
+      executables:
+        - path:
+            relative: AC3SP.exe
+          arguments: -offline
+          description: Single Player
+`;
+
+test("deriveUbisoftLaunches reads the legacy dash-path generation", () => {
+  const { title, launches } = deriveUbisoftLaunches(LEGACY_CONFIG);
+  assert.equal(title, "Rayman Origins");
+  assert.deepEqual(launches, [
+    { name: "Play", executable: "Rayman Origins.exe", arguments: [] },
+  ]);
+});
+
+test("deriveUbisoftLaunches labels legacy entries from description and keeps online args", () => {
+  const { launches } = deriveUbisoftLaunches(AC3_CONFIG);
+  assert.deepEqual(launches, [
+    { name: "Single Player", executable: "AC3SP.exe", arguments: [] },
+    { name: "Multi Player", executable: "AC3MP.exe", arguments: [] },
+  ]);
+});
+
+test("deriveUbisoftLaunches carries offline arguments when offline is used", () => {
+  const offlineOnly = AC3_CONFIG.replace(
+    /    online:\n[\s\S]*?\n    offline:/,
+    "    offline:",
+  );
+  const { launches } = deriveUbisoftLaunches(offlineOnly);
+  assert.deepEqual(launches, [
+    { name: "Single Player", executable: "AC3SP.exe", arguments: ["-offline"] },
   ]);
 });
 
