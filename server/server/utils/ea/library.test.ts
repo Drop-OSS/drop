@@ -176,3 +176,42 @@ test("surfaces a rejected access token as 401", async () => {
     (error: unknown) => (error as { statusCode?: number }).statusCode === 401,
   );
 });
+
+test("help-session tokens discover through the player-shell endpoint", async () => {
+  mockFetch([
+    {
+      match: "playershell",
+      status: 200,
+      body: {
+        response: {
+          trendingGames: [
+            { title: "Mass Effect 2", pagePath: "/me2", entitled: true },
+            { title: "Battlefield V", pagePath: "/bfv", entitled: true },
+            { title: "Free Sample", pagePath: "/free", entitled: false },
+          ],
+        },
+      },
+    },
+    {
+      match: "entitlements",
+      status: 401,
+      body: {},
+    },
+  ]);
+  const all = await discoverEaLibrary("help-session:userSessionId=abc");
+  assert.deepEqual(
+    all.games.map((g) => g.title),
+    ["Mass Effect 2", "Battlefield V"],
+  );
+  assert.ok(
+    calls.some((c) => c.includes("playershell")),
+    "cookie-backed discovery must not call the entitlement API",
+  );
+  const one = await discoverEaLibrary("help-session:userSessionId=abc", {
+    title: "battlefield",
+  });
+  assert.deepEqual(
+    one.games.map((g) => g.title),
+    ["Battlefield V"],
+  );
+});

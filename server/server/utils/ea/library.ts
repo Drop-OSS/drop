@@ -1,6 +1,8 @@
 import { createError } from "h3";
 import {
+  EA_HELP_SESSION_PREFIX,
   getEaEntitlements,
+  getEaHelpLibrary,
   searchEaCatalog,
   type EaEntitlement,
 } from "./client";
@@ -10,6 +12,8 @@ export type EaDiscoveredGame = {
   id: string;
   title: string;
   offerId?: string;
+  /** True for EA Play membership titles (Help player-shell listings). */
+  isEaPlay?: boolean;
   /** EA's per-entitlement archive URL, when the API includes one. */
   downloadLink?: string;
 };
@@ -74,6 +78,33 @@ export async function discoverEaLibrary(
   accessToken: string,
   query: EaDiscoveryQuery = {},
 ): Promise<{ games: EaDiscoveredGame[]; total: number }> {
+  if (accessToken.startsWith(EA_HELP_SESSION_PREFIX)) {
+    // Cookie-backed connection (EA grants no third-party OAuth clients):
+    // the Help player-shell API lists the session's owned titles directly.
+    let games: EaDiscoveredGame[];
+    try {
+      games = (await getEaHelpLibrary(accessToken)).map((game) => ({
+        id: game.id,
+        title: game.title,
+        isEaPlay: game.isEaPlay,
+      }));
+    } catch (error) {
+      const statusCode = (error as { statusCode?: number }).statusCode;
+      throw createError({
+        statusCode: statusCode === 400 ? 400 : 401,
+        statusMessage:
+          (error as { statusMessage?: string }).statusMessage ??
+          "EA rejected the session cookies",
+      });
+    }
+    const helpTerm = (query.title || "").trim().toLocaleLowerCase();
+    const filtered = helpTerm
+      ? games.filter((game) =>
+          game.title.toLocaleLowerCase().includes(helpTerm),
+        )
+      : games;
+    return { games: filtered, total: filtered.length };
+  }
   let entitlements: EaEntitlement[];
   try {
     entitlements = await getEaEntitlements(accessToken);

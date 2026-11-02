@@ -573,3 +573,57 @@ test("a killed EA cookie turns the connection into a dead end, not a crash", asy
     (error: unknown) => (error as { statusCode?: number }).statusCode === 410,
   );
 });
+
+test("pasted help.ea.com cookies connect only after EA accepts them", async () => {
+  const helpBody = JSON.stringify({
+    response: {
+      trendingGames: [
+        { title: "Mass Effect 2", pagePath: "/me2", entitled: true },
+      ],
+    },
+  });
+  globalThis.fetch = (async () =>
+    new Response(helpBody, { status: 200 })) as typeof fetch;
+  const { store, rows } = createStore();
+  const saved = await saveConnection(store, {
+    provider: "ea",
+    browserCookies: "Cookie: persona_name=Test%20Person; userSessionId=abc",
+  });
+  assert.ok(!isUbisoftTwoFactorChallenge(saved));
+  assert.equal(saved.accountId, "Test Person");
+  assert.ok(rows[0]?.accessToken?.startsWith("help-session:"));
+  assert.equal(rows[0]?.refreshToken, rows[0]?.accessToken);
+
+  globalThis.fetch = (async () =>
+    new Response(JSON.stringify({ timestamp: "now" }), {
+      status: 200,
+    })) as typeof fetch;
+  await assert.rejects(
+    () =>
+      saveConnection(store, {
+        provider: "ea",
+        browserCookies: "persona_name=x; userSessionId=dead",
+      }),
+    (error: unknown) =>
+      (error as { statusCode?: number }).statusCode === 400 ||
+      (error as { statusCode?: number }).statusCode === 401,
+  );
+});
+
+test("cookie sessions lacking the session cookie are rejected pre-flight", async () => {
+  const { store } = createStore();
+  let fetches = 0;
+  globalThis.fetch = (async () => {
+    fetches += 1;
+    return new Response("{}", { status: 200 });
+  }) as typeof fetch;
+  await assert.rejects(
+    () =>
+      saveConnection(store, {
+        provider: "ea",
+        browserCookies: "notice_poptime=1",
+      }),
+    (error: unknown) =>
+      (error as { statusCode?: number }).statusCode === 400 && fetches === 0,
+  );
+});

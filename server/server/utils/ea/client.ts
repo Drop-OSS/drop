@@ -308,6 +308,127 @@ export async function exchangeEaSessionCookie(sid: string): Promise<EaSession> {
   return { jwt, userId, expiresAt: eaJwtExpiry(jwt) };
 }
 
+/**
+ * EA Help's player-shell API lists the signed-in account's owned games
+ * (title, entitlementStatus, pagePath) using the browser session cookies
+ * alone - no OAuth client exists, and live HAR capture proved this is what
+ * a logged-in help.ea.com tab calls. Unsigned requests answer with only a
+ * `{timestamp}` body; that absence is treated as "session rejected".
+ */
+const EA_HELP_LIBRARY_URL =
+  "https://help.ea.com/_data/playershell/v1/user-games/en";
+const EA_HELP_UA =
+  "Mozilla/5.0 (X11; Linux x86_64; rv:159.0) Gecko/20100101 Firefox/159.0";
+
+/** Prefix stored in accessToken/refreshToken for cookie-backed EA rows. */
+export const EA_HELP_SESSION_PREFIX = "help-session:";
+
+export type EaHelpGame = {
+  id: string;
+  title: string;
+  pagePath: string;
+  isEaPlay: boolean;
+  [key: string]: unknown;
+};
+
+/** Accept the raw `Cookie:` request-header value (what DevTools copies). */
+export function normalizeEaCookieHeader(input: string): string {
+  let value = input.trim();
+  if (value.toLowerCase().startsWith("cookie:")) value = value.slice(7).trim();
+  const pairs = value
+    .split(";")
+    .map((pair) => pair.trim())
+    .filter((pair) => pair.includes("="));
+  const names = new Set(pairs.map((pair) => pair.split("=")[0].toLowerCase()));
+  if (!names.has("usersessionid") && !names.has("_help_session"))
+    throw createError({
+      statusCode: 400,
+      statusMessage:
+        "The pasted cookies must include userSessionId or _help_session - copy the Cookie header from a signed-in help.ea.com request (DevTools -> Network -> any help.ea.com request -> Request Headers)",
+    });
+  return pairs.join("; ");
+}
+
+/** Best-effort human account id from the session cookies (persona/email). */
+export function eaAccountIdFromCookies(cookieHeader: string): string {
+  const decode = (raw: string) => {
+    try {
+      return decodeURIComponent(raw);
+    } catch {
+      return raw;
+    }
+  };
+  for (const pair of cookieHeader.split(";")) {
+    const [name, ...rest] = pair.trim().split("=");
+    if (name === "persona_name" && rest.length) return decode(rest.join("="));
+  }
+  for (const pair of cookieHeader.split(";")) {
+    const [name, ...rest] = pair.trim().split("=");
+    const raw = rest.join("=");
+    if (name === "email_id" && raw) return decode(raw);
+  }
+  return "ea-help-session";
+}
+
+/**
+ * Fetch the account's owned games through the EA Help session. `cookieHeader`
+ * is the pasted browser Cookie header; returns only entitled entries.
+ */
+export async function getEaHelpLibrary(
+  cookieHeader: string,
+): Promise<EaHelpGame[]> {
+  const cookie = cookieHeader.startsWith(EA_HELP_SESSION_PREFIX)
+    ? cookieHeader.slice(EA_HELP_SESSION_PREFIX.length)
+    : cookieHeader;
+  if (!cookie)
+    throw createError({
+      statusCode: 400,
+      statusMessage: "EA session cookies are empty",
+    });
+  const url = new URL(EA_HELP_LIBRARY_URL);
+  url.searchParams.set("path", "/");
+  url.searchParams.set("referer", "https://help.ea.com/en/");
+  const response = await eaFetch(
+    url.toString(),
+    {
+      headers: {
+        Accept: "application/json",
+        "User-Agent": EA_HELP_UA,
+        Referer: "https://help.ea.com/en/",
+        Cookie: cookie,
+      },
+    },
+    "help library",
+  );
+  const raw = (await response.json().catch(() => null)) as unknown;
+  const shell =
+    raw && typeof raw === "object"
+      ? (raw as { response?: { trendingGames?: unknown } }).response
+      : undefined;
+  if (!shell || !Array.isArray(shell.trendingGames))
+    throw createError({
+      statusCode: 401,
+      statusMessage:
+        "EA rejected the session cookies - sign in to help.ea.com again and copy a fresh Cookie header",
+    });
+  return shell.trendingGames.flatMap((item): EaHelpGame[] => {
+    if (!item || typeof item !== "object") return [];
+    const game = item as Record<string, unknown>;
+    if (game.entitled !== true || typeof game.title !== "string") return [];
+    const pagePath =
+      typeof game.pagePath === "string" ? game.pagePath : game.title;
+    return [
+      {
+        ...game,
+        id: pagePath,
+        title: game.title,
+        pagePath,
+        isEaPlay: game.isEaPlay === true,
+      },
+    ];
+  });
+}
+
 /** Return one bounded entitlement page. */
 export async function getEaEntitlements(
   accessToken: string,

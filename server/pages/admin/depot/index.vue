@@ -124,11 +124,12 @@
           class="mb-4 text-xs text-zinc-500"
         >
           EA grants no third-party sign-in clients, so connect with your own
-          browser session: sign in at ea.com, open DevTools → Application →
-          Cookies → ea.com, copy the <code>sid</code> cookie value and paste it
-          below. The server exchanges it for tokens server-side and renews the
-          exchange automatically until EA expires the cookie; only then does it
-          ask for a fresh paste. (Alternatively paste tokens from an EA app
+          browser session: sign in at help.ea.com, open DevTools → Network,
+          reload, click any help.ea.com request, and copy the whole
+          <code>Cookie:</code> value from Request Headers into the box below.
+          The server saves it only after EA accepts it once, lists your owned
+          games through the same session, and asks for a fresh copy when EA
+          eventually expires it. (Alternatively paste tokens from an EA app
           installation, or use browser sign-in when an EA_OAUTH_CLIENT_* is
           configured on the server.)
         </p>
@@ -301,16 +302,17 @@
               </details>
             </template>
             <template v-else>
-              <label for="ea-connect-session" class="sr-only">
-                EA session cookie (sid)
+              <label for="ea-connect-cookies" class="sr-only">
+                EA browser session cookies
               </label>
-              <input
-                id="ea-connect-session"
-                v-model.trim="eaConnectSession"
-                type="password"
+              <textarea
+                id="ea-connect-cookies"
+                v-model.trim="eaConnectCookies"
+                rows="3"
+                spellcheck="false"
                 autocomplete="off"
-                placeholder="ea.com session cookie (sid) - recommended"
-                class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                placeholder="Signed-in help.ea.com Cookie header (recommended) - DevTools → Network → any help.ea.com request → Request Headers → copy the whole Cookie: value"
+                class="min-w-0 flex-1 resize-y rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 font-mono text-xs text-zinc-100 placeholder:font-sans placeholder:text-sm placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
               <template v-if="eaLoginAvailable">
                 <label for="ea-connect-code" class="sr-only">
@@ -735,7 +737,7 @@ const ubisoftCode = ref("");
 // sends this ticket plus the user's code instead of credentials.
 const ubisoftTwoFactorTicket = ref("");
 const ubisoftTicket = ref("");
-const eaConnectSession = ref("");
+const eaConnectCookies = ref("");
 const eaConnectCode = ref("");
 const eaConnectToken = ref("");
 const eaRefreshToken = ref("");
@@ -765,7 +767,7 @@ const providerDescription = computed(() =>
   activeProviderId.value === "epic"
     ? "Connect an Epic account with a refresh token so the server can keep its entitlements fresh. Loads the entitlements owned by that account; ingest streams the raw depot files directly into the depot."
     : activeProviderId.value === "ea"
-      ? "Paste the ea.com session cookie (sid) to connect: the server exchanges it for tokens at EA's own identity endpoint and renews the exchange automatically. Discovery lists entitled games and can be widened by a catalog search; ingest streams the game archive into the depot from a provided download link."
+      ? "Paste the Cookie header from a signed-in help.ea.com tab: the server lists your owned games through that EA Help session (no OAuth client exists for EA) and asks for a fresh copy when EA expires it. Ingest streams a game archive into the depot from a provided download link."
       : "Sign in with your Ubisoft email and password - the password is used for the single sign-in and never stored; the session ticket and a remember-me ticket are kept and renewed automatically. A two-factor code may be requested once. Loads the titles owned by that account; ingest streams the raw game files directly into the depot.",
 );
 
@@ -783,7 +785,7 @@ const canConnect = computed(() => {
       );
     default:
       return Boolean(
-        eaConnectSession.value ||
+        eaConnectCookies.value ||
         eaConnectCode.value ||
         eaConnectToken.value ||
         eaRefreshToken.value,
@@ -859,7 +861,7 @@ async function connect() {
     }
   }
   if (provider === "ea") {
-    if (eaConnectSession.value) body.sessionCookie = eaConnectSession.value;
+    if (eaConnectCookies.value) body.browserCookies = eaConnectCookies.value;
     if (eaConnectCode.value) body.code = eaConnectCode.value;
     if (eaConnectToken.value) body.accessToken = eaConnectToken.value;
     if (eaRefreshToken.value) body.refreshToken = eaRefreshToken.value;
@@ -894,7 +896,7 @@ async function connect() {
     ubisoftCode.value = "";
     ubisoftTwoFactorTicket.value = "";
     ubisoftTicket.value = "";
-    eaConnectSession.value = "";
+    eaConnectCookies.value = "";
     eaConnectCode.value = "";
     eaConnectToken.value = "";
     eaRefreshToken.value = "";

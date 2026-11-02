@@ -2,11 +2,14 @@ import { test, afterEach } from "node:test";
 import assert from "node:assert/strict";
 import {
   buildEaLoginUrl,
+  eaAccountIdFromCookies,
   exchangeEaAuthorizationCode,
   exchangeEaLoginCode,
   exchangeEaSessionCookie,
   extractEaAuthCode,
   getEaEntitlements,
+  getEaHelpLibrary,
+  normalizeEaCookieHeader,
   refreshEaToken,
   searchEaCatalog,
 } from "./client";
@@ -233,4 +236,75 @@ test("an empty cookie never reaches EA", async () => {
       (error as { statusCode?: number }).statusCode === 400 &&
       calls.length === 0,
   );
+});
+
+test("normalizeEaCookieHeader accepts a DevTools copy and demands the session", () => {
+  assert.equal(
+    normalizeEaCookieHeader("Cookie: userSessionId=abc; other=x\n"),
+    "userSessionId=abc; other=x",
+  );
+  assert.match(
+    normalizeEaCookieHeader("_help_session=s; z=1"),
+    /_help_session=s/,
+  );
+  assert.throws(
+    () => normalizeEaCookieHeader("notice_poptime=1; ealocale=en"),
+    (error: unknown) => (error as { statusCode?: number }).statusCode === 400,
+  );
+});
+
+test("the Help player-shell listing keeps entitled games and shapes ids", async () => {
+  mockFetch(200, {
+    response: {
+      trendingGames: [
+        {
+          title: "Mass Effect 2",
+          pagePath: "/games/mass-effect/mass-effect-2",
+          entitled: true,
+          isEaPlay: false,
+        },
+        { title: "Not Owned", pagePath: "/x", entitled: false },
+        {
+          title: "Vault Game",
+          pagePath: "/vault",
+          entitled: true,
+          isEaPlay: true,
+        },
+        { entitled: true },
+      ],
+    },
+  });
+  const games = await getEaHelpLibrary("userSessionId=abc");
+  assert.deepEqual(
+    games.map((g) => [g.id, g.title, g.isEaPlay]),
+    [
+      ["/games/mass-effect/mass-effect-2", "Mass Effect 2", false],
+      ["/vault", "Vault Game", true],
+    ],
+  );
+  assert.equal(
+    (calls[0].init.headers as Record<string, string>).Cookie,
+    "userSessionId=abc",
+  );
+  assert.match(
+    calls[0].url,
+    /help\.ea\.com\/_data\/playershell\/v1\/user-games/,
+  );
+});
+
+test("a timestamp-only (unsigned) answer is a session failure", async () => {
+  mockFetch(200, { timestamp: "2026-11-02T00:00:00Z" });
+  await assert.rejects(
+    () => getEaHelpLibrary("stale=cookies"),
+    (error: unknown) => (error as { statusCode?: number }).statusCode === 401,
+  );
+});
+
+test("the account name comes from the session cookies themselves", () => {
+  assert.equal(
+    eaAccountIdFromCookies("persona_name=Cool%20Person; email_id=x@y.z"),
+    "Cool Person",
+  );
+  assert.equal(eaAccountIdFromCookies("email_id=x%40y.z"), "x@y.z");
+  assert.equal(eaAccountIdFromCookies("userSessionId=abc"), "ea-help-session");
 });

@@ -2,9 +2,13 @@ import { createError } from "h3";
 import { exchangeGogAuthorizationCode, refreshGogToken } from "../gog";
 import { exchangeEpicAuthCode, refreshEpicToken } from "../epic/client";
 import {
+  EA_HELP_SESSION_PREFIX,
+  eaAccountIdFromCookies,
   exchangeEaLoginCode,
   exchangeEaSessionCookie,
   fetchEaPid,
+  getEaHelpLibrary,
+  normalizeEaCookieHeader,
   refreshEaToken,
 } from "../ea/client";
 import {
@@ -100,6 +104,7 @@ export type SaveConnectionInput =
       provider: "ea";
       code?: string;
       sessionCookie?: string;
+      browserCookies?: string;
       accessToken?: string;
       refreshToken?: string;
       accountId?: string;
@@ -317,7 +322,17 @@ export async function saveConnection(
       let refreshToken = input.refreshToken?.trim() || null;
       let expiresAt: Date | null = null;
       let accountId = input.accountId?.trim();
-      if (input.sessionCookie?.trim()) {
+      if (input.browserCookies?.trim()) {
+        // Verified path: a signed-in help.ea.com browser session pasted as
+        // its Cookie header. No OAuth client exists for EA, and the Help
+        // player-shell API lists this account's owned titles with nothing
+        // but these cookies. Saved only after EA accepts them once.
+        const cookie = normalizeEaCookieHeader(input.browserCookies);
+        await getEaHelpLibrary(`${EA_HELP_SESSION_PREFIX}${cookie}`);
+        accessToken = `${EA_HELP_SESSION_PREFIX}${cookie}`;
+        refreshToken = accessToken;
+        accountId = accountId || eaAccountIdFromCookies(cookie);
+      } else if (input.sessionCookie?.trim()) {
         // Web-session sign-in: mint a JWT from the pasted ea.com cookie now,
         // keep the cookie itself as the credential that mints the next one.
         const session = await exchangeEaSessionCookie(input.sessionCookie);
@@ -450,6 +465,15 @@ async function tryRefresh(
       return { token: tokens.access_token, accountId: row.accountId };
     }
     if (row.provider === "ea" && row.refreshToken) {
+      if (row.refreshToken.startsWith(EA_HELP_SESSION_PREFIX)) {
+        // Cookie-backed connection: validate against live EA; a killed
+        // session fails below and callers surface "sign in again" (410).
+        await getEaHelpLibrary(row.refreshToken);
+        return {
+          token: row.accessToken ?? row.refreshToken,
+          accountId: row.accountId,
+        };
+      }
       if (row.refreshToken.startsWith(EA_SESSION_COOKIE_PREFIX)) {
         // Cookie-backed connection: re-exchange the ea.com sid for a fresh
         // JWT. When EA kills the cookie the exchange 401s, the catch below
