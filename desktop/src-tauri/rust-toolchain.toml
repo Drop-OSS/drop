@@ -1,2 +1,6 @@
 [toolchain]
-channel = "nightly"
+# Pinned: the rolling `nightly` currently cannot compile this tree's Linux
+# dependencies (rustc's async-drop query ICEs inside zbus 5.13, which tauri
+# pulls in). Bump deliberately, after `cargo check --workspace --all-targets`
+# passes on the candidate.
+channel = "nightly-2026-10-20"
