@@ -1,0 +1,235 @@
+syntax = "proto2";
+
+package mg.protocol.download;
+
+message LicenseLocale {
+    required string language = 1;
+    required bytes sha1 = 2;
+    optional string text = 3;
+    optional string name = 4;
+}
+
+message License {
+    required string identifier = 1;
+    required uint32 version = 2;
+    repeated LicenseLocale locales = 3;
+    optional LicenseFormat format = 4;
+}
+
+message InstallRun {
+    required string exe = 1;
+    required string workingDir = 2;
+    required string arguments = 3;
+    required string description = 4;
+    optional string identifier = 5;
+    optional uint32 version = 6;
+    optional Platform platform = 7;
+    optional PlatformType platformType = 8;
+    optional bool ignoreAllExitCodes = 9;
+    optional bool restartRequired = 10;
+}
+
+message RegistryStringEntry {
+    required string value = 1;
+    optional string language = 2;
+}
+
+message RegistryNumberEntry {
+    required uint32 value = 1;
+    optional string language = 2;
+}
+
+message InstallRegistry {
+    required string key = 1;
+    
+    required ValueType type = 2;
+    enum ValueType {
+        ValueType_String = 0;
+        ValueType_Number = 1;
+    }
+    
+    repeated RegistryStringEntry registryStringEntry = 3;
+    repeated RegistryNumberEntry registryNumberEntry = 4;
+}
+
+message InstallGameExplorer {
+    required string gdfPath = 1;
+    optional uint32 version = 2;
+}
+
+message InstallFirewallRule {
+    required string name = 1;
+    required string exe = 2;
+    required FirewallProfile profile = 3;
+    required FirewallProtocol protocol = 4;
+    optional string ports = 5;
+    optional uint32 version = 6;
+}
+
+message InstallCompatibility {
+    required string exe = 1;
+    required string options = 2;
+    optional Platform platform = 3;
+}
+
+message UninstallRun {
+    required string exe = 1;
+    required string workingDir = 2;
+    required string arguments = 3;
+    optional Platform platform = 5;
+    optional PlatformType platformType = 6;
+}
+
+message UninstallRegistry {
+    required string key = 1;
+}
+
+message Slice {
+    required uint32 size = 1;
+    optional uint32 downloadSize = 2;
+    optional bytes downloadSha1 = 3;
+    optional uint64 fileOffset = 4;
+}
+
+message File {
+    required string name = 1;
+    required uint64 size = 2;
+    required bool isDir = 3;
+    repeated bytes slices = 4;
+    optional uint32 version = 5;
+    optional uint64 paddedSize = 6;
+    repeated Slice sliceList = 7;
+}
+
+message Chunk {
+    required uint32 id = 1;
+    
+    required ChunkType type = 2;
+    enum ChunkType {
+        ChunkType_Required = 0;
+        ChunkType_Optional = 1;
+    }
+    
+    repeated File files = 3;
+    optional uint32 uplayId = 4;
+    optional string language = 5;
+    optional string disc = 6;
+    optional string tags = 7;
+    repeated uint32 uplayIds = 8;
+}
+
+message MetaDataChunk {
+    optional uint32 uplayId = 1;
+    optional string language = 2;
+    required uint64 bytesOnDisk = 3;
+    optional uint64 paddedBytesOnDisk = 4;
+    repeated uint32 uplayIds = 5;
+}
+
+message TextFileEntry {
+    required string fileName = 1;
+    required string locale = 2;
+}
+
+message TextFileList {
+    optional string rootPath = 1;
+    repeated TextFileEntry files = 2;
+}
+
+message Language {
+    optional string code = 1;
+    repeated uint32 uplayIds = 2;
+}
+
+message SlicerConfig {
+    optional SlicerType slicerType = 1;
+    enum SlicerType {
+        Fsc = 1;
+        FastCdc = 2;
+    }
+    
+    optional uint32 minSliceSizeBytes = 2;
+    optional uint32 expectedSliceSizeBytes = 3;
+    optional uint32 maxSliceSizeBytes = 4;
+    optional uint32 configVersion = 5;
+}
+
+message Manifest {
+    repeated License licenses = 1;
+    repeated InstallRun installRuns = 2;
+    repeated InstallRegistry installRegistry = 5;
+    repeated UninstallRun uninstallRuns = 3;
+    repeated UninstallRegistry uninstallRegistry = 6;
+    repeated Chunk chunks = 4;
+    optional uint32 chunksVersion = 7;
+    optional uint32 sliceSizeDeprecated = 8;
+    repeated InstallGameExplorer installGameExplorer = 9;
+    repeated InstallFirewallRule installFirewallRules = 10;
+    repeated InstallCompatibility installCompatibility = 11;
+    optional string legacyInstaller = 12;
+    repeated string deprecatedLanguages = 13;
+    optional bool isEncryptedDeprecated = 14;
+    optional uint32 paddedSliceSizeDeprecated = 15;
+    optional bool patchRequired = 16;
+    optional bool isCompressed = 17;
+    optional TextFileList readmeFiles = 18;
+    optional TextFileList manualFiles = 19;
+    optional string gameVersion = 20;
+    optional CompressionMethod compressionMethod = 21;
+    optional uint32 version = 22;
+    repeated Language languages = 23;
+    optional SlicerConfig slicerConfig = 24;
+}
+
+message ManifestLicenses {
+    repeated License licenses = 1;
+}
+
+message ManifestMetaData {
+    repeated License licenses = 1;
+    required uint64 bytesOnDisk = 2;
+    required uint64 bytesToDownload = 3;
+    repeated string deprecatedLanguages = 5;
+    optional uint32 chunksVersion = 6;
+    repeated uint32 uplayIds = 7;
+    repeated MetaDataChunk chunks = 8;
+    optional uint64 paddedBytesOnDisk = 9;
+    repeated Language languages = 10;
+}
+
+enum LicenseFormat {
+    LicenseFormat_Text = 1;
+    LicenseFormat_Html = 2;
+}
+
+enum Platform {
+    Platform_WindowsXP = 1;
+    Platform_WindowsVista = 2;
+    Platform_Windows7 = 3;
+    Platform_Windows8 = 4;
+    Platform_Windows10 = 5;
+    Platform_Windows81 = 6;
+}
+
+enum PlatformType {
+    PlatformType_x86 = 1;
+    PlatformType_x64 = 2;
+}
+
+enum FirewallProfile {
+    FirewallProfile_Domain = 1;
+    FirewallProfile_Private = 2;
+    FirewallProfile_Public = 3;
+    FirewallProfile_All = 4;
+}
+
+enum FirewallProtocol {
+    FirewallProtocol_TCP = 1;
+    FirewallProtocol_UDP = 2;
+}
+
+enum CompressionMethod {
+    CompressionMethod_Deflate = 1;
+    CompressionMethod_Lzham = 2;
+    CompressionMethod_Zstd = 3;
+}
