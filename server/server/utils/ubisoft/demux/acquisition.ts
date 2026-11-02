@@ -20,6 +20,9 @@ import {
   type Rsp as DownloadRsp,
 } from "../../../internal/proto/ubisoft-demux/proto/download_service_pb";
 
+/** Pause before the single retry of a stalled UrlReq (see mintUrls). */
+const MINT_RETRY_DELAY_MS = 1_500;
+
 /**
  * Acquisition API over the demux transport: everything needed to turn an
  * account ticket into signed CDN URLs for a title's files.
@@ -239,18 +242,34 @@ export class UbisoftDownloadSession {
    */
   public async mintUrls(paths: string[]): Promise<string[]> {
     if (paths.length === 0) return [];
-    const envelope = (await this.client.serviceRequest(
-      this.connectionId,
-      create(DownloadUpstreamSchema, {
-        request: create(DownloadReqSchema, {
-          urlReq: create(UrlReqSchema, {
-            urlRequests: [
-              { productId: this.productId, relativeFilePath: paths },
-            ],
-          }),
+    const upstream = create(DownloadUpstreamSchema, {
+      request: create(DownloadReqSchema, {
+        urlReq: create(UrlReqSchema, {
+          urlRequests: [{ productId: this.productId, relativeFilePath: paths }],
         }),
       }),
-    )) as DownloadRsp;
+    });
+    // download_service answers hundreds of sequential UrlRequests over one
+    // connection during a big ingest, and occasionally stalls on one without
+    // ever replying (a 13GB acquisition died on request #297 this way).
+    // Minting is idempotent, so give a stalled request one fresh attempt.
+    let envelope: DownloadRsp;
+    try {
+      envelope = (await this.client.serviceRequest(
+        this.connectionId,
+        upstream,
+      )) as DownloadRsp;
+    } catch (firstError) {
+      await new Promise((wake) => setTimeout(wake, MINT_RETRY_DELAY_MS));
+      try {
+        envelope = (await this.client.serviceRequest(
+          this.connectionId,
+          upstream,
+        )) as DownloadRsp;
+      } catch {
+        throw firstError;
+      }
+    }
     const group = envelope.urlRsp?.urlResponses[0];
     if (!group || group.result !== 0) {
       throw createError({
