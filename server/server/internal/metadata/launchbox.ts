@@ -344,6 +344,26 @@ export async function* zipEntryStream(
   try {
     const header = Buffer.alloc(30);
     await handle.read(header, 0, 30, entry.localHeaderOffset);
+
+    // Bit 3 means the local header carries zeroed sizes and the real ones live
+    // in a trailing data descriptor, so the local sizes are only trustworthy
+    // when it is clear. When they are present they must agree with the central
+    // directory, or we are reading a file that is not the one we indexed.
+    const generalPurposeBitFlag = header.readUInt16LE(6);
+    const hasDataDescriptor = (generalPurposeBitFlag & 0x08) !== 0;
+    if (!hasDataDescriptor) {
+      const localCompressed = header.readUInt32LE(18);
+      const localUncompressed = header.readUInt32LE(22);
+      if (
+        localCompressed !== entry.compressedSize ||
+        localUncompressed !== entry.uncompressedSize
+      ) {
+        throw new Error(
+          `zip entry "${entry.name}": local header sizes disagree with the central directory`,
+        );
+      }
+    }
+
     const dataStart =
       entry.localHeaderOffset +
       30 +
@@ -352,12 +372,30 @@ export async function* zipEntryStream(
 
     const BLOCK = 1024 * 1024;
     let read = 0;
+    let produced = 0;
     let inputDone = false;
 
+    /**
+     * Enforces the declared uncompressed size.
+     *
+     * The read loop is bounded by compressedSize, so without this a zip that
+     * claims a small entry but inflates far larger would be parsed in full.
+     * One archive is downloaded from a third party and parsed in a server, so
+     * the declared size is a limit, not a hint.
+     */
+    const checked = (chunk: Buffer): Buffer => {
+      produced += chunk.length;
+      if (produced > entry.uncompressedSize) {
+        throw new Error(
+          `zip entry "${entry.name}": inflated past its declared uncompressed size of ${entry.uncompressedSize} bytes`,
+        );
+      }
+      return chunk;
+    };
+
     while (!ended || queue.length > 0) {
-      if (queue.length > 0) {
-        yield queue.shift() as Buffer;
-        continue;
+      while (queue.length > 0) {
+        yield checked(queue.shift() as Buffer);
       }
       if (failure) throw failure;
       if (ended) break;
@@ -367,33 +405,42 @@ export async function* zipEntryStream(
         if (read >= entry.compressedSize) {
           inputDone = true;
           inflate?.end();
-        } else {
-          const want = Math.min(BLOCK, entry.compressedSize - read);
-          const block = Buffer.alloc(want);
-          const { bytesRead } = await handle.read(
-            block,
-            0,
-            want,
-            dataStart + read,
-          );
-          if (bytesRead === 0) {
-            inputDone = true;
-            inflate?.end();
-          } else {
-            read += bytesRead;
-            if (inflate) inflate.write(block.subarray(0, bytesRead));
-            else queue.push(block.subarray(0, bytesRead));
-          }
+          continue;
         }
+        const want = Math.min(BLOCK, entry.compressedSize - read);
+        const block = Buffer.alloc(want);
+        const { bytesRead } = await handle.read(
+          block,
+          0,
+          want,
+          dataStart + read,
+        );
+        if (bytesRead === 0) {
+          inputDone = true;
+          inflate?.end();
+          continue;
+        }
+        read += bytesRead;
+        if (inflate) inflate.write(block.subarray(0, bytesRead));
+        else queue.push(block.subarray(0, bytesRead));
+        continue;
       }
-      if (queue.length === 0 && !ended) {
+
+      // Input is exhausted and the queue is empty: wait for the inflate stream
+      // to emit, not for a timer. The handlers above resolve this promise, so
+      // the loop is driven by the stream's own events.
+      if (!ended && queue.length === 0) {
         await new Promise<void>((resolve) => {
           wake = resolve;
-          setTimeout(resolve, 25);
         });
       }
     }
     if (failure) throw failure;
+    if (produced !== entry.uncompressedSize) {
+      throw new Error(
+        `zip entry "${entry.name}": inflated ${produced} bytes but the central directory declares ${entry.uncompressedSize}`,
+      );
+    }
   } finally {
     inflate?.destroy();
     await handle.close();
