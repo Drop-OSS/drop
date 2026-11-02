@@ -59,6 +59,23 @@ const SEARCH_API_URL = "https://gamesdb-api.launchbox-app.com/api/search";
 /** Image hosts. Both serve the same GUID filenames; the .gg one is current. */
 const IMAGE_URL = "https://images.launchbox-app.com";
 
+/** The per-game media page. Every kind the database holds is listed here. */
+const IMAGES_PAGE_URL = "https://gamesdb.launchbox-app.com/games/images";
+
+/**
+ * Region preference when a kind exists in several regions. North America first
+ * to match the rest of the metadata, then World, then Europe/Japan, then
+ * anything else — a stable order so the same game always yields the same cover.
+ */
+const REGION_PREFERENCE = [
+  "north america",
+  "world",
+  "europe",
+  "japan",
+  "australia",
+  "asia",
+];
+
 /**
  * Prefix marking an id that came from the search API rather than the archive.
  * The two namespaces are distinct (archive DatabaseID 468928 and API gameKey
@@ -474,6 +491,71 @@ export async function* zipEntryStream(
   }
 }
 
+/** One media entry scraped from a game's images page. */
+export interface LaunchBoxMedia {
+  /** LaunchBox's own kind string, e.g. "Box - Front". */
+  kind: string;
+  region: string | null;
+  /** Absolute image URL. */
+  url: string;
+}
+
+/**
+ * Parses a game's images page into media entries.
+ *
+ * The page is server-rendered, so the entries are plain anchors carrying the
+ * image URL, an id and a human title of the form
+ * "<Game> - <Kind> Image (<Region>)". Only those anchors are matched, so the
+ * surrounding chrome and the lightbox previews are ignored.
+ */
+export function parseMediaPage(html: string): LaunchBoxMedia[] {
+  const pattern =
+    /href="(https:\/\/images\.launchbox-app\.com\/[a-f0-9-]+\.(?:jpg|png))"\s*\n?\s*data-gameimageid="\d+"[^>]*?data-title="([^"]+)"/g;
+  const media: LaunchBoxMedia[] = [];
+  const seen = new Set<string>();
+
+  for (const match of html.matchAll(pattern)) {
+    const [, url, title] = match;
+    if (!url || !title || seen.has(url)) continue;
+    seen.add(url);
+
+    const parsed = /^.*? - (.+?) Image(?: \((.+)\))?$/.exec(title);
+    if (!parsed) continue;
+    media.push({
+      kind: parsed[1].trim(),
+      region: parsed[2]?.trim() ?? null,
+      url,
+    });
+  }
+  return media;
+}
+
+/** Orders media by region preference, then by kind, so picking is stable. */
+function byRegionPreference(a: LaunchBoxMedia, b: LaunchBoxMedia): number {
+  const rank = (m: LaunchBoxMedia) => {
+    const r = m.region?.toLowerCase() ?? "";
+    const i = REGION_PREFERENCE.indexOf(r);
+    return i === -1 ? REGION_PREFERENCE.length : i;
+  };
+  const diff = rank(a) - rank(b);
+  if (diff !== 0) return diff;
+  return a.kind.localeCompare(b.kind);
+}
+
+/** First entry of a kind, honouring region preference. */
+function pickKind(media: LaunchBoxMedia[], kind: string) {
+  return media
+    .filter((m) => m.kind.toLowerCase() === kind.toLowerCase())
+    .sort(byRegionPreference)[0];
+}
+
+/** Every entry whose kind starts with the given prefix. */
+function pickPrefixed(media: LaunchBoxMedia[], prefix: string) {
+  return media
+    .filter((m) => m.kind.toLowerCase().startsWith(prefix.toLowerCase()))
+    .sort(byRegionPreference);
+}
+
 export class LaunchBoxProvider implements MetadataProvider {
   private index: LaunchBoxIndex | null = null;
   private indexError: string | null = null;
@@ -665,6 +747,22 @@ export class LaunchBoxProvider implements MetadataProvider {
     }));
   }
 
+  /** Fetches and parses a game's media page. Failure yields no media, not an error. */
+  private async fetchMedia(
+    gameId: string | number | null | undefined,
+  ): Promise<LaunchBoxMedia[]> {
+    if (gameId === null || gameId === undefined) return [];
+    try {
+      const html = await $fetch<string>(`${IMAGES_PAGE_URL}/${gameId}`, {
+        headers: { "User-Agent": DropUserAgent },
+      });
+      return parseMediaPage(html);
+    } catch (e) {
+      logger.warn(`LaunchBox media page failed for ${gameId}: ${e}`);
+      return [];
+    }
+  }
+
   /**
    * Looks a single API result up by its gameKey.
    *
@@ -724,19 +822,46 @@ export class LaunchBoxProvider implements MetadataProvider {
     context?.progress(40);
 
     // Artwork comes from the image host; the archive has no image field at all.
-    // A missing thumb is not an error — plenty of records have no box front.
-    let coverId: string;
-    const thumbUrl = apiHit?.thumbName
-      ? `${IMAGE_URL}/${apiHit.thumbName}`
-      : null;
-    if (thumbUrl) {
-      coverId = createObject(thumbUrl);
-    } else {
-      // Deterministic placeholder so the object reference stays non-null, the
-      // same thing the Manual provider does.
-      coverId = createObject(jdenticon.toPng(archiveId ?? id, 512));
-    }
-    const icon = coverId;
+    // The per-game media page lists every kind, so all of them are mapped onto
+    // the slots Drop models. A missing kind is not an error.
+    const media = await this.fetchMedia(archiveId ?? apiHit?.gameKey);
+    context?.logger.info(
+      `LaunchBox media: ${media.length} entries for ${game?.name ?? apiHit?.name}`,
+    );
+
+    // cover <- Box - Front, banner <- Banner, icon <- Clear Logo, carousel <-
+    // screenshots, library <- everything else. Region preference makes the pick
+    // deterministic; the API thumb is the fallback cover.
+    const cover =
+      pickKind(media, "Box - Front") ??
+      (apiHit?.thumbName
+        ? { url: `${IMAGE_URL}/${apiHit.thumbName}` }
+        : undefined);
+    const banner =
+      pickKind(media, "Banner") ?? pickKind(media, "Fanart - Background");
+    const logo = pickKind(media, "Clear Logo");
+
+    const screenshots = pickPrefixed(media, "Screenshot");
+    const others = media.filter(
+      (m) =>
+        m.kind.toLowerCase() !== "box - front" &&
+        m.kind.toLowerCase() !== "banner" &&
+        m.kind.toLowerCase() !== "clear logo" &&
+        !m.kind.toLowerCase().startsWith("screenshot"),
+    );
+
+    const placeholder = () =>
+      createObject(jdenticon.toPng(archiveId ?? id, 512));
+    const objectFor = (url?: string) =>
+      url ? createObject(url) : placeholder();
+
+    const coverId = objectFor(cover?.url);
+    const bannerId = objectFor(banner?.url ?? cover?.url);
+    const icon = objectFor(logo?.url ?? cover?.url);
+    const images = [
+      ...screenshots.map((m) => createObject(m.url)),
+      ...others.map((m) => createObject(m.url)),
+    ];
 
     const released = game?.releaseYear
       ? new Date(Date.UTC(game.releaseYear, 0, 1))
@@ -766,7 +891,12 @@ export class LaunchBoxProvider implements MetadataProvider {
       released,
       publishers: [],
       developers: [],
-      tags: game?.genres ?? [],
+      tags: [
+        ...(game?.genres ?? []),
+        // Drop's GameMetadata has no video field, and changing the schema is a
+        // separate decision. The URL is carried as a tag so it is not lost.
+        ...(game?.videoUrl ? [`video: ${game.videoUrl}`] : []),
+      ],
       reviews:
         game?.communityRating !== undefined
           ? [
@@ -781,9 +911,9 @@ export class LaunchBoxProvider implements MetadataProvider {
           : [],
       ageRatings,
       icon,
-      bannerId: icon,
-      coverId: icon,
-      images: [],
+      bannerId,
+      coverId,
+      images,
     } satisfies GameMetadata;
   }
 
