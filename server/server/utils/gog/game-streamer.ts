@@ -178,10 +178,23 @@ type GogInfoExecutable = {
   arguments?: string | string[];
 };
 
+type GogPlayTask = {
+  name?: string;
+  path?: string;
+  category?: string;
+  type?: string;
+  arguments?: string | string[];
+};
+
+const toArgs = (args: string | string[] | undefined): string[] =>
+  Array.isArray(args) ? args : args ? [args] : [];
+
 /**
- * Parse GOG's `goggame-<id>.info.json` for launchable executables. The
- * Galaxy-era schema has a top-level `executables[]`; older titles nest them
- * under `plateau.executables`. Only `Game`-typed entries count.
+ * Parse GOG's game info document for launchable executables. Two live-
+ * verified schemas exist: the classic Galaxy `goggame-<id>.info.json` with
+ * `executables[]` (`type: "Game"`, plateau-era nests them), and the newer
+ * content-system `goggame-<id>.info` (no extension) whose `playTasks[]`
+ * entries mark launchers with `category: "game"` and `type: "FileTask"`.
  */
 export function parseGogInfo(json: string): {
   installDirectory?: string;
@@ -191,6 +204,7 @@ export function parseGogInfo(json: string): {
     installDirectory?: string;
     executables?: GogInfoExecutable[];
     plateau?: { executables?: GogInfoExecutable[] };
+    playTasks?: GogPlayTask[];
   };
   try {
     doc = JSON.parse(json);
@@ -200,22 +214,25 @@ export function parseGogInfo(json: string): {
       statusMessage: "The GOG game info document is not readable JSON",
     });
   }
-  const declared = [
+  const declared: GogInfoExecutable[] = [
     ...(doc.executables ?? []),
     ...(doc.plateau?.executables ?? []),
+    ...(doc.playTasks ?? [])
+      .filter((task) => task.category === "game" && task.path)
+      .map((task) => ({
+        name: task.name,
+        path: task.path,
+        type: "Game",
+        arguments: task.arguments,
+      })),
   ];
   const launches: GogLaunchOption[] = [];
   for (const executable of declared) {
     if (executable.type !== "Game" || !executable.path) continue;
-    const args = Array.isArray(executable.arguments)
-      ? executable.arguments
-      : executable.arguments
-        ? [executable.arguments]
-        : [];
     launches.push({
       name: executable.name || "Play",
       executable: executable.path.replace(/\\/g, "/").replace(/^\/+/, ""),
-      arguments: args,
+      arguments: toArgs(executable.arguments),
     });
   }
   return { installDirectory: doc.installDirectory, launches };
@@ -229,9 +246,10 @@ export function parseGogInfo(json: string): {
  * `<gameDir>/<versionName>/<files>`. The caller (the ingest task) then
  * runs the standard version import to make the game a library game.
  *
- * The tiny `goggame-<id>.info.json` is fetched before the bulk download and
- * must declare at least one `Game` executable: without a launch command the
- * standard importer would refuse the version anyway.
+ * The game info document (`goggame-<id>.info.json` for Galaxy-era builds,
+ * `goggame-<id>.info` for content-system builds) is fetched before the bulk
+ * download and must declare at least one launchable game executable: without
+ * a launch command the standard importer would refuse the version anyway.
  */
 export async function streamGogGameToDepot(
   options: StreamGogGameOptions,
@@ -319,15 +337,17 @@ export async function streamGogGameToDepot(
 
   // Launch metadata first: a game nobody can launch is not worth 2 GB.
   report(4, "launch_metadata");
-  const infoPath = [...filesByPath.keys()].find(
-    (p) =>
-      p.toLowerCase() === `goggame-${productId}.info.json` ||
-      p.toLowerCase().endsWith(`/goggame-${productId}.info.json`),
+  const wantedInfoNames = [
+    `goggame-${productId}.info.json`,
+    `goggame-${productId}.info`,
+  ];
+  const infoPath = [...filesByPath.keys()].find((p) =>
+    wantedInfoNames.includes((p.toLowerCase().split("/").pop() ?? "").trim()),
   );
   if (!infoPath) {
     throw createError({
       statusCode: 404,
-      statusMessage: `GOG build ${build.buildId} ships no goggame-${productId}.info.json`,
+      statusMessage: `GOG build ${build.buildId} ships no goggame-${productId}.info(.json) launch document`,
     });
   }
   const infoFile = filesByPath.get(infoPath)!;
@@ -339,7 +359,7 @@ export async function streamGogGameToDepot(
   if (launches.length === 0) {
     throw createError({
       statusCode: 422,
-      statusMessage: `goggame-${productId}.info.json declares no launchable Game executable`,
+      statusMessage: `goggame-${productId}.info declares no launchable game executable`,
     });
   }
 

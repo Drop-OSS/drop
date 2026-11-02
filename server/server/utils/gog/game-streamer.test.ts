@@ -361,7 +361,7 @@ test("aborts before the bulk download when the game declares no launch", async (
   try {
     await assert.rejects(
       streamGogGameToDepot(streamOptions(gameDir)),
-      typedError(422, /no launchable Game executable/),
+      typedError(422, /no launchable game executable/),
     );
     assert.ok(
       !requested.some((url) => url.includes(gameChunk.compressedMd5)),
@@ -428,6 +428,67 @@ test("verifies chunk digests against tampered wire bytes", async () => {
     await assert.rejects(
       streamGogGameToDepot(streamOptions(gameDir)),
       typedError(502, /Failed to fetch GOG chunk/),
+    );
+  } finally {
+    await rm(gameDir, { recursive: true, force: true });
+  }
+});
+
+test("content-system .info documents with playTasks launch the game", async () => {
+  // Nov 2026 live probe (Timberborn): content-system builds ship an
+  // extension-less goggame-<id>.info whose playTasks[] carry the launchers.
+  const store = makeChunkStore();
+  const infoBytes = Buffer.from(
+    JSON.stringify({
+      buildId: "60145699309264041",
+      gameId: PRODUCT_ID,
+      name: "Test Game",
+      playTasks: [
+        {
+          category: "game",
+          isPrimary: true,
+          name: "Test Game",
+          path: "Game.exe",
+          type: "FileTask",
+        },
+        {
+          arguments: "-safe",
+          category: "game",
+          name: "Test Game - Safe Mode",
+          path: "Game.exe",
+          type: "FileTask",
+        },
+        {
+          category: "other",
+          name: "Redist",
+          path: "setup.exe",
+          type: "FileTask",
+        },
+      ],
+    }),
+  );
+  const depotItems = [
+    depotFileItem("goggame-1207658776.hashdb", [
+      store.add(Buffer.from("hashdb")),
+    ]),
+    depotFileItem("goggame-1207658776.info", [store.add(infoBytes)]),
+    depotFileItem("Game.exe", [store.add(Buffer.from("EXE"))]),
+  ];
+  stubFetch(baseRoutes(store, depotItems));
+
+  const gameDir = await mkdtemp(join(tmpdir(), "gog-tree-"));
+  try {
+    const result = await streamGogGameToDepot(streamOptions(gameDir));
+    assert.deepEqual(
+      result.launches.map((l) => [l.name, l.executable, l.arguments]),
+      [
+        ["Test Game", "Game.exe", []],
+        ["Test Game - Safe Mode", "Game.exe", ["-safe"]],
+      ],
+    );
+    assert.equal(
+      (await readFile(join(result.versionDir, "Game.exe"))).toString(),
+      "EXE",
     );
   } finally {
     await rm(gameDir, { recursive: true, force: true });
