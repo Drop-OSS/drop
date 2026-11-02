@@ -72,6 +72,17 @@ function jsonResponse(body: unknown, status = 200): Response {
   });
 }
 
+/** The GraphQL gateway envelope for viewer.games nodes. */
+function ownedGamesResponse(spaceIds: string[]): Response {
+  return jsonResponse({
+    data: {
+      viewer: {
+        games: { nodes: spaceIds.map((spaceId) => ({ spaceId })) },
+      },
+    },
+  });
+}
+
 function basePayload(overrides: Record<string, unknown> = {}) {
   return {
     jobId: "job-123",
@@ -100,8 +111,8 @@ afterEach(async () => {
 
 test("rejects when the account does not own the title", async () => {
   stubFetch((url) => {
-    if (url.includes("/ownedtitles")) {
-      return jsonResponse([{ spaceId: "space-other" }]);
+    if (url.includes("/uplay/graphql")) {
+      return ownedGamesResponse(["space-other"]);
     }
     return jsonResponse({}, 500);
   });
@@ -127,8 +138,8 @@ test("rejects when aborted before execution", async () => {
 
 test("fails closed when no install manifest resolves", async () => {
   stubFetch((url) => {
-    if (url.includes("/ownedtitles")) {
-      return jsonResponse([{ spaceId: "space-1" }]);
+    if (url.includes("/uplay/graphql")) {
+      return ownedGamesResponse(["space-1"]);
     }
     if (url.includes("/v1/manifests/")) {
       return jsonResponse({}, 404);
@@ -143,8 +154,8 @@ test("fails closed when no install manifest resolves", async () => {
 
 test("fails closed when the manifest contains no files", async () => {
   stubFetch((url) => {
-    if (url.includes("/ownedtitles")) {
-      return jsonResponse([{ spaceId: "space-1" }]);
+    if (url.includes("/uplay/graphql")) {
+      return ownedGamesResponse(["space-1"]);
     }
     if (url.includes("/v1/manifests/") && url.includes("/branches/")) {
       return jsonResponse({ manifestId: "manifest-1", version: "NEXT" });
@@ -174,8 +185,8 @@ test("refreshes the session once on 401 during acquisition", async () => {
         expiration: "later",
       });
     }
-    if (url.includes("/ownedtitles")) {
-      return jsonResponse([{ spaceId: "space-1" }]);
+    if (url.includes("/uplay/graphql")) {
+      return ownedGamesResponse(["space-1"]);
     }
     if (url.includes("/v1/manifests/") && url.includes("/branches/")) {
       manifestCalls += 1;

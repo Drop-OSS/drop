@@ -4,10 +4,7 @@ import {
   getQuery,
   getRequestHeader,
 } from "h3";
-import {
-  getUbisoftConfiguration,
-  getUbisoftOwnedTitles,
-} from "../../../../utils/ubisoft/client";
+import { getUbisoftOwnedTitles } from "../../../../utils/ubisoft/client";
 import { resolveDepotToken } from "../../../../utils/depot/connections";
 
 export default defineEventHandler(async (event) => {
@@ -23,7 +20,6 @@ export default defineEventHandler(async (event) => {
     .replace(/^Bearer\s+/i, "")
     .trim();
 
-  let userId = typeof query.userId === "string" ? query.userId.trim() : "";
   if (!ticket) {
     try {
       // Lazy import keeps the prisma-backed store out of the module graph
@@ -35,7 +31,6 @@ export default defineEventHandler(async (event) => {
         "ubisoft",
       );
       ticket = resolved.token;
-      if (!userId) userId = resolved.accountId ?? "";
     } catch (error) {
       // Expired stored connections say so directly; everything else falls
       // through to the caller-credential checks below.
@@ -50,16 +45,9 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  if (!userId) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: "A Ubisoft userId query parameter is required",
-    });
-  }
-
   let ownedTitles;
   try {
-    ownedTitles = await getUbisoftOwnedTitles(ticket, userId);
+    ownedTitles = await getUbisoftOwnedTitles(ticket);
   } catch (error) {
     const statusCode = (error as { statusCode?: number }).statusCode;
     throw createError({
@@ -71,34 +59,22 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Resolve product names for the owned space IDs so the UI can render titles.
-  let configurations: { spaceId: string; gameId?: string; name?: string }[] =
-    [];
-  const spaceIds = ownedTitles.map((t) => t.spaceId);
-  if (spaceIds.length > 0) {
-    try {
-      configurations = await getUbisoftConfiguration(ticket, spaceIds);
-    } catch {
-      // Name resolution is best-effort; owned titles are still returned.
-    }
-  }
-  const nameBySpace = new Map(configurations.map((c) => [c.spaceId, c]));
-
+  // The gateway's Game nodes carry the product names directly; the old
+  // api-uplayv2 configuration service (names by spaceId) no longer resolves.
   const title =
     typeof query.title === "string"
       ? query.title.trim().toLocaleLowerCase()
       : "";
   const games = ownedTitles
-    .map((t) => ({
-      spaceId: t.spaceId,
-      gameId: nameBySpace.get(t.spaceId)?.gameId,
-      name: nameBySpace.get(t.spaceId)?.name ?? "",
-      ownedDate: t.ownedDate,
-    }))
     .filter(
       (g) =>
         !title || (g.name || g.spaceId).toLocaleLowerCase().includes(title),
-    );
+    )
+    .map((g) => ({
+      spaceId: g.spaceId,
+      name: g.name ?? "",
+      releaseDate: g.releaseDate,
+    }));
 
   return { games, total: games.length };
 });

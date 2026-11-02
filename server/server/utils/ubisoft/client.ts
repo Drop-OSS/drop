@@ -1,9 +1,20 @@
 import { createError } from "h3";
+import { randomUUID } from "node:crypto";
 
 const UBISOFT_SESSIONS_URL =
   "https://public-ubiservices.ubi.com/v3/profiles/sessions";
-const UBISOFT_OWNED_TITLES_URL =
-  "https://public-ubiservices.ubi.com/v1/profiles";
+/**
+ * The Ubisoft Connect launcher's own GraphQL gateway. Extracted from the
+ * launcher's public UI bundle (connect.cdn.ubisoft.com/library/2.47.0) and
+ * verified live against a real account in Nov 2026: it answers the stored
+ * session ticket and returns the entitled list with names. The former
+ * /v1/profiles/{uid}/ownedtitles route is gone - it 404s on both the classic
+ * and the cert2 service gateways.
+ */
+const UBISOFT_GRAPHQL_URL =
+  "https://public-ubiservices.ubi.com/v1/profiles/me/uplay/graphql";
+const UBISOFT_OWNED_GAMES_QUERY =
+  "{ viewer { games { nodes { id spaceId name releaseDate } } } }";
 const UBISOFT_CONFIG_URL = "https://api-uplayv2.ubi.com/v1/configuration";
 const UBISOFT_MANIFEST_URL = "https://api-uplayv2.ubi.com/v1/manifests";
 const UBISOFT_DNS_MANIFEST_URL = "https://uplaypc-dns.ubi.com/v1/manifests";
@@ -57,8 +68,10 @@ export type UbisoftTwoFactorRequired = {
 export type UbisoftLoginResult = UbisoftSession | UbisoftTwoFactorRequired;
 
 export type UbisoftOwnedTitle = {
+  id?: string;
   spaceId: string;
-  ownedDate?: string;
+  name?: string;
+  releaseDate?: string;
 };
 
 export type UbisoftConfiguration = {
@@ -80,9 +93,12 @@ export type UbisoftFileRecord = {
   source: string;
 };
 
-function ubiHeaders(ticket?: string): Record<string, string> {
+function ubiHeaders(
+  ticket?: string,
+  appId: string = UBISOFT_APP_ID,
+): Record<string, string> {
   const headers: Record<string, string> = {
-    "Ubi-AppId": UBISOFT_APP_ID,
+    "Ubi-AppId": appId,
     "Ubi-RequestedPlatformType": "uplaypc",
     "Content-Type": "application/json",
   };
@@ -314,15 +330,33 @@ export async function refreshUbisoftSession(
  */
 export async function getUbisoftOwnedTitles(
   ticket: string,
-  userId: string,
 ): Promise<UbisoftOwnedTitle[]> {
-  const url = `${UBISOFT_OWNED_TITLES_URL}/${encodeURIComponent(userId)}/ownedtitles`;
+  // The GraphQL gateway validates the ticket, the launcher app id, and a
+  // per-call Ubi-SessionId (a client-generated UUID - Ubisoft assigns no
+  // meaning to its value; the header's presence is what is checked).
   const response = await ubiFetch(
-    url,
-    { method: "GET", headers: ubiHeaders(ticket) },
+    UBISOFT_GRAPHQL_URL,
+    {
+      method: "POST",
+      headers: {
+        ...ubiHeaders(ticket, UBISOFT_SESSION_APP_ID),
+        "Ubi-SessionId": randomUUID(),
+      },
+      body: JSON.stringify({ query: UBISOFT_OWNED_GAMES_QUERY }),
+    },
     "Failed to fetch Ubisoft owned titles",
   );
-  return ((await response.json()) as UbisoftOwnedTitle[]) ?? [];
+  const payload = (await response.json().catch(() => null)) as {
+    data?: { viewer?: { games?: { nodes?: UbisoftOwnedTitle[] } } };
+    errors?: { message?: string; extensions?: { code?: string } }[];
+  } | null;
+  const failure = payload?.errors?.[0];
+  if (failure)
+    throw createError({
+      statusCode: 502,
+      statusMessage: `Ubisoft's library query failed: ${failure.message ?? failure.extensions?.code ?? "unknown error"}`,
+    });
+  return payload?.data?.viewer?.games?.nodes ?? [];
 }
 
 /**

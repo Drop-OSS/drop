@@ -70,7 +70,7 @@ export async function ingestUbisoftJob(
   jobStore?: IngestJobStore,
   signal?: AbortSignal,
 ): Promise<{ manifestPath: string; totalBytes: number; fileCount: number }> {
-  const { jobId, userId, spaceId, gameTitle, appVersion } = payload;
+  const { jobId, spaceId, gameTitle, appVersion } = payload;
   let activeTicket = payload.ticket;
 
   const depotBase = resolve(
@@ -96,7 +96,7 @@ export async function ingestUbisoftJob(
     }
 
     // 1. Discover: confirm the account still owns this title.
-    const ownedTitles = await getUbisoftOwnedTitles(activeTicket, userId);
+    const ownedTitles = await getUbisoftOwnedTitles(activeTicket);
     if (!ownedTitles.some((t) => t.spaceId === spaceId)) {
       throw createError({
         statusCode: 403,

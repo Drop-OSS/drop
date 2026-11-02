@@ -50,8 +50,8 @@ function stubFetch(
 }
 
 const SESSION_URL = "https://public-ubiservices.ubi.com/v3/profiles/sessions";
-const OWNED_URL =
-  "https://public-ubiservices.ubi.com/v1/profiles/user-1/ownedtitles";
+const GRAPHQL_URL =
+  "https://public-ubiservices.ubi.com/v1/profiles/me/uplay/graphql";
 
 /** Responds to successive calls in order, with optional response headers. */
 function stubFetchQueue(
@@ -241,33 +241,81 @@ test("refreshUbisoftSession replays the previous ticket", async () => {
   assert.equal(headers["Authorization"], "Ubi_v1 t=ubi-ticket-1");
 });
 
-test("getUbisoftOwnedTitles returns owned spaces for the account", async () => {
+test("getUbisoftOwnedTitles returns the viewer's game nodes", async () => {
   stubFetch([
     {
-      match: (url) => url === OWNED_URL,
+      match: (url) => url === GRAPHQL_URL,
       status: 200,
-      body: [{ spaceId: "space-1" }, { spaceId: "space-2" }],
+      body: {
+        data: {
+          viewer: {
+            games: {
+              nodes: [
+                {
+                  id: "g-1",
+                  spaceId: "space-1",
+                  name: "Far Cry 6",
+                  releaseDate: "2021-10-07",
+                },
+                { spaceId: "space-2", name: "The Crew" },
+              ],
+            },
+          },
+        },
+      },
     },
   ]);
 
-  const titles = await getUbisoftOwnedTitles("ubi-ticket", "user-1");
+  const titles = await getUbisoftOwnedTitles("ubi-ticket");
 
-  assert.deepEqual(titles, [{ spaceId: "space-1" }, { spaceId: "space-2" }]);
+  assert.deepEqual(titles, [
+    {
+      id: "g-1",
+      spaceId: "space-1",
+      name: "Far Cry 6",
+      releaseDate: "2021-10-07",
+    },
+    { spaceId: "space-2", name: "The Crew" },
+  ]);
   const headers = fetchCalls[0].init.headers as Record<string, string>;
   assert.equal(headers["Authorization"], "Ubi_v1 t=ubi-ticket");
+  // The gateway rejects requests without a session id; we generate one.
+  assert.match(headers["Ubi-SessionId"], /^[0-9a-f-]{36}$/);
+  const body = JSON.parse(String(fetchCalls[0].init.body));
+  assert.match(body.query, /viewer\s*\{\s*games\s*\{\s*nodes/);
 });
 
-test("owned titles failure surfaces a typed error, not raw response data", async () => {
+test("getUbisoftOwnedTitles surfaces GraphQL errors verbatim", async () => {
   stubFetch([
     {
-      match: (url) => url === OWNED_URL,
+      match: (url) => url === GRAPHQL_URL,
+      status: 200,
+      body: { errors: [{ message: "Something broke upstream" }] },
+    },
+  ]);
+
+  await assert.rejects(
+    () => getUbisoftOwnedTitles("ubi-ticket"),
+    (error: unknown) => {
+      const e = error as { statusCode?: number; statusMessage?: string };
+      assert.equal(e.statusCode, 502);
+      assert.match(e.statusMessage ?? "", /Something broke upstream/);
+      return true;
+    },
+  );
+});
+
+test("owned titles HTTP failure surfaces a typed error, not raw response data", async () => {
+  stubFetch([
+    {
+      match: (url) => url === GRAPHQL_URL,
       status: 401,
       body: { error: "unauthorized" },
     },
   ]);
 
   await assert.rejects(
-    () => getUbisoftOwnedTitles("expired-ticket", "user-1"),
+    () => getUbisoftOwnedTitles("expired-ticket"),
     typedError(401),
   );
 });
