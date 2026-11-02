@@ -3,11 +3,15 @@ import { createHash } from "node:crypto";
 import { mkdir, open, rename, stat, unlink, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { DEPOT_CHUNK_SIZE, type DepotChunk } from "../depot/chunker";
+import { forEachPooled } from "../depot/pool";
 import {
   createDropletManifest,
   writeDropletManifest,
   type DropletManifest,
 } from "../depot/manifest";
+
+/** Files acquired per release at once; per-file streaming stays serial. */
+const ADAPTER_FILE_CONCURRENCY = 4;
 
 /**
  * Shared provider-adapter contract: authorize -> discover -> normalize ->
@@ -223,70 +227,78 @@ export async function stageAdapterRelease(
   const totalFiles = normalized.length;
   const totalBytes = normalized.reduce((sum, f) => sum + (f.size ?? 0), 0);
   let transferredBytes = 0;
-  const staged: StagedFile[] = [];
+  let completed = 0;
+  const staged: (StagedFile | undefined)[] = new Array(totalFiles);
 
-  for (let i = 0; i < totalFiles; i++) {
-    if (signal?.aborted) {
-      throw createError({
-        statusCode: 499,
-        statusMessage: "Adapter ingestion stream was aborted",
-      });
-    }
-    const file = normalized[i];
-    const report = () =>
-      onProgress?.({
-        phase: "acquire",
-        currentFile: file.path,
-        fileIndex: i + 1,
-        totalFiles,
-        transferredBytes,
-        totalBytes,
-      });
-    report();
-
-    if (file.size === 0) {
-      staged.push({
-        path: file.path,
-        size: 0,
-        sha256: EMPTY_SHA256,
-        chunks: [],
-        sourceFileId: file.fileId,
-      });
-      continue;
-    }
-
-    const source = await acquire(file, signal);
-    const result = await streamFileToCas(objectsDir, source, signal, (n) => {
-      transferredBytes += n;
+  // Files are independent units here; the same bounded-pool discipline the
+  // Ubisoft slice workers use applies: fixed width, shared queue, first
+  // failure stops pulling. Memory stays bounded because each in-flight file
+  // streams one DEPOT_CHUNK_SIZE at a time - four files in flight means at
+  // most four chunk buffers, never four whole files. Concurrent CAS writes
+  // are safe: writeCasObject publishes via temp file + rename.
+  await forEachPooled(
+    normalized,
+    ADAPTER_FILE_CONCURRENCY,
+    signal,
+    "Adapter ingestion stream was aborted",
+    async (file, i) => {
+      const report = () =>
+        onProgress?.({
+          phase: "acquire",
+          currentFile: file.path,
+          fileIndex: completed,
+          totalFiles,
+          transferredBytes,
+          totalBytes,
+        });
       report();
-    });
 
-    // Provider-declared metadata is verified, never trusted.
-    if (
-      typeof file.size === "number" &&
-      file.size > 0 &&
-      file.size !== result.size
-    ) {
-      throw createError({
-        statusCode: 502,
-        statusMessage: `Adapter file ${file.fileId} length mismatch (expected ${file.size}, got ${result.size})`,
-      });
-    }
-    if (file.sha256 && file.sha256.toLowerCase() !== result.sha256) {
-      throw createError({
-        statusCode: 502,
-        statusMessage: `Adapter file ${file.fileId} digest mismatch`,
-      });
-    }
+      if (file.size === 0) {
+        staged[i] = {
+          path: file.path,
+          size: 0,
+          sha256: EMPTY_SHA256,
+          chunks: [],
+          sourceFileId: file.fileId,
+        };
+        completed += 1;
+        return;
+      }
 
-    staged.push({
-      path: file.path,
-      size: result.size,
-      sha256: result.sha256,
-      chunks: result.chunks,
-      sourceFileId: file.fileId,
-    });
-  }
+      const source = await acquire(file, signal);
+      const result = await streamFileToCas(objectsDir, source, signal, (n) => {
+        transferredBytes += n;
+        report();
+      });
+
+      // Provider-declared metadata is verified, never trusted.
+      if (
+        typeof file.size === "number" &&
+        file.size > 0 &&
+        file.size !== result.size
+      ) {
+        throw createError({
+          statusCode: 502,
+          statusMessage: `Adapter file ${file.fileId} length mismatch (expected ${file.size}, got ${result.size})`,
+        });
+      }
+      if (file.sha256 && file.sha256.toLowerCase() !== result.sha256) {
+        throw createError({
+          statusCode: 502,
+          statusMessage: `Adapter file ${file.fileId} digest mismatch`,
+        });
+      }
+
+      staged[i] = {
+        path: file.path,
+        size: result.size,
+        sha256: result.sha256,
+        chunks: result.chunks,
+        sourceFileId: file.fileId,
+      };
+      completed += 1;
+    },
+  );
 
   onProgress?.({
     phase: "publish",
@@ -297,8 +309,9 @@ export async function stageAdapterRelease(
     totalBytes,
   });
 
+  const acquired = staged.filter((f): f is StagedFile => f !== undefined);
   const manifest = createDropletManifest(
-    staged.map((f) => ({
+    acquired.map((f) => ({
       path: f.path,
       content: { size: f.size, sha256: f.sha256, chunks: f.chunks },
     })),
@@ -328,5 +341,5 @@ export async function stageAdapterRelease(
   );
   await rename(metaTmp, metaPath);
 
-  return { manifest, manifestPath, files: staged };
+  return { manifest, manifestPath, files: acquired };
 }

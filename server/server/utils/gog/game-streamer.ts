@@ -6,6 +6,7 @@ import { dirname, join, resolve, sep } from "node:path";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { inflateSync } from "node:zlib";
+import { forEachPooled } from "../depot/pool";
 import {
   buildGogChunkUrl,
   getGogBuildMeta,
@@ -18,6 +19,9 @@ import {
   type GogMetaDepot,
   type GogSecureEndpoint,
 } from "./cdn";
+
+/** GOG acquisition fetches this many files at once (chunks stay serial per file). */
+const GOG_FILE_CONCURRENCY = 4;
 
 export interface StreamGogGameOptions {
   productId: string;
@@ -381,40 +385,50 @@ export async function streamGogGameToDepot(
   const sorted = downloadable.sort((a, b) => a.path.localeCompare(b.path));
   let totalBytes = 0;
   let done = 0;
-  for (const file of sorted) {
-    const target = join(versionDir, safeRelativePath(file.path));
-    await mkdir(dirname(target), { recursive: true });
-    let written = 0;
-    const stream = createWriteStream(target);
-    const source = Readable.from(
-      (async function* () {
-        for (const chunk of file.chunks) {
-          const bytes = await acquireGogChunk(
-            secureEndpoints,
-            file,
-            chunk,
-            undefined,
-          );
-          written += bytes.length;
-          yield bytes;
-        }
-      })(),
-    );
-    await pipeline(source, stream);
-    if (file.size > 0 && written !== file.size) {
-      throw createError({
-        statusCode: 502,
-        statusMessage: `GOG file ${file.path} size mismatch: wrote ${written}, manifest declared ${file.size}`,
-      });
-    }
-    totalBytes += written;
-    done += 1;
-    report(
-      Math.min(90, 5 + Math.floor((done / sorted.length) * 85)),
-      "assembling_game_files",
-      file.path,
-    );
-  }
+  // Files are independent here (one write stream each), unlike Ubisoft's
+  // slice layout where several files share one CDN object; memory stays
+  // bounded the same way - each worker holds exactly one chunk in flight.
+  // Four concurrent files keeps the GOG CDN politely on one connection set.
+  await forEachPooled(
+    sorted,
+    GOG_FILE_CONCURRENCY,
+    undefined,
+    "GOG game acquisition aborted",
+    async (file) => {
+      const target = join(versionDir, safeRelativePath(file.path));
+      await mkdir(dirname(target), { recursive: true });
+      let written = 0;
+      const stream = createWriteStream(target);
+      const source = Readable.from(
+        (async function* () {
+          for (const chunk of file.chunks) {
+            const bytes = await acquireGogChunk(
+              secureEndpoints,
+              file,
+              chunk,
+              undefined,
+            );
+            written += bytes.length;
+            yield bytes;
+          }
+        })(),
+      );
+      await pipeline(source, stream);
+      if (file.size > 0 && written !== file.size) {
+        throw createError({
+          statusCode: 502,
+          statusMessage: `GOG file ${file.path} size mismatch: wrote ${written}, manifest declared ${file.size}`,
+        });
+      }
+      totalBytes += written;
+      done += 1;
+      report(
+        Math.min(90, 5 + Math.floor((done / sorted.length) * 85)),
+        "assembling_game_files",
+        file.path,
+      );
+    },
+  );
 
   report(92, "assembled");
   return {
