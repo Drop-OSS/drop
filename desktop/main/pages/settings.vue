@@ -46,6 +46,7 @@ import {
   CubeIcon,
   HomeIcon,
   RectangleGroupIcon,
+  UserGroupIcon,
   BugAntIcon,
 } from "@heroicons/vue/16/solid";
 import type { Component } from "vue";
@@ -122,6 +123,12 @@ const navigation = computed(() => [
         },
       ]
     : []),
+  {
+    label: "Players",
+    route: "/settings/profiles",
+    prefix: "/settings/profiles",
+    icon: UserGroupIcon,
+  },
   {
     label: "Account",
     route: "/settings/account",

@@ -36,6 +36,37 @@
             </div>
           </NuxtLink>
           <div class="h-0.5 rounded-full w-full bg-zinc-800" />
+          <template v-if="profiles.length > 1">
+            <p class="px-4 pb-1 pt-2 text-xs font-semibold uppercase leading-5 text-zinc-500">
+              Play as
+            </p>
+            <MenuItem
+              v-for="profile in profiles"
+              v-slot="{ active, close }"
+              :key="profile.id"
+            >
+              <button
+                @click="switchTo(profile.id, close)"
+                :class="[
+                  active ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400',
+                  'transition flex w-full items-center justify-between gap-x-2 px-4 py-2 text-left text-sm',
+                ]"
+              >
+                <span class="truncate">{{ profile.name }}</span>
+                <CheckIcon
+                  v-if="profile.id === activeId"
+                  class="h-4 w-4 flex-none text-blue-400"
+                />
+              </button>
+            </MenuItem>
+          </template>
+          <NuxtLink
+            to="/settings/profiles"
+            class="transition block px-4 py-2 text-sm text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
+          >
+            Manage players
+          </NuxtLink>
+          <div class="h-0.5 rounded-full w-full bg-zinc-800" />
           <div class="flex flex-col mb-1">
             <MenuItem v-if="state.user.admin" v-slot="{ active }">
               <a
@@ -73,10 +104,11 @@
 
 <script setup lang="ts">
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
-import { ChevronDownIcon } from "@heroicons/vue/16/solid";
+import { CheckIcon, ChevronDownIcon } from "@heroicons/vue/16/solid";
 import type { NavigationItem } from "../types";
 import HeaderWidget from "./HeaderWidget.vue";
 import { useAppState } from "~/composables/app-state";
+import { useProfiles } from "~/composables/profiles";
 import { invoke } from "@tauri-apps/api/core";
 
 const open = ref(false);
@@ -86,6 +118,25 @@ router.afterEach(() => {
 });
 
 const state = useAppState();
+const { profiles, activeId, refresh, setActive } = useProfiles();
+
+onMounted(() => {
+  if (profiles.value.length === 0) void refresh();
+});
+
+const switching = ref(false);
+async function switchTo(id: string, close: () => void) {
+  close();
+  if (switching.value || id === activeId.value) return;
+  switching.value = true;
+  try {
+    await setActive(id);
+  } catch (e) {
+    console.error("profile switch failed:", e);
+  } finally {
+    switching.value = false;
+  }
+}
 const profilePictureUrl: string = await useObject(
   state.value?.user?.profilePictureObjectId ?? ""
 );
