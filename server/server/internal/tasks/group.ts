@@ -20,6 +20,11 @@ export const taskGroups = {
   "import:check-integrity": {
     concurrency: false,
   },
+  // Depot acquisitions (store CDN -> CAS). Serialised: two games streaming
+  // at once would fight over disk and trip store CDN politeness limits.
+  "depot:ingest": {
+    concurrency: false,
+  },
 } as const;
 
 export type TaskGroup = keyof typeof taskGroups;

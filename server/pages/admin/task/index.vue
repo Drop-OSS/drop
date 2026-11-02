@@ -261,6 +261,10 @@ const scheduledTasks: {
     name: "Check Integrity",
     description: "Re-imports all versions and updates their manifests.",
   },
+  "depot:ingest": {
+    name: "Depot ingestion",
+    description: "Acquires a connected store's game into the depot CAS.",
+  },
 };
 
 async function startTask(taskGroup: string) {

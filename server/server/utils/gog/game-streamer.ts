@@ -27,6 +27,8 @@ export interface StreamJobStore {
 export interface StreamGogGameOptions {
   jobId: string;
   productId: string;
+  /** Product title recorded in the release meta; the id is the fallback. */
+  gameTitle?: string;
   /** Selects a specific build; the newest returned build is used when omitted. */
   buildId?: string;
   generation?: number;
@@ -115,6 +117,7 @@ export async function streamGogGameToDepot(
   const {
     jobId,
     productId,
+    gameTitle,
     buildId,
     generation,
     os,
@@ -203,7 +206,7 @@ export async function streamGogGameToDepot(
     });
 
     const { manifestPath } = await stageAdapterRelease({
-      gameTitle: productId,
+      gameTitle: gameTitle ?? productId,
       appVersion: build.versionName,
       files,
       objectsDir,

@@ -1,6 +1,6 @@
 import { createError } from "h3";
 import { createHash } from "node:crypto";
-import { mkdir, open, rename, stat, unlink } from "node:fs/promises";
+import { mkdir, open, rename, stat, unlink, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { DEPOT_CHUNK_SIZE, type DepotChunk } from "../depot/chunker";
 import {
@@ -305,5 +305,28 @@ export async function stageAdapterRelease(
   );
   const manifestPath = join(manifestsDir, `${manifest.digest}.json`);
   await writeDropletManifest(manifestPath, manifest);
+
+  // Human-facing provenance for the release: the DropletManifest itself is
+  // a pure content-addressed file list, so which game a digest came from is
+  // recorded next to it. Written atomically, same as the manifest.
+  const metaPath = join(manifestsDir, `${manifest.digest}.meta.json`);
+  const metaTmp = `${metaPath}.tmp`;
+  await writeFile(
+    metaTmp,
+    JSON.stringify(
+      {
+        digest: manifest.digest,
+        gameTitle,
+        appVersion: appVersion ?? null,
+        totalFiles,
+        totalBytes,
+        publishedAt: new Date().toISOString(),
+      },
+      null,
+      2,
+    ),
+  );
+  await rename(metaTmp, metaPath);
+
   return { manifest, manifestPath, files: staged };
 }

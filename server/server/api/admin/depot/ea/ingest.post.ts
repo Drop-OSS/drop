@@ -47,7 +47,8 @@ export default defineEventHandler(async (event) => {
   if (!target)
     throw createError({
       statusCode: 503,
-      statusMessage: "EA ingestion dispatch is not configured",
+      statusMessage:
+        "EA acquisition is not wired on the server yet: the help.ea.com library links to installers rather than a CDN manifest pipeline. Login and library work.",
     });
   let dispatchUrl: URL;
   try {

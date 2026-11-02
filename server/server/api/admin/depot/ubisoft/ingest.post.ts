@@ -40,7 +40,8 @@ export default defineEventHandler(async (event) => {
   if (!target) {
     throw createError({
       statusCode: 503,
-      statusMessage: "Ubisoft Connect ingestion dispatch is not configured",
+      statusMessage:
+        "Ubisoft acquisition is not wired: the launcher's former manifest hosts (api-uplayv2.ubi.com, uplaypc-dns.ubi.com) no longer resolve, so there is no download path to run until a replacement is found. Login and library work.",
     });
   }
 

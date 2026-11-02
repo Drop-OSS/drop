@@ -1125,7 +1125,7 @@ async function ingest(product: DiscoveredProduct) {
     if (activeProviderId.value === "gog") {
       await $fetch("/api/admin/depot/gog/ingest", {
         method: "POST",
-        body: { gameId: product.id },
+        body: { gameId: product.id, gameTitle: product.title },
       });
     } else if (activeProviderId.value === "epic") {
       await $fetch("/api/admin/depot/epic/ingest", {

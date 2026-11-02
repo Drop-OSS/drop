@@ -162,6 +162,7 @@ test("an expired GOG connection renews itself from the refresh token", async () 
   rows[0]!.expiresAt = new Date(Date.now() - 1000);
   const resolved = await resolveDepotToken(store, "gog");
   assert.equal(resolved.token, "fresh-opaque-token");
+  assert.equal(resolved.connectionId, rows[0]?.id);
   assert.equal(rows[0]?.refreshToken, "rt-next");
 });
 
@@ -457,7 +458,11 @@ test("resolution falls back to the stored connection when valid", async () => {
     accessToken: "stored-at",
   });
   const resolved = await resolveDepotToken(store, "epic");
-  assert.deepEqual(resolved, { token: "stored-at", accountId: "acc-9" });
+  assert.deepEqual(resolved, {
+    token: "stored-at",
+    accountId: "acc-9",
+    connectionId: "c1",
+  });
 });
 
 test("an expired Epic connection refreshes and persists the new tokens", async () => {

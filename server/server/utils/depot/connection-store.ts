@@ -102,3 +102,74 @@ export const prismaConnectionStore: ConnectionStore = {
     });
   },
 };
+
+/** One library listing to cache in `StoreManifest`. */
+export type StoreManifestListing = {
+  externalGameId: string;
+  title: string;
+  slug?: string;
+  image?: string;
+  version?: string;
+  payload?: unknown;
+};
+
+/**
+ * Cache a provider's library listing rows for a connection. Refreshes the
+ * store metadata but never touches `imported`/`localContentId`, so what the
+ * acquisition pipeline recorded survives a library refresh.
+ */
+export async function recordStoreManifests(
+  connectionId: string,
+  listings: StoreManifestListing[],
+): Promise<void> {
+  for (const listing of listings) {
+    if (!listing.externalGameId) continue;
+    const metadata = {
+      title: listing.title,
+      slug: listing.slug ?? null,
+      image: listing.image ?? null,
+      version: listing.version ?? null,
+      payload: (listing.payload ?? undefined) as never,
+    };
+    await prisma.storeManifest.upsert({
+      where: {
+        connectionId_externalGameId: {
+          connectionId,
+          externalGameId: listing.externalGameId,
+        },
+      },
+      update: metadata,
+      create: {
+        connectionId,
+        externalGameId: listing.externalGameId,
+        ...metadata,
+      },
+    });
+  }
+}
+
+/**
+ * Record a published depot release against a cached listing: the digest
+ * becomes `localContentId`, creating the row when the library was never
+ * browsed after connecting.
+ */
+export async function markStoreManifestImported(
+  connectionId: string,
+  externalGameId: string,
+  localContentId: string,
+  title?: string,
+): Promise<void> {
+  await prisma.storeManifest.upsert({
+    where: {
+      connectionId_externalGameId: { connectionId, externalGameId },
+    },
+    update: { imported: true, localContentId, ...(title ? { title } : {}) },
+    create: {
+      connectionId,
+      externalGameId,
+      title: title ?? externalGameId,
+      imported: true,
+      localContentId,
+    },
+  });
+}

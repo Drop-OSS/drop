@@ -402,7 +402,7 @@ export async function resolveDepotToken(
   store: ConnectionStore,
   provider: DepotProvider,
   callerToken?: string,
-): Promise<{ token: string; accountId?: string }> {
+): Promise<{ token: string; accountId?: string; connectionId?: string }> {
   if (callerToken) return { token: callerToken };
   const row = await store.newest(provider);
   if (!row?.accessToken)
@@ -423,9 +423,13 @@ export async function resolveDepotToken(
         statusCode: 410,
         statusMessage: `The stored ${provider.toUpperCase()} connection has expired - reconnect the account`,
       });
-    return refreshed;
+    return { ...refreshed, connectionId: row.id };
   }
-  return { token: row.accessToken, accountId: row.accountId };
+  return {
+    token: row.accessToken,
+    accountId: row.accountId,
+    connectionId: row.id,
+  };
 }
 
 async function tryRefresh(

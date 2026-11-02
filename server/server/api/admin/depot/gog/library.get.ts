@@ -12,13 +12,16 @@ export default defineEventHandler(async (event) => {
   let token =
     (typeof query.token === "string" ? query.token : undefined) ??
     getRequestHeader(event, "authorization")?.replace(/^Bearer\s+/i, "");
+  let connectionId: string | undefined;
   if (!token) {
     try {
       // Lazy import: keeps the prisma-backed store out of the module graph
       // until a request actually needs a stored connection.
       const { prismaConnectionStore } =
         await import("../../../../utils/depot/connection-store");
-      token = (await resolveDepotToken(prismaConnectionStore, "gog")).token;
+      const resolved = await resolveDepotToken(prismaConnectionStore, "gog");
+      token = resolved.token;
+      connectionId = resolved.connectionId;
     } catch (error) {
       // Expired stored connections say so directly; "no connection stored"
       // and an unreachable connection store both fall through to the
@@ -45,6 +48,32 @@ export default defineEventHandler(async (event) => {
           ? "GOG rejected the access token"
           : "Unable to retrieve the GOG library",
     });
+  }
+
+  // Cache the listing for the stored connection so the library survives
+  // token expiry and can show what is already local. Best-effort: a cache
+  // write failure never fails the live listing the caller asked for.
+  if (connectionId) {
+    try {
+      const { recordStoreManifests } =
+        await import("../../../../utils/depot/connection-store");
+      await recordStoreManifests(
+        connectionId,
+        games.map((game) => ({
+          externalGameId: String(game.id),
+          title: game.title,
+          image:
+            typeof game.image === "string"
+              ? game.image
+              : typeof game.coverVertical === "string"
+                ? game.coverVertical
+                : undefined,
+          payload: game,
+        })),
+      );
+    } catch {
+      // Swallowed deliberately: the caller gets the fresh listing regardless.
+    }
   }
 
   const title =

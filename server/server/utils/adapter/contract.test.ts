@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { mkdtemp, readdir } from "node:fs/promises";
+import { mkdtemp, readdir, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { readDropletManifest } from "../depot/manifest";
@@ -60,6 +60,13 @@ test("stageAdapterRelease streams, verifies and publishes a manifest", async () 
   // Raw chunk objects exist under the CAS layout.
   const [a, b] = await readdir(objectsDir);
   assert.ok([a, b].includes(files[0].chunks[0]!.sha256.slice(0, 2)));
+  // The provenance sidecar records which game the digest came from.
+  const meta = JSON.parse(
+    await readFile(join(manifestsDir, `${manifest.digest}.meta.json`), "utf8"),
+  ) as Record<string, unknown>;
+  assert.equal(meta.gameTitle, "Test Game");
+  assert.equal(meta.digest, manifest.digest);
+  assert.equal(meta.totalFiles, 1);
 });
 
 test("declared size mismatch fails closed and publishes nothing", async () => {

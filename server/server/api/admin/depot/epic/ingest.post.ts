@@ -43,7 +43,8 @@ export default defineEventHandler(async (event) => {
   if (!target) {
     throw createError({
       statusCode: 503,
-      statusMessage: "Epic Games ingestion dispatch is not configured",
+      statusMessage:
+        "Epic acquisition is not wired: the proprietary manifest_<guid>.bin format needs a real sample from an owned build before the decoder can be trusted. Login and library work.",
     });
   }
 
