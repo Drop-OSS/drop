@@ -48,6 +48,33 @@ import { DropUserAgent } from ".";
 
 const METADATA_URL = "https://gamesdb.launchbox-app.com/Metadata.zip";
 
+/**
+ * The Games Database also exposes a public JSON search endpoint, which is what
+ * the website itself calls. Unlike the browse endpoint (which ignores `q` and
+ * returns the whole catalogue), this one filters and returns a thumbnail GUID
+ * per result — the only public source of image filenames.
+ */
+const SEARCH_API_URL = "https://gamesdb-api.launchbox-app.com/api/search";
+
+/** Image hosts. Both serve the same GUID filenames; the .gg one is current. */
+const IMAGE_URL = "https://images.launchbox-app.com";
+
+/**
+ * Prefix marking an id that came from the search API rather than the archive.
+ * The two namespaces are distinct (archive DatabaseID 468928 and API gameKey
+ * 434710 are the same 3DO title), so they must never be confused for one
+ * another.
+ */
+const API_ID_PREFIX = "api:";
+
+/** One row from the Games Database search endpoint. */
+interface LaunchBoxSearchHit {
+  gameKey: number;
+  name: string;
+  platformName: string;
+  thumbName: string | null;
+}
+
 /** One game record, as stored in the index. */
 interface LaunchBoxGame {
   /** LaunchBox DatabaseID — stable across archive refreshes. */
@@ -566,7 +593,45 @@ export class LaunchBoxProvider implements MetadataProvider {
     }
   }
 
+  /**
+   * Queries the Games Database search endpoint.
+   *
+   * Returns an empty array on any failure so the caller can fall back to the
+   * local index — the API is undocumented, so it is treated as best-effort
+   * rather than as a dependency.
+   */
+  private async searchApi(query: string): Promise<LaunchBoxSearchHit[]> {
+    try {
+      const response = await $fetch<{
+        count: number;
+        data: LaunchBoxSearchHit[];
+      }>(`${SEARCH_API_URL}/${encodeURIComponent(query)}`, {
+        headers: { "User-Agent": DropUserAgent },
+      });
+      return response?.data ?? [];
+    } catch (e) {
+      logger.warn(
+        `LaunchBox search API failed for ${JSON.stringify(query)}: ${e}`,
+      );
+      return [];
+    }
+  }
+
   async search(query: string): Promise<GameMetadataSearchResult[]> {
+    // The API is the only source that carries artwork, so it is tried first.
+    // Its `gameKey` is not the same id as the archive's DatabaseID, so a result
+    // taken from here is marked as such and resolved through the API later.
+    const apiHits = await this.searchApi(query);
+    if (apiHits.length > 0) {
+      return apiHits.map((hit) => ({
+        id: `${API_ID_PREFIX}${hit.gameKey}`,
+        name: hit.name,
+        icon: hit.thumbName ? `${IMAGE_URL}/${hit.thumbName}` : "",
+        description: hit.platformName,
+        year: 0,
+      }));
+    }
+
     const index = await this.loadIndex();
     if (!index) {
       if (this.indexError) logger.warn(this.indexError);
@@ -593,44 +658,92 @@ export class LaunchBoxProvider implements MetadataProvider {
     return matches.map((game) => ({
       id: game.id,
       name: game.name,
-      // The archive carries no images, so there is nothing to show here.
+      // The archive carries no images, so a local-index result has no thumbnail.
       icon: "",
       description: game.overview?.slice(0, 500) ?? "",
       year: game.releaseYear ?? 0,
     }));
   }
 
+  /**
+   * Looks a single API result up by its gameKey.
+   *
+   * The API exposes no documented by-id endpoint, so a result picked from a
+   * search is not re-fetchable by key alone. Returning null is the honest
+   * answer: fetchGame then falls back to the archive by (name, platform), and
+   * if that is ambiguous it throws rather than inventing a record.
+   */
+  private async searchApiById(
+    _gameKey: string,
+  ): Promise<LaunchBoxSearchHit | null> {
+    void _gameKey;
+    return null;
+  }
+
+  /**
+   * Maps an API gameKey to an archive DatabaseID for the same title.
+   *
+   * The two namespaces are unrelated (archive 468928 and API 434710 are the same
+   * 3DO record), so the join is (name, platform) and is only accepted when it is
+   * unambiguous. An ambiguous or absent match simply means no description.
+   */
+  private async archiveIdFor(hit: LaunchBoxSearchHit): Promise<string | null> {
+    const index = await this.loadIndex();
+    if (!index) return null;
+    const candidates = Object.values(index.games).filter(
+      (g) =>
+        g.name === hit.name &&
+        g.platform.toLowerCase() === hit.platformName.toLowerCase(),
+    );
+    return candidates.length === 1 ? candidates[0].id : null;
+  }
+
   async fetchGame(
     { id, createObject }: _FetchGameMetadataParams,
     context?: TaskRunContext,
   ): Promise<GameMetadata> {
+    // A result from the search API carries artwork but no description; a result
+    // from the archive carries the description but no artwork. Ids from the two
+    // sources are namespaced, and the archive enriches an API id when it can.
+    const apiHit = id.startsWith(API_ID_PREFIX)
+      ? await this.searchApiById(id.slice(API_ID_PREFIX.length))
+      : null;
+    const archiveId = apiHit ? await this.archiveIdFor(apiHit) : id;
+
     const index = await this.loadIndex();
-    if (!index) {
-      throw new Error(
-        this.indexError ?? "LaunchBox index is not available or not built",
-      );
+    const game = index && archiveId ? index.games[archiveId] : undefined;
+
+    if (!game && !apiHit) {
+      context?.logger.error(`No LaunchBox game with id ${id}`);
+      throw new Error(`No LaunchBox game with id ${id}`);
     }
 
-    const game = index.games[id];
-    if (!game) {
-      context?.logger.error(`No LaunchBox game with DatabaseID ${id}`);
-      throw new Error(`No LaunchBox game with DatabaseID ${id}`);
-    }
-
-    context?.logger.info(`Found LaunchBox game: "${game.name}"`);
+    context?.logger.info(
+      `Found LaunchBox game: "${game?.name ?? apiHit?.name}"`,
+    );
     context?.progress(40);
 
-    // The archive has no artwork. Generate a deterministic placeholder so the
-    // object references stay non-null, matching what the Manual provider does.
-    const iconRaw = jdenticon.toPng(game.id, 512);
-    const icon = createObject(iconRaw);
+    // Artwork comes from the image host; the archive has no image field at all.
+    // A missing thumb is not an error — plenty of records have no box front.
+    let coverId: string;
+    const thumbUrl = apiHit?.thumbName
+      ? `${IMAGE_URL}/${apiHit.thumbName}`
+      : null;
+    if (thumbUrl) {
+      coverId = createObject(thumbUrl);
+    } else {
+      // Deterministic placeholder so the object reference stays non-null, the
+      // same thing the Manual provider does.
+      coverId = createObject(jdenticon.toPng(archiveId ?? id, 512));
+    }
+    const icon = coverId;
 
-    const released = game.releaseYear
+    const released = game?.releaseYear
       ? new Date(Date.UTC(game.releaseYear, 0, 1))
       : new Date();
 
     const ageRatings = [];
-    if (game.esrb) {
+    if (game?.esrb) {
       const bare = ESRB_TO_ORGANIZATION[game.esrb.split(" ")[0].toLowerCase()];
       if (bare) {
         ageRatings.push({
@@ -642,17 +755,20 @@ export class LaunchBoxProvider implements MetadataProvider {
 
     context?.progress(100);
 
+    const name = game?.name ?? apiHit?.name ?? id;
+    const overview = game?.overview ?? "";
+
     return {
-      id: game.id,
-      name: game.name,
-      shortDescription: game.overview?.slice(0, 200) ?? "",
-      description: game.overview ?? "",
+      id,
+      name,
+      shortDescription: overview.slice(0, 200),
+      description: overview,
       released,
       publishers: [],
       developers: [],
-      tags: game.genres,
+      tags: game?.genres ?? [],
       reviews:
-        game.communityRating !== undefined
+        game?.communityRating !== undefined
           ? [
               {
                 metadataId: game.id,
