@@ -337,6 +337,8 @@
         "imageCarouselEmpty": "Es wurden noch keine Bilder zum Karussell hinzugefügt.",
         "imageLibrary": "Bilderbibliothek",
         "imageLibraryDescription": "Bitte beachten: Alle hochgeladenen Bilder sind für alle Nutzer über die Browser-Entwicklertools zugänglich.",
+        "refreshMetadata": "Vom Anbieter aktualisieren",
+        "refreshQueued": "Ein Aktualisierungsauftrag wurde eingereiht ({0}). Der Aufgabenbereich zeigt den Fortschritt; die Felder aktualisieren sich nach Abschluss.",
         "removeAgeRating": "Entfernen",
         "removeImageCarousel": "Bild entfernen",
         "setBanner": "Als Banner festlegen",

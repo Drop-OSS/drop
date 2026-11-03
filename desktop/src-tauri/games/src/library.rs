@@ -48,6 +48,11 @@ pub struct Game {
     pub m_icon_object_id: String,
     pub m_banner_object_id: String,
     pub m_cover_object_id: String,
+    // Transparent title cut-out; empty means the UI renders the name.
+    // `default` keeps decoding payloads from servers predating the field
+    // (bitcode caches with the older layout fail decode and re-fetch).
+    #[serde(default)]
+    pub m_logo_object_id: String,
     pub m_image_library_object_ids: Vec<String>,
     pub m_image_carousel_object_ids: Vec<String>,
     pub library_path: String,

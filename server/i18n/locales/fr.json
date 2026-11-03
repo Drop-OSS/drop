@@ -337,6 +337,8 @@
         "imageCarouselEmpty": "Aucune image n'a encore été ajoutée au carousel.",
         "imageLibrary": "Bibliothèque d'images",
         "imageLibraryDescription": "Veuillez noter que toutes les images uploadées sont accessible a tous les utilisateurs via des outils de développement des navigateurs.",
+        "refreshMetadata": "Actualiser depuis le fournisseur",
+        "refreshQueued": "Une tâche d'actualisation a été mise en file ({0}). Le panneau des tâches suit sa progression ; les champs se mettent à jour à la fin.",
         "removeAgeRating": "Supprimer",
         "removeImageCarousel": "Retirer l'image",
         "setBanner": "Définir comme bannière",

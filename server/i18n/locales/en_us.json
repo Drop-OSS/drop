@@ -400,6 +400,8 @@
         "imageCarouselEmpty": "No images added to the carousel yet.",
         "imageLibrary": "Image library",
         "imageLibraryDescription": "Please note all images uploaded are accessible to all users through browser dev-tools.",
+        "refreshMetadata": "Refresh from provider",
+        "refreshQueued": "A refresh task was queued ({0}). The task panel shows its progress; the fields update when it finishes.",
         "removeAgeRating": "Remove",
         "removeImageCarousel": "Remove image",
         "setBanner": "Set as banner",

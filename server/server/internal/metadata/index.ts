@@ -332,6 +332,135 @@ export class MetadataHandler {
     });
   }
 
+  /**
+   * Re-run the provider fetch for an existing game and update its cached
+   * fields from fresh data. Text fields (name/description/release) are only
+   * touched when `replace` is set; art fields are filled when empty, or
+   * swapped wholesale under `replace` too. Companies, ratings and tags are
+   * never re-merged - first import stays authoritative for them.
+   *
+   * Everything downloads through one transactional batch before a single
+   * UPDATE runs, so a failed fetch leaves the game row exactly as it was
+   * (objects pulled before the failure are orphaned, the accepted trade
+   * elsewhere in this fork). The superseded objects are orphaned on
+   * replace, like recoloured avatars.
+   */
+  async refreshGameTask(
+    game: {
+      id: string;
+      name: string;
+      metadataSource: string;
+      metadataId: string;
+    },
+    replace: boolean,
+  ) {
+    const provider = this.providers.get(game.metadataSource);
+    if (!provider || provider.source() === MetadataSource.Manual)
+      return undefined;
+
+    return await taskHandler.create({
+      key: `metadata:refresh:${game.id}`,
+      taskGroup: "import:game",
+      acls: ["system:import:game:read"],
+      name: `Refreshing metadata for "${game.name}" (${provider.source()})`,
+      async run(context) {
+        const { progress, logger } = context;
+        progress(0);
+
+        const [createObject, pullObjects, dumpObjects] =
+          metadataHandler.objectHandler.new(
+            {},
+            ["internal:read"],
+            wrapTaskContext(context, {
+              min: 60,
+              max: 95,
+              prefix: "[object import] ",
+            }),
+          );
+
+        let metadata: GameMetadata;
+        try {
+          metadata = await provider.fetchGame(
+            {
+              id: game.metadataId,
+              name: game.name,
+              company: async (name: string) =>
+                metadataHandler.fetchCompany(name),
+              createObject,
+            },
+            wrapTaskContext(context, {
+              min: 0,
+              max: 60,
+              prefix: "[metadata fetch] ",
+            }),
+          );
+        } catch (e) {
+          dumpObjects();
+          throw e;
+        }
+
+        logger.info("Fetched fresh metadata, importing objects...");
+        await pullObjects();
+        progress(95);
+
+        const current = await prisma.game.findUnique({
+          where: { id: game.id },
+          select: {
+            mIconObjectId: true,
+            mBannerObjectId: true,
+            mCoverObjectId: true,
+            mLogoObjectId: true,
+            mImageCarouselObjectIds: true,
+            mImageLibraryObjectIds: true,
+          },
+        });
+        if (!current) throw new Error("Game vanished during refresh");
+
+        const wanted = (
+          existing: string | string[],
+          fresh: string | string[],
+        ) =>
+          replace ||
+          (Array.isArray(fresh)
+            ? fresh.length > 0 && existing.length === 0
+            : !!fresh && !existing);
+
+        const data: Prisma.GameUpdateInput = {};
+        if (wanted(current.mImageLibraryObjectIds, metadata.images))
+          data.mImageLibraryObjectIds = metadata.images;
+        if (wanted(current.mImageCarouselObjectIds, metadata.images))
+          data.mImageCarouselObjectIds = metadata.images;
+        if (wanted(current.mIconObjectId, metadata.icon))
+          data.mIconObjectId = metadata.icon;
+        if (wanted(current.mBannerObjectId, metadata.bannerId))
+          data.mBannerObjectId = metadata.bannerId;
+        if (wanted(current.mCoverObjectId, metadata.coverId))
+          data.mCoverObjectId = metadata.coverId;
+        if (metadata.logo && wanted(current.mLogoObjectId, metadata.logo))
+          data.mLogoObjectId = metadata.logo;
+        if (replace) {
+          data.mName = metadata.name;
+          data.mShortDescription = metadata.shortDescription;
+          data.mDescription = metadata.description;
+          data.mReleased = metadata.released;
+        }
+
+        const updated = await prisma.game.updateMany({
+          where: { id: game.id },
+          data,
+        });
+        if (updated.count !== 1)
+          throw new Error("Game vanished before the update landed");
+
+        logger.info(
+          `Metadata refreshed (${Object.keys(data).length} fields updated).`,
+        );
+        progress(100);
+        context.addAction(`View Game:/admin/library/${game.id}`);
+      },
+    });
+  }
+
   // Careful with this function, it has no typechecking
   // Type-checking this thing is impossible
   private async fetchCompany(query: string) {

@@ -306,7 +306,14 @@
                   {{ $t("library.admin.game.imageLibraryDescription") }}
                 </p>
               </div>
-              <div class="flex-shrink-0">
+              <div class="flex-shrink-0 flex flex-row gap-2">
+                <button
+                  type="button"
+                  class="relative inline-flex items-center rounded-md bg-zinc-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-zinc-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600"
+                  @click="() => refreshFromSource()"
+                >
+                  {{ $t("library.admin.game.refreshMetadata") }}
+                </button>
                 <button
                   type="button"
                   class="relative inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
@@ -926,6 +933,42 @@ async function updateLogoImage(id: string) {
       {
         title: t("errors.game.cover.title"),
         description: t("errors.game.cover.description", [
+          (e as H3Error)?.statusMessage ?? t("errors.unknown"),
+        ]),
+        buttonText: t("common.close"),
+      },
+      (e, c) => c(),
+    );
+  }
+}
+
+async function refreshFromSource() {
+  try {
+    const { taskId } = await $dropFetch(
+      `/api/v1/admin/game/:id/metadata/refresh`,
+      {
+        method: "POST",
+        params: {
+          id: game.value.id,
+        },
+        body: {},
+      },
+    );
+    createModal(
+      ModalType.Notification,
+      {
+        title: t("library.admin.game.refreshMetadata"),
+        description: t("library.admin.game.refreshQueued", [taskId]),
+        buttonText: t("common.close"),
+      },
+      (e, c) => c(),
+    );
+  } catch (e) {
+    createModal(
+      ModalType.Notification,
+      {
+        title: t("errors.game.metadata.title"),
+        description: t("errors.game.metadata.description", [
           (e as H3Error)?.statusMessage ?? t("errors.unknown"),
         ]),
         buttonText: t("common.close"),

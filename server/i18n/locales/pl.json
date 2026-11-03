@@ -323,6 +323,8 @@
         "imageCarouselEmpty": "Nie dodano jeszcze żadnych zdjęć do karuzeli.",
         "imageLibrary": "Biblioteka Obrazów",
         "imageLibraryDescription": "Należy pamiętać, że wszystkie przesłane obrazy są dostępne dla wszystkich użytkowników za pośrednictwem narzędzi programistycznych przeglądarki.",
+        "refreshMetadata": "Odswiez od dostawcy",
+        "refreshQueued": "Zadanie odswiezenia zostalo zakolejkowane ({0}). Panel zadan pokazuje postep; pola zaktualizuja sie po zakonczeniu.",
         "removeAgeRating": "Usuń",
         "removeImageCarousel": "Usuń zdjęcie",
         "setBanner": "Ustaw jako baner",

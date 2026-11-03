@@ -279,6 +279,8 @@
         "imageCarouselEmpty": "No images added to the carousel yet, argh.",
         "imageLibrary": "Image treasure hoard",
         "imageLibraryDescription": "Please note all images hoisted be accessible to all crew through browser dev-tools, savvy.",
+        "refreshMetadata": "Raid the provider's charts",
+        "refreshQueued": "A plunderin' task be queued ({0}). Watch the task panel for her progress; the fields be updated when she docks.",
         "removeAgeRating": "Remove",
         "removeImageCarousel": "Remove image",
         "setBanner": "Set as banner",

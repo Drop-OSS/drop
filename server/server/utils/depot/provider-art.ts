@@ -142,7 +142,9 @@ export async function fetchGogStoreArt(
 
 /**
  * Download `art` into the object store and attach it to `gameId`, filling
- * only fields that are still empty (an admin's manual pick wins forever).
+ * only fields that are still empty (an admin's manual pick wins forever) -
+ * unless `opts.replace` is set, which overwrites provider fields and leaves
+ * the superseded objects orphaned, like recoloured player avatars.
  * The icon reuses the cover object - store art has no square variant.
  * Never throws: missing art is a cosmetic loss, not a failed acquisition.
  * Returns the number of fields attached.
@@ -151,6 +153,7 @@ export async function attachProviderArt(
   gameId: string,
   art: ProviderArt,
   log?: { warn: (message: string) => void },
+  opts?: { replace?: boolean },
 ): Promise<number> {
   let dump: (() => void) | undefined;
   try {
@@ -172,23 +175,27 @@ export async function attachProviderArt(
       },
     });
     if (!game) return 0;
+    const replace = opts?.replace === true;
 
     const bannerUrl =
-      !game.mBannerObjectId && art.banner
+      (!game.mBannerObjectId || replace) && art.banner
         ? normalizeArtUrl(art.banner)
         : undefined;
     const coverUrl =
-      !game.mCoverObjectId && art.cover
+      (!game.mCoverObjectId || replace) && art.cover
         ? normalizeArtUrl(art.cover)
         : undefined;
     const logoUrl =
-      !game.mLogoObjectId && art.logo ? normalizeArtUrl(art.logo) : undefined;
-    const screenshotUrls = game.mImageCarouselObjectIds.length
-      ? []
-      : art.carousel
-          .map((u) => normalizeArtUrl(u))
-          .filter((u): u is string => !!u)
-          .slice(0, MAX_CAROUSEL);
+      (!game.mLogoObjectId || replace) && art.logo
+        ? normalizeArtUrl(art.logo)
+        : undefined;
+    const screenshotUrls =
+      game.mImageCarouselObjectIds.length && !replace
+        ? []
+        : art.carousel
+            .map((u) => normalizeArtUrl(u))
+            .filter((u): u is string => !!u)
+            .slice(0, MAX_CAROUSEL);
     if (!bannerUrl && !coverUrl && !logoUrl && screenshotUrls.length === 0)
       return 0;
 
@@ -204,21 +211,23 @@ export async function attachProviderArt(
     const shotIds = screenshotUrls.map((url) => register(url));
     await pull();
 
-    const iconId = !game.mIconObjectId
-      ? newCoverId || game.mCoverObjectId
-      : undefined;
+    const iconId = replace
+      ? newCoverId
+      : !game.mIconObjectId
+        ? newCoverId || game.mCoverObjectId
+        : undefined;
     const pool = [bannerId, newCoverId, ...shotIds].filter(
       (id): id is string => !!id,
     );
 
     const data = {
       ...(iconId ? { mIconObjectId: iconId } : {}),
-      ...(bannerId && !game.mBannerObjectId
+      ...(bannerId && (!game.mBannerObjectId || replace)
         ? { mBannerObjectId: bannerId }
         : {}),
       ...(newCoverId ? { mCoverObjectId: newCoverId } : {}),
       ...(logoId ? { mLogoObjectId: logoId } : {}),
-      ...(game.mImageLibraryObjectIds.length || pool.length === 0
+      ...((game.mImageLibraryObjectIds.length && !replace) || pool.length === 0
         ? {}
         : { mImageLibraryObjectIds: pool }),
       ...(shotIds.length ? { mImageCarouselObjectIds: shotIds } : {}),
