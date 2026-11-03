@@ -30,6 +30,16 @@
         />
       </Switch>
     </div>
+
+    <div>
+      <h3 class="text-sm font-medium leading-6 text-ink-100">Colours</h3>
+      <p class="mt-1 text-sm leading-6 text-ink-400">
+        Pick the look of the whole app; it applies as you choose.
+      </p>
+      <div class="mt-3">
+        <ThemePicker />
+      </div>
+    </div>
   </div>
 </template>
 

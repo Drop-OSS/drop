@@ -1,11 +1,5 @@
 <template>
-  <div class="border-b border-surface-700 py-5">
-    <h3 class="text-base font-semibold font-display leading-6 text-ink-100">
-      Interface
-    </h3>
-  </div>
-
-  <div class="mt-5 space-y-8">
+  <div class="space-y-6">
     <div>
       <h3 class="text-sm font-medium leading-6 text-ink-100">Accent</h3>
       <p class="mt-1 text-sm leading-6 text-ink-400">

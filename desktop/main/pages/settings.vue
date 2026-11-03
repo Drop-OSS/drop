@@ -45,7 +45,6 @@ import {
   ArrowDownTrayIcon,
   CubeIcon,
   HomeIcon,
-  RectangleGroupIcon,
   UserGroupIcon,
   BugAntIcon,
 } from "@heroicons/vue/16/solid";
@@ -100,12 +99,6 @@ const navigation = computed(() => [
     route: "/settings",
     prefix: "/settings",
     icon: HomeIcon,
-  },
-  {
-    label: "Interface",
-    route: "/settings/interface",
-    prefix: "/settings/interface",
-    icon: RectangleGroupIcon,
   },
   {
     label: "Downloads",
