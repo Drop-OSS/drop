@@ -18,9 +18,6 @@
     {
       "name": "drop-app",
       "buildsystem": "simple",
-      "only-arches": [
-        "x86_64"
-      ],
       "build-commands": [
         "ar x drop.deb",
         "mkdir -p extracted && tar -xf data.tar.* -C extracted",
@@ -36,6 +33,14 @@
           "type": "file",
           "url": "https://github.com/Drop-OSS/drop/releases/download/DROP_RELEASE_TAG/Drop.Desktop.Client_DROP_PKG_VER_amd64.deb",
           "sha256": "DROP_DEB_SHA256",
+          "only-arches": ["x86_64"],
+          "dest-filename": "drop.deb"
+        },
+        {
+          "type": "file",
+          "url": "https://github.com/Drop-OSS/drop/releases/download/DROP_RELEASE_TAG/Drop.Desktop.Client_DROP_PKG_VER_arm64.deb",
+          "sha256": "DROP_ARM64_DEB_SHA256",
+          "only-arches": ["aarch64"],
           "dest-filename": "drop.deb"
         }
       ]
