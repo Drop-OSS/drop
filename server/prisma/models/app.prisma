@@ -6,6 +6,8 @@ model ApplicationSettings {
     saveSlotCountLimit   Int   @default(5)
     saveSlotSizeLimit    Float @default(10) // MB
     saveSlotHistoryLimit Int   @default(3)
+    // Total MB one user's whole save history may hold (0 = unlimited).
+    saveUserStorageLimit Float  @default(0) // MB
 
     showGamePanelTextDecoration Boolean @default(true)
     serverName String @default("Drop")

@@ -20,4 +20,8 @@ export type Settings = {
     serverName: string;
     mLogoObjectId: string | null;
   };
+  saves: {
+    /** MB one user's whole save history may hold; 0 = unlimited. */
+    userStorageLimit: number;
+  };
 };

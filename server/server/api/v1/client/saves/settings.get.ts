@@ -13,10 +13,16 @@ export default defineClientEventHandler(async (_h3, { fetchClient }) => {
   const slotLimit = await applicationSettings.get("saveSlotCountLimit");
   const sizeLimit = await applicationSettings.get("saveSlotSizeLimit");
   const history = await applicationSettings.get("saveSlotHistoryLimit");
+  const userStorageLimit = await applicationSettings.get(
+    "saveUserStorageLimit",
+  );
   return {
     slotLimit,
     sizeLimit,
     history,
+    // MB across every game and profile of this account; 0 = unlimited. A push
+    // over it is refused with 400, so a client may want to prune before retrying.
+    userStorageLimit,
     // Versioned saves are always on in this release; clients still gate on
     // `features.versionedSaves` so older servers stay usable.
     features: {
@@ -24,6 +30,7 @@ export default defineClientEventHandler(async (_h3, { fetchClient }) => {
       conflictResolution: true,
       restore: true,
       pinning: true,
+      storageQuota: userStorageLimit > 0,
     },
     apiVersion: 2,
   };

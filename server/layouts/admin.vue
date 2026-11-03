@@ -201,6 +201,7 @@ import {
   Cog6ToothIcon,
   UserGroupIcon,
   RectangleStackIcon,
+  CircleStackIcon,
   DocumentIcon,
   ArrowDownTrayIcon,
 } from "@heroicons/vue/24/outline";
@@ -242,6 +243,12 @@ const navigation: Array<NavigationItem & { icon: Component }> = [
     route: "/admin/users",
     prefix: "/admin/users",
     icon: UserGroupIcon,
+  },
+  {
+    label: "Saves",
+    route: "/admin/saves",
+    prefix: "/admin/saves",
+    icon: CircleStackIcon,
   },
   {
     label: $t("header.admin.tasks"),

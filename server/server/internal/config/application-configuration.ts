@@ -93,6 +93,9 @@ class ApplicationConfiguration {
         serverName: await applicationSettings.get("serverName"),
         mLogoObjectId: await applicationSettings.get("mLogoObjectId"),
       },
+      saves: {
+        userStorageLimit: await applicationSettings.get("saveUserStorageLimit"),
+      },
     };
   }
 }

@@ -17,7 +17,11 @@ import { createHash, generateKeyPairSync, randomUUID } from "node:crypto";
 import jwt from "jsonwebtoken";
 import prisma from "~/server/internal/db/database";
 import { contentHash } from "~/server/internal/saves/hash";
-import { ClientCapabilities, Platform } from "~/prisma/client/enums";
+import {
+  APITokenMode,
+  ClientCapabilities,
+  Platform,
+} from "~/prisma/client/enums";
 
 const databaseUrl = process.env.DATABASE_URL ?? "";
 const databaseName = new URL(databaseUrl || "http://invalid").pathname ?? "";
@@ -748,8 +752,283 @@ async function main() {
     equal(otherRows[0]!.seconds, 60, "the second profile's total");
   });
 
+  // ---------------------------------------------------------------------------
+  // The admin save view: what a server owner sees and can prune in other
+  // people's history. These routes open for a System API token, never for a
+  // client JWT, so a throwaway token is minted here and deleted with the rest.
+  // ---------------------------------------------------------------------------
+  const adminToken = randomUUID();
+  await prisma.aPIToken.create({
+    data: {
+      token: adminToken,
+      mode: APITokenMode.System,
+      name: "e2e-http-admin",
+      acls: ["settings:update"],
+    },
+  });
+
+  async function admin(
+    method: string,
+    path: string,
+    init: { body?: BodyInit; headers?: Record<string, string> } = {},
+  ): Promise<Response> {
+    const response = await fetch(`${baseUrl}${path}`, {
+      method,
+      body: init.body,
+      headers: {
+        ...(init.headers ?? {}),
+        authorization: `Bearer ${adminToken}`,
+      },
+    });
+    const text = await response.text();
+    let body: unknown = text;
+    try {
+      body = JSON.parse(text);
+    } catch {
+      /* a download body is not JSON */
+    }
+    return { status: response.status, body, headers: response.headers };
+  }
+
+  type AdminSlot = {
+    gameId: string;
+    game: string;
+    userId: string;
+    username: string;
+    profileId: string;
+    profile: string;
+    index: number;
+    versionCount: number;
+    totalBytes: number;
+    headSizeBytes: number;
+    headVersionId: string | null;
+  };
+  type AdminList = {
+    quotaMb: number;
+    users: Array<{ userId: string; username: string; usedBytes: number }>;
+    slots: AdminSlot[];
+  };
+
+  // Whatever the server's quota was before this run, restore it after.
+  const quotaBefore = (
+    (await (
+      await admin("GET", `/api/v1/admin/saves`)
+    ).body) as AdminList | null
+  )?.quotaMb;
+
+  await check("the client settings advertise the quota", async () => {
+    const res = await call("GET", `${saves}/settings`);
+    const body = res.body as {
+      userStorageLimit?: number;
+      features?: { storageQuota?: boolean };
+    };
+    if (typeof body.userStorageLimit !== "number")
+      throw new Error("userStorageLimit missing");
+    equal(
+      body.features?.storageQuota,
+      body.userStorageLimit > 0,
+      "features.storageQuota tracks the limit",
+    );
+  });
+
+  await check(
+    "the admin list shows a slot with owner, player and size",
+    async () => {
+      const res = await admin("GET", `/api/v1/admin/saves?user=${userId}`);
+      equal(res.status, 200, "admin list status");
+      const body = res.body as AdminList;
+      const mine = body.slots.filter((slot) => slot.userId === userId);
+      assert(mine.length > 0, "this run's slots are listed");
+      assert(
+        mine.every((slot) => slot.username === "e2e-http"),
+        "every row names its owner",
+      );
+      assert(
+        mine.every((slot) => slot.profile.length > 0 && slot.game.length > 0),
+        "player and game are resolved",
+      );
+      assert(
+        mine.every((slot) => slot.totalBytes >= slot.headSizeBytes),
+        "a slot never holds less than its head",
+      );
+      assert(
+        body.users.some((user) => user.userId === userId && user.usedBytes > 0),
+        "the per-user total is metered",
+      );
+    },
+  );
+
+  await check(
+    "an admin download is byte-identical to the owner's",
+    async () => {
+      const save = archive([{ key: "save/slot1.sav", body: "admin-reads" }]);
+      const slot = await call("GET", `${saves}/${gameId}/0`);
+      const headId = (slot.body as { head: { id: string } }).head.id;
+      const pushed = await call("POST", `${saves}/${gameId}/0/versions`, {
+        body: save.bytes,
+        headers: {
+          "if-match": headId,
+          "idempotency-key": randomUUID(),
+          "x-content-hash": save.contentHash,
+          "x-archive-sha256": save.sha256,
+        },
+      });
+      equal(pushed.status, 200, "upload before the admin read");
+      const versionId = (pushed.body as { id: string }).id;
+
+      const res = await admin(
+        "GET",
+        `/api/v1/admin/saves/version/${versionId}/download`,
+      );
+      equal(res.status, 200, "admin download status");
+      const bytes = Buffer.from(res.body as string, "utf8");
+      equal(
+        createHash("sha256").update(bytes).digest("hex"),
+        save.sha256,
+        "admin download bytes",
+      );
+      equal(res.headers.get("x-save-version-id"), versionId, "version header");
+
+      const missing = await admin(
+        "GET",
+        `/api/v1/admin/saves/version/${randomUUID()}/download`,
+      );
+      equal(missing.status, 404, "unknown version is a 404");
+    },
+  );
+
+  await check("the quota refuses a push it cannot fit", async () => {
+    // A limit of one byte: every push this account makes is over it.
+    const set = await admin("PATCH", `/api/v1/admin/settings`, {
+      body: JSON.stringify({ saves: { userStorageLimit: 0.000001 } }),
+      headers: { "content-type": "application/json" },
+    });
+    equal(set.status, 200, "quota patch status");
+    equal(
+      (set.body as { saves: { userStorageLimit: number } }).saves
+        .userStorageLimit,
+      0.000001,
+      "quota echoed back",
+    );
+
+    const save = archive([{ key: "save/slot1.sav", body: "over-quota" }]);
+    const slot = await call("GET", `${saves}/${gameId}/0`);
+    const headId = (slot.body as { head: { id: string } }).head.id;
+    const before = await call("GET", `${saves}/${gameId}/0/versions`);
+    const res = await call("POST", `${saves}/${gameId}/0/versions`, {
+      body: save.bytes,
+      headers: {
+        "if-match": headId,
+        "idempotency-key": randomUUID(),
+        "x-content-hash": save.contentHash,
+      },
+    });
+    equal(res.status, 400, "over-quota push status");
+    const after = await call("GET", `${saves}/${gameId}/0/versions`);
+    equal(
+      (after.body as unknown[]).length,
+      (before.body as unknown[]).length,
+      "a refused push adds no version",
+    );
+
+    const restored = await admin("PATCH", `/api/v1/admin/settings`, {
+      body: JSON.stringify({ saves: { userStorageLimit: 0 } }),
+      headers: { "content-type": "application/json" },
+    });
+    equal(restored.status, 200, "quota reset status");
+    const retry = await call("POST", `${saves}/${gameId}/0/versions`, {
+      body: save.bytes,
+      headers: {
+        "if-match": headId,
+        "idempotency-key": randomUUID(),
+        "x-content-hash": save.contentHash,
+      },
+    });
+    equal(retry.status, 200, "the same push fits once the limit is lifted");
+  });
+
+  await check("an admin deletes a version but never a head", async () => {
+    const listed = (await admin(
+      "GET",
+      `/api/v1/admin/saves?user=${userId}`,
+    )) as { body: AdminList };
+    const target = listed.body.slots.find(
+      (slot) => slot.userId === userId && slot.versionCount > 1,
+    );
+    if (!target) throw new Error("no slot with history to prune");
+
+    const headDelete = await admin(
+      "DELETE",
+      `/api/v1/admin/saves/version/${target.headVersionId}`,
+    );
+    equal(headDelete.status, 400, "the head stays undeletable for admins too");
+
+    const detail = await admin(
+      "GET",
+      `/api/v1/admin/saves/slot/${target.userId}/${target.profileId}/${target.gameId}/${target.index}`,
+    );
+    equal(detail.status, 200, "slot detail status");
+    const versions = (detail.body as { versions: Array<{ id: string }> })
+      .versions;
+    const older = versions.find((v) => v.id !== target.headVersionId)!;
+    const removed = await admin(
+      "DELETE",
+      `/api/v1/admin/saves/version/${older.id}`,
+    );
+    equal(removed.status, 200, "version delete status");
+
+    const after = await admin(
+      "GET",
+      `/api/v1/admin/saves/slot/${target.userId}/${target.profileId}/${target.gameId}/${target.index}`,
+    );
+    equal(
+      (after.body as { versions: unknown[] }).versions.length,
+      versions.length - 1,
+      "the version is gone from the timeline",
+    );
+  });
+
+  await check("an admin deletes a slot with its whole history", async () => {
+    const listed = (await admin(
+      "GET",
+      `/api/v1/admin/saves?user=${userId}`,
+    )) as { body: AdminList };
+    const target = listed.body.slots.find((slot) => slot.userId === userId)!;
+
+    const deleted = await admin(
+      "DELETE",
+      `/api/v1/admin/saves/slot/${target.userId}/${target.profileId}/${target.gameId}/${target.index}`,
+    );
+    equal(deleted.status, 200, "slot delete status");
+
+    const gone = await admin(
+      "GET",
+      `/api/v1/admin/saves/slot/${target.userId}/${target.profileId}/${target.gameId}/${target.index}`,
+    );
+    equal(gone.status, 404, "the deleted slot is gone");
+
+    const again = await admin(
+      "DELETE",
+      `/api/v1/admin/saves/slot/${target.userId}/${target.profileId}/${target.gameId}/${target.index}`,
+    );
+    equal(again.status, 404, "deleting it twice is a 404, not a 500");
+  });
+
+  await check("an admin route refuses a client JWT", async () => {
+    const res = await call("GET", `/api/v1/admin/saves`);
+    equal(res.status, 403, "client JWT cannot read the admin list");
+  });
+
+  if (typeof quotaBefore === "number" && quotaBefore !== 0) {
+    await admin("PATCH", `/api/v1/admin/settings`, {
+      body: JSON.stringify({ saves: { userStorageLimit: quotaBefore } }),
+      headers: { "content-type": "application/json" },
+    });
+  }
+
   await prisma.saveManifest.deleteMany({ where: { gameId } });
   await prisma.saveSlot.deleteMany({ where: { userId } });
+  await prisma.aPIToken.deleteMany({ where: { token: adminToken } });
   await prisma.certificate.deleteMany({
     where: { id: { in: [`client:${clientId}`, `client:${plainClientId}`] } },
   });

@@ -14,11 +14,12 @@
  */
 import "./nitro-stubs";
 import { createHash, randomUUID } from "node:crypto";
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { Readable } from "node:stream";
 import type { IncomingMessage } from "node:http";
 import { canonicalize } from "json-canonicalize";
+import { applicationSettings } from "~/server/internal/config/application-configuration";
 import prisma from "~/server/internal/db/database";
 import profileManager from "~/server/internal/profiles";
 import saveManager from "~/server/internal/saves";
@@ -801,6 +802,94 @@ async function main() {
       });
       const after = await saveManager.getSlot(userId, profile.id, gameId, 0);
       equal(after.head?.id, created.id, "head after a good upload");
+    },
+  );
+
+  await check(
+    "the per-user quota refuses what will not fit and keeps its bytes",
+    async () => {
+      const save = archive([{ key: "save/quota.sav", body: "quota" }]);
+      const before = await saveManager.getSlot(userId, profile.id, gameId, 0);
+      const used = await saveManager.userStorageUsedBytes(userId);
+      const objectsBefore = readdirSync(objectDir).length;
+      const mb = (bytes: number) => bytes / (1024 * 1024);
+
+      // No room at all: the limit is exactly what the account already holds,
+      // so anything new is over it. MB arithmetic is float, hence the exact
+      // "already used" figure rather than a byte-precise cut.
+      await applicationSettings.set("saveUserStorageLimit", mb(used));
+      let refused: unknown;
+      try {
+        await saveManager.createVersion({
+          ...base,
+          stream: save.stream(),
+          baseVersionId: before.head?.id ?? null,
+          contentHash: save.contentHash,
+          archiveSha256: save.archiveSha256,
+          // No declared size: the metering happens on the streamed bytes.
+          declaredSize: null,
+          fileCount: 1,
+          manifestHash: null,
+          clientMutationId: null,
+          kind: SaveVersionKind.Backup,
+        });
+      } catch (error) {
+        refused = error;
+      }
+      equal(status(refused), 400, "quota refusal status");
+      const afterRefusal = await saveManager.getSlot(
+        userId,
+        profile.id,
+        gameId,
+        0,
+      );
+      equal(afterRefusal.head?.id, before.head?.id, "head after quota refusal");
+      equal(
+        afterRefusal.versionCount,
+        before.versionCount,
+        "versions after quota refusal",
+      );
+      equal(
+        await saveManager.userStorageUsedBytes(userId),
+        used,
+        "usage after quota refusal",
+      );
+      equal(
+        readdirSync(objectDir).length,
+        objectsBefore,
+        "quota refusal left its object behind",
+      );
+
+      // Room for it, and the same bytes land.
+      await applicationSettings.set(
+        "saveUserStorageLimit",
+        mb(used + save.bytes.length + 1024),
+      );
+      const fitted = await saveManager.createVersion({
+        ...base,
+        stream: save.stream(),
+        baseVersionId: before.head?.id ?? null,
+        contentHash: save.contentHash,
+        archiveSha256: save.archiveSha256,
+        declaredSize: save.bytes.length,
+        fileCount: 1,
+        manifestHash: null,
+        clientMutationId: null,
+        kind: SaveVersionKind.Backup,
+      });
+      const landed = await saveManager.getSlot(userId, profile.id, gameId, 0);
+      equal(landed.head?.id, fitted.id, "head after a fitting push");
+      const stored = await prisma.saveVersion.findUnique({
+        where: { id: fitted.id },
+        select: { objectId: true },
+      });
+      assert(
+        stored !== null && existsSync(file(stored.objectId)),
+        "object for fit",
+      );
+
+      // Unlimited again for anything that runs after this.
+      await applicationSettings.set("saveUserStorageLimit", 0);
     },
   );
 

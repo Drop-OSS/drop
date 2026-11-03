@@ -14,6 +14,9 @@ const UpdateSettings = type({
     serverName: "string",
     mLogoObjectId: "string | null",
   },
+  "saves?": {
+    userStorageLimit: "number >= 0",
+  },
 });
 
 export default defineEventHandler<{ body: typeof UpdateSettings.infer }>(
@@ -45,6 +48,12 @@ export default defineEventHandler<{ body: typeof UpdateSettings.infer }>(
           body.generalSettings.mLogoObjectId || null,
         );
       }
+    }
+    if (body.saves) {
+      await applicationSettings.set(
+        "saveUserStorageLimit",
+        body.saves.userStorageLimit,
+      );
     }
     return await applicationSettings.getSettings();
   },

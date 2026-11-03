@@ -18,6 +18,7 @@ import { decideSync, type SyncDecision } from "./conflict";
 import { isUniqueViolation, SaveConflictError } from "./errors";
 import { isSha256 } from "./hash";
 import { selectVersionsToPrune } from "./retention";
+import { formatBytes } from "../utils/files";
 
 /** Raised while streaming when a save exceeds `saveSlotSizeLimit`. */
 class SaveSizeLimitError extends Error {
@@ -135,6 +136,43 @@ class SaveManager {
   private async sizeLimitBytes(): Promise<number> {
     const limitMb = await applicationSettings.get("saveSlotSizeLimit");
     return Math.max(1, Math.floor(limitMb * 1024 * 1024));
+  }
+
+  /** `null` means unlimited (`saveUserStorageLimit` is MB, 0 = unlimited). */
+  private async userStorageLimitBytes(): Promise<number | null> {
+    const limitMb = await applicationSettings.get("saveUserStorageLimit");
+    if (!(limitMb > 0)) return null;
+    return Math.floor(limitMb * 1024 * 1024);
+  }
+
+  /** Everything the user's save history holds right now, in bytes. */
+  async userStorageUsedBytes(userId: string): Promise<number> {
+    const total = await prisma.saveVersion.aggregate({
+      where: { userId },
+      _sum: { sizeBytes: true },
+    });
+    return total._sum.sizeBytes ?? 0;
+  }
+
+  /**
+   * The per-user quota is metered over the versions that are stored now, so
+   * a push is refused before its bytes land rather than pruning its way in:
+   * retention pruning runs after the new version exists, and history that is
+   * about to be pruned is not free space an upload may spend.
+   */
+  private async assertUserStorageQuota(
+    userId: string,
+    incomingBytes: number | null,
+  ): Promise<void> {
+    if (incomingBytes === null) return;
+    const limit = await this.userStorageLimitBytes();
+    if (limit === null) return;
+    const used = await this.userStorageUsedBytes(userId);
+    if (used + incomingBytes <= limit) return;
+    throw createError({
+      statusCode: 400,
+      statusMessage: `Save storage quota exceeded: ${formatBytes(used)} stored of ${formatBytes(limit)}, this upload needs ${formatBytes(incomingBytes)}`,
+    });
   }
 
   private async historyLimit(): Promise<number> {
@@ -434,7 +472,13 @@ class SaveManager {
     let before: { createdAt: Date; id: string } | null = null;
     if (options.cursor) {
       const cursor = await prisma.saveVersion.findFirst({
-        where: { id: options.cursor, userId, profileId, gameId, slotIndex: index },
+        where: {
+          id: options.cursor,
+          userId,
+          profileId,
+          gameId,
+          slotIndex: index,
+        },
         select: { id: true, createdAt: true },
       });
       if (!cursor)
@@ -590,6 +634,11 @@ class SaveManager {
         statusMessage: "Save exceeds saveSlotSizeLimit",
       });
 
+    // Fail a declared-size overrun before a single byte is written; the real
+    // check below still runs on the measured size, because a client may
+    // declare nothing at all (the legacy push path).
+    await this.assertUserStorageQuota(input.userId, input.declaredSize);
+
     const objectId = randomUUID();
     const writable = await objectHandler.createWithStream(
       objectId,
@@ -633,6 +682,14 @@ class SaveManager {
           statusCode: 413,
           statusMessage: "Save exceeds saveSlotSizeLimit",
         });
+      throw error;
+    }
+
+    // The measured size is the truth the quota is metered on.
+    try {
+      await this.assertUserStorageQuota(input.userId, totalBytes);
+    } catch (error) {
+      await objectHandler.deleteAsSystem(objectId);
       throw error;
     }
 

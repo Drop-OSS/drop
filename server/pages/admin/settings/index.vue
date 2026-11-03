@@ -76,6 +76,35 @@
         </div>
       </div>
 
+      <div class="pb-4 border-b border-zinc-700 w-2xl mt-2">
+        <h2 class="text-xl font-semibold text-zinc-100">Cloud saves</h2>
+
+        <div class="mt-4">
+          <label
+            for="saveUserStorageLimit"
+            class="block text-sm/6 font-medium text-zinc-100"
+            >Storage limit per user (MB)</label
+          >
+          <p class="mt-1 text-sm text-zinc-400">
+            Total space one account's save history may hold across every game
+            and profile. 0 means unlimited; a push that would go over it is
+            refused.
+          </p>
+          <div class="mt-2">
+            <input
+              id="saveUserStorageLimit"
+              v-model.number="settings.saves.userStorageLimit"
+              type="number"
+              min="0"
+              step="1"
+              name="saveUserStorageLimit"
+              class="block w-full rounded-md bg-zinc-800 px-3 py-1.5 text-base text-zinc-100 outline outline-1 -outline-offset-1 outline-zinc-700 placeholder:text-zinc-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6"
+              @input="allowSave = true"
+            />
+          </div>
+        </div>
+      </div>
+
       <ModalUploadFile
         v-model="uploadLogoOpen"
         :endpoint="`/api/v1/admin/settings/logo`"
@@ -139,6 +168,12 @@ async function saveSettings() {
         generalSettings: {
           serverName: settings.value.generalSettings.serverName,
           mLogoObjectId: settings.value.generalSettings.mLogoObjectId,
+        },
+        saves: {
+          userStorageLimit: Math.max(
+            0,
+            Number(settings.value.saves.userStorageLimit) || 0,
+          ),
         },
       },
     });
