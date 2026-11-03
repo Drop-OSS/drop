@@ -226,23 +226,30 @@ async function queueLocalGogIngest(
         });
         const title = gameTitle ?? storeManifest?.title ?? productId;
 
-        // Real product copy (best-effort): the keyless catalogue API carries
-        // the store's own description. On failure the exact placeholder
-        // strings remain, and the admin refresh treats them as empty, so a
+        // Real product copy and release date (best-effort): the keyless
+        // catalogue API carries both. On failure the exact placeholder strings
+        // remain and the cached listing decides the date, and the admin
+        // refresh treats the placeholders and an epoch date as empty, so a
         // later refresh backfills without a re-ingest.
         let shortDescription = `GOG product ${productId}.`;
         let description = `Acquired from GOG (product ${productId}) by the depot pipeline.`;
+        let released: Date | undefined;
         try {
-          const { fetchGogProductInfo } =
+          const { fetchGogProductInfo, parseGogReleaseDate } =
             await import("../../../../utils/depot/provider-info");
           const info = await fetchGogProductInfo(productId);
           if (info?.shortDescription) shortDescription = info.shortDescription;
           if (info?.description) description = info.description;
+          released = info ? parseGogReleaseDate(info.releaseDate) : undefined;
           logger.info(
             info?.description
               ? "Attached GOG product description."
               : "GOG product info unavailable; placeholders kept.",
           );
+          if (released)
+            logger.info(
+              `Release date from the catalogue: ${released.toISOString().slice(0, 10)}.`,
+            );
         } catch (error) {
           logger.warn(
             `GOG product info fetch failed: ${error instanceof Error ? error.message : String(error)}`,
@@ -265,7 +272,7 @@ async function queueLocalGogIngest(
             mName: title,
             mShortDescription: shortDescription,
             mDescription: description,
-            mReleased: releaseDateOf(storeManifest?.payload),
+            mReleased: released ?? releaseDateOf(storeManifest?.payload),
             mIconObjectId: "",
             mBannerObjectId: "",
             mCoverObjectId: "",
@@ -393,7 +400,11 @@ async function queueLocalGogIngest(
   return { accepted: true, jobId: taskId, taskId, queued: "local-task" };
 }
 
-/** Best-effort release date from the cached store listing; epoch when unknown. */
+/**
+ * Fallback release date from the cached store listing; epoch when unknown. A
+ * GOG library row usually carries no date at all, so the catalogue API above
+ * is what really fills this field.
+ */
 function releaseDateOf(payload: unknown): Date {
   const doc = payload as {
     releaseDate?: string;

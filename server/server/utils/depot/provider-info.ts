@@ -77,6 +77,18 @@ export function parseGogProductInfo(
 }
 
 /**
+ * `releaseDate` as a real date, or `undefined` when GOG published nothing
+ * parseable. Absent dates stay `undefined` rather than an epoch date because
+ * `Game.mReleased` is NOT NULL and the app already reads epoch as "unknown" —
+ * a caller has to be able to tell the two apart.
+ */
+export function parseGogReleaseDate(raw: string): Date | undefined {
+  if (!raw.trim()) return undefined;
+  const parsed = new Date(raw);
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed;
+}
+
+/**
  * Fetch product info for `id`. Throws on transport failures and non-2xx
  * answers (the caller decides how loud to be); returns undefined for a
  * payload without a title/slug.

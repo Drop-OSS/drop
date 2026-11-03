@@ -64,24 +64,30 @@ export default defineEventHandler(async (h3) => {
         });
         const slug = (manifest?.payload as { slug?: unknown } | null)?.slug;
 
-        // Product copy from the keyless catalogue API. The placeholder
-        // strings the ingest used to write count as empty, so games imported
-        // before this existed backfill with a plain refresh.
+        // Product copy and release date from the keyless catalogue API. The
+        // placeholder strings the ingest used to write count as empty, and so
+        // does the epoch date it falls back to, so games imported before this
+        // existed backfill with a plain refresh.
         let metadataFields = 0;
         try {
-          const { fetchGogProductInfo } =
+          const { fetchGogProductInfo, parseGogReleaseDate } =
             await import("~/server/utils/depot/provider-info");
           const info = await fetchGogProductInfo(gogId);
           if (info) {
             const current = await prisma.game.findUnique({
               where: { id: gameId },
-              select: { mShortDescription: true, mDescription: true },
+              select: {
+                mShortDescription: true,
+                mDescription: true,
+                mReleased: true,
+              },
             });
             if (current) {
               const placeholderShort = `GOG product ${gogId}.`;
               const placeholderDescription = `Acquired from GOG (product ${gogId}) by the depot pipeline.`;
               const isEmpty = (value: string, placeholder: string) =>
                 value.trim().length === 0 || value === placeholder;
+              const released = parseGogReleaseDate(info.releaseDate);
               const data = {
                 ...(info.shortDescription &&
                 (replace ||
@@ -92,6 +98,9 @@ export default defineEventHandler(async (h3) => {
                 (replace ||
                   isEmpty(current.mDescription, placeholderDescription))
                   ? { mDescription: info.description }
+                  : {}),
+                ...(released && (replace || current.mReleased.getTime() <= 0)
+                  ? { mReleased: released }
                   : {}),
               };
               if (Object.keys(data).length > 0) {

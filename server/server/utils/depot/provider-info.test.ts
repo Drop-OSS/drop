@@ -1,6 +1,10 @@
 import { test, afterEach } from "node:test";
 import assert from "node:assert/strict";
-import { fetchGogProductInfo, parseGogProductInfo } from "./provider-info";
+import {
+  fetchGogProductInfo,
+  parseGogProductInfo,
+  parseGogReleaseDate,
+} from "./provider-info";
 
 const originalFetch = globalThis.fetch;
 afterEach(() => {
@@ -68,6 +72,19 @@ test("the parser maps the catalogue payload onto game fields", () => {
       "Control one of two beaver factions.",
     ].join("\n"),
   );
+});
+
+test("a catalogue release date becomes a date, nothing else does", () => {
+  // GOG publishes a zone offset with no colon, which Date parses directly.
+  const released = parseGogReleaseDate(PAYLOAD.release_date);
+  assert.ok(released);
+  assert.equal(released.toISOString(), "2021-09-15T14:55:00.000Z");
+  // Absent and unparseable dates stay undefined rather than becoming an epoch
+  // date, because epoch is the app's "unknown" and must stay distinguishable.
+  assert.equal(parseGogReleaseDate(""), undefined);
+  assert.equal(parseGogReleaseDate("   "), undefined);
+  assert.equal(parseGogReleaseDate("not a date"), undefined);
+  assert.equal(parseGogReleaseDate("2021-13-45"), undefined);
 });
 
 test("the full description wins over the lead copy", () => {
