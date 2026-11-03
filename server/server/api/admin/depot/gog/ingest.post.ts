@@ -249,6 +249,34 @@ async function queueLocalGogIngest(
           },
         });
 
+        // Provider art (best-effort): the store page carries banner, box
+        // cover and screenshots without any API key; when it is unreachable
+        // the cached library tile still gives us the hero banner. Only empty
+        // fields are filled, so a manual pick survives a re-ingest.
+        try {
+          const { fetchGogStoreArt, cachedManifestArt, attachProviderArt } =
+            await import("../../../../utils/depot/provider-art");
+          const slug = (storeManifest?.payload as { slug?: unknown } | null)
+            ?.slug;
+          let art =
+            typeof slug === "string" && slug
+              ? await fetchGogStoreArt(slug)
+              : undefined;
+          if (!art) art = cachedManifestArt(storeManifest?.image);
+          const filled = art
+            ? await attachProviderArt(game.id, art, logger)
+            : 0;
+          logger.info(
+            filled > 0
+              ? `Attached provider art (${filled} fields).`
+              : "No provider art attached.",
+          );
+        } catch (error) {
+          logger.warn(
+            `Provider art fetch failed: ${error instanceof Error ? error.message : String(error)}`,
+          );
+        }
+
         // Idempotent re-runs: a same-named version already imported stays.
         const existing = await prisma.gameVersion.findFirst({
           where: { gameId: game.id, versionPath: result.versionName },
