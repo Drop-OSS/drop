@@ -122,19 +122,15 @@ class ProfileManager {
     if (!name)
       throw createError({ statusCode: 400, statusMessage: "name is required" });
 
-    const existing = await prisma.profile.findFirst({
+    const [updated] = await prisma.profile.updateManyAndReturn({
       where: { id: profileId, userId },
+      data: { name },
     });
-    if (!existing)
+    if (!updated)
       throw createError({
         statusCode: 404,
         statusMessage: "Profile not found",
       });
-
-    const updated = await prisma.profile.update({
-      where: { id: profileId },
-      data: { name },
-    });
     return toProfileDto(updated);
   }
 
@@ -165,10 +161,15 @@ class ProfileManager {
         statusMessage: "Profile not found",
       });
 
-    const updated = await prisma.profile.update({
+    const [updated] = await prisma.profile.updateManyAndReturn({
       where: { id: profileId },
       data: { name, ...(color !== undefined ? { color } : {}) },
     });
+    if (!updated)
+      throw createError({
+        statusCode: 404,
+        statusMessage: "Profile not found",
+      });
     if (color === undefined || color === existing.color)
       return toProfileDto(updated);
     const withAvatar = await this.attachAvatar(updated, color);
@@ -188,19 +189,15 @@ class ProfileManager {
     rawColor: unknown,
   ): Promise<ProfileDto> {
     const color = assertColor(rawColor);
-    const existing = await prisma.profile.findFirst({
+    const [updated] = await prisma.profile.updateManyAndReturn({
       where: { id: profileId, userId },
+      data: { color },
     });
-    if (!existing)
+    if (!updated)
       throw createError({
         statusCode: 404,
         statusMessage: "Profile not found",
       });
-
-    const updated = await prisma.profile.update({
-      where: { id: profileId },
-      data: { color },
-    });
     const withAvatar = await this.attachAvatar(updated, color);
     return toProfileDto(withAvatar);
   }
@@ -222,10 +219,11 @@ class ProfileManager {
         {},
         [`internal:read`, `${profile.userId}:read`],
       );
-      return await prisma.profile.update({
+      const [updated] = await prisma.profile.updateManyAndReturn({
         where: { id: profile.id },
         data: { avatarObjectId: avatarId },
       });
+      return updated ?? profile;
     } catch (e) {
       logger.warn(`profile ${profile.id} avatar generation failed: ${e}`);
       return profile;
@@ -246,10 +244,11 @@ class ProfileManager {
       if (!found.isDefault) {
         // Oldest profile standing but marked non-default (a renamed default
         // is impossible; this only happens if data was edited): promote it.
-        return prisma.profile.update({
+        const [promoted] = await prisma.profile.updateManyAndReturn({
           where: { id: found.id },
           data: { isDefault: true },
         });
+        return promoted ?? found;
       }
       return found;
     }
