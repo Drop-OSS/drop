@@ -164,12 +164,14 @@ const toChannels = (hex: string): string => {
   return `${(n >> 16) & 255} ${(n >> 8) & 255} ${n & 255}`;
 };
 
-const theme = useState<ThemeChoice>("theme", () => ({
-  accent: "blue",
-  surface: "zinc",
-}));
-
 export const useTheme = () => {
+  // useState lives INSIDE the composable: auto-imported modules are evaluated
+  // before a Nuxt instance exists, so a module-scope call throws NUXT_E1001.
+  const theme = useState<ThemeChoice>("theme", () => ({
+    accent: "blue",
+    surface: "zinc",
+  }));
+
   /** Write the chosen ramps onto the document root. Unknown keys fall back
    * to the defaults, which are the values :root already carries. */
   const apply = (choice: ThemeChoice) => {

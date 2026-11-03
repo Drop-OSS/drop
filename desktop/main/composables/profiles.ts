@@ -25,18 +25,20 @@ export const PLAYER_COLORS: Record<string, string> = {
   rose: "#e11d48",
 };
 
-const profiles = useState<Profile[]>("profiles", () => []);
-const currentProfileId = useState<string | null>(
-  "current-profile-id",
-  () => null,
-);
-
 /**
  * The account's players, and which one this device plays as. State lives in
  * `useState` so the header switcher and the settings page always agree.
  * "No id chosen" (a fresh install) means the server's default player.
  */
 export const useProfiles = () => {
+  // useState lives INSIDE the composable: auto-imported modules are evaluated
+  // before a Nuxt instance exists, so a module-scope call throws NUXT_E1001.
+  const profiles = useState<Profile[]>("profiles", () => []);
+  const currentProfileId = useState<string | null>(
+    "current-profile-id",
+    () => null,
+  );
+
   const refresh = async () => {
     try {
       profiles.value = await invoke<Profile[]>("fetch_profiles");
