@@ -291,6 +291,10 @@ export class MetadataHandler {
             mBannerObjectId: metadata.bannerId,
             mCoverObjectId: metadata.coverId,
             mImageLibraryObjectIds: metadata.images,
+            // The desktop carousel reads the carousel field, not the admin
+            // pool; mirror the provider set so a fresh import is not artless
+            // in the UI (curation in the admin editor still applies).
+            mImageCarouselObjectIds: metadata.images,
 
             publishers: {
               connect: metadata.publishers,
