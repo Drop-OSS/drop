@@ -2,7 +2,10 @@
   <ModalTemplate :model-value="true">
     <template #default
       ><div class="flex items-start gap-x-3">
-        <img :src="useObject(game.mIconObjectId)" class="size-12" />
+        <img
+          :src="useObjectOrPlaceholder(game.mIconObjectId)"
+          class="size-12"
+        />
         <div class="mt-3 text-center sm:mt-0 sm:text-left">
           <h3 class="text-base font-semibold text-ink-100">
             Missing required dependency "{{ game.mName }}"
@@ -70,10 +73,10 @@ const versionOptions = await invoke<Array<VersionOption>>(
   "fetch_game_version_options",
   {
     gameId: game.id,
-  }
+  },
 );
 const version = versionOptions.find(
-  (v) => v.versionId === model.value.versionId
+  (v) => v.versionId === model.value.versionId,
 )!;
 
 const installDirs = await invoke<string[]>("fetch_download_dir_stats");

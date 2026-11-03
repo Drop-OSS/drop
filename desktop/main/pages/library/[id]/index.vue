@@ -17,15 +17,19 @@
 
     <div class="relative z-10">
       <div class="px-8">
-        <h1
-          class="text-5xl text-ink-100 font-bold font-display drop-shadow-lg"
-        >
+        <h1 class="text-5xl text-ink-100 font-bold font-display drop-shadow-lg">
           {{ game.mName }}
         </h1>
         <p v-if="game.playtime[0]" class="mt-2 text-sm text-ink-300">
           Playtime: {{ formatPlaytime(game.playtime[0].seconds) }}
         </p>
-        <div class="relative" v-if="status.type === 'Installed' && status.install_type.type != InstalledType.PartiallyInstalled">
+        <div
+          class="relative"
+          v-if="
+            status.type === 'Installed' &&
+            status.install_type.type != InstalledType.PartiallyInstalled
+          "
+        >
           <div
             v-if="!version?.userConfiguration?.enableUpdates"
             class="absolute mt-1 inline-flex items-center gap-x-1 text-xs text-ink-400"
@@ -53,7 +57,8 @@
             v-else-if="status.update_available"
             class="absolute mt-1 inline-flex items-center gap-x-1 text-xs text-ink-400"
           >
-            Update available <ArrowDownTrayIcon class="size-3 text-accent-600" />
+            Update available
+            <ArrowDownTrayIcon class="size-3 text-accent-600" />
           </div>
         </div>
 
@@ -436,7 +441,7 @@
               <div class="flex min-w-0 gap-x-2">
                 <img
                   class="size-12 flex-none"
-                  :src="useObject(content.iconObjectId)"
+                  :src="useObjectOrPlaceholder(content.iconObjectId)"
                   alt=""
                 />
                 <div class="min-w-0 flex-auto">
@@ -687,7 +692,7 @@ const id = route.params.id.toString();
 
 const { game, status, version } = await useGame(id);
 
-const bannerUrl = await useObject(game.mBannerObjectId);
+const bannerUrl = useObjectOrPlaceholder(game.mBannerObjectId);
 
 const htmlDescription = micromark(game.mDescription);
 

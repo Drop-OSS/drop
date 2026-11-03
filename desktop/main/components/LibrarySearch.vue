@@ -36,7 +36,10 @@
         as="div"
         v-for="(nav, navIndex) in filteredNavigation"
         :key="nav.id"
-        :class="['first:pt-0 last:pb-0', nav.tools && !filteredNavigation[navIndex - 1].tools ? 'mt-auto' : '']"
+        :class="[
+          'first:pt-0 last:pb-0',
+          nav.tools && !filteredNavigation[navIndex - 1].tools ? 'mt-auto' : '',
+        ]"
         v-slot="{ open }"
         :default-open="nav.deft"
       >
@@ -79,7 +82,7 @@
               >
                 <img
                   class="size-6 object-cover bg-surface-900 rounded transition-all duration-300 shadow-sm"
-                  :src="useObject(item.icon)"
+                  :src="useObjectOrPlaceholder(item.icon)"
                   alt=""
                 />
               </div>
@@ -98,7 +101,9 @@
               </div>
             </div>
           </NuxtLink>
-          <span v-if="nav.items.length == 0" class="text-xs text-ink-500 mx-auto"
+          <span
+            v-if="nav.items.length == 0"
+            class="text-xs text-ink-500 mx-auto"
             >No games in this category</span
           >
         </DisclosurePanel>

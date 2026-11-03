@@ -144,8 +144,8 @@ async function switchTo(id: string, close: () => void) {
     switching.value = false;
   }
 }
-const profilePictureUrl: string = await useObject(
-  state.value?.user?.profilePictureObjectId ?? "",
+const profilePictureUrl: string = useObjectOrAvatarPlaceholder(
+  state.value?.user?.profilePictureObjectId,
 );
 const adminUrl: string = await invoke("gen_drop_url", {
   path: "/admin",
