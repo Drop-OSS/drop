@@ -2,7 +2,7 @@
   <Menu v-if="state?.user" as="div" class="relative inline-block">
     <MenuButton>
       <HeaderWidget>
-        <div class="inline-flex items-center text-zinc-300 hover:text-white">
+        <div class="inline-flex items-center text-ink-300 hover:text-white">
           <img :src="profilePictureUrl" class="w-5 h-5 rounded-sm" />
           <span class="ml-2 text-sm font-bold">{{
             state.user.displayName
@@ -21,23 +21,23 @@
       leave-to-class="transform opacity-0 scale-95"
     >
       <MenuItems
-        class="absolute bg-zinc-900 right-0 top-10 z-50 w-56 origin-top-right focus:outline-none shadow-md"
+        class="absolute bg-surface-900 right-0 top-10 z-50 w-56 origin-top-right focus:outline-none shadow-md"
       >
         <div class="flex-col gap-y-2">
           <NuxtLink
             to="/id/me"
-            class="transition inline-flex items-center w-full py-3 px-4 hover:bg-zinc-800"
+            class="transition inline-flex items-center w-full py-3 px-4 hover:bg-surface-800"
           >
-            <div class="inline-flex items-center text-zinc-300">
+            <div class="inline-flex items-center text-ink-300">
               <img :src="profilePictureUrl" class="w-5 h-5 rounded-sm" />
               <span class="ml-2 text-sm font-bold">{{
                 state.user.displayName
               }}</span>
             </div>
           </NuxtLink>
-          <div class="h-0.5 rounded-full w-full bg-zinc-800" />
+          <div class="h-0.5 rounded-full w-full bg-surface-800" />
           <template v-if="profiles.length > 1">
-            <p class="px-4 pb-1 pt-2 text-xs font-semibold uppercase leading-5 text-zinc-500">
+            <p class="px-4 pb-1 pt-2 text-xs font-semibold uppercase leading-5 text-ink-500">
               Play as
             </p>
             <MenuItem
@@ -48,32 +48,32 @@
               <button
                 @click="switchTo(profile.id, close)"
                 :class="[
-                  active ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400',
+                  active ? 'bg-surface-800 text-ink-100' : 'text-ink-400',
                   'transition flex w-full items-center justify-between gap-x-2 px-4 py-2 text-left text-sm',
                 ]"
               >
                 <span class="truncate">{{ profile.name }}</span>
                 <CheckIcon
                   v-if="profile.id === activeId"
-                  class="h-4 w-4 flex-none text-blue-400"
+                  class="h-4 w-4 flex-none text-accent-400"
                 />
               </button>
             </MenuItem>
           </template>
           <NuxtLink
             to="/settings/profiles"
-            class="transition block px-4 py-2 text-sm text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
+            class="transition block px-4 py-2 text-sm text-ink-400 hover:bg-surface-800 hover:text-ink-100"
           >
             Manage players
           </NuxtLink>
-          <div class="h-0.5 rounded-full w-full bg-zinc-800" />
+          <div class="h-0.5 rounded-full w-full bg-surface-800" />
           <div class="flex flex-col mb-1">
             <MenuItem v-if="state.user.admin" v-slot="{ active }">
               <a
                 :href="adminUrl"
                 target="_blank"
                 :class="[
-                  active ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400',
+                  active ? 'bg-surface-800 text-ink-100' : 'text-ink-400',
                   'transition block px-4 py-2 text-sm',
                 ]"
               >
@@ -88,7 +88,7 @@
                 @click="() => navigate(close, nav)"
                 :href="nav.route"
                 :class="[
-                  active ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400',
+                  active ? 'bg-surface-800 text-ink-100' : 'text-ink-400',
                   'transition text-left block px-4 py-2 text-sm',
                 ]"
               >

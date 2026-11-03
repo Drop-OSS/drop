@@ -37,19 +37,19 @@
               <button
                 @click="() => authWrapper_wrapper()"
                 :disabled="loading"
-                class="px-3 py-1 inline-flex items-center gap-x-2 bg-zinc-700 rounded text-sm text-left font-semibold leading-7 text-white"
+                class="px-3 py-1 inline-flex items-center gap-x-2 bg-surface-700 rounded text-sm text-left font-semibold leading-7 text-white"
               >
                 Sign in with your browser <ArrowTopRightOnSquareIcon class="size-4" />
               </button>
-              <NuxtLink href="/auth/code" class="text-zinc-100 text-sm hover:text-zinc-300">
+              <NuxtLink href="/auth/code" class="text-ink-100 text-sm hover:text-ink-300">
                 Use a code &rarr;
               </NuxtLink>
             </span>
           </div>
 
           <div class="mt-5" v-if="offerManual">
-            <h1 class="text-zinc-100 font-semibold">Having trouble?</h1>
-            <p class="mt-1 text-zinc-400 text-sm">
+            <h1 class="text-ink-100 font-semibold">Having trouble?</h1>
+            <p class="mt-1 text-ink-400 text-sm">
               You can manually enter the token from your web browser.
             </p>
             <div class="inline-flex gap-x-1 mt-2 w-full">
@@ -59,7 +59,7 @@
                 type="text"
                 autocomplete="token"
                 required
-                class="grow block w-full rounded-md border-0 py-1.5 px-3 shadow-sm bg-zinc-950/20 text-zinc-300 ring-1 ring-inset ring-zinc-800 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                class="grow block w-full rounded-md border-0 py-1.5 px-3 shadow-sm bg-surface-950/20 text-ink-300 ring-1 ring-inset ring-surface-800 placeholder:text-ink-400 focus:ring-2 focus:ring-inset focus:ring-accent-600 sm:text-sm sm:leading-6"
                 v-model="manualToken"
               />
               <LoadingButton
@@ -88,15 +88,15 @@
       </div>
     </main>
     <footer class="self-end lg:col-span-2 lg:col-start-1 lg:row-start-3">
-      <div class="border-t border-blue-600 bg-zinc-900 py-10">
+      <div class="border-t border-accent-600 bg-surface-900 py-10">
         <nav
-          class="mx-auto flex w-full max-w-7xl items-center gap-x-4 px-6 text-sm leading-7 text-zinc-400 lg:px-8"
+          class="mx-auto flex w-full max-w-7xl items-center gap-x-4 px-6 text-sm leading-7 text-ink-400 lg:px-8"
         >
           <a href="#">Documentation</a>
           <svg
             viewBox="0 0 2 2"
             aria-hidden="true"
-            class="h-0.5 w-0.5 fill-zinc-700"
+            class="h-0.5 w-0.5 fill-surface-700"
           >
             <circle cx="1" cy="1" r="1" />
           </svg>
@@ -104,7 +104,7 @@
           <svg
             viewBox="0 0 2 2"
             aria-hidden="true"
-            class="h-0.5 w-0.5 fill-zinc-700"
+            class="h-0.5 w-0.5 fill-surface-700"
           >
             <circle cx="1" cy="1" r="1" />
           </svg>

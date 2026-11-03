@@ -1,5 +1,5 @@
 <template>
-  <div class="h-16 bg-zinc-950 flex flex-row justify-between">
+  <div class="h-16 bg-surface-950 flex flex-row justify-between">
     <div class="flex flex-row grow items-center pl-5 pr-2 py-3">
       <div class="inline-flex items-center gap-x-10">
         <NuxtLink to="/store">
@@ -12,8 +12,8 @@
               :class="[
                 'transition  uppercase font-display font-semibold text-md',
                 navIdx === currentNavigation
-                  ? 'text-zinc-100'
-                  : 'text-zinc-400 hover:text-zinc-200',
+                  ? 'text-ink-100'
+                  : 'text-ink-400 hover:text-ink-200',
               ]"
               :href="nav.route"
             >

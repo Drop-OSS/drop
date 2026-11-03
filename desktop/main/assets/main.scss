@@ -2,6 +2,52 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ===== Theme tokens =====
+   Every colour utility in the app resolves through these triples
+   (see tailwind.config.js: `rgb(var(--gd-*) / <alpha-value>)`), so a theme
+   is nothing but a new set of values on :root. The defaults below are the
+   original Tailwind zinc/blue palettes verbatim, so the tokenised app is
+   pixel-identical to the old one until a theme overrides something.
+   Themes (surface tint + accent) live in composables/theme.ts. */
+:root {
+  /* Surfaces - was zinc */
+  --gd-surface-100: 244 244 245;
+  --gd-surface-200: 228 228 231;
+  --gd-surface-300: 212 212 216;
+  --gd-surface-400: 161 161 170;
+  --gd-surface-500: 113 113 122;
+  --gd-surface-600: 82 82 91;
+  --gd-surface-700: 63 63 70;
+  --gd-surface-800: 39 39 42;
+  --gd-surface-900: 24 24 27;
+  --gd-surface-950: 9 9 11;
+
+  /* Text - same scale, separate variables so a tint can keep contrast */
+  --gd-ink-100: 244 244 245;
+  --gd-ink-200: 228 228 231;
+  --gd-ink-300: 212 212 216;
+  --gd-ink-400: 161 161 170;
+  --gd-ink-500: 113 113 122;
+  --gd-ink-600: 82 82 91;
+  --gd-ink-700: 63 63 70;
+  --gd-ink-800: 39 39 42;
+  --gd-ink-900: 24 24 27;
+  --gd-ink-950: 9 9 11;
+
+  /* Accent - was blue */
+  --gd-accent-50: 239 246 255;
+  --gd-accent-100: 219 234 254;
+  --gd-accent-200: 191 219 254;
+  --gd-accent-300: 147 197 253;
+  --gd-accent-400: 96 165 250;
+  --gd-accent-500: 59 130 246;
+  --gd-accent-600: 37 99 235;
+  --gd-accent-700: 29 78 216;
+  --gd-accent-800: 30 64 175;
+  --gd-accent-900: 30 58 138;
+  --gd-accent-950: 23 37 84;
+}
+
 html,
 body {
   -ms-overflow-style: none; /* IE and Edge /
@@ -66,7 +112,7 @@ $helvetica: (
 /* Firefox */
 * {
   scrollbar-width: 4px;
-  scrollbar-color: #52525b #00000000;
+  scrollbar-color: rgb(var(--gd-surface-600)) #00000000;
 }
 
 /* Chrome, Edge, and Safari */
@@ -79,7 +125,7 @@ $helvetica: (
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: #52525b;
+  background-color: rgb(var(--gd-surface-600));
   border-radius: 10px;
-  border: 3px solid #52525b;
+  border: 3px solid rgb(var(--gd-surface-600));
 }

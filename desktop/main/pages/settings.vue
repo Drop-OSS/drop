@@ -1,7 +1,7 @@
 <template>
   <div class="mx-auto max-w-7xl px-8">
-    <div class="border-b border-zinc-700 py-5">
-      <h3 class="text-base font-semibold font-display leading-6 text-zinc-100">
+    <div class="border-b border-surface-700 py-5">
+      <h3 class="text-base font-semibold font-display leading-6 text-ink-100">
         Settings
       </h3>
     </div>
@@ -13,8 +13,8 @@
               :href="item.route"
               :class="[
                 itemIdx === currentNavigation
-                  ? 'bg-zinc-800/50 text-zinc-100'
-                  : 'text-zinc-400 hover:bg-zinc-800/30 hover:text-zinc-200',
+                  ? 'bg-surface-800/50 text-ink-100'
+                  : 'text-ink-400 hover:bg-surface-800/30 hover:text-ink-200',
                 'transition group flex gap-x-3 rounded-md p-2 pr-12 text-sm font-semibold leading-6',
               ]"
             >
@@ -22,8 +22,8 @@
                 :is="item.icon"
                 :class="[
                   itemIdx === currentNavigation
-                    ? 'text-zinc-100'
-                    : 'text-zinc-400 group-hover:text-zinc-200',
+                    ? 'text-ink-100'
+                    : 'text-ink-400 group-hover:text-ink-200',
                   'transition h-6 w-6 shrink-0',
                 ]"
                 aria-hidden="true"

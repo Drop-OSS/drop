@@ -8,31 +8,31 @@
         class="w-full h-[24rem] object-cover blur-sm scale-105"
       />
       <div
-        class="absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/80 to-transparent opacity-90"
+        class="absolute inset-0 bg-gradient-to-t from-surface-900 via-surface-900/80 to-transparent opacity-90"
       />
       <div
-        class="absolute inset-0 bg-gradient-to-r from-zinc-900/95 via-zinc-900/80 to-transparent opacity-90"
+        class="absolute inset-0 bg-gradient-to-r from-surface-900/95 via-surface-900/80 to-transparent opacity-90"
       />
     </div>
 
     <div class="relative z-10">
       <div class="px-8">
         <h1
-          class="text-5xl text-zinc-100 font-bold font-display drop-shadow-lg"
+          class="text-5xl text-ink-100 font-bold font-display drop-shadow-lg"
         >
           {{ game.mName }}
         </h1>
-        <p v-if="game.playtime[0]" class="mt-2 text-sm text-zinc-300">
+        <p v-if="game.playtime[0]" class="mt-2 text-sm text-ink-300">
           Playtime: {{ formatPlaytime(game.playtime[0].seconds) }}
         </p>
         <div class="relative" v-if="status.type === 'Installed' && status.install_type.type != InstalledType.PartiallyInstalled">
           <div
             v-if="!version?.userConfiguration?.enableUpdates"
-            class="absolute mt-1 inline-flex items-center gap-x-1 text-xs text-zinc-400"
+            class="absolute mt-1 inline-flex items-center gap-x-1 text-xs text-ink-400"
           >
             Version pinned
             <svg
-              class="size-3 text-blue-600"
+              class="size-3 text-accent-600"
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -45,15 +45,15 @@
           </div>
           <div
             v-else-if="!status.update_available"
-            class="absolute mt-1 inline-flex items-center gap-x-1 text-xs text-zinc-400"
+            class="absolute mt-1 inline-flex items-center gap-x-1 text-xs text-ink-400"
           >
             Up to date <CheckCircleIcon class="size-3 text-green-600" />
           </div>
           <div
             v-else-if="status.update_available"
-            class="absolute mt-1 inline-flex items-center gap-x-1 text-xs text-zinc-400"
+            class="absolute mt-1 inline-flex items-center gap-x-1 text-xs text-ink-400"
           >
-            Update available <ArrowDownTrayIcon class="size-3 text-blue-600" />
+            Update available <ArrowDownTrayIcon class="size-3 text-accent-600" />
           </div>
         </div>
 
@@ -71,13 +71,13 @@
           />
           <button
             v-if="status.type === 'Installed' && status.update_available"
-            class="transition-transform duration-300 hover:scale-105 active:scale-95 inline-flex gap-x-2 items-center rounded-md bg-blue-600 px-6 font-semibold text-white shadow-xl backdrop-blur-sm hover:bg-blue-700 uppercase font-display"
+            class="transition-transform duration-300 hover:scale-105 active:scale-95 inline-flex gap-x-2 items-center rounded-md bg-accent-600 px-6 font-semibold text-white shadow-xl backdrop-blur-sm hover:bg-accent-700 uppercase font-display"
             @click="() => installFlow()"
           >
             Update <ArrowDownTrayIcon class="size-5" />
           </button>
           <NuxtLink
-            class="transition-transform duration-300 hover:scale-105 active:scale-95 inline-flex items-center rounded-md bg-zinc-800/50 px-6 font-semibold text-white shadow-xl backdrop-blur-sm hover:bg-zinc-800/80 uppercase font-display"
+            class="transition-transform duration-300 hover:scale-105 active:scale-95 inline-flex items-center rounded-md bg-surface-800/50 px-6 font-semibold text-white shadow-xl backdrop-blur-sm hover:bg-surface-800/80 uppercase font-display"
             :to="{
               path: '/store',
               query: {
@@ -92,10 +92,10 @@
       </div>
 
       <!-- Main content -->
-      <div class="mt-8 w-full bg-zinc-900 px-8">
+      <div class="mt-8 w-full bg-surface-900 px-8">
         <div class="grid grid-cols-[2fr,1fr] gap-8">
           <div class="space-y-6">
-            <div class="bg-zinc-800/50 rounded-xl p-6 backdrop-blur-sm">
+            <div class="bg-surface-800/50 rounded-xl p-6 backdrop-blur-sm">
               <div
                 v-html="htmlDescription"
                 class="prose prose-invert prose-blue overflow-y-auto custom-scrollbar max-w-none"
@@ -104,8 +104,8 @@
           </div>
 
           <div class="space-y-6">
-            <div class="bg-zinc-800/50 rounded-xl p-6 backdrop-blur-sm">
-              <h2 class="text-xl font-display font-semibold text-zinc-100 mb-4">
+            <div class="bg-surface-800/50 rounded-xl p-6 backdrop-blur-sm">
+              <h2 class="text-xl font-display font-semibold text-ink-100 mb-4">
                 Game Images
               </h2>
               <div class="relative">
@@ -138,7 +138,7 @@
                         <button
                           v-if="game.mImageCarouselObjectIds.length > 1"
                           @click.stop="previousImage()"
-                          class="p-2 rounded-full bg-zinc-900/50 text-zinc-100 hover:bg-zinc-900/80 transition-all duration-300 hover:scale-110"
+                          class="p-2 rounded-full bg-surface-900/50 text-ink-100 hover:bg-surface-900/80 transition-all duration-300 hover:scale-110"
                         >
                           <ChevronLeftIcon class="size-5" />
                         </button>
@@ -147,7 +147,7 @@
                         <button
                           v-if="game.mImageCarouselObjectIds.length > 1"
                           @click.stop="nextImage()"
-                          class="p-2 rounded-full bg-zinc-900/50 text-zinc-100 hover:bg-zinc-900/80 transition-all duration-300 hover:scale-110"
+                          class="p-2 rounded-full bg-surface-900/50 text-ink-100 hover:bg-surface-900/80 transition-all duration-300 hover:scale-110"
                         >
                           <ChevronRightIcon class="size-5" />
                         </button>
@@ -175,8 +175,8 @@
                       class="w-1.5 h-1.5 rounded-full transition-all"
                       :class="[
                         currentImageIndex === index
-                          ? 'bg-zinc-100 scale-125'
-                          : 'bg-zinc-600 hover:bg-zinc-500',
+                          ? 'bg-surface-100 scale-125'
+                          : 'bg-surface-600 hover:bg-surface-500',
                       ]"
                     />
                   </div>
@@ -184,11 +184,11 @@
 
                 <div
                   v-else
-                  class="aspect-video rounded-lg overflow-hidden bg-zinc-900/50 flex flex-col items-center justify-center text-center px-4"
+                  class="aspect-video rounded-lg overflow-hidden bg-surface-900/50 flex flex-col items-center justify-center text-center px-4"
                 >
-                  <PhotoIcon class="size-12 text-zinc-500 mb-2" />
-                  <p class="text-zinc-400 font-medium">No images available</p>
-                  <p class="text-zinc-500 text-sm">
+                  <PhotoIcon class="size-12 text-ink-500 mb-2" />
+                  <p class="text-ink-400 font-medium">No images available</p>
+                  <p class="text-ink-500 text-sm">
                     Game screenshots will appear here when available
                   </p>
                 </div>
@@ -206,11 +206,11 @@
     <template #default>
       <div class="sm:flex sm:items-start">
         <div class="mt-3 text-center sm:mt-0 sm:text-left">
-          <h3 class="text-base font-semibold text-zinc-100">
+          <h3 class="text-base font-semibold text-ink-100">
             Install {{ game.mName }}?
           </h3>
           <div class="mt-2">
-            <p class="text-sm text-zinc-400">
+            <p class="text-sm text-ink-400">
               Drop will add {{ game.mName }} to the queue to be downloaded.
               While downloading, Drop may use up a large amount of resources,
               particularly network bandwidth and CPU utilisation.
@@ -222,12 +222,12 @@
       <div class="space-y-6">
         <div v-if="versionOptions && versionOptions.length > 0">
           <Listbox as="div" v-model="installVersionIndex">
-            <ListboxLabel class="block text-sm/6 font-medium text-zinc-100"
+            <ListboxLabel class="block text-sm/6 font-medium text-ink-100"
               >Version</ListboxLabel
             >
             <div class="relative mt-2">
               <ListboxButton
-                class="relative w-full cursor-default rounded-md bg-zinc-800 py-1.5 pl-3 pr-10 text-left text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-600 sm:text-sm/6"
+                class="relative w-full cursor-default rounded-md bg-surface-800 py-1.5 pl-3 pr-10 text-left text-ink-100 shadow-sm ring-1 ring-inset ring-surface-700 focus:outline-none focus:ring-2 focus:ring-accent-600 sm:text-sm/6"
               >
                 <span class="block truncate">{{
                   formatVersionOptionText(installVersionIndex)
@@ -236,7 +236,7 @@
                   class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
                 >
                   <ChevronUpDownIcon
-                    class="h-5 w-5 text-gray-400"
+                    class="h-5 w-5 text-ink-400"
                     aria-hidden="true"
                   />
                 </span>
@@ -244,17 +244,17 @@
 
               <div
                 v-if="installVersionIndex == -1"
-                class="mt-3 rounded-md bg-blue-500/10 p-2 outline outline-blue-500/20"
+                class="mt-3 rounded-md bg-accent-500/10 p-2 outline outline-accent-500/20"
               >
                 <div class="flex">
                   <div class="shrink-0">
                     <InformationCircleIcon
-                      class="size-4 text-blue-400"
+                      class="size-4 text-accent-400"
                       aria-hidden="true"
                     />
                   </div>
                   <div class="ml-2 flex-1 md:flex md:justify-between">
-                    <p class="text-xs text-blue-300">
+                    <p class="text-xs text-accent-300">
                       "Latest" will notify you when there is a new version
                       available. Choose another version to pin this game's
                       version.
@@ -264,17 +264,17 @@
               </div>
               <div
                 v-else
-                class="mt-3 rounded-md bg-blue-500/10 p-2 outline outline-blue-500/20"
+                class="mt-3 rounded-md bg-accent-500/10 p-2 outline outline-accent-500/20"
               >
                 <div class="flex">
                   <div class="shrink-0">
                     <InformationCircleIcon
-                      class="size-4 text-blue-400"
+                      class="size-4 text-accent-400"
                       aria-hidden="true"
                     />
                   </div>
                   <div class="ml-2 flex-1 md:flex md:justify-between">
-                    <p class="text-xs text-blue-300">
+                    <p class="text-xs text-accent-300">
                       This game will be pinned to "{{
                         currentVersionOption?.displayName ||
                         currentVersionOption?.versionPath
@@ -290,7 +290,7 @@
                 leave-to-class="opacity-0"
               >
                 <ListboxOptions
-                  class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                  class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-surface-900 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
                 >
                   <ListboxOption
                     as="template"
@@ -299,14 +299,14 @@
                   >
                     <li
                       :class="[
-                        active ? 'bg-blue-600 text-white' : 'text-zinc-300',
+                        active ? 'bg-accent-600 text-white' : 'text-ink-300',
                         'relative cursor-default select-none py-2 pl-3 pr-9',
                       ]"
                     >
                       <span
                         :class="[
                           selected
-                            ? 'font-semibold text-zinc-100'
+                            ? 'font-semibold text-ink-100'
                             : 'font-normal',
                           'block truncate',
                         ]"
@@ -316,7 +316,7 @@
                       <span
                         v-if="selected"
                         :class="[
-                          active ? 'text-white' : 'text-blue-600',
+                          active ? 'text-white' : 'text-accent-600',
                           'absolute inset-y-0 right-0 flex items-center pr-4',
                         ]"
                       >
@@ -334,14 +334,14 @@
                   >
                     <li
                       :class="[
-                        active ? 'bg-blue-600 text-white' : 'text-zinc-300',
+                        active ? 'bg-accent-600 text-white' : 'text-ink-300',
                         'relative cursor-default select-none py-2 pl-3 pr-9',
                       ]"
                     >
                       <span
                         :class="[
                           selected
-                            ? 'font-semibold text-zinc-100'
+                            ? 'font-semibold text-ink-100'
                             : 'font-normal',
                           'block truncate',
                         ]"
@@ -351,7 +351,7 @@
                       <span
                         v-if="selected"
                         :class="[
-                          active ? 'text-white' : 'text-blue-600',
+                          active ? 'text-white' : 'text-accent-600',
                           'absolute inset-y-0 right-0 flex items-center pr-4',
                         ]"
                       >
@@ -417,7 +417,7 @@
             <h3 class="text-sm font-semibold text-white">
               Install additional dependencies?
             </h3>
-            <p class="mt-1 text-xs text-gray-400">
+            <p class="mt-1 text-xs text-ink-400">
               This game requires additional content to run. Click the components
               to automatically queue for download.
             </p>
@@ -428,7 +428,7 @@
               :key="content.versionId"
               :class="[
                 !installDepsDisabled[content.versionId]
-                  ? 'bg-zinc-950 ring-2 ring-zinc-800'
+                  ? 'bg-surface-950 ring-2 ring-surface-800'
                   : '',
                 'rounded-lg relative flex justify-between px-2 py-3',
               ]"
@@ -452,7 +452,7 @@
                       {{ content.name }}
                     </button>
                   </p>
-                  <p class="mt-1 flex text-xs/5 text-gray-400">
+                  <p class="mt-1 flex text-xs/5 text-ink-400">
                     {{ content.shortDescription }}
                   </p>
                 </div>
@@ -460,7 +460,7 @@
               <div class="flex shrink-0 items-center gap-x-2">
                 <div class="hidden sm:flex sm:flex-col sm:items-end">
                   <p
-                    class="inline-flex items-center gap-x-1 text-xs/5 text-gray-400"
+                    class="inline-flex items-center gap-x-1 text-xs/5 text-ink-400"
                   >
                     {{ formatKilobytes(content.size.installSize / 1024) }}B
                     <ServerIcon class="size-3" />
@@ -473,7 +473,7 @@
                 />
                 <MinusIcon
                   v-else
-                  class="size-5 flex-none text-gray-500"
+                  class="size-5 flex-none text-ink-500"
                   aria-hidden="true"
                 />
               </div>
@@ -507,7 +507,7 @@
       </LoadingButton>
       <button
         type="button"
-        class="mt-3 inline-flex w-full justify-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-700 hover:bg-zinc-900 sm:mt-0 sm:w-auto"
+        class="mt-3 inline-flex w-full justify-center rounded-md bg-surface-800 px-3 py-2 text-sm font-semibold text-ink-100 shadow-sm ring-1 ring-inset ring-surface-700 hover:bg-surface-900 sm:mt-0 sm:w-auto"
         @click="installFlowOpen = false"
         ref="cancelButtonRef"
       >
@@ -520,11 +520,11 @@
     <template #default>
       <div class="sm:flex sm:items-start">
         <div class="mt-3 text-center sm:mt-0 sm:text-left">
-          <h3 class="text-base font-semibold text-zinc-100">
+          <h3 class="text-base font-semibold text-ink-100">
             Launch {{ game.mName }}
           </h3>
           <div class="mt-2">
-            <p class="text-sm text-zinc-400">
+            <p class="text-sm text-ink-400">
               The instance admin has configured multiple ways to start this
               game. Select an option to start.
             </p>
@@ -535,7 +535,7 @@
       <ol class="space-y-2">
         <li v-for="(launchData, launchIdx) in launchOptions!">
           <button
-            class="transition w-full rounded-sm bg-zinc-800 inline-flex items-center text-sm py-2 px-3 gap-x-2 text-zinc-100 hover:text-zinc-300 hover:bg-zinc-700"
+            class="transition w-full rounded-sm bg-surface-800 inline-flex items-center text-sm py-2 px-3 gap-x-2 text-ink-100 hover:text-ink-300 hover:bg-surface-700"
             @click="() => launchIndex(launchIdx)"
           >
             <PlayIcon class="size-4" />
@@ -549,7 +549,7 @@
     <template #buttons>
       <button
         type="button"
-        class="mt-3 inline-flex w-full justify-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-700 hover:bg-zinc-900 sm:mt-0 sm:w-auto"
+        class="mt-3 inline-flex w-full justify-center rounded-md bg-surface-800 px-3 py-2 text-sm font-semibold text-ink-100 shadow-sm ring-1 ring-inset ring-surface-700 hover:bg-surface-900 sm:mt-0 sm:w-auto"
         @click="launchOptions = undefined"
         ref="cancelButtonRef"
       >
@@ -593,7 +593,7 @@
         @click.stop
       >
         <button
-          class="absolute top-4 right-4 p-2 rounded-full bg-zinc-900/50 text-zinc-100 hover:bg-zinc-900 transition-colors"
+          class="absolute top-4 right-4 p-2 rounded-full bg-surface-900/50 text-ink-100 hover:bg-surface-900 transition-colors"
           @click.stop="fullscreenImage = null"
         >
           <XMarkIcon class="size-6" />
@@ -602,14 +602,14 @@
         <button
           v-if="game.mImageCarouselObjectIds.length > 1"
           @click.stop="previousImage()"
-          class="absolute left-4 p-3 rounded-full bg-zinc-900/50 text-zinc-100 hover:bg-zinc-900 transition-colors"
+          class="absolute left-4 p-3 rounded-full bg-surface-900/50 text-ink-100 hover:bg-surface-900 transition-colors"
         >
           <ChevronLeftIcon class="size-6" />
         </button>
         <button
           v-if="game.mImageCarouselObjectIds.length > 1"
           @click.stop="nextImage()"
-          class="absolute right-4 p-3 rounded-full bg-zinc-900/50 text-zinc-100 hover:bg-zinc-900 transition-colors"
+          class="absolute right-4 p-3 rounded-full bg-surface-900/50 text-ink-100 hover:bg-surface-900 transition-colors"
         >
           <ChevronRightIcon class="size-6" />
         </button>
@@ -631,9 +631,9 @@
         </TransitionGroup>
 
         <div
-          class="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-zinc-900/50 backdrop-blur-sm"
+          class="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-surface-900/50 backdrop-blur-sm"
         >
-          <p class="text-zinc-100 text-sm font-medium">
+          <p class="text-ink-100 text-sm font-medium">
             {{ currentImageIndex + 1 }} /
             {{ game.mImageCarouselObjectIds.length }}
           </p>

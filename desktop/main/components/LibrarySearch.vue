@@ -8,20 +8,20 @@
           class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
         >
           <MagnifyingGlassIcon
-            class="h-5 w-5 text-zinc-400"
+            class="h-5 w-5 text-ink-400"
             aria-hidden="true"
           />
         </div>
         <input
           type="text"
           v-model="searchQuery"
-          class="block w-full rounded-lg border-0 bg-zinc-800/50 py-2 pl-10 pr-3 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6"
+          class="block w-full rounded-lg border-0 bg-surface-800/50 py-2 pl-10 pr-3 text-ink-100 placeholder:text-ink-500 focus:bg-surface-800 focus:ring-2 focus:ring-inset focus:ring-accent-500 sm:text-sm sm:leading-6"
           placeholder="Search library..."
         />
       </div>
       <button
         @click="() => calculateGames(true, true)"
-        class="p-1 flex items-center justify-center transition-transform duration-300 size-10 hover:scale-110 active:scale-90 rounded-lg bg-zinc-800/50 text-zinc-100"
+        class="p-1 flex items-center justify-center transition-transform duration-300 size-10 hover:scale-110 active:scale-90 rounded-lg bg-surface-800/50 text-ink-100"
       >
         <ArrowPathIcon class="size-4" />
       </button>
@@ -42,7 +42,7 @@
       >
         <dt>
           <DisclosureButton
-            class="flex w-full items-center justify-between text-left text-gray-900 dark:text-white"
+            class="flex w-full items-center justify-between text-left text-ink-900 dark:text-white"
           >
             <span class="text-sm font-semibold font-display">{{
               nav.name
@@ -64,12 +64,12 @@
             v-for="item in nav.items"
             :key="nav.id"
             :class="[
-              'transition-all duration-300 rounded-lg flex items-center px-1 py-0.5 hover:scale-105 active:scale-95 hover:shadow-lg hover:shadow-zinc-950/50',
+              'transition-all duration-300 rounded-lg flex items-center px-1 py-0.5 hover:scale-105 active:scale-95 hover:shadow-lg hover:shadow-surface-950/50',
               currentNavigation == item.id
-                ? 'bg-zinc-800 text-zinc-100 shadow-md shadow-zinc-950/20'
+                ? 'bg-surface-800 text-ink-100 shadow-md shadow-surface-950/20'
                 : item.isInstalled.value
-                  ? 'text-zinc-300 hover:bg-zinc-800/90 hover:text-zinc-200'
-                  : 'text-zinc-500 hover:bg-zinc-800/70 hover:text-zinc-300',
+                  ? 'text-ink-300 hover:bg-surface-800/90 hover:text-ink-200'
+                  : 'text-ink-500 hover:bg-surface-800/70 hover:text-ink-300',
             ]"
             :href="item.route"
           >
@@ -78,7 +78,7 @@
                 class="flex-none transition-transform duration-300 hover:-rotate-2"
               >
                 <img
-                  class="size-6 object-cover bg-zinc-900 rounded transition-all duration-300 shadow-sm"
+                  class="size-6 object-cover bg-surface-900 rounded transition-all duration-300 shadow-sm"
                   :src="useObject(item.icon)"
                   alt=""
                 />
@@ -98,7 +98,7 @@
               </div>
             </div>
           </NuxtLink>
-          <span v-if="nav.items.length == 0" class="text-xs text-zinc-500 mx-auto"
+          <span v-if="nav.items.length == 0" class="text-xs text-ink-500 mx-auto"
             >No games in this category</span
           >
         </DisclosurePanel>
@@ -106,12 +106,12 @@
     </TransitionGroup>
     <div
       v-if="loading"
-      class="h-full grow flex p-8 justify-center text-zinc-100"
+      class="h-full grow flex p-8 justify-center text-ink-100"
     >
       <div role="status">
         <svg
           aria-hidden="true"
-          class="w-6 h-6 text-transparent animate-spin fill-zinc-600"
+          class="w-6 h-6 text-transparent animate-spin fill-surface-600"
           viewBox="0 0 100 101"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -152,13 +152,13 @@ import { listen } from "@tauri-apps/api/event";
 
 // Style information
 const gameStatusTextStyle: { [key in EmptyGameStatusEnum]: string } = {
-  Downloading: "text-zinc-400",
-  Validating: "text-blue-300",
-  Running: "text-blue-500",
-  Remote: "text-zinc-700",
-  Queued: "text-zinc-400",
-  Updating: "text-zinc-400",
-  Uninstalling: "text-zinc-100",
+  Downloading: "text-ink-400",
+  Validating: "text-accent-300",
+  Running: "text-accent-500",
+  Remote: "text-ink-700",
+  Queued: "text-ink-400",
+  Updating: "text-ink-400",
+  Uninstalling: "text-ink-100",
 };
 const gameStatusText: { [key in EmptyGameStatusEnum]: string } = {
   Remote: "Not installed",
@@ -176,7 +176,7 @@ function getGameStatusStyleText(status: GameStatus): [string, string] {
       return ["text-green-500", "Installed"];
     }
     if (status.install_type.type === InstalledType.PartiallyInstalled) {
-      return ["text-gray-400", "Partially installed"];
+      return ["text-ink-400", "Partially installed"];
     }
     if (status.install_type.type === InstalledType.SetupRequired) {
       return ["text-yellow-500", "Setup required"];

@@ -1,6 +1,6 @@
 <template>
   <!-- Do not add scale animations to this: https://stackoverflow.com/a/35683068 -->
-  <div class="inline-flex divide-x divide-zinc-900">
+  <div class="inline-flex divide-x divide-surface-900">
     <button
       type="button"
       @click="() => fetchStatusStyleData($props.status).action()"
@@ -43,7 +43,7 @@
         leave-to-class="transform opacity-0 scale-95"
       >
         <MenuItems
-          class="absolute right-0 z-[500] mt-2 w-32 origin-top-right rounded-md bg-zinc-900 shadow-lg ring-1 ring-zinc-100/5 focus:outline-none"
+          class="absolute right-0 z-[500] mt-2 w-32 origin-top-right rounded-md bg-surface-900 shadow-lg ring-1 ring-surface-100/5 focus:outline-none"
         >
           <div class="py-1">
             <MenuItem v-slot="{ active }">
@@ -51,8 +51,8 @@
                 @click="() => emit('install')"
                 :class="[
                   active
-                    ? 'bg-zinc-800 text-zinc-100 outline-none'
-                    : 'text-zinc-400',
+                    ? 'bg-surface-800 text-ink-100 outline-none'
+                    : 'text-ink-400',
                   'w-full px-4 py-2 text-sm inline-flex justify-between',
                 ]"
               >
@@ -66,8 +66,8 @@
                 @click="() => emit('options')"
                 :class="[
                   active
-                    ? 'bg-zinc-800 text-zinc-100 outline-none'
-                    : 'text-zinc-400',
+                    ? 'bg-surface-800 text-ink-100 outline-none'
+                    : 'text-ink-400',
                   'w-full px-4 py-2 text-sm inline-flex justify-between',
                 ]"
               >
@@ -80,8 +80,8 @@
                 @click="() => emit('uninstall')"
                 :class="[
                   active
-                    ? 'bg-zinc-800 text-zinc-100 outline-none'
-                    : 'text-zinc-400',
+                    ? 'bg-surface-800 text-ink-100 outline-none'
+                    : 'text-ink-400',
                   'w-full inline-flex px-4 py-2 text-sm justify-between',
                 ]"
               >
@@ -158,7 +158,7 @@ function fetchStatusStyleData(status: GameStatus): StatusStyleData {
     if (status.install_type.type === InstalledType.PartiallyInstalled) {
       return {
         style:
-          "bg-blue-600 text-white hover:bg-blue-500 focus-visible:outline-blue-600 hover:bg-blue-500",
+          "bg-accent-600 text-white hover:bg-accent-500 focus-visible:outline-accent-600 hover:bg-accent-500",
         buttonName: "Resume",
         icon: ArrowDownTrayIcon,
         action: () => emit("resume"),
@@ -185,19 +185,19 @@ const showOptions = computed(
 
 const styles: { [key in EmptyGameStatusEnum]: string } = {
   Remote:
-    "bg-blue-600 text-white hover:bg-blue-500 focus-visible:outline-blue-600 hover:bg-blue-500",
+    "bg-accent-600 text-white hover:bg-accent-500 focus-visible:outline-accent-600 hover:bg-accent-500",
   Queued:
-    "bg-zinc-800 text-white hover:bg-zinc-700 focus-visible:outline-zinc-700 hover:bg-zinc-700",
+    "bg-surface-800 text-white hover:bg-surface-700 focus-visible:outline-surface-700 hover:bg-surface-700",
   Downloading:
-    "bg-zinc-800 text-white hover:bg-zinc-700 focus-visible:outline-zinc-700 hover:bg-zinc-700",
+    "bg-surface-800 text-white hover:bg-surface-700 focus-visible:outline-surface-700 hover:bg-surface-700",
   Validating:
-    "bg-zinc-800 text-white hover:bg-zinc-700 focus-visible:outline-zinc-700 hover:bg-zinc-700",
+    "bg-surface-800 text-white hover:bg-surface-700 focus-visible:outline-surface-700 hover:bg-surface-700",
   Updating:
-    "bg-zinc-800 text-white hover:bg-zinc-700 focus-visible:outline-zinc-700 hover:bg-zinc-700",
+    "bg-surface-800 text-white hover:bg-surface-700 focus-visible:outline-surface-700 hover:bg-surface-700",
   Uninstalling:
-    "bg-zinc-800 text-white hover:bg-zinc-700 focus-visible:outline-zinc-700 hover:bg-zinc-700",
+    "bg-surface-800 text-white hover:bg-surface-700 focus-visible:outline-surface-700 hover:bg-surface-700",
   Running:
-    "bg-zinc-800 text-white hover:bg-zinc-700 focus-visible:outline-zinc-700 hover:bg-zinc-700",
+    "bg-surface-800 text-white hover:bg-surface-700 focus-visible:outline-surface-700 hover:bg-surface-700",
 };
 
 const buttonNames: { [key in EmptyGameStatusEnum]: string } = {

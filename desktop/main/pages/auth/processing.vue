@@ -4,7 +4,7 @@
       <div role="status">
         <svg
           aria-hidden="true"
-          class="w-12 h-12 text-transparent animate-spin fill-blue-600"
+          class="w-12 h-12 text-transparent animate-spin fill-accent-600"
           viewBox="0 0 100 101"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -21,11 +21,11 @@
         <span class="sr-only">Loading...</span>
       </div>
       <div class="mt-4 text-center sm:mt-5">
-        <h1 class="text-3xl font-semibold font-display leading-6 text-zinc-100">
+        <h1 class="text-3xl font-semibold font-display leading-6 text-ink-100">
           Connecting to instance...
         </h1>
         <div class="mt-4">
-          <p class="text-sm text-zinc-400 max-w-sm">
+          <p class="text-sm text-ink-400 max-w-sm">
             Connecting to Drop server and fetching application information...
           </p>
         </div>

@@ -4,11 +4,11 @@
       ><div class="flex items-start gap-x-3">
         <img :src="useObject(game.mIconObjectId)" class="size-12" />
         <div class="mt-3 text-center sm:mt-0 sm:text-left">
-          <h3 class="text-base font-semibold text-zinc-100">
+          <h3 class="text-base font-semibold text-ink-100">
             Missing required dependency "{{ game.mName }}"
           </h3>
           <div class="mt-2">
-            <p class="text-sm text-zinc-400">
+            <p class="text-sm text-ink-400">
               To launch this game, you need to have "{{ game.mName }}" ({{
                 version.displayName ?? version.versionPath
               }}) installed.
@@ -46,7 +46,7 @@
       </LoadingButton>
       <button
         type="button"
-        class="mt-3 inline-flex w-full justify-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-700 hover:bg-zinc-900 sm:mt-0 sm:w-auto"
+        class="mt-3 inline-flex w-full justify-center rounded-md bg-surface-800 px-3 py-2 text-sm font-semibold text-ink-100 shadow-sm ring-1 ring-inset ring-surface-700 hover:bg-surface-900 sm:mt-0 sm:w-auto"
         @click="cancel"
         ref="cancelButtonRef"
       >

@@ -1,3 +1,42 @@
+/* Theme token defaults, mirroring desktop/main/assets/main.scss. The shared
+   libraries/base components use these utilities; the web app pins the stock
+   values (no theme switching on web yet). */
+:root {
+  --gd-surface-100: 244 244 245;
+  --gd-surface-200: 228 228 231;
+  --gd-surface-300: 212 212 216;
+  --gd-surface-400: 161 161 170;
+  --gd-surface-500: 113 113 122;
+  --gd-surface-600: 82 82 91;
+  --gd-surface-700: 63 63 70;
+  --gd-surface-800: 39 39 42;
+  --gd-surface-900: 24 24 27;
+  --gd-surface-950: 9 9 11;
+
+  --gd-ink-100: 244 244 245;
+  --gd-ink-200: 228 228 231;
+  --gd-ink-300: 212 212 216;
+  --gd-ink-400: 161 161 170;
+  --gd-ink-500: 113 113 122;
+  --gd-ink-600: 82 82 91;
+  --gd-ink-700: 63 63 70;
+  --gd-ink-800: 39 39 42;
+  --gd-ink-900: 24 24 27;
+  --gd-ink-950: 9 9 11;
+
+  --gd-accent-50: 239 246 255;
+  --gd-accent-100: 219 234 254;
+  --gd-accent-200: 191 219 254;
+  --gd-accent-300: 147 197 253;
+  --gd-accent-400: 96 165 250;
+  --gd-accent-500: 59 130 246;
+  --gd-accent-600: 37 99 235;
+  --gd-accent-700: 29 78 216;
+  --gd-accent-800: 30 64 175;
+  --gd-accent-900: 30 58 138;
+  --gd-accent-950: 23 37 84;
+}
+
 $motiva: (
   ("MotivaSansThin.ttf", "ttf", 100, normal),
   ("MotivaSansLight.woff.ttf", "woff", 300, normal),

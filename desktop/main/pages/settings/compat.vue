@@ -1,6 +1,6 @@
 <template>
-  <div class="border-b border-zinc-700 py-5">
-    <h3 class="text-base font-semibold font-display leading-6 text-zinc-100">
+  <div class="border-b border-surface-700 py-5">
+    <h3 class="text-base font-semibold font-display leading-6 text-ink-100">
       Proton Compatibility Layer
     </h3>
   </div>
@@ -70,7 +70,7 @@
 
   <div
     v-if="paths.data.value"
-    class="mt-4 text-zinc-100 gap-x-2 inline-flex p-4 w-full items-center justify-center font-bold"
+    class="mt-4 text-ink-100 gap-x-2 inline-flex p-4 w-full items-center justify-center font-bold"
   >
     <DefaultProtonButton v-model="paths.data.value.default" />
     = Default Proton Layer
@@ -83,7 +83,7 @@
         <h1 class="text-base font-semibold text-white">
           Auto-discovered Proton Layers
         </h1>
-        <p class="mt-2 text-sm text-gray-300">
+        <p class="mt-2 text-sm text-ink-300">
           All auto-discovered Proton Layers from common paths on your system.
         </p>
       </div>
@@ -122,7 +122,7 @@
                   />
                   {{ path.name }}
                 </td>
-                <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-400">
+                <td class="px-3 py-4 text-sm whitespace-nowrap text-ink-400">
                   {{ path.path }}
                 </td>
               </tr>
@@ -138,18 +138,18 @@
     <div class="sm:flex sm:items-center">
       <div class="sm:flex-auto">
         <h1 class="text-base font-semibold text-white">Manual Proton Layers</h1>
-        <p class="mt-2 text-sm text-gray-300">
+        <p class="mt-2 text-sm text-ink-300">
           Add or remove custom Proton compatible layers for your games. We
           recommend
           <a
             href="https://github.com/DavidoTek/ProtonUp-Qt"
             target="_blank"
-            class="text-blue-400 hover:text-blue-500"
+            class="text-accent-400 hover:text-accent-500"
             >ProtonUp-Qt</a
           >
           to download and manage your proton layers.
         </p>
-        <p class="mt-2 text-sm text-gray-300">
+        <p class="mt-2 text-sm text-ink-300">
           Note: deleting a custom Proton layer will
           <span class="font-bold">not</span> clear it from manually selected
           Proton layers.
@@ -159,7 +159,7 @@
         <button
           @click="pickLayerModal = true"
           type="button"
-          class="block rounded-md bg-blue-500 px-3 py-2 text-center text-sm font-semibold text-white shadow-xs hover:bg-blue-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+          class="block rounded-md bg-accent-500 px-3 py-2 text-center text-sm font-semibold text-white shadow-xs hover:bg-accent-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
         >
           Add layer
         </button>
@@ -202,7 +202,7 @@
                   />
                   {{ path.name }}
                 </td>
-                <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-400">
+                <td class="px-3 py-4 text-sm whitespace-nowrap text-ink-400">
                   {{ path.path }}
                 </td>
                 <td
@@ -227,11 +227,11 @@
     <template #default>
       <div class="sm:flex sm:items-start">
         <div class="mt-3 text-center sm:mt-0 sm:text-left">
-          <h3 class="text-base font-semibold text-zinc-100">
+          <h3 class="text-base font-semibold text-ink-100">
             Select your Proton layer
           </h3>
           <div class="mt-2">
-            <p class="text-sm text-zinc-400">
+            <p class="text-sm text-ink-400">
               Select the path to your Proton layer. It should have at least two
               files, one named "proton" and one named "compatibilitytool.vdf",
               for Drop to recognise it.
@@ -240,9 +240,9 @@
         </div>
       </div>
 
-      <div class="p-3 bg-zinc-950 ring-2 ring-zinc-800 rounded-lg text-sm">
-        <span v-if="path" class="text-zinc-100">{{ path }}</span>
-        <span v-else class="italic text-zinc-400">No path selected.</span>
+      <div class="p-3 bg-surface-950 ring-2 ring-surface-800 rounded-lg text-sm">
+        <span v-if="path" class="text-ink-100">{{ path }}</span>
+        <span v-else class="italic text-ink-400">No path selected.</span>
       </div>
 
       <LoadingButton :loading="false" @click="pickLayer"
@@ -277,7 +277,7 @@
       </LoadingButton>
       <button
         type="button"
-        class="mt-3 inline-flex w-full justify-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-700 hover:bg-zinc-900 sm:mt-0 sm:w-auto"
+        class="mt-3 inline-flex w-full justify-center rounded-md bg-surface-800 px-3 py-2 text-sm font-semibold text-ink-100 shadow-sm ring-1 ring-inset ring-surface-700 hover:bg-surface-900 sm:mt-0 sm:w-auto"
         @click="cancel"
         ref="cancelButtonRef"
       >

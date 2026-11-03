@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col bg-zinc-900 overflow-hidden h-screen">
+  <div class="flex flex-col bg-surface-900 overflow-hidden h-screen">
     <NuxtErrorBoundary>
       <Header class="select-none" />
       <div class="relative grow overflow-y-auto">
@@ -7,7 +7,7 @@
       </div>
       <template #error="{ error }">
         <MiniHeader />
-        <div class="relative grow overflow-y-auto bg-zinc-950">
+        <div class="relative grow overflow-y-auto bg-surface-950">
           <div
             class="grid min-h-full grid-cols-1 grid-rows-[1fr,auto,1fr] lg:grid-cols-[max(50%,36rem),1fr]"
           >
@@ -21,15 +21,15 @@
             >
               <div class="max-w-lg">
                 <h1
-                  class="mt-4 text-3xl font-bold font-display tracking-tight text-zinc-100 sm:text-5xl"
+                  class="mt-4 text-3xl font-bold font-display tracking-tight text-ink-100 sm:text-5xl"
                 >
                   Unrecoverable error
                 </h1>
-                <p class="mt-6 text-base leading-7 text-zinc-400">
+                <p class="mt-6 text-base leading-7 text-ink-400">
                   Drop encountered an error that it couldn't handle. Please
                   restart the application and file a bug report.
                 </p>
-                <p class="mt-3 text-sm font-monospace text-zinc-500">
+                <p class="mt-3 text-sm font-monospace text-ink-500">
                   Error: {{ error }}
                 </p>
               </div>
@@ -37,15 +37,15 @@
             <footer
               class="self-end lg:col-span-2 lg:col-start-1 lg:row-start-3"
             >
-              <div class="border-t border-blue-600 bg-zinc-900 py-10">
+              <div class="border-t border-accent-600 bg-surface-900 py-10">
                 <nav
-                  class="mx-auto flex w-full max-w-7xl items-center gap-x-4 px-6 text-sm leading-7 text-zinc-400 lg:px-8"
+                  class="mx-auto flex w-full max-w-7xl items-center gap-x-4 px-6 text-sm leading-7 text-ink-400 lg:px-8"
                 >
                   <a href="#">Documentation</a>
                   <svg
                     viewBox="0 0 2 2"
                     aria-hidden="true"
-                    class="h-0.5 w-0.5 fill-zinc-700"
+                    class="h-0.5 w-0.5 fill-surface-700"
                   >
                     <circle cx="1" cy="1" r="1" />
                   </svg>
@@ -53,7 +53,7 @@
                   <svg
                     viewBox="0 0 2 2"
                     aria-hidden="true"
-                    class="h-0.5 w-0.5 fill-zinc-700"
+                    class="h-0.5 w-0.5 fill-surface-700"
                   >
                     <circle cx="1" cy="1" r="1" />
                   </svg>

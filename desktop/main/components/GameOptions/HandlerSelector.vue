@@ -10,7 +10,7 @@
     >
     <div class="relative mt-2">
       <ListboxButton
-        class="grid w-full cursor-default grid-cols-1 rounded-md bg-white/5 py-1.5 pr-2 pl-3 text-left text-white outline-1 -outline-offset-1 outline-white/10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 sm:text-sm/6"
+        class="grid w-full cursor-default grid-cols-1 rounded-md bg-white/5 py-1.5 pr-2 pl-3 text-left text-white outline-1 -outline-offset-1 outline-white/10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent-500 sm:text-sm/6"
       >
         <span
           v-if="currentHandler"
@@ -19,11 +19,11 @@
         >
         <span
           v-else
-          class="col-start-1 row-start-1 truncate pr-6 italic text-zinc-400"
+          class="col-start-1 row-start-1 truncate pr-6 italic text-ink-400"
           >Automatic</span
         >
         <ChevronUpDownIcon
-          class="col-start-1 row-start-1 size-5 self-center justify-self-end text-zinc-400 sm:size-4"
+          class="col-start-1 row-start-1 size-5 self-center justify-self-end text-ink-400 sm:size-4"
           aria-hidden="true"
         />
       </ListboxButton>
@@ -34,7 +34,7 @@
         leave-to-class="opacity-0"
       >
         <ListboxOptions
-          class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-800 py-1 text-base outline-1 -outline-offset-1 outline-white/10 sm:text-sm"
+          class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-surface-800 py-1 text-base outline-1 -outline-offset-1 outline-white/10 sm:text-sm"
         >
           <ListboxOption
             as="template"
@@ -43,7 +43,7 @@
           >
             <li
               :class="[
-                active ? 'bg-blue-500 text-white outline-hidden' : 'text-white',
+                active ? 'bg-accent-500 text-white outline-hidden' : 'text-white',
                 'relative cursor-default py-2 pr-9 pl-3 select-none',
               ]"
             >
@@ -54,14 +54,14 @@
                 ]"
                 >Automatic</span
               >
-              <span class="block truncate text-xs text-zinc-400"
+              <span class="block truncate text-xs text-ink-400"
                 >Pick the best method for this game.</span
               >
 
               <span
                 v-if="selected"
                 :class="[
-                  active ? 'text-white' : 'text-blue-400',
+                  active ? 'text-white' : 'text-accent-400',
                   'absolute inset-y-0 right-0 flex items-center pr-4',
                 ]"
               >
@@ -78,7 +78,7 @@
           >
             <li
               :class="[
-                active ? 'bg-blue-500 text-white outline-hidden' : 'text-white',
+                active ? 'bg-accent-500 text-white outline-hidden' : 'text-white',
                 'relative cursor-default py-2 pr-9 pl-3 select-none',
               ]"
             >
@@ -89,14 +89,14 @@
                 ]"
                 >{{ handler.name }}</span
               >
-              <span class="block truncate text-xs text-zinc-400">{{
+              <span class="block truncate text-xs text-ink-400">{{
                 handler.description
               }}</span>
 
               <span
                 v-if="selected"
                 :class="[
-                  active ? 'text-white' : 'text-blue-400',
+                  active ? 'text-white' : 'text-accent-400',
                   'absolute inset-y-0 right-0 flex items-center pr-4',
                 ]"
               >
@@ -107,7 +107,7 @@
         </ListboxOptions>
       </transition>
     </div>
-    <p class="mt-2 text-sm text-zinc-400">
+    <p class="mt-2 text-sm text-ink-400">
       Override how this game is launched.
     </p>
   </Listbox>

@@ -1,6 +1,6 @@
 <template>
-  <div class="border-b border-zinc-700 py-5">
-    <h3 class="text-base font-semibold font-display leading-6 text-zinc-100">
+  <div class="border-b border-surface-700 py-5">
+    <h3 class="text-base font-semibold font-display leading-6 text-ink-100">
       General
     </h3>
   </div>
@@ -8,8 +8,8 @@
   <div class="mt-5 flex flex-col gap-4">
     <div class="flex flex-row items-center justify-between">
       <div>
-        <h3 class="text-sm font-medium leading-6 text-zinc-100">Sign out</h3>
-        <p class="mt-1 text-sm leading-6 text-zinc-400">
+        <h3 class="text-sm font-medium leading-6 text-ink-100">Sign out</h3>
+        <p class="mt-1 text-sm leading-6 text-ink-400">
           Sign out of your Drop account on this device
         </p>
       </div>

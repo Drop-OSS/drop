@@ -1,15 +1,15 @@
 <template>
-  <div class="bg-zinc-950 p-4 min-h-full space-y-4">
+  <div class="bg-surface-950 p-4 min-h-full space-y-4">
     <div
-      class="h-16 overflow-hidden relative rounded-xl flex flex-row border border-zinc-900"
+      class="h-16 overflow-hidden relative rounded-xl flex flex-row border border-surface-900"
     >
       <div
-        class="bg-zinc-900 z-10 w-32 flex flex-col gap-x-2 font-display items-left justify-center pl-2"
+        class="bg-surface-900 z-10 w-32 flex flex-col gap-x-2 font-display items-left justify-center pl-2"
       >
-        <span class="font-bold text-zinc-100"
+        <span class="font-bold text-ink-100"
           >{{ formatKilobytes(stats.speed) }}B/s</span
         >
-        <span class="text-xs text-zinc-400"
+        <span class="text-xs text-ink-400"
           >{{ formatTime(stats.time) }} left</span
         >
       </div>
@@ -19,7 +19,7 @@
         <div
           v-for="bar in speedHistory"
           :style="{ height: `${(bar / speedMax) * 100}%` }"
-          class="w-[3px] bg-blue-600 rounded-t-full"
+          class="w-[3px] bg-accent-600 rounded-t-full"
         />
       </div>
     </div>
@@ -28,43 +28,43 @@
         <li
           v-if="games[element.meta.id]"
           :key="element.meta.id"
-          class="mb-4 bg-zinc-900 rounded-lg flex flex-row justify-between gap-x-6 py-5 px-4"
+          class="mb-4 bg-surface-900 rounded-lg flex flex-row justify-between gap-x-6 py-5 px-4"
         >
           <div class="w-full flex items-center max-w-md gap-x-4 relative">
             <img
-              class="size-24 flex-none bg-zinc-800 object-cover rounded"
+              class="size-24 flex-none bg-surface-800 object-cover rounded"
               :src="games[element.meta.id].cover"
               alt=""
             />
             <div class="min-w-0 flex-auto">
-              <p class="text-xl font-semibold text-zinc-100">
+              <p class="text-xl font-semibold text-ink-100">
                 <NuxtLink :href="`/library/${element.meta.id}`" class="">
                   <span class="absolute inset-x-0 -top-px bottom-0" />
                   {{ games[element.meta.id].game.mName }}
                 </NuxtLink>
               </p>
-              <p class="mt-1 flex text-xs/5 text-gray-500">
+              <p class="mt-1 flex text-xs/5 text-ink-500">
                 {{ games[element.meta.id].game.mShortDescription }}
               </p>
             </div>
           </div>
           <div class="flex shrink-0 items-center gap-x-4">
             <div class="hidden sm:flex sm:flex-col sm:items-end">
-              <p class="text-md text-zinc-500 uppercase font-display font-bold">
+              <p class="text-md text-ink-500 uppercase font-display font-bold">
                 {{ element.status }}
               </p>
               <div
                 v-if="element.dl_progress"
-                class="mt-1 w-96 bg-zinc-800 rounded-lg overflow-hidden"
+                class="mt-1 w-96 bg-surface-800 rounded-lg overflow-hidden"
               >
                 <div
-                  class="h-2 bg-blue-600"
+                  class="h-2 bg-accent-600"
                   :style="{ width: `${element.dl_progress * 100}%` }"
                 />
               </div>
               <span
-                class="mt-2 inline-flex items-center gap-x-1 text-zinc-400 text-sm font-display"
-                ><span class="text-zinc-300"
+                class="mt-2 inline-flex items-center gap-x-1 text-ink-400 text-sm font-display"
+                ><span class="text-ink-300"
                   >{{ formatKilobytes(element.dl_current / 1000) }}B</span
                 >
                 /
@@ -74,23 +74,23 @@
               /></span>
               <div
                 v-if="element.dl_max !== element.disk_max"
-                class="h-[1px] my-2 w-full bg-zinc-700"
+                class="h-[1px] my-2 w-full bg-surface-700"
               />
               <div
                 v-if="
                   element.disk_progress && element.dl_max !== element.disk_max
                 "
-                class="mt-1 w-96 bg-zinc-800 rounded-lg overflow-hidden"
+                class="mt-1 w-96 bg-surface-800 rounded-lg overflow-hidden"
               >
                 <div
-                  class="h-2 bg-blue-600"
+                  class="h-2 bg-accent-600"
                   :style="{ width: `${element.disk_progress * 100}%` }"
                 />
               </div>
               <span
                 v-if="element.dl_max !== element.disk_max"
-                class="mt-2 inline-flex items-center gap-x-1 text-zinc-400 text-sm font-display"
-                ><span class="text-zinc-300"
+                class="mt-2 inline-flex items-center gap-x-1 text-ink-400 text-sm font-display"
+                ><span class="text-ink-300"
                   >{{ formatKilobytes(element.disk_current / 1000) }}B</span
                 >
                 /
@@ -101,7 +101,7 @@
             </div>
             <button @click="() => cancelGame(element.meta)" class="group">
               <XMarkIcon
-                class="transition size-8 flex-none text-zinc-600 group-hover:text-zinc-300"
+                class="transition size-8 flex-none text-ink-600 group-hover:text-ink-300"
                 aria-hidden="true"
               />
             </button>
@@ -111,7 +111,7 @@
       </template>
     </draggable>
     <div
-      class="text-zinc-600 uppercase font-semibold font-display w-full text-center"
+      class="text-ink-600 uppercase font-semibold font-display w-full text-center"
       v-if="queue.queue.length == 0"
     >
       No items in the queue

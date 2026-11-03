@@ -12,11 +12,11 @@
     >
       <div class="max-w-lg">
         <h1
-          class="mt-4 text-3xl font-bold font-display tracking-tight text-zinc-100 sm:text-5xl"
+          class="mt-4 text-3xl font-bold font-display tracking-tight text-ink-100 sm:text-5xl"
         >
           Server is unavailable
         </h1>
-        <p class="mt-6 text-base leading-7 text-zinc-400">
+        <p class="mt-6 text-base leading-7 text-ink-400">
           We were unable to contact your Drop instance. See if you can open it
           in your web browser, or contact your server admin for help.
         </p>
@@ -29,7 +29,7 @@
           </button>
           <NuxtLink
             to="/setup"
-            class="text-sm text-left font-semibold leading-7 text-blue-600"
+            class="text-sm text-left font-semibold leading-7 text-accent-600"
           >
             Connect to different instance <span aria-hidden="true">&rarr;</span>
           </NuxtLink>
@@ -37,15 +37,15 @@
       </div>
     </main>
     <footer class="self-end lg:col-span-2 lg:col-start-1 lg:row-start-3">
-      <div class="border-t border-blue-600 bg-zinc-900 py-10">
+      <div class="border-t border-accent-600 bg-surface-900 py-10">
         <nav
-          class="mx-auto flex w-full max-w-7xl items-center gap-x-4 px-6 text-sm leading-7 text-zinc-400 lg:px-8"
+          class="mx-auto flex w-full max-w-7xl items-center gap-x-4 px-6 text-sm leading-7 text-ink-400 lg:px-8"
         >
           <a href="#">Documentation</a>
           <svg
             viewBox="0 0 2 2"
             aria-hidden="true"
-            class="h-0.5 w-0.5 fill-zinc-700"
+            class="h-0.5 w-0.5 fill-surface-700"
           >
             <circle cx="1" cy="1" r="1" />
           </svg>
@@ -53,7 +53,7 @@
           <svg
             viewBox="0 0 2 2"
             aria-hidden="true"
-            class="h-0.5 w-0.5 fill-zinc-700"
+            class="h-0.5 w-0.5 fill-surface-700"
           >
             <circle cx="1" cy="1" r="1" />
           </svg>

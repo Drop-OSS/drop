@@ -10,12 +10,12 @@ async function checkOffline() {
 <template>
   <button
     @click="checkOffline"
-    class="transition inline-flex items-center rounded-sm px-4 py-1.5 bg-zinc-900 text-sm text-zinc-400 gap-x-2"
+    class="transition inline-flex items-center rounded-sm px-4 py-1.5 bg-surface-900 text-sm text-ink-400 gap-x-2"
   >
     <div class="relative">
-      <CloudIcon class="h-5 z-50 text-zinc-500" />
+      <CloudIcon class="h-5 z-50 text-ink-500" />
       <div
-        class="absolute rounded-full left-1/2 top-1/2 -translate-y-[45%] -translate-x-1/2 w-[2px] h-6 rotate-[45deg] bg-zinc-400 z-50"
+        class="absolute rounded-full left-1/2 top-1/2 -translate-y-[45%] -translate-x-1/2 w-[2px] h-6 rotate-[45deg] bg-surface-400 z-50"
       />
     </div>
     Offline

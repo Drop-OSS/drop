@@ -9,8 +9,8 @@
                 @click="() => (currentTabIndex = tabIdx)"
                 :class="[
                   tabIdx == currentTabIndex
-                    ? 'bg-zinc-800 text-zinc-100'
-                    : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100',
+                    ? 'bg-surface-800 text-ink-100'
+                    : 'text-ink-400 hover:bg-surface-800 hover:text-ink-100',
                   'transition w-full group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold',
                 ]"
               >
@@ -18,8 +18,8 @@
                   :is="tab.icon"
                   :class="[
                     tabIdx == currentTabIndex
-                      ? 'text-zinc-100'
-                      : 'text-gray-400 group-hover:text-zinc-100',
+                      ? 'text-ink-100'
+                      : 'text-ink-400 group-hover:text-ink-100',
                     'size-6 shrink-0',
                   ]"
                   aria-hidden="true"
@@ -29,7 +29,7 @@
             </li>
           </ul>
         </nav>
-        <div class="border-l-2 border-zinc-800 w-full grow pl-4">
+        <div class="border-l-2 border-surface-800 w-full grow pl-4">
           <component
             v-model="configuration"
             :is="tabs[currentTabIndex]?.page"
@@ -63,7 +63,7 @@
       <button
         @click="() => (open = false)"
         type="button"
-        class="mt-3 inline-flex w-full justify-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-700 hover:bg-zinc-900 sm:mt-0 sm:w-auto"
+        class="mt-3 inline-flex w-full justify-center rounded-md bg-surface-800 px-3 py-2 text-sm font-semibold text-ink-100 shadow-sm ring-1 ring-inset ring-surface-700 hover:bg-surface-900 sm:mt-0 sm:w-auto"
         ref="cancelButtonRef"
       >
         Cancel

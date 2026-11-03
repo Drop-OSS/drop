@@ -1,6 +1,6 @@
 <template>
-  <div class="border-b border-zinc-700 py-5">
-    <h3 class="text-base font-semibold font-display leading-6 text-zinc-100">
+  <div class="border-b border-surface-700 py-5">
+    <h3 class="text-base font-semibold font-display leading-6 text-ink-100">
       Players
     </h3>
   </div>
@@ -8,10 +8,10 @@
   <div class="mt-5 flex flex-col gap-4">
     <div class="flex flex-row items-center justify-between">
       <div>
-        <h3 class="text-sm font-medium leading-6 text-zinc-100">
+        <h3 class="text-sm font-medium leading-6 text-ink-100">
           Add a player
         </h3>
-        <p class="mt-1 text-sm leading-6 text-zinc-400">
+        <p class="mt-1 text-sm leading-6 text-ink-400">
           Each player keeps their own play stats and cloud saves on this
           account.
         </p>
@@ -19,7 +19,7 @@
       <button
         @click="askCreate"
         type="button"
-        class="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+        class="rounded-md bg-accent-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-accent-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-600"
       >
         Add player
       </button>
@@ -36,7 +36,7 @@
       </div>
     </div>
 
-    <ul class="divide-y divide-zinc-800">
+    <ul class="divide-y divide-surface-800">
       <li
         v-for="profile in profiles"
         :key="profile.id"
@@ -44,35 +44,35 @@
       >
         <div class="min-w-0">
           <div class="flex flex-wrap items-center gap-x-2">
-            <span class="text-sm font-medium text-zinc-100">{{
+            <span class="text-sm font-medium text-ink-100">{{
               profile.name
             }}</span>
             <span
               v-if="profile.id === activeId"
-              class="rounded bg-blue-500/20 px-1.5 py-0.5 text-xs font-medium text-blue-300"
+              class="rounded bg-accent-500/20 px-1.5 py-0.5 text-xs font-medium text-accent-300"
               >playing</span
             >
             <span
               v-if="profile.isDefault"
-              class="rounded bg-zinc-700/60 px-1.5 py-0.5 text-xs font-medium text-zinc-300"
+              class="rounded bg-surface-700/60 px-1.5 py-0.5 text-xs font-medium text-ink-300"
               >default</span
             >
           </div>
-          <p class="mt-0.5 text-xs text-zinc-500">
+          <p class="mt-0.5 text-xs text-ink-500">
             Added {{ new Date(profile.createdAt).toLocaleDateString() }}
           </p>
         </div>
         <div class="flex shrink-0 items-center gap-x-1 text-xs font-medium">
           <button
             v-if="profile.id !== activeId"
-            class="rounded-md px-2 py-1 text-zinc-400 transition hover:bg-zinc-900/60 hover:text-zinc-100 disabled:opacity-40"
+            class="rounded-md px-2 py-1 text-ink-400 transition hover:bg-surface-900/60 hover:text-ink-100 disabled:opacity-40"
             :disabled="busy"
             @click="makeActive(profile.id)"
           >
             Play as this player
           </button>
           <button
-            class="rounded-md px-2 py-1 text-zinc-400 transition hover:bg-zinc-900/60 hover:text-zinc-100"
+            class="rounded-md px-2 py-1 text-ink-400 transition hover:bg-surface-900/60 hover:text-ink-100"
             @click="askRename(profile)"
           >
             Rename
@@ -81,7 +81,7 @@
       </li>
     </ul>
 
-    <p class="text-sm text-zinc-500">
+    <p class="text-sm text-ink-500">
       Removing a player would also remove their play stats and save history,
       so players are kept for good.
     </p>

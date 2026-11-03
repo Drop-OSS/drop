@@ -2,7 +2,7 @@
   <div class="flex flex-row h-full">
     <!-- Sidebar -->
     <div
-      class="flex-none max-h-full overflow-y-auto w-72 bg-zinc-950/50 backdrop-blur-xl px-4 py-3 border-r border-zinc-800/50"
+      class="flex-none max-h-full overflow-y-auto w-72 bg-surface-950/50 backdrop-blur-xl px-4 py-3 border-r border-surface-800/50"
     >
       <LibrarySearch />
     </div>
@@ -15,13 +15,13 @@
             class="grid min-h-full w-full place-items-center px-6 py-24 sm:py-32 lg:px-8"
           >
             <div class="text-center">
-              <p class="text-base font-semibold text-blue-600">Error</p>
+              <p class="text-base font-semibold text-accent-600">Error</p>
               <h1
-                class="mt-4 text-3xl font-bold font-display tracking-tight text-zinc-100 sm:text-5xl"
+                class="mt-4 text-3xl font-bold font-display tracking-tight text-ink-100 sm:text-5xl"
               >
                 Failed to load library
               </h1>
-              <p class="mt-6 text-base leading-7 text-zinc-400">
+              <p class="mt-6 text-base leading-7 text-ink-400">
                 Drop couldn't load your library: "{{ error }}".
               </p>
             </div>

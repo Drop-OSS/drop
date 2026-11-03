@@ -6,8 +6,12 @@
  * since Nuxt 3.21 global css[] lands in the client JS chunk and the server
  * entry-styles chunk - NOT as a standalone .css file - so check those (not
  * the emitted *.css list) when verifying stylesheets. Auto source detection
- * starts at server/, so list the workspace's other template homes. */
-@source "../libraries";
+ * starts at server/, so list the workspace's other template homes - and
+ * note @source resolves relative to THIS file, not the build cwd: two
+ * levels up from assets/, `../libraries` alone pointed at the nonexistent
+ * server/libraries and silently scanned nothing, which is why shared-layer
+ * components used to ship unstyled on web. */
+@source "../../libraries";
 @plugin "@tailwindcss/typography";
 @plugin "@tailwindcss/forms";
 @config "../tailwind.config.js";

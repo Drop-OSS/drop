@@ -133,7 +133,7 @@ const outcomeStyle = computed(() => {
     case "failed":
       return "text-red-400";
     default:
-      return "text-zinc-500";
+      return "text-ink-500";
   }
 });
 
@@ -159,9 +159,9 @@ const formatBytes = (bytes?: number) => {
 </script>
 
 <template>
-  <div class="bg-zinc-800/50 rounded-xl p-6 backdrop-blur-sm">
+  <div class="bg-surface-800/50 rounded-xl p-6 backdrop-blur-sm">
     <div class="mb-4 flex items-center justify-between gap-x-4">
-      <h2 class="text-xl font-display font-semibold text-zinc-100">Saves</h2>
+      <h2 class="text-xl font-display font-semibold text-ink-100">Saves</h2>
       <LoadingButton :loading="busy" :disabled="busy" @click="onSync">
         Sync now
       </LoadingButton>
@@ -171,7 +171,7 @@ const formatBytes = (bytes?: number) => {
       <p class="text-sm" :class="outcomeStyle">{{ outcomeText }}</p>
       <button
         v-if="outcome?.kind === 'conflict'"
-        class="shrink-0 text-sm font-medium text-blue-400 hover:text-blue-300"
+        class="shrink-0 text-sm font-medium text-accent-400 hover:text-accent-300"
         @click="conflictOpen = true"
       >
         Resolve
@@ -180,12 +180,12 @@ const formatBytes = (bytes?: number) => {
 
     <div
       v-if="versions.length === 0 && !loading"
-      class="text-sm text-zinc-500"
+      class="text-sm text-ink-500"
     >
       No backups yet — saves upload automatically when you exit the game.
     </div>
 
-    <ul v-else class="-my-1 divide-y divide-zinc-800/60">
+    <ul v-else class="-my-1 divide-y divide-surface-800/60">
       <li
         v-for="(version, index) in versions"
         :key="version.id"
@@ -193,12 +193,12 @@ const formatBytes = (bytes?: number) => {
       >
         <div class="min-w-0">
           <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span class="text-sm text-zinc-100">{{
+            <span class="text-sm text-ink-100">{{
               formatWhen(version.createdAt)
             }}</span>
             <span
               v-if="index === 0"
-              class="rounded bg-blue-500/20 px-1.5 py-0.5 text-xs font-medium text-blue-300"
+              class="rounded bg-accent-500/20 px-1.5 py-0.5 text-xs font-medium text-accent-300"
               >current</span
             >
             <span
@@ -208,11 +208,11 @@ const formatBytes = (bytes?: number) => {
             >
             <span
               v-if="kindLabels[version.kind]"
-              class="rounded bg-zinc-700/60 px-1.5 py-0.5 text-xs font-medium text-zinc-300"
+              class="rounded bg-surface-700/60 px-1.5 py-0.5 text-xs font-medium text-ink-300"
               >{{ kindLabels[version.kind] }}</span
             >
           </div>
-          <p class="mt-0.5 text-xs text-zinc-500">
+          <p class="mt-0.5 text-xs text-ink-500">
             {{ version.fileCount ?? "?" }} file{{
               version.fileCount === 1 ? "" : "s"
             }}
@@ -221,13 +221,13 @@ const formatBytes = (bytes?: number) => {
         </div>
         <div class="flex shrink-0 items-center gap-x-1 text-xs font-medium">
           <button
-            class="rounded-md px-2 py-1 text-zinc-400 transition hover:bg-zinc-900/60 hover:text-zinc-100"
+            class="rounded-md px-2 py-1 text-ink-400 transition hover:bg-surface-900/60 hover:text-ink-100"
             @click="onPin(version)"
           >
             {{ version.pinned ? "Unpin" : "Pin" }}
           </button>
           <button
-            class="rounded-md px-2 py-1 text-zinc-400 transition hover:bg-zinc-900/60 hover:text-zinc-100 disabled:opacity-40 disabled:hover:bg-transparent"
+            class="rounded-md px-2 py-1 text-ink-400 transition hover:bg-surface-900/60 hover:text-ink-100 disabled:opacity-40 disabled:hover:bg-transparent"
             :disabled="index === 0 || busy"
             @click="onRestore(version)"
           >
@@ -237,14 +237,14 @@ const formatBytes = (bytes?: number) => {
       </li>
     </ul>
 
-    <p v-if="loading" class="mt-3 text-xs text-zinc-500">Loading timeline…</p>
+    <p v-if="loading" class="mt-3 text-xs text-ink-500">Loading timeline…</p>
   </div>
 
   <ModalTemplate v-model="conflictOpen">
     <template #default>
       <div class="text-left">
-        <h3 class="text-base font-semibold text-zinc-100">Save conflict</h3>
-        <p class="mt-1 text-sm text-zinc-400">
+        <h3 class="text-base font-semibold text-ink-100">Save conflict</h3>
+        <p class="mt-1 text-sm text-ink-400">
           Nothing has been overwritten. Choose which save to keep — versions
           are immutable, so a copy left in the timeline can always be
           restored later.
@@ -256,15 +256,15 @@ const formatBytes = (bytes?: number) => {
             class="w-full rounded-lg border p-3 text-left transition"
             :class="
               conflictChoice === option.value
-                ? 'border-blue-500 bg-blue-500/10'
-                : 'border-zinc-700 hover:border-zinc-500'
+                ? 'border-accent-500 bg-accent-500/10'
+                : 'border-surface-700 hover:border-surface-500'
             "
             @click="conflictChoice = option.value"
           >
-            <p class="text-sm font-medium text-zinc-100">
+            <p class="text-sm font-medium text-ink-100">
               {{ option.label }}
             </p>
-            <p class="mt-0.5 text-xs text-zinc-400">
+            <p class="mt-0.5 text-xs text-ink-400">
               {{ option.description }}
             </p>
           </button>
@@ -280,7 +280,7 @@ const formatBytes = (bytes?: number) => {
         Apply
       </LoadingButton>
       <button
-        class="rounded-md px-3 py-1.5 text-sm font-semibold leading-6 text-zinc-300 transition hover:bg-zinc-700/60 hover:text-zinc-100"
+        class="rounded-md px-3 py-1.5 text-sm font-semibold leading-6 text-ink-300 transition hover:bg-surface-700/60 hover:text-ink-100"
         @click="close"
       >
         Decide later

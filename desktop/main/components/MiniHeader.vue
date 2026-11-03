@@ -1,6 +1,6 @@
 <template>
   <div
-    class="h-16 cursor-pointer flex flex-row items-center justify-between bg-zinc-950"
+    class="h-16 cursor-pointer flex flex-row items-center justify-between bg-surface-950"
   >
     <div class="px-5 py-3 grow" @mousedown="() => window.startDragging()">
       <Wordmark class="mt-1" />

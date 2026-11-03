@@ -5,7 +5,7 @@
     <div class="sm:mx-auto sm:w-full sm:max-w-sm flex flex-col items-center">
       <Wordmark />
       <h2
-        class="mt-10 text-center text-2xl font-bold font-display leading-9 tracking-tight text-zinc-100"
+        class="mt-10 text-center text-2xl font-bold font-display leading-9 tracking-tight text-ink-100"
       >
         Connect to your Drop instance
       </h2>
@@ -16,16 +16,16 @@
         <div>
           <label
             for="company-website"
-            class="block text-sm font-medium leading-6 text-zinc-100"
+            class="block text-sm font-medium leading-6 text-ink-100"
             >Drop instance address</label
           >
           <div class="mt-2">
             <div
-              class="flex rounded-md shadow-sm ring-1 ring-inset ring-zinc-700 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600 sm:max-w-md"
+              class="flex rounded-md shadow-sm ring-1 ring-inset ring-surface-700 focus-within:ring-2 focus-within:ring-inset focus-within:ring-accent-600 sm:max-w-md"
             >
               <span
                 v-if="showHttps"
-                class="flex select-none items-center pl-3 text-zinc-500 -mr-2.5 sm:text-sm"
+                class="flex select-none items-center pl-3 text-ink-500 -mr-2.5 sm:text-sm"
                 >https://</span
               >
               <input
@@ -33,7 +33,7 @@
                 name="company-website"
                 id="company-website"
                 v-model="url"
-                class="block flex-1 border-0 bg-transparent py-1.5 text-zinc-100 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6"
+                class="block flex-1 border-0 bg-transparent py-1.5 text-ink-100 placeholder:text-ink-400 focus:ring-0 sm:text-sm sm:leading-6"
                 placeholder="www.example.com"
               />
             </div>
@@ -60,13 +60,13 @@
         </div>
       </form>
 
-      <p class="mt-10 text-center text-sm text-zinc-500">
+      <p class="mt-10 text-center text-sm text-ink-500">
         Don't have one?
         {{ " " }}
         <a
           href="https://github.com/Drop-OSS"
           target="_blank"
-          class="font-semibold leading-6 text-blue-600 hover:text-blue-500"
+          class="font-semibold leading-6 text-accent-600 hover:text-accent-500"
           >Host your own instance -></a
         >
       </p>

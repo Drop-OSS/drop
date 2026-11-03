@@ -1,17 +1,17 @@
 <template>
   <Listbox as="div" v-model="installDir">
-    <ListboxLabel class="block text-sm/6 font-medium text-zinc-100"
+    <ListboxLabel class="block text-sm/6 font-medium text-ink-100"
       >Install to</ListboxLabel
     >
     <div class="relative mt-2">
       <ListboxButton
-        class="relative w-full cursor-default rounded-md bg-zinc-800 py-1.5 pl-3 pr-10 text-left text-zinc-100 shadow-sm ring-1 ring-inset ring-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-600 sm:text-sm/6"
+        class="relative w-full cursor-default rounded-md bg-surface-800 py-1.5 pl-3 pr-10 text-left text-ink-100 shadow-sm ring-1 ring-inset ring-surface-700 focus:outline-none focus:ring-2 focus:ring-accent-600 sm:text-sm/6"
       >
         <span class="block truncate">{{ installDirs[installDir] }}</span>
         <span
           class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
         >
-          <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+          <ChevronUpDownIcon class="h-5 w-5 text-ink-400" aria-hidden="true" />
         </span>
       </ListboxButton>
 
@@ -21,7 +21,7 @@
         leave-to-class="opacity-0"
       >
         <ListboxOptions
-          class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+          class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-surface-900 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
         >
           <ListboxOption
             as="template"
@@ -32,13 +32,13 @@
           >
             <li
               :class="[
-                active ? 'bg-blue-600 text-white' : 'text-zinc-300',
+                active ? 'bg-accent-600 text-white' : 'text-ink-300',
                 'relative cursor-default select-none py-2 pl-3 pr-9',
               ]"
             >
               <span
                 :class="[
-                  selected ? 'font-semibold text-zinc-100' : 'font-normal',
+                  selected ? 'font-semibold text-ink-100' : 'font-normal',
                   'block truncate',
                 ]"
                 >{{ dir }}</span
@@ -47,7 +47,7 @@
               <span
                 v-if="selected"
                 :class="[
-                  active ? 'text-white' : 'text-blue-600',
+                  active ? 'text-white' : 'text-accent-600',
                   'absolute inset-y-0 right-0 flex items-center pr-4',
                 ]"
               >
@@ -58,7 +58,7 @@
         </ListboxOptions>
       </transition>
     </div>
-    <div class="text-zinc-400 text-sm mt-2">
+    <div class="text-ink-400 text-sm mt-2">
       Add more install directories in
       <PageWidget to="/settings/downloads">
         <WrenchIcon class="size-3" />

@@ -7,19 +7,19 @@ const props = defineProps<{ object?: QueueState["queue"][0] }>();
 <template>
   <NuxtLink
     to="/queue"
-    class="transition inline-flex items-center cursor-pointer rounded-sm px-4 py-1.5 bg-zinc-900 hover:bg-zinc-800 relative"
+    class="transition inline-flex items-center cursor-pointer rounded-sm px-4 py-1.5 bg-surface-900 hover:bg-surface-800 relative"
   >
     <ArrowDownTrayIcon
       :class="[
         'h-5 z-50',
         props.object
-          ? 'text-white hover:text-zinc-300'
-          : 'text-zinc-600 hover:text-zinc-300',
+          ? 'text-white hover:text-ink-300'
+          : 'text-ink-600 hover:text-ink-300',
       ]"
     />
     <div
       v-if="props.object?.dl_progress"
-      class="transition-all absolute left-0 top-0 bottom-0 bg-blue-600 z-10"
+      class="transition-all absolute left-0 top-0 bottom-0 bg-accent-600 z-10"
       :style="{ width: `${props.object.dl_progress * 99 + 1}%` }"
     />
   </NuxtLink>

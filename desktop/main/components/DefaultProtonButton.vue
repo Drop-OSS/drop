@@ -19,12 +19,12 @@ async function setDefault() {
 
 <template>
   <button
-    :class="['p-0.5 rounded-full', isDefault ? 'bg-blue-500' : 'bg-zinc-800']"
+    :class="['p-0.5 rounded-full', isDefault ? 'bg-accent-500' : 'bg-surface-800']"
     @click="setDefault"
     :disabled="!props.path"
   >
     <StarIcon
-      :class="['size-[0.7rem]', isDefault ? 'text-zinc-100' : 'text-zinc-100']"
+      :class="['size-[0.7rem]', isDefault ? 'text-ink-100' : 'text-ink-100']"
     />
   </button>
 </template>
