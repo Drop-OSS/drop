@@ -23,6 +23,7 @@ export default defineEventHandler(async (h3) => {
               command: true,
               name: true,
               platform: true,
+              flags: true,
             },
           },
         },

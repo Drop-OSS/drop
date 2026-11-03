@@ -215,6 +215,24 @@
         class="mt-2"
       />
     </div>
+    <div>
+      <p class="block text-sm font-medium leading-6 text-zinc-100">
+        {{ $t("library.admin.launchRow.flagsTitle") }}
+      </p>
+      <div class="mt-2 space-y-2">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            :checked="launchConfiguration.flags?.includes('BLOCK_NETWORK')"
+            @change="toggleFlag('BLOCK_NETWORK', $event)"
+            class="rounded border-zinc-700 bg-zinc-900 text-blue-600 focus:ring-blue-600 focus:ring-offset-zinc-900"
+          />
+          <span class="text-sm text-zinc-300">
+            {{ $t("library.admin.launchRow.flagBlockNetwork") }}
+          </span>
+        </label>
+      </div>
+    </div>
     <ModalSelectLaunch
       v-model="selectLaunchOpen"
       class="-mt-2"
@@ -281,6 +299,20 @@ const props = defineProps<{
 
 if (props.type && props.type === "Emulator")
   launchConfiguration.value.suggestions ??= [];
+
+launchConfiguration.value.flags ??= [];
+
+function toggleFlag(flag: "BLOCK_NETWORK", event: Event) {
+  const checked = (event.target as HTMLInputElement).checked;
+  const flags = launchConfiguration.value.flags || [];
+  if (checked) {
+    if (!flags.includes(flag)) {
+      launchConfiguration.value.flags = [...flags, flag];
+    }
+  } else {
+    launchConfiguration.value.flags = flags.filter((f) => f !== flag);
+  }
+}
 
 const selectLaunchOpen = ref(false);
 
