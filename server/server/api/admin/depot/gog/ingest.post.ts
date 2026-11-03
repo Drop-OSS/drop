@@ -225,6 +225,30 @@ async function queueLocalGogIngest(
           orderBy: { updatedAt: "desc" },
         });
         const title = gameTitle ?? storeManifest?.title ?? productId;
+
+        // Real product copy (best-effort): the keyless catalogue API carries
+        // the store's own description. On failure the exact placeholder
+        // strings remain, and the admin refresh treats them as empty, so a
+        // later refresh backfills without a re-ingest.
+        let shortDescription = `GOG product ${productId}.`;
+        let description = `Acquired from GOG (product ${productId}) by the depot pipeline.`;
+        try {
+          const { fetchGogProductInfo } =
+            await import("../../../../utils/depot/provider-info");
+          const info = await fetchGogProductInfo(productId);
+          if (info?.shortDescription) shortDescription = info.shortDescription;
+          if (info?.description) description = info.description;
+          logger.info(
+            info?.description
+              ? "Attached GOG product description."
+              : "GOG product info unavailable; placeholders kept.",
+          );
+        } catch (error) {
+          logger.warn(
+            `GOG product info fetch failed: ${error instanceof Error ? error.message : String(error)}`,
+          );
+        }
+
         const game = await prisma.game.upsert({
           where: {
             metadataKey: {
@@ -239,8 +263,8 @@ async function queueLocalGogIngest(
             libraryId: library.id,
             libraryPath,
             mName: title,
-            mShortDescription: `GOG product ${productId}.`,
-            mDescription: `Acquired from GOG (product ${productId}) by the depot pipeline.`,
+            mShortDescription: shortDescription,
+            mDescription: description,
             mReleased: releaseDateOf(storeManifest?.payload),
             mIconObjectId: "",
             mBannerObjectId: "",

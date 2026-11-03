@@ -55,7 +55,7 @@ export default defineEventHandler(async (h3) => {
       key: `depot:art:${gameId}`,
       taskGroup: "depot:ingest",
       acls: ["system:import:game:read"],
-      name: `Refreshing store artwork for "${game.mName}"`,
+      name: `Refreshing store info for "${game.mName}"`,
       async run(context) {
         const { progress, logger } = context;
         const manifest = await prisma.storeManifest.findFirst({
@@ -63,6 +63,52 @@ export default defineEventHandler(async (h3) => {
           orderBy: { updatedAt: "desc" },
         });
         const slug = (manifest?.payload as { slug?: unknown } | null)?.slug;
+
+        // Product copy from the keyless catalogue API. The placeholder
+        // strings the ingest used to write count as empty, so games imported
+        // before this existed backfill with a plain refresh.
+        let metadataFields = 0;
+        try {
+          const { fetchGogProductInfo } =
+            await import("~/server/utils/depot/provider-info");
+          const info = await fetchGogProductInfo(gogId);
+          if (info) {
+            const current = await prisma.game.findUnique({
+              where: { id: gameId },
+              select: { mShortDescription: true, mDescription: true },
+            });
+            if (current) {
+              const placeholderShort = `GOG product ${gogId}.`;
+              const placeholderDescription = `Acquired from GOG (product ${gogId}) by the depot pipeline.`;
+              const isEmpty = (value: string, placeholder: string) =>
+                value.trim().length === 0 || value === placeholder;
+              const data = {
+                ...(info.shortDescription &&
+                (replace ||
+                  isEmpty(current.mShortDescription, placeholderShort))
+                  ? { mShortDescription: info.shortDescription }
+                  : {}),
+                ...(info.description &&
+                (replace ||
+                  isEmpty(current.mDescription, placeholderDescription))
+                  ? { mDescription: info.description }
+                  : {}),
+              };
+              if (Object.keys(data).length > 0) {
+                await prisma.game.updateMany({
+                  where: { id: gameId },
+                  data,
+                });
+                metadataFields = Object.keys(data).length;
+              }
+            }
+          }
+        } catch (error) {
+          logger.warn(
+            `GOG product info refresh failed: ${error instanceof Error ? error.message : String(error)}`,
+          );
+        }
+
         const { fetchGogStoreArt, cachedManifestArt, attachProviderArt } =
           await import("~/server/utils/depot/provider-art");
         let art =
@@ -73,16 +119,19 @@ export default defineEventHandler(async (h3) => {
           logger.info("Store page unavailable, falling back to cached tile");
           art = cachedManifestArt(manifest?.image);
         }
-        const filled = art
+        const artFields = art
           ? await attachProviderArt(gameId, art, logger, { replace })
           : 0;
+        const filled = metadataFields + artFields;
         if (filled === 0)
           throw new Error(
             replace
-              ? "Store published no artwork to replace with"
+              ? "Store published no description or artwork to replace with"
               : "Nothing was empty to fill; use replace to overwrite",
           );
-        logger.info(`Refreshed store artwork (${filled} fields).`);
+        logger.info(
+          `Refreshed store info (${metadataFields} metadata, ${artFields} art fields).`,
+        );
         progress(100);
         context.addAction(`View Game:/admin/library/${gameId}`);
       },
