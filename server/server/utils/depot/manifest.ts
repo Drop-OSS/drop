@@ -8,6 +8,13 @@ export interface DropletFile {
   path: string;
   size: number;
   sha256: string;
+  /**
+   * Permission bits (`mode & 0o7777`). A client assembles the install itself
+   * from chunks, so this is where the executable bit survives: without it a
+   * Linux build arrives with nothing runnable in it. Sources that carry no
+   * meaningful mode (a CDN stream) publish 0o644.
+   */
+  mode: number;
   chunks: ChunkFileResult["chunks"];
 }
 export interface DropletManifest {
@@ -19,13 +26,13 @@ export interface DropletManifest {
 }
 /** Create deterministic JSON manifest; file paths must be relative and traversal-free. */
 export function createDropletManifest(
-  files: Array<{ path: string; content: ChunkFileResult }>,
+  files: Array<{ path: string; content: ChunkFileResult; mode?: number }>,
 ): DropletManifest {
   const seen = new Set<string>(),
     chunkIndex: DropletManifest["chunkIndex"] = {};
   const normalized = [...files]
     .sort((a, b) => a.path.localeCompare(b.path, "en"))
-    .map(({ path, content }) => {
+    .map(({ path, content, mode }) => {
       const p = path.replace(/\\/g, "/").normalize("NFC");
       if (
         !p ||
@@ -45,6 +52,7 @@ export function createDropletManifest(
         path: p,
         size: content.size,
         sha256: content.sha256,
+        mode: (mode ?? 0o644) & 0o7777,
         chunks: content.chunks,
       };
     });
@@ -68,10 +76,9 @@ export async function writeDropletManifest(
   await writeFile(temp, `${canonicalize(manifest)}\n`, { flag: "wx" });
   await rename(temp, path);
 }
-export async function readDropletManifest(
-  path: string,
-): Promise<DropletManifest> {
-  const m = JSON.parse(await readFile(path, "utf8")) as DropletManifest;
+/** Verify a manifest document; throws when its digest or format is not right. */
+export function parseDropletManifest(text: string): DropletManifest {
+  const m = JSON.parse(text) as DropletManifest;
   const { digest, ...base } = m;
   if (
     m.format !== "gamedepot-droplet" ||
@@ -80,4 +87,10 @@ export async function readDropletManifest(
   )
     throw new Error("Invalid DropletManifest digest or version");
   return m;
+}
+
+export async function readDropletManifest(
+  path: string,
+): Promise<DropletManifest> {
+  return parseDropletManifest(await readFile(path, "utf8"));
 }

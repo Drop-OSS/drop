@@ -96,6 +96,11 @@
                   </td>
                   <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-400">
                     {{ version.versionPath }}
+                    <span
+                      v-if="version.casManifestDigest"
+                      class="block text-xs text-zinc-500 mono"
+                      >chunks {{ version.casManifestDigest.slice(0, 12) }}</span
+                    >
                   </td>
                   <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-400">
                     {{ version.delta }}
@@ -139,6 +144,21 @@
                       >
                     </button>
                     -->
+                    <button
+                      class="text-blue-400 hover:text-blue-300"
+                      :title="
+                        version.casManifestDigest
+                          ? 'Re-check this release against the content-addressed depot'
+                          : 'Split this release into content-addressed chunks so clients can fetch it by digest'
+                      "
+                      @click="() => chunkVersion(version.versionId)"
+                    >
+                      {{ version.casManifestDigest ? "Re-chunk" : "Chunk"
+                      }}<span class="sr-only"
+                        >,
+                        {{ version.displayName ?? version.versionPath }}</span
+                      >
+                    </button>
                     <button
                       class="text-red-400 hover:text-red-300"
                       @click="() => deleteVersion(version.versionId)"
@@ -263,6 +283,43 @@ async function deleteVersion(versionId: string) {
         buttonText: t("common.close"),
       },
       (e, c) => c(),
+    );
+  }
+}
+
+/**
+ * Queue one release to be chunked into the content-addressed depot. The work
+ * runs as a task, so this only starts it: the digest shows up under the version
+ * name once every byte has been read.
+ */
+async function chunkVersion(versionId: string) {
+  try {
+    await $dropFetch("/api/v1/admin/game/:id/versions/:versionid/chunk", {
+      method: "POST",
+      params: {
+        id: game.value.id,
+        versionid: versionId,
+      },
+    });
+    createModal(
+      ModalType.Notification,
+      {
+        title: "Chunking started",
+        description:
+          "This release is being split into content-addressed chunks. The task panel shows progress; the digest appears under the version name when it finishes.",
+        buttonText: t("common.close"),
+      },
+      (_event, close) => close(),
+    );
+  } catch (e) {
+    createModal(
+      ModalType.Notification,
+      {
+        title: "Could not start the chunking",
+        description: (e as H3Error)?.statusMessage ?? t("errors.unknown"),
+        buttonText: t("common.close"),
+      },
+      (_event, close) => close(),
     );
   }
 }

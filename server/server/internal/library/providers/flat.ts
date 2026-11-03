@@ -88,6 +88,13 @@ export class FlatFilesystemProvider implements LibraryProvider<
     return manifest;
   }
 
+  async versionLocalPath(game: string, _version: string): Promise<string> {
+    // In a flat library the game folder *is* the version folder.
+    const versionDir = path.join(this.config.baseDir, game);
+    if (!fs.existsSync(versionDir)) throw new VersionNotFoundError();
+    return versionDir;
+  }
+
   async peekFile(game: string, _version: string, filename: string) {
     const filepath = path.join(this.config.baseDir, game);
     if (!fs.existsSync(filepath)) return undefined;

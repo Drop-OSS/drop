@@ -146,6 +146,11 @@ model GameVersion {
   onlySetup Boolean @default(false)
 
   dropletManifest  Json // Results from droplet
+  // Digest of the `gamedepot-droplet` manifest this version was chunked into,
+  // '' when it never has been. The digest pins the whole content-addressed
+  // release: the manifest file is named after it and every chunk is addressed
+  // by its own digest inside it.
+  casManifestDigest String         @default("")
   fileList         String[] // List of all files, for delta updates
   negativeFileList String[] // List of files to remove, for delta updates
 

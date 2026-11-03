@@ -17,6 +17,7 @@
     "test": "tsx --test \"server/**/*.test.ts\"",
     "e2e:saves": "tsx e2e/saves.e2e.ts",
     "e2e:saves-http": "tsx e2e/saves-http.e2e.ts",
+    "e2e:depot-cas": "tsx e2e/depot-cas.e2e.ts",
     "lint": "pnpm run lint:eslint && pnpm run lint:prettier",
     "lint:eslint": "eslint .",
     "lint:prettier": "prettier . --check",

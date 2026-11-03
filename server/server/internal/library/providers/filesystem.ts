@@ -95,6 +95,12 @@ export class FilesystemProvider implements LibraryProvider<
     return manifest;
   }
 
+  async versionLocalPath(game: string, version: string): Promise<string> {
+    const versionDir = path.join(this.config.baseDir, game, version);
+    if (!fs.existsSync(versionDir)) throw new VersionNotFoundError();
+    return versionDir;
+  }
+
   async peekFile(game: string, version: string, filename: string) {
     const filepath = path.join(this.config.baseDir, game, version);
     if (!fs.existsSync(filepath)) return undefined;

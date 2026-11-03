@@ -48,6 +48,18 @@ export abstract class LibraryProvider<CFG> {
     log: (v: string) => void,
   ): Promise<string>;
 
+  /**
+   * The version folder as a path on this machine. Only a local-disk backend
+   * can answer, because content-addressed publishing reads the release's bytes
+   * straight off the library instead of through a provider protocol.
+   * @returns absolute path of the version directory
+   */
+  versionLocalPath(_game: string, _version: string): Promise<string> {
+    throw new Error(
+      `Library backend ${this.type()} has no local path to chunk`,
+    );
+  }
+
   abstract peekFile(
     game: string,
     version: string,

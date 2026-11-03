@@ -17,6 +17,7 @@ export default defineEventHandler(async (h3) => {
           versionId: true,
           displayName: true,
           versionPath: true,
+          casManifestDigest: true,
           launches: {
             select: {
               launchId: true,
