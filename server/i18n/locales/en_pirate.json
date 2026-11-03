@@ -270,6 +270,7 @@
         "ageRatingsEmpty": "Age ratings plundered",
         "currentBanner": "banner",
         "currentCover": "cover",
+        "currentLogo": "sigil",
         "deleteImage": "Scuttle image",
         "editGameDescription": "Plunder Description",
         "editGameName": "Plunder Name",
@@ -281,7 +282,8 @@
         "removeAgeRating": "Remove",
         "removeImageCarousel": "Remove image",
         "setBanner": "Set as banner",
-        "setCover": "Set as cover"
+        "setCover": "Set as cover",
+        "setLogo": "Set as sigil"
       },
       "gameLibrary": "Game Treasure Hoard",
       "import": {

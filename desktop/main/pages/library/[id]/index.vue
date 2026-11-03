@@ -17,7 +17,16 @@
 
     <div class="relative z-10">
       <div class="px-8">
-        <h1 class="text-5xl text-ink-100 font-bold font-display drop-shadow-lg">
+        <img
+          v-if="game.mLogoObjectId"
+          :src="useObject(game.mLogoObjectId)"
+          :alt="game.mName"
+          class="h-24 max-w-xl object-contain object-left drop-shadow-lg"
+        />
+        <h1
+          v-else
+          class="text-5xl text-ink-100 font-bold font-display drop-shadow-lg"
+        >
           {{ game.mName }}
         </h1>
         <p v-if="game.playtime[0]" class="mt-2 text-sm text-ink-300">

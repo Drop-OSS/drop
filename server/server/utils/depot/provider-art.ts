@@ -13,8 +13,9 @@
  *  - The keyless store page `https://www.gog.com/en/game/{slug}` embeds the
  *    product JSON with `boxArtImage` (portrait cover), `screenshots[]`
  *    (full-size JPEGs, hash URLs needing the same `.jpg` suffix) and a
- *    `logo` (a transparent 1600x740 hero, NOT a clean title cut-out -
- *    unused until a logo field exists).
+ *    `logo` - but that is a transparent 1600x740 hero, not a title cut-out,
+ *    so `mLogoObjectId` stays empty for GOG (Steam's `logo.png` is a real
+ *    cut-out and fills it for Steam-sourced games).
  *  - Ubisoft's owned-titles APIs carry no artwork at all, so Ubisoft
  *    acquisitions keep empty fields until a real source exists.
  *
@@ -27,6 +28,8 @@ export type ProviderArt = {
   banner?: string;
   /** Portrait box cover (desktop queue card). */
   cover?: string;
+  /** Transparent title cut-out for the hero, where the store has one. */
+  logo?: string;
   /** Screenshots for the desktop carousel, in display order. */
   carousel: string[];
 };
@@ -163,6 +166,7 @@ export async function attachProviderArt(
         mIconObjectId: true,
         mBannerObjectId: true,
         mCoverObjectId: true,
+        mLogoObjectId: true,
         mImageLibraryObjectIds: true,
         mImageCarouselObjectIds: true,
       },
@@ -177,13 +181,16 @@ export async function attachProviderArt(
       !game.mCoverObjectId && art.cover
         ? normalizeArtUrl(art.cover)
         : undefined;
+    const logoUrl =
+      !game.mLogoObjectId && art.logo ? normalizeArtUrl(art.logo) : undefined;
     const screenshotUrls = game.mImageCarouselObjectIds.length
       ? []
       : art.carousel
           .map((u) => normalizeArtUrl(u))
           .filter((u): u is string => !!u)
           .slice(0, MAX_CAROUSEL);
-    if (!bannerUrl && !coverUrl && screenshotUrls.length === 0) return 0;
+    if (!bannerUrl && !coverUrl && !logoUrl && screenshotUrls.length === 0)
+      return 0;
 
     const [register, pull, dumpFn] = new ObjectTransactionalHandler().new(
       {},
@@ -193,6 +200,7 @@ export async function attachProviderArt(
     dump = dumpFn;
     const bannerId = bannerUrl ? register(bannerUrl) : undefined;
     const newCoverId = coverUrl ? register(coverUrl) : undefined;
+    const logoId = logoUrl ? register(logoUrl) : undefined;
     const shotIds = screenshotUrls.map((url) => register(url));
     await pull();
 
@@ -209,6 +217,7 @@ export async function attachProviderArt(
         ? { mBannerObjectId: bannerId }
         : {}),
       ...(newCoverId ? { mCoverObjectId: newCoverId } : {}),
+      ...(logoId ? { mLogoObjectId: logoId } : {}),
       ...(game.mImageLibraryObjectIds.length || pool.length === 0
         ? {}
         : { mImageLibraryObjectIds: pool }),

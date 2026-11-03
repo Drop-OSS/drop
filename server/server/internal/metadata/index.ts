@@ -290,6 +290,7 @@ export class MetadataHandler {
             mIconObjectId: metadata.icon,
             mBannerObjectId: metadata.bannerId,
             mCoverObjectId: metadata.coverId,
+            mLogoObjectId: metadata.logo,
             mImageLibraryObjectIds: metadata.images,
             // The desktop carousel reads the carousel field, not the admin
             // pool; mirror the provider set so a fresh import is not artless

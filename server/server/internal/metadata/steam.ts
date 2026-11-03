@@ -296,7 +296,7 @@ export class SteamProvider implements MetadataProvider {
     context?.progress(10);
 
     context?.logger.info("Processing game images and assets...");
-    const { icon, cover, banner, images } = this._processImages(
+    const { icon, cover, banner, images, logo } = await this._processImages(
       currentGame,
       createObject,
       context,
@@ -485,6 +485,7 @@ export class SteamProvider implements MetadataProvider {
       icon,
       bannerId: banner,
       coverId: cover,
+      logo,
       images,
     } satisfies GameMetadata;
   }
@@ -712,11 +713,17 @@ export class SteamProvider implements MetadataProvider {
     return result;
   }
 
-  private _processImages(
+  private async _processImages(
     game: SteamAppDetailsLarge,
     createObject: (input: string | Buffer) => string,
     context?: TaskRunContext,
-  ): { icon: string; cover: string; banner: string; images: string[] } {
+  ): Promise<{
+    icon: string;
+    cover: string;
+    banner: string;
+    logo: string | undefined;
+    images: string[];
+  }> {
     const imageURLFormat = game.assets?.asset_url_format;
 
     context?.logger.info("Processing game icon...");
@@ -782,7 +789,31 @@ export class SteamProvider implements MetadataProvider {
     );
     context?.progress(50);
 
-    return { icon, cover, banner, images };
+    // The transparent title cut-out exists for some apps only. Probe first:
+    // the transactional object pull downloads every registered URL and
+    // fails the whole import on a 404, so a guess must never be registered.
+    // Live-verified Nov 2026: store_item_assets/.../logo.png is served for
+    // current and legacy appids alike (logo_transparent.png is gone).
+    let logo: string | undefined;
+    const logoUrl = `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${game.appid}/logo.png`;
+    try {
+      const probe = await $fetch.raw(logoUrl, {
+        method: "HEAD",
+        timeout: 10_000,
+      });
+      if (probe.status === 200) {
+        context?.logger.info("Found transparent title logo on Steam");
+        logo = createObject(logoUrl);
+      } else {
+        context?.logger.info(
+          `No title logo on Steam (probe answered ${probe.status})`,
+        );
+      }
+    } catch (e) {
+      context?.logger.info(`No title logo on Steam: ${e}`);
+    }
+
+    return { icon, cover, banner, logo, images };
   }
 
   private async _getTagNames(

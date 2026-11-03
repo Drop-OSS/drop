@@ -37,6 +37,8 @@ export type Game = {
   mIconObjectId: string;
   mBannerObjectId: string;
   mCoverObjectId: string;
+  /** Transparent title cut-out; absent/empty renders the plain name. */
+  mLogoObjectId?: string;
   mImageLibraryObjectIds: string[];
   mImageCarouselObjectIds: string[];
   playtime: Array<{ seconds: number }>;

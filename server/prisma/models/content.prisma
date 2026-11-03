@@ -39,6 +39,7 @@ model Game {
   mIconObjectId           String // linked to objects in s3
   mBannerObjectId         String // linked to objects in s3
   mCoverObjectId          String
+  mLogoObjectId           String @default("") // title cut-out logo; empty = render the name
   mImageCarouselObjectIds String[] @default([]) // linked to below array
   mImageLibraryObjectIds  String[] // linked to objects in s3
 

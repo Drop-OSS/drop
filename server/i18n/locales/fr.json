@@ -327,6 +327,7 @@
         "ageRatingsEmpty": "Aucune classification d'âge définie",
         "currentBanner": "bannière",
         "currentCover": "couverture",
+        "currentLogo": "logo",
         "deleteImage": "Supprimer l'image",
         "editGameDescription": "Description du jeu",
         "editGameName": "Nom du jeu",
@@ -339,7 +340,8 @@
         "removeAgeRating": "Supprimer",
         "removeImageCarousel": "Retirer l'image",
         "setBanner": "Définir comme bannière",
-        "setCover": "Définir comme couverture"
+        "setCover": "Définir comme couverture",
+        "setLogo": "Définir comme logo"
       },
       "gameLibrary": "Bibliothèque de jeux",
       "import": {

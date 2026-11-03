@@ -390,6 +390,7 @@
         "ageRatingsEmpty": "No age ratings set",
         "currentBanner": "banner",
         "currentCover": "cover",
+        "currentLogo": "logo",
         "deleteImage": "Delete image",
         "editGameDescription": "Game Description",
         "editGameName": "Game Name",
@@ -402,7 +403,8 @@
         "removeAgeRating": "Remove",
         "removeImageCarousel": "Remove image",
         "setBanner": "Set as banner",
-        "setCover": "Set as cover"
+        "setCover": "Set as cover",
+        "setLogo": "Set as title logo"
       },
       "gameLibrary": "Game Library",
       "gameSelector": {

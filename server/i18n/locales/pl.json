@@ -313,6 +313,7 @@
         "ageRatingsEmpty": "Brak kategorii wiekowych",
         "currentBanner": "baner",
         "currentCover": "okładka",
+        "currentLogo": "logo",
         "deleteImage": "Usuń obraz",
         "editGameDescription": "Opis Gry",
         "editGameName": "Nazwa Gry",
@@ -325,7 +326,8 @@
         "removeAgeRating": "Usuń",
         "removeImageCarousel": "Usuń zdjęcie",
         "setBanner": "Ustaw jako baner",
-        "setCover": "Ustaw jako okładke"
+        "setCover": "Ustaw jako okładke",
+        "setLogo": "Ustaw jako logo"
       },
       "gameLibrary": "Biblioteka Gier",
       "import": {

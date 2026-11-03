@@ -29,6 +29,7 @@ export default defineEventHandler<{
       mImageLibraryObjectIds: true,
       mCoverObjectId: true,
       mIconObjectId: true,
+      mLogoObjectId: true,
       mImageCarouselObjectIds: true,
     },
   });
@@ -54,6 +55,10 @@ export default defineEventHandler<{
     // which the desktop renders as the neutral placeholder).
     game.mIconObjectId = game.mCoverObjectId ?? "";
   }
+  if (game.mLogoObjectId === imageId) {
+    // No fallback for the logo: empty means "render the plain title".
+    game.mLogoObjectId = "";
+  }
 
   const result = (
     await prisma.game.updateManyAndReturn({
@@ -65,6 +70,7 @@ export default defineEventHandler<{
         mImageLibraryObjectIds: game.mImageLibraryObjectIds,
         mCoverObjectId: game.mCoverObjectId,
         mIconObjectId: game.mIconObjectId,
+        mLogoObjectId: game.mLogoObjectId,
         // The carousel may hold this same object (imports mirror the pool);
         // a dangling id would render as a broken image on the desktop.
         mImageCarouselObjectIds: game.mImageCarouselObjectIds.filter(

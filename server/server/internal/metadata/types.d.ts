@@ -55,6 +55,8 @@ export interface GameMetadata {
   icon: ObjectReference;
   bannerId: ObjectReference;
   coverId: ObjectReference;
+  /** Transparent title cut-out where the source has one (Steam does). */
+  logo?: ObjectReference;
   images: ObjectReference[];
 }
 
