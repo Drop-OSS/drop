@@ -88,6 +88,15 @@ const ACCENTS = {
     800: "#5b21b6",
     900: "#4c1d95",
   } as Ramp<typeof ACCENT_STEPS>,
+  pink: {
+    300: "#f9a8d4",
+    400: "#f472b6",
+    500: "#ec4899",
+    600: "#db2777",
+    700: "#be185d",
+    800: "#9d174d",
+    900: "#831843",
+  } as Ramp<typeof ACCENT_STEPS>,
   cyan: {
     300: "#67e8f9",
     400: "#22d3ee",

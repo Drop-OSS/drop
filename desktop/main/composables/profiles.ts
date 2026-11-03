@@ -18,6 +18,7 @@ export interface Profile {
 export const PLAYER_COLORS: Record<string, string> = {
   blue: "#2563eb",
   violet: "#7c3aed",
+  pink: "#db2777",
   cyan: "#0891b2",
   emerald: "#059669",
   amber: "#d97706",

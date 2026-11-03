@@ -47,6 +47,7 @@ const NAME_LIMIT = 64;
 const PROFILE_COLORS: Record<string, { hex: string; hue: number }> = {
   blue: { hex: "#2563eb", hue: 221 },
   violet: { hex: "#7c3aed", hue: 262 },
+  pink: { hex: "#db2777", hue: 333 },
   cyan: { hex: "#0891b2", hue: 192 },
   emerald: { hex: "#059669", hue: 161 },
   amber: { hex: "#d97706", hue: 32 },
