@@ -60,6 +60,8 @@ const { company } = await $dropFetch(`/api/v1/companies/${companyId}`);
 
 useHead({
   title: company.mName,
-  link: [{ rel: "icon", href: useObject(company.mLogoObjectId) }],
+  link: [
+    { rel: "icon", href: useObject(company.mLogoObjectId), key: "favicon" },
+  ],
 });
 </script>
