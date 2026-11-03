@@ -277,6 +277,7 @@ pub fn run() {
             profiles::fetch_profiles,
             profiles::create_profile,
             profiles::rename_profile,
+            profiles::set_profile_color,
             profiles::set_current_profile,
             profiles::get_current_profile,
             toggle_autostart,

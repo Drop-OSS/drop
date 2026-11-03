@@ -34,6 +34,14 @@ pub async fn rename_profile(id: String, name: String) -> Result<ProfileDto, Stri
         .map_err(|e| e.to_string())
 }
 
+/// Give a player a new colour (their avatar is regenerated server-side).
+#[tauri::command]
+pub async fn set_profile_color(id: String, color: String) -> Result<ProfileDto, String> {
+    remote::profiles::set_profile_color(&id, &color)
+        .await
+        .map_err(|e| e.to_string())
+}
+
 /// Which player this device acts as. `None` = the account's default profile.
 /// Returns the new choice so the caller can stay in sync without a re-fetch.
 /// The write persists when the guard drops.

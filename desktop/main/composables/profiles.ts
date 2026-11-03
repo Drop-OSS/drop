@@ -5,8 +5,24 @@ export interface Profile {
   id: string;
   name: string;
   isDefault: boolean;
+  color: string;
+  avatarObjectId: string | null;
   createdAt: string;
 }
+
+/**
+ * Design-system player colours, mirroring `PROFILE_COLORS` on the server
+ * (`server/server/internal/profiles/index.ts`): same keys, same hex (the
+ * 600-step of each accent ramp). Keep the two in step.
+ */
+export const PLAYER_COLORS: Record<string, string> = {
+  blue: "#2563eb",
+  violet: "#7c3aed",
+  cyan: "#0891b2",
+  emerald: "#059669",
+  amber: "#d97706",
+  rose: "#e11d48",
+};
 
 const profiles = useState<Profile[]>("profiles", () => []);
 const currentProfileId = useState<string | null>(
@@ -35,9 +51,12 @@ export const useProfiles = () => {
   /** Play as `id`: persist the choice, then refetch the library, whose rows
    * embed this player's stats (the cache was cleared desktop-side). */
   const setActive = async (id: string) => {
-    currentProfileId.value = await invoke<string | null>("set_current_profile", {
-      profileId: id,
-    });
+    currentProfileId.value = await invoke<string | null>(
+      "set_current_profile",
+      {
+        profileId: id,
+      },
+    );
     await invoke("fetch_library", { hardRefresh: true });
   };
 
@@ -63,6 +82,11 @@ export const useProfiles = () => {
     await refresh();
   };
 
+  const setProfileColor = async (id: string, color: string) => {
+    await invoke<Profile>("set_profile_color", { id, color });
+    await refresh();
+  };
+
   return {
     profiles,
     currentProfileId,
@@ -72,5 +96,6 @@ export const useProfiles = () => {
     setActive,
     createProfile,
     renameProfile,
+    setProfileColor,
   };
 };

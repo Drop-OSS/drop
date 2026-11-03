@@ -8,9 +8,7 @@
   <div class="mt-5 flex flex-col gap-4">
     <div class="flex flex-row items-center justify-between">
       <div>
-        <h3 class="text-sm font-medium leading-6 text-ink-100">
-          Add a player
-        </h3>
+        <h3 class="text-sm font-medium leading-6 text-ink-100">Add a player</h3>
         <p class="mt-1 text-sm leading-6 text-ink-400">
           Each player keeps their own play stats and cloud saves on this
           account.
@@ -37,66 +35,111 @@
     </div>
 
     <ul class="divide-y divide-surface-800">
-      <li
-        v-for="profile in profiles"
-        :key="profile.id"
-        class="flex items-center justify-between gap-x-4 py-3"
-      >
-        <div class="min-w-0">
-          <div class="flex flex-wrap items-center gap-x-2">
-            <span class="text-sm font-medium text-ink-100">{{
-              profile.name
-            }}</span>
-            <span
-              v-if="profile.id === activeId"
-              class="rounded bg-accent-500/20 px-1.5 py-0.5 text-xs font-medium text-accent-300"
-              >playing</span
-            >
-            <span
-              v-if="profile.isDefault"
-              class="rounded bg-surface-700/60 px-1.5 py-0.5 text-xs font-medium text-ink-300"
-              >default</span
-            >
+      <li v-for="profile in profiles" :key="profile.id" class="py-3">
+        <div class="flex items-center justify-between gap-x-4">
+          <div class="flex min-w-0 items-center gap-x-3">
+            <span class="h-7 w-7 flex-none">
+              <ProfileAvatar :profile="profile" />
+            </span>
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-x-2">
+                <span class="text-sm font-medium text-ink-100">{{
+                  profile.name
+                }}</span>
+                <span
+                  v-if="profile.id === activeId"
+                  class="rounded bg-accent-500/20 px-1.5 py-0.5 text-xs font-medium text-accent-300"
+                  >playing</span
+                >
+                <span
+                  v-if="profile.isDefault"
+                  class="rounded bg-surface-700/60 px-1.5 py-0.5 text-xs font-medium text-ink-300"
+                  >default</span
+                >
+              </div>
+              <p class="mt-0.5 text-xs text-ink-500">
+                Added {{ new Date(profile.createdAt).toLocaleDateString() }}
+              </p>
+            </div>
           </div>
-          <p class="mt-0.5 text-xs text-ink-500">
-            Added {{ new Date(profile.createdAt).toLocaleDateString() }}
-          </p>
+          <div class="flex shrink-0 items-center gap-x-1 text-xs font-medium">
+            <button
+              type="button"
+              aria-label="Colour"
+              :style="{
+                backgroundColor: PLAYER_COLORS[profile.color] ?? '#2563eb',
+              }"
+              class="mr-1 h-4 w-4 rounded-full border border-surface-600 transition hover:opacity-80"
+              @click="
+                recoloring = recoloring === profile.id ? null : profile.id
+              "
+            />
+            <button
+              v-if="profile.id !== activeId"
+              class="rounded-md px-2 py-1 text-ink-400 transition hover:bg-surface-900/60 hover:text-ink-100 disabled:opacity-40"
+              :disabled="busy"
+              @click="makeActive(profile.id)"
+            >
+              Play as this player
+            </button>
+            <button
+              class="rounded-md px-2 py-1 text-ink-400 transition hover:bg-surface-900/60 hover:text-ink-100"
+              @click="askRename(profile)"
+            >
+              Rename
+            </button>
+          </div>
         </div>
-        <div class="flex shrink-0 items-center gap-x-1 text-xs font-medium">
+        <div
+          v-if="recoloring === profile.id"
+          class="mt-2 flex items-center gap-2 pl-10"
+        >
           <button
-            v-if="profile.id !== activeId"
-            class="rounded-md px-2 py-1 text-ink-400 transition hover:bg-surface-900/60 hover:text-ink-100 disabled:opacity-40"
+            v-for="(hex, key) in PLAYER_COLORS"
+            :key="key"
+            type="button"
+            :aria-label="key"
+            :aria-pressed="profile.color === key"
             :disabled="busy"
-            @click="makeActive(profile.id)"
-          >
-            Play as this player
-          </button>
-          <button
-            class="rounded-md px-2 py-1 text-ink-400 transition hover:bg-surface-900/60 hover:text-ink-100"
-            @click="askRename(profile)"
-          >
-            Rename
-          </button>
+            :style="{ backgroundColor: hex }"
+            :class="[
+              profile.color === key
+                ? 'ring-2 ring-white ring-offset-2 ring-offset-surface-900'
+                : 'hover:opacity-80',
+              'h-5 w-5 rounded-full transition disabled:opacity-40',
+            ]"
+            @click="pickColor(profile.id, key)"
+          />
         </div>
       </li>
     </ul>
 
     <p class="text-sm text-ink-500">
-      Removing a player would also remove their play stats and save history,
-      so players are kept for good.
+      Removing a player would also remove their play stats and save history, so
+      players are kept for good.
     </p>
   </div>
 </template>
 
 <script setup lang="ts">
 import { XCircleIcon } from "@heroicons/vue/16/solid";
-import type { Profile } from "~/composables/profiles";
+import { PLAYER_COLORS, type Profile } from "~/composables/profiles";
 
 const error = ref<string | null>(null);
 const busy = ref(false);
 
-const { profiles, activeId, refresh, setActive, createProfile, renameProfile } =
-  useProfiles();
+const {
+  profiles,
+  activeId,
+  refresh,
+  setActive,
+  createProfile,
+  renameProfile,
+  setProfileColor,
+} = useProfiles();
+
+// Row whose colour swatches are showing.
+const recoloring = ref<string | null>(null);
 
 onMounted(() => {
   void refresh();
@@ -158,5 +201,11 @@ const askRename = (profile: Profile) => {
 const makeActive = (id: string) =>
   guard(async () => {
     await setActive(id);
+  });
+
+const pickColor = (id: string, key: string) =>
+  guard(async () => {
+    await setProfileColor(id, key);
+    recoloring.value = null;
   });
 </script>

@@ -1,5 +1,9 @@
+import { randomUUID } from "node:crypto";
 import { createError } from "h3";
+import * as jdenticon from "jdenticon";
 import type { ProfileModel } from "~/prisma/client/models";
+import { logger } from "../logging";
+import objectHandler from "../objects";
 import prisma from "../db/database";
 
 /**
@@ -15,6 +19,8 @@ export type ProfileDto = {
   id: string;
   name: string;
   isDefault: boolean;
+  color: string;
+  avatarObjectId: string | null;
   createdAt: string;
 };
 
@@ -23,11 +29,52 @@ export function toProfileDto(profile: ProfileModel): ProfileDto {
     id: profile.id,
     name: profile.name,
     isDefault: profile.isDefault,
+    color: profile.color,
+    avatarObjectId: profile.avatarObjectId,
     createdAt: profile.createdAt.toISOString(),
   };
 }
 
 const NAME_LIMIT = 64;
+
+/**
+ * The design-system player colours: key -> { hex, hue }. The keys and hexes
+ * are the same six the desktop accent picker uses (composables/theme.ts, the
+ * 600-step of each ramp), so a player's colour reads identically wherever it
+ * is drawn. The hue drives the identicon (jdenticon v3 restricts colours via
+ * `hues`, not hexes).
+ */
+const PROFILE_COLORS: Record<string, { hex: string; hue: number }> = {
+  blue: { hex: "#2563eb", hue: 221 },
+  violet: { hex: "#7c3aed", hue: 262 },
+  cyan: { hex: "#0891b2", hue: 192 },
+  emerald: { hex: "#059669", hue: 161 },
+  amber: { hex: "#d97706", hue: 32 },
+  rose: { hex: "#e11d48", hue: 347 },
+};
+export const DEFAULT_COLOR = "blue";
+
+function assertColor(raw: unknown): string {
+  if (typeof raw !== "string" || !(raw in PROFILE_COLORS))
+    throw createError({ statusCode: 400, statusMessage: "unknown colour" });
+  return raw;
+}
+
+/**
+ * Monochrome identicon PNG in the player's colour hue. The config is per
+ * call (jdenticon's local config overrides the global one in its entirety),
+ * so sign-up's default-palette identicons are never touched. Saturating the
+ * grayscale shapes too pins every shape to the one allowed hue, and the
+ * lightness spread keeps the icon legible in a single colour family.
+ */
+function renderAvatarPng(seed: string, color: string): Buffer {
+  const { hue } = PROFILE_COLORS[color] ?? PROFILE_COLORS[DEFAULT_COLOR];
+  return jdenticon.toPng(seed, 128, {
+    hues: [hue],
+    saturation: { color: 1, grayscale: 1 },
+    lightness: { color: [0.45, 0.6], grayscale: [0.55, 0.8] },
+  });
+}
 
 class ProfileManager {
   async list(userId: string): Promise<ProfileDto[]> {
@@ -38,24 +85,36 @@ class ProfileManager {
     return profiles.map(toProfileDto);
   }
 
-  async create(userId: string, rawName: unknown): Promise<ProfileDto> {
+  async create(
+    userId: string,
+    rawName: unknown,
+    rawColor?: unknown,
+  ): Promise<ProfileDto> {
     if (typeof rawName !== "string")
       throw createError({ statusCode: 400, statusMessage: "name is required" });
     const name = rawName.trim().slice(0, NAME_LIMIT);
     if (!name)
       throw createError({ statusCode: 400, statusMessage: "name is required" });
+    // undefined keeps the schema default; anything else must be a known key.
+    const color =
+      rawColor === undefined ? DEFAULT_COLOR : assertColor(rawColor);
 
     // The very first profile of an account is its default, whoever asks for
     // it through the API - a user without a default would break every
     // fallback path.
     const existing = await prisma.profile.count({ where: { userId } });
     const profile = await prisma.profile.create({
-      data: { userId, name, isDefault: existing === 0 },
+      data: { userId, name, color, isDefault: existing === 0 },
     });
-    return toProfileDto(profile);
+    const withAvatar = await this.attachAvatar(profile, color);
+    return toProfileDto(withAvatar);
   }
 
-  async rename(userId: string, profileId: string, rawName: unknown): Promise<ProfileDto> {
+  async rename(
+    userId: string,
+    profileId: string,
+    rawName: unknown,
+  ): Promise<ProfileDto> {
     if (typeof rawName !== "string")
       throw createError({ statusCode: 400, statusMessage: "name is required" });
     const name = rawName.trim().slice(0, NAME_LIMIT);
@@ -66,13 +125,110 @@ class ProfileManager {
       where: { id: profileId, userId },
     });
     if (!existing)
-      throw createError({ statusCode: 404, statusMessage: "Profile not found" });
+      throw createError({
+        statusCode: 404,
+        statusMessage: "Profile not found",
+      });
 
     const updated = await prisma.profile.update({
       where: { id: profileId },
       data: { name },
     });
     return toProfileDto(updated);
+  }
+
+  /**
+   * Rename and recolour in one call (the PATCH route's shape). The avatar is
+   * only regenerated when the colour actually moved; a rename never touches
+   * it, matching its id-seeded, name-independent shape.
+   */
+  async update(
+    userId: string,
+    profileId: string,
+    rawName: unknown,
+    rawColor?: unknown,
+  ): Promise<ProfileDto> {
+    if (typeof rawName !== "string")
+      throw createError({ statusCode: 400, statusMessage: "name is required" });
+    const name = rawName.trim().slice(0, NAME_LIMIT);
+    if (!name)
+      throw createError({ statusCode: 400, statusMessage: "name is required" });
+    const color = rawColor === undefined ? undefined : assertColor(rawColor);
+
+    const existing = await prisma.profile.findFirst({
+      where: { id: profileId, userId },
+    });
+    if (!existing)
+      throw createError({
+        statusCode: 404,
+        statusMessage: "Profile not found",
+      });
+
+    const updated = await prisma.profile.update({
+      where: { id: profileId },
+      data: { name, ...(color !== undefined ? { color } : {}) },
+    });
+    if (color === undefined || color === existing.color)
+      return toProfileDto(updated);
+    const withAvatar = await this.attachAvatar(updated, color);
+    return toProfileDto(withAvatar);
+  }
+
+  /**
+   * Give a player a new colour. The avatar is regenerated in the same call
+   * (its shape is seeded by the profile id, so only the colour changes); the
+   * superseded avatar object is left behind - the object store is
+   * content-addressed and content-hash-deduped, and housekeeping of stale
+   * per-player icons is not worth a GC pass in v1.
+   */
+  async setColor(
+    userId: string,
+    profileId: string,
+    rawColor: unknown,
+  ): Promise<ProfileDto> {
+    const color = assertColor(rawColor);
+    const existing = await prisma.profile.findFirst({
+      where: { id: profileId, userId },
+    });
+    if (!existing)
+      throw createError({
+        statusCode: 404,
+        statusMessage: "Profile not found",
+      });
+
+    const updated = await prisma.profile.update({
+      where: { id: profileId },
+      data: { color },
+    });
+    const withAvatar = await this.attachAvatar(updated, color);
+    return toProfileDto(withAvatar);
+  }
+
+  /**
+   * Store `hex`-coloured avatar for `profile` and return the row pointing at
+   * it (or the row unchanged if object storage failed - a player without an
+   * avatar is a cosmetic loss, not a failed creation).
+   */
+  private async attachAvatar(
+    profile: ProfileModel,
+    color: string,
+  ): Promise<ProfileModel> {
+    try {
+      const avatarId = randomUUID();
+      await objectHandler.createFromSource(
+        avatarId,
+        async () => renderAvatarPng(profile.id, color),
+        {},
+        [`internal:read`, `${profile.userId}:read`],
+      );
+      return await prisma.profile.update({
+        where: { id: profile.id },
+        data: { avatarObjectId: avatarId },
+      });
+    } catch (e) {
+      logger.warn(`profile ${profile.id} avatar generation failed: ${e}`);
+      return profile;
+    }
   }
 
   /**
@@ -96,9 +252,10 @@ class ProfileManager {
       }
       return found;
     }
-    return prisma.profile.create({
+    const created = await prisma.profile.create({
       data: { userId, name: "Player", isDefault: true },
     });
+    return this.attachAvatar(created, created.color);
   }
 
   /** Assert a client-supplied profile id belongs to this user. */
@@ -107,7 +264,10 @@ class ProfileManager {
       where: { id: profileId, userId },
     });
     if (!profile)
-      throw createError({ statusCode: 404, statusMessage: "Profile not found" });
+      throw createError({
+        statusCode: 404,
+        statusMessage: "Profile not found",
+      });
     return profile;
   }
 }

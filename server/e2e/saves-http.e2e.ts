@@ -173,7 +173,10 @@ async function main() {
         userId,
         name: "e2e-http",
         platform: Platform.Linux,
-        capabilities: [ClientCapabilities.CloudSaves, ClientCapabilities.TrackPlaytime],
+        capabilities: [
+          ClientCapabilities.CloudSaves,
+          ClientCapabilities.TrackPlaytime,
+        ],
         lastConnected: new Date(),
       },
     }),
@@ -550,9 +553,13 @@ async function main() {
       id: string;
       name: string;
       isDefault: boolean;
+      color: string;
+      avatarObjectId: string | null;
     };
     equal(profile.name, "Second Player", "name trimmed");
     equal(profile.isDefault, false, "not the default");
+    equal(profile.color, "blue", "default colour");
+    assert(!!profile.avatarObjectId, "avatar generated at creation");
     secondProfileId = profile.id;
 
     const renamed = await call(
@@ -565,6 +572,63 @@ async function main() {
     );
     equal(renamed.status, 200, "rename status");
     equal((renamed.body as { name: string }).name, "Second", "renamed");
+    // A rename never touches the look: the avatar is seeded by the id, not
+    // the name.
+    equal(
+      (renamed.body as { avatarObjectId: string }).avatarObjectId,
+      profile.avatarObjectId,
+      "avatar survives a rename",
+    );
+  });
+
+  await check("a player colour drives the avatar", async () => {
+    const recoloured = await call(
+      "PATCH",
+      `/api/v1/client/profiles/${secondProfileId}`,
+      {
+        body: JSON.stringify({ color: "rose" }),
+        headers: { "content-type": "application/json" },
+      },
+    );
+    equal(recoloured.status, 200, "recolour status");
+    const after = recoloured.body as {
+      color: string;
+      avatarObjectId: string | null;
+    };
+    equal(after.color, "rose", "colour stored");
+    assert(!!after.avatarObjectId, "avatar regenerated");
+
+    // The avatar is a real PNG through the normal client object pipeline.
+    const fetched = await call(
+      "GET",
+      `/api/v1/client/object/${after.avatarObjectId}`,
+    );
+    equal(fetched.status, 200, "avatar object readable");
+    equal(
+      fetched.headers.get("content-type"),
+      "image/png",
+      "avatar content type",
+    );
+
+    const bogus = await call(
+      "PATCH",
+      `/api/v1/client/profiles/${secondProfileId}`,
+      {
+        body: JSON.stringify({ color: "chartreuse" }),
+        headers: { "content-type": "application/json" },
+      },
+    );
+    equal(bogus.status, 400, "unknown colour rejected");
+
+    const empty = await call(
+      "PATCH",
+      `/api/v1/client/profiles/${secondProfileId}`,
+      {
+        body: JSON.stringify({}),
+        headers: { "content-type": "application/json" },
+      },
+    );
+    equal(empty.status, 400, "empty patch rejected");
   });
 
   await check("save state is isolated between profiles", async () => {
@@ -632,12 +696,18 @@ async function main() {
     equal(stolen.status, 404, "a version id cannot cross profiles");
   });
 
-  await check("an unknown profile selector is refused, not defaulted", async () => {
-    const foreign = await call("GET", `${saves}/${gameId}?profile=${randomUUID()}`);
-    equal(foreign.status, 404, "foreign profile id");
-    const junk = await call("GET", `${saves}/${gameId}?profile=not-a-uuid`);
-    equal(junk.status, 400, "malformed selector");
-  });
+  await check(
+    "an unknown profile selector is refused, not defaulted",
+    async () => {
+      const foreign = await call(
+        "GET",
+        `${saves}/${gameId}?profile=${randomUUID()}`,
+      );
+      equal(foreign.status, 404, "foreign profile id");
+      const junk = await call("GET", `${saves}/${gameId}?profile=not-a-uuid`);
+      equal(junk.status, 400, "malformed selector");
+    },
+  );
 
   await check("playtime is attributed to the profile that played", async () => {
     const report = await call("POST", `/api/v1/client/playtime/${gameId}`, {

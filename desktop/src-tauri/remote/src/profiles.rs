@@ -18,12 +18,21 @@ pub struct ProfileDto {
     pub id: String,
     pub name: String,
     pub is_default: bool,
+    /// Design-system colour key ("blue", "rose", ...).
+    pub color: String,
+    /// Object id of the player's identicon avatar, served through the same
+    /// `object://` pipeline as game art. `None` on profiles that predate
+    /// avatars and never changed colour - draw a fallback.
+    pub avatar_object_id: Option<String>,
     pub created_at: String,
 }
 
 #[derive(Serialize)]
-struct ProfileName<'a> {
-    name: &'a str,
+struct ProfilePatch<'a> {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    name: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    color: Option<&'a str>,
 }
 
 async fn decode<T: serde::de::DeserializeOwned>(
@@ -50,16 +59,44 @@ pub async fn fetch_profiles() -> Result<Vec<ProfileDto>, RemoteAccessError> {
     decode(response, "fetch profiles").await
 }
 
-/// Add a player to the account.
+/// Add a player to the account (default colour; recolour afterwards).
 pub async fn create_profile(name: &str) -> Result<ProfileDto, RemoteAccessError> {
     let endpoint = generate_url(&["/api/v1/client/profiles"], &[])?;
-    let response = make_authenticated_post(endpoint, &ProfileName { name }).await?;
+    let response = make_authenticated_post(
+        endpoint,
+        &ProfilePatch {
+            name: Some(name),
+            color: None,
+        },
+    )
+    .await?;
     decode(response, "create profile").await
 }
 
-/// Rename a player. Their stats and saves ride through unchanged.
+/// Rename a player. Their stats, saves and look ride through unchanged.
 pub async fn rename_profile(id: &str, name: &str) -> Result<ProfileDto, RemoteAccessError> {
     let endpoint = generate_url(&["/api/v1/client/profiles", id], &[])?;
-    let response = make_authenticated_patch(endpoint, &ProfileName { name }).await?;
+    let response = make_authenticated_patch(
+        endpoint,
+        &ProfilePatch {
+            name: Some(name),
+            color: None,
+        },
+    )
+    .await?;
     decode(response, "rename profile").await
+}
+
+/// Give a player a new colour; the server regenerates their avatar to match.
+pub async fn set_profile_color(id: &str, color: &str) -> Result<ProfileDto, RemoteAccessError> {
+    let endpoint = generate_url(&["/api/v1/client/profiles", id], &[])?;
+    let response = make_authenticated_patch(
+        endpoint,
+        &ProfilePatch {
+            name: None,
+            color: Some(color),
+        },
+    )
+    .await?;
+    decode(response, "set profile colour").await
 }

@@ -37,7 +37,9 @@
           </NuxtLink>
           <div class="h-0.5 rounded-full w-full bg-surface-800" />
           <template v-if="profiles.length > 1">
-            <p class="px-4 pb-1 pt-2 text-xs font-semibold uppercase leading-5 text-ink-500">
+            <p
+              class="px-4 pb-1 pt-2 text-xs font-semibold uppercase leading-5 text-ink-500"
+            >
               Play as
             </p>
             <MenuItem
@@ -52,7 +54,12 @@
                   'transition flex w-full items-center justify-between gap-x-2 px-4 py-2 text-left text-sm',
                 ]"
               >
-                <span class="truncate">{{ profile.name }}</span>
+                <span class="flex min-w-0 items-center gap-2">
+                  <span class="h-4 w-4 flex-none">
+                    <ProfileAvatar :profile="profile" />
+                  </span>
+                  <span class="truncate">{{ profile.name }}</span>
+                </span>
                 <CheckIcon
                   v-if="profile.id === activeId"
                   class="h-4 w-4 flex-none text-accent-400"
@@ -138,7 +145,7 @@ async function switchTo(id: string, close: () => void) {
   }
 }
 const profilePictureUrl: string = await useObject(
-  state.value?.user?.profilePictureObjectId ?? ""
+  state.value?.user?.profilePictureObjectId ?? "",
 );
 const adminUrl: string = await invoke("gen_drop_url", {
   path: "/admin",

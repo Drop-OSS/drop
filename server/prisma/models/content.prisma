@@ -236,6 +236,14 @@ model Profile {
   /// The profile a request without an explicit selector falls back to.
   isDefault Boolean @default(false)
 
+  /// Look: a design-system colour key (profileManager.PROFILE_COLORS).
+  color String @default("blue")
+  /// Object id of the identicon avatar rendered for this profile, served
+  /// through the normal object pipeline with owner-read ACLs. Generated at
+  /// creation and regenerated when the colour changes; the shape is seeded
+  /// by the profile id, so it survives renames unchanged.
+  avatarObjectId String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
