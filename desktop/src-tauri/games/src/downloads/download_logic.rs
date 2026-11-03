@@ -119,7 +119,9 @@ pub async fn download_game_chunk(
                 .create(true)
                 .open(&path)
                 .await?;
-            file_handle.seek(SeekFrom::Start(file.start.try_into().unwrap())).await?;
+            file_handle
+                .seek(SeekFrom::Start(file.start.try_into().unwrap()))
+                .await?;
             Some(file_handle)
         } else {
             None
@@ -127,7 +129,9 @@ pub async fn download_game_chunk(
 
         let mut remaining = file.length;
         while remaining > 0 {
-            let amount = stream_reader.read(&mut read_buf[0..remaining.min(READ_BUF_LEN)]).await?;
+            let amount = stream_reader
+                .read(&mut read_buf[0..remaining.min(READ_BUF_LEN)])
+                .await?;
             download_progress.add(amount);
             remaining -= amount;
 

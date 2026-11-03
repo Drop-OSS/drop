@@ -29,6 +29,6 @@ sha2 = "0.10.9"
 sysinfo = "0.37.2"
 tauri = "*"
 throttle_my_fn = "0.2.6"
-tokio = { version = "*", features = ["rt", "sync"] }
+tokio = { version = "*", features = ["rt", "sync", "fs", "io-util", "macros"] }
 tokio-util = { version = "*", features = ["io"] }
 utils = { path = "../utils", version = "0.1.0" }

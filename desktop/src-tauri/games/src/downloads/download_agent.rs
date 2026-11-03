@@ -36,6 +36,7 @@ use crate::downloads::utils::get_disk_available;
 use crate::library::{Game, on_game_complete, push_game_update, set_partially_installed};
 use crate::state::GameStatusManager;
 
+use super::cas::{self, CasManifest};
 use super::download_logic::download_game_chunk;
 use super::drop_data::DropData;
 
@@ -47,6 +48,10 @@ pub struct DownloadInformation {
     file_list: HashMap<String, String>,
     manifests: HashMap<String, Manifest>,
     install_size: u64,
+    /// Kept for the wire shape; the progress totals are computed from the
+    /// manifests that are actually being downloaded (a chunked release may
+    /// pull fewer bytes than the upstream size suggests).
+    #[allow(dead_code)]
     download_size: u64,
 }
 
@@ -55,6 +60,11 @@ pub struct GameDownloadAgent {
     pub configuration: UserConfiguration,
     pub control_flag: DownloadThreadControl,
     pub dl_info: Mutex<Option<DownloadInformation>>,
+    /// Versions this download can also be had as `gamedepot-droplet` v1
+    /// releases, mapped to their manifests. Empty when the server has not
+    /// chunked them (or predates the feature) - then everything below keeps
+    /// speaking the upstream format, unchanged.
+    pub cas: Mutex<HashMap<String, CasManifest>>,
     pub download_progress: Arc<ProgressObject>,
     pub disk_progress: Arc<ProgressObject>,
     depot_manager: Arc<DepotManager>,
@@ -103,6 +113,7 @@ impl GameDownloadAgent {
             metadata,
             control_flag,
             dl_info: Mutex::new(None),
+            cas: Mutex::new(HashMap::new()),
             download_progress: Arc::new(ProgressObject::new(
                 0,
                 0,
@@ -124,7 +135,53 @@ impl GameDownloadAgent {
 
         result.ensure_manifest_exists().await?;
 
-        let required_space = lock!(result.dl_info).as_ref().unwrap().install_size;
+        // Probe the content-addressed source for every version the download
+        // spans (a delta names two). A probe failure is never fatal - the
+        // upstream path is always there, and it reports real errors itself.
+        let versions: Vec<String> = lock!(result.dl_info)
+            .as_ref()
+            .unwrap()
+            .manifests
+            .keys()
+            .cloned()
+            .collect();
+        let mut cas_map = HashMap::new();
+        for version in &versions {
+            match cas::fetch_cas_manifest(version).await {
+                Ok(Some(manifest)) => {
+                    info!(
+                        "version {version} is also chunked for download by digest ({} files, {} bytes)",
+                        manifest.files.len(),
+                        manifest.files.iter().map(|f| f.size).sum::<u64>()
+                    );
+                    cas_map.insert(version.clone(), manifest);
+                }
+                Ok(None) => {}
+                Err(e) => {
+                    warn!("could not probe the content-addressed manifest for {version}: {e}")
+                }
+            }
+        }
+        *lock!(result.cas) = cas_map;
+
+        let required_space = {
+            let dl_info = lock!(result.dl_info);
+            let dl_info = dl_info.as_ref().unwrap();
+            let mut required = dl_info.install_size;
+            if !lock!(result.cas).is_empty() {
+                // The chunk cache is real disk as well: ask for the bytes
+                // not in it yet, on top of the assembled install size.
+                let cache_dir = borrow_db_checked().cache_dir.clone();
+                let plan = cas::plan(
+                    &lock!(result.cas),
+                    &dl_info.file_list,
+                    &cache_dir,
+                    &result.dropdata.get_contexts(),
+                );
+                required += plan.needed_bytes;
+            }
+            required
+        };
 
         let available_space = get_disk_available(data_base_dir_path)? as u64;
 
@@ -251,19 +308,36 @@ impl GameDownloadAgent {
         Err(ApplicationDownloadError::Lock)
     }
 
-    // Sets up progress for download writes
-    fn setup_progress(&self) {
+    // Sets up progress for download writes. `work` is the content-addressed
+    // plan, if this download has one: its chunk tasks and file tasks take
+    // the first progress slots, upstream chunks continue after them.
+    fn setup_progress(&self, work: Option<&cas::CasWork>) {
         let dl_info = lock!(self.dl_info);
         let dl_info = dl_info.as_ref().unwrap();
+        let cas = lock!(self.cas);
 
-        let total_chunks = dl_info
+        let (v2_chunks, v2_bytes): (usize, u64) = dl_info
             .manifests
             .iter()
-            .map(|v| v.1.chunks.len())
-            .sum::<usize>();
+            .filter(|(version, _)| !cas.contains_key(*version))
+            .map(|(_, manifest)| {
+                let bytes: u64 = manifest
+                    .chunks
+                    .values()
+                    .map(|chunk| chunk.files.iter().map(|f| f.length as u64).sum::<u64>())
+                    .sum();
+                (manifest.chunks.len(), bytes)
+            })
+            .reduce(|a, b| (a.0 + b.0, a.1 + b.1))
+            .unwrap_or((0, 0));
 
-        self.download_progress
-            .set_max(dl_info.download_size.try_into().unwrap());
+        let total_chunks = v2_chunks + work.map(|w| w.expected).unwrap_or(0);
+
+        self.download_progress.set_max(
+            (v2_bytes + work.map(|w| w.total_bytes).unwrap_or(0))
+                .try_into()
+                .unwrap(),
+        );
         self.download_progress.set_size(total_chunks);
         self.download_progress.reset();
 
@@ -274,10 +348,7 @@ impl GameDownloadAgent {
     }
 
     async fn run(&self) -> Result<bool, ApplicationDownloadError> {
-        self.depot_manager.sync_depots().await?;
-        info!("synced depots");
-        self.setup_progress();
-        info!("setup progress objects");
+        let cas = lock!(self.cas).clone();
         let manifests_chunks: Vec<(String, HashMap<String, ChunkData>, [u8; 16])> = {
             let dl_info = lock!(self.dl_info);
             dl_info
@@ -285,6 +356,10 @@ impl GameDownloadAgent {
                 .unwrap()
                 .manifests
                 .iter()
+                // A version present in `cas` downloads from the chunk store.
+                // Its upstream manifest stays untouched on the server, so
+                // anything not speaking v1 still gets it.
+                .filter(|(version, _)| !cas.contains_key(*version))
                 .map(|v| (v.0.clone(), v.1.chunks.clone(), v.1.key))
                 .collect()
         };
@@ -297,18 +372,35 @@ impl GameDownloadAgent {
             completed_chunks.clone()
         };
         info!("started with {} existing chunks", completed_chunks.len());
-        let chunk_len = manifests_chunks.iter().map(|v| v.1.len()).sum::<usize>();
         let mut max_download_threads = borrow_db_checked().settings.max_download_threads;
         if max_download_threads == 0 {
             max_download_threads = 1;
         }
+
+        let cache_dir = borrow_db_checked().cache_dir.clone();
+        let work = cas
+            .is_empty()
+            .then(|| cas::plan(&cas, &file_list, &cache_dir, &completed_chunks));
+
+        // Depots are only needed for the upstream half: a fully chunked
+        // release is served by the GameDepot server itself, and a server
+        // with no CDN depots configured still downloads it.
+        if !manifests_chunks.is_empty() {
+            self.depot_manager.sync_depots().await?;
+            info!("synced depots");
+        }
+        self.setup_progress(work.as_ref());
+        info!("setup progress objects");
 
         let file_list = &file_list;
         let base_path = &self.dropdata.base_path;
         let current_file_tree = self.scan_filetree(base_path)?;
 
         for file in current_file_tree {
-            let filename = file.strip_prefix(base_path)?.to_string_lossy().replace('\\', "/");
+            let filename = file
+                .strip_prefix(base_path)?
+                .to_string_lossy()
+                .replace('\\', "/");
             let needed = file_list.contains_key(&filename) || filename == ".dropdata";
             if !needed {
                 debug!("deleted {}", file.display());
@@ -318,9 +410,29 @@ impl GameDownloadAgent {
 
         let local_completed_chunks = completed_chunks.clone();
 
-        let mut chunk_completions = FuturesUnordered::new();
-
         let mut outputs = Vec::new();
+
+        // The content-addressed half: chunks by digest, hashed before they
+        // are cached, files assembled in staging and renamed into place only
+        // after the whole file hashes right.
+        if let Some(work) = work.as_ref() {
+            let (done, _stopped) = cas::download(
+                work,
+                &cache_dir,
+                base_path,
+                &self.control_flag,
+                &self.download_progress,
+                &self.disk_progress,
+                &local_completed_chunks,
+                max_download_threads,
+            )
+            .await?;
+            outputs.extend(done);
+        }
+
+        // The upstream half: unchanged, except that progress slots reserved
+        // by the content-addressed tasks come first.
+        let mut chunk_completions = FuturesUnordered::new();
 
         let mut handle_output =
             |value: Result<Option<String>, ApplicationDownloadError>| match value {
@@ -333,7 +445,11 @@ impl GameDownloadAgent {
                 Err(err) => Err(err),
             };
 
-        let mut index = 0;
+        let mut index = work.as_ref().map(|w| w.expected).unwrap_or(0);
+        let v2_expected_keys: Vec<String> = manifests_chunks
+            .iter()
+            .flat_map(|(_, chunks, _)| chunks.keys().cloned())
+            .collect();
         for (version_id, chunks, key) in manifests_chunks.into_iter() {
             let version_id = &version_id;
             for (chunk_id, chunk_data) in chunks.into_iter() {
@@ -432,15 +548,39 @@ impl GameDownloadAgent {
         self.dropdata.set_contexts(&drop_data_chunks);
         self.dropdata.write();
 
-        info!("completed {} chunks", drop_data_chunks.len());
+        info!("completed {} ledger entries", drop_data_chunks.len());
 
-        // If there are any contexts left which are false
-        if completed_chunks.len() != chunk_len {
+        // Completion is measured over the tasks this download actually
+        // covered, so a ledger carried across a source switch (upstream
+        // before the version was chunked, or a superseded manifest) can
+        // neither fake a finish nor block one.
+        let mut missing = 0usize;
+        let mut outstanding = |keys: &mut dyn Iterator<Item = String>| {
+            for key in keys {
+                if !completed_chunks.get(&key).copied().unwrap_or(false) {
+                    missing += 1;
+                }
+            }
+        };
+        outstanding(&mut v2_expected_keys.into_iter());
+        if let Some(work) = work.as_ref() {
+            outstanding(
+                &mut work
+                    .chunk_tasks
+                    .iter()
+                    .map(|(sha, _, _)| cas::chunk_key(sha)),
+            );
+            outstanding(
+                &mut work
+                    .file_tasks
+                    .iter()
+                    .map(|(version, file)| cas::file_key(version, &file.path)),
+            );
+        }
+        if missing > 0 {
             info!(
-                "download agent for {} exited without completing ({}/{})",
-                self.metadata.id.clone(),
-                completed_chunks.len(),
-                chunk_len,
+                "download agent for {} exited with {missing} tasks outstanding",
+                self.metadata.id.clone()
             );
             return Ok(false);
         }
@@ -449,7 +589,7 @@ impl GameDownloadAgent {
 
     #[allow(dead_code)]
     fn setup_validate(&self, app_handle: &AppHandle) {
-        self.setup_progress();
+        self.setup_progress(None);
 
         self.control_flag.set(DownloadThreadControlFlag::Go);
 

@@ -6,7 +6,9 @@ use database::{
 };
 use log::{debug, error, warn};
 use remote::{
-    auth::generate_authorization_header, error::{DropServerError, RemoteAccessError}, requests::{generate_url, make_authenticated_post},
+    auth::generate_authorization_header,
+    error::{DropServerError, RemoteAccessError},
+    requests::{generate_url, make_authenticated_post},
     utils::DROP_CLIENT_ASYNC,
 };
 use serde::{Deserialize, Serialize};
@@ -95,7 +97,13 @@ pub fn set_partially_installed(
     app_handle: Option<&AppHandle>,
     configuration: UserConfiguration,
 ) {
-    set_partially_installed_db(&mut borrow_db_mut_checked(), meta, install_dir, app_handle, configuration);
+    set_partially_installed_db(
+        &mut borrow_db_mut_checked(),
+        meta,
+        install_dir,
+        app_handle,
+        configuration,
+    );
 }
 
 pub fn set_partially_installed_db(
