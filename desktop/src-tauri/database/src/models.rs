@@ -153,12 +153,36 @@ pub mod data {
             pub platform: Platform,
         }
 
+        #[derive(Serialize, Deserialize, Clone, Debug, Default)]
+        #[serde(rename_all = "camelCase")]
+        pub struct ThemeSettings {
+            /// Accent ramp key (see the desktop `composables/theme.ts`),
+            /// e.g. "blue". The frontend owns the palette; the database only
+            /// remembers the choice. Defaults are the original palette keys,
+            /// so a database without this field behaves as before theming.
+            #[serde(default = "default_accent")]
+            pub accent: String,
+            /// Surface tint key, e.g. "zinc".
+            #[serde(default = "default_surface")]
+            pub surface: String,
+        }
+
+        fn default_accent() -> String {
+            "blue".to_string()
+        }
+
+        fn default_surface() -> String {
+            "zinc".to_string()
+        }
+
         #[derive(Serialize, Deserialize, Clone, Debug)]
         #[serde(rename_all = "camelCase")]
         pub struct Settings {
             pub autostart: bool,
             pub max_download_threads: usize,
             pub force_offline: bool, // ... other settings ...
+            #[serde(default)]
+            pub theme: ThemeSettings,
         }
         impl Default for Settings {
             fn default() -> Self {
@@ -166,6 +190,7 @@ pub mod data {
                     autostart: false,
                     max_download_threads: 4,
                     force_offline: false,
+                    theme: ThemeSettings::default(),
                 }
             }
         }

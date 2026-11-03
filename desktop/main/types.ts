@@ -55,7 +55,7 @@ export type GameVersion = {
     launchTemplate: string;
     overrideProtonPath: string;
     overrideHandler: string | undefined;
-    enableUpdates: boolean
+    enableUpdates: boolean;
   };
   setups: Array<{ platform: string }>;
   launches: Array<{ platform: string }>;
@@ -121,4 +121,8 @@ export type Settings = {
   autostart: boolean;
   maxDownloadThreads: number;
   forceOffline: boolean;
+  theme: {
+    accent: string;
+    surface: string;
+  };
 };

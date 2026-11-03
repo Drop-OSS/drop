@@ -38,6 +38,9 @@ async function fetchState() {
 }
 await fetchState();
 
+// Paint the stored theme before the first page renders.
+await useTheme().init();
+
 listen("update_state", (event) => {
   state.value = event.payload as AppState;
 });
