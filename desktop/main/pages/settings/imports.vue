@@ -42,6 +42,19 @@
           >
             Rescan
           </button>
+          <button
+            type="button"
+            :disabled="batching"
+            :class="[
+              batching
+                ? 'cursor-not-allowed bg-surface-700 text-ink-500'
+                : 'bg-accent-600 hover:bg-accent-500',
+              'rounded-md px-2.5 py-1.5 text-xs font-semibold text-white shadow-sm',
+            ]"
+            @click="importAllDetected"
+          >
+            Import all
+          </button>
         </div>
       </div>
       <ul role="list" class="mt-2 divide-y divide-surface-700">
@@ -66,6 +79,9 @@
       <p class="mt-1 text-sm text-ink-400">
         Check the folder and the title before publishing: what the launcher
         called a folder is not always what the catalog should call a game.
+      </p>
+      <p v-if="batchSummary" class="mt-2 text-sm text-ink-300">
+        {{ batchSummary }}
       </p>
     </div>
 
@@ -248,7 +264,7 @@ import {
 const appState = useAppState();
 const isAdmin = computed(() => appState.value?.user?.admin ?? false);
 
-const { jobs, start, cancel } = useImports();
+const { jobs, start, cancel, importMany, batching } = useImports();
 
 const folder = ref("");
 const title = ref("");
@@ -306,6 +322,30 @@ async function scanAnotherPrefix() {
 function chooseInstall(install: DetectedInstall) {
   folder.value = install.folder;
   title.value = install.title;
+}
+
+/** How the last whole-library import ended, in one line. */
+const batchSummary = ref<string | null>(null);
+
+async function importAllDetected() {
+  if (!detected.value.length || batching.value) return;
+  batchSummary.value = null;
+  const outcomes = await importMany(
+    detected.value.map((install) => ({
+      folder: install.folder,
+      gameTitle: install.title,
+    })),
+  );
+  const published = outcomes.filter((outcome) => outcome.result.ok);
+  const failures = outcomes.filter((outcome) => !outcome.result.ok);
+  batchSummary.value = failures.length
+    ? `${published.length} published, ${failures.length} not: ${failures
+        .map(
+          (failure) =>
+            `${failure.input.gameTitle} (${failure.result.error ?? "cancelled"})`,
+        )
+        .join("; ")}`
+    : `${published.length} published`;
 }
 
 async function pickFolder() {

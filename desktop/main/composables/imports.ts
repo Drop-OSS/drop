@@ -46,14 +46,38 @@ export interface ImportStart {
   gameId?: string;
 }
 
+/** How a finished job ended, in the facts a batch runner and a summary line
+ * both need. */
+export interface ImportResult {
+  ok: boolean;
+  digest?: string;
+  error?: string;
+}
+
+/** One install a storefront says it put on this machine. */
+export interface DetectedInstall {
+  launcher: string;
+  title: string;
+  folder: string;
+  installKey?: string;
+}
+
 interface ImportsState {
   jobs: Ref<ImportJob[]>;
   start: (input: ImportStart) => Promise<string>;
   cancel: (jobId: string) => Promise<boolean>;
+  /** A whole set, imported one folder at a time. */
+  importMany: (
+    inputs: ImportStart[],
+    onRunning?: (input: ImportStart) => void,
+  ) => Promise<Array<{ input: ImportStart; result: ImportResult }>>;
+  /** True while a batch is running, so two never overlap. */
+  batching: Ref<boolean>;
 }
 
-const importRegistry: { jobs: Ref<ImportJob[]> } = {
+const importRegistry = {
   jobs: ref<ImportJob[]>([]),
+  batching: ref(false),
 };
 
 /** The Rust payload carries the job's identity and the progress struct
@@ -65,6 +89,21 @@ type ImportEvent = {
   folder?: string;
 } & ImportProgress;
 
+const waiters = new Map<string, (result: ImportResult) => void>();
+
+const resultOf = (progress: ImportProgress): ImportResult => ({
+  ok: progress.phase === "done",
+  digest: progress.releaseDigest,
+  error: progress.error,
+});
+
+const settle = (jobId: string, result: ImportResult) => {
+  const resolve = waiters.get(jobId);
+  if (!resolve) return;
+  waiters.delete(jobId);
+  resolve(result);
+};
+
 let listening = false;
 
 /** The one `import_state` listener; started by the first view that asks. */
@@ -74,18 +113,93 @@ const listenToImports = () => {
   void listen<ImportEvent>("import_state", (event) => {
     const { jobId, gameTitle, folder, ...progress } = event.payload;
     const known = importRegistry.jobs.value.find((j) => j.jobId === jobId);
-    if (known) {
+    if (!known) {
+      // A job started by another window, or before this view mounted.
+      importRegistry.jobs.value.unshift({
+        jobId,
+        gameTitle,
+        folder: folder ?? "",
+        progress,
+      });
+    } else {
       known.progress = progress;
-      return;
     }
-    // A job started by another window, or before this view mounted.
-    importRegistry.jobs.value.unshift({
-      jobId,
-      gameTitle,
-      folder: folder ?? "",
-      progress,
-    });
+    if (progress.done) settle(jobId, resultOf(progress));
   });
+};
+
+/** Begin one import. Progress arrives on `import_state`, not as a return. */
+const startImport = async (input: ImportStart): Promise<string> => {
+  listenToImports();
+  const jobId = await invoke<string>("start_game_import", {
+    folder: input.folder,
+    gameTitle: input.gameTitle,
+    appVersion: input.appVersion || null,
+    gameId: input.gameId || null,
+  });
+  importRegistry.jobs.value.unshift({
+    jobId,
+    gameTitle: input.gameTitle,
+    folder: input.folder,
+    progress: {
+      phase: "hashing",
+      filesDone: 0,
+      totalFiles: 0,
+      bytesHashed: 0,
+      totalBytes: 0,
+      bytesUploaded: 0,
+      uploadTotal: 0,
+      objectsDone: 0,
+      totalObjects: 0,
+      done: false,
+    },
+  });
+  return jobId;
+};
+
+/**
+ * A promise for a job's terminal event. A job that finished before anyone
+ * asked resolves immediately, so a batch loop cannot miss its cue.
+ */
+export const waitForImport = (jobId: string): Promise<ImportResult> => {
+  const known = importRegistry.jobs.value.find((j) => j.jobId === jobId);
+  if (known?.progress.done) return Promise.resolve(resultOf(known.progress));
+  return new Promise((resolve) => waiters.set(jobId, resolve));
+};
+
+/**
+ * Import a whole set, one folder at a time, reporting each outcome.
+ *
+ * Sequential on purpose: two hundred-gigabyte scans compete for the same
+ * disks, and a player coming from "import my EA library" cares that every
+ * title arrives, not that they all started at once. A failure is one row in
+ * the report, never a reason to abandon the rest of the library.
+ */
+const importMany = async (
+  inputs: ImportStart[],
+  onRunning?: (input: ImportStart) => void,
+): Promise<Array<{ input: ImportStart; result: ImportResult }>> => {
+  if (importRegistry.batching.value) return [];
+  importRegistry.batching.value = true;
+  const outcomes: Array<{ input: ImportStart; result: ImportResult }> = [];
+  try {
+    for (const input of inputs) {
+      onRunning?.(input);
+      let jobId: string;
+      try {
+        jobId = await startImport(input);
+      } catch (e) {
+        // No job at all: the command itself refused. The rest of the library
+        // still gets its turn.
+        outcomes.push({ input, result: { ok: false, error: String(e) } });
+        continue;
+      }
+      outcomes.push({ input, result: await waitForImport(jobId) });
+    }
+  } finally {
+    importRegistry.batching.value = false;
+  }
+  return outcomes;
 };
 
 /**
@@ -93,49 +207,13 @@ const listenToImports = () => {
  * `useSaves`: the engine pushes every phase transition, so a view that opens
  * mid-import still lands on the live numbers.
  */
-export const useImports = (): ImportsState => {
-  const jobs = importRegistry.jobs;
-
-  return {
-    jobs,
-    start: async (input) => {
-      listenToImports();
-      const jobId = await invoke<string>("start_game_import", {
-        folder: input.folder,
-        gameTitle: input.gameTitle,
-        appVersion: input.appVersion || null,
-        gameId: input.gameId || null,
-      });
-      jobs.value.unshift({
-        jobId,
-        gameTitle: input.gameTitle,
-        folder: input.folder,
-        progress: {
-          phase: "hashing",
-          filesDone: 0,
-          totalFiles: 0,
-          bytesHashed: 0,
-          totalBytes: 0,
-          bytesUploaded: 0,
-          uploadTotal: 0,
-          objectsDone: 0,
-          totalObjects: 0,
-          done: false,
-        },
-      });
-      return jobId;
-    },
-    cancel: async (jobId) => invoke<boolean>("cancel_game_import", { jobId }),
-  };
-};
-
-/** One install a storefront says it put on this machine. */
-export interface DetectedInstall {
-  launcher: string;
-  title: string;
-  folder: string;
-  installKey?: string;
-}
+export const useImports = (): ImportsState => ({
+  jobs: importRegistry.jobs,
+  batching: importRegistry.batching,
+  start: startImport,
+  cancel: async (jobId) => invoke<boolean>("cancel_game_import", { jobId }),
+  importMany,
+});
 
 /** What the launchers on this machine report having installed. Reads the
  * files they left behind, so it works offline. */
