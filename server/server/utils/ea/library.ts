@@ -14,8 +14,6 @@ export type EaDiscoveredGame = {
   offerId?: string;
   /** True for EA Play membership titles (Help player-shell listings). */
   isEaPlay?: boolean;
-  /** EA's per-entitlement archive URL, when the API includes one. */
-  downloadLink?: string;
 };
 
 function asRecord(value: unknown): Record<string, unknown> {
@@ -53,12 +51,7 @@ export function normalizeEaGame(item: EaEntitlement): EaDiscoveredGame {
     str(source.appName) ??
     offerId ??
     "Untitled";
-  return {
-    id,
-    title,
-    offerId,
-    downloadLink: str(base.downloadLink) ?? str(source.downloadLink),
-  };
+  return { id, title, offerId };
 }
 
 export type EaDiscoveryQuery = {

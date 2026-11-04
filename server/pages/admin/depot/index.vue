@@ -635,28 +635,20 @@
                 product.releaseCount === 1 ? "" : "s"
               }}
             </p>
-            <div v-if="activeProviderId === 'ea'" class="mt-3">
-              <label
-                :for="`ea-archive-${product.id}`"
-                class="mb-1.5 block text-xs text-zinc-500"
-                >Game archive URL (HTTPS; pre-filled from the entitlement
-                link)</label
-              >
-              <input
-                :id="`ea-archive-${product.id}`"
-                v-model.trim="product.archiveUrl"
-                type="url"
-                autocomplete="off"
-                placeholder="https:// …/archive.zip"
-                class="w-full min-w-0 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-xs text-zinc-100 placeholder:text-zinc-600 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-              />
-            </div>
+            <p
+              v-if="activeProviderId === 'ea'"
+              class="mt-2 text-xs leading-5 text-zinc-500"
+            >
+              EA content arrives with your existing launcher install; the
+              desktop client imports it into the depot. This page links and
+              lists the title.
+            </p>
           </div>
           <button
+            v-if="activeProviderId !== 'ea'"
             type="button"
             :disabled="
               product.ingesting ||
-              (activeProviderId === 'ea' && !product.archiveUrl) ||
               (activeProviderId === 'ubisoft' && product.installable === false)
             "
             class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-zinc-700 px-3.5 py-2 text-sm font-medium text-zinc-200 transition hover:border-blue-500/60 hover:bg-blue-500/10 disabled:opacity-50"
@@ -713,10 +705,6 @@ interface DiscoveredProduct {
   productId?: string;
   /** False when the ownership service says this row cannot be acquired. */
   installable?: boolean;
-  // EA: the ingest endpoint needs a title plus an HTTPS archive URL. The
-  // entitlement's download link pre-fills it; it stays editable because EA
-  // links are short-lived.
-  archiveUrl?: string;
 }
 
 // Shape returned by the Epic and Ubisoft library endpoints.
@@ -739,7 +727,6 @@ interface OwnedGame {
   // EA owned games (normalized by the library utility)
   id?: string;
   offerId?: string;
-  downloadLink?: string;
 }
 
 const providers: Array<{ id: ProviderId; label: string }> = [
@@ -815,7 +802,7 @@ const providerDescription = computed(() =>
   activeProviderId.value === "epic"
     ? "Connect an Epic account with a refresh token so the server can keep its entitlements fresh. Loads the entitlements owned by that account; ingest streams the raw depot files directly into the depot."
     : activeProviderId.value === "ea"
-      ? "Paste the Cookie header from a signed-in help.ea.com tab: the server lists your owned games through that EA Help session (no OAuth client exists for EA) and asks for a fresh copy when EA expires it. Ingest streams a game archive into the depot from a provided download link."
+      ? "Paste the Cookie header from a signed-in help.ea.com tab: the server lists your owned games through that EA Help session (no OAuth client exists for EA) and asks for a fresh copy when EA expires it. EA titles join the depot by importing an existing launcher install from the desktop client, so this page links and lists what the account owns."
       : "Sign in with your Ubisoft email and password - the password is used for the single sign-in and never stored; the session ticket and a remember-me ticket are kept and renewed automatically. A two-factor code may be requested once. Loads the titles owned by that account; ingest streams the raw game files directly into the depot.",
 );
 
@@ -1142,7 +1129,6 @@ async function loadLibrary() {
             id: game.id || game.offerId || "",
             title: game.title || game.offerId || "Untitled",
             gameTitle: game.title || game.offerId,
-            archiveUrl: game.downloadLink ?? "",
           };
         }
         return {
@@ -1185,14 +1171,6 @@ async function ingest(product: DiscoveredProduct) {
           namespace: product.namespace,
           catalogItemId: product.catalogItemId,
           appName: product.appName,
-        },
-      });
-    } else if (activeProviderId.value === "ea") {
-      await $fetch("/api/admin/depot/ea/ingest", {
-        method: "POST",
-        body: {
-          gameTitle: product.gameTitle || product.title,
-          archiveUrl: product.archiveUrl,
         },
       });
     } else {

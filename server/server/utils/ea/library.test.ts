@@ -51,7 +51,6 @@ test("normalizeEaGame accepts the live nested entitlement layout", () => {
     id: "bg-1",
     title: "Mass Effect Legendary Edition",
     offerId: "offer-off",
-    downloadLink: "https://dl.example/me.zip",
   });
 });
 
@@ -63,7 +62,6 @@ test("normalizeEaGame accepts the flat provisional layout", () => {
   });
   assert.equal(game.id, "ent-2");
   assert.equal(game.title, "It Takes Two");
-  assert.equal(game.downloadLink, undefined);
 });
 
 test("lists owned titles without contacting the catalog", async () => {
