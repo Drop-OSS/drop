@@ -387,7 +387,7 @@ const props = defineProps<{
   params?: { [key: string]: string };
   extraOptions?: Array<StoreFilterOption>;
   prefilled?: {
-    [key: string]: { [key: string]: string | { [key: string]: boolean } };
+    [key: string]: string | { [key: string]: boolean };
   };
 }>();
 
@@ -412,7 +412,7 @@ const sorts: Array<StoreSortOption> = [
     param: "name",
   },
 ];
-const sortOders = ["asc", "desc"] as const;
+const sortOrders = ["asc", "desc"] as const;
 
 const route = useRoute();
 
@@ -422,7 +422,7 @@ const currentSort = ref(
 );
 const initialOrder = route.query.order;
 const sortOrder = ref(
-  sortOders.find((s) => s === initialOrder) ? initialOrder : "desc",
+  sortOrders.find((s) => s === initialOrder) ? initialOrder : "desc",
 );
 
 const options: Array<StoreFilterOption> = [
@@ -452,14 +452,24 @@ const optionValues = ref<{
       const raw = route.query[option.param];
       const fromUrl = typeof raw === "string" ? raw : undefined;
 
-      if (!option.multiple) return [option.param, fromUrl];
+      const allowed = option.options.map((o) => o.param);
 
-      const keys = fromUrl ? fromUrl.split(",") : [];
+      if (!option.multiple)
+        return [
+          option.param,
+          fromUrl && allowed.includes(fromUrl) ? fromUrl : undefined,
+        ];
+
+      const keys = (fromUrl ? fromUrl.split(",") : []).filter((k) =>
+        allowed.includes(k),
+      );
       return [option.param, Object.fromEntries(keys.map((key) => [key, true]))];
     }),
   ),
 );
-Object.assign(optionValues.value, props.prefilled);
+for (const [key, value] of Object.entries(props.prefilled ?? {})) {
+  if (route.query[key] === undefined) optionValues.value[key] = value;
+}
 
 const filterQuery = computed(() => {
   return Object.fromEntries(
