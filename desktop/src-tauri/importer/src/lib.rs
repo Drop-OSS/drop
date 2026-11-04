@@ -18,3 +18,6 @@ pub use scan::{ImportError, ScanProgress, ScanResult, ScannedFile, scan_folder};
 
 /// Convenience for callers that only want the detected installs, serialized.
 pub use recipes::detect_installs;
+/// The heuristic every recipe uses to tell a game folder from a leftover,
+/// and the entry point it guesses for one.
+pub use recipes::find_game_executable;

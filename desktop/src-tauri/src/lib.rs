@@ -65,6 +65,7 @@ mod download_manager;
 mod downloads;
 mod games;
 mod imports;
+mod launcher_play;
 mod process;
 mod profiles;
 mod remote;
@@ -278,6 +279,9 @@ pub fn run() {
             imports::start_game_import,
             imports::cancel_game_import,
             imports::detect_launcher_installs,
+            // Launcher play: run the copy the storefront owns, in place
+            launcher_play::play_launcher_install,
+            launcher_play::stop_launcher_install,
             // Profiles
             profiles::fetch_profiles,
             profiles::create_profile,

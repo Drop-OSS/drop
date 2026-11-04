@@ -274,6 +274,8 @@ As built (November 2026), the import contract is provider-neutral and lives in t
 
 Detection is a thin per-launcher recipe on top of that engine, in `desktop/src-tauri/importer/src/recipes/`: the EA recipe reads the launcher's own INI records (the machine-wide in-place install dir and each account's override) and resolves every drive letter through the prefix's own drive links, so a umu or Wine storefront prefix and a real Windows install are the same search. A folder is an install only if it contains a non-redistributable executable, and a detected install only ever prefills the import form - the publish decision stays with the admin pressing the button.
 
+The same detection answers the second half of the model, play: each install records the entry point the recipe found and the prefix that holds it, and the desktop runs that copy where it lies - natively on Windows, through umu-run and Proton on Linux, in the storefront's own prefix when the install was found in one (`desktop/src-tauri/src/launcher_play.rs`) - and files the session's playtime under the catalog game the title matches. No second copy is made: the file-owner player and the depot's downloader share the economy the launcher already paid for.
+
 #### Retained EA App Modules (`server/server/utils/ea/`)
 
 1. **EA API Client (`client.ts`)**:

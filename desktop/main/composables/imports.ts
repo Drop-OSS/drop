@@ -60,6 +60,12 @@ export interface DetectedInstall {
   title: string;
   folder: string;
   installKey?: string;
+  /** The launcher's own copy, as a path inside `folder`, guessed by the
+   * recipe - good enough to play; the form is where a player corrects it. */
+  executable?: string;
+  /** The prefix root this install lives in, when it lives in one. Playing
+   * and importing treat it as the launcher's Windows filesystem. */
+  prefix?: string;
 }
 
 interface ImportsState {
@@ -221,6 +227,64 @@ export const detectLauncherInstalls = (extraPrefixes?: string[]) =>
   invoke<DetectedInstall[]>("detect_launcher_installs", {
     extraPrefixes: extraPrefixes ?? null,
   });
+
+/** An install playing from its own folder. */
+export interface LauncherPlayInput {
+  folder: string;
+  /** Path inside `folder`; omitted lets the same heuristic pick one. */
+  executable?: string;
+  /** The prefix the install was found in, so the game runs in its own. */
+  prefix?: string;
+  /** The catalog game it matches; playtime of a session goes there. */
+  gameId?: string;
+}
+
+/** Folders with a launcher-owned copy playing right now. */
+const playingRegistry = ref<string[]>([]);
+
+let playListening = false;
+const listenToPlay = () => {
+  if (playListening) return;
+  playListening = true;
+  void listen<{ folder: string }>("launcher_play_finished", (event) => {
+    // The wait thread fires this for natural exits and stops alike, so the
+    // only bookkeeping is removing the row that ended.
+    playingRegistry.value = playingRegistry.value.filter(
+      (folder) => folder !== event.payload.folder,
+    );
+  });
+};
+
+/**
+ * Play the storefront's own copy in place - no depot copy, no install. The
+ * running set is module state like the import jobs: a view opened mid-game
+ * sees the row as playing, and every finish takes its own row out.
+ */
+export const useLauncherPlay = () => ({
+  playing: playingRegistry,
+  play: async (input: LauncherPlayInput) => {
+    listenToPlay();
+    if (playingRegistry.value.includes(input.folder)) return;
+    playingRegistry.value = [...playingRegistry.value, input.folder];
+    try {
+      await invoke<void>("play_launcher_install", {
+        folder: input.folder,
+        executable: input.executable || null,
+        prefix: input.prefix || null,
+        gameId: input.gameId || null,
+      });
+    } catch (e) {
+      // Refused before anything started; the row was never really playing.
+      playingRegistry.value = playingRegistry.value.filter(
+        (folder) => folder !== input.folder,
+      );
+      throw e;
+    }
+  },
+  /** Stop reaches the whole process tree; the finish event updates the row. */
+  stop: (folder: string) =>
+    invoke<boolean>("stop_launcher_install", { folder }),
+});
 
 /**
  * How far along a job is, 0..1, on the measure that phase actually moves:

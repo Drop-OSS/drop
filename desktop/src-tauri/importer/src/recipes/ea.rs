@@ -19,7 +19,7 @@ use std::collections::BTreeSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use super::{DetectedInstall, looks_like_install};
+use super::{DetectedInstall, find_game_executable};
 
 pub const LAUNCHER: &str = "ea";
 
@@ -88,8 +88,15 @@ pub fn detect(fs: &WindowsFs) -> Vec<DetectedInstall> {
     let mut installs = Vec::new();
     let mut seen: BTreeSet<PathBuf> = BTreeSet::new();
 
+    // Which prefix a found folder lives in travels with it: playing the copy
+    // in place means running it through the same prefix the launcher wrote.
+    let prefix = match fs {
+        WindowsFs::Prefix(root) => Some(root.clone()),
+        WindowsFs::Native => None,
+    };
+
     for install_root in install_roots(fs) {
-        collect_installs(&install_root, &mut seen, &mut installs);
+        collect_installs(&install_root, prefix.as_deref(), &mut seen, &mut installs);
     }
 
     installs
@@ -240,7 +247,12 @@ fn resolve_windows_path(value: &str, fs: &WindowsFs) -> Option<PathBuf> {
 }
 
 /// Immediate children of an install root that look like games.
-fn collect_installs(root: &Path, seen: &mut BTreeSet<PathBuf>, out: &mut Vec<DetectedInstall>) {
+fn collect_installs(
+    root: &Path,
+    prefix: Option<&Path>,
+    seen: &mut BTreeSet<PathBuf>,
+    out: &mut Vec<DetectedInstall>,
+) {
     let Ok(entries) = fs::read_dir(root) else {
         return;
     };
@@ -249,9 +261,12 @@ fn collect_installs(root: &Path, seen: &mut BTreeSet<PathBuf>, out: &mut Vec<Det
         if !entry.file_type().map(|t| t.is_dir()).unwrap_or(false) {
             continue;
         }
-        if !looks_like_install(&folder) {
+        // An executable that is not a redistributable is what separates a
+        // game from the save folders and `__redist` trees a launcher leaves
+        // behind; the same walk answers both questions.
+        let Some(executable) = find_game_executable(&folder) else {
             continue;
-        }
+        };
         let title = folder
             .file_name()
             .and_then(|n| n.to_str())
@@ -263,6 +278,8 @@ fn collect_installs(root: &Path, seen: &mut BTreeSet<PathBuf>, out: &mut Vec<Det
         out.push(DetectedInstall {
             launcher: LAUNCHER,
             title,
+            executable: Some(executable),
+            prefix: prefix.map(PathBuf::from),
             folder,
             install_key: None,
         });
@@ -313,6 +330,9 @@ mod tests {
             let game = drive_c.join("Program Files/EA Games/Need for Speed Heat");
             fs::create_dir_all(&game).unwrap();
             fs::write(game.join("NFSHeat.exe"), b"MZ").unwrap();
+            // The prerequisite a launcher left next to the game must not be
+            // mistaken for the game itself.
+            fs::write(game.join("dxsetup.exe"), b"MZ").unwrap();
             // The per-user override root, with a game inside it.
             let other = drive_c.join("Games/EA/Star Wars Jedi");
             fs::create_dir_all(other.join("StarWarsJD")).unwrap();
@@ -403,6 +423,31 @@ mod tests {
                 "the other drive's install is reported under that drive's path"
             );
             assert!(found.iter().all(|i| i.launcher == LAUNCHER));
+            let by_title = |t: &str| {
+                found
+                    .iter()
+                    .find(|i| i.title == t)
+                    .and_then(|i| i.executable.as_deref())
+            };
+            assert_eq!(
+                by_title("Need for Speed Heat"),
+                Some("NFSHeat.exe"),
+                "the root executable wins even when a setup stub sits beside it"
+            );
+            assert_eq!(
+                by_title("Star Wars Jedi"),
+                Some("StarWarsJD/jedi.exe"),
+                "a deeper folder is searched when the root holds no entry point"
+            );
+            assert_eq!(
+                by_title("Battlefield V"),
+                Some("BFV.exe"),
+                "installs on the other drive get an executable too"
+            );
+            assert!(
+                found.iter().all(|i| i.prefix.as_deref() == Some(prefix)),
+                "every install found in a prefix says which one"
+            );
         });
     }
 

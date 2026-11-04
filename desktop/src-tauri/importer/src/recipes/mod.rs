@@ -13,7 +13,7 @@
 
 pub mod ea;
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use serde::Serialize;
 
@@ -31,6 +31,15 @@ pub struct DetectedInstall {
     /// (EA's content id, a registry key name). Used to match a detected
     /// install against a catalog game.
     pub install_key: Option<String>,
+    /// The executable that starts the game, relative to `folder`, picked by
+    /// [`find_game_executable`]. Enough to launch the copy in place; the
+    /// player overrides it in the UI when a title disagrees with the guess.
+    pub executable: Option<String>,
+    /// The prefix root whose drive contains [`folder`], when the install
+    /// lives inside one. A game installed by a storefront into a prefix has
+    /// to run in that prefix - its registry entries, its service links, its
+    /// save paths were all written there.
+    pub prefix: Option<PathBuf>,
 }
 
 /// Every install the known recipes can find on this machine.
@@ -58,14 +67,20 @@ pub fn detect_installs(prefix_roots: &[PathBuf]) -> Vec<DetectedInstall> {
     found
 }
 
-/// True when a folder looks like a game install rather than a leftover: it
-/// contains an executable within a few levels. Recipes use this to drop the
-/// config and save folders a launcher leaves behind after an uninstall, which
-/// are otherwise indistinguishable from a game directory by name alone.
-pub(crate) fn looks_like_install(root: &std::path::Path) -> bool {
+/// The executable that starts the game inside `root`, as a path relative to
+/// it, or None when nothing in the folder could be the game itself.
+///
+/// The rule is shallowest wins: a title's entry point sits at the top of its
+/// folder far more often than not, and everything deeper is more likely a
+/// bundled tool. Installer-shaped names are skipped wherever they are,
+/// because launchers leave their prerequisites next to the game long after
+/// installing, and a folder whose only executables are prerequisites is an
+/// uninstall leftover, not a game.
+pub fn find_game_executable(root: &Path) -> Option<String> {
     if !root.is_dir() {
-        return false;
+        return None;
     }
+    let mut best: Option<(usize, String)> = None;
     let mut examined = 0usize;
     for entry in walkdir::WalkDir::new(root)
         .follow_links(false)
@@ -97,17 +112,63 @@ pub(crate) fn looks_like_install(root: &std::path::Path) -> bool {
             continue;
         }
         examined += 1;
-        if matches!(
-            entry.path().extension().and_then(|e| e.to_str()).map(|e| e.to_ascii_lowercase()),
-            Some(ext) if ext == "exe"
-        ) {
-            return true;
-        }
         // A game folder can hold a hundred thousand files; the executable is
         // nearly always near the top, so stop looking long before that.
         if examined > 4_000 {
-            return false;
+            break;
+        }
+        let path = entry.path();
+        if !matches!(
+            path.extension().and_then(|e| e.to_str()).map(|e| e.to_ascii_lowercase()),
+            Some(ext) if ext == "exe"
+        ) {
+            continue;
+        }
+        let name = path
+            .file_stem()
+            .map(|s| s.to_string_lossy().to_ascii_lowercase())
+            .unwrap_or_default();
+        if is_support_executable(&name) {
+            continue;
+        }
+        let depth = entry.depth();
+        let relative = path
+            .strip_prefix(root)
+            .ok()
+            .map(|rel| rel.to_string_lossy().replace('\\', "/"))?;
+        if best.as_ref().is_none_or(|(d, _)| depth < *d) {
+            best = Some((depth, relative));
+            // Depth 1 is as good as this heuristic gets; stop early.
+            if depth == 1 {
+                break;
+            }
         }
     }
-    false
+    best.map(|(_, rel)| rel)
+}
+
+/// Names that mean "this installs something" rather than "this is the game".
+/// Deliberately short: real entry points with a scary name (a launcher the
+/// game itself starts from, like Rockstar's LaunchPad) must survive.
+fn is_support_executable(lower_stem: &str) -> bool {
+    const SKIP: &[&str] = &[
+        "vcredist",
+        "dxsetup",
+        "dxwebsetup",
+        "directx",
+        "dotnetfx",
+        "dotnet",
+        "netfx",
+        "d3dxinstalls",
+        "xact",
+        "unins",
+        "eula",
+        "setup",
+        "install",
+        "updateinstaller",
+        "prerequisite",
+        "oeminstall",
+    ];
+    SKIP.iter()
+        .any(|skip| lower_stem.starts_with(skip) || lower_stem.ends_with(skip))
 }

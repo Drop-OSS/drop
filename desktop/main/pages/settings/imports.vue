@@ -67,29 +67,45 @@
             <p class="truncate text-sm text-ink-100">{{ install.title }}</p>
             <p class="truncate text-xs text-ink-500">{{ install.folder }}</p>
           </div>
-          <button
-            v-if="matchedGame(install)"
-            type="button"
-            class="shrink-0 rounded-md bg-accent-600 px-2.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-accent-500"
-            @click="resyncInstall(install)"
-          >
-            Resync
-          </button>
-          <button
-            v-else
-            type="button"
-            class="shrink-0 rounded-md bg-surface-700 px-2.5 py-1.5 text-xs font-semibold text-ink-100 hover:bg-surface-600"
-            @click="chooseInstall(install)"
-          >
-            Choose
-          </button>
+          <div class="flex shrink-0 items-center gap-x-2">
+            <button
+              type="button"
+              :class="
+                playing.includes(install.folder)
+                  ? 'bg-red-500/80 text-white hover:bg-red-500'
+                  : 'bg-surface-700 text-ink-100 hover:bg-surface-600'
+              "
+              class="rounded-md px-2.5 py-1.5 text-xs font-semibold shadow-sm"
+              @click="togglePlay(install)"
+            >
+              {{ playing.includes(install.folder) ? "Stop" : "Play" }}
+            </button>
+            <button
+              v-if="matchedGame(install)"
+              type="button"
+              class="rounded-md bg-accent-600 px-2.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-accent-500"
+              @click="resyncInstall(install)"
+            >
+              Resync
+            </button>
+            <button
+              v-else
+              type="button"
+              class="rounded-md bg-surface-700 px-2.5 py-1.5 text-xs font-semibold text-ink-100 hover:bg-surface-600"
+              @click="chooseInstall(install)"
+            >
+              Choose
+            </button>
+          </div>
         </li>
       </ul>
       <p class="mt-1 text-sm text-ink-400">
         A game the library already knows offers Resync and publishes straight
         into it; the rest fill the form below, where you can check the folder
         and the title before publishing - what the launcher called a folder is
-        not always what the catalog should call a game.
+        not always what the catalog should call a game. Play runs the launcher's
+        own copy where it lies, in the prefix it was found in; a session counts
+        toward the game it matches.
       </p>
       <p v-if="batchSummary" class="mt-2 text-sm text-ink-300">
         {{ batchSummary }}
@@ -269,6 +285,7 @@ import {
   importFraction,
   importPhaseLabel,
   useImports,
+  useLauncherPlay,
   type DetectedInstall,
 } from "~/composables/imports";
 
@@ -276,6 +293,7 @@ const appState = useAppState();
 const isAdmin = computed(() => appState.value?.user?.admin ?? false);
 
 const { jobs, start, cancel, importMany, batching } = useImports();
+const { playing, play, stop: stopPlay } = useLauncherPlay();
 
 const folder = ref("");
 const title = ref("");
@@ -378,6 +396,26 @@ function resyncInstall(install: DetectedInstall) {
     gameTitle: game.mName,
     gameId: game.id,
   }).catch((e) => (startError.value = String(e)));
+}
+
+/** Play the launcher's copy in place, or stop it. Any refusal (no umu, no
+ * Proton, a folder that moved) lands in the same error line as a failed
+ * import: same page, same meaning - nothing started. */
+async function togglePlay(install: DetectedInstall) {
+  if (playing.value.includes(install.folder)) {
+    await stopPlay(install.folder).catch(() => undefined);
+    return;
+  }
+  try {
+    await play({
+      folder: install.folder,
+      executable: install.executable,
+      prefix: install.prefix,
+      gameId: matchedGame(install)?.id,
+    });
+  } catch (e) {
+    startError.value = String(e);
+  }
 }
 
 /** How the last whole-library import ended, in one line. */
