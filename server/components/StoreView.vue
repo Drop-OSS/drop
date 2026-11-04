@@ -416,14 +416,20 @@ const sortOrders = ["asc", "desc"] as const;
 
 const route = useRoute();
 
-const initialSort = route.query.sort;
-const currentSort = ref(
-  sorts.find((s) => s.param === initialSort) ? initialSort : "default",
-);
-const initialOrder = route.query.order;
-const sortOrder = ref(
-  sortOrders.find((s) => s === initialOrder) ? initialOrder : "desc",
-);
+type RouteQuery = typeof route.query;
+type OptionValues = {
+  [key: string]: string | undefined | { [key: string]: boolean | undefined };
+};
+
+function parseSort(query: RouteQuery) {
+  return sorts.find((s) => s.param === query.sort)?.param ?? "default";
+}
+function parseOrder(query: RouteQuery) {
+  return sortOrders.find((s) => s === query.order) ?? "desc";
+}
+
+const currentSort = ref(parseSort(route.query));
+const sortOrder = ref(parseOrder(route.query));
 
 const options: Array<StoreFilterOption> = [
   ...(tags.length > 0
@@ -444,12 +450,10 @@ const options: Array<StoreFilterOption> = [
   },
   ...(props.extraOptions ?? []),
 ];
-const optionValues = ref<{
-  [key: string]: string | undefined | { [key: string]: boolean | undefined };
-}>(
-  Object.fromEntries(
+function parseOptionValues(query: RouteQuery) {
+  const values: OptionValues = Object.fromEntries(
     options.map((option) => {
-      const raw = route.query[option.param];
+      const raw = query[option.param];
       const fromUrl = typeof raw === "string" ? raw : undefined;
 
       const allowed = option.options.map((o) => o.param);
@@ -465,11 +469,16 @@ const optionValues = ref<{
       );
       return [option.param, Object.fromEntries(keys.map((key) => [key, true]))];
     }),
-  ),
-);
-for (const [key, value] of Object.entries(props.prefilled ?? {})) {
-  if (route.query[key] === undefined) optionValues.value[key] = value;
+  );
+  for (const [key, value] of Object.entries(props.prefilled ?? {})) {
+    // Copy so that unticking a filter never mutates the prefilled prop
+    if (query[key] === undefined)
+      values[key] = typeof value === "string" ? value : { ...value };
+  }
+  return values;
 }
+
+const optionValues = ref<OptionValues>(parseOptionValues(route.query));
 
 const filterQuery = computed(() => {
   return Object.fromEntries(
@@ -552,19 +561,37 @@ watch(currentSort, (_) => {
 watch(sortOrder, (_) => {
   updateGames(filterApiQuery.value, true);
 });
+
+// The query this component's state wants in the URL
+const stateQuery = computed(() => ({
+  sort: currentSort.value === "default" ? undefined : currentSort.value,
+  order: sortOrder.value === "desc" ? undefined : sortOrder.value,
+  ...filterQuery.value,
+}));
+
+watch(stateQuery, (query) => {
+  router.replace({ query: { ...route.query, ...query } });
+});
+
+// Picks up navigation that didn't come from this component, like the header's
+// store link. The URL already matches the state after our own replace, so that
+// returns early, which also stops prefilled values re-applying after an untick.
+const storePath = route.path;
 watch(
-  [currentSort, sortOrder, filterQuery],
-  (_) => {
-    router.replace({
-      query: {
-        ...route.query,
-        sort: currentSort.value === "default" ? undefined : currentSort.value,
-        order: sortOrder.value === "desc" ? undefined : sortOrder.value,
-        ...filterQuery.value,
-      },
-    });
+  () => route.query,
+  (query) => {
+    if (route.path !== storePath) return;
+
+    const inSync = Object.entries(stateQuery.value).every(
+      ([key, value]) => (query[key] ?? undefined) === value,
+    );
+    if (inSync) return;
+
+    // The watchers above refetch the games and tidy the URL if needed
+    currentSort.value = parseSort(query);
+    sortOrder.value = parseOrder(query);
+    optionValues.value = parseOptionValues(query);
   },
-  { deep: true },
 );
 
 await updateGames(filterApiQuery.value, true);
