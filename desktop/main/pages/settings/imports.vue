@@ -68,6 +68,15 @@
             <p class="truncate text-xs text-ink-500">{{ install.folder }}</p>
           </div>
           <button
+            v-if="matchedGame(install)"
+            type="button"
+            class="shrink-0 rounded-md bg-accent-600 px-2.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-accent-500"
+            @click="resyncInstall(install)"
+          >
+            Resync
+          </button>
+          <button
+            v-else
             type="button"
             class="shrink-0 rounded-md bg-surface-700 px-2.5 py-1.5 text-xs font-semibold text-ink-100 hover:bg-surface-600"
             @click="chooseInstall(install)"
@@ -77,8 +86,10 @@
         </li>
       </ul>
       <p class="mt-1 text-sm text-ink-400">
-        Check the folder and the title before publishing: what the launcher
-        called a folder is not always what the catalog should call a game.
+        A game the library already knows offers Resync and publishes straight
+        into it; the rest fill the form below, where you can check the folder
+        and the title before publishing - what the launcher called a folder is
+        not always what the catalog should call a game.
       </p>
       <p v-if="batchSummary" class="mt-2 text-sm text-ink-300">
         {{ batchSummary }}
@@ -285,6 +296,37 @@ const gameChoices = computed(() =>
     .sort((a, b) => a.mName.localeCompare(b.mName)),
 );
 
+/**
+ * A title folded to the shape both sides can agree on: lower case, runs of
+ * anything that is not a letter or digit collapsed to one space. Launchers
+ * write folder names ("Need for Speed™ Heat", "Star Wars Jedi: Fallen
+ * Order") and the catalog carries the same games with different punctuation;
+ * the marks and spacing are decoration on both sides, so they fall away and
+ * what is left is the name.
+ */
+const normalizeTitle = (name: string) =>
+  name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+
+/** First catalog game under each folded title - two entries for the same
+ * name is a library question, not an import question, so first wins. */
+const gamesByTitle = computed(() => {
+  const map = new Map<string, { id: string; mName: string }>();
+  for (const game of gameChoices.value) {
+    const key = normalizeTitle(game.mName);
+    if (!map.has(key)) map.set(key, game);
+  }
+  return map;
+});
+
+/** The catalog game a detected install's folder name names, when there is
+ * one. A match means the import publishes a new version of the game it
+ * belongs to instead of a near-identical row beside it. */
+const matchedGame = (install: DetectedInstall) =>
+  gamesByTitle.value.get(normalizeTitle(install.title));
+
 const canStart = computed(
   () => folder.value !== "" && title.value.trim() !== "",
 );
@@ -324,6 +366,20 @@ function chooseInstall(install: DetectedInstall) {
   title.value = install.title;
 }
 
+/** A matched install needs no form: the library already knows the game, so
+ * the press publishes a new version under it right away. A resync of
+ * unchanged files plans zero uploads, so pressing it on a game that did not
+ * move costs one scan and nothing else. */
+function resyncInstall(install: DetectedInstall) {
+  const game = matchedGame(install);
+  if (!game) return;
+  void start({
+    folder: install.folder,
+    gameTitle: game.mName,
+    gameId: game.id,
+  }).catch((e) => (startError.value = String(e)));
+}
+
 /** How the last whole-library import ended, in one line. */
 const batchSummary = ref<string | null>(null);
 
@@ -331,10 +387,16 @@ async function importAllDetected() {
   if (!detected.value.length || batching.value) return;
   batchSummary.value = null;
   const outcomes = await importMany(
-    detected.value.map((install) => ({
-      folder: install.folder,
-      gameTitle: install.title,
-    })),
+    detected.value.map((install) => {
+      const game = matchedGame(install);
+      return {
+        folder: install.folder,
+        // Under a match the catalog's own name carries the job; the folder
+        // name only ever describes an install the library has never heard of.
+        gameTitle: game?.mName ?? install.title,
+        gameId: game?.id,
+      };
+    }),
   );
   const published = outcomes.filter((outcome) => outcome.result.ok);
   const failures = outcomes.filter((outcome) => !outcome.result.ok);
