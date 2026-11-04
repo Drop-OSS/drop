@@ -214,7 +214,7 @@
               type="button"
               :class="[
                 '-m-2 ml-4 p-2 sm:ml-6 lg:hidden',
-                filterQuery
+                filterApiQuery
                   ? 'text-zinc-100 hover:text-zinc-200'
                   : 'text-zinc-500 hover:text-zinc-400',
               ]"
@@ -454,6 +454,20 @@ const optionValues = ref<{
 Object.assign(optionValues.value, props.prefilled);
 
 const filterQuery = computed(() => {
+  return Object.fromEntries(
+    Object.entries(optionValues.value).map(([name, value]) => {
+      if (typeof value === "string") return [name, value];
+
+      const picked = Object.entries(value ?? {})
+        .filter(([_, on]) => on)
+        .map(([key]) => key);
+
+      return [name, picked.length > 0 ? picked.join(",") : undefined];
+    }),
+  );
+});
+
+const filterApiQuery = computed(() => {
   const query = Object.entries(optionValues.value)
     .filter(
       ([_, v]) =>
@@ -482,7 +496,7 @@ const productGrid = useTemplateRef<HTMLElement>("product-grid");
 
 const { reset } = useInfiniteScroll(
   productGrid,
-  async () => await updateGames(filterQuery.value, false),
+  async () => await updateGames(filterApiQuery.value, false),
   {
     distance: 10,
     canLoadMore: () => {
@@ -511,30 +525,31 @@ async function updateGames(query: string, resetGames: boolean) {
   canLoadMore.value = games.value.length < newValues.count;
   loading.value = false;
 }
-watch(filterQuery, (newUrl) => {
+watch(filterApiQuery, (newUrl) => {
   updateGames(newUrl, true);
 });
 watch(currentSort, (_) => {
-  updateGames(filterQuery.value, true);
+  updateGames(filterApiQuery.value, true);
 });
 watch(sortOrder, (_) => {
-  updateGames(filterQuery.value, true);
+  updateGames(filterApiQuery.value, true);
 });
 watch(
-  [currentSort, sortOrder],
+  [currentSort, sortOrder, filterQuery],
   (_) => {
     router.replace({
       query: {
         ...route.query,
         sort: currentSort.value === "default" ? undefined : currentSort.value,
         order: sortOrder.value === "desc" ? undefined : sortOrder.value,
+        ...filterQuery.value,
       },
     });
   },
   { deep: true },
 );
 
-await updateGames(filterQuery.value, true);
+await updateGames(filterApiQuery.value, true);
 
 function handleSortClick(option: StoreSortOption, event: MouseEvent) {
   event.stopPropagation();
