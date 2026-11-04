@@ -19,7 +19,7 @@ use std::collections::BTreeSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use super::{DetectedInstall, find_game_executable};
+use super::{WindowsFs, collect_installs, resolve_windows_path};
 
 pub const LAUNCHER: &str = "ea";
 
@@ -30,76 +30,11 @@ const CONVENTIONAL_ROOTS: [&str; 3] = [
     "EA Games",
 ];
 
-/// The Windows filesystem a launcher wrote into: either a prefix's drives,
-/// with `C:\` and `Z:\` resolving through Wine's own links, or this machine's
-/// real drives on Windows.
-#[derive(Clone)]
-pub enum WindowsFs {
-    /// A WINEPREFIX-style directory containing `drive_c` and `dosdevices`.
-    Prefix(PathBuf),
-    /// Native: values are used as they stand.
-    Native,
-}
-
-impl WindowsFs {
-    /// Where a drive letter lands. A drive the prefix has no link for is not
-    /// available, which the caller reads as "no installs there".
-    fn drive_root(&self, drive: char) -> Option<PathBuf> {
-        match self {
-            WindowsFs::Native => None,
-            WindowsFs::Prefix(root) => {
-                // `drive_c` is the real directory; Wine's `c:` link points at
-                // it. Prefer the plain spelling so reported paths read as the
-                // folder a player would recognize.
-                if drive.eq_ignore_ascii_case(&'c') {
-                    let direct = root.join("drive_c");
-                    if direct.is_dir() {
-                        return Some(direct);
-                    }
-                }
-                // Wine represents each other drive as a symlink named `d:`,
-                // `z:` under `dosdevices`; `z:` is the host filesystem itself,
-                // so a launcher that installed onto a second disk needs this.
-                let link = root
-                    .join("dosdevices")
-                    .join(format!("{}:", drive.to_ascii_lowercase()));
-                if link.is_dir() {
-                    return Some(link);
-                }
-                None
-            }
-        }
+/// Installs the EA app put on this Windows filesystem.
+pub fn detect(fs: &WindowsFs, seen: &mut BTreeSet<PathBuf>, out: &mut Vec<super::DetectedInstall>) {
+    for root in install_roots(fs) {
+        collect_installs(LAUNCHER, &root, fs, seen, out);
     }
-
-    /// The C: drive, where `ProgramData` and each account's AppData live.
-    fn system_drive(&self) -> PathBuf {
-        match self {
-            WindowsFs::Native => {
-                PathBuf::from(std::env::var("SystemDrive").unwrap_or_else(|_| "C:".into()))
-            }
-            WindowsFs::Prefix(root) => self.drive_root('c').unwrap_or_else(|| root.join("drive_c")),
-        }
-    }
-}
-
-/// Installs the EA app put on this machine, searching one Windows filesystem:
-/// a prefix's drives, or the real ones on Windows.
-pub fn detect(fs: &WindowsFs) -> Vec<DetectedInstall> {
-    let mut installs = Vec::new();
-    let mut seen: BTreeSet<PathBuf> = BTreeSet::new();
-
-    // Which prefix a found folder lives in travels with it: playing the copy
-    // in place means running it through the same prefix the launcher wrote.
-    let prefix = match fs {
-        WindowsFs::Prefix(root) => Some(root.clone()),
-        WindowsFs::Native => None,
-    };
-
-    for install_root in install_roots(fs) {
-        collect_installs(&install_root, prefix.as_deref(), &mut seen, &mut installs);
-    }
-
-    installs
 }
 
 /// The directories an EA install may live directly under.
@@ -110,7 +45,7 @@ fn install_roots(fs: &WindowsFs) -> Vec<PathBuf> {
         return Vec::new();
     }
 
-    for ini in ea_ini_files(&system) {
+    for ini in ea_ini_files(fs) {
         for value in inipaths_in(&ini) {
             let Some(mapped) = resolve_windows_path(&value, fs) else {
                 continue;
@@ -133,11 +68,13 @@ fn install_roots(fs: &WindowsFs) -> Vec<PathBuf> {
     roots.into_iter().collect()
 }
 
-/// The two INI locations EA keeps install settings in, if they exist.
-fn ea_ini_files(drive_c: &Path) -> Vec<PathBuf> {
+/// The INI locations EA keeps install settings in, if they exist: the
+/// machine-wide file, plus one per signed-in account named by EA's user id.
+fn ea_ini_files(fs: &WindowsFs) -> Vec<PathBuf> {
     let mut files = Vec::new();
 
-    let machine = drive_c
+    let machine = fs
+        .system_drive()
         .join("ProgramData")
         .join("EA Desktop")
         .join("machine.ini");
@@ -145,25 +82,17 @@ fn ea_ini_files(drive_c: &Path) -> Vec<PathBuf> {
         files.push(machine);
     }
 
-    // One settings file per signed-in account, named by EA's user id.
-    let users = drive_c.join("users");
-    if let Ok(entries) = fs::read_dir(&users) {
+    for appdata in fs.user_appdata_local() {
+        let dir = appdata.join("Electronic Arts").join("EA Desktop");
+        // `fs` is the parameter here, so the stdlib call is spelled out.
+        let Ok(entries) = std::fs::read_dir(&dir) else {
+            continue;
+        };
         for entry in entries.flatten() {
-            let dir = entry
-                .path()
-                .join("AppData")
-                .join("Local")
-                .join("Electronic Arts")
-                .join("EA Desktop");
-            let Ok(appdata) = fs::read_dir(&dir) else {
-                continue;
-            };
-            for file in appdata.flatten() {
-                let path = file.path();
-                let name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
-                if name.starts_with("user_") && name.ends_with(".ini") {
-                    files.push(path);
-                }
+            let path = entry.path();
+            let name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
+            if name.starts_with("user_") && name.ends_with(".ini") {
+                files.push(path);
             }
         }
     }
@@ -197,98 +126,17 @@ fn inipaths_in(file: &Path) -> Vec<String> {
         .collect()
 }
 
-/// Interpret a Windows path written by a launcher. Values look like
-/// `C:\Program Files\EA Games\`, and the backslashes are literal: this is an
-/// INI file, not a registry export.
-///
-/// Inside a prefix each drive letter goes through the prefix's own mapping, so
-/// `Z:\Games` reaches a second disk the way Wine would. A value that climbs out
-/// of its drive with `..` is refused rather than clamped: these files are the
-/// launcher's own, and one that points sideways is not a setting worth
-/// honouring.
-fn resolve_windows_path(value: &str, fs: &WindowsFs) -> Option<PathBuf> {
-    // Take the drive only when the value really carries one: a bare
-    // `Games\EA` must keep its first segment, so the test is a
-    // letter-plus-colon prefix, not "any colon or backslash".
-    let (drive, rest) = match value.split_once(':') {
-        Some((drive, rest))
-            if drive.chars().count() == 1
-                && drive
-                    .chars()
-                    .next()
-                    .is_some_and(|c| c.is_ascii_alphabetic()) =>
-        {
-            (drive.chars().next().map(|c| c.to_ascii_lowercase()), rest)
-        }
-        _ => (None, value),
-    };
-    if matches!(fs, WindowsFs::Native) {
-        // The drives are real here; the value is already the path.
-        return Some(PathBuf::from(value));
-    }
-    let relative = rest.replace('\\', "/");
-    if relative.split('/').any(|part| part == "..") {
-        return None;
-    }
-    let base = match drive {
-        Some(letter) => fs.drive_root(letter)?,
-        // A value with no drive belongs to the system drive, as Windows reads it.
-        None => fs.system_drive(),
-    };
-    Some(
-        relative
-            .split('/')
-            .filter(|part| !part.is_empty() && *part != ".")
-            .fold(base, |mut acc, part| {
-                acc.push(part);
-                acc
-            }),
-    )
-}
-
-/// Immediate children of an install root that look like games.
-fn collect_installs(
-    root: &Path,
-    prefix: Option<&Path>,
-    seen: &mut BTreeSet<PathBuf>,
-    out: &mut Vec<DetectedInstall>,
-) {
-    let Ok(entries) = fs::read_dir(root) else {
-        return;
-    };
-    for entry in entries.flatten() {
-        let folder = entry.path();
-        if !entry.file_type().map(|t| t.is_dir()).unwrap_or(false) {
-            continue;
-        }
-        // An executable that is not a redistributable is what separates a
-        // game from the save folders and `__redist` trees a launcher leaves
-        // behind; the same walk answers both questions.
-        let Some(executable) = find_game_executable(&folder) else {
-            continue;
-        };
-        let title = folder
-            .file_name()
-            .and_then(|n| n.to_str())
-            .unwrap_or_default()
-            .to_string();
-        if title.is_empty() || !seen.insert(folder.clone()) {
-            continue;
-        }
-        out.push(DetectedInstall {
-            launcher: LAUNCHER,
-            title,
-            executable: Some(executable),
-            prefix: prefix.map(PathBuf::from),
-            folder,
-            install_key: None,
-        });
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::recipes::DetectedInstall;
+
+    fn detect_only(fs: &WindowsFs) -> Vec<DetectedInstall> {
+        let mut seen = BTreeSet::new();
+        let mut out = Vec::new();
+        detect(fs, &mut seen, &mut out);
+        out
+    }
 
     /// A prefix laid out like a real one: `drive_c`, the `dosdevices` links a
     /// launcher's drives resolve through, and EA's own settings files.
@@ -394,7 +242,7 @@ mod tests {
     #[test]
     fn detected_installs_are_game_folders_not_leftovers() {
         with_prefix_games(|prefix, fs| {
-            let found = detect(fs);
+            let found = detect_only(fs);
             let titles: Vec<&str> = found.iter().map(|i| i.title.as_str()).collect();
             assert!(
                 titles.contains(&"Need for Speed Heat"),
@@ -453,7 +301,7 @@ mod tests {
 
     #[test]
     fn a_missing_prefix_finds_nothing() {
-        let found = detect(&WindowsFs::Prefix(PathBuf::from("/nonexistent/prefix")));
+        let found = detect_only(&WindowsFs::Prefix(PathBuf::from("/nonexistent/prefix")));
         assert!(found.is_empty());
     }
 
