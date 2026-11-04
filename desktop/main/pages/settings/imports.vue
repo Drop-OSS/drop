@@ -86,7 +86,7 @@
               class="rounded-md bg-accent-600 px-2.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-accent-500"
               @click="resyncInstall(install)"
             >
-              Resync
+              {{ nodeUpdated(install) ? "Upload" : "Resync" }}
             </button>
             <button
               v-else
@@ -100,12 +100,15 @@
         </li>
       </ul>
       <p class="mt-1 text-sm text-ink-400">
-        A game the library already knows offers Resync and publishes straight
-        into it; the rest fill the form below, where you can check the folder
-        and the title before publishing - what the launcher called a folder is
-        not always what the catalog should call a game. Play runs the launcher's
-        own copy where it lies, in the prefix it was found in; a session counts
-        toward the game it matches.
+        A game the library already knows publishes straight into it with one
+        press; the rest fill the form below, where you can check the folder and
+        the title first - what the launcher called a folder is not always what
+        the catalog should call a game. GOG, Epic and Ubisoft games the depot
+        keeps its own copy of are updated by the depot itself from the store, so
+        their upload seeds it once; for EA and Rockstar games the launcher copy
+        stays current and Resync is how the depot catches up. Play runs the
+        launcher's own copy where it lies, in the prefix it was found in; a
+        session counts toward the game it matches.
       </p>
       <p v-if="batchSummary" class="mt-2 text-sm text-ink-300">
         {{ batchSummary }}
@@ -344,6 +347,14 @@ const gamesByTitle = computed(() => {
  * belongs to instead of a near-identical row beside it. */
 const matchedGame = (install: DetectedInstall) =>
   gamesByTitle.value.get(normalizeTitle(install.title));
+
+/** Providers whose depot copies the server keeps current itself, pulling
+ * new builds from the store: here, a launcher copy is a one-time seed. The
+ * rest - EA, Rockstar, Steam - have no server-side acquisition, so their
+ * launcher copy is what the depot updates from and Resync is the path. */
+const NODE_UPDATED = new Set(["gog", "epic", "ubi"]);
+const nodeUpdated = (install: DetectedInstall) =>
+  NODE_UPDATED.has(install.launcher);
 
 const canStart = computed(
   () => folder.value !== "" && title.value.trim() !== "",

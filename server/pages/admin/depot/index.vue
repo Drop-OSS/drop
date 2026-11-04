@@ -589,10 +589,44 @@
             ingest.
           </p>
         </div>
-        <span
-          class="rounded-full bg-zinc-800 px-2.5 py-1 text-xs font-medium text-zinc-400"
-          >{{ products.length }} results</span
+        <div class="flex items-center gap-3">
+          <span
+            v-if="activeProviderId === 'gog' || activeProviderId === 'ubisoft'"
+            class="inline-flex"
+          >
+            <button
+              type="button"
+              :disabled="checking || !activeConnection"
+              class="inline-flex items-center justify-center gap-2 rounded-lg border border-zinc-700 px-3.5 py-2 text-sm font-medium text-zinc-200 transition hover:border-blue-500/60 hover:bg-blue-500/10 disabled:cursor-not-allowed disabled:opacity-50"
+              @click="checkForUpdates"
+            >
+              <ArrowPathIcon
+                v-if="checking"
+                class="h-4 w-4 animate-spin"
+                aria-hidden="true"
+              />
+              <ArrowDownTrayIcon v-else class="h-4 w-4" aria-hidden="true" />
+              {{ checking ? "Checking…" : "Check for updates" }}
+            </button>
+          </span>
+          <span
+            class="rounded-full bg-zinc-800 px-2.5 py-1 text-xs font-medium text-zinc-400"
+            >{{ products.length }} results</span
+          >
+        </div>
+      </div>
+      <div
+        v-if="updatesSummary"
+        role="status"
+        class="border-b border-zinc-800 px-5 py-3 text-sm leading-6 text-zinc-300 sm:px-6"
+      >
+        <p>{{ updatesSummary.headline }}</p>
+        <ul
+          v-if="updatesSummary.lines.length"
+          class="mt-2 list-inside list-disc space-y-1 text-zinc-400"
         >
+          <li v-for="line in updatesSummary.lines" :key="line">{{ line }}</li>
+        </ul>
       </div>
 
       <div v-if="products.length === 0" class="px-5 py-14 text-center sm:px-6">
@@ -768,6 +802,8 @@ const loading = ref(false);
 const connecting = ref(false);
 const errorMessage = ref("");
 const notice = ref("");
+const checking = ref(false);
+const updatesSummary = ref<{ headline: string; lines: string[] } | null>(null);
 const products = ref<DiscoveredProduct[]>([]);
 
 interface StoredConnection {
@@ -1191,6 +1227,64 @@ async function ingest(product: DiscoveredProduct) {
         : `Could not queue ${product.title}. Configure the server-side ${label} ingestion provider first.`;
   } finally {
     product.ingesting = false;
+  }
+}
+
+/**
+ * Ask the provider for newer builds of the games the depot acquired from
+ * it, and let the server queue acquisitions for the ones that changed.
+ * Newer builds are maintenance on releases the depot already serves, so
+ * they run without a second press; titles the depot has never acquired are
+ * reported here and stay that way until someone ingests one.
+ */
+async function checkForUpdates() {
+  checking.value = true;
+  updatesSummary.value = null;
+  try {
+    const response = await $fetch<{
+      checked: number;
+      updates: Array<{
+        productId: string;
+        title: string;
+        current: string | null;
+        latest: string;
+        queued: boolean;
+      }>;
+      unimported: Array<{ productId: string; title: string }>;
+    }>(`/api/admin/depot/${activeProviderId.value}/check-updates`, {
+      method: "POST",
+    });
+    const queued = response.updates.filter((u) => u.queued).length;
+    const lines = response.updates.map(
+      (u) =>
+        `${u.title}: ${u.current ?? "no imported version"} → ${u.latest}${
+          u.queued ? "" : " (acquisition already running)"
+        }`,
+    );
+    if (response.unimported.length)
+      lines.push(
+        `${response.unimported.length} owned title(s) the depot has not acquired: ${response.unimported
+          .slice(0, 5)
+          .map((u) => u.title)
+          .join(", ")}${response.unimported.length > 5 ? "…" : ""}`,
+      );
+    updatesSummary.value = {
+      headline:
+        response.updates.length === 0
+          ? `Checked ${response.checked} acquired game(s): all current.`
+          : `${queued} of ${response.updates.length} update(s) queued from ${response.checked} acquired game(s).`,
+      lines,
+    };
+  } catch (error) {
+    updatesSummary.value = {
+      headline:
+        error instanceof Error
+          ? `Update check failed: ${error.message}`
+          : "Update check failed.",
+      lines: [],
+    };
+  } finally {
+    checking.value = false;
   }
 }
 </script>
