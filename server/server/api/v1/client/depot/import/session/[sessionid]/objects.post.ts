@@ -1,5 +1,5 @@
-import { defineEventHandler, getHeader, getRouterParam } from "h3";
-import aclManager from "~/server/internal/acls";
+import { getHeader, getRouterParam } from "h3";
+import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import { systemConfig } from "~/server/internal/config/sys-conf";
 import { depotRootFor } from "~/server/utils/depot/paths";
 import {
@@ -13,9 +13,10 @@ import {
  * stream and the object lands where the store's own layout puts it - the
  * client never names a file path here, only content.
  */
-export default defineEventHandler(async (h3) => {
-  if (!(await aclManager.allowSystemACL(h3, ["import:game:new"])))
-    throw createError({ statusCode: 403, statusMessage: "Admin only" });
+export default defineClientEventHandler(async (h3, utils) => {
+  const user = await utils.fetchUser();
+  if (!user.admin)
+    throw createError({ statusCode: 403, message: "Admins publish imports" });
   const id = getRouterParam(h3, "sessionid")!;
   const session = requireImportSession(id);
   const sha256 = (getHeader(h3, "x-content-sha256") ?? "").toLowerCase();
@@ -26,7 +27,7 @@ export default defineEventHandler(async (h3) => {
   if (stream.readableEnded || stream.destroyed)
     throw createError({
       statusCode: 400,
-      statusMessage: "A raw object body is required",
+      message: "A raw object body is required",
     });
 
   return storeImportedObject(

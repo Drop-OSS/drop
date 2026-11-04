@@ -64,6 +64,7 @@ mod collections;
 mod download_manager;
 mod downloads;
 mod games;
+mod imports;
 mod process;
 mod profiles;
 mod remote;
@@ -273,6 +274,9 @@ pub fn run() {
             saves::restore_save_version,
             saves::set_save_version_pinned,
             saves::resolve_save_conflict,
+            // Local import: bring your own game files into the depot
+            imports::start_game_import,
+            imports::cancel_game_import,
             // Profiles
             profiles::fetch_profiles,
             profiles::create_profile,

@@ -1,8 +1,8 @@
-import { defineEventHandler, getRouterParam } from "h3";
-import aclManager from "~/server/internal/acls";
+import { getRouterParam } from "h3";
+import { defineClientEventHandler } from "~/server/internal/clients/event-handler";
 import {
-  requireImportSession,
   cancelImportSession,
+  requireImportSession,
 } from "~/server/utils/import/session";
 
 /**
@@ -10,9 +10,10 @@ import {
  * and the next release that needs the same bytes dedupes against them for
  * free. Nothing else is touched.
  */
-export default defineEventHandler(async (h3) => {
-  if (!(await aclManager.allowSystemACL(h3, ["import:game:new"])))
-    throw createError({ statusCode: 403, statusMessage: "Admin only" });
+export default defineClientEventHandler(async (h3, utils) => {
+  const user = await utils.fetchUser();
+  if (!user.admin)
+    throw createError({ statusCode: 403, message: "Admins publish imports" });
   const id = getRouterParam(h3, "sessionid")!;
   const session = requireImportSession(id);
   cancelImportSession(session);

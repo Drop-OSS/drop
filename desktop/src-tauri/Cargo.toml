@@ -13,6 +13,7 @@ members = [
   "database",
   "download_manager",
   "games",
+  "importer",
   "process",
   "remote",
   "utils",
@@ -51,6 +52,7 @@ hex = "0.4.3"
 http = "1.1.0"
 http-serde = "2.1.1"
 humansize = "2.1.3"
+importer = { path = "./importer", version = "0.1.0" } # local import
 known-folders = "1.2.0"
 log = "0.4.22"
 md5 = "0.7.0"

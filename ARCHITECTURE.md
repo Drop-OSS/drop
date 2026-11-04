@@ -263,12 +263,14 @@ Desktop detects installs from EA App records
 Hash to fixed 4 MiB CAS objects -> upload only what the depot lacks
         |
         v
-Publish through stageAdapterRelease() (admin-gated, provenance recorded)
+Commit the release manifest (admin-gated, provenance recorded)
         |
         v
 Resync ships the diff after each launcher patch;
 everyone else installs and updates from the depot
 ```
+
+As built (November 2026), the import contract is provider-neutral and lives in two halves. The server half is `server/server/utils/import/session.ts`: `openImportSession` validates the declaration (logical paths, sizes, permission modes, per-chunk digests over the fixed 4 MiB chunking) and answers with the CAS objects it lacks; `storeImportedObject` re-hashes every arriving stream against its declared digest before the object lands; `commitImportSession` requires a complete set, then writes the `gamedepot-droplet` manifest, the provenance record and a Manual `GameVersion` pinned to `casManifestDigest` through `utils/import/db.ts`. Because a chunked version has no folder on disk, `versionPath` is null and disk size reads from the manifest. The routes are desktop-auth client routes under `api/v1/client/depot/import/session`, gated on the account's admin flag rather than on system ACLs, because a desktop session authenticates as a client JWT. The desktop half is the `importer` crate: `scan.rs` reproduces the server's chunking byte-for-byte (pinned by tests on both sides), and `engine.rs` runs declare → upload-the-diff → commit with bounded concurrency, per-object retry and cancellation.
 
 #### Retained EA App Modules (`server/server/utils/ea/`)
 

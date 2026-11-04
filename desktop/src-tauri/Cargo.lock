@@ -1910,6 +1910,7 @@ dependencies = [
  "http 1.4.0",
  "http-serde 2.1.1",
  "humansize",
+ "importer",
  "known-folders",
  "libloading",
  "log",
@@ -2847,6 +2848,25 @@ checksum = "3acae9609540aa318d1bc588455225fb2085b9ed0c4f6bd0d9d5bcd86f1a0344"
 dependencies = [
  "icu_normalizer",
  "icu_properties",
+]
+
+[[package]]
+name = "importer"
+version = "0.1.0"
+dependencies = [
+ "futures-util",
+ "gethostname",
+ "hex 0.4.3",
+ "log",
+ "rayon",
+ "remote",
+ "reqwest 0.12.28",
+ "reqwest-middleware 0.4.2",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "tokio",
+ "walkdir",
 ]
 
 [[package]]
