@@ -412,8 +412,18 @@ const sorts: Array<StoreSortOption> = [
     param: "name",
   },
 ];
-const currentSort = ref(sorts[0].param);
-const sortOrder = ref<"asc" | "desc">("desc");
+const sortOders = ["asc", "desc"] as const;
+
+const route = useRoute();
+
+const initialSort = route.query.sort;
+const currentSort = ref(
+  sorts.find((s) => s.param === initialSort) ? initialSort : "default",
+);
+const initialOrder = route.query.order;
+const sortOrder = ref(
+  sortOders.find((s) => s === initialOrder) ? initialOrder : "desc",
+);
 
 const options: Array<StoreFilterOption> = [
   ...(tags.length > 0
@@ -481,6 +491,7 @@ const { reset } = useInfiniteScroll(
   },
 );
 
+const router = useRouter();
 const canLoadMore = ref(true);
 async function updateGames(query: string, resetGames: boolean) {
   loading.value = true;
@@ -509,6 +520,19 @@ watch(currentSort, (_) => {
 watch(sortOrder, (_) => {
   updateGames(filterQuery.value, true);
 });
+watch(
+  [currentSort, sortOrder],
+  (_) => {
+    router.replace({
+      query: {
+        ...route.query,
+        sort: currentSort.value === "default" ? undefined : currentSort.value,
+        order: sortOrder.value === "desc" ? undefined : sortOrder.value,
+      },
+    });
+  },
+  { deep: true },
+);
 
 await updateGames(filterQuery.value, true);
 
