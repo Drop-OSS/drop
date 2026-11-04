@@ -448,7 +448,15 @@ const optionValues = ref<{
   [key: string]: string | undefined | { [key: string]: boolean | undefined };
 }>(
   Object.fromEntries(
-    options.map((v) => [v.param, v.multiple ? {} : undefined]),
+    options.map((option) => {
+      const raw = route.query[option.param];
+      const fromUrl = typeof raw === "string" ? raw : undefined;
+
+      if (!option.multiple) return [option.param, fromUrl];
+
+      const keys = fromUrl ? fromUrl.split(",") : [];
+      return [option.param, Object.fromEntries(keys.map((key) => [key, true]))];
+    }),
   ),
 );
 Object.assign(optionValues.value, props.prefilled);
