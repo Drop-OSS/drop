@@ -3,6 +3,14 @@ import prisma from "../db/database";
 import { sum } from "../../../utils/array";
 import { createDownloadManifestDetails } from "../library/manifest";
 import { castManifest } from "../library/manifest/utils";
+import { readFile } from "node:fs/promises";
+import { systemConfig } from "../config/sys-conf";
+import {
+  casManifestPath,
+  depotRootFor,
+  isContentDigest,
+} from "../../utils/depot/paths";
+import { parseDropletManifest } from "../../utils/depot/manifest";
 
 export type GameVersionSize = {
   versionId: string;
@@ -64,9 +72,29 @@ class GameSizeManager {
       },
       select: {
         dropletManifest: true,
+        casManifestDigest: true,
       },
     });
     if (!version) return null;
+    // A chunk-addressed release (imported, or a library version that has been
+    // chunked) carries its authoritative size in its own self-digesting
+    // manifest; the imported ones have no V2 manifest behind them at all.
+    if (isContentDigest(version.casManifestDigest)) {
+      try {
+        const manifest = parseDropletManifest(
+          await readFile(
+            casManifestPath(
+              depotRootFor(systemConfig.getDataFolder()),
+              version.casManifestDigest,
+            ),
+            "utf8",
+          ),
+        );
+        return sum(manifest.files.map((file) => file.size));
+      } catch {
+        // Store lost the manifest: fall back to the V2 figure if there is one.
+      }
+    }
     return castManifest(version.dropletManifest).size;
   }
 

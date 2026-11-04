@@ -29,6 +29,7 @@ export default defineQueryProcessor({
       select: {
         dropletManifest: true,
         versionPath: true,
+        casManifestDigest: true,
         game: {
           select: {
             library: true,
@@ -38,6 +39,11 @@ export default defineQueryProcessor({
       },
     });
     if (!version) throw "Game version not found";
+    // A release with no library folder is served by digest from the chunk
+    // store (local imports live here); the upstream manifest path has
+    // nothing to hand out for it.
+    if (!version.versionPath)
+      throw "This version has no library folder; it is served from the content-addressed chunk store";
 
     const manifest = castManifest(version.dropletManifest);
 
