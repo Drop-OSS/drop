@@ -129,6 +129,21 @@ export const useImports = (): ImportsState => {
   };
 };
 
+/** One install a storefront says it put on this machine. */
+export interface DetectedInstall {
+  launcher: string;
+  title: string;
+  folder: string;
+  installKey?: string;
+}
+
+/** What the launchers on this machine report having installed. Reads the
+ * files they left behind, so it works offline. */
+export const detectLauncherInstalls = (extraPrefixes?: string[]) =>
+  invoke<DetectedInstall[]>("detect_launcher_installs", {
+    extraPrefixes: extraPrefixes ?? null,
+  });
+
 /**
  * How far along a job is, 0..1, on the measure that phase actually moves:
  * bytes hashed for the scan, bytes shipped for the upload. Committing is a

@@ -6,14 +6,16 @@
 //! cloud saves report progress.
 
 use std::collections::HashMap;
+use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::nonpoison::Mutex;
 use std::sync::{Arc, LazyLock};
 
+use database::db::DATA_ROOT_DIR;
 use serde::Serialize;
 use tauri::{AppHandle, Emitter};
 
-use importer::{ImportError, ImportProgress, ImportRequest, run_import};
+use importer::{DetectedInstall, ImportError, ImportProgress, ImportRequest, run_import};
 
 pub static IMPORT_JOBS: LazyLock<Mutex<HashMap<String, Arc<AtomicBool>>>> =
     LazyLock::new(Default::default);
@@ -114,4 +116,41 @@ pub fn cancel_game_import(job_id: String) -> bool {
         return true;
     }
     false
+}
+
+/// What the storefronts on this machine say they installed.
+///
+/// Detection reads the files a launcher left behind, not its services, so it
+/// works offline and when nobody is signed in. It only prefills the import
+/// form: nothing reaches the depot until a player - an admin - presses Import.
+///
+/// `extra_prefixes` lets a view add Wine/umu prefix directories beyond the
+/// ones Drop creates itself.
+#[tauri::command]
+pub async fn detect_launcher_installs(
+    extra_prefixes: Option<Vec<String>>,
+) -> Result<Vec<DetectedInstall>, String> {
+    let mut roots: Vec<PathBuf> = Vec::new();
+    let own = DATA_ROOT_DIR.join("pfx");
+    if let Ok(entries) = std::fs::read_dir(&own) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                roots.push(path);
+            }
+        }
+    }
+    roots.extend(
+        extra_prefixes
+            .unwrap_or_default()
+            .into_iter()
+            .map(PathBuf::from)
+            .filter(|p| p.is_dir()),
+    );
+
+    // The scan walks game folders, which is disk work worth keeping off the
+    // reactor.
+    tauri::async_runtime::spawn_blocking(move || importer::detect_installs(&roots))
+        .await
+        .map_err(|e| e.to_string())
 }

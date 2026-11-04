@@ -277,6 +277,7 @@ pub fn run() {
             // Local import: bring your own game files into the depot
             imports::start_game_import,
             imports::cancel_game_import,
+            imports::detect_launcher_installs,
             // Profiles
             profiles::fetch_profiles,
             profiles::create_profile,

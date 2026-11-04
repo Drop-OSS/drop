@@ -9,7 +9,12 @@
 //! steadily instead of materialising in RAM.
 
 pub mod engine;
+pub mod recipes;
 pub mod scan;
 
 pub use engine::{ImportOutcome, ImportProgress, ImportRequest, cancel_session, run_import};
+pub use recipes::DetectedInstall;
 pub use scan::{ImportError, ScanProgress, ScanResult, ScannedFile, scan_folder};
+
+/// Convenience for callers that only want the detected installs, serialized.
+pub use recipes::detect_installs;

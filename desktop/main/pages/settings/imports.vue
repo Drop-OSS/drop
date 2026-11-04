@@ -22,6 +22,53 @@
       </p>
     </div>
 
+    <div v-if="detected.length" class="mt-6 max-w-xl">
+      <div class="flex items-center justify-between gap-x-4">
+        <h3 class="text-sm font-medium text-ink-100">
+          Installs your launchers found
+        </h3>
+        <div class="flex items-center gap-x-4">
+          <button
+            type="button"
+            class="text-sm text-ink-400 hover:text-ink-100"
+            @click="scanAnotherPrefix"
+          >
+            Scan a prefix
+          </button>
+          <button
+            type="button"
+            class="text-sm text-ink-400 hover:text-ink-100"
+            @click="loadDetected"
+          >
+            Rescan
+          </button>
+        </div>
+      </div>
+      <ul role="list" class="mt-2 divide-y divide-surface-700">
+        <li
+          v-for="install in detected"
+          :key="install.folder"
+          class="flex items-center justify-between gap-x-6 py-3"
+        >
+          <div class="min-w-0">
+            <p class="truncate text-sm text-ink-100">{{ install.title }}</p>
+            <p class="truncate text-xs text-ink-500">{{ install.folder }}</p>
+          </div>
+          <button
+            type="button"
+            class="shrink-0 rounded-md bg-surface-700 px-2.5 py-1.5 text-xs font-semibold text-ink-100 hover:bg-surface-600"
+            @click="chooseInstall(install)"
+          >
+            Choose
+          </button>
+        </li>
+      </ul>
+      <p class="mt-1 text-sm text-ink-400">
+        Check the folder and the title before publishing: what the launcher
+        called a folder is not always what the catalog should call a game.
+      </p>
+    </div>
+
     <div class="mt-6 max-w-xl space-y-4">
       <div>
         <label class="block text-sm font-medium text-ink-100"
@@ -191,9 +238,11 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
 import type { Game } from "~/types";
 import {
+  detectLauncherInstalls,
   importFraction,
   importPhaseLabel,
   useImports,
+  type DetectedInstall,
 } from "~/composables/imports";
 
 const appState = useAppState();
@@ -223,6 +272,41 @@ const gameChoices = computed(() =>
 const canStart = computed(
   () => folder.value !== "" && title.value.trim() !== "",
 );
+
+/** What the storefronts on this machine report installing. Detection reads
+ * the files a launcher left behind, so it is cheap and it works offline. */
+const detected = ref<DetectedInstall[]>([]);
+
+/** Prefixes outside Drop's own `pfx` directory - a Lutris or Proton prefix
+ * the player pointed at for this session. */
+const extraPrefixes = ref<string[]>([]);
+
+async function loadDetected() {
+  try {
+    detected.value = await detectLauncherInstalls(extraPrefixes.value);
+  } catch (e) {
+    console.warn("launcher install detection failed:", e);
+    detected.value = [];
+  }
+}
+
+void loadDetected();
+
+async function scanAnotherPrefix() {
+  const picked = await open({
+    multiple: false,
+    directory: true,
+    canCreateDirectories: false,
+  });
+  if (typeof picked !== "string") return;
+  if (!extraPrefixes.value.includes(picked)) extraPrefixes.value.push(picked);
+  await loadDetected();
+}
+
+function chooseInstall(install: DetectedInstall) {
+  folder.value = install.folder;
+  title.value = install.title;
+}
 
 async function pickFolder() {
   const picked = await open({
