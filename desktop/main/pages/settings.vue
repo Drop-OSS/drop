@@ -44,6 +44,7 @@
 import {
   ArrowDownTrayIcon,
   CubeIcon,
+  FolderPlusIcon,
   HomeIcon,
   UserGroupIcon,
   BugAntIcon,
@@ -106,6 +107,16 @@ const navigation = computed(() => [
     prefix: "/settings/downloads",
     icon: ArrowDownTrayIcon,
   },
+  ...(appState.value?.user?.admin
+    ? [
+        {
+          label: "Game files",
+          route: "/settings/imports",
+          prefix: "/settings/imports",
+          icon: FolderPlusIcon,
+        },
+      ]
+    : []),
   ...(appState.value!.umuState !== "NotNeeded"
     ? [
         {
