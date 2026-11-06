@@ -214,7 +214,7 @@
               type="button"
               :class="[
                 '-m-2 ml-4 p-2 sm:ml-6 lg:hidden',
-                filterQuery
+                filterApiQuery
                   ? 'text-zinc-100 hover:text-zinc-200'
                   : 'text-zinc-500 hover:text-zinc-400',
               ]"
@@ -387,7 +387,7 @@ const props = defineProps<{
   params?: { [key: string]: string };
   extraOptions?: Array<StoreFilterOption>;
   prefilled?: {
-    [key: string]: { [key: string]: string | { [key: string]: boolean } };
+    [key: string]: string | { [key: string]: boolean };
   };
 }>();
 
@@ -412,8 +412,24 @@ const sorts: Array<StoreSortOption> = [
     param: "name",
   },
 ];
-const currentSort = ref(sorts[0].param);
-const sortOrder = ref<"asc" | "desc">("desc");
+const sortOrders = ["asc", "desc"] as const;
+
+const route = useRoute();
+
+type RouteQuery = typeof route.query;
+type OptionValues = {
+  [key: string]: string | undefined | { [key: string]: boolean | undefined };
+};
+
+function parseSort(query: RouteQuery) {
+  return sorts.find((s) => s.param === query.sort)?.param ?? "default";
+}
+function parseOrder(query: RouteQuery) {
+  return sortOrders.find((s) => s === query.order) ?? "desc";
+}
+
+const currentSort = ref(parseSort(route.query));
+const sortOrder = ref(parseOrder(route.query));
 
 const options: Array<StoreFilterOption> = [
   ...(tags.length > 0
@@ -434,35 +450,54 @@ const options: Array<StoreFilterOption> = [
   },
   ...(props.extraOptions ?? []),
 ];
-const optionValues = ref<{
-  [key: string]: string | undefined | { [key: string]: boolean | undefined };
-}>(
-  Object.fromEntries(
-    options.map((v) => [v.param, v.multiple ? {} : undefined]),
-  ),
-);
-Object.assign(optionValues.value, props.prefilled);
+function parseOptionValues(query: RouteQuery) {
+  const values: OptionValues = Object.fromEntries(
+    options.map((option) => {
+      const raw = query[option.param];
+      const fromUrl = typeof raw === "string" ? raw : undefined;
+
+      const allowed = option.options.map((o) => o.param);
+
+      if (!option.multiple)
+        return [
+          option.param,
+          fromUrl && allowed.includes(fromUrl) ? fromUrl : undefined,
+        ];
+
+      const keys = (fromUrl ? fromUrl.split(",") : []).filter((k) =>
+        allowed.includes(k),
+      );
+      return [option.param, Object.fromEntries(keys.map((key) => [key, true]))];
+    }),
+  );
+  for (const [key, value] of Object.entries(props.prefilled ?? {})) {
+    // Copy so that unticking a filter never mutates the prefilled prop
+    if (query[key] === undefined)
+      values[key] = typeof value === "string" ? value : { ...value };
+  }
+  return values;
+}
+
+const optionValues = ref<OptionValues>(parseOptionValues(route.query));
 
 const filterQuery = computed(() => {
-  const query = Object.entries(optionValues.value)
-    .filter(
-      ([_, v]) =>
-        v &&
-        (typeof v !== "object" || Object.values(v).filter((e) => e).length > 0),
-    )
-    .map(([n, v]) => {
-      if (typeof v === "string") return [`${n}=${v}`];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const enabledOptions = Object.entries(v as any).filter(([_, e]) => e);
-      return `${n}=${enabledOptions.map(([k, _]) => k).join(",")}`;
-    })
-    .join("&");
-  const extraFilters = props.params
-    ? Object.entries(props.params)
-        .map(([k, v]) => `${k}=${v}`)
-        .join("&")
-    : props.params;
-  return `${query}${extraFilters ? (query ? "&" : "") + extraFilters : ""}`;
+  return Object.fromEntries(
+    Object.entries(optionValues.value).map(([name, value]) => {
+      if (typeof value === "string") return [name, value];
+
+      const picked = Object.entries(value ?? {})
+        .filter(([_, on]) => on)
+        .map(([key]) => key);
+
+      return [name, picked.length > 0 ? picked.join(",") : undefined];
+    }),
+  );
+});
+
+const filterApiQuery = computed(() => {
+  const filters = Object.entries(filterQuery.value).filter(([_, v]) => v);
+  const extraFilters = Object.entries(props.params ?? {});
+  return [...filters, ...extraFilters].map(([k, v]) => `${k}=${v}`).join("&");
 });
 
 const games = ref<Array<SerializeObject<GameModel>>>();
@@ -472,7 +507,7 @@ const productGrid = useTemplateRef<HTMLElement>("product-grid");
 
 const { reset } = useInfiniteScroll(
   productGrid,
-  async () => await updateGames(filterQuery.value, false),
+  async () => await updateGames(filterApiQuery.value, false),
   {
     distance: 10,
     canLoadMore: () => {
@@ -481,6 +516,7 @@ const { reset } = useInfiniteScroll(
   },
 );
 
+const router = useRouter();
 const canLoadMore = ref(true);
 async function updateGames(query: string, resetGames: boolean) {
   loading.value = true;
@@ -500,17 +536,49 @@ async function updateGames(query: string, resetGames: boolean) {
   canLoadMore.value = games.value.length < newValues.count;
   loading.value = false;
 }
-watch(filterQuery, (newUrl) => {
+watch(filterApiQuery, (newUrl) => {
   updateGames(newUrl, true);
 });
 watch(currentSort, (_) => {
-  updateGames(filterQuery.value, true);
+  updateGames(filterApiQuery.value, true);
 });
 watch(sortOrder, (_) => {
-  updateGames(filterQuery.value, true);
+  updateGames(filterApiQuery.value, true);
 });
 
-await updateGames(filterQuery.value, true);
+// The query this component's state wants in the URL
+const stateQuery = computed(() => ({
+  sort: currentSort.value === "default" ? undefined : currentSort.value,
+  order: sortOrder.value === "desc" ? undefined : sortOrder.value,
+  ...filterQuery.value,
+}));
+
+watch(stateQuery, (query) => {
+  router.replace({ query: { ...route.query, ...query } });
+});
+
+// Picks up navigation that didn't come from this component, like the header's
+// store link. The URL already matches the state after our own replace, so that
+// returns early, which also stops prefilled values re-applying after an untick.
+const storePath = route.path;
+watch(
+  () => route.query,
+  (query) => {
+    if (route.path !== storePath) return;
+
+    const inSync = Object.entries(stateQuery.value).every(
+      ([key, value]) => (query[key] ?? undefined) === value,
+    );
+    if (inSync) return;
+
+    // The watchers above refetch the games and tidy the URL if needed
+    currentSort.value = parseSort(query);
+    sortOrder.value = parseOrder(query);
+    optionValues.value = parseOptionValues(query);
+  },
+);
+
+await updateGames(filterApiQuery.value, true);
 
 function handleSortClick(option: StoreSortOption, event: MouseEvent) {
   event.stopPropagation();
