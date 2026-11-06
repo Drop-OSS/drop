@@ -496,9 +496,7 @@ const filterQuery = computed(() => {
 
 const filterApiQuery = computed(() => {
   const filters = Object.entries(filterQuery.value).filter(([_, v]) => v);
-  const extraFilters = Object.entries(props.params ?? {}).filter(
-    ([k]) => !filterQuery.value[k],
-  );
+  const extraFilters = Object.entries(props.params ?? {});
   return [...filters, ...extraFilters].map(([k, v]) => `${k}=${v}`).join("&");
 });
 
