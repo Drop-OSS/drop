@@ -7,7 +7,7 @@
     <div class="grow flex">
       <NuxtPage />
     </div>
-    <LazyUserFooter class="z-50" hydrate-on-interaction />
+    <LazyUserFooter class="z-30" hydrate-on-interaction />
   </div>
   <div v-else class="flex flex-col w-full min-h-screen bg-zinc-900">
     <NuxtPage />
