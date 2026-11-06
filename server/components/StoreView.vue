@@ -495,25 +495,11 @@ const filterQuery = computed(() => {
 });
 
 const filterApiQuery = computed(() => {
-  const query = Object.entries(optionValues.value)
-    .filter(
-      ([_, v]) =>
-        v &&
-        (typeof v !== "object" || Object.values(v).filter((e) => e).length > 0),
-    )
-    .map(([n, v]) => {
-      if (typeof v === "string") return [`${n}=${v}`];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const enabledOptions = Object.entries(v as any).filter(([_, e]) => e);
-      return `${n}=${enabledOptions.map(([k, _]) => k).join(",")}`;
-    })
-    .join("&");
-  const extraFilters = props.params
-    ? Object.entries(props.params)
-        .map(([k, v]) => `${k}=${v}`)
-        .join("&")
-    : props.params;
-  return `${query}${extraFilters ? (query ? "&" : "") + extraFilters : ""}`;
+  const filters = Object.entries(filterQuery.value).filter(([_, v]) => v);
+  const extraFilters = Object.entries(props.params ?? {}).filter(
+    ([k]) => !filterQuery.value[k],
+  );
+  return [...filters, ...extraFilters].map(([k, v]) => `${k}=${v}`).join("&");
 });
 
 const games = ref<Array<SerializeObject<GameModel>>>();
