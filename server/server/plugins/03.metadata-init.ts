@@ -2,6 +2,7 @@ import { applicationSettings } from "../internal/config/application-configuratio
 import type { MetadataProvider } from "../internal/metadata";
 import metadataHandler from "../internal/metadata";
 import { IGDBProvider } from "../internal/metadata/igdb";
+import { LaunchBoxProvider } from "../internal/metadata/launchbox";
 import { ManualMetadataProvider } from "../internal/metadata/manual";
 import { PCGamingWikiProvider } from "../internal/metadata/pcgamingwiki";
 import { SteamProvider } from "../internal/metadata/steam";
@@ -13,6 +14,7 @@ export default defineNitroPlugin(async (_nitro) => {
     SteamProvider,
     PCGamingWikiProvider,
     IGDBProvider,
+    LaunchBoxProvider,
   ];
 
   const providers = new Map<string, MetadataProvider>();

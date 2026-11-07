@@ -6,6 +6,11 @@ class SystemConfig {
 
   private metadataTimeout = parseInt(process.env.METADATA_TIMEOUT ?? "5000");
 
+  // Opt-in: the LaunchBox metadata archive is ~109MB compressed and needs a
+  // local index to be queryable. Unset means the provider stays disabled
+  // rather than downloading the archive mid-search.
+  private launchboxIndexDir = process.env.LAUNCHBOX_INDEX_DIR;
+
   private externalUrl = normalizeUrl(
     process.env.EXTERNAL_URL ?? "http://localhost:3000",
     { stripWWW: false },
@@ -47,6 +52,10 @@ class SystemConfig {
 
   getMetadataTimeout() {
     return this.metadataTimeout;
+  }
+
+  getLaunchboxIndexDir() {
+    return this.launchboxIndexDir;
   }
 
   getDropVersion() {
