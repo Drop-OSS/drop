@@ -81,9 +81,24 @@ fn manifest_install(manifest: &Path, fs: &WindowsFs) -> Option<DetectedInstall> 
         .filter(|exe| folder.join(exe).is_file())
         .or_else(|| find_game_executable(&folder));
 
+    // Epic frequently installs into a folder named after the raw app id, so
+    // the folder name is only the fallback: the manifest's own DisplayName
+    // is the human title Epic shows in its launcher.
+    let display_name = json
+        .get("DisplayName")
+        .and_then(|v| v.as_str())
+        .map(str::trim)
+        .filter(|name| !name.is_empty());
+    let title = display_name.map(str::to_string).or_else(|| {
+        folder
+            .file_name()
+            .and_then(|n| n.to_str())
+            .map(str::to_string)
+    })?;
+
     Some(DetectedInstall {
         launcher: LAUNCHER,
-        title: folder.file_name().and_then(|n| n.to_str())?.to_string(),
+        title,
         install_key: Some(app_name.to_string()),
         executable,
         folder,
@@ -164,6 +179,39 @@ mod tests {
         );
         assert_eq!(out[0].title, "Death Stranding");
         assert_eq!(out[0].install_key, None);
+        std::fs::remove_dir_all(&prefix).ok();
+    }
+
+    #[test]
+    fn display_name_beats_a_hash_named_folder() {
+        let prefix = temp("displayname");
+        let _ = std::fs::remove_dir_all(&prefix);
+        let drive_c = prefix.join("drive_c");
+        let manifests = drive_c.join("ProgramData/Epic/EpicGamesLauncher/Data/Manifests");
+        std::fs::create_dir_all(&manifests).unwrap();
+        // The real-world shape: install folder named after the raw app id,
+        // the human name only in the manifest.
+        std::fs::write(
+            manifests.join("catalog-stranding.item"),
+            r#"{"AppName":"7ce1367f0ee846418b236dfe96d30c2c","DisplayName":"Death Stranding","InstallLocation":"C:\\Games\\Epic\\7ce1367f0ee846418b236dfe96d30c2c"}"#,
+        )
+        .unwrap();
+        let game = drive_c.join("Games/Epic/7ce1367f0ee846418b236dfe96d30c2c");
+        std::fs::create_dir_all(&game).unwrap();
+        std::fs::write(game.join("DeathStranding.exe"), b"MZ").unwrap();
+
+        let fs = WindowsFs::Prefix(prefix.clone());
+        let mut seen = BTreeSet::new();
+        let mut out = Vec::new();
+        detect(&fs, &mut seen, &mut out);
+
+        assert_eq!(out.len(), 1, "{out:?}");
+        assert_eq!(out[0].title, "Death Stranding", "never the hash");
+        assert_eq!(
+            out[0].install_key.as_deref(),
+            Some("7ce1367f0ee846418b236dfe96d30c2c"),
+            "the app id stays the install key"
+        );
         std::fs::remove_dir_all(&prefix).ok();
     }
 }
