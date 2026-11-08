@@ -267,10 +267,19 @@ pub struct VersionDownloadOption {
     pub game_id: String,
     pub version_id: String,
     display_name: Option<String>,
-    version_path: String,
+    /// Absent for a chunk-store import: it has no server-side version folder.
+    version_path: Option<String>,
+    /// Whether the build starts on its own; false means launch hands off to
+    /// the store client. Defaulted true for servers older than the flag.
+    #[serde(default = "default_true")]
+    pub runs_standalone: bool,
     pub platform: Platform,
     size: GameSize,
     required_content: Vec<VersionDownloadOptionRequiredContent>,
+}
+
+fn default_true() -> bool {
+    true
 }
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

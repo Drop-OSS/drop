@@ -21,6 +21,7 @@ pub enum ProcessError {
     FailedLaunch(String),
     NotExecutable(String),
     NoCompat,
+    StoreClientRequired,
 }
 
 impl Display for ProcessError {
@@ -47,7 +48,12 @@ impl Display for ProcessError {
                 "Missing a required dependency to launch this game: {} {}",
                 game_id, version_id
             ),
-            ProcessError::NoCompat => "No Proton compatibility layer could be found for this tool. Add an override or set your global default in settings.",
+            ProcessError::NoCompat => {
+                "No Proton compatibility layer could be found for this tool. Add an override or set your global default in settings."
+            }
+            ProcessError::StoreClientRequired => {
+                "This build does not start on its own - it needs its store client running. Playing launcher-gated builds through the storefront is not implemented yet."
+            }
         };
         write!(f, "{s}")
     }

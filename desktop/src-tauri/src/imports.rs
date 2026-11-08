@@ -45,6 +45,7 @@ pub async fn start_game_import(
     game_title: String,
     app_version: Option<String>,
     game_id: Option<String>,
+    runs_standalone: Option<bool>,
 ) -> Result<String, String> {
     let job_id = format!("{:016x}", rand::random::<u64>());
     let cancel = Arc::new(AtomicBool::new(false));
@@ -56,6 +57,9 @@ pub async fn start_game_import(
         game_title: game_title.clone(),
         app_version,
         game_id,
+        // Omitted means self-starting, the server's own default; the import
+        // form sets it false for a legit EA/Rockstar/Ubisoft folder.
+        runs_standalone: runs_standalone.unwrap_or(true),
     };
 
     let app = app_handle.clone();

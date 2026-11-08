@@ -101,6 +101,7 @@ export function prismaImportDatabase(): ImportDatabase {
       casManifestDigest,
       fileList,
       versionIndex,
+      runsStandalone,
     }) {
       const version = await prisma.gameVersion.create({
         data: {
@@ -111,6 +112,7 @@ export function prismaImportDatabase(): ImportDatabase {
           casManifestDigest,
           fileList,
           versionIndex,
+          runsStandalone,
         },
       });
       return version.versionId;

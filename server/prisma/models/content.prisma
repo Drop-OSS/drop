@@ -151,6 +151,12 @@ model GameVersion {
   // release: the manifest file is named after it and every chunk is addressed
   // by its own digest inside it.
   casManifestDigest String         @default("")
+  // Whether this build starts on its own (DRM-free, anonymous-EOS, or a
+  // self-starting build) or needs its store client running first (legit
+  // EA/Rockstar/Ubisoft and mandatory-login titles). The publisher declares
+  // it — it is a property of the bytes, not a runtime question. Launchers
+  // default to direct exec when true and to client handoff when false.
+  runsStandalone Boolean @default(true)
   fileList         String[] // List of all files, for delta updates
   negativeFileList String[] // List of files to remove, for delta updates
 

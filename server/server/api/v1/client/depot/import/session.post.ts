@@ -24,6 +24,7 @@ const OpenBody = type({
   "appVersion?": "string",
   "gameId?": "string",
   "device?": "string",
+  "runsStandalone?": "boolean",
   files: File.array(),
 }).configure(throwingArktype);
 
@@ -54,6 +55,9 @@ export default defineClientEventHandler(async (h3, utils) => {
       ...(body.appVersion !== undefined ? { appVersion: body.appVersion } : {}),
       ...(body.gameId !== undefined ? { gameId: body.gameId } : {}),
       ...(body.device !== undefined ? { device: body.device } : {}),
+      ...(body.runsStandalone !== undefined
+        ? { runsStandalone: body.runsStandalone }
+        : {}),
       importer: `user:${user.id}`,
       files: body.files,
     },

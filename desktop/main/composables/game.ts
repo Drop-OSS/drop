@@ -8,8 +8,9 @@ import type {
   RawGameStatus,
 } from "~/types";
 
-const gameRegistry: { [key: string]: { game: Game; version: Ref<GameVersion | undefined> } } =
-  {};
+const gameRegistry: {
+  [key: string]: { game: Game; version: Ref<GameVersion | undefined> };
+} = {};
 
 const gameStatusRegistry: { [key: string]: Ref<GameStatus> } = {};
 
@@ -70,7 +71,10 @@ export type LaunchResult =
 export type VersionOption = {
   versionId: string;
   displayName?: string;
-  versionPath: string;
+  /** Absent for a chunk-store import: that version has no server folder. */
+  versionPath?: string;
+  /** False means the build needs its store client: launch hands off. */
+  runsStandalone?: boolean;
   platform: string;
   size: {
     installSize: number;

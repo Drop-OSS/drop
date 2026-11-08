@@ -170,6 +170,25 @@
       </div>
 
       <div>
+        <label class="flex items-start gap-3">
+          <input
+            v-model="runsStandalone"
+            type="checkbox"
+            class="mt-0.5 h-4 w-4 shrink-0 rounded border-surface-600 bg-surface-800 text-accent-600 focus:ring-accent-600"
+          />
+          <span class="text-sm text-ink-100">
+            This build starts without its store client
+            <span class="mt-1 block text-ink-400">
+              Leave it on for DRM-free or self-starting builds. A legitimate EA,
+              Rockstar or Ubisoft copy needs its launcher running to
+              authenticate, so turn it off for those - playing one then hands
+              off to the store client instead of exec'ing the game directly.
+            </span>
+          </span>
+        </label>
+      </div>
+
+      <div>
         <label for="import-game" class="block text-sm font-medium text-ink-100">
           Publish as
         </label>
@@ -302,6 +321,9 @@ const folder = ref("");
 const title = ref("");
 const appVersion = ref("");
 const gameId = ref("");
+/** Whether the manual import's build starts on its own; a legit store build
+ * the client must launch flips this off. See `standaloneByLauncher`. */
+const runsStandalone = ref(true);
 const startError = ref<string | null>(null);
 
 /** Catalog titles a resync can publish a new version under. */
@@ -356,6 +378,18 @@ const NODE_UPDATED = new Set(["gog", "epic", "ubi"]);
 const nodeUpdated = (install: DetectedInstall) =>
   NODE_UPDATED.has(install.launcher);
 
+/**
+ * Whether a launcher's copy normally starts on its own. GOG is DRM-free and
+ * Epic builds run anonymously unless the publisher says otherwise, so both
+ * default to direct exec; EA, Rockstar, Ubisoft and Steam builds authenticate
+ * through their client, so their copies default to handoff. A self-starting
+ * crack of a launcher-gated title is exactly why this is only the default -
+ * the form's checkbox is where the player corrects it for the bytes they own.
+ */
+const STANDALONE_LAUNCHERS = new Set(["gog", "epic"]);
+const standaloneByLauncher = (launcher: string) =>
+  STANDALONE_LAUNCHERS.has(launcher);
+
 const canStart = computed(
   () => folder.value !== "" && title.value.trim() !== "",
 );
@@ -393,6 +427,7 @@ async function scanAnotherPrefix() {
 function chooseInstall(install: DetectedInstall) {
   folder.value = install.folder;
   title.value = install.title;
+  runsStandalone.value = standaloneByLauncher(install.launcher);
 }
 
 /** A matched install needs no form: the library already knows the game, so
@@ -406,6 +441,7 @@ function resyncInstall(install: DetectedInstall) {
     folder: install.folder,
     gameTitle: game.mName,
     gameId: game.id,
+    runsStandalone: standaloneByLauncher(install.launcher),
   }).catch((e) => (startError.value = String(e)));
 }
 
@@ -444,6 +480,7 @@ async function importAllDetected() {
         // name only ever describes an install the library has never heard of.
         gameTitle: game?.mName ?? install.title,
         gameId: game?.id,
+        runsStandalone: standaloneByLauncher(install.launcher),
       };
     }),
   );
@@ -477,6 +514,7 @@ async function startImport() {
       gameTitle: title.value.trim(),
       appVersion: appVersion.value.trim() || undefined,
       gameId: gameId.value || undefined,
+      runsStandalone: runsStandalone.value,
     });
   } catch (e) {
     startError.value = String(e);

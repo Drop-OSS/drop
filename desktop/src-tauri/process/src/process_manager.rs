@@ -16,7 +16,10 @@ use database::{
 };
 use dynfmt::Format;
 use dynfmt::SimpleCurlyFormat;
-use games::{library::{push_game_update, report_playtime}, state::GameStatusManager};
+use games::{
+    library::{push_game_update, report_playtime},
+    state::GameStatusManager,
+};
 use log::{debug, info, warn};
 use serde::Serialize;
 use shared_child::SharedChild;
@@ -385,6 +388,17 @@ impl ProcessManager<'_> {
             .game_versions
             .get(version_name)
             .ok_or(ProcessError::InvalidVersion)?;
+
+        // Launcher handoff: a build the publisher declared as needing its
+        // store client cannot be started by direct-exec - letting it try is
+        // a DRM crash two seconds in, not a launch. The storefront runner
+        // that plays such builds around their client arrives in a later
+        // step; until then the refusal names the reason. (A launcher's own
+        // install still plays through the detected-copy path, which bypasses
+        // this manager entirely.)
+        if !game_version.runs_standalone {
+            return Err(ProcessError::StoreClientRequired);
+        }
 
         let game_log_folder = &self.get_log_dir(game_id);
         create_dir_all(game_log_folder)?;

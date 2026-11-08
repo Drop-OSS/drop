@@ -44,6 +44,9 @@ export interface ImportStart {
   appVersion?: string;
   /** An existing catalog game to publish a new version under. */
   gameId?: string;
+  /** Whether the build starts without its store client (default true). False
+   * for a legit EA/Rockstar/Ubisoft folder the launch path must hand off. */
+  runsStandalone?: boolean;
 }
 
 /** How a finished job ended, in the facts a batch runner and a summary line
@@ -142,6 +145,7 @@ const startImport = async (input: ImportStart): Promise<string> => {
     gameTitle: input.gameTitle,
     appVersion: input.appVersion || null,
     gameId: input.gameId || null,
+    runsStandalone: input.runsStandalone ?? true,
   });
   importRegistry.jobs.value.unshift({
     jobId,

@@ -85,6 +85,13 @@ pub mod data {
             }
         }
 
+        /// Servers older than the launcher-handoff model omit the flag; an
+        /// unannotated version is treated as self-starting, exactly as it
+        /// was before the flag existed.
+        fn default_runs_standalone() -> bool {
+            true
+        }
+
         #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
         #[serde(rename_all = "camelCase")]
         pub struct UserConfiguration {
@@ -108,12 +115,20 @@ pub mod data {
             pub version_id: String,
 
             pub display_name: Option<String>,
-            pub version_path: String,
+            /// Null for a chunk-store import: those versions have no folder on
+            /// the server, the content lives in the CAS.
+            pub version_path: Option<String>,
 
             pub only_setup: bool,
 
             pub version_index: usize,
             pub delta: bool,
+
+            /// Whether the build starts on its own (true, the default) or
+            /// needs its store client running first (false: legit
+            /// EA/Rockstar/Ubisoft). Direct-exec paths refuse false builds.
+            #[serde(default = "default_runs_standalone")]
+            pub runs_standalone: bool,
 
             #[serde(default = "default_template")]
             pub user_configuration: UserConfiguration,

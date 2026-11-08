@@ -10,6 +10,8 @@ type VersionDownloadOption = {
   versionId: string;
   displayName?: string | undefined;
   versionPath?: string | undefined;
+  /** Whether the build starts without its store client (launcher handoff). */
+  runsStandalone: boolean;
   platform: Platform;
   size: GameVersionSize;
   requiredContent: Array<{
@@ -49,6 +51,7 @@ export default defineClientEventHandler(async (h3) => {
       versionId: true,
       displayName: true,
       versionPath: true,
+      runsStandalone: true,
       gameId: true,
       launches: {
         select: {
@@ -116,6 +119,7 @@ export default defineClientEventHandler(async (h3) => {
                 versionId: v.versionId,
                 displayName: v.displayName || undefined,
                 versionPath: v.versionPath || undefined,
+                runsStandalone: v.runsStandalone,
                 platform,
                 requiredContent,
                 size: size!,

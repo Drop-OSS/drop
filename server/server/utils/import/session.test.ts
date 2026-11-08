@@ -44,6 +44,7 @@ function fakeDb() {
       casManifestDigest: string;
       fileList: string[];
       versionIndex: number;
+      runsStandalone: boolean;
     }>,
   };
   const db: ImportDatabase = {
@@ -245,12 +246,37 @@ test("a full upload verifies arriving bytes and commits a release", async () => 
   assert.equal(created.versions[0]?.casManifestDigest, result.digest);
   assert.deepEqual(created.versions[0]?.fileList, ["game.exe", "sub/b.bin"]);
   assert.equal(created.versions[0]?.displayName, "1.2.3");
+  assert.equal(
+    created.versions[0]?.runsStandalone,
+    true,
+    "an import that says nothing is self-starting",
+  );
 
   // A committed session is closed for further traffic.
   await assert.rejects(
     commitImportSession(root, opened.session, db),
     (error: unknown) => (error as { statusCode?: number }).statusCode === 409,
   );
+});
+
+test("a session declared launcher-gated publishes that version as such", async () => {
+  const root = await freshRoot();
+  const { db, created } = fakeDb();
+  const data = Buffer.from("gated build bytes");
+  const tree = new Map([["game.exe", { data, mode: 0o755 }]]);
+  const opened = await openImportSession(
+    root,
+    {
+      gameTitle: "Launcher Gated",
+      runsStandalone: false,
+      files: filesOf(tree),
+    },
+    db,
+  );
+  await uploadAll(root, opened.session, new Map([[sha(data), data]]));
+  await commitImportSession(root, opened.session, db);
+
+  assert.equal(created.versions[0]?.runsStandalone, false);
 });
 
 test("dedupe: identical content across files uploads once and repeats dedupe", async () => {

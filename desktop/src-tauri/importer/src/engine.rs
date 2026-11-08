@@ -51,6 +51,9 @@ struct OpenRequest<'a> {
     game_id: Option<&'a str>,
     #[serde(skip_serializing_if = "Option::is_none")]
     device: Option<&'a str>,
+    /// Declared to the server: whether the release starts on its own. False
+    /// for a legit EA/Rockstar/Ubisoft folder the store client must launch.
+    runs_standalone: bool,
     files: Vec<FileDecl>,
 }
 
@@ -94,6 +97,14 @@ pub struct ImportRequest {
     pub app_version: Option<String>,
     #[serde(default)]
     pub game_id: Option<String>,
+    /// Whether the build starts on its own (true, the default). See the
+    /// launcher-handoff note on `OpenRequest`.
+    #[serde(default = "default_true")]
+    pub runs_standalone: bool,
+}
+
+fn default_true() -> bool {
+    true
 }
 
 #[derive(Serialize, Clone, Debug)]
@@ -191,6 +202,7 @@ async fn open_session(
         app_version: request.app_version.as_deref(),
         game_id: request.game_id.as_deref(),
         device,
+        runs_standalone: request.runs_standalone,
         files: decls,
     };
     let response = DROP_CLIENT_ASYNC

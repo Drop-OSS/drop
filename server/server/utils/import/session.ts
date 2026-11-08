@@ -65,6 +65,14 @@ export interface ImportOpenInput {
   device?: string;
   /** Who is importing; filled from the authenticated session by the route. */
   importer?: string;
+  /**
+   * Whether the build starts on its own (true, the default: DRM-free,
+   * anonymous-EOS, self-starting) or needs its store client running first
+   * (false: legit EA/Rockstar/Ubisoft and mandatory-login titles). The
+   * declarer knows what the folder holds; the depot just records it for
+   * the launch path.
+   */
+  runsStandalone?: boolean;
   files: ImportFileInput[];
 }
 
@@ -85,6 +93,8 @@ export interface ImportSession {
   gameId: string | null;
   device: string | null;
   importer: string | null;
+  /** Declared at open: see `ImportOpenInput.runsStandalone`. */
+  runsStandalone: boolean;
   files: ImportSessionFile[];
   totalBytes: number;
   /** Every distinct object digest the release needs. */
@@ -133,6 +143,8 @@ export interface ImportDatabase {
     casManifestDigest: string;
     fileList: string[];
     versionIndex: number;
+    /** Launcher-handoff flag as declared when the session opened. */
+    runsStandalone: boolean;
   }): Promise<string>;
 }
 
@@ -310,6 +322,7 @@ export async function openImportSession(
     gameId: input.gameId ?? null,
     device: input.device?.trim() || null,
     importer: input.importer?.trim() || null,
+    runsStandalone: input.runsStandalone ?? true,
     files,
     totalBytes,
     objectDigests,
@@ -553,6 +566,7 @@ export async function commitImportSession(
         source: "local-import",
         importer: session.importer,
         device: session.device,
+        runsStandalone: session.runsStandalone,
       },
       null,
       2,
@@ -576,6 +590,7 @@ export async function commitImportSession(
       .map((f) => f.path)
       .sort((a, b) => a.localeCompare(b, "en")),
     versionIndex,
+    runsStandalone: session.runsStandalone,
   });
 
   session.status = "committed";
