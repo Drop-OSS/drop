@@ -9,6 +9,9 @@ import {
   getEpicAssetInfo,
   normalizeEpicEntitlements,
   isEpicRuntimeEntitlement,
+  isEpicGameEntitlement,
+  collectEpicCatalogNameTargets,
+  getEpicCatalogItemNames,
 } from "./client.js";
 
 /** Assert an h3-style typed error: a status code and, optionally, a message fragment. */
@@ -388,5 +391,197 @@ test("the launcher and engine runtimes are not titles", () => {
   assert.deepEqual(
     rows.map((row) => row.title),
     ["A Real Game"],
+  );
+});
+
+test("grant types decide listability, not names", () => {
+  // A live account carried 42 AUDIENCE reward rows among 100 entitlements,
+  // many under plausible-looking names; only the type can catch them.
+  const listable = (
+    entitlementType: string,
+    entitlementName = "WhateverIsEntitled",
+  ) =>
+    isEpicGameEntitlement({
+      entitlementName,
+      namespace: "annamespace",
+      entitlementType,
+    });
+  assert.equal(listable("EXECUTABLE"), true);
+  assert.equal(listable("BASE_GAME"), true);
+  assert.equal(listable("ADDON"), true);
+  assert.equal(listable("AUDIENCE"), false);
+  assert.equal(listable("TRIAL"), false);
+  // Older payloads carry no type at all; those stay and the runtime
+  // filter still applies.
+  assert.equal(
+    isEpicGameEntitlement({ entitlementName: "UE_5.0", entitlementType: "" }),
+    false,
+  );
+});
+
+test("catalog name targets are only the unnamed listable items", () => {
+  const targets = collectEpicCatalogNameTargets([
+    {
+      id: "1",
+      entitlementName: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      namespace: "ns_target",
+      catalogItemId: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      grantDate: "",
+      entitlementType: "EXECUTABLE",
+    },
+    {
+      // Same item granted twice: one lookup.
+      id: "2",
+      entitlementName: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      namespace: "ns_target",
+      catalogItemId: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      grantDate: "",
+      entitlementType: "EXECUTABLE",
+    },
+    {
+      id: "3",
+      entitlementName: "AlreadyNamed",
+      namespace: "ns_named",
+      catalogItemId: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      grantDate: "",
+      entitlementType: "EXECUTABLE",
+      displayName: "Epic Was Nice Here",
+    },
+    {
+      id: "4",
+      entitlementName: "SomeReward",
+      namespace: "ns_dropped",
+      catalogItemId: "cccccccccccccccccccccccccccccccc",
+      grantDate: "",
+      entitlementType: "AUDIENCE",
+    },
+  ]);
+  assert.deepEqual(
+    [...targets.entries()],
+    [["ns_target", ["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"]]],
+  );
+});
+
+/** Run `fn` with fetch mocked, restoring the original afterwards. */
+async function withFetchMock(
+  handler: (url: string) => Response,
+  fn: (calls: { urls: string[] }) => Promise<void>,
+) {
+  const original = globalThis.fetch;
+  const calls: { urls: string[] } = { urls: [] };
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    const url = String(input);
+    calls.urls.push(url);
+    return handler(url);
+  }) as typeof fetch;
+  try {
+    await fn(calls);
+  } finally {
+    globalThis.fetch = original;
+  }
+}
+
+test("catalog names come from the bulk lookup, productName first", async () => {
+  await withFetchMock(
+    (url) => {
+      const u = new URL(url);
+      assert.equal(
+        u.pathname,
+        "/catalog/api/shared/namespace/ns_catalog/bulk/items",
+      );
+      // Singular `id` params: the plural `ids=` answers an empty object.
+      assert.deepEqual(u.searchParams.getAll("id"), [
+        "11111111111111111111111111111111",
+        "22222222222222222222222222222222",
+      ]);
+      return new Response(
+        JSON.stringify({
+          // Response is keyed by catalog item id.
+          "11111111111111111111111111111111": {
+            title: "Catalog Title",
+            productName: "The Rendered Name",
+            appName: "CatalogAppName",
+          },
+          "22222222222222222222222222222222": { title: "Title Only" },
+        }),
+        { status: 200 },
+      );
+    },
+    async (calls) => {
+      const names = await getEpicCatalogItemNames(
+        new Map([
+          [
+            "ns_catalog",
+            [
+              "11111111111111111111111111111111",
+              "22222222222222222222222222222222",
+            ],
+          ],
+        ]),
+        "token",
+      );
+      assert.equal(calls.urls.length, 1, "one call for one namespace");
+      assert.equal(
+        names["11111111111111111111111111111111"]?.title,
+        "The Rendered Name",
+      );
+      assert.equal(
+        names["11111111111111111111111111111111"]?.appName,
+        "CatalogAppName",
+      );
+      assert.equal(
+        names["22222222222222222222222222222222"]?.title,
+        "Title Only",
+      );
+
+      // Second resolution of the same ids: served from cache, no fetch.
+      const again = await getEpicCatalogItemNames(
+        new Map([
+          [
+            "ns_catalog",
+            [
+              "11111111111111111111111111111111",
+              "22222222222222222222222222222222",
+            ],
+          ],
+        ]),
+        "token",
+      );
+      assert.equal(calls.urls.length, 1, "the cache served the repeat");
+      assert.equal(
+        again["22222222222222222222222222222222"]?.title,
+        "Title Only",
+      );
+    },
+  );
+});
+
+test("a failing catalog service never fails the library", async () => {
+  await withFetchMock(
+    () => new Response("rate limited", { status: 429 }),
+    async (calls) => {
+      const names = await getEpicCatalogItemNames(
+        new Map([["ns_failing", ["33333333333333333333333333333333"]]]),
+        "token",
+      );
+      assert.deepEqual(names, {});
+
+      // And the rows that fall back are exactly the ones Epic left nameless.
+      const rows = normalizeEpicEntitlements(
+        [
+          {
+            id: "1",
+            entitlementName: "33333333333333333333333333333333",
+            namespace: "ns_failing",
+            catalogItemId: "33333333333333333333333333333333",
+            grantDate: "",
+            entitlementType: "EXECUTABLE",
+          },
+        ],
+        names,
+      );
+      assert.equal(rows[0]?.title, "33333333333333333333333333333333");
+      assert.equal(calls.urls.length, 1, "no hammering a rate-limited service");
+    },
   );
 });

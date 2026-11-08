@@ -1148,8 +1148,8 @@ async function loadLibrary() {
     products.value = response.games
       .map((game) => {
         if (activeProviderId.value === "epic") {
-          // The library route already resolved `title` (Epic's displayName,
-          // never the machine slug) and `appName` for the ingest call.
+          // The library route already resolved `title` (catalog-service
+          // name, never the machine slug) and `appName` for the ingest call.
           return {
             id: game.catalogItemId || game.appName || game.namespace || "",
             title: game.title || "Untitled",

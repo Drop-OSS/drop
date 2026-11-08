@@ -6,6 +6,12 @@ const EPIC_ENTITLEMENTS_URL =
   "https://entitlement-public-service-prod08.ol.epicgames.com/entitlement/api/account";
 const EPIC_LAUNCHER_ASSETS_URL =
   "https://launcher-public-service-prod06.ol.epicgames.com/launcher/api/public/assets/v2/platform";
+// Epic's naming service. Entitlements answer "what is entitled" and say no
+// names at all (live-verified: displayName is null for every row, purchased
+// titles included); this endpoint is where the launcher itself reads titles
+// from, and the only answer for base games.
+const EPIC_CATALOG_URL =
+  "https://catalog-public-service-prod06.ol.epicgames.com/catalog/api/shared/namespace";
 
 // Epic launcher client, live-verified: identical to the pair Legendary's
 // EPCAPI authenticates with (its predecessor answered "invalid client
@@ -26,13 +32,19 @@ export type EpicEntitlement = {
   /**
    * Epic's machine slug, not a display name: for base games it is usually
    * the catalog item id verbatim (`7ce1367f0ee846418b236dfe96d30c2c`), and
-   * for add-ons a sanitized name. `displayName` is the human one.
+   * for add-ons a sanitized name. `displayName` is usually null; see
+   * `getEpicCatalogItemNames` for where the real names live.
    */
   entitlementName: string;
   namespace: string;
   catalogItemId: string;
   grantDate: string;
-  /** The human title, when Epic carries one (nearly always). */
+  /**
+   * The human title *when* Epic carries one - live-verified it usually
+   * does not: the launcher entitlements endpoint returns null here for
+   * every row, purchased titles included. The catalog service
+   * (`getEpicCatalogItemNames`) is the real naming source.
+   */
   displayName?: string;
   description?: string;
   /** EXECUTABLE / BASE_GAME / ADDON / ...; absent on older payloads. */
@@ -40,10 +52,12 @@ export type EpicEntitlement = {
 };
 
 /**
- * Whether an entitlement is the storefront or its runtimes rather than a
- * game: the launcher itself and the UE_ engine builds are entitled and
- * listed exactly like titles, under machine names, and the depot has no
- * use for any of them. The desktop's Epic recipe skips the same set.
+ * Whether an entitlement is Epic's own machinery rather than a title: the
+ * launcher, the UE_ engine builds, and everything under the `ue` namespace.
+ * Live-verified on a real account, that namespace holds only engine builds
+ * and free marketplace content - and, in particular, dozens of hash-named
+ * freebie grants whose machine names are exactly the wall of hex the depot
+ * must not show. The desktop's Epic recipe skips the same set.
  */
 export function isEpicRuntimeEntitlement(item: {
   entitlementName?: string;
@@ -57,9 +71,43 @@ export function isEpicRuntimeEntitlement(item: {
   );
 }
 
+/** The entitlement types that read as titles worth listing. */
+const EPIC_GAME_ENTITLEMENT_TYPES = new Set([
+  "EXECUTABLE",
+  "BASE_GAME",
+  "ADDON",
+]);
+
+/**
+ * Whether an entitlement belongs in the depot's list at all: not Epic's own
+ * machinery, and not a non-game grant type either - a live account carried
+ * 42 `AUDIENCE` reward rows among its 100 entitlements, which no name-based
+ * filter can catch. A missing `entitlementType` is an older payload shape
+ * and passes; the runtime filter still applies to it.
+ */
+export function isEpicGameEntitlement(item: {
+  entitlementName?: string;
+  namespace?: string;
+  entitlementType?: string;
+}): boolean {
+  if (isEpicRuntimeEntitlement(item)) return false;
+  return (
+    !item.entitlementType ||
+    EPIC_GAME_ENTITLEMENT_TYPES.has(item.entitlementType)
+  );
+}
+
+/** Human-readable metadata the catalog service knows for one item. */
+export type EpicCatalogName = {
+  title: string;
+  /** Install-API name when the catalog bothers to carry one. */
+  appName?: string;
+};
+
 /** What the depot lists for one entitlement. */
 export type EpicLibraryRow = EpicEntitlement & {
-  /** The human name; Epic's own `displayName` when it has one. */
+  /** The human name: catalog-service `productName`/`title` first, then
+   * Epic's inline `displayName`, the machine slug only as last resort. */
   title: string;
   /**
    * The install-API name. Epic's entitlements do not carry it, and for
@@ -70,22 +118,148 @@ export type EpicLibraryRow = EpicEntitlement & {
 };
 
 /**
- * The rows an entitlement list becomes: the launcher and the engine
- * runtimes dropped, every survivor named by `displayName` (the
- * `entitlementName` fallback is a machine hash for base games, and
- * showing that hash as a title is exactly what the page must not do),
- * and each carrying the `appName` the ingest call will need.
+ * The rows an entitlement list becomes: everything that is not a title
+ * dropped, every survivor named from the (optional) catalog-name map -
+ * `entitlementName` is a machine hash for base games and showing that hash
+ * as a title is exactly what the page must not do - and each carrying the
+ * `appName` the ingest call will need.
  */
 export function normalizeEpicEntitlements(
   entitlements: EpicEntitlement[],
+  catalogNames: Record<string, EpicCatalogName> = {},
 ): EpicLibraryRow[] {
-  return entitlements
-    .filter((item) => !isEpicRuntimeEntitlement(item))
-    .map((item) => ({
+  return entitlements.filter(isEpicGameEntitlement).map((item) => {
+    const catalog = catalogNames[item.catalogItemId];
+    return {
       ...item,
-      title: item.displayName?.trim() || item.entitlementName,
-      appName: item.catalogItemId || item.entitlementName,
-    }));
+      title: catalog?.title || item.displayName?.trim() || item.entitlementName,
+      appName: catalog?.appName || item.catalogItemId || item.entitlementName,
+    };
+  });
+}
+
+/**
+ * Which items still need a name from the catalog service: the listable
+ * entitlements Epic left unnamed, grouped by the namespace their catalog
+ * lookup must be scoped to, ids deduped.
+ */
+export function collectEpicCatalogNameTargets(
+  entitlements: EpicEntitlement[],
+): Map<string, string[]> {
+  const targets = new Map<string, string[]>();
+  for (const item of entitlements) {
+    if (!isEpicGameEntitlement(item)) continue;
+    // Epic handed the name over inline; no reason to go ask for it.
+    if (item.displayName?.trim()) continue;
+    if (!item.namespace || !item.catalogItemId) continue;
+    const ids = targets.get(item.namespace) ?? [];
+    if (!ids.includes(item.catalogItemId)) ids.push(item.catalogItemId);
+    targets.set(item.namespace, ids);
+  }
+  return targets;
+}
+
+/** Item names never change retroactively; a day outlives any page session. */
+const CATALOG_NAME_TTL_MS = 24 * 60 * 60 * 1000;
+// The catalog service rate-limits aggressively and Heroic caches metadata
+// for exactly that reason; low concurrency plus a small stagger keeps a
+// first library load well inside the launcher's own request pattern.
+const CATALOG_CONCURRENCY = 4;
+const CATALOG_STAGGER_MS = 120;
+
+const catalogNameCache = new Map<
+  string,
+  { at: number; value: EpicCatalogName }
+>();
+
+/**
+ * Human names for entitled items, the way the launcher itself gets them:
+ * one scoped bulk lookup per namespace, all of that namespace's ids as
+ * repeated **singular** `id` parameters (the plural `ids=` answers an empty
+ * object; live-verified), the response keyed by catalog item id with
+ * `productName` falling back to `title` as the rendered name.
+ *
+ * Deliberately tolerant: a namespace that errors, times out, or gets
+ * rate-limited simply stays out of the result, and those rows keep their
+ * fallback titles. Names are cosmetic; they must never fail the library.
+ */
+export async function getEpicCatalogItemNames(
+  targets: Map<string, string[]>,
+  accessToken: string,
+): Promise<Record<string, EpicCatalogName>> {
+  const names: Record<string, EpicCatalogName> = {};
+  const jobs: Array<{ namespace: string; ids: string[] }> = [];
+  const now = Date.now();
+  for (const [namespace, ids] of targets) {
+    const missing: string[] = [];
+    for (const id of ids) {
+      const hit = catalogNameCache.get(`${namespace}/${id}`);
+      if (hit && now - hit.at < CATALOG_NAME_TTL_MS) names[id] = hit.value;
+      else missing.push(id);
+    }
+    if (missing.length > 0) jobs.push({ namespace, ids: missing });
+  }
+
+  const queue = jobs[Symbol.iterator]();
+  await Promise.all(
+    Array.from({ length: Math.min(CATALOG_CONCURRENCY, jobs.length) }, () =>
+      (async () => {
+        for (;;) {
+          const job = queue.next().value as
+            | { namespace: string; ids: string[] }
+            | undefined;
+          if (!job) return;
+          const url = new URL(
+            `${EPIC_CATALOG_URL}/${encodeURIComponent(job.namespace)}/bulk/items`,
+          );
+          for (const id of job.ids) url.searchParams.append("id", id);
+          url.searchParams.set("count", String(job.ids.length + 10));
+          url.searchParams.set("allow_unpublished", "true");
+          url.searchParams.set("allow_free", "true");
+          url.searchParams.set("country", "US");
+          url.searchParams.set("locale", "en-US");
+          try {
+            const response = await fetch(url, {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                Accept: "application/json",
+              },
+              signal: AbortSignal.timeout(10_000),
+            });
+            if (response.ok) {
+              const items = (await response.json()) as Record<
+                string,
+                {
+                  title?: string;
+                  productName?: string;
+                  appName?: string;
+                } | null
+              >;
+              for (const [id, item] of Object.entries(items)) {
+                const title = item?.productName?.trim() || item?.title?.trim();
+                if (!title) continue;
+                const value: EpicCatalogName = {
+                  title,
+                  appName: item?.appName?.trim() || undefined,
+                };
+                names[id] = value;
+                catalogNameCache.set(`${job.namespace}/${id}`, {
+                  at: Date.now(),
+                  value,
+                });
+              }
+            }
+          } catch {
+            // Timeout or network failure: the slug fallback stands.
+          }
+          await new Promise((resolve) =>
+            setTimeout(resolve, CATALOG_STAGGER_MS),
+          );
+        }
+      })(),
+    ),
+  );
+  return names;
 }
 
 export type EpicAssetInfo = {

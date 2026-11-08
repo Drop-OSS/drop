@@ -66,3 +66,52 @@ test("lists entitled games by their human name and app name", async () => {
     "the ingest call gets the appName entitlements themselves lack",
   );
 });
+
+test("hash-named entitlements are named via the catalog service", async () => {
+  // The live account's actual shape: entitlements arrive nameless (no
+  // displayName at all), AUDIENCE rewards mixed in, names only answerable
+  // by the catalog bulk lookup - exactly the two-call launcher flow.
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    const url = String(input);
+    if (url.includes("/bulk/items")) {
+      return new Response(
+        JSON.stringify({
+          "99999999999999999999999999999999": {
+            title: "Shadow Complex Remastered",
+          },
+        }),
+        { status: 200 },
+      );
+    }
+    return new Response(
+      JSON.stringify([
+        {
+          id: "h1",
+          entitlementName: "99999999999999999999999999999999",
+          namespace: "ns_hashtest",
+          catalogItemId: "99999999999999999999999999999999",
+          grantDate: "2022-03-03T00:00:00Z",
+          entitlementType: "EXECUTABLE",
+        },
+        {
+          id: "h2",
+          entitlementName: "SomeRewardGrant",
+          namespace: "ns_hashtest",
+          catalogItemId: "88888888888888888888888888888888",
+          grantDate: "2022-03-03T00:00:00Z",
+          entitlementType: "AUDIENCE",
+        },
+      ]),
+      { status: 200, headers: { "content-type": "application/json" } },
+    );
+  }) as typeof fetch;
+  const result = (await epicLibraryHandler(
+    event("/api/admin/depot/epic/library?token=abc&accountId=acc-1"),
+  )) as {
+    games: Array<{ title: string; appName: string }>;
+    total: number;
+  };
+  assert.equal(result.total, 1, "the AUDIENCE reward grant is dropped");
+  assert.equal(result.games[0]?.title, "Shadow Complex Remastered");
+  assert.equal(result.games[0]?.appName, "99999999999999999999999999999999");
+});

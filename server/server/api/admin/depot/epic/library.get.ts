@@ -6,6 +6,8 @@ import {
   type H3Event,
 } from "h3";
 import {
+  collectEpicCatalogNameTargets,
+  getEpicCatalogItemNames,
   getEpicEntitlements,
   normalizeEpicEntitlements,
 } from "../../../../utils/epic/client";
@@ -67,11 +69,21 @@ export async function epicLibraryHandler(event: H3Event) {
     });
   }
 
+  // Epic entitlements come back nameless, period (live-verified: displayName
+  // null for every row); resolve the unnamed ones from the catalog service,
+  // exactly as the launcher does. Tolerant by design - whatever Epic
+  // refuses to answer there keeps its fallback title rather than failing
+  // the library.
+  const catalogNames = await getEpicCatalogItemNames(
+    collectEpicCatalogNameTargets(entitlements),
+    token,
+  );
+
   const title =
     typeof query.title === "string"
       ? query.title.trim().toLocaleLowerCase()
       : "";
-  const rows = normalizeEpicEntitlements(entitlements).filter(
+  const rows = normalizeEpicEntitlements(entitlements, catalogNames).filter(
     (row) => !title || row.title.toLocaleLowerCase().includes(title),
   );
 
