@@ -459,6 +459,7 @@ async function togglePlay(install: DetectedInstall) {
       executable: install.executable,
       prefix: install.prefix,
       gameId: matchedGame(install)?.id,
+      steamAppId: install.launcher === "steam" ? install.installKey : undefined,
     });
   } catch (e) {
     startError.value = String(e);

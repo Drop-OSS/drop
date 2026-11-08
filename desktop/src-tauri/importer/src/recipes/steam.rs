@@ -14,7 +14,7 @@
 //! this prefix cannot see is, like any other missing drive, simply not
 //! searched.
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, HashMap};
 use std::path::{Path, PathBuf};
 
 use super::{WindowsFs, collect_installs, resolve_windows_path};
@@ -54,8 +54,54 @@ pub fn detect(fs: &WindowsFs, seen: &mut BTreeSet<PathBuf>, out: &mut Vec<super:
     }
 
     for root in roots {
+        let before = out.len();
         collect_installs(LAUNCHER, &root, fs, seen, out);
+        // Each library's `steamapps` also holds one `appmanifest_<appid>.acf`
+        // per installed game, and its `installdir` is exactly the folder
+        // name under `common`. The app id is what a Steam client handoff
+        // (`steam://run/<appid>`) launches by, so an install carries it.
+        if let Some(steamapps) = root.parent() {
+            let apps = acf_appids(steamapps);
+            for install in &mut out[before..] {
+                install.install_key = apps.get(&install.title).cloned();
+            }
+        }
     }
+}
+
+/// The library's `installdir -> appid` map, read one file at a time.
+///
+/// An `.acf` is the same KeyValue shape as the library VDF - quoted pairs,
+/// backslashes doubled - and describes exactly one game, so the first
+/// `appid` and first `installdir` are the answer and nothing else is asked.
+fn acf_appids(steamapps: &Path) -> HashMap<String, String> {
+    let Ok(entries) = std::fs::read_dir(steamapps) else {
+        return HashMap::new();
+    };
+    let mut apps = HashMap::new();
+    for entry in entries.flatten() {
+        let path = entry.path();
+        let name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
+        if !name.starts_with("appmanifest_") || !name.ends_with(".acf") {
+            continue;
+        }
+        let Ok(text) = std::fs::read_to_string(&path) else {
+            continue;
+        };
+        // Values are unquoted here after the pair split, backslashes un-doubled.
+        let value_of = |key: &str| {
+            text.lines().find_map(|line| {
+                let rest = line.trim().strip_prefix(key)?.trim().strip_prefix('"')?;
+                let value = rest.split('"').next().unwrap_or_default();
+                (!value.is_empty()).then(|| value.replace("\\\\", "\\"))
+            })
+        };
+        if let (Some(appid), Some(installdir)) = (value_of("\"appid\""), value_of("\"installdir\""))
+        {
+            apps.insert(installdir, appid);
+        }
+    }
+    apps
 }
 
 /// The Steam installations on this Windows filesystem: the conventional
@@ -139,6 +185,19 @@ mod tests {
         std::fs::write(primary.join("portal2.exe"), b"MZ").unwrap();
         // A steamapps folder of its own is not a game library.
         std::fs::create_dir_all(steam.join("steamapps/shadercache")).unwrap();
+        // The client's own install records, one per game, naming the app id
+        // the folder answers to. Portal 2 has one; Half-Life 2's library
+        // keeps its own manifest beside its own common dir.
+        std::fs::write(
+            steam.join("steamapps/appmanifest_620.acf"),
+            "\"AppInstallState\"\n{\n\t\"appid\"\t\t\"620\"\n\t\"installdir\"\t\t\"Portal 2\"\n}\n",
+        )
+        .unwrap();
+        std::fs::write(
+            prefix.join("drive_c/Second/SteamLibrary/steamapps/appmanifest_220.acf"),
+            "\"AppInstallState\"\n{\n\t\"appid\"\t\t\"220\"\n\t\"installdir\"\t\t\"Half-Life 2\"\n}\n",
+        )
+        .unwrap();
 
         let fs = WindowsFs::Prefix(prefix.clone());
         let mut seen = BTreeSet::new();
@@ -155,6 +214,12 @@ mod tests {
             "steamapps internals are not games: {titles:?}"
         );
         assert!(out.iter().all(|i| i.launcher == LAUNCHER));
+        let keys: HashMap<_, _> = out
+            .iter()
+            .map(|i| (i.title.as_str(), i.install_key.as_deref()))
+            .collect();
+        assert_eq!(keys.get("Portal 2").copied(), Some(Some("620")));
+        assert_eq!(keys.get("Half-Life 2").copied(), Some(Some("220")));
         std::fs::remove_dir_all(&prefix).ok();
     }
 

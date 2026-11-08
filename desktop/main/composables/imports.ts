@@ -241,6 +241,9 @@ export interface LauncherPlayInput {
   prefix?: string;
   /** The catalog game it matches; playtime of a session goes there. */
   gameId?: string;
+  /** A Steam app id: with it, and a native client that owns the game, Play
+   * hands off to the client (`steam://run`) instead of exec'ing the exe. */
+  steamAppId?: string;
 }
 
 /** Folders with a launcher-owned copy playing right now. */
@@ -276,6 +279,7 @@ export const useLauncherPlay = () => ({
         executable: input.executable || null,
         prefix: input.prefix || null,
         gameId: input.gameId || null,
+        steamAppId: input.steamAppId || null,
       });
     } catch (e) {
       // Refused before anything started; the row was never really playing.
