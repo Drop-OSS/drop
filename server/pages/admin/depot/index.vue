@@ -749,6 +749,8 @@ interface OwnedGame {
   appName?: string;
   title?: string;
   entitlementName?: string;
+  displayName?: string;
+  description?: string;
   // Ubisoft owned titles
   spaceId?: string;
   gameId?: string;
@@ -1146,14 +1148,12 @@ async function loadLibrary() {
     products.value = response.games
       .map((game) => {
         if (activeProviderId.value === "epic") {
+          // The library route already resolved `title` (Epic's displayName,
+          // never the machine slug) and `appName` for the ingest call.
           return {
             id: game.catalogItemId || game.appName || game.namespace || "",
-            title:
-              game.title ||
-              game.entitlementName ||
-              game.appName ||
-              game.catalogItemId ||
-              "Untitled",
+            title: game.title || "Untitled",
+            description: game.description,
             namespace: game.namespace,
             catalogItemId: game.catalogItemId,
             appName: game.appName,

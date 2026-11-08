@@ -23,11 +23,70 @@ export type EpicTokenResponse = {
 
 export type EpicEntitlement = {
   id: string;
+  /**
+   * Epic's machine slug, not a display name: for base games it is usually
+   * the catalog item id verbatim (`7ce1367f0ee846418b236dfe96d30c2c`), and
+   * for add-ons a sanitized name. `displayName` is the human one.
+   */
   entitlementName: string;
   namespace: string;
   catalogItemId: string;
   grantDate: string;
+  /** The human title, when Epic carries one (nearly always). */
+  displayName?: string;
+  description?: string;
+  /** EXECUTABLE / BASE_GAME / ADDON / ...; absent on older payloads. */
+  entitlementType?: string;
 };
+
+/**
+ * Whether an entitlement is the storefront or its runtimes rather than a
+ * game: the launcher itself and the UE_ engine builds are entitled and
+ * listed exactly like titles, under machine names, and the depot has no
+ * use for any of them. The desktop's Epic recipe skips the same set.
+ */
+export function isEpicRuntimeEntitlement(item: {
+  entitlementName?: string;
+  namespace?: string;
+}): boolean {
+  const name = item.entitlementName ?? "";
+  return (
+    name === "EpicGamesLauncher" ||
+    name.startsWith("UE_") ||
+    item.namespace === "ue"
+  );
+}
+
+/** What the depot lists for one entitlement. */
+export type EpicLibraryRow = EpicEntitlement & {
+  /** The human name; Epic's own `displayName` when it has one. */
+  title: string;
+  /**
+   * The install-API name. Epic's entitlements do not carry it, and for
+   * UE-format titles - the catalogue's overwhelming majority - the app
+   * name is the catalog item id.
+   */
+  appName: string;
+};
+
+/**
+ * The rows an entitlement list becomes: the launcher and the engine
+ * runtimes dropped, every survivor named by `displayName` (the
+ * `entitlementName` fallback is a machine hash for base games, and
+ * showing that hash as a title is exactly what the page must not do),
+ * and each carrying the `appName` the ingest call will need.
+ */
+export function normalizeEpicEntitlements(
+  entitlements: EpicEntitlement[],
+): EpicLibraryRow[] {
+  return entitlements
+    .filter((item) => !isEpicRuntimeEntitlement(item))
+    .map((item) => ({
+      ...item,
+      title: item.displayName?.trim() || item.entitlementName,
+      appName: item.catalogItemId || item.entitlementName,
+    }));
+}
 
 export type EpicAssetInfo = {
   appName: string;

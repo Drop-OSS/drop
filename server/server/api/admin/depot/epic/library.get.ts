@@ -3,14 +3,16 @@ import {
   defineEventHandler,
   getQuery,
   getRequestHeader,
+  type H3Event,
 } from "h3";
-import aclManager from "~/server/internal/acls";
-import { getEpicEntitlements } from "../../../../utils/epic/client";
+import {
+  getEpicEntitlements,
+  normalizeEpicEntitlements,
+} from "../../../../utils/epic/client";
 import { resolveDepotToken } from "../../../../utils/depot/connections";
 
-export default defineEventHandler(async (event) => {
-  if (!(await aclManager.allowSystemACL(event, ["depot:read"])))
-    throw createError({ statusCode: 403, statusMessage: "Admin only" });
+/** Exported unauthenticated for hermetic tests; the route gates with ACLs. */
+export async function epicLibraryHandler(event: H3Event) {
   const query = getQuery(event);
   let token =
     (typeof query.token === "string" ? query.token : undefined) ??
@@ -69,12 +71,18 @@ export default defineEventHandler(async (event) => {
     typeof query.title === "string"
       ? query.title.trim().toLocaleLowerCase()
       : "";
-  const filtered = entitlements.filter((item) => {
-    // Epic entitlements carry `entitlementName`, not a display `title`.
-    const titleMatches =
-      !title || item.entitlementName.toLocaleLowerCase().includes(title);
-    return titleMatches;
-  });
+  const rows = normalizeEpicEntitlements(entitlements).filter(
+    (row) => !title || row.title.toLocaleLowerCase().includes(title),
+  );
 
-  return { games: filtered, total: filtered.length };
+  return { games: rows, total: rows.length };
+}
+
+export default defineEventHandler(async (event) => {
+  // Lazy import keeps the session/prisma module graph out of hermetic tests
+  // of the library logic (epicLibraryHandler), as in the EA handler.
+  const { default: aclManager } = await import("~/server/internal/acls");
+  if (!(await aclManager.allowSystemACL(event, ["depot:read"])))
+    throw createError({ statusCode: 403, statusMessage: "Admin only" });
+  return epicLibraryHandler(event);
 });

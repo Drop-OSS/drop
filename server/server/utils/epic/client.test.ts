@@ -7,6 +7,8 @@ import {
   refreshEpicToken,
   getEpicEntitlements,
   getEpicAssetInfo,
+  normalizeEpicEntitlements,
+  isEpicRuntimeEntitlement,
 } from "./client.js";
 
 /** Assert an h3-style typed error: a status code and, optionally, a message fragment. */
@@ -320,4 +322,71 @@ test("Epic's errorCode/errorMessage reach the user verbatim", async () => {
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+test("Epic entitlements normalize to human names, not catalog hashes", () => {
+  const rows = normalizeEpicEntitlements([
+    {
+      id: "e1",
+      // The base-game shape that used to show as the title: Epic's own
+      // machine slug, the catalog item id verbatim.
+      entitlementName: "7ce1367f0ee846418b236dfe96d30c2c",
+      namespace: "f9a9",
+      catalogItemId: "7ce1367f0ee846418b236dfe96d30c2c",
+      grantDate: "2024-01-02T00:00:00Z",
+      displayName: "Death Stranding Director's Edition",
+    },
+    {
+      id: "e2",
+      entitlementName: "AnOldTitleWithNoDisplayName",
+      namespace: "other",
+      catalogItemId: "ff00ff00ff00ff00ff00ff00ff00ff00",
+      grantDate: "2020-05-05T00:00:00Z",
+    },
+  ]);
+  assert.equal(rows.length, 2);
+  assert.equal(rows[0]?.title, "Death Stranding Director's Edition");
+  // The ingest call needs an appName and entitlements do not carry one;
+  // for UE-format titles it is the catalog item id.
+  assert.equal(rows[0]?.appName, "7ce1367f0ee846418b236dfe96d30c2c");
+  // With no displayName the slug is all Epic said; it stays the fallback.
+  assert.equal(rows[1]?.title, "AnOldTitleWithNoDisplayName");
+});
+
+test("the launcher and engine runtimes are not titles", () => {
+  assert.equal(
+    isEpicRuntimeEntitlement({ entitlementName: "EpicGamesLauncher" }),
+    true,
+  );
+  assert.equal(isEpicRuntimeEntitlement({ entitlementName: "UE_5.3" }), true);
+  assert.equal(isEpicRuntimeEntitlement({ namespace: "ue" }), true);
+  assert.equal(
+    isEpicRuntimeEntitlement({
+      entitlementName: "7ce1367f0ee846418b236dfe96d30c2c",
+      namespace: "f9a9",
+    }),
+    false,
+  );
+
+  const rows = normalizeEpicEntitlements([
+    {
+      id: "r1",
+      entitlementName: "UE_4.27",
+      namespace: "ue",
+      catalogItemId: "deadbeef",
+      grantDate: "",
+    },
+    {
+      id: "g1",
+      entitlementName: "f9a9item",
+      namespace: "f9a9",
+      catalogItemId: "f9a9item",
+      grantDate: "",
+      displayName: "A Real Game",
+    },
+  ]);
+  assert.deepEqual(
+    rows.map((row) => row.title),
+    ["A Real Game"],
+  );
 });
