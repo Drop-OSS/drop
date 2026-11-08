@@ -254,6 +254,21 @@ pub async fn on_game_complete(
 
     drop(handle);
 
+    // An Epic release gets the install record its bootstrapper looks for,
+    // seeded into the prefix it will run under (see `epic_seed`). Best
+    // effort by design: the install is complete without it.
+    #[cfg(unix)]
+    if let Err(error) = crate::epic_seed::seed_epic_install(
+        &meta.id,
+        &install_dir,
+        game_version.display_name.as_deref(),
+    ) {
+        warn!(
+            "could not seed the Epic install record for {}: {error}",
+            meta.id
+        );
+    }
+
     let setup_configuration = game_version
         .setups
         .iter()
