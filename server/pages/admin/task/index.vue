@@ -265,6 +265,11 @@ const scheduledTasks: {
     name: "Depot ingestion",
     description: "Acquires a connected store's game into the depot CAS.",
   },
+  "depot:check-updates": {
+    name: "Depot update check",
+    description:
+      "Asks the connected stores for newer builds of already-acquired games and queues them.",
+  },
 };
 
 async function startTask(taskGroup: string) {

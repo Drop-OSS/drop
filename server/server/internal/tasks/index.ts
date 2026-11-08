@@ -13,6 +13,7 @@ import cleanupSessions from "./registry/sessions";
 import checkUpdate from "./registry/update";
 import cleanupObjects from "./registry/objects";
 import checkIntegrity from "./registry/check-integrity";
+import depotUpdates from "./registry/depot-updates";
 
 type TaskActionLink = `${string}:${string}`;
 
@@ -57,6 +58,7 @@ class TaskHandler {
     "cleanup:invitations",
     "cleanup:sessions",
     "check:update",
+    "depot:check-updates",
   ];
   private weeklyScheduledTasks: TaskGroup[] = ["cleanup:objects"];
 
@@ -67,6 +69,7 @@ class TaskHandler {
     this.saveScheduledTask(checkUpdate);
     this.saveScheduledTask(cleanupObjects);
     this.saveScheduledTask(checkIntegrity);
+    this.saveScheduledTask(depotUpdates);
   }
 
   /**

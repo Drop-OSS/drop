@@ -25,6 +25,12 @@ export const taskGroups = {
   "depot:ingest": {
     concurrency: false,
   },
+  // The daily scan of the node's store connections for newer builds. One
+  // at a time, and never beside itself: it queues depot ingests, and two
+  // overlapping scans would ask the same accounts the same questions.
+  "depot:check-updates": {
+    concurrency: false,
+  },
 } as const;
 
 export type TaskGroup = keyof typeof taskGroups;
