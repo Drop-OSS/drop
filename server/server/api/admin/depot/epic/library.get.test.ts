@@ -115,3 +115,60 @@ test("hash-named entitlements are named via the catalog service", async () => {
   assert.equal(result.games[0]?.title, "Shadow Complex Remastered");
   assert.equal(result.games[0]?.appName, "99999999999999999999999999999999");
 });
+
+test("products come from the library service when it answers", async () => {
+  // Epic's curated list is the primary source: product records with the
+  // real install appName and a human sandboxName. The entitlement grants
+  // endpoint is never consulted when it answers.
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    const url = String(input);
+    if (url.includes("/library/api/public/items")) {
+      return new Response(
+        JSON.stringify({
+          records: [
+            {
+              namespace: "ns_libprimary",
+              catalogItemId: "cccccccccccccccccccccccccccccc01",
+              appName: "Libprimary",
+              sandboxName: "Grant of a Game",
+            },
+            {
+              namespace: "ue",
+              catalogItemId: "cccccccccccccccccccccccccccccc02",
+              appName: "UE_5.5",
+              sandboxName: "Unreal Engine",
+            },
+          ],
+          responseMetadata: {},
+        }),
+        { status: 200 },
+      );
+    }
+    if (url.includes("/bulk/items")) {
+      return new Response(
+        JSON.stringify({
+          cccccccccccccccccccccccccccccc01: { title: "The Named Game" },
+        }),
+        { status: 200 },
+      );
+    }
+    throw new Error(`unexpected fetch: ${url}`);
+  }) as typeof fetch;
+  const result = (await epicLibraryHandler(
+    event("/api/admin/depot/epic/library?token=abc&accountId=acc-1"),
+  )) as {
+    games: Array<{ title: string; appName: string }>;
+    total: number;
+  };
+  assert.equal(result.total, 1, "the engine record is dropped");
+  assert.equal(
+    result.games[0]?.title,
+    "The Named Game",
+    "the catalog name beats the sandboxName",
+  );
+  assert.equal(
+    result.games[0]?.appName,
+    "Libprimary",
+    "Epic's own install app name, not a guessed hash",
+  );
+});

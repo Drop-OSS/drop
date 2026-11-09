@@ -12,6 +12,12 @@ const EPIC_LAUNCHER_ASSETS_URL =
 // from, and the only answer for base games.
 const EPIC_CATALOG_URL =
   "https://catalog-public-service-prod06.ol.epicgames.com/catalog/api/shared/namespace";
+// Epic's library service: one record per product the launcher presents,
+// carrying the install `appName`, the real base-game catalog item, and
+// `sandboxName` - the human title. The legacy `library-public-service-*`
+// hosts Heroic/Legendary grew up with are gone; this is their successor.
+const EPIC_LIBRARY_URL =
+  "https://library-service.live.use1a.on.epicgames.com/library/api/public/items";
 
 // Epic launcher client, live-verified: identical to the pair Legendary's
 // EPCAPI authenticates with (its predecessor answered "invalid client
@@ -104,17 +110,35 @@ export type EpicCatalogName = {
   appName?: string;
 };
 
-/** What the depot lists for one entitlement. */
-export type EpicLibraryRow = EpicEntitlement & {
-  /** The human name: catalog-service `productName`/`title` first, then
-   * Epic's inline `displayName`, the machine slug only as last resort. */
+/**
+ * What the depot lists for one entitled product. Deliberately loose: the
+ * two upstreams (library service and entitlements) share only namespace,
+ * catalog item id, title, and app name - everything else is best-effort.
+ */
+export type EpicLibraryRow = {
+  namespace: string;
+  catalogItemId: string;
   title: string;
-  /**
-   * The install-API name. Epic's entitlements do not carry it, and for
-   * UE-format titles - the catalogue's overwhelming majority - the app
-   * name is the catalog item id.
-   */
+  /** The install-API app name: the library service's, else the catalog's,
+   * else the catalog item id (true for every UE-format title). */
   appName: string;
+  entitlementName?: string;
+  entitlementType?: string;
+  displayName?: string;
+  description?: string;
+  sandboxName?: string;
+};
+
+/** One product record from Epic's library service. */
+export type EpicLibraryItem = {
+  namespace: string;
+  catalogItemId: string;
+  appName: string;
+  sandboxName?: string;
+  platform?: string;
+  productId?: string;
+  recordType?: string;
+  sandboxType?: string;
 };
 
 /**
@@ -138,16 +162,67 @@ export function normalizeEpicEntitlements(
   });
 }
 
+/** One product record per (namespace, catalog item), Epic's machinery dropped. */
+export function listableEpicLibraryItems(
+  items: EpicLibraryItem[],
+): EpicLibraryItem[] {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    if (
+      isEpicRuntimeEntitlement({
+        entitlementName: item.appName,
+        namespace: item.namespace,
+      })
+    ) {
+      return false;
+    }
+    const key = `${item.namespace}/${item.catalogItemId}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 /**
- * Which items still need a name from the catalog service: the listable
- * entitlements Epic left unnamed, grouped by the namespace their catalog
- * lookup must be scoped to, ids deduped.
+ * The product rows the library service's records become. The names are
+ * Epic's own: the catalog service's when it answers (the same lookup the
+ * entitlement flow uses, and the one Heroic renders), the record's
+ * `sandboxName` as the free second source, the app name only as last
+ * resort. One row per product however many platform records Epic carries.
+ */
+export function normalizeEpicLibraryItems(
+  items: EpicLibraryItem[],
+  catalogNames: Record<string, EpicCatalogName> = {},
+): EpicLibraryRow[] {
+  return listableEpicLibraryItems(items).map((item) => {
+    const catalog = catalogNames[item.catalogItemId];
+    return {
+      namespace: item.namespace,
+      catalogItemId: item.catalogItemId,
+      sandboxName: item.sandboxName,
+      title:
+        catalog?.title ||
+        item.sandboxName?.trim() ||
+        item.appName ||
+        item.catalogItemId,
+      appName: item.appName || catalog?.appName || item.catalogItemId,
+    };
+  });
+}
+
+/**
+ * Which items still need a name from the catalog service, grouped by the
+ * namespace their catalog lookup must be scoped to, ids deduped. Takes
+ * anything shaped like an entitled product - entitlement rows and library
+ * records both qualify.
  */
 export function collectEpicCatalogNameTargets(
-  entitlements: EpicEntitlement[],
+  items: Array<
+    Partial<EpicEntitlement> & { namespace: string; catalogItemId: string }
+  >,
 ): Map<string, string[]> {
   const targets = new Map<string, string[]>();
-  for (const item of entitlements) {
+  for (const item of items) {
     if (!isEpicGameEntitlement(item)) continue;
     // Epic handed the name over inline; no reason to go ask for it.
     if (item.displayName?.trim()) continue;
@@ -478,6 +553,65 @@ export async function getEpicEntitlements(
   }
 
   return (await response.json()) as EpicEntitlement[];
+}
+
+/**
+ * The account's product records, Epic's own curated list: what the
+ * launcher's Library tab shows, one entry per product, carrying the real
+ * install `appName` and the human `sandboxName`. Cursor-paginated.
+ * Throws on any failure or unexpected shape - callers fall back to the
+ * entitlement list, which is the same information wearing worse clothes.
+ */
+export async function getEpicLibraryItems(
+  accessToken: string,
+): Promise<EpicLibraryItem[]> {
+  const items: EpicLibraryItem[] = [];
+  let cursor: string | null = null;
+  // Generous page cap: Epic's cursors run ~450 records each and even
+  // decade-old accounts sit far below 25 pages, but a looping cursor
+  // must not pin the request forever.
+  for (let page = 0; page < 25; page++) {
+    const url = new URL(EPIC_LIBRARY_URL);
+    if (cursor) url.searchParams.set("cursor", cursor);
+
+    let response: Response;
+    try {
+      response = await fetch(url.toString(), {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: "application/json",
+        },
+        signal: AbortSignal.timeout(15_000),
+      });
+    } catch {
+      throw createError({
+        statusCode: 502,
+        statusMessage: "Failed to fetch the Epic library",
+      });
+    }
+
+    if (!response.ok) {
+      throw createError({
+        statusCode: response.status,
+        statusMessage: `Epic library request failed (${response.status})`,
+      });
+    }
+
+    const body = (await response.json()) as {
+      records?: EpicLibraryItem[];
+      responseMetadata?: { nextCursor?: string | null };
+    };
+    if (!Array.isArray(body.records)) {
+      throw createError({
+        statusCode: 502,
+        statusMessage: "Epic library returned an unexpected response",
+      });
+    }
+    items.push(...body.records);
+    cursor = body.responseMetadata?.nextCursor ?? null;
+    if (!cursor) break;
+  }
+  return items;
 }
 
 /**

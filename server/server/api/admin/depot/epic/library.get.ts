@@ -9,7 +9,11 @@ import {
   collectEpicCatalogNameTargets,
   getEpicCatalogItemNames,
   getEpicEntitlements,
+  getEpicLibraryItems,
+  listableEpicLibraryItems,
   normalizeEpicEntitlements,
+  normalizeEpicLibraryItems,
+  type EpicLibraryRow,
 } from "../../../../utils/epic/client";
 import { resolveDepotToken } from "../../../../utils/depot/connections";
 
@@ -55,39 +59,56 @@ export async function epicLibraryHandler(event: H3Event) {
     });
   }
 
-  let entitlements;
+  let rows: EpicLibraryRow[];
   try {
-    entitlements = await getEpicEntitlements(accountId, token);
-  } catch (error) {
-    const statusCode = (error as { statusCode?: number }).statusCode;
-    throw createError({
-      statusCode: statusCode === 401 || statusCode === 403 ? statusCode : 502,
-      statusMessage:
-        statusCode === 401 || statusCode === 403
-          ? "Epic Games rejected the access token"
-          : "Unable to retrieve Epic Games entitlements",
-    });
+    // Primary source: Epic's curated product list - what the launcher's
+    // Library tab shows. One record per product, with the real install
+    // appName and a human sandboxName; the audience-grant hashing the
+    // entitlement endpoint wallows in simply never appears here.
+    const items = listableEpicLibraryItems(await getEpicLibraryItems(token));
+    const catalogNames = await getEpicCatalogItemNames(
+      collectEpicCatalogNameTargets(items),
+      token,
+    );
+    rows = normalizeEpicLibraryItems(items, catalogNames);
+  } catch {
+    // Fallback: the raw entitlement grants. Same catalog naming pass;
+    // AUDIENCE giveaways show under Epic's grant spellings here, which is
+    // strictly still better than the hash. A dead token fails here too,
+    // and that error - not the library one - is what the admin sees.
+    let entitlements;
+    try {
+      entitlements = await getEpicEntitlements(accountId, token);
+    } catch (error) {
+      const statusCode = (error as { statusCode?: number }).statusCode;
+      throw createError({
+        statusCode: statusCode === 401 || statusCode === 403 ? statusCode : 502,
+        statusMessage:
+          statusCode === 401 || statusCode === 403
+            ? "Epic Games rejected the access token"
+            : "Unable to retrieve Epic Games entitlements",
+      });
+    }
+    // Epic entitlements come back nameless, period (live-verified: displayName
+    // null for every row); resolve what we can from the catalog service.
+    // Tolerant by design - whatever Epic refuses to answer keeps its
+    // fallback title rather than failing the library.
+    const catalogNames = await getEpicCatalogItemNames(
+      collectEpicCatalogNameTargets(entitlements),
+      token,
+    );
+    rows = normalizeEpicEntitlements(entitlements, catalogNames);
   }
-
-  // Epic entitlements come back nameless, period (live-verified: displayName
-  // null for every row); resolve the unnamed ones from the catalog service,
-  // exactly as the launcher does. Tolerant by design - whatever Epic
-  // refuses to answer there keeps its fallback title rather than failing
-  // the library.
-  const catalogNames = await getEpicCatalogItemNames(
-    collectEpicCatalogNameTargets(entitlements),
-    token,
-  );
 
   const title =
     typeof query.title === "string"
       ? query.title.trim().toLocaleLowerCase()
       : "";
-  const rows = normalizeEpicEntitlements(entitlements, catalogNames).filter(
+  const filtered = rows.filter(
     (row) => !title || row.title.toLocaleLowerCase().includes(title),
   );
 
-  return { games: rows, total: rows.length };
+  return { games: filtered, total: filtered.length };
 }
 
 export default defineEventHandler(async (event) => {

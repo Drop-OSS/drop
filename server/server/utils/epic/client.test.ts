@@ -12,6 +12,8 @@ import {
   isEpicGameEntitlement,
   collectEpicCatalogNameTargets,
   getEpicCatalogItemNames,
+  getEpicLibraryItems,
+  normalizeEpicLibraryItems,
 } from "./client.js";
 
 /** Assert an h3-style typed error: a status code and, optionally, a message fragment. */
@@ -582,6 +584,77 @@ test("a failing catalog service never fails the library", async () => {
       );
       assert.equal(rows[0]?.title, "33333333333333333333333333333333");
       assert.equal(calls.urls.length, 1, "no hammering a rate-limited service");
+    },
+  );
+});
+
+test("library items follow Epic's cursors and collapse to products", async () => {
+  await withFetchMock(
+    (url) => {
+      const u = new URL(url);
+      assert.equal(u.pathname, "/library/api/public/items");
+      if (!u.searchParams.get("cursor")) {
+        return new Response(
+          JSON.stringify({
+            records: [
+              {
+                namespace: "ns_libclient",
+                catalogItemId: "d1d1d1d1d1d1d1d1d1d1d1d1d1d1d101",
+                appName: "Libclient",
+                sandboxName: "Subnautica",
+                platform: "Windows",
+              },
+            ],
+            responseMetadata: { nextCursor: "CURSOR-2" },
+          }),
+          { status: 200 },
+        );
+      }
+      return new Response(
+        JSON.stringify({
+          records: [
+            {
+              namespace: "ns_libclient",
+              catalogItemId: "d1d1d1d1d1d1d1d1d1d1d1d1d1d1d101",
+              appName: "Libclient",
+              sandboxName: "Subnautica",
+              platform: "Win32",
+            },
+            {
+              namespace: "ut",
+              catalogItemId: "b8538c739273426aa35a98220e258d55",
+              appName: "UnrealTournamentDev",
+              sandboxName: "Unreal Tournament",
+              platform: "Windows,Mac",
+            },
+            {
+              namespace: "ue",
+              catalogItemId: "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+              appName: "UE_5.4",
+              sandboxName: "Unreal Engine",
+              platform: "Windows",
+            },
+          ],
+        }),
+        { status: 200 },
+      );
+    },
+    async (calls) => {
+      const items = await getEpicLibraryItems("token");
+      assert.equal(calls.urls.length, 2, "the cursor was followed");
+      assert.equal(items.length, 4);
+
+      const rows = normalizeEpicLibraryItems(items);
+      assert.deepEqual(
+        rows.map((row) => row.title),
+        ["Subnautica", "Unreal Tournament"],
+        "one row per product however many platform records, sandboxName as the name",
+      );
+      assert.equal(
+        rows[1]?.appName,
+        "UnrealTournamentDev",
+        "Epic's real install app name, not a guessed hash",
+      );
     },
   );
 });
