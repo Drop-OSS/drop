@@ -107,7 +107,10 @@ export async function scanImportedByProvider(
     // thousands.
     const newest = await db.gameVersion.findFirst({
       where: { gameId: game.id },
-      orderBy: { id: "desc" },
+      // versionIndex, not the row key: it is the pipeline's newest-first
+      // counter (GameVersion has no scalar id at all), the same sort every
+      // other "latest version" query in the server uses.
+      orderBy: { versionIndex: "desc" },
       select: { versionPath: true },
     });
     rows.push({

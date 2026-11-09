@@ -174,68 +174,179 @@ export function isValidGogGameId(value: unknown): value is string | number {
   );
 }
 
-/** getFilteredProducts rejects some query params with HTTP 500; stick to
- * the two Heroic/gogdl tooling is known to send. */
+/**
+ * The owned-games flow as the GOG API documentation (gogapidocs.readthedocs
+ * .io) describes it, under "Account Management → Games & Movies" and
+ * "Listing". Three endpoints, exactly the three the docs name:
+ *
+ *   GET /user/data/games                    - "List of games and movies the
+ *                                             account owns." Ids only.
+ *   GET /account/getFilteredProducts        - "Searches for products owned
+ *                                             by the user." Titled, paged;
+ *                                             the docs send it `mediaType=1`
+ *                                             and point here from the id
+ *                                             list ("for more than just the
+ *                                             IDs").
+ *   GET /account/gameDetails/<id>.json      - one product's details, title
+ *                                             and downloads included.
+ *
+ * The titled list is the spine; the id list is the completeness anchor,
+ * because it also carries products the filtered list deliberately omits -
+ * DLC, bundle SKUs, soundtracks, delisted leftovers. The details endpoint
+ * is the arbiter: GOG answers it with `[]` for every one of those (live
+ * verified) and with a titled product only for a real game, which is the
+ * signal to add a row. No undocumented query params: getFilteredProducts
+ * answers some with HTTP 500, and the documented pair below is verified
+ * good - the unflagged product list is already the union of hidden and
+ * visible, so no hiddenFlag is needed.
+ */
+const GOG_OWNED_IDS_URL = "https://embed.gog.com/user/data/games";
 const GOG_PRODUCTS_PAGE_URL =
   "https://embed.gog.com/account/getFilteredProducts";
+const GOG_GAME_DETAILS_URL = "https://embed.gog.com/account/gameDetails/";
+
+/** GET a GOG account endpoint with the Bearer header and read its JSON.
+ * These endpoints take the token in the header only (query-parameter forms
+ * 302-redirect to the login page), and a redirect or 401/403 there means
+ * the connection needs signing in again - not a retry. */
+async function gogAccountJson(
+  url: string | URL,
+  accessToken: string,
+  failureMessage: string,
+): Promise<unknown> {
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      headers: {
+        accept: "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      redirect: "manual",
+      signal: AbortSignal.timeout(15_000),
+    });
+  } catch {
+    throw createError({
+      statusCode: 502,
+      statusMessage: failureMessage,
+    });
+  }
+  if (
+    response.status === 302 ||
+    response.status === 401 ||
+    response.status === 403
+  )
+    throw createError({
+      statusCode: 403,
+      statusMessage: "GOG rejected the access token - sign in again",
+    });
+  if (!response.ok)
+    throw createError({
+      statusCode: 502,
+      statusMessage: `${failureMessage} (${response.status})`,
+    });
+  try {
+    return await response.json();
+  } catch {
+    throw createError({
+      statusCode: 502,
+      statusMessage: `${failureMessage} - invalid response`,
+    });
+  }
+}
+
+/** The documented "List of games and movies the account owns", ids widened
+ * to strings. */
+async function getGogOwnedIds(accessToken: string): Promise<string[]> {
+  const body = (await gogAccountJson(
+    GOG_OWNED_IDS_URL,
+    accessToken,
+    "GOG owned-ids request failed",
+  )) as { owned?: unknown };
+  return Array.isArray(body.owned)
+    ? body.owned.filter(isValidGogGameId).map(String)
+    : [];
+}
 
 /**
- * Fetch the account's owned products with titles. This endpoint only
- * accepts the token as an `Authorization: Bearer` header (query-parameter
- * forms 302-redirect to the login page); the older /user/data/games
- * endpoint answers with bare numeric ids, which carry no title to search.
+ * One owned product the filtered list did not carry, through the documented
+ * per-product endpoint. `[]` is GOG's own verdict of "not a game product"
+ * (DLC, bundles, extras, delisted), anything else has to carry a title and
+ * a downloads list to earn a row. Failure costs one row, never the library.
  */
-export async function getGogLibrary(accessToken: string): Promise<GogGame[]> {
+async function gogOwnedGameDetails(
+  productId: string,
+  accessToken: string,
+): Promise<GogGame | null> {
+  let details: unknown;
+  try {
+    details = await gogAccountJson(
+      `${GOG_GAME_DETAILS_URL}${productId}.json`,
+      accessToken,
+      "GOG product details request failed",
+    );
+  } catch {
+    return null;
+  }
+  if (
+    !details ||
+    typeof details !== "object" ||
+    Array.isArray(details) ||
+    typeof (details as GogGame).title !== "string" ||
+    !Array.isArray((details as { downloads?: unknown }).downloads) ||
+    (details as { downloads: unknown[] }).downloads.length === 0
+  ) {
+    return null;
+  }
+  return {
+    ...(details as Record<string, unknown>),
+    id: productId,
+    title: (details as GogGame).title,
+  };
+}
+
+/** The titled product pages, followed until `totalPages` runs out. */
+async function getGogEntitledProducts(accessToken: string): Promise<GogGame[]> {
   const games: GogGame[] = [];
   const maxPages = 20;
   for (let page = 1; page <= maxPages; page++) {
     const url = new URL(GOG_PRODUCTS_PAGE_URL);
-    url.searchParams.set("pageSize", "500");
+    url.searchParams.set("mediaType", "1");
     url.searchParams.set("page", String(page));
-    let response: Response;
-    try {
-      response = await fetch(url, {
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        redirect: "manual",
-        signal: AbortSignal.timeout(15_000),
-      });
-    } catch {
-      throw createError({
-        statusCode: 502,
-        statusMessage: "GOG library request failed",
-      });
-    }
-    if (
-      response.status === 302 ||
-      response.status === 401 ||
-      response.status === 403
-    )
-      throw createError({
-        statusCode: 403,
-        statusMessage: "GOG rejected the access token - sign in again",
-      });
-    if (!response.ok)
-      throw createError({
-        statusCode: 502,
-        statusMessage: `GOG library request failed (${response.status})`,
-      });
-    let payload: GogProductsPage;
-    try {
-      payload = (await response.json()) as GogProductsPage;
-    } catch {
-      throw createError({
-        statusCode: 502,
-        statusMessage: "GOG returned an invalid library response",
-      });
-    }
-    const products = Array.isArray(payload.products) ? payload.products : [];
+    const body = (await gogAccountJson(
+      url,
+      accessToken,
+      "GOG library request failed",
+    )) as GogProductsPage;
+    const products = Array.isArray(body.products) ? body.products : [];
     for (const product of products) games.push(...shapeGogProduct(product));
     const totalPages =
-      typeof payload.totalPages === "number" ? payload.totalPages : page;
+      typeof body.totalPages === "number" ? body.totalPages : page;
     if (products.length === 0 || page >= totalPages) break;
+  }
+  return games;
+}
+
+/**
+ * The account's owned games: the documented entitled-products list, topped
+ * up with anything the documented owned-ids list claims but the filtered
+ * view hid and the details endpoint still describes as a game.
+ */
+export async function getGogLibrary(accessToken: string): Promise<GogGame[]> {
+  const [ownedIds, games] = await Promise.all([
+    // The ids anchor is worth a top-up, never worth a failed page: if the
+    // extra call breaks, the spine below is still the whole answer.
+    getGogOwnedIds(accessToken).catch(() => null),
+    getGogEntitledProducts(accessToken),
+  ]);
+  if (!ownedIds || ownedIds.length === 0) return games;
+  const listed = new Set(games.map((game) => game.id));
+  // Ordered account endpoints, small bursts, bounded: even a decade of
+  // giveaway DLC sits under this cap, and one page of details per missing
+  // product keeps the admin page a request storm short of GOG's patience.
+  const missing = ownedIds.filter((id) => !listed.has(id)).slice(0, 120);
+  for (const id of missing) {
+    const game = await gogOwnedGameDetails(id, accessToken);
+    if (game) games.push(game);
   }
   return games;
 }
