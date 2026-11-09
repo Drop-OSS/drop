@@ -634,6 +634,13 @@ test("library items follow Epic's cursors and collapse to products", async () =>
               sandboxName: "Unreal Engine",
               platform: "Windows",
             },
+            {
+              namespace: "somehexnamespace",
+              catalogItemId: "ffffffffffffffffffffffffffffffff",
+              appName: "AnimStarterPack",
+              sandboxName: "fab-listing-live",
+              platform: "Windows",
+            },
           ],
         }),
         { status: 200 },
@@ -642,7 +649,7 @@ test("library items follow Epic's cursors and collapse to products", async () =>
     async (calls) => {
       const items = await getEpicLibraryItems("token");
       assert.equal(calls.urls.length, 2, "the cursor was followed");
-      assert.equal(items.length, 4);
+      assert.equal(items.length, 5);
 
       const rows = normalizeEpicLibraryItems(items);
       assert.deepEqual(

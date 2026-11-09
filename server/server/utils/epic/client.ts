@@ -176,6 +176,13 @@ export function listableEpicLibraryItems(
     ) {
       return false;
     }
+    // Fab marketplace content rides in library records too, under random
+    // namespaces, with Epic's raw listing placeholder ("fab-listing-live")
+    // as the sandbox name. Engine content, not games - the same policy the
+    // ue namespace gets.
+    if (/^fab-/i.test(item.sandboxName?.trim() ?? "")) {
+      return false;
+    }
     const key = `${item.namespace}/${item.catalogItemId}`;
     if (seen.has(key)) return false;
     seen.add(key);
