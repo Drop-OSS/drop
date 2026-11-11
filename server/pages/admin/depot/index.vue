@@ -129,7 +129,7 @@
           </span>
         </div>
         <div
-          v-if="activeProviderId === 'ea' && eaLoginAvailable"
+          v-if="false && eaLoginAvailable"
           class="mb-4 flex flex-wrap items-center gap-3"
         >
           <button
@@ -146,7 +146,7 @@
           </span>
         </div>
         <p
-          v-else-if="activeProviderId === 'ea'"
+          v-else-if="false"
           class="mb-4 text-xs text-zinc-500"
         >
           EA grants no third-party sign-in clients, so connect with your own
@@ -539,7 +539,7 @@
 
       <form class="mt-6 flex flex-col gap-3" @submit.prevent="loadLibrary">
         <div
-          v-if="activeProviderId === 'ea'"
+          v-if="false"
           class="flex flex-col gap-3 sm:flex-row"
         >
           <label for="ea-search" class="sr-only">EA catalog search</label>
@@ -670,7 +670,7 @@
               }}
             </p>
             <p
-              v-if="activeProviderId === 'ea'"
+              v-if="false"
               class="mt-2 text-xs leading-5 text-zinc-500"
             >
               EA content arrives with your existing launcher install; the
@@ -769,7 +769,10 @@ const providers: Array<{ id: ProviderId; label: string }> = [
   { id: "gog", label: "GOG" },
   { id: "epic", label: "Epic" },
   { id: "ubisoft", label: "Ubisoft" },
-  { id: "ea", label: "EA" },
+  // EA is launcher-owned (M6): its games are acquired by the desktop
+  // client against the user's own EA install, not through this node-side
+  // catalog discovery ingest. The EA connect/discovery surface below is
+  // retained but unreachable from the provider tabs.
 ];
 
 const activeProviderId = ref<ProviderId>("gog");
@@ -881,23 +884,12 @@ async function loadConnections() {
 
 onMounted(() => {
   loadConnections();
-  probeEaLogin();
 });
 
-// EA grants no public OAuth clients, so browser sign-in is only offered when
-// the server has a confidential client configured; probe once on mount.
+// EA grants no public OAuth clients and is launcher-owned: no catalog
+// discovery, no browser sign-in from this page. State retained for the
+// (unreachable) connect form only.
 const eaLoginAvailable = ref(false);
-
-async function probeEaLogin() {
-  try {
-    const { loginUrl } = await $fetch<{ loginUrl: string | null }>(
-      "/api/admin/depot/connection/ea/login-url",
-    );
-    eaLoginAvailable.value = Boolean(loginUrl);
-  } catch {
-    eaLoginAvailable.value = false;
-  }
-}
 
 function formatExpiry(value: string) {
   const date = new Date(value);
@@ -933,7 +925,7 @@ async function connect() {
       body.userId = ubisoftUserId.value;
     }
   }
-  if (provider === "ea") {
+  if (false) {
     if (eaConnectCookies.value) body.browserCookies = eaConnectCookies.value;
     if (eaConnectCode.value) body.code = eaConnectCode.value;
     if (eaConnectToken.value) body.accessToken = eaConnectToken.value;
