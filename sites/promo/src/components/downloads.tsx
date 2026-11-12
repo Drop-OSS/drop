@@ -9,23 +9,22 @@ import {
 } from '@headlessui/react'
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/16/solid'
 import Link from 'next/link'
-import { useState, type JSX } from 'react'
+import { useEffect, useState, type JSX } from 'react'
 import { Button } from './button'
 import { Container } from './container'
 import { Heading } from './text'
 
-type Version = 'v0.2.0' | 'v0.3.0' | 'v0.3.1' | 'v0.3.2' | 'v0.3.3' | 'v0.3.4'
 type Platforms = 'Windows' | 'Linux' | 'macOS'
-type Arch = 'x86' | 'ARM'
 
-const releasePages: { [key in Version]: string } = {
-  'v0.2.0': 'https://github.com/Drop-OSS/drop-app/releases/tag/v0.2.0-beta',
-  'v0.3.0': 'https://github.com/Drop-OSS/drop-app/releases/tag/v0.3.0',
-  'v0.3.1': 'https://github.com/Drop-OSS/drop-app/releases/tag/v0.3.1',
-  'v0.3.2': 'https://github.com/Drop-OSS/drop-app/releases/tag/v0.3.2',
-  'v0.3.3': 'https://github.com/Drop-OSS/drop-app/releases/tag/v0.3.3',
-  'v0.3.4': 'https://github.com/Drop-OSS/drop-app/releases/tag/v0.3.4',
+type Release = {
+  tag_name: string
+  html_url: string
+  prerelease: boolean
+  assets: Array<{ name: string; browser_download_url: string }>
 }
+
+// The desktop client was released from drop-app before it moved into this repo.
+const releaseRepos = ['Drop-OSS/drop', 'Drop-OSS/drop-app']
 
 function WindowsIcon() {
   return (
@@ -111,12 +110,13 @@ function macOSIcon() {
   )
 }
 
+// Builds are matched to a platform by the end of their file name.
 const downloads: {
   [key in Platforms]: {
     name: string
     description: string
     icon: () => JSX.Element
-    downloads: { [key in Version]: { [key in Arch]: string | undefined } }
+    files: { [arch: string]: string }
   }
 } = {
   Windows: {
@@ -124,103 +124,28 @@ const downloads: {
     description:
       'A setup executable to install the Drop Desktop Client on your Windows system.',
     icon: WindowsIcon,
-    downloads: {
-      'v0.2.0': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.2.0-beta/Drop.Desktop.Client_0.2.0-beta_x64-setup.exe',
-        ARM: undefined,
-      },
-      'v0.3.0': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.0/Drop.Desktop.Client_0.3.0_x64-setup.exe',
-        ARM: undefined,
-      },
-      'v0.3.1': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.1/Drop.Desktop.Client_0.3.1_x64-setup.exe',
-        ARM: undefined,
-      },
-      'v0.3.2': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.2/Drop.Desktop.Client_0.3.2_x64-setup.exe',
-        ARM: undefined,
-      },
-      'v0.3.3': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.3/Drop.Desktop.Client_0.3.3_x64-setup.exe',
-        ARM: undefined,
-      },
-      'v0.3.4': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.4/Drop.Desktop.Client_0.3.4_x64-setup.exe',
-        ARM: undefined,
-      },
-    },
+    files: { x86: '_x64-setup.exe' },
   },
   Linux: {
     name: 'Linux',
     description:
       'A .deb file that can be installed on Debian-based systems, or repackaged to another distro. Other Linux downloads are available on the GitHub releases page.',
     icon: LinuxIcon,
-    downloads: {
-      'v0.2.0': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.2.0-beta/Drop.Desktop.Client_0.2.0-beta_amd64.deb',
-        ARM: undefined,
-      },
-      'v0.3.0': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.0/Drop.Desktop.Client_0.3.0_amd64.deb',
-        ARM: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.0/Drop.Desktop.Client_0.3.0_arm64.deb',
-      },
-      'v0.3.1': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.1/Drop.Desktop.Client_0.3.1_amd64.deb',
-        ARM: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.1/Drop.Desktop.Client_0.3.1_arm64.deb',
-      },
-      'v0.3.2': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.2/Drop.Desktop.Client_0.3.2_amd64.deb',
-        ARM: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.2/Drop.Desktop.Client_0.3.2_arm64.deb',
-      },
-      'v0.3.3': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.3/Drop.Desktop.Client_0.3.3_amd64.deb',
-        ARM: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.3/Drop.Desktop.Client_0.3.3_arm64.deb',
-      },
-      'v0.3.4': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.4/Drop.Desktop.Client_0.3.4_amd64.deb',
-        ARM: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.4/Drop.Desktop.Client_0.3.4_arm64.deb',
-      },
-    },
+    files: { x86: '_amd64.deb', ARM: '_arm64.deb' },
   },
   macOS: {
     name: 'macOS',
     description: 'A self-signed .dmg to install on your macOS system.',
     icon: macOSIcon,
-    downloads: {
-      'v0.2.0': {
-        x86: undefined,
-        ARM: undefined,
-      },
-      'v0.3.0': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.0/Drop.Desktop.Client_0.3.0_x64.dmg',
-        ARM: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.0/Drop.Desktop.Client_0.3.0_aarch64.dmg',
-      },
-      'v0.3.1': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.1/Drop.Desktop.Client_0.3.1_x64.dmg',
-        ARM: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.1/Drop.Desktop.Client_0.3.1_aarch64.dmg',
-      },
-      'v0.3.2': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.2/Drop.Desktop.Client_0.3.2_x64.dmg',
-        ARM: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.2/Drop.Desktop.Client_0.3.2_aarch64.dmg',
-      },
-      'v0.3.3': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.3/Drop.Desktop.Client_0.3.3_x64.dmg',
-        ARM: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.3/Drop.Desktop.Client_0.3.3_aarch64.dmg',
-      },
-      'v0.3.4': {
-        x86: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.4/Drop.Desktop.Client_0.3.4_x64.dmg',
-        ARM: 'https://github.com/Drop-OSS/drop-app/releases/download/v0.3.4/Drop.Desktop.Client_0.3.4_aarch64.dmg',
-      },
-    },
+    files: { x86: '_x64.dmg', ARM: '_aarch64.dmg' },
   },
 }
 
 function DownloadCard({
-  version,
+  release,
   data,
 }: {
-  version: Version
+  release: Release
   data: (typeof downloads)[Platforms]
 }) {
   return (
@@ -238,13 +163,18 @@ function DownloadCard({
             </p>
           </div>
           <div className="mt-8 flex w-full items-center justify-center gap-x-3">
-            {Object.entries(data.downloads[version])
-              .filter(([, link]) => link)
-              .map(([arch, link]) => (
-                <Button key={arch} href={link} variant="outline">
-                  Download {arch} &rarr;
-                </Button>
-              ))}
+            {Object.entries(data.files).map(([arch, file]) => {
+              const link = release.assets.find((asset) =>
+                asset.name.endsWith(file),
+              )?.browser_download_url
+              return (
+                link && (
+                  <Button key={arch} href={link} variant="outline">
+                    Download {arch} &rarr;
+                  </Button>
+                )
+              )
+            })}
           </div>
         </div>
       </div>
@@ -253,26 +183,97 @@ function DownloadCard({
 }
 
 export default function DownloadCards() {
-  const [currentVersion, setCurrentVersion] = useState<Version>(
-    Object.keys(releasePages).at(-1)! as Version,
-  )
+  const [releases, setReleases] = useState<Release[]>()
+  const [selected, setSelected] = useState<Release>()
+
+  useEffect(() => {
+    try {
+      const cached = window.localStorage.getItem('releases')
+      if (cached) {
+        const cachedData = JSON.parse(cached)
+        if (cachedData.created + 1000 * 60 * 60 > Date.now()) {
+          setReleases(cachedData.releases)
+          return
+        }
+      }
+    } catch {
+      // Browsers that block site data throw on localStorage; fetch instead.
+    }
+
+    const files = Object.values(downloads).flatMap((platform) =>
+      Object.values(platform.files),
+    )
+    Promise.all(
+      releaseRepos.map(async (repo) => {
+        const response = await fetch(
+          `https://api.github.com/repos/${repo}/releases`,
+        )
+        if (!response.ok) {
+          throw new Error(`GitHub returned ${response.status} for ${repo}`)
+        }
+        return (await response.json()) as Release[]
+      }),
+    )
+      .then((lists) => {
+        const releases = lists
+          .flat()
+          .filter(
+            (release) =>
+              !release.prerelease &&
+              release.assets.some((asset) =>
+                files.some((file) => asset.name.endsWith(file)),
+              ),
+          )
+        setReleases(releases)
+        try {
+          window.localStorage.setItem(
+            'releases',
+            JSON.stringify({ releases, created: Date.now() }),
+          )
+        } catch {
+          // Storage is blocked or full; the page works without the cache.
+        }
+      })
+      .catch((error) => {
+        console.error(error)
+        setReleases([])
+      })
+  }, [])
+
+  if (!releases?.length) {
+    return (
+      <Container className="py-24 text-center text-sm/6 text-zinc-400">
+        {releases ? (
+          <>
+            Couldn&apos;t load the releases from GitHub.{' '}
+            <Link
+              href="https://github.com/Drop-OSS/drop/releases/latest"
+              className="font-semibold text-zinc-100 hover:underline"
+            >
+              Open the GitHub releases page &rarr;
+            </Link>
+          </>
+        ) : (
+          'Loading releases…'
+        )}
+      </Container>
+    )
+  }
+
+  const release = selected ?? releases[0]
 
   return (
     <div className="relative py-24">
-      <pre className="hidden" id="download-matrix">
-        {JSON.stringify(downloads)}
-      </pre>
-
       <Container>
         <div className="flex flex-col items-center">
-          <Listbox value={currentVersion} onChange={setCurrentVersion}>
+          <Listbox value={release} onChange={setSelected}>
             <Label className="block text-sm/6 font-medium text-zinc-100">
               Version
             </Label>
             <div className="relative mt-2">
               <ListboxButton className="grid w-full min-w-[10rem] cursor-default grid-cols-1 rounded-md bg-zinc-900 py-1.5 pr-2 pl-3 text-left text-zinc-100 outline-1 -outline-offset-1 outline-zinc-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-600 sm:text-sm/6">
                 <span className="col-start-1 row-start-1 truncate pr-6">
-                  {currentVersion}
+                  {release.tag_name}
                 </span>
                 <ChevronUpDownIcon
                   aria-hidden="true"
@@ -284,14 +285,14 @@ export default function DownloadCards() {
                 transition
                 className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-900 py-1 text-base shadow-lg outline-1 outline-white/5 data-leave:transition data-leave:duration-100 data-leave:ease-in data-closed:data-leave:opacity-0 sm:text-sm"
               >
-                {Object.keys(releasePages).map((version) => (
+                {releases.map((option) => (
                   <ListboxOption
-                    key={version}
-                    value={version}
+                    key={option.html_url}
+                    value={option}
                     className="group relative cursor-default py-2 pr-9 pl-3 text-zinc-100 select-none data-focus:bg-blue-600 data-focus:text-white data-focus:outline-hidden"
                   >
                     <span className="block truncate font-normal group-data-selected:font-semibold">
-                      {version}
+                      {option.tag_name}
                     </span>
 
                     <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-blue-600 group-not-data-selected:hidden group-data-focus:text-white">
@@ -305,12 +306,12 @@ export default function DownloadCards() {
         </div>
         <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-3">
           {Object.entries(downloads).map(([platform, data]) => (
-            <DownloadCard key={platform} data={data} version={currentVersion} />
+            <DownloadCard key={platform} data={data} release={release} />
           ))}
         </div>
         <div className="mt-6 flex justify-center">
           <Link
-            href={releasePages[currentVersion]}
+            href={release.html_url}
             className="text-xs font-semibold text-gray-500 hover:text-gray-600 hover:underline"
           >
             Open GitHub releases page &rarr;

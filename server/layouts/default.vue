@@ -7,7 +7,7 @@
     <div class="grow flex">
       <NuxtPage />
     </div>
-    <LazyUserFooter class="z-50" hydrate-on-interaction />
+    <LazyUserFooter class="z-30" hydrate-on-interaction />
   </div>
   <div v-else class="flex flex-col w-full min-h-screen bg-zinc-900">
     <NuxtPage />
@@ -34,7 +34,4 @@ useHead({
     return title ? t("titleTemplate", [title]) : t("title");
   },
 });
-const { mLogoObjectId } = await $dropFetch("/api/v1");
-const favicon = mLogoObjectId ? useObject(mLogoObjectId) : "/favicon.ico";
-useFavicon(favicon, { rel: "icon" });
 </script>

@@ -31,6 +31,13 @@ const user = useUser();
 const apiDetails = await $dropFetch("/api/v1");
 const clientMode = isClientRequest();
 
+const favicon = apiDetails.mLogoObjectId
+  ? useObject(apiDetails.mLogoObjectId)
+  : "/favicon.ico";
+useHead({
+  link: [{ rel: "icon", href: favicon, key: "favicon" }],
+});
+
 const showExternalUrlWarning = ref(false);
 function checkExternalUrl() {
   if (!import.meta.client || clientMode) return;
