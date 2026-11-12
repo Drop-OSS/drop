@@ -6,15 +6,39 @@
   "command": "drop-app",
   "finish-args": [
     "--env=DROP_SKIP_DEEP_LINK_AUTH=true",
+    "--env=XDG_DATA_DIRS=/app/share:/usr/lib/extensions/vulkan/share:/usr/share:/usr/share/runtime/share:/run/host/user-share:/run/host/share:/usr/lib/pressure-vessel/overrides/share",
+    "--allow=devel",
+    "--allow=multiarch",
     "--share=network",
+    "--share=ipc",
     "--socket=wayland",
     "--socket=fallback-x11",
     "--socket=pulseaudio",
     "--device=dri",
     "--filesystem=home",
     "--talk-name=org.freedesktop.Notifications",
-    "--talk-name=org.kde.StatusNotifierWatcher"
+    "--talk-name=org.kde.StatusNotifierWatcher",
+    "--talk-name=org.freedesktop.portal.Background"
   ],
+  "add-extensions": {
+    "org.gnome.Platform.Compat.i386": {
+      "directory": "lib/i386-linux-gnu",
+      "version": "50"
+    },
+    "org.freedesktop.Platform.GL32": {
+      "directory": "lib/i386-linux-gnu/GL",
+      "version": "1.4",
+      "versions": "50;50-extra;1.4",
+      "subdirectories": true,
+      "no-autodownload": true,
+      "autodelete": false,
+      "add-ld-path": "lib",
+      "merge-dirs": "vulkan/icd.d;glvnd/egl_vendor.d;egl/egl_external_platform.d;OpenCL/vendors;lib/dri;lib/d3d;lib/gbm;vulkan/explicit_layer.d;vulkan/implicit_layer.d",
+      "download-if": "active-gl-driver",
+      "enable-if": "active-gl-driver",
+      "autoprune-unless": "active-gl-driver"
+    }
+  },
   "modules": [
     {
       "name": "drop-app",
@@ -43,6 +67,20 @@
           "sha256": "DROP_ARM64_DEB_SHA256",
           "only-arches": ["aarch64"],
           "dest-filename": "drop.deb"
+        }
+      ]
+    },
+    {
+      "name": "umu-launcher",
+      "buildsystem": "simple",
+      "build-commands": [
+        "install -Dm755 umu/umu-run /app/bin/umu-run",
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://github.com/Open-Wine-Components/umu-launcher/releases/download/1.4.4/umu-launcher-1.4.4-zipapp.tar",
+          "sha256": "eb590691841f7fad3fc3ad8fd5db4ccb87849fe7948e62b28ece7a4ee48cc851"
         }
       ]
     }

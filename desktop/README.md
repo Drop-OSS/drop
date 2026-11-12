@@ -15,3 +15,7 @@ its SHA-256 checksum.
 
 Flatpak launches automatically skip browser-based deep-link authentication and
 open device-code authentication instead.
+
+Flatpak packages also bundle UMU Launcher, so no host UMU installation is
+needed. UMU/Proton uses a nested Steam Runtime, so the Flatpak enables multiarch
+and Flatpak's `devel` permission; the latter relaxes syscall sandboxing.
