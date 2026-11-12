@@ -65,7 +65,7 @@ export function setupHooks() {
   */
 }
 
-export function initialNavigation(state: ReturnType<typeof useAppState>) {
+export async function initialNavigation(state: ReturnType<typeof useAppState>) {
   if (!state.value)
     throw createError({
       statusCode: 500,
@@ -79,11 +79,15 @@ export function initialNavigation(state: ReturnType<typeof useAppState>) {
       router.push({ path: "/setup" });
       break;
     case AppStatus.SignedOut:
-      router.push("/auth");
+    case AppStatus.SignedInNeedsReauth: {
+      let authPath =
+        state.value.status === AppStatus.SignedOut ? "/auth" : "/auth/signedout";
+      if (await invoke<boolean>("should_skip_deep_link_auth")) {
+        authPath = "/auth/code";
+      }
+      router.push(authPath);
       break;
-    case AppStatus.SignedInNeedsReauth:
-      router.push("/auth/signedout");
-      break;
+    }
     case AppStatus.ServerUnavailable:
       router.push("/error/serverunavailable");
       break;

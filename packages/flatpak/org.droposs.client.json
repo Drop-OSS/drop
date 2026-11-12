@@ -5,6 +5,7 @@
   "sdk": "org.gnome.Sdk",
   "command": "drop-app",
   "finish-args": [
+    "--env=DROP_SKIP_DEEP_LINK_AUTH=true",
     "--share=network",
     "--socket=wayland",
     "--socket=fallback-x11",

@@ -12,3 +12,6 @@ use the target GitHub release's pre-release flag.
 Both release types also upload x86_64 and ARM64 (`aarch64`) Flatpak bundles. Each
 bundle is built on a native runner using the matching Debian release asset and
 its SHA-256 checksum.
+
+Flatpak launches automatically skip browser-based deep-link authentication and
+open device-code authentication instead.

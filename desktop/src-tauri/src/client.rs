@@ -19,6 +19,15 @@ pub fn fetch_state(state: tauri::State<'_, Mutex<AppState>>) -> Result<String, S
 }
 
 #[tauri::command]
+pub fn should_skip_deep_link_auth() -> bool {
+    let args: Vec<String> = std::env::args().collect();
+    let env_value = std::env::var("DROP_SKIP_DEEP_LINK_AUTH").ok();
+
+    args.iter().any(|arg| arg == "--skip-deep-link-auth")
+        || env_value.is_some_and(|value| value == "1" || value.eq_ignore_ascii_case("true"))
+}
+
+#[tauri::command]
 pub async fn quit(app: tauri::AppHandle) {
     cleanup_and_exit(&app).await;
 }
