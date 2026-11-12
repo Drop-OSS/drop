@@ -50,9 +50,6 @@ jobs:
 
       - name: install Rust nightly
         uses: dtolnay/rust-toolchain@nightly
-        with:
-          # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
-          targets: ${{ matrix.platform == 'macos-14' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       - name: Rust cache
         uses: swatinem/rust-cache@v2
@@ -67,7 +64,7 @@ jobs:
         # webkitgtk 4.0 is for Tauri v1 - webkitgtk 4.1 is for Tauri v2.
 
       - name: Import Apple Developer Certificate
-        if: matrix.platform == 'macos-14'
+        if: matrix.platform == 'macos-26' || matrix.platform == 'macos-26-intel'
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
@@ -105,7 +102,7 @@ jobs:
           security find-identity -v -p codesigning build.keychain
 
       - name: Verify Certificate
-        if: matrix.platform == 'macos-14'
+        if: matrix.platform == 'macos-26' || matrix.platform == 'macos-26-intel'
         run: |
           CERT_INFO=$(security find-identity -v -p codesigning build.keychain | grep "Drop OSS")
           CERT_ID=$(echo "$CERT_INFO" | awk -F'"' '{print $2}')
