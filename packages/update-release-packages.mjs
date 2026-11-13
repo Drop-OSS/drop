@@ -16,9 +16,9 @@ async function updateFile(path, transform) {
   await writeFile(path, transform(original));
 }
 
-const [tag, version, debPath, ...extraArgs] = process.argv.slice(2);
-if (!tag || !version || !debPath || extraArgs.length > 0) {
-  throw new Error("usage: update-release-packages.mjs TAG VERSION DEB_PATH");
+const [tag, version, debPath, arm64DebPath, ...extraArgs] = process.argv.slice(2);
+if (!tag || !version || !debPath || !arm64DebPath || extraArgs.length > 0) {
+  throw new Error("usage: update-release-packages.mjs TAG VERSION AMD64_DEB_PATH ARM64_DEB_PATH");
 }
 if (!/^[A-Za-z0-9._-]+$/.test(tag)) {
   throw new Error("Release tag contains unsupported characters");
@@ -29,18 +29,20 @@ if (!/^[0-9]+(?:\.[0-9]+)*$/.test(version)) {
 
 const packagesDir = dirname(fileURLToPath(import.meta.url));
 const checksum = createHash("sha256").update(await readFile(debPath)).digest("hex");
+const arm64Checksum = createHash("sha256").update(await readFile(arm64DebPath)).digest("hex");
 const tokens = [
   ["DROP_PKG_VER", version],
   ["DROP_PKG_REL", "1"],
   ["DROP_RELEASE_TAG", tag],
   ["DROP_DEB_SHA256", checksum],
+  ["DROP_ARM64_DEB_SHA256", arm64Checksum],
 ];
 const files = [
-  { packageName: "drop-oss-app", fileName: "PKGBUILD", tokenCounts: [2, 1, 1, 0] },
-  { packageName: "drop-oss-app", fileName: ".SRCINFO", tokenCounts: [1, 1, 1, 0] },
-  { packageName: "drop-oss-app-bin", fileName: "PKGBUILD", tokenCounts: [2, 1, 1, 1] },
-  { packageName: "drop-oss-app-bin", fileName: ".SRCINFO", tokenCounts: [2, 1, 1, 1] },
-  { packageName: "flatpak", fileName: "org.droposs.client.json", tokenCounts: [1, 0, 1, 1] },
+  { packageName: "drop-oss-app", fileName: "PKGBUILD", tokenCounts: [2, 1, 1, 0, 0] },
+  { packageName: "drop-oss-app", fileName: ".SRCINFO", tokenCounts: [1, 1, 1, 0, 0] },
+  { packageName: "drop-oss-app-bin", fileName: "PKGBUILD", tokenCounts: [2, 1, 1, 1, 0] },
+  { packageName: "drop-oss-app-bin", fileName: ".SRCINFO", tokenCounts: [2, 1, 1, 1, 0] },
+  { packageName: "flatpak", fileName: "org.droposs.client.json", tokenCounts: [2, 0, 2, 1, 1] },
 ];
 
 for (const { packageName, fileName, tokenCounts } of files) {
