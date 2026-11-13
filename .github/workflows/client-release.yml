@@ -65,6 +65,8 @@ jobs:
 
       - name: Import Apple Developer Certificate
         if: matrix.platform == 'macos-26' || matrix.platform == 'macos-26-intel'
+        # Trust-settings changes can block on a GUI auth prompt; fail fast instead of hanging.
+        timeout-minutes: 5
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
@@ -91,7 +93,7 @@ jobs:
 
           # echo "Added certificate to keychain using swift util"
 
-          security add-trusted-cert -r trustRoot -k build.keychain -p codeSign -u -1 drop.der
+          sudo -n security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain -p codeSign -u -1 drop.der
 
           security import certificate.p12 -k build.keychain -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
           echo "Imported certificate"
