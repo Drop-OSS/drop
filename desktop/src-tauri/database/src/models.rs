@@ -21,6 +21,7 @@ pub mod data {
     pub type DownloadType = v1::DownloadType;
     pub type DatabaseApplications = v1::DatabaseApplications;
     pub type UserConfiguration = v1::UserConfiguration;
+    pub type FlagAcknowledgment = v1::FlagAcknowledgment;
 
     use std::collections::HashMap;
 
@@ -131,7 +132,16 @@ pub mod data {
             pub platform: Platform,
             pub umu_id_override: Option<String>,
 
+            #[serde(default)]
+            pub flags: Vec<String>,
+
             pub emulator: Option<LaunchConfigurationEmulator>,
+        }
+
+        #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+        pub enum FlagAcknowledgment {
+            AutoHandled,
+            ManuallyHandled,
         }
 
         #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
@@ -261,6 +271,10 @@ pub mod data {
 
             #[serde(skip)]
             pub transient_statuses: HashMap<DownloadableMetadata, ApplicationTransientStatus>,
+
+            /// Maps (launch_id, flag_name) -> FlagAcknowledgment
+            #[serde(default)]
+            pub flag_acknowledgments: HashMap<(String, String), FlagAcknowledgment>,
         }
 
         #[derive(Serialize, Deserialize, Clone, Default)]
@@ -292,6 +306,7 @@ pub mod data {
                     transient_statuses: HashMap::new(),
                     additional_proton_paths: Vec::new(),
                     default_proton_path: None,
+                    flag_acknowledgments: HashMap::new(),
                 },
                 prev_database,
                 base_url: String::new(),
