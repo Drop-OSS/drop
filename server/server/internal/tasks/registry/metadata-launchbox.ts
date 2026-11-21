@@ -16,10 +16,6 @@ export default defineDropTask({
 
     context.logger.info("Rebuilding the LaunchBox index");
     const index = await provider.rebuild(context);
-    if (!index)
-      throw new Error(
-        "No launchboxIndexDir is configured, so there is no index to rebuild",
-      );
 
     context.logger.info(
       `LaunchBox index built at ${index.builtAt} with ${Object.keys(index.games).length} games`,

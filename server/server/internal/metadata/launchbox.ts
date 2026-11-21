@@ -1,5 +1,5 @@
 import { AgeRatingOrganization, MetadataSource } from "~/prisma/client/enums";
-import type { MetadataProvider } from ".";
+import { MissingMetadataProviderConfig, type MetadataProvider } from ".";
 import type {
   _FetchGameMetadataParams,
   _FetchCompanyMetadataParams,
@@ -17,13 +17,10 @@ import { mkdir, readFile, rename, rm, writeFile } from "fs/promises";
 import { dirname, join } from "path";
 import { pipeline } from "stream/promises";
 import StreamZip from "node-stream-zip";
+import { StringDecoder } from "string_decoder";
 import { DropUserAgent } from ".";
 
 const METADATA_URL = "https://gamesdb.launchbox-app.com/Metadata.zip";
-
-const SEARCH_API_URL = "https://gamesdb-api.launchbox-app.com/api/search";
-
-const IMAGE_URL = "https://images.launchbox-app.com";
 
 const IMAGES_PAGE_URL = "https://gamesdb.launchbox-app.com/games/images";
 
@@ -35,15 +32,6 @@ const REGION_PREFERENCE = [
   "australia",
   "asia",
 ];
-
-const API_ID_PREFIX = "api:";
-
-interface LaunchBoxSearchHit {
-  gameKey: number;
-  name: string;
-  platformName: string;
-  thumbName: string | null;
-}
 
 interface LaunchBoxGame {
   id: string;
@@ -199,12 +187,14 @@ export async function* parseGameRecords(
     failure = e instanceof Error ? e : new Error(String(e));
   });
 
+  const decoder = new StringDecoder("utf8");
   for await (const chunk of input) {
-    parser.write(chunk.toString("utf8"));
+    parser.write(decoder.write(chunk));
     if (failure) throw failure;
     while (ready.length > 0) yield ready.shift()!;
   }
 
+  parser.write(decoder.end());
   parser.end();
   if (failure) throw failure;
   while (ready.length > 0) yield ready.shift()!;
@@ -265,6 +255,18 @@ function pickPrefixed(media: LaunchBoxMedia[], prefix: string) {
 export class LaunchBoxProvider implements MetadataProvider {
   private index: LaunchBoxIndex | null = null;
   private indexError: string | null = null;
+  private readonly indexDir: string;
+
+  constructor() {
+    const dir = systemConfig.getLaunchboxIndexDir();
+    if (!dir) {
+      throw new MissingMetadataProviderConfig(
+        "launchboxIndexDir",
+        "LaunchBox Games Database",
+      );
+    }
+    this.indexDir = dir;
+  }
 
   name() {
     return "LaunchBox Games Database";
@@ -274,20 +276,13 @@ export class LaunchBoxProvider implements MetadataProvider {
     return MetadataSource.LaunchBox;
   }
 
-  private indexPath(): string | null {
-    const dir = systemConfig.getLaunchboxIndexDir();
-    if (!dir) return null;
-    return join(dir, "launchbox-index.json");
-  }
-
-  private enabled(): boolean {
-    return this.indexPath() !== null;
+  private indexPath(): string {
+    return join(this.indexDir, "launchbox-index.json");
   }
 
   private async loadIndex(): Promise<LaunchBoxIndex | null> {
     if (this.index) return this.index;
     const path = this.indexPath();
-    if (!path) return null;
     try {
       const raw = await readFile(path, "utf8");
       this.index = JSON.parse(raw) as LaunchBoxIndex;
@@ -299,15 +294,8 @@ export class LaunchBoxProvider implements MetadataProvider {
     }
   }
 
-  async rebuild(context?: TaskRunContext): Promise<LaunchBoxIndex | null> {
+  async rebuild(context?: TaskRunContext): Promise<LaunchBoxIndex> {
     const path = this.indexPath();
-    if (!path) {
-      logger.info(
-        "LaunchBox index disabled (no launchboxIndexDir configured); skipping rebuild",
-      );
-      return null;
-    }
-
     const previous = await this.loadIndex();
     const head = await $fetch.raw(METADATA_URL, {
       method: "HEAD",
@@ -370,35 +358,7 @@ export class LaunchBoxProvider implements MetadataProvider {
     return index;
   }
 
-  private async searchApi(query: string): Promise<LaunchBoxSearchHit[]> {
-    try {
-      const response = await $fetch<{
-        count: number;
-        data: LaunchBoxSearchHit[];
-      }>(`${SEARCH_API_URL}/${encodeURIComponent(query)}`, {
-        headers: { "User-Agent": DropUserAgent },
-      });
-      return response?.data ?? [];
-    } catch (e) {
-      logger.warn(
-        `LaunchBox search API failed for ${JSON.stringify(query)}: ${e}`,
-      );
-      return [];
-    }
-  }
-
   async search(query: string): Promise<GameMetadataSearchResult[]> {
-    const apiHits = await this.searchApi(query);
-    if (apiHits.length > 0) {
-      return apiHits.map((hit) => ({
-        id: `${API_ID_PREFIX}${hit.gameKey}`,
-        name: hit.name,
-        icon: hit.thumbName ? `${IMAGE_URL}/${hit.thumbName}` : "",
-        description: hit.platformName,
-        year: 0,
-      }));
-    }
-
     const index = await this.loadIndex();
     if (!index) {
       if (this.indexError) logger.warn(this.indexError);
@@ -444,58 +404,27 @@ export class LaunchBoxProvider implements MetadataProvider {
     }
   }
 
-  /** No by-id endpoint exists; callers fall back to the archive by (name, platform). */
-  private async searchApiById(
-    _gameKey: string,
-  ): Promise<LaunchBoxSearchHit | null> {
-    void _gameKey;
-    return null;
-  }
-
-  /** The API and archive ids are unrelated namespaces, so this joins on (name, platform). */
-  private async archiveIdFor(hit: LaunchBoxSearchHit): Promise<string | null> {
-    const index = await this.loadIndex();
-    if (!index) return null;
-    const candidates = Object.values(index.games).filter(
-      (g) =>
-        g.name === hit.name &&
-        g.platform.toLowerCase() === hit.platformName.toLowerCase(),
-    );
-    return candidates.length === 1 ? candidates[0].id : null;
-  }
-
   async fetchGame(
     { id, createObject }: _FetchGameMetadataParams,
     context?: TaskRunContext,
   ): Promise<GameMetadata> {
-    const apiHit = id.startsWith(API_ID_PREFIX)
-      ? await this.searchApiById(id.slice(API_ID_PREFIX.length))
-      : null;
-    const archiveId = apiHit ? await this.archiveIdFor(apiHit) : id;
-
     const index = await this.loadIndex();
-    const game = index && archiveId ? index.games[archiveId] : undefined;
+    const game = index?.games[id];
 
-    if (!game && !apiHit) {
+    if (!game) {
       context?.logger.error(`No LaunchBox game with id ${id}`);
       throw new Error(`No LaunchBox game with id ${id}`);
     }
 
-    context?.logger.info(
-      `Found LaunchBox game: "${game?.name ?? apiHit?.name}"`,
-    );
+    context?.logger.info(`Found LaunchBox game: "${game.name}"`);
     context?.progress(40);
 
-    const media = await this.fetchMedia(archiveId ?? apiHit?.gameKey);
+    const media = await this.fetchMedia(id);
     context?.logger.info(
-      `LaunchBox media: ${media.length} entries for ${game?.name ?? apiHit?.name}`,
+      `LaunchBox media: ${media.length} entries for ${game.name}`,
     );
 
-    const cover =
-      pickKind(media, "Box - Front") ??
-      (apiHit?.thumbName
-        ? { url: `${IMAGE_URL}/${apiHit.thumbName}` }
-        : undefined);
+    const cover = pickKind(media, "Box - Front");
     const banner =
       pickKind(media, "Banner") ?? pickKind(media, "Fanart - Background");
     const logo = pickKind(media, "Clear Logo");
@@ -509,8 +438,7 @@ export class LaunchBoxProvider implements MetadataProvider {
         !m.kind.toLowerCase().startsWith("screenshot"),
     );
 
-    const placeholder = () =>
-      createObject(jdenticon.toPng(archiveId ?? id, 512));
+    const placeholder = () => createObject(jdenticon.toPng(id, 512));
     const objectFor = (url?: string) =>
       url ? createObject(url) : placeholder();
 
@@ -539,7 +467,7 @@ export class LaunchBoxProvider implements MetadataProvider {
 
     context?.progress(100);
 
-    const name = game?.name ?? apiHit?.name ?? id;
+    const name = game.name;
     const overview = game?.overview ?? "";
 
     return {
