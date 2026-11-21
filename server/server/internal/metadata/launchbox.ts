@@ -8,6 +8,7 @@ import type {
   CompanyMetadata,
 } from "./types";
 import * as jdenticon from "jdenticon";
+import { Saxy } from "saxy";
 import type { TaskRunContext } from "../tasks";
 import { logger } from "~/server/internal/logging";
 import { systemConfig } from "../config/sys-conf";
@@ -19,41 +20,16 @@ import { createInflateRaw } from "zlib";
 import { DropUserAgent } from ".";
 
 /**
- * LaunchBox Games Database provider.
- *
- * LaunchBox publishes no API. The entire database is a single zip archive:
- *
- *   https://gamesdb.launchbox-app.com/Metadata.zip
- *
- * ~109MB compressed, ~578MB uncompressed, containing:
- *   Metadata.xml  (~518MB) game records, a flat streamable <Game> sequence
- *   Mame.xml      (~46MB)  arcade machine records
- *   Files.xml     (~14MB)  (Platform, FileName, GameName) ROM-filename bridge
- *   Platforms.xml (~0.3MB) per-platform hardware metadata
- *
- * 518MB cannot be parsed per lookup, so this provider builds a local index once
- * and reuses it. The index is a CACHE, NOT STATE:
- *   - it is derived entirely from the archive and can be rebuilt at any time
- *   - deleting it costs a rebuild, never data
- *   - if a refresh fails the previous index keeps serving and the failure is logged
- *
- * The index is opt-in. With it disabled the provider reports itself as
- * unavailable rather than silently downloading 109MB inside a search.
- *
- * Measured against the 2026-11-01 archive:
- *   190,165 game records, full index build ~35s, index JSON ~174MB on disk.
- *   Field coverage: developer 91%, publisher 88%, genres 90%, release year 96%,
- *   overview 94%, ESRB 73%.
+ * LaunchBox publishes no API: the whole database is one ~109MB zip whose
+ * Metadata.xml (~518MB) is a flat, streamable <Game> sequence. That is too
+ * large to parse per lookup, so this provider builds a local index once and
+ * reuses it. The index is a cache, not state — it is derived entirely from the
+ * archive and can always be rebuilt — and it is opt-in via launchboxIndexDir.
  */
 
 const METADATA_URL = "https://gamesdb.launchbox-app.com/Metadata.zip";
 
-/**
- * The Games Database also exposes a public JSON search endpoint, which is what
- * the website itself calls. Unlike the browse endpoint (which ignores `q` and
- * returns the whole catalogue), this one filters and returns a thumbnail GUID
- * per result — the only public source of image filenames.
- */
+/** The website's own JSON search endpoint — the only public source of image filenames. */
 const SEARCH_API_URL = "https://gamesdb-api.launchbox-app.com/api/search";
 
 /** Image hosts. Both serve the same GUID filenames; the .gg one is current. */
@@ -62,11 +38,7 @@ const IMAGE_URL = "https://images.launchbox-app.com";
 /** The per-game media page. Every kind the database holds is listed here. */
 const IMAGES_PAGE_URL = "https://gamesdb.launchbox-app.com/games/images";
 
-/**
- * Region preference when a kind exists in several regions. North America first
- * to match the rest of the metadata, then World, then Europe/Japan, then
- * anything else — a stable order so the same game always yields the same cover.
- */
+/** Region order when a kind exists in several regions, so a game always gets the same cover. */
 const REGION_PREFERENCE = [
   "north america",
   "world",
@@ -76,12 +48,7 @@ const REGION_PREFERENCE = [
   "asia",
 ];
 
-/**
- * Prefix marking an id that came from the search API rather than the archive.
- * The two namespaces are distinct (archive DatabaseID 468928 and API gameKey
- * 434710 are the same 3DO title), so they must never be confused for one
- * another.
- */
+/** Marks an id from the search API. Its namespace is unrelated to the archive's DatabaseID. */
 const API_ID_PREFIX = "api:";
 
 /** One row from the Games Database search endpoint. */
@@ -121,26 +88,6 @@ interface LaunchBoxIndex {
   games: Record<string, LaunchBoxGame>;
 }
 
-/** The subset of a <Game> element this provider reads. */
-type GameField =
-  | "DatabaseID"
-  | "Name"
-  | "Platform"
-  | "ReleaseYear"
-  | "ReleaseDate"
-  | "Overview"
-  | "Developer"
-  | "Publisher"
-  | "Genres"
-  | "MaxPlayers"
-  | "Cooperative"
-  | "CommunityRating"
-  | "CommunityRatingCount"
-  | "ESRB"
-  | "VideoURL"
-  | "WikipediaURL"
-  | "SteamAppId";
-
 const ESRB_TO_ORGANIZATION: Record<string, string> = {
   // LaunchBox stores the ESRB value with its descriptor ("E - Everyone"),
   // whereas Drop stores the bare rating plus the organization.
@@ -152,137 +99,140 @@ const ESRB_TO_ORGANIZATION: Record<string, string> = {
   rp: "RP",
 };
 
-/** XML entity decoding for the handful of entities LaunchBox actually emits. */
-function decodeXmlText(input: string): string {
-  return input
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'")
-    .replace(/&#(\d+);/g, (_, code: string) =>
-      String.fromCodePoint(parseInt(code, 10)),
-    )
-    .replace(/&#x([0-9a-fA-F]+);/g, (_, code: string) =>
-      String.fromCodePoint(parseInt(code, 16)),
-    )
-    .replace(/&amp;/g, "&");
-}
+/** The child elements of <Game> this provider reads. */
+const GAME_FIELDS = new Set<string>([
+  "DatabaseID",
+  "Name",
+  "Platform",
+  "ReleaseYear",
+  "ReleaseDate",
+  "Overview",
+  "Developer",
+  "Publisher",
+  "Genres",
+  "MaxPlayers",
+  "Cooperative",
+  "CommunityRating",
+  "CommunityRatingCount",
+  "ESRB",
+  "VideoURL",
+  "WikipediaURL",
+  "SteamAppId",
+]);
 
-/**
- * Pulls a single field's text out of a <Game> element body.
- *
- * Deliberately a regex rather than a DOM parse: Metadata.xml is 518MB and
- * LaunchBox emits a regular, non-nested <Game> record with no attributes on
- * these fields, so a linear scan is both correct here and cheap enough to run
- * over the whole file. Elements may be self-closing (<Genres />).
- */
-function readField(body: string, field: GameField): string | undefined {
-  const match = new RegExp(
-    `<${field}(?:\\s[^>]*)?>(?:([\\s\\S]*?)</${field}>)?`,
-  ).exec(body);
-  if (!match) return undefined;
-  const raw = match[1];
-  if (raw === undefined) return undefined;
-  const text = decodeXmlText(raw).trim();
-  return text.length > 0 ? text : undefined;
-}
-
-function parseGame(body: string): LaunchBoxGame | undefined {
-  const id = readField(body, "DatabaseID");
-  const name = readField(body, "Name");
+function toGame(
+  get: (field: string) => string | undefined,
+): LaunchBoxGame | undefined {
+  const id = get("DatabaseID");
+  const name = get("Name");
   if (!id || !name) return undefined;
 
-  const platform = readField(body, "Platform") ?? "";
-
-  const yearRaw = readField(body, "ReleaseYear");
-  const releaseRaw = readField(body, "ReleaseDate");
+  const year = get("ReleaseYear");
+  const release = get("ReleaseDate");
   let releaseYear: number | undefined;
-  if (yearRaw && /^\d{4}$/.test(yearRaw)) {
-    releaseYear = parseInt(yearRaw, 10);
-  } else if (releaseRaw) {
-    const year = /^(\d{4})-/.exec(releaseRaw);
-    if (year) releaseYear = parseInt(year[1], 10);
+  if (year && /^\d{4}$/.test(year)) {
+    releaseYear = parseInt(year, 10);
+  } else if (release) {
+    const match = /^(\d{4})-/.exec(release);
+    if (match) releaseYear = parseInt(match[1], 10);
   }
 
-  const genresRaw = readField(body, "Genres");
-  const genres = genresRaw
-    ? genresRaw
-        .split(",")
-        .map((g) => g.trim())
-        .filter((g) => g.length > 0)
-    : [];
-
-  const maxPlayersRaw = readField(body, "MaxPlayers");
+  const genres = get("Genres");
+  const maxPlayersRaw = get("MaxPlayers");
   const maxPlayers = maxPlayersRaw ? parseInt(maxPlayersRaw, 10) : undefined;
-
-  const ratingRaw = readField(body, "CommunityRating");
-  const ratingCountRaw = readField(body, "CommunityRatingCount");
+  const rating = get("CommunityRating");
+  const ratingCount = get("CommunityRatingCount");
 
   return {
     id,
     name,
-    platform,
+    platform: get("Platform") ?? "",
     releaseYear,
-    overview: readField(body, "Overview"),
-    developer: readField(body, "Developer"),
-    publisher: readField(body, "Publisher"),
-    genres,
+    overview: get("Overview"),
+    developer: get("Developer"),
+    publisher: get("Publisher"),
+    genres: genres
+      ? genres
+          .split(",")
+          .map((g) => g.trim())
+          .filter((g) => g.length > 0)
+      : [],
     maxPlayers: Number.isFinite(maxPlayers) ? maxPlayers : undefined,
-    cooperative: readField(body, "Cooperative") === "true",
-    communityRating: ratingRaw ? parseFloat(ratingRaw) : undefined,
-    communityRatingCount: ratingCountRaw
-      ? parseInt(ratingCountRaw, 10)
-      : undefined,
-    esrb: readField(body, "ESRB"),
-    videoUrl: readField(body, "VideoURL"),
-    wikipediaUrl: readField(body, "WikipediaURL"),
-    steamAppId: readField(body, "SteamAppId"),
+    cooperative: get("Cooperative") === "true",
+    communityRating: rating ? parseFloat(rating) : undefined,
+    communityRatingCount: ratingCount ? parseInt(ratingCount, 10) : undefined,
+    esrb: get("ESRB"),
+    videoUrl: get("VideoURL"),
+    wikipediaUrl: get("WikipediaURL"),
+    steamAppId: get("SteamAppId"),
   };
 }
 
-/**
- * Streams <Game> elements out of an XML document without holding it in memory.
- *
- * Callers get one callback per record body (the text between <Game> and
- * </Game>). Chunk boundaries can fall anywhere, including inside a tag, so the
- * open buffer is only trimmed at a boundary we have actually found.
- */
-export async function* streamGameRecords(
+/** Parses <Game> records from a streamed document without holding it in memory. */
+export async function* parseGameRecords(
   input: AsyncIterable<Buffer> | Iterable<Buffer>,
-): AsyncGenerator<string> {
-  const OPEN = "<Game>";
-  const CLOSE = "</Game>";
-  let buffer = "";
+): AsyncGenerator<LaunchBoxGame> {
+  // saxy 0.7.3 derives from `readable-stream`, which ships no typings, so
+  // TypeScript cannot see the Transform members it inherits at runtime.
+  const parser = new Saxy() as unknown as Saxy & {
+    write(chunk: string): boolean;
+    end(): void;
+  };
+  const ready: LaunchBoxGame[] = [];
+  let fields: Map<string, string> | null = null;
+  let open: string | null = null;
+  let failure: Error | null = null;
+
+  parser.on("tagopen", (tag) => {
+    if (tag.name === "Game") {
+      fields = new Map();
+      open = null;
+      return;
+    }
+    if (fields && GAME_FIELDS.has(tag.name)) {
+      open = tag.isSelfClosing ? null : tag.name;
+    }
+  });
+
+  parser.on("text", ({ contents }) => {
+    if (!fields || !open) return;
+    const decoded = Saxy.parseEntities(contents);
+    fields.set(open, (fields.get(open) ?? "") + decoded);
+  });
+
+  parser.on("tagclose", ({ name }) => {
+    if (name === "Game") {
+      if (fields) {
+        const collected = fields;
+        const game = toGame((field) => {
+          const value = collected.get(field)?.trim();
+          return value ? value : undefined;
+        });
+        if (game) ready.push(game);
+      }
+      fields = null;
+      open = null;
+      return;
+    }
+    if (name === open) open = null;
+  });
+
+  parser.on("error", (e) => {
+    failure = e instanceof Error ? e : new Error(String(e));
+  });
 
   for await (const chunk of input) {
-    buffer += chunk.toString("utf8");
-
-    for (;;) {
-      const open = buffer.indexOf(OPEN);
-      if (open === -1) {
-        // Keep a tail in case a tag straddles the chunk boundary.
-        if (buffer.length > OPEN.length) buffer = buffer.slice(-OPEN.length);
-        break;
-      }
-      const close = buffer.indexOf(CLOSE, open);
-      if (close === -1) {
-        // Record continues into the next chunk.
-        buffer = buffer.slice(open);
-        break;
-      }
-      yield buffer.slice(open + OPEN.length, close);
-      buffer = buffer.slice(close + CLOSE.length);
-    }
+    parser.write(chunk.toString("utf8"));
+    if (failure) throw failure;
+    while (ready.length > 0) yield ready.shift()!;
   }
+
+  parser.end();
+  if (failure) throw failure;
+  while (ready.length > 0) yield ready.shift()!;
 }
 
-/**
- * Minimal zip reader for a single stored or deflated entry.
- *
- * The archive is a plain zip with four entries and no encryption. Rather than
- * add a dependency, this walks the central directory and exposes one entry as
- * an async byte stream — which is all the index build needs.
- */
+/** Walks the zip central directory and exposes one entry as a byte stream. */
 export interface ZipEntry {
   name: string;
   compressedSize: number;
@@ -339,12 +289,8 @@ export function readZipCentralDirectory(buffer: Buffer): ZipEntry[] {
 }
 
 /**
- * Yields the decompressed bytes of one zip entry.
- *
- * Deflate is one continuous stream across the whole entry, so a single inflate
- * instance is fed block-by-block from disk and its output drained through a
- * queue. (An earlier draft inflated each block separately; deflate has no block
- * boundaries there, so that silently truncated the stream.)
+ * Deflate is one continuous stream across an entry, so a single inflate
+ * instance is fed block by block rather than once per block.
  */
 export async function* zipEntryStream(
   zipPath: string,
@@ -420,12 +366,8 @@ export async function* zipEntryStream(
     let inputDone = false;
 
     /**
-     * Enforces the declared uncompressed size.
-     *
-     * The read loop is bounded by compressedSize, so without this a zip that
-     * claims a small entry but inflates far larger would be parsed in full.
-     * One archive is downloaded from a third party and parsed in a server, so
-     * the declared size is a limit, not a hint.
+     * The read loop is bounded by compressedSize, so a zip that inflates far larger
+     * than its declared size would otherwise be parsed in full.
      */
     const checked = (chunk: Buffer): Buffer => {
       produced += chunk.length;
@@ -501,12 +443,8 @@ export interface LaunchBoxMedia {
 }
 
 /**
- * Parses a game's images page into media entries.
- *
- * The page is server-rendered, so the entries are plain anchors carrying the
- * image URL, an id and a human title of the form
- * "<Game> - <Kind> Image (<Region>)". Only those anchors are matched, so the
- * surrounding chrome and the lightbox previews are ignored.
+ * Entries are plain anchors titled "<Game> - <Kind> Image (<Region>)"; matching
+ * only those skips the surrounding chrome and the lightbox previews.
  */
 export function parseMediaPage(html: string): LaunchBoxMedia[] {
   const pattern =
@@ -594,12 +532,7 @@ export class LaunchBoxProvider implements MetadataProvider {
     }
   }
 
-  /**
-   * Rebuilds the index from the archive.
-   *
-   * Writes to a temp file and renames, so a failed build never destroys a
-   * working index. Returns the previous index on failure.
-   */
+  /** Writes to a temp file and renames, so a failed build never destroys a working index. */
   async rebuild(): Promise<LaunchBoxIndex | null> {
     const path = this.indexPath();
     if (!path) {
@@ -641,11 +574,9 @@ export class LaunchBoxProvider implements MetadataProvider {
 
       const games: Record<string, LaunchBoxGame> = {};
       let count = 0;
-      for await (const body of streamGameRecords(
+      for await (const game of parseGameRecords(
         zipEntryStream(zipPath, metadata),
       )) {
-        const game = parseGame(body);
-        if (!game) continue;
         games[game.id] = game;
         count++;
       }
@@ -675,13 +606,7 @@ export class LaunchBoxProvider implements MetadataProvider {
     }
   }
 
-  /**
-   * Queries the Games Database search endpoint.
-   *
-   * Returns an empty array on any failure so the caller can fall back to the
-   * local index — the API is undocumented, so it is treated as best-effort
-   * rather than as a dependency.
-   */
+  /** Best-effort: the endpoint is undocumented, so any failure returns an empty array. */
   private async searchApi(query: string): Promise<LaunchBoxSearchHit[]> {
     try {
       const response = await $fetch<{
@@ -764,12 +689,8 @@ export class LaunchBoxProvider implements MetadataProvider {
   }
 
   /**
-   * Looks a single API result up by its gameKey.
-   *
-   * The API exposes no documented by-id endpoint, so a result picked from a
-   * search is not re-fetchable by key alone. Returning null is the honest
-   * answer: fetchGame then falls back to the archive by (name, platform), and
-   * if that is ambiguous it throws rather than inventing a record.
+   * There is no by-id endpoint, so a search hit is not re-fetchable by key alone;
+   * callers fall back to the archive by (name, platform).
    */
   private async searchApiById(
     _gameKey: string,
@@ -779,11 +700,8 @@ export class LaunchBoxProvider implements MetadataProvider {
   }
 
   /**
-   * Maps an API gameKey to an archive DatabaseID for the same title.
-   *
-   * The two namespaces are unrelated (archive 468928 and API 434710 are the same
-   * 3DO record), so the join is (name, platform) and is only accepted when it is
-   * unambiguous. An ambiguous or absent match simply means no description.
+   * The two namespaces are unrelated, so this joins on (name, platform) and only
+   * accepts an unambiguous match.
    */
   private async archiveIdFor(hit: LaunchBoxSearchHit): Promise<string | null> {
     const index = await this.loadIndex();
