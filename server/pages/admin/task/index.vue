@@ -261,6 +261,11 @@ const scheduledTasks: {
     name: "Check Integrity",
     description: "Re-imports all versions and updates their manifests.",
   },
+  "metadata:launchbox-index": {
+    name: "Rebuild LaunchBox index",
+    description:
+      "Downloads the LaunchBox metadata archive and rebuilds the local index.",
+  },
 };
 
 async function startTask(taskGroup: string) {
