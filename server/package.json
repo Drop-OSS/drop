@@ -53,7 +53,7 @@
     "micromark": "^4.0.1",
     "node-stream-zip": "^1.16.0",
     "normalize-url": "^8.0.2",
-    "nuxt": "^3.21.10",
+    "nuxt": "^4.6.4",
     "nuxt-security": "2.2.0",
     "otp-io": "^1.2.7",
     "parse-cosekey": "^1.0.2",
