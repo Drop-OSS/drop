@@ -76,6 +76,10 @@ export class MetadataHandler {
       .filter((e) => e !== "Manual");
   }
 
+  getProvider(source: MetadataSource) {
+    return this.providers.find((provider) => provider.source() === source);
+  }
+
   async search(query: string) {
     const promises: Promise<InternalGameMetadataResult[]>[] = [];
     for (const provider of this.providers.values()) {

@@ -13,6 +13,7 @@ import cleanupSessions from "./registry/sessions";
 import checkUpdate from "./registry/update";
 import cleanupObjects from "./registry/objects";
 import checkIntegrity from "./registry/check-integrity";
+import rebuildLaunchboxIndex from "./registry/metadata-launchbox";
 
 type TaskActionLink = `${string}:${string}`;
 
@@ -67,6 +68,7 @@ class TaskHandler {
     this.saveScheduledTask(checkUpdate);
     this.saveScheduledTask(cleanupObjects);
     this.saveScheduledTask(checkIntegrity);
+    this.saveScheduledTask(rebuildLaunchboxIndex);
   }
 
   /**

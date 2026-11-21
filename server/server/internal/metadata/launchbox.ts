@@ -13,10 +13,10 @@ import type { TaskRunContext } from "../tasks";
 import { logger } from "~/server/internal/logging";
 import { systemConfig } from "../config/sys-conf";
 import { createWriteStream } from "fs";
-import { mkdir, open, readFile, rename, rm, writeFile } from "fs/promises";
+import { mkdir, readFile, rename, rm, writeFile } from "fs/promises";
 import { dirname, join } from "path";
 import { pipeline } from "stream/promises";
-import { createInflateRaw } from "zlib";
+import StreamZip from "node-stream-zip";
 import { DropUserAgent } from ".";
 
 const METADATA_URL = "https://gamesdb.launchbox-app.com/Metadata.zip";
@@ -210,191 +210,6 @@ export async function* parseGameRecords(
   while (ready.length > 0) yield ready.shift()!;
 }
 
-export interface ZipEntry {
-  name: string;
-  compressedSize: number;
-  uncompressedSize: number;
-  compressionMethod: number;
-  localHeaderOffset: number;
-}
-
-export function readZipCentralDirectory(buffer: Buffer): ZipEntry[] {
-  const EOCD_SIG = 0x06054b50;
-  const CD_SIG = 0x02014b50;
-  let eocd = -1;
-  for (
-    let i = buffer.length - 22;
-    i >= 0 && i > buffer.length - 22 - 65536;
-    i--
-  ) {
-    if (buffer.readUInt32LE(i) === EOCD_SIG) {
-      eocd = i;
-      break;
-    }
-  }
-  if (eocd === -1) throw new Error("not a zip archive: no end-of-directory");
-
-  const entryCount = buffer.readUInt16LE(eocd + 10);
-  let offset = buffer.readUInt32LE(eocd + 16);
-
-  const entries: ZipEntry[] = [];
-  for (let i = 0; i < entryCount; i++) {
-    if (buffer.readUInt32LE(offset) !== CD_SIG)
-      throw new Error("corrupt zip central directory");
-    const compressionMethod = buffer.readUInt16LE(offset + 10);
-    const compressedSize = buffer.readUInt32LE(offset + 20);
-    const uncompressedSize = buffer.readUInt32LE(offset + 24);
-    const nameLength = buffer.readUInt16LE(offset + 28);
-    const extraLength = buffer.readUInt16LE(offset + 30);
-    const commentLength = buffer.readUInt16LE(offset + 32);
-    const localHeaderOffset = buffer.readUInt32LE(offset + 42);
-    const name = buffer
-      .subarray(offset + 46, offset + 46 + nameLength)
-      .toString("utf8");
-    entries.push({
-      name,
-      compressedSize,
-      uncompressedSize,
-      compressionMethod,
-      localHeaderOffset,
-    });
-    offset += 46 + nameLength + extraLength + commentLength;
-  }
-  return entries;
-}
-
-/** Deflate is one stream per entry, so a single inflate is fed block by block. */
-export async function* zipEntryStream(
-  zipPath: string,
-  entry: ZipEntry,
-): AsyncGenerator<Buffer> {
-  const handle = await open(zipPath, "r");
-  const queue: Buffer[] = [];
-  let ended = false;
-  let failure: Error | null = null;
-  let wake: (() => void) | null = null;
-  const notify = () => {
-    if (wake) {
-      wake();
-      wake = null;
-    }
-  };
-
-  let inflate: ReturnType<typeof createInflateRaw> | null = null;
-  if (entry.compressionMethod === 8) {
-    inflate = createInflateRaw();
-    inflate.on("data", (c: Buffer) => {
-      queue.push(c);
-      notify();
-    });
-    inflate.on("end", () => {
-      ended = true;
-      notify();
-    });
-    inflate.on("error", (e: Error) => {
-      failure = e;
-      ended = true;
-      notify();
-    });
-  } else if (entry.compressionMethod !== 0) {
-    await handle.close();
-    throw new Error(
-      `unsupported zip compression method ${entry.compressionMethod}`,
-    );
-  }
-
-  try {
-    const header = Buffer.alloc(30);
-    await handle.read(header, 0, 30, entry.localHeaderOffset);
-
-    // Bit 3: sizes live in a trailing descriptor, so the local ones are only trustworthy when clear.
-    const generalPurposeBitFlag = header.readUInt16LE(6);
-    const hasDataDescriptor = (generalPurposeBitFlag & 0x08) !== 0;
-    if (!hasDataDescriptor) {
-      const localCompressed = header.readUInt32LE(18);
-      const localUncompressed = header.readUInt32LE(22);
-      if (
-        localCompressed !== entry.compressedSize ||
-        localUncompressed !== entry.uncompressedSize
-      ) {
-        throw new Error(
-          `zip entry "${entry.name}": local header sizes disagree with the central directory`,
-        );
-      }
-    }
-
-    const dataStart =
-      entry.localHeaderOffset +
-      30 +
-      header.readUInt16LE(26) +
-      header.readUInt16LE(28);
-
-    const BLOCK = 1024 * 1024;
-    let read = 0;
-    let produced = 0;
-    let inputDone = false;
-
-    /** The loop stops at compressedSize, so a zip that inflates larger than declared is not read. */
-    const checked = (chunk: Buffer): Buffer => {
-      produced += chunk.length;
-      if (produced > entry.uncompressedSize) {
-        throw new Error(
-          `zip entry "${entry.name}": inflated past its declared uncompressed size of ${entry.uncompressedSize} bytes`,
-        );
-      }
-      return chunk;
-    };
-
-    while (!ended || queue.length > 0) {
-      while (queue.length > 0) {
-        yield checked(queue.shift() as Buffer);
-      }
-      if (failure) throw failure;
-      if (ended) break;
-
-      if (!inputDone) {
-        if (read >= entry.compressedSize) {
-          inputDone = true;
-          inflate?.end();
-          continue;
-        }
-        const want = Math.min(BLOCK, entry.compressedSize - read);
-        const block = Buffer.alloc(want);
-        const { bytesRead } = await handle.read(
-          block,
-          0,
-          want,
-          dataStart + read,
-        );
-        if (bytesRead === 0) {
-          inputDone = true;
-          inflate?.end();
-          continue;
-        }
-        read += bytesRead;
-        if (inflate) inflate.write(block.subarray(0, bytesRead));
-        else queue.push(block.subarray(0, bytesRead));
-        continue;
-      }
-
-      if (!ended && queue.length === 0) {
-        await new Promise<void>((resolve) => {
-          wake = resolve;
-        });
-      }
-    }
-    if (failure) throw failure;
-    if (produced !== entry.uncompressedSize) {
-      throw new Error(
-        `zip entry "${entry.name}": inflated ${produced} bytes but the central directory declares ${entry.uncompressedSize}`,
-      );
-    }
-  } finally {
-    inflate?.destroy();
-    await handle.close();
-  }
-}
-
 export interface LaunchBoxMedia {
   kind: string;
   region: string | null;
@@ -484,7 +299,7 @@ export class LaunchBoxProvider implements MetadataProvider {
     }
   }
 
-  async rebuild(): Promise<LaunchBoxIndex | null> {
+  async rebuild(context?: TaskRunContext): Promise<LaunchBoxIndex | null> {
     const path = this.indexPath();
     if (!path) {
       logger.info(
@@ -494,67 +309,65 @@ export class LaunchBoxProvider implements MetadataProvider {
     }
 
     const previous = await this.loadIndex();
+    const head = await $fetch.raw(METADATA_URL, {
+      method: "HEAD",
+      headers: { "User-Agent": DropUserAgent },
+    });
+    const etag = head.headers.get("etag");
+    const lastModified = head.headers.get("last-modified");
+
+    if (previous && etag && previous.etag === etag) {
+      logger.info("LaunchBox index is current (ETag unchanged)");
+      context?.progress(100);
+      return previous;
+    }
+
+    await mkdir(dirname(path), { recursive: true });
+    const zipPath = `${path}.zip.part`;
+    const response = await $fetch.raw(METADATA_URL, {
+      responseType: "stream",
+      headers: { "User-Agent": DropUserAgent },
+    });
+    await pipeline(
+      response.body as unknown as AsyncIterable<Uint8Array>,
+      createWriteStream(zipPath),
+    );
+    context?.progress(30);
+
+    const games: Record<string, LaunchBoxGame> = {};
+    let count = 0;
+    const zip = new StreamZip.async({ file: zipPath });
     try {
-      const head = await $fetch.raw(METADATA_URL, {
-        method: "HEAD",
-        headers: { "User-Agent": DropUserAgent },
-      });
-      const etag = head.headers.get("etag");
-      const lastModified = head.headers.get("last-modified");
-
-      if (previous && etag && previous.etag === etag) {
-        logger.info("LaunchBox index is current (ETag unchanged)");
-        return previous;
-      }
-
-      await mkdir(dirname(path), { recursive: true });
-      const zipPath = `${path}.zip.part`;
-      const response = await $fetch.raw(METADATA_URL, {
-        responseType: "stream",
-        headers: { "User-Agent": DropUserAgent },
-      });
-      await pipeline(
-        response.body as unknown as AsyncIterable<Uint8Array>,
-        createWriteStream(zipPath),
-      );
-
-      const zipBuffer = await readFile(zipPath);
-      const entries = readZipCentralDirectory(zipBuffer);
-      const metadata = entries.find((e) => e.name === "Metadata.xml");
+      const metadata = await zip.entry("Metadata.xml");
       if (!metadata) throw new Error("Metadata.xml missing from archive");
-
-      const games: Record<string, LaunchBoxGame> = {};
-      let count = 0;
+      const stream = await zip.stream(metadata);
       for await (const game of parseGameRecords(
-        zipEntryStream(zipPath, metadata),
+        stream as unknown as AsyncIterable<Buffer>,
       )) {
         games[game.id] = game;
         count++;
       }
-
-      const index: LaunchBoxIndex = {
-        etag: etag ?? null,
-        lastModified: lastModified ?? null,
-        builtAt: new Date().toISOString(),
-        games,
-      };
-
-      const tmp = `${path}.tmp`;
-      await writeFile(tmp, JSON.stringify(index));
-      await rename(tmp, path);
-      await rm(zipPath, { force: true });
-
-      this.index = index;
-      this.indexError = null;
-      logger.info(`Built LaunchBox index: ${count} games`);
-      return index;
-    } catch (e) {
-      this.indexError = `LaunchBox index rebuild failed: ${e}`;
-      logger.warn(
-        `${this.indexError} — continuing to serve the previous index if present`,
-      );
-      return previous;
+    } finally {
+      await zip.close();
     }
+    context?.progress(80);
+
+    const index: LaunchBoxIndex = {
+      etag: etag ?? null,
+      lastModified: lastModified ?? null,
+      builtAt: new Date().toISOString(),
+      games,
+    };
+
+    const tmp = `${path}.tmp`;
+    await writeFile(tmp, JSON.stringify(index));
+    await rename(tmp, path);
+    await rm(zipPath, { force: true });
+
+    this.index = index;
+    this.indexError = null;
+    logger.info(`Built LaunchBox index: ${count} games`);
+    return index;
   }
 
   private async searchApi(query: string): Promise<LaunchBoxSearchHit[]> {

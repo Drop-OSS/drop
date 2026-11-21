@@ -193,6 +193,9 @@ importers:
       micromark:
         specifier: ^4.0.1
         version: 4.0.2
+      node-stream-zip:
+        specifier: ^1.16.0
+        version: 1.16.0
       normalize-url:
         specifier: ^8.0.2
         version: 8.1.1
@@ -9154,6 +9157,9 @@ packages:
   node-releases@2.0.53:
     resolution: {integrity: sha512-D9UOmYG3UH1V+ENW56t5QXBwJw1YEY18ruVeus89Rw+SyIgjPkCO84bRzO3uNIYosJbNwiabWVn48o3uJLjxFQ==}
     engines: {node: '>=18'}
+
+  node-stream-zip@1.16.0:
+    resolution: {integrity: sha512-ObaRrRoR8T68wF6suxHd7R4XQNamij6ZQHrwG7Dx1D2zeHcDNLsIOBcWrIwtDm7AsCXBguaPHgXhcjxDa2szrg==}
 
   nofilter@3.1.0:
     resolution: {integrity: sha512-l2NNj07e9afPnhAhvgVrCD/oy2Ai1yfLpuo3EpiO1jFTsB4sFz6oIfAfSZyQzVpkZQ9xS8ZS5g1jCBgq4Hwo0g==}
@@ -22885,6 +22891,8 @@ snapshots:
   node-releases@2.0.37: {}
 
   node-releases@2.0.53: {}
+
+  node-stream-zip@1.16.0: {}
 
   nofilter@3.1.0: {}
 

@@ -20,6 +20,9 @@ export const taskGroups = {
   "import:check-integrity": {
     concurrency: false,
   },
+  "metadata:launchbox-index": {
+    concurrency: false,
+  },
 } as const;
 
 export type TaskGroup = keyof typeof taskGroups;
