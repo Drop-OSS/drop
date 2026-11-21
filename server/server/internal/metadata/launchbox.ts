@@ -19,26 +19,14 @@ import { pipeline } from "stream/promises";
 import { createInflateRaw } from "zlib";
 import { DropUserAgent } from ".";
 
-/**
- * LaunchBox publishes no API: the whole database is one ~109MB zip whose
- * Metadata.xml (~518MB) is a flat, streamable <Game> sequence. That is too
- * large to parse per lookup, so this provider builds a local index once and
- * reuses it. The index is a cache, not state — it is derived entirely from the
- * archive and can always be rebuilt — and it is opt-in via launchboxIndexDir.
- */
-
 const METADATA_URL = "https://gamesdb.launchbox-app.com/Metadata.zip";
 
-/** The website's own JSON search endpoint — the only public source of image filenames. */
 const SEARCH_API_URL = "https://gamesdb-api.launchbox-app.com/api/search";
 
-/** Image hosts. Both serve the same GUID filenames; the .gg one is current. */
 const IMAGE_URL = "https://images.launchbox-app.com";
 
-/** The per-game media page. Every kind the database holds is listed here. */
 const IMAGES_PAGE_URL = "https://gamesdb.launchbox-app.com/games/images";
 
-/** Region order when a kind exists in several regions, so a game always gets the same cover. */
 const REGION_PREFERENCE = [
   "north america",
   "world",
@@ -48,10 +36,8 @@ const REGION_PREFERENCE = [
   "asia",
 ];
 
-/** Marks an id from the search API. Its namespace is unrelated to the archive's DatabaseID. */
 const API_ID_PREFIX = "api:";
 
-/** One row from the Games Database search endpoint. */
 interface LaunchBoxSearchHit {
   gameKey: number;
   name: string;
@@ -59,9 +45,7 @@ interface LaunchBoxSearchHit {
   thumbName: string | null;
 }
 
-/** One game record, as stored in the index. */
 interface LaunchBoxGame {
-  /** LaunchBox DatabaseID — stable across archive refreshes. */
   id: string;
   name: string;
   platform: string;
@@ -81,7 +65,6 @@ interface LaunchBoxGame {
 }
 
 interface LaunchBoxIndex {
-  /** ETag of the archive this index was built from, for If-None-Match. */
   etag: string | null;
   lastModified: string | null;
   builtAt: string;
@@ -89,8 +72,6 @@ interface LaunchBoxIndex {
 }
 
 const ESRB_TO_ORGANIZATION: Record<string, string> = {
-  // LaunchBox stores the ESRB value with its descriptor ("E - Everyone"),
-  // whereas Drop stores the bare rating plus the organization.
   e: "E",
   e10: "E10+",
   t: "T",
@@ -99,7 +80,6 @@ const ESRB_TO_ORGANIZATION: Record<string, string> = {
   rp: "RP",
 };
 
-/** The child elements of <Game> this provider reads. */
 const GAME_FIELDS = new Set<string>([
   "DatabaseID",
   "Name",
@@ -168,12 +148,10 @@ function toGame(
   };
 }
 
-/** Parses <Game> records from a streamed document without holding it in memory. */
 export async function* parseGameRecords(
   input: AsyncIterable<Buffer> | Iterable<Buffer>,
 ): AsyncGenerator<LaunchBoxGame> {
-  // saxy 0.7.3 derives from `readable-stream`, which ships no typings, so
-  // TypeScript cannot see the Transform members it inherits at runtime.
+  // saxy's typings pull Transform from `readable-stream`, which ships no types.
   const parser = new Saxy() as unknown as Saxy & {
     write(chunk: string): boolean;
     end(): void;
@@ -232,7 +210,6 @@ export async function* parseGameRecords(
   while (ready.length > 0) yield ready.shift()!;
 }
 
-/** Walks the zip central directory and exposes one entry as a byte stream. */
 export interface ZipEntry {
   name: string;
   compressedSize: number;
@@ -242,8 +219,6 @@ export interface ZipEntry {
 }
 
 export function readZipCentralDirectory(buffer: Buffer): ZipEntry[] {
-  // End of central directory: signature 0x06054b50, scanned backwards because
-  // the trailing comment (usually empty) makes its offset non-fixed.
   const EOCD_SIG = 0x06054b50;
   const CD_SIG = 0x02014b50;
   let eocd = -1;
@@ -288,10 +263,7 @@ export function readZipCentralDirectory(buffer: Buffer): ZipEntry[] {
   return entries;
 }
 
-/**
- * Deflate is one continuous stream across an entry, so a single inflate
- * instance is fed block by block rather than once per block.
- */
+/** Deflate is one stream per entry, so a single inflate is fed block by block. */
 export async function* zipEntryStream(
   zipPath: string,
   entry: ZipEntry,
@@ -335,10 +307,7 @@ export async function* zipEntryStream(
     const header = Buffer.alloc(30);
     await handle.read(header, 0, 30, entry.localHeaderOffset);
 
-    // Bit 3 means the local header carries zeroed sizes and the real ones live
-    // in a trailing data descriptor, so the local sizes are only trustworthy
-    // when it is clear. When they are present they must agree with the central
-    // directory, or we are reading a file that is not the one we indexed.
+    // Bit 3: sizes live in a trailing descriptor, so the local ones are only trustworthy when clear.
     const generalPurposeBitFlag = header.readUInt16LE(6);
     const hasDataDescriptor = (generalPurposeBitFlag & 0x08) !== 0;
     if (!hasDataDescriptor) {
@@ -365,10 +334,7 @@ export async function* zipEntryStream(
     let produced = 0;
     let inputDone = false;
 
-    /**
-     * The read loop is bounded by compressedSize, so a zip that inflates far larger
-     * than its declared size would otherwise be parsed in full.
-     */
+    /** The loop stops at compressedSize, so a zip that inflates larger than declared is not read. */
     const checked = (chunk: Buffer): Buffer => {
       produced += chunk.length;
       if (produced > entry.uncompressedSize) {
@@ -386,7 +352,6 @@ export async function* zipEntryStream(
       if (failure) throw failure;
       if (ended) break;
 
-      // Nothing buffered: feed more compressed input.
       if (!inputDone) {
         if (read >= entry.compressedSize) {
           inputDone = true;
@@ -412,9 +377,6 @@ export async function* zipEntryStream(
         continue;
       }
 
-      // Input is exhausted and the queue is empty: wait for the inflate stream
-      // to emit, not for a timer. The handlers above resolve this promise, so
-      // the loop is driven by the stream's own events.
       if (!ended && queue.length === 0) {
         await new Promise<void>((resolve) => {
           wake = resolve;
@@ -433,19 +395,13 @@ export async function* zipEntryStream(
   }
 }
 
-/** One media entry scraped from a game's images page. */
 export interface LaunchBoxMedia {
-  /** LaunchBox's own kind string, e.g. "Box - Front". */
   kind: string;
   region: string | null;
-  /** Absolute image URL. */
   url: string;
 }
 
-/**
- * Entries are plain anchors titled "<Game> - <Kind> Image (<Region>)"; matching
- * only those skips the surrounding chrome and the lightbox previews.
- */
+/** Anchors titled "<Game> - <Kind> Image (<Region>)"; the surrounding chrome is ignored. */
 export function parseMediaPage(html: string): LaunchBoxMedia[] {
   const pattern =
     /href="(https:\/\/images\.launchbox-app\.com\/[a-f0-9-]+\.(?:jpg|png))"\s*\n?\s*data-gameimageid="\d+"[^>]*?data-title="([^"]+)"/g;
@@ -468,7 +424,6 @@ export function parseMediaPage(html: string): LaunchBoxMedia[] {
   return media;
 }
 
-/** Orders media by region preference, then by kind, so picking is stable. */
 function byRegionPreference(a: LaunchBoxMedia, b: LaunchBoxMedia): number {
   const rank = (m: LaunchBoxMedia) => {
     const r = m.region?.toLowerCase() ?? "";
@@ -480,14 +435,12 @@ function byRegionPreference(a: LaunchBoxMedia, b: LaunchBoxMedia): number {
   return a.kind.localeCompare(b.kind);
 }
 
-/** First entry of a kind, honouring region preference. */
 function pickKind(media: LaunchBoxMedia[], kind: string) {
   return media
     .filter((m) => m.kind.toLowerCase() === kind.toLowerCase())
     .sort(byRegionPreference)[0];
 }
 
-/** Every entry whose kind starts with the given prefix. */
 function pickPrefixed(media: LaunchBoxMedia[], prefix: string) {
   return media
     .filter((m) => m.kind.toLowerCase().startsWith(prefix.toLowerCase()))
@@ -512,7 +465,6 @@ export class LaunchBoxProvider implements MetadataProvider {
     return join(dir, "launchbox-index.json");
   }
 
-  /** True when an operator has opted in by configuring an index directory. */
   private enabled(): boolean {
     return this.indexPath() !== null;
   }
@@ -532,7 +484,6 @@ export class LaunchBoxProvider implements MetadataProvider {
     }
   }
 
-  /** Writes to a temp file and renames, so a failed build never destroys a working index. */
   async rebuild(): Promise<LaunchBoxIndex | null> {
     const path = this.indexPath();
     if (!path) {
@@ -606,7 +557,6 @@ export class LaunchBoxProvider implements MetadataProvider {
     }
   }
 
-  /** Best-effort: the endpoint is undocumented, so any failure returns an empty array. */
   private async searchApi(query: string): Promise<LaunchBoxSearchHit[]> {
     try {
       const response = await $fetch<{
@@ -625,9 +575,6 @@ export class LaunchBoxProvider implements MetadataProvider {
   }
 
   async search(query: string): Promise<GameMetadataSearchResult[]> {
-    // The API is the only source that carries artwork, so it is tried first.
-    // Its `gameKey` is not the same id as the archive's DatabaseID, so a result
-    // taken from here is marked as such and resolved through the API later.
     const apiHits = await this.searchApi(query);
     if (apiHits.length > 0) {
       return apiHits.map((hit) => ({
@@ -653,8 +600,6 @@ export class LaunchBoxProvider implements MetadataProvider {
       if (matches.length >= 50) break;
     }
 
-    // Prefer exact-prefix matches, then shorter names — "Doom" should outrank
-    // "Doom 3 BFG Edition" for the query "doom".
     matches.sort((a, b) => {
       const aPrefix = a.name.toLowerCase().startsWith(needle) ? 0 : 1;
       const bPrefix = b.name.toLowerCase().startsWith(needle) ? 0 : 1;
@@ -665,14 +610,12 @@ export class LaunchBoxProvider implements MetadataProvider {
     return matches.map((game) => ({
       id: game.id,
       name: game.name,
-      // The archive carries no images, so a local-index result has no thumbnail.
       icon: "",
       description: game.overview?.slice(0, 500) ?? "",
       year: game.releaseYear ?? 0,
     }));
   }
 
-  /** Fetches and parses a game's media page. Failure yields no media, not an error. */
   private async fetchMedia(
     gameId: string | number | null | undefined,
   ): Promise<LaunchBoxMedia[]> {
@@ -688,10 +631,7 @@ export class LaunchBoxProvider implements MetadataProvider {
     }
   }
 
-  /**
-   * There is no by-id endpoint, so a search hit is not re-fetchable by key alone;
-   * callers fall back to the archive by (name, platform).
-   */
+  /** No by-id endpoint exists; callers fall back to the archive by (name, platform). */
   private async searchApiById(
     _gameKey: string,
   ): Promise<LaunchBoxSearchHit | null> {
@@ -699,10 +639,7 @@ export class LaunchBoxProvider implements MetadataProvider {
     return null;
   }
 
-  /**
-   * The two namespaces are unrelated, so this joins on (name, platform) and only
-   * accepts an unambiguous match.
-   */
+  /** The API and archive ids are unrelated namespaces, so this joins on (name, platform). */
   private async archiveIdFor(hit: LaunchBoxSearchHit): Promise<string | null> {
     const index = await this.loadIndex();
     if (!index) return null;
@@ -718,9 +655,6 @@ export class LaunchBoxProvider implements MetadataProvider {
     { id, createObject }: _FetchGameMetadataParams,
     context?: TaskRunContext,
   ): Promise<GameMetadata> {
-    // A result from the search API carries artwork but no description; a result
-    // from the archive carries the description but no artwork. Ids from the two
-    // sources are namespaced, and the archive enriches an API id when it can.
     const apiHit = id.startsWith(API_ID_PREFIX)
       ? await this.searchApiById(id.slice(API_ID_PREFIX.length))
       : null;
@@ -739,17 +673,11 @@ export class LaunchBoxProvider implements MetadataProvider {
     );
     context?.progress(40);
 
-    // Artwork comes from the image host; the archive has no image field at all.
-    // The per-game media page lists every kind, so all of them are mapped onto
-    // the slots Drop models. A missing kind is not an error.
     const media = await this.fetchMedia(archiveId ?? apiHit?.gameKey);
     context?.logger.info(
       `LaunchBox media: ${media.length} entries for ${game?.name ?? apiHit?.name}`,
     );
 
-    // cover <- Box - Front, banner <- Banner, icon <- Clear Logo, carousel <-
-    // screenshots, library <- everything else. Region preference makes the pick
-    // deterministic; the API thumb is the fallback cover.
     const cover =
       pickKind(media, "Box - Front") ??
       (apiHit?.thumbName
@@ -811,8 +739,6 @@ export class LaunchBoxProvider implements MetadataProvider {
       developers: [],
       tags: [
         ...(game?.genres ?? []),
-        // Drop's GameMetadata has no video field, and changing the schema is a
-        // separate decision. The URL is carried as a tag so it is not lost.
         ...(game?.videoUrl ? [`video: ${game.videoUrl}`] : []),
       ],
       reviews:
@@ -838,10 +764,6 @@ export class LaunchBoxProvider implements MetadataProvider {
   async fetchCompany({
     createObject,
   }: _FetchCompanyMetadataParams): Promise<CompanyMetadata | undefined> {
-    // The LaunchBox archive records developer/publisher names as free text on
-    // each game and carries no company records, so there is nothing to enrich
-    // from here. Returning undefined lets the metadata handler fall through to
-    // the next provider rather than inventing a company.
     void createObject;
     return undefined;
   }
