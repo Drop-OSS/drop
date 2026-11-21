@@ -1,4 +1,6 @@
+import type { Company } from "~/prisma/client/client";
 import { AgeRatingOrganization, MetadataSource } from "~/prisma/client/enums";
+import { ESRBRating } from "~/utils/ageRatings";
 import { MissingMetadataProviderConfig, type MetadataProvider } from ".";
 import type {
   _FetchGameMetadataParams,
@@ -59,13 +61,13 @@ interface LaunchBoxIndex {
   games: Record<string, LaunchBoxGame>;
 }
 
-const ESRB_TO_ORGANIZATION: Record<string, string> = {
-  e: "E",
-  e10: "E10+",
-  t: "T",
-  m: "M",
-  ao: "AO",
-  rp: "RP",
+const ESRB_TO_RATING: Record<string, string> = {
+  ec: ESRBRating.EC.value,
+  e: ESRBRating.E.value,
+  e10: ESRBRating.E10.value,
+  t: ESRBRating.T.value,
+  m: ESRBRating.M.value,
+  ao: ESRBRating.AO.value,
 };
 
 const GAME_FIELDS = new Set<string>([
@@ -405,11 +407,22 @@ export class LaunchBoxProvider implements MetadataProvider {
   }
 
   async fetchGame(
-    { id, createObject }: _FetchGameMetadataParams,
+    { id, company, createObject }: _FetchGameMetadataParams,
     context?: TaskRunContext,
   ): Promise<GameMetadata> {
     const index = await this.loadIndex();
     const game = index?.games[id];
+
+    const companies = async (value?: string) => {
+      const names = (value ?? "")
+        .split(",")
+        .map((n) => n.trim())
+        .filter((n) => n.length > 0);
+      const found = await Promise.all(names.map((n) => company(n)));
+      return found.filter(
+        (c: Company | undefined): c is Company => c !== undefined,
+      );
+    };
 
     if (!game) {
       context?.logger.error(`No LaunchBox game with id ${id}`);
@@ -456,11 +469,16 @@ export class LaunchBoxProvider implements MetadataProvider {
 
     const ageRatings = [];
     if (game?.esrb) {
-      const bare = ESRB_TO_ORGANIZATION[game.esrb.split(" ")[0].toLowerCase()];
-      if (bare) {
+      // "E10+ - Everyone 10+" and "E10 - Everyone 10+" both reduce to e10.
+      const key = game.esrb
+        .split(" ")[0]
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, "");
+      const rating = ESRB_TO_RATING[key];
+      if (rating) {
         ageRatings.push({
           organization: AgeRatingOrganization.ESRB,
-          rating: bare,
+          rating,
         });
       }
     }
@@ -476,8 +494,8 @@ export class LaunchBoxProvider implements MetadataProvider {
       shortDescription: overview.slice(0, 200),
       description: overview,
       released,
-      publishers: [],
-      developers: [],
+      publishers: await companies(game.publisher),
+      developers: await companies(game.developer),
       tags: [
         ...(game?.genres ?? []),
         ...(game?.videoUrl ? [`video: ${game.videoUrl}`] : []),
