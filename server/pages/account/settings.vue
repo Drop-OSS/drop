@@ -50,8 +50,6 @@
 
 <script setup lang="ts">
 import { Switch, SwitchGroup, SwitchLabel } from "@headlessui/vue";
-import type { GameTagModel } from "~/prisma/client/models";
-import type { SerializeObject } from "nitropack";
 
 definePageMeta({
   layout: "default",
@@ -63,11 +61,8 @@ useHead({
   title: t("account.settings"),
 });
 
-const tags =
-  await $dropFetch<Array<SerializeObject<GameTagModel>>>("/api/v1/store/tags");
-const hidden = ref(
-  new Set(await $dropFetch<string[]>("/api/v1/user/hiddentags")),
-);
+const tags = await $dropFetch("/api/v1/store/tags");
+const hidden = ref(new Set(await $dropFetch("/api/v1/user/hiddentags")));
 const saving = ref(false);
 
 async function setHidden(id: string, hide: boolean) {
@@ -77,7 +72,7 @@ async function setHidden(id: string, hide: boolean) {
   saving.value = true;
   try {
     hidden.value = new Set(
-      await $dropFetch<string[]>("/api/v1/user/hiddentags", {
+      await $dropFetch("/api/v1/user/hiddentags", {
         method: "PUT",
         body: { tags: [...next] },
         failTitle: t("account.hiddenTags.saveFailed"),
