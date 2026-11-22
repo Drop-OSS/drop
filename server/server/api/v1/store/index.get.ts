@@ -4,7 +4,7 @@ import { GameType } from "~/prisma/client/enums";
 import aclManager from "~/server/internal/acls";
 import prisma from "~/server/internal/db/database";
 import { parsePlatform } from "~/server/internal/utils/parseplatform";
-import { getAgeRestrictionFilter } from "~/server/internal/utils/ageRestrictions";
+import { getGameVisibilityFilter } from "~/server/internal/utils/ageRestrictions";
 
 const StoreRead = type({
   skip: type("string")
@@ -118,7 +118,7 @@ export default defineEventHandler(async (h3) => {
    * Query
    */
 
-  const ageFilter = await getAgeRestrictionFilter(userId, user.admin);
+  const ageFilter = await getGameVisibilityFilter(userId, user.admin);
 
   const finalFilter: Prisma.GameWhereInput = {
     ...tagFilter,

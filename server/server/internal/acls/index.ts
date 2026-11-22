@@ -38,6 +38,8 @@ export const userACLs = [
 
   "settings:read",
 
+  "hiddentags:update",
+
   "system-data:listen",
 ] as const;
 const userACLPrefix = "user:";

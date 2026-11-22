@@ -9,6 +9,11 @@
       "subheader": "Manage the devices authorized to access your Drop account.",
       "title": "Devices"
     },
+    "hiddenTags": {
+      "none": "No tags",
+      "saveFailed": "Couldn't save hidden tags",
+      "title": "Hidden tags"
+    },
     "home": {
       "title": "Home"
     },

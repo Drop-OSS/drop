@@ -71,6 +71,7 @@ model GameTag {
   name String @unique
 
   games Game[]
+  hiddenBy User[] @relation("UserHiddenTags")
 
   @@index([name(ops: raw("gist_trgm_ops(siglen=32)"))], type: Gist)
 }
