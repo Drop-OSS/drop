@@ -24,6 +24,9 @@ model User {
     playtime    Playtime[]
 
     groups UserGroup[]
+
+    // Games with any of these tags are left out of this user's store, collections and library lists
+    hiddenTags GameTag[] @relation("UserHiddenTags")
 }
 
 model Notification {

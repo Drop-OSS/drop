@@ -1,6 +1,6 @@
 import aclManager from "~/server/internal/acls";
 import userLibraryManager from "~/server/internal/userlibrary";
-import { getAgeRestrictionFilter } from "~/server/internal/utils/ageRestrictions";
+import { getGameVisibilityFilter } from "~/server/internal/utils/ageRestrictions";
 
 export default defineEventHandler(async (h3) => {
   const user = await aclManager.getUserACL(h3, ["collections:read"]);
@@ -9,7 +9,7 @@ export default defineEventHandler(async (h3) => {
       statusCode: 403,
     });
 
-  const ageFilter = await getAgeRestrictionFilter(user.id, user.admin);
+  const ageFilter = await getGameVisibilityFilter(user.id, user.admin);
   const collections = await userLibraryManager.fetchCollections(
     user.id,
     ageFilter,
