@@ -10,7 +10,7 @@ import type {
   CompanyMetadata,
 } from "./types";
 import * as jdenticon from "jdenticon";
-import { Saxy } from "saxy";
+import { Saxy } from "saxy/dist/saxy.js";
 import type { TaskRunContext } from "../tasks";
 import { logger } from "~/server/internal/logging";
 import { systemConfig } from "../config/sys-conf";
