@@ -47,7 +47,7 @@ listen("window_visibility_change", () => {
 });
 
 setupHooks();
-initialNavigation(state);
+await initialNavigation(state);
 
 useHead({
   title: "Drop",

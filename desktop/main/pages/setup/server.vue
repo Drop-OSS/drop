@@ -101,7 +101,10 @@ async function connect() {
     : `https://${url.value}`;
 
   const result = await invoke("use_remote", { url: newUrl });
-  router.push("/auth");
+  const authPath = (await invoke<boolean>("should_skip_deep_link_auth"))
+    ? "/auth/code"
+    : "/auth";
+  router.push(authPath);
 }
 
 function connect_wrapper() {

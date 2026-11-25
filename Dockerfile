@@ -3,19 +3,10 @@
 # Pinned to bookworm so the glibc here matches the torrential build stage
 # and the libarchive runtime package is named `libarchive13` (trixie renames it to libarchive13t64).
 FROM node:lts-bookworm-slim AS base
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+RUN npm install --global pnpm@10.33.0
 WORKDIR /app
 
-## so corepack knows pnpm's version
 COPY . .
-## prevent prompt to download
-ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
-## setup for offline
-RUN corepack pack
-## don't call out to network anymore
-ENV COREPACK_ENABLE_NETWORK=0
 
 ### INSTALL DEPS ONCE
 FROM base AS deps
@@ -77,7 +68,7 @@ RUN rm -rf /app/torrential
 ##  - p7zip-full: provides the 7z CLI
 ##  - nginx: front-end proxy
 ##  - openssl + ca-certificates: required by Prisma's query engine on Debian
-## pnpm itself is provided by corepack (enabled in the base stage)
+## pnpm is installed globally in the base stage
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libarchive13 \
     p7zip-full \

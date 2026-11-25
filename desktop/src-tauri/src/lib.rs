@@ -228,6 +228,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             // Core utils
             fetch_state,
+            should_skip_deep_link_auth,
             quit,
             fetch_system_data,
             open_fs,
