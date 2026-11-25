@@ -402,10 +402,10 @@ export class PCGamingWikiProvider implements MetadataProvider {
   async search(query: string) {
     const searchParams = new URLSearchParams({
       action: "cargoquery",
-      tables: "Infobox_game",
+      tables: "Game",
       fields:
-        "Infobox_game._pageID=PageID,Infobox_game._pageName=PageName,Infobox_game.Cover_URL,Infobox_game.Released",
-      where: `Infobox_game._pageName="${query}"`,
+        "Game._pageID=PageID,Game._pageName=PageName,Game.Cover_URL,Game.Released",
+      where: `Game._pageName="${query}"`,
       format: "json",
     });
 
@@ -512,10 +512,10 @@ export class PCGamingWikiProvider implements MetadataProvider {
 
     const searchParams = new URLSearchParams({
       action: "cargoquery",
-      tables: "Infobox_game",
+      tables: "Game",
       fields:
-        "Infobox_game._pageID=PageID,Infobox_game._pageName=PageName,Infobox_game.Cover_URL,Infobox_game.Developers,Infobox_game.Released,Infobox_game.Genres,Infobox_game.Publishers,Infobox_game.Themes,Infobox_game.Series,Infobox_game.Modes,Infobox_game.Perspectives,Infobox_game.Art_styles,Infobox_game.Pacing",
-      where: `Infobox_game._pageID="${id}"`,
+        "Game._pageID=PageID,Game._pageName=PageName,Game.Cover_URL,Game.Developers,Game.Released,Game.Genres,Game.Publishers,Game.Themes,Game.Series,Game.Modes,Game.Perspectives,Game.Art_styles,Game.Pacing",
+      where: `Game._pageID="${id}"`,
       format: "json",
     });
 
