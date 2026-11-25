@@ -53,6 +53,7 @@ export default defineClientEventHandler(async (h3) => {
       launches: {
         select: {
           platform: true,
+          flags: true,
           emulator: {
             select: {
               gameVersion: {
